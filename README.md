@@ -129,20 +129,20 @@ After you've installed the XCOM 2 War of the Chosen SDK, it's important you ensu
 the main XCOM2 folder point to the same folders within the SDK. Delete the following folders/links if they exist:
 
 ```
-%STEAMLIBRARY%\steamapps\common\XCOM 2\XComGame\Content
-%STEAMLIBRARY%\steamapps\common\XCOM 2\XComGame\Script
-%STEAMLIBRARY%\steamapps\common\XCOM 2\Engine\Content
-%STEAMLIBRARY%\steamapps\common\XCOM 2\Engine\EditorResources
+%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\XComGame\Content
+%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\XComGame\Script
+%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\Engine\Content
+%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\Engine\EditorResources
 ```
 
 ...and then open a command line as an administrator and run the following
 commands:
 
 ```
-mklink /J "%STEAMLIBRARY%\steamapps\common\XCOM 2\XComGame\Content" "%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\XComGame\Content"
-mklink /J "%STEAMLIBRARY%\steamapps\common\XCOM 2\XComGame\Script" "%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\XComGame\Script"
-mklink /J "%STEAMLIBRARY%\steamapps\common\XCOM 2\Engine\Content" "%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\Engine\Content"
-mklink /J "%STEAMLIBRARY%\steamapps\common\XCOM 2\Engine\EditorResources" "%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\Engine\EditorResources"
+mklink /J "%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\XComGame\Content" "%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\XComGame\Content"
+mklink /J "%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\XComGame\Script" "%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\XComGame\Script"
+mklink /J "%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\Engine\Content" "%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\Engine\Content"
+mklink /J "%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\Engine\EditorResources" "%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\Engine\EditorResources"
 ```
 
 Finally, you must take some additional steps to ensure the DLC doesn't crash
