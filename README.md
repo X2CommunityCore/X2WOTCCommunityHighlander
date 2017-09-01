@@ -161,7 +161,7 @@ through ModBuddy. The Highlander mod can be loaded uncooked by running XCOM
 with the following command (in the command prompt):
 
 ```
-"%STEAMLIBRARY%\steamapps\common\XCOM 2\Binaries\Win64\Launcher\ModLauncherWPF.exe" -allowconsole -log -autodebug -noseekfreeloading
+"%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\Binaries\Win64\Launcher\ModLauncherWPF.exe" -allowconsole -log -autodebug -noseekfreeloading
 ```
 
 If all goes well, you should get the usual XCOM Launcher, so you can enable
@@ -174,7 +174,7 @@ normal.
 
 A few files need to be copied into the SDK for you to successfully cook the
 Highlander. Check the folder
-`%STEAMLIBRARY%\steamapps\common\XCOM 2\XComGame\CookedPCConsole` 
+`%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\XComGame\CookedPCConsole` 
 and copy the following files to
 `%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\XComGame\Published\CookedPCConsole`:
 
