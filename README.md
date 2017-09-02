@@ -123,6 +123,10 @@ It goes into far more detail than this guide if you're interested.
 Before using noseekfreeloading a few things need to be done to ensure it
 actually runs without crashing.
 
+You need to install the XCOM 2 War of the Chosen SDK obviously, and also opt-in to
+download the 'full content' for it (54 GB). You opt-in by using the 'Betas' menu
+in Steam, it shouldn't require a code to do so.
+
 After you've installed the XCOM 2 War of the Chosen SDK, it's important you ensure symlinks from
 the main XCOM2 folder point to the same folders within the SDK. Delete the following folders/links if they exist:
 
