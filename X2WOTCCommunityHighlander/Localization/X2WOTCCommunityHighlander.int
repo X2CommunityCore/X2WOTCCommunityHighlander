@@ -1,3 +1,2 @@
-[X2CH_UIScreenListener_ShellSplash]
-strLWHLVersion"Long War 2 Highlander v%MAJOR.%MINOR.%PATCH"
+[X2WOTCCH_UIScreenListener_ShellSplash]
 strCHLVersion="X2WOTCCommunityHighlander v%MAJOR.%MINOR.%PATCH"

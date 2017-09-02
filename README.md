@@ -4,8 +4,7 @@ Welcome to the X2WOTCCommunityHighlander Github project. This is where the work 
 
 # What version are we at?
 
-The working version of X2WOTCCommunityHighlander is 1.3.
-It supports Long War 2, version 1.4.
+The working version of X2WOTCCommunityHighlander is pre-1.0.
 
 # The Job List
 
@@ -19,18 +18,13 @@ there can only be one Highlander, so it's important to make a highlander address
 as many modding use cases as possible, as well as incorporating bugfixes that
 would require class overrides to implement.
 
-The X2WOTCCommunityHighlander is built off of the hard work of the Pavonis
-Interactive team and their Long War 2 Highlander. We will endeavour to maintain
-compatibility with all hooks the Long War 2 depends on, however for now the
-Community Highlander and Long War 2 are mutually exclusive because the
-LW2 Highlander is built into the mod, and there can only be one.
+The original X2CommunityHighlander was built off of the hard work of the Pavonis
+Interactive team and their Long War 2 Highlander.
+
+The X2WOTCCommunityHighlander is supposed to provide a Highlander for the XCOM 2 Expansion *War of the Chosen*.
+Because there is no Long War 2 for War of the Chosen (yet?), this will start without a base highlander for now.
 
 # Contributing
-
-The base repository has two branches: `master` and `LWReleases` (for now).
-Changes to the Community Highlander should be developed on a new branch (which can be a fork) and will be merged into `master`.
-Updates to the LWS Highlander will get added to the `LWReleases` branch (which should be renamed), and then merged into `master`.
-This should help to ensure that the Highlander stays generally compatible with LW2 and can be used as a replacement Highlander.
 
 ## When contributing, please
 
@@ -105,6 +99,10 @@ related to that issue should also have the issue number marked in the same way.
 
 # Building
 
+The following instructions are functionally the same as for a vanilla Highlander mod.
+However, the CookPackages commandlet needs an additional command line option: `-tfcsuffix=_XPACK_`
+Additionally, you can now use DLC in -noseekfreeloading because Firaxis provided uncooked DLC packages in the WotC SDK.
+
 Building for development and final release requires additional work beyond the
 standard build process using ModBuddy, because XComGame replacements only work
 with -noseekfreeloading enabled, or what's called a cooked release package.
@@ -145,19 +143,8 @@ mklink /J "%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\Engine\Co
 mklink /J "%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\Engine\EditorResources" "%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\Engine\EditorResources"
 ```
 
-Finally, you must take some additional steps to ensure the DLC doesn't crash
-XCOM whilst using -noseekfreeloading. You have a few options:
 
-- disable the DLC
-- remove the cooked maps from the templates, you can do so using a mod zipped in
-  this folder (RunUncookedWithDLC.zip)
-- copy DLC packages from CookedPCConsole to the uncooked content folder
-
-Ensure while running uncooked you never run DLC armors or promote a spark,
-because the game will lock up.
-
-Once you have handled the DLC, you're ready to go. Build the mod as usual
-through ModBuddy. The Highlander mod can be loaded uncooked by running XCOM
+Build the mod as usual through ModBuddy. The Highlander mod can be loaded uncooked by running XCOM
 with the following command (in the command prompt):
 
 ```
@@ -165,8 +152,7 @@ with the following command (in the command prompt):
 ```
 
 If all goes well, you should get the usual XCOM Launcher, so you can enable
-X2WOTCCommunityHighlander (and RunUncookedWithDLC if required) and run the game like
-normal.
+X2WOTCCommunityHighlander and run the game like normal.
 
 ## Cooking a Final Release
 
@@ -192,7 +178,7 @@ to enter the command line and run the following commands:
 
 ```
 "%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\Binaries\Win64\XComGame.exe" make -final_release -full
-"%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\Binaries\Win64\XComGame.exe" CookPackages -platform=pcconsole -final_release -quickanddirty -modcook -sha -multilanguagecook=INT+FRA+ITA+DEU+RUS+POL+KOR+ESN -singlethread
+"%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\Binaries\Win64\XComGame.exe" CookPackages -platform=pcconsole -final_release -quickanddirty -modcook -sha -multilanguagecook=INT+FRA+ITA+DEU+RUS+POL+KOR+ESN -singlethread -tfcsuffix=_XPACK_
 ```
 
 The process will create a cooked pair of files for your XComGame replacement at

@@ -2,7 +2,6 @@ class X2WOTCCH_UIScreenListener_ShellSplash extends UIScreenListener config(Game
 
 var config bool bEnableVersionDisplay;
 
-var localized string strLWHLVersion;
 var localized string strCHLVersion;
 
 event OnInit(UIScreen Screen)
