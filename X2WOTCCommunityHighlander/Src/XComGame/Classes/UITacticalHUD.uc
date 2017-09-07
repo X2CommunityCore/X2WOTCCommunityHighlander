@@ -1131,13 +1131,13 @@ simulated function RealizeConcealmentStatus(int SelectedUnitID, bool bForceUpdat
 	Tuple.Data.Add(3);
 	
 	Tuple.Data[0].kind = XComLWTVBool;
-	Tuple.Data[0].b = bShowReaperUI;
+	Tuple.Data[0].b = false;
 
 	Tuple.Data[1].kind = XComLWTVFloat;
-	Tuple.Data[1].f = CurrentConcealLossCH;
+	Tuple.Data[1].f = 0.0f;
 
 	Tuple.Data[2].kind = XComLWTVFloat;
-	Tuple.Data[2].f = ModifiedLossCH;
+	Tuple.Data[2].f = 0.0f;
 
 	`XEVENTMGR.TriggerEvent('TacticalHUD_RealizeConcealmentStatus', Tuple, UnitState, none);
 	bShowReaperUI = Tuple.Data[0].b;
@@ -1428,13 +1428,13 @@ simulated function UpdateReaperHUD()
 	Tuple.Data.Add(3);
 	
 	Tuple.Data[0].kind = XComLWTVBool;
-	Tuple.Data[0].b = bShowReaperUI;
+	Tuple.Data[0].b = false;
 
 	Tuple.Data[1].kind = XComLWTVFloat;
-	Tuple.Data[1].f = CurrentConcealLossCH;
+	Tuple.Data[1].f = 0.0f;
 
 	Tuple.Data[2].kind = XComLWTVFloat;
-	Tuple.Data[2].f = ModifiedLossCH;
+	Tuple.Data[2].f = 0.0f;
 
 	`XEVENTMGR.TriggerEvent('TacticalHUD_UpdateReaperHUD', Tuple, UnitState, none);
 	bShowReaperUI = Tuple.Data[0].b;
