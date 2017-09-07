@@ -1,49 +1,42 @@
 // Issue #4 Allow to specify EventListenerDeferral for X2EventListenerTemplates
 class CHEventListenerTemplate extends X2EventListenerTemplate;
 
-struct native CHEventListenerTemplate_EventDeferralPair
+struct CHEventListenerTemplate_Event extends X2EventListenerTemplate_EventCallbackPair
 {
-	var name EventName;
 	var EventListenerDeferral Deferral;
+	var int Priority;
 };
 
-var protected array<CHEventListenerTemplate_EventDeferralPair> EventDeferrals;
+var protected array<CHEventListenerTemplate_Event> CHEventsToRegister;
 
-function AddEventWithDeferral(name Event, delegate<X2EventManager.OnEventDelegate> EventFn, EventListenerDeferral Deferral = ELD_OnStateSubmitted)
+function AddCHEvent(name Event, delegate<X2EventManager.OnEventDelegate> EventFn, optional EventListenerDeferral Deferral = ELD_OnStateSubmitted, optional int Priority = 50)
 {
-	local CHEventListenerTemplate_EventDeferralPair DeferralPair;
+	local CHEventListenerTemplate_Event EventListener;
 
-	super.AddEvent(Event, EventFn);
-
-	DeferralPair.EventName = Event;
-	DeferralPair.Deferral = Deferral;
-	EventDeferrals.AddItem(DeferralPair);
+	EventListener.EventName = Event;
+	EventListener.Callback = EventFn;
+	EventListener.Deferral = Deferral;
+	EventListener.Priority = Priority;
+	CHEventsToRegister.AddItem(EventListener);
 }
 
 function RegisterForEvents()
 {
 	local X2EventManager EventManager;
-	local X2EventListenerTemplate_EventCallbackPair EventPair;
 	local Object selfObject;
-	local CHEventListenerTemplate_EventDeferralPair DeferralPair;
-	local int DeferralIndex;
+	local CHEventListenerTemplate_Event EventListener;
+	local int EventListenerIndex;
 
 	EventManager = `XEVENTMGR;
 	selfObject = self;
 
-	foreach EventsToRegister(EventPair)
+	super.RegisterForEvents();
+
+	foreach CHEventsToRegister(EventListener)
 	{
-		if(EventPair.Callback != none)
+		if(EventListener.Callback != none)
 		{
-			DeferralIndex = EventDeferrals.Find('EventName', EventPair.EventName);
-			if (DeferralIndex != INDEX_NONE)
-			{
-				EventManager.RegisterForEvent(selfObject, EventPair.EventName, EventPair.Callback, EventDeferrals[DeferralIndex].Deferral);
-			}
-			else
-			{
-				EventManager.RegisterForEvent(selfObject, EventPair.EventName, EventPair.Callback, ELD_OnStateSubmitted);
-			}
+			EventManager.RegisterForEvent(selfObject, EventListener.EventName, EventListener.Callback, EventListener.Deferral, EventListener.Priority);
 		}
 	}
 }
