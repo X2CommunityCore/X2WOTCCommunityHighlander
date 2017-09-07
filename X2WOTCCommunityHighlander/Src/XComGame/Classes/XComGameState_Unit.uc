@@ -8389,9 +8389,11 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 		Tuple = new class'XComLWTuple';
 		Tuple.Id = 'RetainConcealmentOnActivation';
 		Tuple.Data.Add(1);
+		
 		Tuple.Data[0].kind = XComLWTVBool;
 		Tuple.Data[0].b = bRetainConcealment;
-		`XEVENTMGR.TriggerEvent('RetainConcealmentOnActivation', ActivatedAbilityStateContext, Tuple, GameState);
+
+		`XEVENTMGR.TriggerEvent('RetainConcealmentOnActivation', Tuple, ActivatedAbilityStateContext, GameState);
 		bRetainConcealment = Tuple.Data[0].b;
 		// End Issue #2 Trigger an event for RetainConcealmentOnActivation
 
