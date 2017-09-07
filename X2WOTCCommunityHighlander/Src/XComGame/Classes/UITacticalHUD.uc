@@ -1114,17 +1114,42 @@ simulated function RealizeConcealmentStatus(int SelectedUnitID, bool bForceUpdat
 	local X2AbilityTemplate SelectedAbilityTemplate;
 	local float currentConcealLoss, modifiedLoss;
 	local int SuperConcealedModifier;
+	// Variables for Issue #6
+	local XComLWTuple Tuple;
+	local bool bShowReaperUI;
+	local float CurrentConcealLossCH, ModifiedLossCH;
+
 	SuperConcealedModifier = 0;
 
 	History = `XCOMHISTORY;
 
 	UnitState = XComGameState_Unit(History.GetGameStateForObjectID(SelectedUnitID, , HistoryIndex));
 
+	// Start Issue #6
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'RetainConcealmentOnActivation';
+	Tuple.Data.Add(3);
+	
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = bShowReaperUI;
+
+	Tuple.Data[1].kind = XComLWTVFloat;
+	Tuple.Data[1].f = CurrentConcealLossCH;
+
+	Tuple.Data[2].kind = XComLWTVFloat;
+	Tuple.Data[2].f = ModifiedLossCH;
+
+	`XEVENTMGR.TriggerEvent('TacticalHUD_RealizeConcealmentStatus', Tuple, UnitState, none);
+	bShowReaperUI = Tuple.Data[0].b;
+	CurrentConcealLossCH = Tuple.Data[1].f;
+	ModifiedLossCH = Tuple.Data[2].f;
+	// End Issue #6
+
 	if( !UnitState.IsConcealed() )
 	{
 		DesiredConcealmentMode = eUIConcealment_None;
 	}
-	else if (UnitState.IsSuperConcealed())
+	else if (UnitState.IsSuperConcealed() || bShowReaperUI)
 	{
 		DesiredConcealmentMode = eUIConcealment_Super;
 	}
@@ -1198,8 +1223,20 @@ simulated function RealizeConcealmentStatus(int SelectedUnitID, bool bForceUpdat
 				MC.BeginFunctionOp("ShowReaperHUD");
 				MC.QueueBoolean(true);
 				MC.QueueString(m_strReaperConcealed);
-				MC.QueueNumber(currentConcealLoss);
-				MC.QueueNumber(modifiedLoss);
+
+				// Start Issue #6
+				if (bShowReaperUI)
+				{
+					MC.QueueNumber(CurrentConcealLossCH);
+					MC.QueueNumber(ModifiedLossCH);
+				}
+				else
+				{
+					MC.QueueNumber(currentConcealLoss);
+					MC.QueueNumber(modifiedLoss);
+				}
+				// End Issue #6
+
 				MC.EndOp();
 
 				MC.FunctionVoid("SetReaperHUDTactical");
@@ -1373,15 +1410,40 @@ simulated function UpdateReaperHUD()
 	local int SuperConcealedModifier;
 	local StateObjectReference ActiveUnitRef;
 	local XComGameState_Item WeaponState;
+	// Variables for Issue #6
+	local XComLWTuple Tuple;
+	local bool bShowReaperUI;
+	local float CurrentConcealLossCH, ModifiedLossCH;
 	
-	if (ConcealmentMode == eUIConcealment_Super)
+	ActiveUnitRef = XComTacticalController(PC).GetActiveUnitStateRef();
+	SuperConcealedModifier = 0;
+
+	History = `XCOMHISTORY;
+
+	UnitState = XComGameState_Unit(History.GetGameStateForObjectID(ActiveUnitRef.ObjectID, , -1));
+
+	// Start Issue #6
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'RetainConcealmentOnActivation';
+	Tuple.Data.Add(3);
+	
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = bShowReaperUI;
+
+	Tuple.Data[1].kind = XComLWTVFloat;
+	Tuple.Data[1].f = CurrentConcealLossCH;
+
+	Tuple.Data[2].kind = XComLWTVFloat;
+	Tuple.Data[2].f = ModifiedLossCH;
+
+	`XEVENTMGR.TriggerEvent('TacticalHUD_UpdateReaperHUD', Tuple, UnitState, none);
+	bShowReaperUI = Tuple.Data[0].b;
+	CurrentConcealLossCH = Tuple.Data[1].f;
+	ModifiedLossCH = Tuple.Data[2].f;
+	// End Issue #
+
+	if (ConcealmentMode == eUIConcealment_Super || bShowReaperUI)
 	{
-		ActiveUnitRef = XComTacticalController(PC).GetActiveUnitStateRef();
-		SuperConcealedModifier = 0;
-
-		History = `XCOMHISTORY;
-
-		UnitState = XComGameState_Unit(History.GetGameStateForObjectID(ActiveUnitRef.ObjectID, , -1));
 		SelectedAbilityState = XComGameState_Ability(History.GetGameStateForObjectID(GetSelectedAction().AbilityObjectRef.ObjectID));
 
 		if (SelectedAbilityState.MayBreakConcealmentOnActivation(CurrentTargetID))
@@ -1424,8 +1486,20 @@ simulated function UpdateReaperHUD()
 			modifiedLoss = SuperConcealedModifier / 100.0f;
 
 			MC.BeginFunctionOp("UpdateReaperHUD");
-			MC.QueueNumber(currentConcealment);
-			MC.QueueNumber(modifiedLoss);
+
+			// Start Issue #6
+			if (bShowReaperUI)
+			{
+				MC.QueueNumber(CurrentConcealLossCH);
+				MC.QueueNumber(ModifiedLossCH);
+			}
+			else
+			{
+				MC.QueueNumber(currentConcealment);
+				MC.QueueNumber(modifiedLoss);
+			}
+			// End Issue #6
+
 			MC.QueueString(m_strReaperRevealChance);
 			MC.EndOp();
 		}
