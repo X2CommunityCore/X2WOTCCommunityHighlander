@@ -20,12 +20,28 @@ function AddCHEvent(name Event, delegate<X2EventManager.OnEventDelegate> EventFn
 	CHEventsToRegister.AddItem(EventListener);
 }
 
+function RemoveEvent(name Event)
+{
+	local int Index;
+
+	Index = CHEventsToRegister.Find('EventName', Event);
+	if (Index != INDEX_NONE)
+	{
+		CHEventsToRegister.RemoveItem(Index, 1);
+	}
+
+	Index = EventsToRegister.Find('EventName', Event);
+	if (Index != INDEX_NONE)
+	{
+		EventsToRegister.RemoveItem(Index, 1);
+	}
+}
+
 function RegisterForEvents()
 {
 	local X2EventManager EventManager;
 	local Object selfObject;
 	local CHEventListenerTemplate_Event EventListener;
-	local int EventListenerIndex;
 
 	EventManager = `XEVENTMGR;
 	selfObject = self;
