@@ -64,9 +64,9 @@ public function RemoveEntry(name TableName, LootTableEntry TableEntry, optional 
 	RemoveEntryInternal(self, TableName, TableEntry, bRecalculateChances);
 }
 // Recalculate chances for an entire loot table
-public function RecalculateLootTableChance(name TableName)
+public function RecalculateLootTableChance(name TableName, bool bEquallyDistributed = false)
 {
-	RecalculateLootTableChanceInternal(self, TableName);
+	RecalculateLootTableChanceInternal(self, TableName, bEquallyDistributed);
 }
 
 // **************************************************
@@ -98,9 +98,9 @@ public static function RemoveEntryStatic(name TableName, LootTableEntry TableEnt
 }
 
 // Recalculate chances for an entire loot table
-public static function RecalculateLootTableChanceStatic(name TableName)
+public static function RecalculateLootTableChanceStatic(name TableName, bool bEquallyDistributed = false)
 {
-	RecalculateLootTableChanceInternal(GetX2LootTableCDO(), TableName);
+	RecalculateLootTableChanceInternal(GetX2LootTableCDO(), TableName, bEquallyDistributed);
 }
 
 // **************************************************
@@ -126,7 +126,7 @@ private static function AddLootTableInternal(X2LootTable LootTable, LootTable Ad
 			AddEntryInternal(LootTable, AddLootTable.TableName, LootEntry, false);
 		}
 
-		RecalculateLootTableChanceInternal(LootTable, AddLootTable.TableName);
+		RecalculateLootTableChanceInternal(LootTable, AddLootTable.TableName, false);
 	}
 }
 
@@ -151,9 +151,12 @@ private static function RemoveEntryInternal(
 			{
 				// Remove the table entry
 				LootTable.LootTables[Index].Loots.Remove(EntryIndex, 1);
+
+				`LOG("Removing LootEntry" @ TableEntry.TemplateName @ TableEntry.TableRef @ "from LootTable" @ LootTable.LootTables[Index].TableName,, default.Class.Name);
+
 				// Recalculate the chances for the roll group
 				if (bRecalculateChances)
-					RecalculateChancesForRollGroup(LootTable, Index, TableEntry.RollGroup);
+					RecalculateChancesForRollGroup(LootTable, Index, TableEntry.RollGroup, false);
 			}
 		}
 	}
@@ -173,13 +176,16 @@ private static function AddEntryInternal(
 	{
 		// Add the new table entry
 		LootTable.LootTables[Index].Loots.AddItem(TableEntry);
+
+		`LOG("Adding LootEntry" @ TableEntry.TemplateName @ TableEntry.TableRef @ "from LootTable" @ LootTable.LootTables[Index].TableName,, default.Class.Name);
+
 		// Recalculate the chances for the roll group
 		if (bRecalculateChances)
-			RecalculateChancesForRollGroup(LootTable, Index, TableEntry.RollGroup);
+			RecalculateChancesForRollGroup(LootTable, Index, TableEntry.RollGroup, false);
 	}
 }
 
-private static function RecalculateLootTableChanceInternal(X2LootTable LootTable, name TableName)
+private static function RecalculateLootTableChanceInternal(X2LootTable LootTable, name TableName, bool bEquallyDistributed = false)
 {
 	local LootTableEntry TableEntry;
 	local array<int> RollGroups;
@@ -198,7 +204,7 @@ private static function RecalculateLootTableChanceInternal(X2LootTable LootTable
 
 		foreach RollGroups(RollGroup)
 		{
-			RecalculateChancesForRollGroup(LootTable, Index, RollGroup);
+			RecalculateChancesForRollGroup(LootTable, Index, RollGroup, bEquallyDistributed);
 		}
 	}
 }
@@ -211,18 +217,25 @@ function int SortRemainder(Remainder A, Remainder B)
 }
 
 // When the sum of chances is unequal 100% after adding/removing an entry, recalculate chances to 100% total
-private static function RecalculateChancesForRollGroup(X2LootTable LootTable, int Index, int RollGroup)
+private static function RecalculateChancesForRollGroup(X2LootTable LootTable, int Index, int RollGroup, bool bEquallyDistributed)
 {
 	local LootTableEntry TableEntry;
 	local int OldChance, NewChance, SumChances, NewSumChances, TableEntryIndex, RoundDiff;
 	local array<Remainder> Remainders;
 	local Remainder EntryRemainder;
 
+	`LOG("Recalculating loot chances for Loot Table" @ LootTable.LootTables[Index].TableName @ "RollGroup" @ RollGroup @ " Equally Distributed" @ bEquallyDistributed,, default.Class.Name);
+	`LOG("	Chances before recalculation:",, default.Class.Name);
 	foreach LootTable.LootTables[Index].Loots(TableEntry)
 	{
 		if (TableEntry.RollGroup == RollGroup)
+		{
 			SumChances += TableEntry.Chance;
+			`LOG("		" @ TableEntry.TemplateName @ TableEntry.TableRef @ TableEntry.Chance,, default.Class.Name);
+		}
 	}
+
+	`LOG("	Sum Chances " @ SumChances,, default.Class.Name);
 
 	if (SumChances != 100)
 	{
@@ -231,7 +244,15 @@ private static function RecalculateChancesForRollGroup(X2LootTable LootTable, in
 			if (LootTable.LootTables[Index].Loots[TableEntryIndex].RollGroup == RollGroup)
 			{
 				OldChance = LootTable.LootTables[Index].Loots[TableEntryIndex].Chance;
-				NewChance = 100 / SumChances * OldChance;
+
+				if (bEquallyDistributed)
+				{
+					NewChance = 100 / LootTable.LootTables[Index].Loots.Length;
+				}
+				else
+				{
+					NewChance = 100 / SumChances * OldChance;
+				}
 				NewSumChances += NewChance;
 
 				EntryRemainder.ChanceRemainder = (100 / SumChances * OldChance) - NewChance;
@@ -267,5 +288,18 @@ private static function RecalculateChancesForRollGroup(X2LootTable LootTable, in
 			}
 		}
 	}
+
+	`LOG("	Chances after recalculation:",, default.Class.Name);
+	SumChances = 0;
+	foreach LootTable.LootTables[Index].Loots(TableEntry)
+	{
+		if (TableEntry.RollGroup == RollGroup)
+		{
+			SumChances += TableEntry.Chance;
+			`LOG("		" @ TableEntry.TemplateName @ TableEntry.TableRef @ TableEntry.Chance,, default.Class.Name);
+		}
+	}
+
+	`LOG("	Sum Chances " @ SumChances,, default.Class.Name);
 }
 // End Issue #8
