@@ -30,7 +30,20 @@ function AddEvent(name Event, delegate<X2EventManager.OnEventDelegate> EventFn)
 	Pair.Callback = EventFn;
 
 	EventsToRegister.AddItem(Pair);
-} 
+}
+
+// Start Issue #4 
+function RemoveEvent(name Event)
+{
+	local int Index;
+
+	Index = EventsToRegister.Find('EventName', Event);
+	if (Index != INDEX_NONE)
+	{
+		EventsToRegister.Remove(Index, 1);
+	}
+}
+// End Issue #4
 
 function RegisterForEvents()
 {
