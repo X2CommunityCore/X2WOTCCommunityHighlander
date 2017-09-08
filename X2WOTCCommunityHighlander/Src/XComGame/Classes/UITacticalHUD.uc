@@ -1127,7 +1127,7 @@ simulated function RealizeConcealmentStatus(int SelectedUnitID, bool bForceUpdat
 
 	// Start Issue #6
 	Tuple = new class'XComLWTuple';
-	Tuple.Id = 'RetainConcealmentOnActivation';
+	Tuple.Id = 'TacticalHUDReaperUI';
 	Tuple.Data.Add(3);
 	
 	Tuple.Data[0].kind = XComLWTVBool;
@@ -1424,7 +1424,7 @@ simulated function UpdateReaperHUD()
 
 	// Start Issue #6
 	Tuple = new class'XComLWTuple';
-	Tuple.Id = 'RetainConcealmentOnActivation';
+	Tuple.Id = 'TacticalHUDReaperUI';
 	Tuple.Data.Add(3);
 	
 	Tuple.Data[0].kind = XComLWTVBool;
