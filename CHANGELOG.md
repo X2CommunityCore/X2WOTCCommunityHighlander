@@ -46,4 +46,6 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 
 ### Improvements
 
+- Create a mod friendly way to manipulate loot tables (#8)
+
 ### Fixes
