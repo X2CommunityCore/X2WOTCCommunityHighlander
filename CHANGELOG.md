@@ -23,6 +23,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 
 ### Mod/DLC Hooks
 
+- Trigger an event for RetainConcealmentOnActivation (#2)
+
 ### Event Hooks
 
 ### Configuration
