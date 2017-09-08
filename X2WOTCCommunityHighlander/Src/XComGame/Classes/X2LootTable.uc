@@ -23,29 +23,50 @@ native function InitLootTables(bool bValidateItemNames=true);		//  validates loo
 native function RollForLootTable(const out name LootTableName, out array<name> RolledLoot);
 
 // Start Issue #8 - Add a loot table interface
-public function AddLootTable(LootTable AddLootTable)
+/**
+  * For pre start state manipulation of loot tables use the static methods in OnPostTemplatesCreated like this
+  * class'X2LootTableManager'.static.AddEntryStatic(LootTableName, LootTableEntry);
+  * 
+  * At runtime you can use the singleton instance like
+  * 
+  * LootManager = class'X2LootTableManager'.static.GetLootTableManager();
+  * LootManager.AddEntry(LootTableName, LootTableEntry);
+  * LootManager.InitLootTables();
+  * 
+  * this will also reinitialise the loot tables.
+  * 
+  * For bulk add to loot tables you can move the chance recalculation to the end:
+  * 
+  * LootManager.AddEntry(TableName, EntryToAdd, false);
+  * LootManager.AddEntry(TableName, EntryToAdd, false);
+  * LootManager.AddEntry(TableName, EntryToAdd, false);
+  * LootManager.RecalculateLootTableChance(TableName);
+  * 
+  * This way your chance ratio is preserved.
+  **/
+public function AddLootTable(LootTable LootTableToAdd)
 {
-	AddLootTableIntern(self, AddLootTable);
+	AddLootTableInternal(self, LootTableToAdd);
 }
 
-public function RemoveLootTable(LootTable LootTable)
+public function RemoveLootTable(LootTable LootTableToRemove)
 {
-	LootTables.RemoveItem(LootTable);
+	LootTables.RemoveItem(LootTableToRemove);
 }
 
 public function AddEntry(name TableName, LootTableEntry TableEntry, optional bool bRecalculateChances = true)
 {
-	AddEntryIntern(self, TableName, TableEntry, bRecalculateChances);
+	AddEntryInternal(self, TableName, TableEntry, bRecalculateChances);
 }
 
 public function RemoveEntry(name TableName, LootTableEntry TableEntry, optional bool bRecalculateChances = true)
 {
-	RemoveEntryIntern(self, TableName, TableEntry, bRecalculateChances);
+	RemoveEntryInternal(self, TableName, TableEntry, bRecalculateChances);
 }
 // Recalculate chances for an entire loot table
 public function RecalculateLootTableChance(name TableName)
 {
-	RecalculateLootTableChanceIntern(self, TableName);
+	RecalculateLootTableChanceInternal(self, TableName);
 }
 
 // **************************************************
@@ -55,7 +76,7 @@ public function RecalculateLootTableChance(name TableName)
 // **************************************************
 public static function AddLootTableStatic(LootTable AddLootTable)
 {
-	AddLootTableIntern(GetX2LootTableCDO(), AddLootTable);
+	AddLootTableInternal(GetX2LootTableCDO(), AddLootTable);
 }
 
 public static function RemoveLootTableStatic(LootTable RemoveLootTable)
@@ -68,18 +89,18 @@ public static function RemoveLootTableStatic(LootTable RemoveLootTable)
 
 public static function AddEntryStatic(name TableName, LootTableEntry AddTableEntry, optional bool bRecalculateChances = true)
 {
-	AddEntryIntern(GetX2LootTableCDO(), TableName, AddTableEntry, bRecalculateChances);
+	AddEntryInternal(GetX2LootTableCDO(), TableName, AddTableEntry, bRecalculateChances);
 }
 
 public static function RemoveEntryStatic(name TableName, LootTableEntry TableEntry, optional bool bRecalculateChances = true)
 {
-	RemoveEntryIntern(GetX2LootTableCDO(), TableName, TableEntry, bRecalculateChances);
+	RemoveEntryInternal(GetX2LootTableCDO(), TableName, TableEntry, bRecalculateChances);
 }
 
 // Recalculate chances for an entire loot table
 public static function RecalculateLootTableChanceStatic(name TableName)
 {
-	RecalculateLootTableChanceIntern(GetX2LootTableCDO(), TableName);
+	RecalculateLootTableChanceInternal(GetX2LootTableCDO(), TableName);
 }
 
 // **************************************************
@@ -90,24 +111,26 @@ private static function X2LootTable GetX2LootTableCDO()
 	return X2LootTable(class'Engine'.static.FindClassDefaultObject(string(default.Class.Name))); 
 }
 
-private static function AddLootTableIntern(X2LootTable LootTable, LootTable AddLootTable)
+private static function AddLootTableInternal(X2LootTable LootTable, LootTable AddLootTable)
 {
 	local LootTableEntry LootEntry;
 
 	if (LootTable.LootTables.Find('TableName', AddLootTable.TableName) == INDEX_NONE)
 	{
+		`LOG("Adding LootTable" @ AddLootTable.TableName @ "with" @ AddLootTable.Loots.Length @ "entries",, default.Class.Name);
+
 		LootTable.LootTables.AddItem(AddLootTable);
 
 		foreach AddLootTable.Loots(LootEntry)
 		{
-			AddEntryIntern(LootTable, AddLootTable.TableName, LootEntry, false);
+			AddEntryInternal(LootTable, AddLootTable.TableName, LootEntry, false);
 		}
 
-		RecalculateLootTableChanceIntern(LootTable, AddLootTable.TableName);
+		RecalculateLootTableChanceInternal(LootTable, AddLootTable.TableName);
 	}
 }
 
-private static function RemoveEntryIntern(
+private static function RemoveEntryInternal(
 	X2LootTable LootTable,
 	name TableName,
 	LootTableEntry TableEntry,
@@ -136,7 +159,7 @@ private static function RemoveEntryIntern(
 	}
 }
 
-private static function AddEntryIntern(
+private static function AddEntryInternal(
 	X2LootTable LootTable,
 	name TableName,
 	LootTableEntry TableEntry,
@@ -156,7 +179,7 @@ private static function AddEntryIntern(
 	}
 }
 
-private static function RecalculateLootTableChanceIntern(X2LootTable LootTable, name TableName)
+private static function RecalculateLootTableChanceInternal(X2LootTable LootTable, name TableName)
 {
 	local LootTableEntry TableEntry;
 	local array<int> RollGroups;
