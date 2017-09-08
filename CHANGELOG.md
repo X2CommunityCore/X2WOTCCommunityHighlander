@@ -25,6 +25,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 
 ### Event Hooks
 
+- Allow to use the Reaper UI without being super concealed. New events `TacticalHUD_RealizeConcealmentStatus` and `TacticalHUD_UpdateReaperHUD` (#6)
+
 ### Configuration
 
 ### Modding Exposures
