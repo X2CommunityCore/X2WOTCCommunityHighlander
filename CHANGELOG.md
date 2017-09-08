@@ -39,11 +39,12 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 
 ### Mod/DLC Hooks
 
-
 ### Event Hooks
 
 ### Modding Exposures
 
 ### Improvements
+
+- Allow to specify EventListenerDeferral Priority for EventListeners registered X2EventListenerTemplates. Also allow to remove registered Listeners. (#4)
 
 ### Fixes
