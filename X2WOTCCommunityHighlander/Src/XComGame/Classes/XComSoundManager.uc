@@ -10,9 +10,34 @@ struct native AkEventMapping
 	var AkEvent TriggeredEvent;
 };
 
+// Start Issue #10
+// Equivalent to AkEventMapping but for sound cues.
+struct SoundCueMapping
+{
+    var string strKey;
+    var SoundCue Cue;
+};
+
+// Alias structure for mapping a standard sound event to an alternative.
+struct SoundAlias
+{
+    var string strKey;
+    var string strValue;
+};
+// End Issue #10
+
 // Sound Mappings
 var config array<string> SoundEventPaths;
 var config array<AkEventMapping> SoundEvents;
+
+// Start Issue #10
+// Add a configurable sound event path mapping allowing mods
+// to replace any standard sound path with a custom version.
+var config array<SoundAlias> SoundAliases;
+// Add sound-cue based sounds
+var config array<string> SoundCuePaths;
+var config array<SoundCueMapping> SoundCues;
+// End Issue #10
 
 struct AmbientChannel
 {
@@ -115,12 +140,29 @@ function PlaySoundEvent(string strKey)
 {
 	local int Index;
 
+	// Start Issue #10
+	// Look for a sound alias first.
+	Index = SoundAliases.Find('strKey', strKey);
+	if (Index >= 0)
+		strKey = SoundAliases[Index].strValue;
+	// End Issue #10
+
 	Index = SoundEvents.Find('strKey', strKey);
 
 	if(Index != INDEX_NONE)
 	{
 		WorldInfo.PlayAkEvent(SoundEvents[Index].TriggeredEvent);
 	}
+	// Start Issue #10
+	else
+	{
+		Index = SoundCues.Find('strKey', strKey);
+		if (Index != INDEX_NONE)
+		{
+			PlaySound(SoundCues[Index].Cue);
+		}
+	}
+	// End Issue #10
 }
 
 //---------------------------------------------------------------------------------------
@@ -158,6 +200,14 @@ function Init()
 		ContentMgr.RequestObjectAsync(PPEffectAkEventPaths[idx].AkEventOnEnable, self, OnPPEffectAkEventMappingLoaded);
 		ContentMgr.RequestObjectAsync(PPEffectAkEventPaths[idx].AkEventOnDisable, self, OnPPEffectAkEventMappingLoaded);
 	}
+
+	// Start Issue #10
+	// Load sound cues
+	for (idx = 0; idx < SoundCuePaths.Length; idx++ )
+	{
+		ContentMgr.RequestObjectAsync(SoundCuePaths[idx], self, OnSoundCueMappingLoaded);
+	}
+	// End Issue #10
 }
 
 //---------------------------------------------------------------------------------------
@@ -241,3 +291,19 @@ function PlayPPEffectAkEvent(string AkEventPath)
 		PlayAkEvent(PPEffectSoundEvents[AkEventIndex].TriggeredEvent);
 	}
 }
+
+// Start Issue #10
+function OnSoundCueMappingLoaded(object LoadedArchetype)
+{
+    local SoundCue TempCue;
+    local SoundCueMapping CueMapping;
+
+    TempCue = SoundCue(LoadedArchetype);
+    if (TempCue != none)
+    {
+        CueMapping.strKey = string(TempCue.name);
+        CueMapping.Cue = TempCue;
+        SoundCues.AddItem(CueMapping);
+    }
+}
+// End Issue #10
