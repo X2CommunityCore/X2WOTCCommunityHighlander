@@ -25,6 +25,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 
 ### Event Hooks
 
+- OnProjectileFireSound and OnProjectileDeathSound in X2UnifiedProjectile that allow to override the default projectile sounds. (#10)
+
 ### Configuration
 
 ### Modding Exposures
