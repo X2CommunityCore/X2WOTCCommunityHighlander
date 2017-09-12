@@ -433,17 +433,22 @@ function XComGameState ContextBuildGameState()
 		UnitState.WillEventsActivatedThisMission.AddItem(WillEventType);
 	}
 
+	SelfObj = self;
+	Manager = `XEVENTMGR;
+
 	// trigger an event to do our panic behavior if one was selected. We need to wait for this context
 	// to complete before we can do the panic, and an event will serve that purpose just fine
 	if(PanicAbilityName != '')
 	{
-		SelfObj = self;
-		Manager = `XEVENTMGR;
 		Manager.RegisterForEvent(SelfObj, 'DoPanicAbility', OnDoPanicAbility, ELD_OnStateSubmitted);
 		Manager.TriggerEvent('DoPanicAbility', UnitState, self, NewGameState);
 	}
 
 	NewGameState.GetContext().SetAssociatedPlayTiming(SPT_AfterSequential);
+
+	// Start Issue #13
+	Manager.TriggerEvent('WillRollContext', UnitState, self, NewGameState);
+	// End Issue #13
 
 	return NewGameState;
 }
