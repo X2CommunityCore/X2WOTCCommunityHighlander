@@ -1011,6 +1011,12 @@ state StartingDebugCheatGame
 
 Begin:
 	`STRATEGYRULES.GameTime = GetGameTime();
+
+	// Start Issue #3 -- adding this after the game time assignment like in LoadingFromTactical
+	// allow templated event handlers to register themselves
+	class'X2EventListenerTemplateManager'.static.RegisterStrategyListeners();
+	// End Issue #3
+
 	m_kGeoscape.Init();
 	
 	while(!GetGeoscape().m_kBase.MinimumAvengerStreamedInAndVisible())
@@ -1093,6 +1099,11 @@ Begin:
 
 	//Have the event manager check for errors
 	`XEVENTMGR.ValidateEventManager("while loading a save! This WILL result in buggy behavior during game play continued with this save.");
+
+	// Start Issue #3 -- adding this after event manager validation like in LoadingFromTactical
+	// allow templated event handlers to register themselves
+	class'X2EventListenerTemplateManager'.static.RegisterStrategyListeners();
+	// End Issue #3
 
 	class'WorldInfo'.static.GetWorldInfo().GetALocalPlayerController().ClientSetCameraFade(true, MakeColor(0, 0, 0), vect2d(0, 1), 0.0);
 
@@ -1287,6 +1298,11 @@ state StartingFromTutorial
 {
 Begin:
 	`STRATEGYRULES.GameTime = GetGameTime();
+
+	// Start Issue #3 -- adding this after the game time assignment like in LoadingFromTactical
+	// allow templated event handlers to register themselves
+	class'X2EventListenerTemplateManager'.static.RegisterStrategyListeners();
+	// End Issue #3
 
 	class'WorldInfo'.static.GetWorldInfo().GetALocalPlayerController().ClientSetCameraFade(true, MakeColor(0, 0, 0), vect2d(0, 1), 0.0);
 
