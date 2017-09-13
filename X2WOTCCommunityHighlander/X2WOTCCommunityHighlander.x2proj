@@ -49,6 +49,9 @@
     <Content Include="Src\XComGame\Classes\CHXComGameVersionTemplate.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XGStrategy.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2LootTable.uc">
       <SubType>Content</SubType>
     </Content>
