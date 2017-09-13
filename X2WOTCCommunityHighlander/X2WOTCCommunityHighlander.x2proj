@@ -7,6 +7,7 @@
     <SteamPublishID>0</SteamPublishID>
     <AssemblyName>X2WOTCCommunityHighlander</AssemblyName>
     <RootNamespace>X2WOTCCommunityHighlander</RootNamespace>
+    <ProjectGuid>{d8026e40-05da-4006-8708-c36137e37d8b}</ProjectGuid>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <OutputPath>bin\Debug\</OutputPath>
@@ -39,10 +40,22 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2DownloadableContentInfo_X2WOTCCommunityHighlander.uc" />
+    <Content Include="Src\XComGame\Classes\CHEventListenerTemplate.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\CHXComGameVersion.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\CHXComGameVersionTemplate.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2EventListenerTemplate.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_Unit.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComLWTuple.uc">
       <SubType>Content</SubType>
     </Content>
   </ItemGroup>
