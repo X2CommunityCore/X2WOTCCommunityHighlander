@@ -49,6 +49,12 @@
     <Content Include="Src\XComGame\Classes\CHXComGameVersionTemplate.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2UnifiedProjectile.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComSoundManager.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComIdleAnimationStateMachine.uc">
       <SubType>Content</SubType>
     </Content>

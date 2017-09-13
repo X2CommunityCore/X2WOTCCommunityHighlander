@@ -30,7 +30,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 
 ### Event Hooks
 
-- Add 'WillRollContext' for modifying Will Rolls in
+- `OnProjectileFireSound` and `OnProjectileDeathSound` in X2UnifiedProjectile that allow to override the default projectile sounds. (#10)
+- Add `WillRollContext` for modifying Will Rolls in
   XComGameStateContext_WillRoll (#13)
 - Allow to use the Reaper UI without being super concealed. New events
   `TacticalHUD_RealizeConcealmentStatus` and `TacticalHUD_UpdateReaperHUD` (#6)
