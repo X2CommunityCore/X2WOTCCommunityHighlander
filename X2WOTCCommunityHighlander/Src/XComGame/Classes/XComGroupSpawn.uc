@@ -1,12 +1,12 @@
 class XComGroupSpawn extends Actor
 	  placeable
 	  native(Core) 
-	  config(Game);
+	  config(Game); // Issue #18 - Read the config
 	  //hidecategories(Display, Attachment, Collision, Physics, Advanced, Mobile, Debug);
 
 var StaticMeshComponent StaticMesh;
 var float Score;
-var config int EXTRA_TILE;
+var config int EXTRA_TILE;// Issue #18 - Add extra ini config
 
 function bool IsLocationInside(const out Vector TestLocation)
 {
@@ -55,7 +55,7 @@ function bool IsBoxInside(Vector TestLocation, Vector TestExtents)
 // gets all the floor locations that this group spawn encompasses
 function GetValidFloorLocations(out array<Vector> FloorPoints, float SpawnSizeOverride = -1)
 {
-	if (SpawnSizeOverride <= 0) SpawnSizeOverride = 2 + default.EXTRA_TILE;
+	if (SpawnSizeOverride <= 0) SpawnSizeOverride = 2 + default.EXTRA_TILE; // Issue #18 - Use the extra config
 
 	`XWORLD.GetFloorTilePositions(Location, 96 * SpawnSizeOverride, 64 * SpawnSizeOverride, FloorPoints, true);
 }
