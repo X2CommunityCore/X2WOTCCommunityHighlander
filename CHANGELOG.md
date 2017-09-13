@@ -32,6 +32,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Configuration
 
 ### Modding Exposures
+- Deprivatise variables to protected in XComIdleAnimationStateMachine to allow
+  for subclassing overrides (#15)
 
 ### Improvements
 
