@@ -24,16 +24,12 @@ function RemoveEvent(name Event)
 {
 	local int Index;
 
+	super.RemoveEvent(Event);
+
 	Index = CHEventsToRegister.Find('EventName', Event);
 	if (Index != INDEX_NONE)
 	{
-		CHEventsToRegister.RemoveItem(Index, 1);
-	}
-
-	Index = EventsToRegister.Find('EventName', Event);
-	if (Index != INDEX_NONE)
-	{
-		EventsToRegister.RemoveItem(Index, 1);
+		CHEventsToRegister.Remove(Index, 1);
 	}
 }
 
@@ -42,6 +38,7 @@ function RegisterForEvents()
 	local X2EventManager EventManager;
 	local Object selfObject;
 	local CHEventListenerTemplate_Event EventListener;
+	local int EventListenerIndex;
 
 	EventManager = `XEVENTMGR;
 	selfObject = self;
