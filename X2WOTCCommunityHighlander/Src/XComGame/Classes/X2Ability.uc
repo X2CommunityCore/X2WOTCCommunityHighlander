@@ -1434,25 +1434,42 @@ simulated function SequentialShot_MergeVisualization(X2Action BuildTree, out X2A
 	local X2Action_WaitForAnotherAction WaitAction;
 	local VisualizationActionMetadata ActionMetadata;
 	local int i;
+	// Variable for Issue #20
+	local int iBestHistoryIndex;
 
 	VisMgr = `XCOMVISUALIZATIONMGR;
 	MarkerStart = X2Action_MarkerTreeInsertBegin(VisMgr.GetNodeOfType(BuildTree, class'X2Action_MarkerTreeInsertBegin'));
-	VisMgr.GetNodesOfType(VisualizationTree, class'X2Action_MarkerNamed', arrActions);
+	// Start Issue #20
+	// This function breaks 3+ subsequent shots. Somehow, the actions filled out by GetNodesOfType are sorted so that our
+	// "get the last join marker" actually sometimes finds us the FIRST join marker. This causes all these shot contexts to
+	// try and visualize themselves alongside each other, which is definitely not intended.
+	// Further investigations made it seem that the additional parameter bSortByHistoryIndex=true does not seem to have the desired effect
+	// but generally push it *somewhat* in the right direction
+	VisMgr.GetNodesOfType(VisualizationTree, class'X2Action_MarkerNamed', arrActions, , , true);
+	// End Issue #20
 
 	//	get the last Join marker
-	for (i = arrActions.Length - 1; i >= 0; --i)
+	// Start Issue #20
+	// GetNodesOfType() does not seem to produce a consistent ordering
+	// We will just manually get the "latest" one by comparing history indices
+	iBestHistoryIndex = -1;
+	for (i = 0; i < arrActions.Length; ++i)
 	{
 		MarkerNamed = X2Action_MarkerNamed(arrActions[i]);
-		if (MarkerNamed.MarkerName == 'Join' && JoinMarker == None)
+		if (MarkerNamed.MarkerName == 'Join' && (JoinMarker == None || MarkerNamed.StateChangeContext.AssociatedState.HistoryIndex > iBestHistoryIndex))
 		{
+			iBestHistoryIndex = MarkerNamed.StateChangeContext.AssociatedState.HistoryIndex;
+			// End Issue #20
 			JoinMarker = MarkerNamed;
 		}
 		else if (MarkerNamed.MarkerName == 'SequentialShotTracker')
 		{
 			TrackerMarker = MarkerNamed;
 		}
-		if (JoinMarker != none && TrackerMarker != none)
-			break;
+		// Start Issue #20
+		// We can't bail out early because we may need to compare more join markers :(
+		//if (JoinMarker != none && TrackerMarker != none)
+		//	break;
 	}
 
 	`assert(JoinMarker != none);
