@@ -4,10 +4,6 @@ class XGUnitNativeBase extends Actor
 	nativereplication 
 	config(GameCore);
 
-// Change by RealityMachina: altered ShouldUseWalkAnim()
-// so Gremlins don't use very slow walk animations at all
-//
-
 
 // MHU - Ordering is important, enums below mapped according to
 //       XComAnimNodeCover enums. If you make changes, make sure
@@ -526,8 +522,8 @@ function EAlertLevel GetVisualAlertLevel()
 event bool ShouldUseWalkAnim(XComGameState ReleventGameState)
 {
 	 local XComGameStateHistory History;
-	 local XComGameState_Unit Unit;
-	
+	 local XComGameState_Unit Unit, OwnerState;
+	 local XComGameState_Item ItemState;
 	 History = `XCOMHISTORY;
 
 	if (m_bForceWalk)
@@ -542,9 +538,26 @@ event bool ShouldUseWalkAnim(XComGameState ReleventGameState)
 		// for now forcing ACVs to always run.  Because they don't have any walk anims.
 		if(Unit.IsACV() != 0)
 			return false;
-				
+			
+		//start of issue #33: do not allow cosmetic units to be used by this check
 		if (GetAlertLevel(Unit) == eAL_Green && !Unit.IsMindControlled() && !Unit.IsCosmetic())
 			return true;
+		
+		//instead, we iterate through itemstates to look for a Gremlin's owner, if they are a gremlin
+		if(Unit.IsCosmetic())
+		{
+			foreach ReleventGameState.IterateByClassType(class'XComGameState_Item', ItemState)
+			{
+				if(ItemState.CosmeticUnitRef != none && ItemState.CosmeticUnitRef == Unit.GetReference())
+				{
+				 	OwnerState = XComGameState_Unit(History.GetGameStateForObjectID(ItemState.OwnerStateObject.ObjectID));
+					
+					if(GetAlertLevel(OwnerState) == eAL_Green && !OwnerState.IsMindControlled() && !OwnerState.IsCosmetic()) //a gremlin attaching itself to another cosmetic unit should never happen, but just in case...
+							return true;
+				}
+			
+			}
+		}
 	}
 
 	return false;
