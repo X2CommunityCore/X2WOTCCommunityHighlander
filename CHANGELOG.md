@@ -53,9 +53,11 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   subsequent shots (#20)
 
 
+
 ## Miscellaneous
 
 ### Mod/DLC Hooks
+- `UpdateAnimations` added to allow adding CustomAnimsets to UnitPawns (#24)
 
 ### Event Hooks
 
