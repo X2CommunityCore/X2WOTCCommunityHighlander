@@ -251,3 +251,13 @@ static function UpdateAnimations(out array<AnimSet> CustomAnimSets, XComGameStat
 
 }
 /// End Issue #24
+
+/// Start Issue #18
+/// <summary>
+/// Calls DLC specific handlers to override spawn location
+/// </summary>
+static function bool GetValidFloorSpawnLocations(out array<Vector> FloorPoints, float SpawnSizeOverride, XComGroupSpawn SpawnPoint)
+{
+	return false;
+}
+/// End Issue #18
