@@ -12,6 +12,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Modding Exposures
 
 ### Configuration
+- Added ability to modify default spawn size
 
 ### Improvements
 
