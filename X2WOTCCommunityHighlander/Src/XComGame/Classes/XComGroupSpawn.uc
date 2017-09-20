@@ -66,7 +66,9 @@ function GetValidFloorLocations(out array<Vector> FloorPoints, float SpawnSizeOv
 		}
 	}
 
-	if (SpawnSizeOverride <= 0) SpawnSizeOverride = 2 + class'CHHelpers'.default.SPAWN_EXTRA_TILE;
+	if (SpawnSizeOverride <= 0) {
+		SpawnSizeOverride = 2 + class'CHHelpers'.default.SPAWN_EXTRA_TILE;
+	}
 	/// Issue #18 - END
 
 	`XWORLD.GetFloorTilePositions(Location, 96 * SpawnSizeOverride, 64 * SpawnSizeOverride, FloorPoints, true);
