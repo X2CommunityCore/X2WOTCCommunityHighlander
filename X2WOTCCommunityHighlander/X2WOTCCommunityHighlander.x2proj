@@ -73,6 +73,9 @@
     <Content Include="Src\XComGame\Classes\XComGameStateContext_WillRoll.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComUnitPawn.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XGStrategy.uc">
       <SubType>Content</SubType>
     </Content>
