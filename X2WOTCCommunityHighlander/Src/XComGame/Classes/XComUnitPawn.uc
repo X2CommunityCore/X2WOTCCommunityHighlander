@@ -1564,7 +1564,39 @@ function CreateDefaultAttachments()
 	{
 		CreateBodyPartAttachment(DefaultAttachments[DefaultAttachmentIndex]);
 	}
+	// Start Issue #21
+	// Defer XComHumanPawn socket adjustments until part customization
+	if (XComHumanPawn(self) == none)
+	{
+		DLCAppendSockets(); // LWS added call to helper function
+	}
+	// End Issue #21
 }
+
+// Start Issue #21
+// Function to allow DLC/Mods to append sockets to units
+function DLCAppendSockets()
+{
+	local array<X2DownloadableContentInfo> DLCInfos; 
+	local int i; 
+	local SkeletalMesh SkelMesh;
+	local string SkeletalMeshString;
+
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	for(i = 0; i < DLCInfos.Length; ++i)
+	{
+		SkeletalMeshString = DLCInfos[i].DLCAppendSockets(self);
+		if (SkeletalMeshString != "")
+		{
+			SkelMesh = SkeletalMesh(DynamicLoadObject(SkeletalMeshString, class'SkeletalMesh'));
+			if (SkelMesh != none)
+			{
+				Mesh.AppendSockets(SkelMesh.Sockets, true);
+			}
+		}
+	}
+}
+// End Issue #21
 
 function CreateBodyPartAttachment(XComBodyPartContent BodyPartContent)
 {

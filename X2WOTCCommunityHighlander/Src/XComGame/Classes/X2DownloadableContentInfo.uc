@@ -241,6 +241,17 @@ static function bool DisplayQueuedDynamicPopup(DynamicPropertySet PropertySet)
 // ------------ X2WOTCCommunityHighlander Additions ------------
 // -------------------------------------------------------------
 
+/// Start Issue #21
+/// <summary>
+/// Called from XComUnitPawn.DLCAppendSockets
+/// Allows DLC/Mods to append sockets to units
+/// </summary>
+static function string DLCAppendSockets(XComUnitPawn Pawn)
+{
+
+}
+/// End Issue #21
+
 /// Start Issue #24
 /// <summary>
 /// Called from XComUnitPawn.UpdateAnimations
@@ -261,3 +272,4 @@ static function bool GetValidFloorSpawnLocations(out array<Vector> FloorPoints, 
 	return false;
 }
 /// End Issue #18
+
