@@ -3282,8 +3282,6 @@ simulated exec function UpdateAnimations()
 	local CharacterPoolManager CPManager;
 	local int i;
 
-	super.UpdateAnimations();
-
 	History = `XCOMHISTORY;
 	ScreenStack = `SCREENSTACK;
 
@@ -3320,6 +3318,8 @@ simulated exec function UpdateAnimations()
 				XComAddAnimSetsExternal(CustomAnimSets);
 		}
 	}
+
+	super.UpdateAnimations();
 }
 // End Issue #24
 
