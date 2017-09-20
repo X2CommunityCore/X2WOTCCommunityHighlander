@@ -12,8 +12,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{D8026E40-05DA-4006-8708-C36137E37D8B}.Debug|XCOM 2.ActiveCfg = Debug|XCOM 2
-		{D8026E40-05DA-4006-8708-C36137E37D8B}.Default|XCOM 2.ActiveCfg = Debug|XCOM 2
-		{D8026E40-05DA-4006-8708-C36137E37D8B}.Default|XCOM 2.Build.0 = Debug|XCOM 2
+		{D8026E40-05DA-4006-8708-C36137E37D8B}.Debug|XCOM 2.Build.0 = Debug|XCOM 2
+		{D8026E40-05DA-4006-8708-C36137E37D8B}.Default|XCOM 2.ActiveCfg = Default|XCOM 2
+		{D8026E40-05DA-4006-8708-C36137E37D8B}.Default|XCOM 2.Build.0 = Default|XCOM 2
 		{D8026E40-05DA-4006-8708-C36137E37D8B}.Release|XCOM 2.ActiveCfg = Release|XCOM 2
 		{D8026E40-05DA-4006-8708-C36137E37D8B}.Release|XCOM 2.Build.0 = Release|XCOM 2
 	EndGlobalSection
