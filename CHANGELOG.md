@@ -49,6 +49,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Ensure Gremlins use the walk/run animation based on the alert status of their
   owner, rather than the standard behaviour of always deferring to walk speed
   (#33)
+- Fix Reaper's Banish Ability Visualisation not properly visualising
+  subsequent shots (#20)
 
 
 ## Miscellaneous

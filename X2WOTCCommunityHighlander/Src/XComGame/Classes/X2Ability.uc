@@ -1466,7 +1466,7 @@ simulated function SequentialShot_MergeVisualization(X2Action BuildTree, out X2A
 		{
 			TrackerMarker = MarkerNamed;
 		}
-		// Start Issue #20
+		// Comment out for Issue #20
 		// We can't bail out early because we may need to compare more join markers :(
 		//if (JoinMarker != none && TrackerMarker != none)
 		//	break;
