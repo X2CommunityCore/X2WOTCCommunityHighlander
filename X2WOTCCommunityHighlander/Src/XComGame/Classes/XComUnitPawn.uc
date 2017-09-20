@@ -2628,11 +2628,13 @@ simulated State Dying
 		CurrentHeadLocation = GetHeadLocation();
 		MovementDir = CurrentHeadLocation - PreviousHeadLocation;
 		MovementDir = MovementDir + (Normal(MovementDir) * 16.0f);
+
 		TraceActor = Trace(TraceLoc, TraceNormal, PreviousHeadLocation + MovementDir, PreviousHeadLocation, true, vect(16.0f,16.0f,16.0f));			
 		if(TraceActor != none)
 		{
 			StartRagdoll(true);	
 		}
+
 		PreviousHeadLocation = CurrentHeadLocation;
 		*/
 	}
@@ -3267,6 +3269,59 @@ function AnimNodeSequence PlayFullBodyAnimOnPawn(name AnimName, bool bLooping, f
 function PlayHQIdleAnim(optional name OverrideAnimName, optional bool bIsCapture = false, optional bool bIgnoreInjuredAnim = false)
 {
 }
+
+// Start Issue #24
+simulated exec function UpdateAnimations()
+{
+	local XComGameStateHistory History;
+	local XComGameStateHistory TempHistory;
+	local UIScreenStack ScreenStack;
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local array<AnimSet> CustomAnimSets;
+	local XComGameState_Unit UnitState;
+	local CharacterPoolManager CPManager;
+	local int i;
+
+	super.UpdateAnimations();
+
+	History = `XCOMHISTORY;
+	ScreenStack = `SCREENSTACK;
+
+	if (ScreenStack.GetCurrentScreen() == none) // We're at the Main Menu
+	{
+		`ONLINEEVENTMGR.LatestSaveState(TempHistory);
+		UnitState = XComGameState_Unit(TempHistory.GetGameStateForObjectID(ObjectID));
+	}
+	else if (`SCREENSTACK.IsInStack(class'UICharacterPool')) // We're at the Character Pool
+	{
+		CPManager = CharacterPoolManager(`XENGINE.GetCharacterPoolManager());
+		for (i = 0; i < CPManager.CharacterPool.Length; ++i)
+		{
+			UnitState = CPManager.CharacterPool[i];
+			if (UnitState.GetReference().ObjectID == ObjectID)
+			{
+				break;
+			}
+		}
+	}
+	else // We're at a Saved Game
+	{
+		UnitState = XComGameState_Unit(History.GetGameStateForObjectID(ObjectID));
+	}
+
+	if (UnitState != none)
+	{
+		DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+		for(i = 0; i < DLCInfos.Length; ++i)
+		{
+			CustomAnimSets.Length = 0;
+			DLCInfos[i].UpdateAnimations(CustomAnimSets, UnitState, self);
+			if (CustomAnimSets.Length > 0)
+				XComAddAnimSetsExternal(CustomAnimSets);
+		}
+	}
+}
+// End Issue #24
 
 //Request from the narrative moment to play dialog
 function QueueDialog(name DialogAnimName)

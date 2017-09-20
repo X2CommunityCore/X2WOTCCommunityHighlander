@@ -251,3 +251,25 @@ static function string DLCAppendSockets(XComUnitPawn Pawn)
 
 }
 /// End Issue #21
+
+/// Start Issue #24
+/// <summary>
+/// Called from XComUnitPawn.UpdateAnimations
+/// CustomAnimSets will be added to the pawns animsets
+/// </summary>
+static function UpdateAnimations(out array<AnimSet> CustomAnimSets, XComGameState_Unit UnitState, XComUnitPawn Pawn)
+{
+
+}
+/// End Issue #24
+
+/// Start Issue #18
+/// <summary>
+/// Calls DLC specific handlers to override spawn location
+/// </summary>
+static function bool GetValidFloorSpawnLocations(out array<Vector> FloorPoints, float SpawnSizeOverride, XComGroupSpawn SpawnPoint)
+{
+	return false;
+}
+/// End Issue #18
+
