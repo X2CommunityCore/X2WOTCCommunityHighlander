@@ -539,25 +539,26 @@ event bool ShouldUseWalkAnim(XComGameState ReleventGameState)
 		if(Unit.IsACV() != 0)
 			return false;
 			
-		//start of issue #33: do not allow cosmetic units to be used by this check
-		if (GetAlertLevel(Unit) == eAL_Green && !Unit.IsMindControlled() && !Unit.IsCosmetic())
+		// Start Issue #33 : do not allow cosmetic units to be used by this check
+		if (GetAlertLevel(Unit) == eAL_Green && !Unit.IsMindControlled() && !Unit.GetMyTemplate().bIsCosmetic)
 			return true;
 		
 		//instead, we iterate through itemstates to look for a Gremlin's owner, if they are a gremlin
-		if(Unit.IsCosmetic())
+		if(Unit.GetMyTemplate().bIsCosmetic)
 		{
 			foreach ReleventGameState.IterateByClassType(class'XComGameState_Item', ItemState)
 			{
-				if(ItemState.CosmeticUnitRef != none && ItemState.CosmeticUnitRef == Unit.GetReference())
+				if(ItemState.CosmeticUnitRef.ObjectID != 0 && ItemState.CosmeticUnitRef == Unit.GetReference())
 				{
 				 	OwnerState = XComGameState_Unit(History.GetGameStateForObjectID(ItemState.OwnerStateObject.ObjectID));
 					
-					if(GetAlertLevel(OwnerState) == eAL_Green && !OwnerState.IsMindControlled() && !OwnerState.IsCosmetic()) //a gremlin attaching itself to another cosmetic unit should never happen, but just in case...
+					if(GetAlertLevel(OwnerState) == eAL_Green && !OwnerState.IsMindControlled() && !OwnerState.GetMyTemplate().bIsCosmetic) //a gremlin attaching itself to another cosmetic unit should never happen, but just in case...
 							return true;
 				}
 			
 			}
 		}
+    // End Issue #33
 	}
 
 	return false;
