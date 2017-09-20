@@ -43,6 +43,9 @@
     <Content Include="Src\XComGame\Classes\CHEventListenerTemplate.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\CHHelpers.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\CHXComGameVersion.uc">
       <SubType>Content</SubType>
     </Content>
@@ -52,7 +55,13 @@
     <Content Include="Src\XComGame\Classes\X2Ability.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2DownloadableContentInfo.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2UnifiedProjectile.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComGroupSpawn.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComSoundManager.uc">
@@ -80,6 +89,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComLWTuple.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XGUnitNativeBase.uc">
       <SubType>Content</SubType>
     </Content>
   </ItemGroup>

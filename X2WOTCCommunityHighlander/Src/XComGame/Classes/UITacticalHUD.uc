@@ -1412,7 +1412,7 @@ simulated function UpdateReaperHUD()
 	local XComGameState_Item WeaponState;
 	// Variables for Issue #6
 	local XComLWTuple Tuple;
-	local bool bShowReaperUI;
+	local bool bShowReaperUI, bShowReaperShotHUD;
 	local float CurrentConcealLossCH, ModifiedLossCH;
 	
 	ActiveUnitRef = XComTacticalController(PC).GetActiveUnitStateRef();
@@ -1425,22 +1425,30 @@ simulated function UpdateReaperHUD()
 	// Start Issue #6
 	Tuple = new class'XComLWTuple';
 	Tuple.Id = 'TacticalHUDReaperUI';
-	Tuple.Data.Add(3);
+	Tuple.Data.Add(4);
 	
+	// Use Reaper HUD override
 	Tuple.Data[0].kind = XComLWTVBool;
 	Tuple.Data[0].b = false;
 
+	// Current Loss override
 	Tuple.Data[1].kind = XComLWTVFloat;
 	Tuple.Data[1].f = 0.0f;
 
+	// Modified Loss override
 	Tuple.Data[2].kind = XComLWTVFloat;
 	Tuple.Data[2].f = 0.0f;
+
+	// Show Reaper Shot HUD override
+	Tuple.Data[3].kind = XComLWTVBool;
+	Tuple.Data[3].b = true;
 
 	`XEVENTMGR.TriggerEvent('TacticalHUD_UpdateReaperHUD', Tuple, UnitState, none);
 	bShowReaperUI = Tuple.Data[0].b;
 	CurrentConcealLossCH = Tuple.Data[1].f;
 	ModifiedLossCH = Tuple.Data[2].f;
-	// End Issue #
+	bShowReaperShotHUD = Tuple.Data[3].b;
+	// End Issue #6
 
 	if (ConcealmentMode == eUIConcealment_Super || bShowReaperUI)
 	{
@@ -1448,7 +1456,8 @@ simulated function UpdateReaperHUD()
 
 		if (SelectedAbilityState.MayBreakConcealmentOnActivation(CurrentTargetID))
 		{
-			if (SelectedAbilityState != none && 'AA_Success' == SelectedAbilityState.CanActivateAbility(UnitState))
+			// Issue #6 Reaper Shot HUD override
+			if (bShowReaperShotHUD && SelectedAbilityState != none && 'AA_Success' == SelectedAbilityState.CanActivateAbility(UnitState))
 			{
 				SuperConcealedModifier = UnitState.GetSuperConcealedModifier(SelectedAbilityState, , CurrentTargetID);
 				MC.FunctionVoid("SetReaperHUDShotHUD");
