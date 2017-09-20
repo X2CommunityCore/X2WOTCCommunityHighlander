@@ -45,7 +45,9 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Improvements
 
 ### Fixes
-
+- Ensure Gremlins use the walk/run animation based on the alert status of their
+  owner, rather than the standard behaviour of always deferring to walk speed
+  (#33)
 
 
 ## Miscellaneous
