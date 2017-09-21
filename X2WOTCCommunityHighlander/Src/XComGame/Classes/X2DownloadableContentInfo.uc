@@ -248,7 +248,7 @@ static function bool DisplayQueuedDynamicPopup(DynamicPropertySet PropertySet)
 /// </summary>
 static function string DLCAppendSockets(XComUnitPawn Pawn)
 {
-
+	return "";
 }
 /// End Issue #21
 
