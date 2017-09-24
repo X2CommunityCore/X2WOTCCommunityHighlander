@@ -4274,8 +4274,9 @@ simulated state TurnPhase_UnitActions
 
 					if( !bResumeFromInterruptedInitiative && !bBeginInterruptedInitiative )
 					{
+						//start Issue #36
 						ResetHitCountersOnPlayerTurnBegin();
-
+						//end issue #36
 						// Trigger the PlayerTurnBegun event
 						EventManager = `XEVENTMGR;
 
