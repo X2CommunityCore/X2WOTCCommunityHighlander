@@ -3285,6 +3285,8 @@ simulated exec function UpdateAnimations()
 	History = `XCOMHISTORY;
 	ScreenStack = `SCREENSTACK;
 
+	super.UpdateAnimations();
+
 	if (ScreenStack.GetCurrentScreen() == none) // We're at the Main Menu
 	{
 		`ONLINEEVENTMGR.LatestSaveState(TempHistory);
@@ -3318,8 +3320,6 @@ simulated exec function UpdateAnimations()
 				XComAddAnimSetsExternal(CustomAnimSets);
 		}
 	}
-
-	super.UpdateAnimations();
 }
 // End Issue #24
 
