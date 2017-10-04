@@ -168,7 +168,11 @@ event RigidBodyCollision( PrimitiveComponent HitComponent, PrimitiveComponent Ot
 		{	
 			// chosen should never disable their death anims in favor of ragdoll due to RigidBodyCollisions
 			UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(m_kGameUnit.ObjectID));
-			if( UnitState == none || !UnitState.GetMyTemplate().bIsChosen )
+			if (
+				UnitState == none ||
+				!UnitState.GetMyTemplate().bIsChosen ||
+				(UnitState.GetMyTemplate().bIsChosen && class'CHHelpers'.default.ENABLE_CHOSEN_RAGDOLL) // Conditional for Issue #41
+			)
 			{
 				bWaitingForRagdollNotify = false;
 				//`log("RigidBodyCollision happened during ragdoll death, setting bWaitingForRagdollNotify to FALSE");
@@ -1314,6 +1318,18 @@ simulated state RagDollBlend
 		local XComGameStateContext_TacticalGameRule SyncCorpseContext;
 		local XComGameState_Unit UnitState;				
 		
+		// Start Issue #41
+		// Guard clause, early return and finish ragdoll if ragdoll collision
+		// is enabled.
+		if (class'CHHelpers'.default.ENABLE_RAGDOLL_COLLISION)
+		{
+			OnFinishRagdoll();
+		
+			SetTimer(1.0f, false, 'GoToNextState');
+			return;
+		}
+		// End Issue #41
+
 		// When we're locking the body down, death effects need to die as well
 		if (m_deathHandler != none)
 		{

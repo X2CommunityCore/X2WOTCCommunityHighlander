@@ -39,6 +39,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
+- Added ability to prevent ragdolls from ever turning off their physics, plus
+  enable Chosen ragdolling (#41)
 
 ### Modding Exposures
 - Deprivatise variables to protected in XComIdleAnimationStateMachine to allow
