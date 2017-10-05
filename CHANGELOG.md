@@ -39,6 +39,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
+- Added ability to modify number of tactical auto-saves kept (#53)
 - Added ability to prevent ragdolls from ever turning off their physics, plus
   enable Chosen ragdolling (#41)
 
