@@ -858,7 +858,7 @@ simulated function string GetDisabledReason(XComGameState_Item Item, EInventoryS
 	{
 		for(i = 0; i < DLCInfos.Length; ++i)
 		{
-			if(!DLCInfos[i].CanAddItemToInventory_CH(UnusedOutInt, SelectedSlot, ItemTemplate, 0, UpdatedUnit, , DLCReason))
+			if(!DLCInfos[i].CanAddItemToInventory_CH(UnusedOutInt, SelectedSlot, ItemTemplate, Item.Quantity, UpdatedUnit, , DLCReason))
 			{
 				DisabledReason = DLCReason;
 			}
