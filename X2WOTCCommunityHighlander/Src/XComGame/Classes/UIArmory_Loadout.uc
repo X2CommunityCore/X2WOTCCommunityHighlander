@@ -607,8 +607,9 @@ simulated function UpdateEquippedList()
 	else
 		Item.InitLoadoutItem(GetEquippedItem(eInvSlot_PrimaryWeapon), eInvSlot_PrimaryWeapon, true);
 
-	// don't show secondary weapon slot on rookies
-	if(UpdatedUnit.GetRank() > 0)
+	// Start Issue #55 UIArmory_Loadout should evaluate X2SoldierClassTemplate.bNoSecondaryWeapon
+	if(UpdatedUnit.NeedsSecondaryWeapon())
+	// End Issue #55
 	{
 		Item = UIArmory_LoadoutItem(EquippedList.CreateItem(class'UIArmory_LoadoutItem'));
 		if (CannotEditSlotsList.Find(eInvSlot_SecondaryWeapon) != INDEX_NONE)
@@ -775,7 +776,7 @@ function bool MeetsDisplayRequirement(X2ItemTemplate ItemTemplate)
 simulated function string GetDisabledReason(XComGameState_Item Item, EInventorySlot SelectedSlot)
 {
 	local int EquippedObjectID;
-	local string DisabledReason, DLCReason;
+	local string DisabledReason;
 	local X2ItemTemplate ItemTemplate;
 	local X2AmmoTemplate AmmoTemplate;
 	local X2WeaponTemplate WeaponTemplate;
@@ -785,6 +786,7 @@ simulated function string GetDisabledReason(XComGameState_Item Item, EInventoryS
 
 	// Variables for Issue #50
 	local int i, UnusedOutInt;
+  local string DLCReason;
 	local array<X2DownloadableContentInfo> DLCInfos;
 	
 	ItemTemplate = Item.GetMyTemplate();
@@ -851,7 +853,6 @@ simulated function string GetDisabledReason(XComGameState_Item Item, EInventoryS
 			DisabledReason = class'UIUtilities_Text'.static.CapsCheckForGermanScharfesS(`XEXPAND.ExpandString(m_strAmmoIncompatible));
 		}
 	}
-
 	
 	//start of Issue #50: add hook to UI to show disabled reason, if possible
 	if(DisabledReason == "")
