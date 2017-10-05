@@ -280,7 +280,7 @@ static function bool GetValidFloorSpawnLocations(out array<Vector> FloorPoints, 
 /// defaults to using the wrapper function below for calls from XCGS_U. Return false with a non-empty string in this function to show the disabled reason in UIArmory_Loadout
 /// Note: due to how UIArmory_Loadout does its check, expect only Slot, ItemTemplate, and UnitState to be filled when trying to fill out a disabled reason. Hence the check for CheckGameState == none
 /// </summary>
-static function bool CanAddItemToInventory_CH(optional out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, optional int Quantity, XComGameState_Unit UnitState, optional XComGameState CheckGameState, optional out string DisabledReason)
+static function bool CanAddItemToInventory_CH(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, optional XComGameState CheckGameState, optional out string DisabledReason)
 {
 	if(CheckGameState == none)
 		return false;

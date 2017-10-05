@@ -4549,7 +4549,7 @@ function string GetName( ENameType eType )
 	CloseQuote = class'UIUtilities_Text'.default.m_strCloseQuote;
 
 	// Start Issue #52: let units with proper names always show them if possible
-	bHasName = (strFirstName != "" || strLastName != "")
+	bHasName = (strFirstName != "" || strLastName != "");
 	
 	if (IsSoldier() || IsCivilian() || bHasName) // End issue #52
 	{

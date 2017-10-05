@@ -782,7 +782,10 @@ simulated function string GetDisabledReason(XComGameState_Item Item, EInventoryS
 	local X2ArmorTemplate ArmorTemplate;
 	local X2SoldierClassTemplate SoldierClassTemplate, AllowedSoldierClassTemplate;
 	local XComGameState_Unit UpdatedUnit;
-	local array<X2DownloadableContentInfo> DLCInfos; // Issue #50: Added for hook
+
+	// Variables for Issue #50
+	local int i, UnusedOutInt;
+	local array<X2DownloadableContentInfo> DLCInfos;
 	
 	ItemTemplate = Item.GetMyTemplate();
 	UpdatedUnit = GetUnit();
@@ -855,7 +858,7 @@ simulated function string GetDisabledReason(XComGameState_Item Item, EInventoryS
 	{
 		for(i = 0; i < DLCInfos.Length; ++i)
 		{
-			if(!DLCInfos[i].CanAddItemToInventory_CH(, SelectedSlot, ItemTemplate, , UpdatedUnit(), , DLCReason))
+			if(!DLCInfos[i].CanAddItemToInventory_CH(UnusedOutInt, SelectedSlot, ItemTemplate, 0, UpdatedUnit, , DLCReason))
 			{
 				DisabledReason = DLCReason;
 			}
