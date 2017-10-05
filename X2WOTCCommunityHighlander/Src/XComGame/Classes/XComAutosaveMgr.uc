@@ -2,7 +2,7 @@ class XComAutosaveMgr extends Actor
 	config(Game)
 	dependson(XComOnlineEventMgr);
 
-var const config int MAX_TACTICAL_AUTOSAVES; // Issue #53 - Make configurable
+const MAX_TACTICAL_AUTOSAVES = 3;
 
 var private bool    m_bWasIronman;
 var delegate<XComOnlineEventMgr.WriteSaveGameComplete> SaveGameCompleteCallback;
@@ -31,6 +31,8 @@ function DoAutosave(delegate<XComOnlineEventMgr.WriteSaveGameComplete> AutoSaveC
 	local XComGameState_HeadquartersAlien AlienHQ;
 	local XComGameState_Analytics AnalyticsState;
 	local int MissionNum;
+
+	local int iMaxSaves; // Variable for Issue #53
 
 	History = `XCOMHISTORY;
 
@@ -181,7 +183,13 @@ function DoAutosave(delegate<XComOnlineEventMgr.WriteSaveGameComplete> AutoSaveC
 					}
 				}
 
-				if( arrTacticalSaves.Length < MAX_TACTICAL_AUTOSAVES )
+				// Start Issue #53 - use config saves if set
+				iMaxSaves = class'CHHelpers'.default.MAX_TACTICAL_AUTOSAVES > 0
+					? class'CHHelpers'.default.MAX_TACTICAL_AUTOSAVES
+					: MAX_TACTICAL_AUTOSAVES;
+
+				if( arrTacticalSaves.Length < iMaxSaves )
+				// End Issue #53
 				{
 					iSaveSlot = GetNextSaveID();
 					`log("Less than the max number of tactial autosaves, using new save slot" @ iSaveSlot, , 'XCom_Online');
