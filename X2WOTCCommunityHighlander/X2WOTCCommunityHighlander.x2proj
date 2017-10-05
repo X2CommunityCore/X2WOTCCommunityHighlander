@@ -58,6 +58,9 @@
     <Content Include="Src\XComGame\Classes\UIArmory_Loadout.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Ability_GrenadierAbilitySet.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2SoldierClassTemplateManager.uc">
       <SubType>Content</SubType>
     </Content>

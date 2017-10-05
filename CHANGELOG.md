@@ -47,6 +47,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   for subclassing overrides (#15)
 
 ### Improvements
+- Make suppression work with weapons that don't have suppression specific
+  animations set on them (#45)
 
 ### Fixes
 - Ensure Gremlins use the walk/run animation based on the alert status of their

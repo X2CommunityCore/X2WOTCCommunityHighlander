@@ -328,7 +328,9 @@ simulated function SuppressionBuildVisualization(XComGameState VisualizeGameStat
 	local XComGameState_Ability         Ability;
 	local X2Action_PlaySoundAndFlyOver SoundAndFlyOver;
   
-  //new variables for issue #45
+	// Variables for Issue #45
+	local XComGameState_Item	SourceWeapon;
+	local XGWeapon						WeaponVis;
   local XComUnitPawn					UnitPawn;
 	local XComWeapon					Weapon;
   
@@ -344,10 +346,16 @@ simulated function SuppressionBuildVisualization(XComGameState VisualizeGameStat
 	ActionMetadata.StateObject_NewState = VisualizeGameState.GetGameStateForObjectID(InteractingUnitRef.ObjectID);
 	ActionMetadata.VisualizeActor = History.GetVisualizer(InteractingUnitRef.ObjectID);
   
+	// Start Issue #45
   // Check the actor's pawn and weapon, see if they can play the suppression effect
+	Ability = XComGameState_Ability(History.GetGameStateForObjectID(Context.InputContext.AbilityRef.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1));
+	SourceWeapon = XComGameState_Item(History.GetGameStateForObjectID(Ability.SourceWeapon.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1));
+	WeaponVis = XGWeapon(SourceWeapon.GetVisualizer());
+
 	UnitPawn = XGUnit(ActionMetadata.VisualizeActor).GetPawn();
-	Weapon = XComWeapon(UnitPawn.Weapon);
-	if (Weapon != None &&
+	Weapon = WeaponVis.GetEntity();
+	if (
+		Weapon != None &&
 		!UnitPawn.GetAnimTreeController().CanPlayAnimation(Weapon.WeaponSuppressionFireAnimSequenceName) &&
 		!UnitPawn.GetAnimTreeController().CanPlayAnimation(class'XComWeapon'.default.WeaponSuppressionFireAnimSequenceName))
 	{
@@ -355,14 +363,14 @@ simulated function SuppressionBuildVisualization(XComGameState VisualizeGameStat
 		Weapon.WeaponSuppressionFireAnimSequenceName = Weapon.WeaponFireAnimSequenceName;
 	}
   
-  // End issue #45
+  // End Issue #45
 	
 	class'X2Action_ExitCover'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded);
 	class'X2Action_StartSuppression'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded);
 		//****************************************************************************************
 	//Configure the visualization track for the target
 	InteractingUnitRef = Context.InputContext.PrimaryTarget;
-	Ability = XComGameState_Ability(History.GetGameStateForObjectID(Context.InputContext.AbilityRef.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1));
+	// Ability = XComGameState_Ability(History.GetGameStateForObjectID(Context.InputContext.AbilityRef.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1)); issue #45, collect earlier
 	ActionMetadata = EmptyTrack;
 	ActionMetadata.StateObject_OldState = History.GetGameStateForObjectID(InteractingUnitRef.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1);
 	ActionMetadata.StateObject_NewState = VisualizeGameState.GetGameStateForObjectID(InteractingUnitRef.ObjectID);
