@@ -258,14 +258,17 @@ function AssignStartingTraits(out array<name> ExcludeStrengths, out array<name> 
 		break;
 	}
 
-	//start of Issue #51: alter where the Assassin gets Shadowstep if Lost and Abandoned is enabled, so other starting traits take into account for it
-		// Give the Chosen one survivability trait
+	// Start Issue #51: alter where the Assassin gets Shadowstep if
+	// Lost and Abandoned is enabled, so other starting traits take into account
+	// for it
+	// Give the Chosen one survivability trait
 	if(bNarrative && GetMyTemplateName() == 'Chosen_Assassin')
 	{
 		Strengths.AddItem('ChosenShadowstep');
 		RevealedChosenTraits.AddItem('ChosenShadowstep');
 		ExcludeStrengths.AddItem('ChosenShadowstep');
 	}
+	// End Issue #51
 	
 	FilterTraitList(AllStrengths);
 	FilterTraitList(AllSurvivabilityStrengths);
@@ -284,7 +287,8 @@ function AssignStartingTraits(out array<name> ExcludeStrengths, out array<name> 
 		FilterTraitList(AllWeaknesses);
 	}
 
-	//Issue #51: altered this function from an else statement to a proper if statement, to account for the move of the shadowstep block
+	// Condition for Issue #51
+	// removed shadowstep block and altered conditional to do 'else' behaviour.
 	if(!bNarrative || GetMyTemplateName() != 'Chosen_Assassin')
 	{
 		if(AllSurvivabilityStrengths.Length == 0)

@@ -55,6 +55,9 @@
     <Content Include="Src\XComGame\Classes\CHXComGameVersionTemplate.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIArmory_Loadout.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2SoldierClassTemplateManager.uc">
       <SubType>Content</SubType>
     </Content>
@@ -64,7 +67,13 @@
     <Content Include="Src\XComGame\Classes\X2DownloadableContentInfo.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2TacticalGameRuleset.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2UnifiedProjectile.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_AdventChosen.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComHumanPawn.uc">

@@ -4541,15 +4541,17 @@ function string GetFullName()
 
 function string GetName( ENameType eType )
 {
-	local bool bFirstNameBlank, bHasName;
+	local bool bFirstNameBlank;
 	local string OpenQuote, CloseQuote; 
+	local bool bHasName; // Variables for Issue #52
 
 	OpenQuote = class'UIUtilities_Text'.default.m_strOpenQuote;
 	CloseQuote = class'UIUtilities_Text'.default.m_strCloseQuote;
-	//Issue #52: let units with proper names always show them if possible
+
+	// Start Issue #52: let units with proper names always show them if possible
 	bHasName = (strFirstName != "" || strLastName != "")
 	
-	if (IsSoldier() || IsCivilian() || bHasName) //end of issue #52
+	if (IsSoldier() || IsCivilian() || bHasName) // End issue #52
 	{
 		if( IsMPCharacter() )
 			return GetMPName(eType);
@@ -7046,6 +7048,7 @@ simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate,
 	local array<X2DownloadableContentInfo> DLCInfos; // Issue #50: Added for hook
 	local int bCanAddItem; // Issue #50: hackery to avoid bool not being allowed to be out parameter
 	
+	// Start Issue #50
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
@@ -7054,6 +7057,7 @@ simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate,
 			return bCanAddItem > 0;
 		}
 	}
+	// End Issue #50
 	
 	if( bIgnoreItemEquipRestrictions )
 		return true;

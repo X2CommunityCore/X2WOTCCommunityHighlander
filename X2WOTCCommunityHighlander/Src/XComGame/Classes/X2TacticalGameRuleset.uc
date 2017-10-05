@@ -4266,6 +4266,7 @@ simulated state TurnPhase_UnitActions
 			{
 				if( CachedUnitActionPlayerRef.ObjectID == CachedUnitActionInitiativeRef.ObjectID )
 				{
+					// ResetHitCountersOnPlayerTurnBegin(); Issue #36, commented and move below
 					PlayerState = XComGameState_Player(CachedHistory.GetGameStateForObjectID(CachedUnitActionPlayerRef.ObjectID));
 					`assert( PlayerState != None );
 					PlayerStateVisualizer = XGPlayer(PlayerState.GetVisualizer());
