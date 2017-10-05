@@ -80,6 +80,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   X2EventListenerTemplates. Also allow to remove registered Listeners. (#4)
 - Allow enemies with assigned names to have them appear as their name, rather
   than a generic label. (#52)
+- Check a soldiers 'NeedsSecondaryWeapon' in UIArmory_Loadout, rather than
+  hardcoding based on Rookie Rank (#55)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
