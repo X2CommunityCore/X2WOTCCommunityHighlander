@@ -784,9 +784,15 @@ simulated function string GetDisabledReason(XComGameState_Item Item, EInventoryS
 	local X2SoldierClassTemplate SoldierClassTemplate, AllowedSoldierClassTemplate;
 	local XComGameState_Unit UpdatedUnit;
 
+	// Variables for Issue #50
+	local int i, UnusedOutInt;
+  local string DLCReason;
+	local array<X2DownloadableContentInfo> DLCInfos;
+	
 	ItemTemplate = Item.GetMyTemplate();
 	UpdatedUnit = GetUnit();
-
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	
 	// Disable the weapon cannot be equipped by the current soldier class
 	WeaponTemplate = X2WeaponTemplate(ItemTemplate);
 	if(WeaponTemplate != none)
@@ -847,7 +853,20 @@ simulated function string GetDisabledReason(XComGameState_Item Item, EInventoryS
 			DisabledReason = class'UIUtilities_Text'.static.CapsCheckForGermanScharfesS(`XEXPAND.ExpandString(m_strAmmoIncompatible));
 		}
 	}
-
+	
+	//start of Issue #50: add hook to UI to show disabled reason, if possible
+	if(DisabledReason == "")
+	{
+		for(i = 0; i < DLCInfos.Length; ++i)
+		{
+			if(!DLCInfos[i].CanAddItemToInventory_CH(UnusedOutInt, SelectedSlot, ItemTemplate, Item.Quantity, UpdatedUnit, , DLCReason))
+			{
+				DisabledReason = DLCReason;
+			}
+		}
+	}
+	//end of Issue #50
+	
 	// If this is a utility item, and cannot be equipped, it must be disabled because of one item per category restriction
 	if(DisabledReason == "" && SelectedSlot == eInvSlot_Utility)
 	{
