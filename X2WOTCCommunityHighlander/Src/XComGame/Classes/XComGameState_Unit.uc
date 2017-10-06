@@ -3457,7 +3457,9 @@ function RollForTrainingCenterAbilities()
 	if (!bRolledForAWCAbility)
 	{
 		bRolledForAWCAbility = true;
-		EligibleAbilities = class'X2SoldierClassTemplateManager'.static.GetSoldierClassTemplateManager().GetCrossClassAbilities(GetSoldierClassTemplate());
+		// Start Issue #62
+		EligibleAbilities = class'X2SoldierClassTemplateManager'.static.GetSoldierClassTemplateManager().GetCrossClassAbilities_CH(AbilityTree);
+		// End Issue #62
 
 		SoldierClassTemplate = GetSoldierClassTemplate();
 		for (Idx = 0; Idx < SoldierClassTemplate.ExcludedAbilities.Length; ++Idx)

@@ -76,7 +76,7 @@ function array<SoldierClassAbilityType> GetCrossClassAbilities(optional X2Soldie
 
 	foreach arrClassTemplates(ClassTemplate)
 	{
-		if(ClassTemplate.DataName != DefaultSoldierClass && ClassTemplate != ExcludeClass && ClassTemplate.bAllowAWCAbilities)
+		if(ClassTemplate.DataName != DefaultSoldierClass && ClassTemplate.bAllowAWCAbilities)
 		{
 			AbilityTree = ClassTemplate.GetAllPossibleAbilities();
 			for(idx = 0; idx < AbilityTree.Length; idx++)
@@ -113,6 +113,85 @@ function array<SoldierClassAbilityType> GetCrossClassAbilities(optional X2Soldie
 
 	return CrossClassAbilities;
 }
+
+// Start Issue #62
+function array<SoldierClassAbilityType> GetCrossClassAbilities_CH(array <SoldierRankAbilities> SoldierAbilityTree)	
+{
+	local X2AbilityTemplateManager AbilityMgr;
+	local X2AbilityTemplate AbilityTemplate;
+	local array<X2SoldierClassTemplate> arrClassTemplates;
+	local X2SoldierClassTemplate ClassTemplate;
+	local array<SoldierClassAbilityType> CrossClassAbilities, AbilityTree;
+	local int idx;
+	
+	// Variables for Issue #30
+	local array<SoldierClassAbilityType> CurrentSoldierAbilities;
+
+	AbilityMgr = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
+	arrClassTemplates = GetAllSoldierClassTemplates();
+	CrossClassAbilities.Length = 0;
+
+	// Start Issue #30, NOTE: Overwritten by Issue #62
+	if (SoldierAbilityTree.Length > 0)
+		CurrentSoldierAbilities = GetAllCurrentSoldierAbilities(SoldierAbilityTree);
+	// End Issue #30, NOTE: Overwritten by Issue #62
+
+	foreach arrClassTemplates(ClassTemplate)
+	{
+		if(ClassTemplate.DataName != DefaultSoldierClass && ClassTemplate.bAllowAWCAbilities)
+		{
+			AbilityTree = ClassTemplate.GetAllPossibleAbilities();
+			for(idx = 0; idx < AbilityTree.Length; idx++)
+			{
+				AbilityTemplate = AbilityMgr.FindAbilityTemplate(AbilityTree[idx].AbilityName);
+
+				if(AbilityTemplate != none && AbilityTemplate.bCrossClassEligible && CrossClassAbilities.Find('AbilityName', AbilityTree[idx].AbilityName) == INDEX_NONE)
+				{
+					// Start Issue #30
+					if (CurrentSoldierAbilities.Find('AbilityName', AbilityTree[idx].AbilityName) == INDEX_NONE)
+					{
+						CrossClassAbilities.AddItem(AbilityTree[idx]);
+					}
+					// End Issue #30
+				}
+			}
+		}
+	}
+
+	for(idx = 0; idx < default.ExtraCrossClassAbilities.Length; idx++)
+	{
+		AbilityTemplate = AbilityMgr.FindAbilityTemplate(default.ExtraCrossClassAbilities[idx].AbilityName);
+
+		if(AbilityTemplate != none && AbilityTemplate.bCrossClassEligible && CrossClassAbilities.Find('AbilityName', default.ExtraCrossClassAbilities[idx].AbilityName) == INDEX_NONE)
+		{
+			// Start Issue #30
+			if (CurrentSoldierAbilities.Find('AbilityName', default.ExtraCrossClassAbilities[idx].AbilityName) == INDEX_NONE)
+			{
+				CrossClassAbilities.AddItem(default.ExtraCrossClassAbilities[idx]);
+			}
+			// End Issue #30
+		}
+	}
+
+	return CrossClassAbilities;
+}
+
+function array<SoldierClassAbilityType> GetAllCurrentSoldierAbilities(array <SoldierRankAbilities> SoldierAbilityTree)
+{
+	local array<SoldierClassAbilityType> CurrentSoldierAbilities;
+	local int i, j;
+
+	for(i = 0; i < SoldierAbilityTree.Length; i++)
+	{
+		for(j = 0; j < SoldierAbilityTree[i].Abilities.Length; j++)
+		{
+			CurrentSoldierAbilities.AddItem(SoldierAbilityTree[i].Abilities[j]);
+		}
+	}
+
+	return CurrentSoldierAbilities;
+}
+// End Issue #62
 
 DefaultProperties
 {
