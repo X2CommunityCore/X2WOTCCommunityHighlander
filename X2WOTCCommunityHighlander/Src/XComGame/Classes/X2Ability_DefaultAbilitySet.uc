@@ -3428,11 +3428,11 @@ static function X2AbilityTemplate TacticalRigging()
 
 function TacticalRiggingPurchased(XComGameState NewGameState, XComGameState_Unit UnitState)
 {
-	if (UnitState.GetBaseStat(eStat_UtilityItems) <= UnitState.GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems))
-	{
-		UnitState.SetBaseMaxStat(eStat_UtilityItems, UnitState.GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems) + 1.0f);
-		UnitState.SetCurrentStat(eStat_UtilityItems, UnitState.GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems) + 1.0f);
-	}
+	// Start Issue #64
+	// Update the number of utility slots to make sure we immediately see the effect
+	// Do not validate loadout because vanilla didn't do it.
+	UnitState.RealizeNumUtilitySlots(NewGameState, false);
+	// End Issue #64
 }
 
 // Added DisableConsumeAllPoints ability to be kicked off for Panicking units.
