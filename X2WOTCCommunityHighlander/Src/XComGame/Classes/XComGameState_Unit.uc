@@ -10460,26 +10460,26 @@ function RealizeNumUtilitySlots(XComGameState NewGameState, bool ValidateItems)
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local int i;
 
-	// MP Characters have their slots set externally and do not run this code
-	if (IsMPCharacter())
-		return;
-
-	iNumUtilitySlots = GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems);
-
-	EquippedArmor = GetItemInSlot(eInvSlot_Armor, NewGameState);
-	if ((EquippedArmor != none && X2ArmorTemplate(EquippedArmor.GetMyTemplate()).bAddsUtilitySlot) || HasExtraUtilitySlotFromAbility())
+	// MP Characters have their slots set externally and do not run the utility slot calculation logic
+	if (!IsMPCharacter())
 	{
-		iNumUtilitySlots++;
+		iNumUtilitySlots = GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems);
+
+		EquippedArmor = GetItemInSlot(eInvSlot_Armor, NewGameState);
+		if ((EquippedArmor != none && X2ArmorTemplate(EquippedArmor.GetMyTemplate()).bAddsUtilitySlot) || HasExtraUtilitySlotFromAbility())
+		{
+			iNumUtilitySlots++;
+		}
+
+		DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+		for(i = 0; i < DLCInfos.Length; ++i)
+		{
+			DLCInfos[i].ModifyNumUtilitySlots(iNumUtilitySlots, self, NewGameState);
+		} 
+
+		SetBaseMaxStat(eStat_UtilityItems, iNumUtilitySlots);
+		SetCurrentStat(eStat_UtilityItems, iNumUtilitySlots);
 	}
-
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
-	for(i = 0; i < DLCInfos.Length; ++i)
-	{
-		DLCInfos[i].ModifyNumUtilitySlots(iNumUtilitySlots, self, NewGameState);
-	} 
-
-	SetBaseMaxStat(eStat_UtilityItems, iNumUtilitySlots);
-	SetCurrentStat(eStat_UtilityItems, iNumUtilitySlots);
 
 	if (ValidateItems)
 	{
