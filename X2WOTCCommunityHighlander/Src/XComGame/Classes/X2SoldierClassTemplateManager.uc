@@ -103,7 +103,7 @@ function array<SoldierClassAbilityType> GetCrossClassAbilities(optional X2Soldie
 		if(AbilityTemplate != none && AbilityTemplate.bCrossClassEligible && CrossClassAbilities.Find('AbilityName', default.ExtraCrossClassAbilities[idx].AbilityName) == INDEX_NONE)
 		{
 			// Start Issue #30
-			if (CurrentSoldierAbilities.Find('AbilityName', AbilityTree[idx].AbilityName) == INDEX_NONE)
+			if (CurrentSoldierAbilities.Find('AbilityName', default.ExtraCrossClassAbilities[idx].AbilityName) == INDEX_NONE)
 			{
 				CrossClassAbilities.AddItem(default.ExtraCrossClassAbilities[idx]);
 			}
