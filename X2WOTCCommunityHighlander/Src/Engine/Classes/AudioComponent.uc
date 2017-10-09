@@ -251,7 +251,9 @@ event OcclusionChanged(bool bNowOccluded)
 /** called from native code when Wwise knows the duration of the currently playing event */
 event AkCallbackSetDuration(float fSeconds)
 {
-	if (OnAudioDurationSet != none)
+	// Start Issue #66 -- those events are explicitely Ak WWise-related
+	if (SoundCue != none && SoundCue.AkEventOverride != none && OnAudioDurationSet != none)
+	// End Issue #66
 	{
 		OnAudioDurationSet(self, fSeconds);
 	}
@@ -260,7 +262,9 @@ event AkCallbackSetDuration(float fSeconds)
 /** called from native code when Wwise has failed to play an event */
 event AkCallbackSetFailedToPlay()
 {
-	if (OnAudioFailedToPlay != none)
+	// Start Issue #66 -- those events are explicitely Ak WWise-related
+	if (SoundCue != none && SoundCue.AkEventOverride != none && OnAudioFailedToPlay != none)
+	// End Issue #66
 	{
 		OnAudioFailedToPlay(self);
 	}
