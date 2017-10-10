@@ -282,6 +282,7 @@ static function string ColorToFlashHex( Color kColor )
 
 static function string GetColorForFaction(name AssociatedEntity)
 {
+	local XComGameState_ResistanceFaction FactionState;				// required for Issue #72
 	
 	switch (AssociatedEntity)
 	{
@@ -290,6 +291,7 @@ static function string GetColorForFaction(name AssociatedEntity)
 	case 'Faction_Skirmishers':		return FACTION_COLOR_SKIRMISHER;
 	}
 
+	// Begin Issue #72
 	foreach `XCOMHISTORY.IterateByClassType(class'XComGameState_ResistanceFaction', FactionState) 
 	{
 		if(FactionState.GetMyTemplateName() == AssociatedEntity)
@@ -298,8 +300,9 @@ static function string GetColorForFaction(name AssociatedEntity)
 			return Right(ColorToFlashHex(FactionState.GetMyTemplate().FactionColor), 6);
 		}
 	}
+	// End Issue #72
 
 	//Fail! Return something for obvious debugging 
-	return FACTION_COLOR_SKIRMISHER; 
+	return NORMAL_HTML_COLOR; 
 	
 }
