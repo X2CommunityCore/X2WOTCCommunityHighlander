@@ -282,6 +282,7 @@ static function string ColorToFlashHex( Color kColor )
 
 static function string GetColorForFaction(name AssociatedEntity)
 {
+	
 	switch (AssociatedEntity)
 	{
 	case 'Faction_Templars':		return FACTION_COLOR_TEMPLAR;
@@ -289,6 +290,16 @@ static function string GetColorForFaction(name AssociatedEntity)
 	case 'Faction_Skirmishers':		return FACTION_COLOR_SKIRMISHER;
 	}
 
+	foreach `XCOMHISTORY.IterateByClassType(class'XComGameState_ResistanceFaction', FactionState) 
+	{
+		if(FactionState.GetMyTemplateName() == AssociatedEntity)
+		{
+			// color code is expected to be returned without the hexadecimal identifying character
+			return Right(ColorToFlashHex(FactionState.GetMyTemplate().FactionColor), 6);
+		}
+	}
+
 	//Fail! Return something for obvious debugging 
 	return FACTION_COLOR_SKIRMISHER; 
+	
 }
