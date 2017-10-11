@@ -50,6 +50,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Improvements
 - Make suppression work with weapons that don't have suppression specific
   animations set on them (#45)
+- Make suppression work with units that don't have a suppression specific
+  idle animation animation set on them (#74)
 
 ### Fixes
 - Ensure Gremlins use the walk/run animation based on the alert status of their
