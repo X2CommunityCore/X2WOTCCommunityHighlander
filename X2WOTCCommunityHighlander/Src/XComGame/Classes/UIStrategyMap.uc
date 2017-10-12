@@ -1139,39 +1139,22 @@ simulated function UpdateMissions()
 						numHQ++;
 						break;
 					default: //issue #76: this is for any mod-added factions so their HQs are still properly registered. We don't count them as HQs for UI purposes though, as those slots are reserved for the above factions
-						if (numHQ < 3)
-						{
-							MissionItemUI.MissionIcons[3 - numHQ + numScanSites].SetScanSite(ScanSite);
-							break;
-						}
-						else
-						{
-							MissionItemUI.MissionIcons[numScanSites].SetScanSite(ScanSite);
-							break;
-						}
+						MissionItemUI.MissionIcons[3 - numHQ + numScanSites].SetScanSite(ScanSite); //numHQ will be never go above 3, so this should always work
+						break;
+						
 					}
 					//end issue #76
 				}
 				else if(FactionHQ == none)
 				{
-					if (numHQ < 3)
-					{
-						MissionItemUI.MissionIcons[3 - numHQ + numScanSites].SetScanSite(ScanSite);
+					//start issue #76; this is basically just cleanup since there's no real reason for the if statement: numHQ will never go above 3 with the changes we've made
+					MissionItemUI.MissionIcons[3 - numHQ + numScanSites].SetScanSite(ScanSite);
 
-						if (ScanSite.IsA('XComGameState_BlackMarket'))
-						{
-							MissionItemUI.MissionIcons[3 - numHQ + numScanSites].AS_SetAlert(!XComGameState_BlackMarket(ScanSite).bHasSeenNewGoods);
-						}
-					}
-					else
+					if (ScanSite.IsA('XComGameState_BlackMarket'))
 					{
-						MissionItemUI.MissionIcons[numScanSites].SetScanSite(ScanSite);
-
-						if (ScanSite.IsA('XComGameState_BlackMarket'))
-						{
-							MissionItemUI.MissionIcons[numScanSites].AS_SetAlert(!XComGameState_BlackMarket(ScanSite).bHasSeenNewGoods);
-						}
+						MissionItemUI.MissionIcons[3 - numHQ + numScanSites].AS_SetAlert(!XComGameState_BlackMarket(ScanSite).bHasSeenNewGoods);
 					}
+					//end issue #76
 				}
 
 				numScanSites++;
