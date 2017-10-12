@@ -1063,11 +1063,7 @@ simulated function UpdateMissions()
 	local int i, numScanSites, numMissions, numHQ;
 	local XComGameStateHistory History;
 	local bool bGuerillaAdded;
-	//issue #76, added variable for proper accounting of faction HQs
-	local bool VanillaHQ;
-	
-	VanillaHQ = false;
-	//end issue #76
+
 	ClearMissions();
 	ClearScanSites();
 
