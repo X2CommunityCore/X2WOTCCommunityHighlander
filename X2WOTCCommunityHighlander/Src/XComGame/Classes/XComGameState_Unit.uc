@@ -11648,7 +11648,10 @@ function RankUpSoldier(XComGameState NewGameState, optional name SoldierClass, o
 			{
 				APReward = GetResistanceHeroAPAmount(m_SoldierRank, ComInt);
 			}
-			else if(Template.bAllowAWCAbilities)
+			// Start Issue #80
+			// Let certian soldier classes allow to get AP regardless of bAllowAWCAbilities
+			else if(Template.bAllowAWCAbilities || class'CHHelpers'.default.AlwaysAllowAbilityPointsClasses.Find(Template.DataName) != INDEX_NONE)
+			// End Issue #80
 			{
 				APReward = GetBaseSoldierAPAmount(ComInt);
 			}

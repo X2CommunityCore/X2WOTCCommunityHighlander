@@ -9,3 +9,8 @@ var config int MAX_TACTICAL_AUTOSAVES; // Issue #53 - make configurable, only us
 var config bool ENABLE_CHOSEN_RAGDOLL;
 var config bool ENABLE_RAGDOLL_COLLISION;
 // End Issue #41
+
+// Start Issue #80
+// Let certian soldier classes allow to get AP regardless of bAllowAWCAbilities
+var config array<name> AlwaysAllowAbilityPointsClasses;
+// End Issue #80

@@ -24,9 +24,12 @@ simulated function UpdateList()
 		UnitItem = UIPersonnel_ListItem(m_kList.GetItem(i));
 		Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitItem.UnitRef.ObjectID));
 
+		// Start Issue #80
+		// Let certian soldier classes allow to get AP regardless of bAllowAWCAbilities
 		if (Unit.GetRank() == 0 || 
-			(!Unit.GetSoldierClassTemplate().bAllowAWCAbilities && !Unit.IsResistanceHero()) ||
+			(!Unit.GetSoldierClassTemplate().bAllowAWCAbilities && !Unit.IsResistanceHero() && class'CHHelpers'.default.AlwaysAllowAbilityPointsClasses.Find(Unit.GetSoldierClassTemplateName()) == INDEX_NONE) ||
 			Unit.IsOnCovertAction())
+		// End Issue #80
 		{
 			UnitItem.SetDisabled(true);
 		}
