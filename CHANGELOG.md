@@ -86,6 +86,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   than a generic label. (#52)
 - Check a soldiers 'NeedsSecondaryWeapon' in UIArmory_Loadout, rather than
   hardcoding based on Rookie Rank (#55)
+- Change UIUtilities_Colors.GetColorForFaction to use Faction template color as
+  a backup (#72)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
@@ -94,3 +96,5 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   into account (#51)
 - Enable ForceCountry in CharacterPoolManager - was ignored despite being
   an argument in the CreateCharacter function (#70)
+- Fixes game terminating SoundCue narrative moments after three seconds because
+  it assumes they didn't play at all. (#66)
