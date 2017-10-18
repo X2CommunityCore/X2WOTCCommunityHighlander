@@ -92,3 +92,5 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   Shadowstep Strength in the narrative mission, instead Shadowstep is forced
   ahead of awarding the remaining traits, so the trait roll takes the strength
   into account (#51)
+- Enable ForceCountry in CharacterPoolManager - was ignored despite being
+  an argument in the CreateCharacter function (#70)
