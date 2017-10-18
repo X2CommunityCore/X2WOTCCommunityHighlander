@@ -298,3 +298,14 @@ static private function bool CanAddItemToInventory(out int bCanAddItem, const EI
 }
 
 //end Issue #50
+
+// Start Issue #64
+/// <summary>
+/// Called from XComGameState_Unit::RealizeNumUtilitySlots with what it believes is the number of utility slots it should have.
+/// Mods can add to / remove from / overwrite the value of the out parameter
+/// </summary>
+static function ModifyNumUtilitySlots(out int iNumSlots, XComGameState_Unit UnitState, XComGameState NewGameState)
+{
+
+}
+// End Issue #64

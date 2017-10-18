@@ -6939,11 +6939,10 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 		}
 		else if (Slot == eInvSlot_Armor)
 		{
-			if(!IsMPCharacter() && X2ArmorTemplate(Item.GetMyTemplate()).bAddsUtilitySlot)
-			{
-				SetBaseMaxStat(eStat_UtilityItems, GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems) + 1.0f);
-				SetCurrentStat(eStat_UtilityItems, GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems) + 1.0f);
-			}
+			// Start Issue #64
+			// Here used to be code that added a utility slot if the armor granted one
+			RealizeNumUtilitySlots(NewGameState, false);
+			// End Issue #64
 
 			//  must ensure appearance matches 
 			if (GetMyTemplate().bAppearanceDefinesPawn && !GetMyTemplate().bForceAppearance)
@@ -7357,14 +7356,11 @@ simulated function bool RemoveItemFromInventory(XComGameState_Item Item, optiona
 		switch(Item.InventorySlot)
 		{
 		case eInvSlot_Armor:
-			if(!IsMPCharacter() && X2ArmorTemplate(Item.GetMyTemplate()).bAddsUtilitySlot)
-			{
-				if (!HasExtraUtilitySlotFromAbility())      //  don't lower the bonus if one is given via an ability
-				{
-					SetBaseMaxStat(eStat_UtilityItems, GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems));
-					SetCurrentStat(eStat_UtilityItems, GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems));
-				}
-			}
+			// Start Issue #64
+			// Here used to be code that reset the Utility Items if the armor granted one unless the unit had the ability "Tactical Rigging" (or equivalent)
+			// For some reason, ModifyGameState is marked as optional. It should not be, we'll just assume that it is always passed.
+			RealizeNumUtilitySlots(ModifyGameState, false);
+			// End Issue #64
 			break;
 		case eInvSlot_Backpack:
 			ModifyCurrentStat(eStat_BackpackSize, Item.GetItemSize());
@@ -10347,7 +10343,8 @@ function ValidateLoadout(XComGameState NewGameState)
 	local XComGameStateHistory History;
 	local XComGameState_HeadquartersXCom XComHQ;
 	local XComGameState_Item EquippedArmor, EquippedPrimaryWeapon, EquippedSecondaryWeapon; // Default slots
-	local XComGameState_Item EquippedHeavyWeapon, EquippedGrenade, EquippedAmmo, UtilityItem; // Special slots
+	// Issue #64: removed variable no longer in use
+	local XComGameState_Item EquippedHeavyWeapon, EquippedGrenade, EquippedAmmo; // Special slots
 	local array<XComGameState_Item> EquippedUtilityItems; // Utility Slots
 	local int idx;
 
@@ -10442,20 +10439,79 @@ function ValidateLoadout(XComGameState NewGameState)
 		EquippedGrenade = none;
 	}
 
-	// UtilitySlots (Already grabbed equipped)
-	if(!IsMPCharacter())
+	// Start Issue #64
+	// Here used to be code that correctly set the number of utility item slots and validated utility slot loadout
+	// This is now part of the helper function below
+	RealizeNumUtilitySlots(NewGameState, true);
+	// End Issue #64
+}
+
+// Start Issue #64
+// This function makes sure that eStat_UtilityItems matches the number of utility slots the unit is supposed to have (except for MP characters)
+// It has an option to validate utility items after being called to make sure units don't end up with too many / not enough utility items
+// This parameter is not set to true by default because validating utility slots while in a tactical mission may have unforeseen side effects
+// since adding a utility item temporarily is done in a few mods. If we validated loadout, we would end up unequipping temporary items into HQ Inventory
+// Calling this function from external code is explicitely allowed, but the more generic ValidateLoadout also calls this
+// When mods can be sure that inventory operations are safe, calling ValidateLoadout is the better way to do it
+function RealizeNumUtilitySlots(XComGameState NewGameState, bool ValidateItems)
+{
+	local XComGameState_Item EquippedArmor;
+	local int iNumUtilitySlots;
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local int i;
+
+	// MP Characters have their slots set externally and do not run the utility slot calculation logic
+	if (!IsMPCharacter())
 	{
-		if(X2ArmorTemplate(EquippedArmor.GetMyTemplate()).bAddsUtilitySlot || HasExtraUtilitySlotFromAbility())
+		iNumUtilitySlots = GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems);
+
+		EquippedArmor = GetItemInSlot(eInvSlot_Armor, NewGameState);
+		if ((EquippedArmor != none && X2ArmorTemplate(EquippedArmor.GetMyTemplate()).bAddsUtilitySlot) || HasExtraUtilitySlotFromAbility())
 		{
-			SetBaseMaxStat(eStat_UtilityItems, GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems) + 1.0f);
-			SetCurrentStat(eStat_UtilityItems, GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems) + 1.0f);
+			iNumUtilitySlots++;
 		}
-		else
+
+		DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+		for(i = 0; i < DLCInfos.Length; ++i)
 		{
-			SetBaseMaxStat(eStat_UtilityItems, GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems));
-			SetCurrentStat(eStat_UtilityItems, GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems));
-		}
+			DLCInfos[i].ModifyNumUtilitySlots(iNumUtilitySlots, self, NewGameState);
+		} 
+
+		SetBaseMaxStat(eStat_UtilityItems, iNumUtilitySlots);
+		SetCurrentStat(eStat_UtilityItems, iNumUtilitySlots);
 	}
+
+	if (ValidateItems)
+	{
+		ValidateUtilityItems(NewGameState);
+	}
+}
+
+
+// Moved from ValidateLoadout
+protected function ValidateUtilityItems(XComGameState NewGameState)
+{
+	local XComGameStateHistory History;
+	local XComGameState_HeadquartersXCom XComHQ;
+	local XComGameState_Item  UtilityItem;
+	local array<XComGameState_Item> EquippedUtilityItems; // Utility Slots
+	local int idx;
+
+	// Grab HQ Object
+	History = `XCOMHISTORY;
+	
+	foreach NewGameState.IterateByClassType(class'XComGameState_HeadquartersXCom', XComHQ)
+	{
+		break;
+	}
+
+	if(XComHQ == none)
+	{
+		XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
+		XComHQ = XComGameState_HeadquartersXCom(NewGameState.ModifyStateObject(class'XComGameState_HeadquartersXCom', XComHQ.ObjectID));
+	}
+
+	EquippedUtilityItems = GetAllItemsInSlot(eInvSlot_Utility, NewGameState, ,true);
 
 	// Remove Extra Utility Items
 	for(idx = GetCurrentStat(eStat_UtilityItems); idx < EquippedUtilityItems.Length; idx++)
@@ -10481,6 +10537,7 @@ function ValidateLoadout(XComGameState NewGameState)
 		EquippedUtilityItems.AddItem(UtilityItem);
 	}
 }
+// End Issue #64
 
 //------------------------------------------------------
 function XComGameState_Item GetDefaultArmor(XComGameState NewGameState)
