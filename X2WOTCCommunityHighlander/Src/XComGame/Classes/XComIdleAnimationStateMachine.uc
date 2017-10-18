@@ -2249,7 +2249,16 @@ Firing:
 	AnimParams.Looping = true;
 	if( Unit.m_bSuppressing )
 	{
-		UnitPawnNative.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams); // idle until we shoot again
+		// Start Issue #74
+		// Try to find the normal out-of-cover idle anim if we can't play a suppression idle
+		if (!UnitPawnNative.GetAnimTreeController().CanPlayAnimation(AnimParams.AnimName))
+			AnimParams.AnimName = 'NO_IdleGunUp';
+
+		// But only if we can play that one, if not, we'll just freeze for 1.5-3.5 seconds
+		if (UnitPawnNative.GetAnimTreeController().CanPlayAnimation(AnimParams.AnimName))
+		// End Issue #74
+			UnitPawnNative.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams); // idle until we shoot again
+
 		Sleep(((Rand(100) / 100.0f)*2.0f) + 1.5f); // only shoot every 1.5-3.5 seconds when supressing (an addition 0.5 after target peeks)
 		goto('Firing');
 	}
