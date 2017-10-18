@@ -63,6 +63,9 @@
     <Content Include="Src\XComGame\Classes\UIArmory_Loadout.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2AbilityTemplate.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIUtilities_Colors.uc">
       <SubType>Content</SubType>
     </Content>

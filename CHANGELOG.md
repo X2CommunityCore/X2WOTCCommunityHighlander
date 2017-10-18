@@ -46,6 +46,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Modding Exposures
 - Deprivatise variables to protected in XComIdleAnimationStateMachine to allow
   for subclassing overrides (#15)
+- Remove protectedwrite on X2AbilityTemplate effects arrays: AbilityTarget,
+  AbilityMultiTarget, and AbilityShooter Effects (#68)
 
 ### Improvements
 - Make suppression work with weapons that don't have suppression specific
