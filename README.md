@@ -196,6 +196,8 @@ Copy those files into a folder called `CookedPCConsole` inside the mod's output
 folder. You will need to delete `Script\XComGame.u`, now that we've put the
 cooked script file in it's place.
 
+The same process needs to be done for all base game packages that this mod includes. At the moment, those are: `Engine`, `XComGame`.
+
 Once you've done all that, the mod should now run in vanilla XCOM. Note that all
 logging statements will be stripped from the Cooked version, so don't expect to
 see any of your script logs.
