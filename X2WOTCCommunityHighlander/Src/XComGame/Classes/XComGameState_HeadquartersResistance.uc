@@ -1222,20 +1222,23 @@ function SetUpFactions(XComGameState StartState)
 	local X2ResistanceFactionTemplate Faction;
 	local XComGameState_CampaignSettings CampaignSettings;
 	local int RandIndex;
-	//issue #82 variables - used for filtering out custom faction templates
+	//issue #82 variables - used for filtering out faction templates
 	local int i;
-
+	local array<name> AllowedFactions;
+	local X2StrategyElementTemplate StratTemplate;
+	//end issue #82
 	// Grab all the faction templates
 	StratMgr = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
-	AllFactions = StratMgr.GetAllTemplatesOfClass(class'X2ResistanceFactionTemplate');
-	
-	//start issue #82: filter out custom factions
-	for(i = 0; i < AllFactions.Length, i++)
+	//start issue #82: filter out factions
+
+	AllowedFactions = class'CHHelpers'.default.FACTIONS_AT_START;
+
+	for(i = 0; i < AllowedFactions.Length, i++)
 	{
-		if(AllFactions[i].DataName != 'Faction_Templars' && AllFactions[i].DataName != 'Faction_Skirmishers' && AllFactions[i].DataName != 'Faction_Reapers')
+		StratTemplate = StratMgr.FindStrategyElementTemplate(AllowedFactions[i]);
+		if(StratTemplate != none)
 		{
-			AllFactions.Remove(i, 1)
-			i--
+			AllFactions.AddItem(StratTemplate);
 		}
 	}
 	//end issue #82

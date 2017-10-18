@@ -9,3 +9,10 @@ var config int MAX_TACTICAL_AUTOSAVES; // Issue #53 - make configurable, only us
 var config bool ENABLE_CHOSEN_RAGDOLL;
 var config bool ENABLE_RAGDOLL_COLLISION;
 // End Issue #41
+
+
+//start issue #82
+//have game choose from an array of names in config when initing custom factions
+//this is so mods can expand that when custom chosen start being added
+var config array<name> FACTIONS_AT_START;
+//End issue #82
