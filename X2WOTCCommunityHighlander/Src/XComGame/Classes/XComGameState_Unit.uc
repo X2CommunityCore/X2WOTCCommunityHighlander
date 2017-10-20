@@ -964,6 +964,7 @@ function RecoverFromTraits()
 
 				NewUnitState.NegativeTraits.Remove(CurrentTraitIndex, 1);
 
+
 				//start of issue #85: uncommenting function to add positive traits + added cured trait to proper array
 				NewUnitState.CuredTraits.AddItem(CurrentTraitTemplate.DataName);
 				// replace it with a positive trait if possible
@@ -979,6 +980,7 @@ function RecoverFromTraits()
 					}
 				}
 				//end of issue #85
+
 			}
 		}
 
