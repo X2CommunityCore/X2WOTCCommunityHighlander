@@ -185,15 +185,17 @@ to enter the command line and run the following commands:
 "%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\Binaries\Win64\XComGame.exe" CookPackages -platform=pcconsole -final_release -quickanddirty -modcook -sha -multilanguagecook=INT+FRA+ITA+DEU+RUS+POL+KOR+ESN -singlethread -tfcsuffix=_XPACK_
 ```
 
-The process will create a cooked pair of files for your XComGame replacement at
+The process will create cooked files for your `XComGame` and `Engine` replacement at
 `%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\XComGame\Published\CookedPCConsole`: 
 ```
 XComGame.upk
 XComGame.upk.uncompressed_size
+Engine.upk
+Engine.upk.uncompressed_size
 ```
 
 Copy those files into a folder called `CookedPCConsole` inside the mod's output 
-folder. You will need to delete `Script\XComGame.u`, now that we've put the
+folder. You will need to delete `Script\XComGame.u` and `Script\Engine.u`, now that we've put the
 cooked script file in it's place.
 
 Once you've done all that, the mod should now run in vanilla XCOM. Note that all

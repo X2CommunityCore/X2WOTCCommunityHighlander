@@ -8,3 +8,5 @@ Brood aka zamster - development
 shiremct - development  
 bountygiver - development  
 .vhs - ModPreview thumbnail  
+TNychka - development  
+PixalVortex - development  
