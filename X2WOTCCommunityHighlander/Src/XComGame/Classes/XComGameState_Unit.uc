@@ -825,21 +825,32 @@ function AcquireTrait(XComGameState NewGameState, name TraitTemplateName, option
 function AddAcquiredTrait(XComGameState NewGameState, name TraitTemplateName, optional name ReplacedTraitName)
 {
 	local NegativeTraitRecoveryInfo NegativeTrait;
-
+	//start issue #85: variables required to check the trait template of what we've been given
+	local X2EventListenerTemplateManager EventTemplateManager;
+	local X2TraitTemplate TraitTemplate;
+	//end issue #85
+	
 	if( !IsAlive() )
 	{
 		return;
 	}
-
+	//start issue #85: init variables here after confirming it's a unit valid for it
+	EventTemplateManager = class'X2EventListenerTemplateManager'.static.GetEventListenerTemplateManager();
+	TraitTemplate = X2TraitTemplate(EventTemplateManager.FindEventListenerTemplate(TraitTemplateName));
+	//end issue #85
 	if( AcquiredTraits.Find(TraitTemplateName) == INDEX_NONE )
 	{
 		AcquiredTraits.AddItem(TraitTemplateName);
 		WorldMessageTraits.AddItem(TraitTemplateName);
 		AlertTraits.AddItem(TraitTemplateName);
-		
-		NegativeTrait.TraitName = TraitTemplateName;
-		NegativeTrait.PerfectMissionsCompleted = 0;
-		NegativeTraits.AddItem(NegativeTrait);		
+		//start issue #85: check if the trait's not positive: if so, we can add it to the negative trait array
+		if(!TraitTemplate.bPositiveTrait)
+		{
+			NegativeTrait.TraitName = TraitTemplateName;
+			NegativeTrait.PerfectMissionsCompleted = 0;
+			NegativeTraits.AddItem(NegativeTrait);		
+		}
+		//end issue #85
 	}
 	else
 	{
@@ -953,18 +964,21 @@ function RecoverFromTraits()
 
 				NewUnitState.NegativeTraits.Remove(CurrentTraitIndex, 1);
 
-				// replace it with a positive trait
-				//if(CanAcquireTrait(true))
-				//{
-				//	if(CurrentTraitTemplate.PositiveReplacementTrait != '')
-				//	{
-				//		NewUnitState.AddAcquiredTrait(NewGameState, CurrentTraitTemplate.PositiveReplacementTrait, CurrentTraitTemplate.DataName);
-				//	}
-				//	else
-				//	{
-				//		NewUnitState.ApplyGenericPositiveTrait(NewGameState, CurrentTraitTemplate.DataName);
-				//	}
-				//}
+				//start of issue #85: uncommenting function to add positive traits + added cured trait to proper array
+				NewUnitState.CuredTraits.AddItem(CurrentTraitTemplate.DataName);
+				// replace it with a positive trait if possible
+				if(CanAcquireTrait(true))
+				{
+					if(CurrentTraitTemplate.PositiveReplacementTrait != '')
+					{
+						NewUnitState.AddAcquiredTrait(NewGameState, CurrentTraitTemplate.PositiveReplacementTrait, CurrentTraitTemplate.DataName);
+					}
+					else
+					{
+						NewUnitState.ApplyGenericPositiveTrait(NewGameState, CurrentTraitTemplate.DataName);
+					}
+				}
+				//end of issue #85
 			}
 		}
 
@@ -996,6 +1010,9 @@ function RecoverFromAllTraits(XComGameState NewGameState)
 			CurrentTraitTemplate = X2TraitTemplate(EventTemplateManager.FindEventListenerTemplate(NegativeTraits[CurrentTraitIndex].TraitName));
 			AcquiredTraits.RemoveItem(CurrentTraitTemplate.DataName);
 			NegativeTraits.Remove(CurrentTraitIndex, 1);
+			//start of issue #85: add cured trait to proper array
+			CuredTraits.AddItem(CurrentTraitTemplate.DataName);		
+			//end of issue #85
 		}
 	}
 }
@@ -1068,7 +1085,7 @@ function bool HasTrait(name TraitTemplateName)
 
 function bool EverHadTrait(name TraitTemplateName)
 {
-	return (CuredTraits.Find(TraitTemplateName) != INDEX_NONE) || HasTrait(TraitTemplateName);
+	return (CuredTraits.Find(TraitTemplateName) != INDEX_NONE && class'CHHelpers'.default.CHECK_CURED_TRAITS) || HasTrait(TraitTemplateName);
 }
 
 simulated function bool HasHeightAdvantageOver(XComGameState_Unit OtherUnit, bool bAsAttacker)
