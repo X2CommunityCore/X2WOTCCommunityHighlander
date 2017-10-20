@@ -54,6 +54,8 @@ var bool bTutorialJumpOut;
 
 simulated function InitArmory(StateObjectReference UnitRef, optional name DispEvent, optional name SoldSpawnEvent, optional name NavBackEvent, optional name HideEvent, optional name RemoveEvent, optional bool bInstant = false, optional XComGameState InitCheckGameState)
 {
+	Movie.PreventCacheRecycling();
+
 	super.InitArmory(UnitRef, DispEvent, SoldSpawnEvent, NavBackEvent, HideEvent, RemoveEvent, bInstant, InitCheckGameState);
 
 	LocTag = XGParamTag(`XEXPANDCONTEXT.FindTag("XGParam"));
@@ -210,9 +212,9 @@ simulated function UpdateNavHelp()
 			}
 			else
 			{
-			NavHelp.AddLeftHelp(Caps(class'UIManageEquipmentMenu'.default.m_strTitleLabel), class'UIUtilities_Input'.const.ICON_LT_L2);
-			UpdateNavHelp_LoadoutItem();
-		}
+				NavHelp.AddLeftHelp(Caps(class'UIManageEquipmentMenu'.default.m_strTitleLabel), class'UIUtilities_Input'.const.ICON_LT_L2);
+				UpdateNavHelp_LoadoutItem();
+			}
 		}
 		// bsg-jrebar (5/3/17): end
 
@@ -1105,7 +1107,12 @@ simulated function OnReceiveFocus()
 {
 	super.OnReceiveFocus();
 	if( `ISCONTROLLERACTIVE )
+	{
 		DelayedShowTooltip();
+	}
+
+	super.OnReceiveFocus();
+	Movie.PreventCacheRecycling();
 }
 
 simulated function SetUnitReference(StateObjectReference NewUnit)
@@ -1377,6 +1384,17 @@ function XComGameState_Unit GetUnitFromHistory(int ObjectID)
 	return XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(ObjectID));
 }
 
+simulated function OnLoseFocus()
+{
+	super.OnLoseFocus();
+	Movie.AllowCacheRecycling();
+}
+
+event Destroyed()
+{
+	Movie.AllowCacheRecycling();
+	super.Destroyed();
+}
 //==============================================================================
 
 defaultproperties
