@@ -319,6 +319,7 @@ function LaunchTacticalBattle(optional int MissionID = -1)
 	// copy the xcom hq
 	XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
 	XComHQ = XComGameState_HeadquartersXCom(NewStartState.ModifyStateObject(class'XComGameState_HeadquartersXCom', XComHQ.ObjectID));
+	XComHQ.QueuedDynamicPopups.Length = 0;	// clear the delegates here holding on to 
 
 	if(XComHQ.AllSquads.Length == 0)
 	{

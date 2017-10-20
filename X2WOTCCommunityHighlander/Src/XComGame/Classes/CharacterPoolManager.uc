@@ -55,8 +55,11 @@ var config array<name> CanConvertToVIPTemplateNames;
 native static function EnumerateImportablePools(out array<string> FriendlyNames, out array<string> FileNames);
 
 function native LoadCharacterPool();
+function native LoadBaseGameCharacterPool();
 function native SaveCharacterPool();
 function native DeleteCharacterPool();
+
+function native string GetBaseGameCharacterPoolName();
 
 event XComGameState_Unit CreateSoldier(name DataTemplateName)
 {
@@ -104,6 +107,8 @@ event XComGameState_Unit CreateSoldier(name DataTemplateName)
 		NewSoldierState.SetCharacterName(CharacterGeneratorResult.strFirstName, CharacterGeneratorResult.strLastName, CharacterGeneratorResult.strNickName);
 		NewSoldierState.SetCountry(CharacterGeneratorResult.nmCountry);
 		class'XComGameState_Unit'.static.NameCheck(CharacterGenerator, NewSoldierState, eNameType_Full);
+
+		NewSoldierState.GenerateBackground(, CharacterGenerator.BioCountryName);
 	}
 	
 	//Tell the history that we don't actually want this game state

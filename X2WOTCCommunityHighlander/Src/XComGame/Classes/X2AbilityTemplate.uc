@@ -27,6 +27,7 @@ enum EConcealmentRule           //  Checked after the ability is activated to de
 	eConceal_KillShot,          //  Retain concealment when killing a single (primary) target
 	eConceal_Miss,              //  Retain concealment when the ability misses
 	eConceal_MissOrKillShot,    //  Retain concealment when the ability misses or when killing a single (primary) target
+	eConceal_AlwaysEvenWithObjective,	//	Always retain Concealment, even if the target is an objective
 };
 
 enum ECameraFramingType

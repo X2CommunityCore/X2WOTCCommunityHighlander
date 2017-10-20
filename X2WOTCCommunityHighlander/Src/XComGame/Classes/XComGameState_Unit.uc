@@ -954,17 +954,17 @@ function RecoverFromTraits()
 				NewUnitState.NegativeTraits.Remove(CurrentTraitIndex, 1);
 
 				// replace it with a positive trait
-				if(CanAcquireTrait(true))
-				{
-					if(CurrentTraitTemplate.PositiveReplacementTrait != '')
-					{
-						NewUnitState.AddAcquiredTrait(NewGameState, CurrentTraitTemplate.PositiveReplacementTrait, CurrentTraitTemplate.DataName);
-					}
-					else
-					{
-						NewUnitState.ApplyGenericPositiveTrait(NewGameState, CurrentTraitTemplate.DataName);
-					}
-				}
+				//if(CanAcquireTrait(true))
+				//{
+				//	if(CurrentTraitTemplate.PositiveReplacementTrait != '')
+				//	{
+				//		NewUnitState.AddAcquiredTrait(NewGameState, CurrentTraitTemplate.PositiveReplacementTrait, CurrentTraitTemplate.DataName);
+				//	}
+				//	else
+				//	{
+				//		NewUnitState.ApplyGenericPositiveTrait(NewGameState, CurrentTraitTemplate.DataName);
+				//	}
+				//}
 			}
 		}
 
@@ -2246,12 +2246,19 @@ function ApplyFirstTimeStatModifiers()
 
 	bEverAppliedFirstTimeStatModifiers = true;
 
-	if( `SecondWaveEnabled('BetaStrike' ) && GetMyTemplate().CharacterGroupName != 'TheLost' )
+	if( `SecondWaveEnabled('BetaStrike' ) && GetMyTemplate().CharacterGroupName != 'TheLost')
 	{
 		CurrentHealthMax = GetMaxStat(eStat_HP);
-		SetBaseMaxStat(eStat_HP, CurrentHealthMax + 
-					   GetMyTemplate().GetCharacterBaseStat(eStat_HP) *
-					     (class'X2StrategyGameRulesetDataStructures'.default.SecondWaveBetaStrikeHealthMod - 1.0));
+		if (!bIsSpecial)
+		{
+			SetBaseMaxStat(eStat_HP, CurrentHealthMax +
+				GetMyTemplate().GetCharacterBaseStat(eStat_HP) *
+				(class'X2StrategyGameRulesetDataStructures'.default.SecondWaveBetaStrikeHealthMod - 1.0));
+		}
+		else // Alien Rulers have 1.5X their HP with Beta Strike
+		{
+			SetBaseMaxStat(eStat_HP, Round(CurrentHealthMax + GetMyTemplate().GetCharacterBaseStat(eStat_HP) * 0.5));
+		}
 		SetCurrentStat(eStat_HP, GetMaxStat(eStat_HP));
 
 		// Redo the stat assignment complete
@@ -5604,12 +5611,6 @@ function bool IsLootable(XComGameState NewGameState)
 		}
 	}
 
-	// no loot drops in Challenge Mode
-	if (History.GetSingleGameStateObjectForClass( class'XComGameState_ChallengeData', true ) != none)
-	{
-		return false;
-	}
-
 	return EffectsAllowLooting;
 }
 
@@ -6122,6 +6123,15 @@ protected function OnUnitDied(XComGameState NewGameState, Object CauseOfDeath, c
 		// when enemies are killed with pending loot, start the loot expiration timer
 		if( IsLootable(NewGameState) )
 		{
+			// no loot drops in Challenge Mode
+			// This would really be done in the AI spawn manager, just don't roll loot for enemies,
+			// but that would require fixing up all the existing start states.  Doing it here at runtime is way easier.
+			// Also we do it before RollForSpecialLoot so that Templar Focus drops will still occur.
+			if (History.GetSingleGameStateObjectForClass( class'XComGameState_ChallengeData', true ) != none)
+			{
+				PendingLoot.LootToBeCreated.Length = 0;
+			}
+
 			RollForSpecialLoot();
 
 			if( HasAvailableLoot() )
@@ -6133,7 +6143,11 @@ protected function OnUnitDied(XComGameState NewGameState, Object CauseOfDeath, c
 				NewGameState.GetContext().PostBuildVisualizationFn.AddItem(VisualizeLootDestroyedByExplosives);
 			}
 
-			RollForAutoLoot(NewGameState);
+			// no loot drops in Challenge Mode
+			if (History.GetSingleGameStateObjectForClass( class'XComGameState_ChallengeData', true ) == none)
+			{
+				RollForAutoLoot(NewGameState);
+			}
 		}
 		else
 		{
@@ -6328,7 +6342,7 @@ native function float GetMaxStat( ECharStatType Stat );
 native function float GetCurrentStat( ECharStatType Stat ) const;
 native function ModifyCurrentStat(ECharStatType Stat, float Delta);
 native function SetCurrentStat( ECharStatType Stat, float NewValue );
-native function GetStatModifiers(ECharStatType Stat, out array<XComGameState_Effect> Mods, out array<float> ModValues);
+native function GetStatModifiers(ECharStatType Stat, out array<XComGameState_Effect> Mods, out array<float> ModValues, optional XComGameStateHistory GameStateHistoryObject);
 
 native function ApplyEffectToStats( const ref XComGameState_Effect SourceEffect, optional XComGameState NewGameState );
 native function UnApplyEffectFromStats( const ref XComGameState_Effect SourceEffect, optional XComGameState NewGameState );
@@ -6618,13 +6632,20 @@ function bool HasAvailablePerksToAssign()
 	return true;
 }
 
-function bool HasPurchasedPerkAtRank(int Rank)
+function bool HasPurchasedPerkAtRank(int Rank, optional int NumBranchesToCheck)
 {
 	local int i;
 	local array<SoldierClassAbilityType> RankAbilities;
 		
 	RankAbilities = AbilityTree[Rank].Abilities;
-	for (i = 0; i < RankAbilities.Length; ++i)
+	
+	// Do not let the num of branches to check be 0, or larger than the available abilities
+	if (NumBranchesToCheck == 0 || NumBranchesToCheck > RankAbilities.Length)
+	{
+		NumBranchesToCheck = RankAbilities.Length;
+	}
+
+	for (i = 0; i < NumBranchesToCheck; ++i)
 	{
 		if (HasSoldierAbility(RankAbilities[i].AbilityName))
 			return true;
@@ -6732,7 +6753,6 @@ simulated function LoadPawnPackagesAsync( Actor PawnOwner, vector UseLocation, r
     alr = new class'XComGameState_Unit_AsyncLoadRequest';
 
     alr.ArchetypeName = strArchetype;
-    alr.PawnOwner = PawnOwner;
     alr.UseLocation = UseLocation;
     alr.UseRotation = UseRotation;
     alr.bForceMenuState = false;
@@ -13004,12 +13024,12 @@ function bool FindAvailableNeighborTile(out TTile OutTileLocation)
 	return class'Helpers'.static.FindAvailableNeighborTile(TileLocation, OutTileLocation);
 }
 
-delegate bool ValidateTileDelegate(const out TTile TileOption, const out TTile SourceTile)
+delegate bool ValidateTileDelegate(const out TTile TileOption, const out TTile SourceTile, const out Object PassedObject)
 {
 	return true;
 }
 
-function bool FindAvailableNeighborTileWeighted(Vector PreferredDirection, out TTile OutTileLocation, optional delegate<ValidateTileDelegate> IsValidTileFn=ValidateTileDelegate)
+function bool FindAvailableNeighborTileWeighted(Vector PreferredDirection, out TTile OutTileLocation, optional delegate<ValidateTileDelegate> IsValidTileFn=ValidateTileDelegate, optional Object PassToDelegate)
 {
 	local TTile NeighborTileLocation;
 	local XComWorldData World;
@@ -13040,7 +13060,7 @@ function bool FindAvailableNeighborTileWeighted(Vector PreferredDirection, out T
 			// If the tile is empty and is on the same z as this unit's location
 			if ((TileActors.Length == 0) && (World.GetFloorTileZ(NeighborTileLocation, false) == TileLocation.Z))
 			{
-				if( !IsValidTileFn(NeighborTileLocation, TileLocation) )
+				if( !IsValidTileFn(NeighborTileLocation, TileLocation, PassToDelegate) )
 				{
 					continue;
 				}

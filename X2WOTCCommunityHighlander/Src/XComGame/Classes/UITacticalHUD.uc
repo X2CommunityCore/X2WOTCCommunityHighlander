@@ -353,7 +353,7 @@ simulated function OnInit()
 		//NavHelp.SetY(NavHelp.Y - 65); //NavHelp's default location overlaps with the static character info, so we're offsetting it here
 	}
 
-	LowerTargetSystem();
+	LowerTargetSystem(true);
 
 	// multiplayer specific watches -tsmith 
 	if(WorldInfo.NetMode != NM_Standalone)
@@ -720,7 +720,7 @@ simulated function HideAwayTargetSystemCosmetic()
 	//</workshop>
 }
 
-simulated function LowerTargetSystem()
+simulated function LowerTargetSystem(optional bool bIsCancelling = false)
 {	
 	local XGUnit kUnit;
 	local X2TargetingMethod TargetingMethod;
@@ -758,8 +758,8 @@ simulated function LowerTargetSystem()
 	
 	m_kShotHUD.ResetDamageBreakdown(true);
 	m_kShotHUD.LowerShotHUD();
-	m_kEnemyTargets.RealizeTargets(-1, true);
-	m_kEnemyPreview.RealizeTargets(-1, true);
+	m_kEnemyTargets.RealizeTargets(-1, !bIsCancelling);
+	m_kEnemyPreview.RealizeTargets(-1, !bIsCancelling);
 	m_kEnemyPreview.Show();
 	m_kShotInfoWings.Hide();
 	m_kObjectivesControl.Show();
@@ -946,7 +946,7 @@ simulated function bool HideAwayTargetAction()
 }
 simulated function bool CancelTargetingAction()
 {
-	LowerTargetSystem();
+	LowerTargetSystem(true);
 	//XComPresentationLayer(Movie.Pres).m_kSightlineHUD.ClearSelectedEnemy();
 	PC.SetInputState('ActiveUnit_Moving');
 	return true; // controller: return false ? bsteiner 
@@ -1102,6 +1102,18 @@ simulated function UpdateEnemyPreview(bool bShow)
 	{
 		m_kEnemyPreview.RealizeTargets(-1);
 		m_kEnemyPreview.Hide();
+	}
+}
+
+function ReplayToggleReaperHUD(bool bShow)
+{
+	if (bShow)
+	{
+		MC.FunctionVoid("ShowReaperHUD");
+	}
+	else
+	{
+		MC.FunctionVoid("HideReaperHUD");
 	}
 }
 
@@ -1706,6 +1718,12 @@ simulated function Show()
 	   && (!Pres.ScreenStack.HasInstanceOf(class'UIReplay') || `REPLAY.bInTutorial)) //And don't show if the turn overlay is still active. -bsteiner 5/11/2015
 		super.Show();
 }
+
+simulated function VisualizerForceShow()
+{
+	super.Show();
+}
+
 simulated function Hide()
 {
 	m_kAbilityHUD.NotifyCanceled();
