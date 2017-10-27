@@ -10,7 +10,7 @@
 //---------------------------------------------------------------------------------------
 
 class X2Effect_Burning extends X2Effect_Persistent 
-	config(Game); //Issue #89
+	config(GameCore); //Issue #89
 
 var privatewrite name BurningEffectAddedEventName;
 var config bool BURNED_IGNORES_SHIELDS; //Issue #89
@@ -42,12 +42,12 @@ simulated function SetBurnDamage(int Damage, int Spread, name DamageType)
 	BurnDamage = new class'X2Effect_ApplyWeaponDamage';
 	BurnDamage.bAllowFreeKill = false;
 	BurnDamage.bIgnoreArmor = true;
+	BurnDamage.bBypassShields = BURNED_IGNORES_SHIELDS; //Issue #89
 
 	BurnDamage.EffectDamageValue.Damage = Damage;
 	BurnDamage.EffectDamageValue.Spread = Spread;
 	BurnDamage.EffectDamageValue.DamageType = DamageType;
 	BurnDamage.bIgnoreBaseDamage = true; 
-	BurnDamage.bBypassShields = BURNED_IGNORES_SHIELDS; //Issue #89
 	BurnDamage.DamageTag = self.Name;
 
 	ApplyOnTick.AddItem(BurnDamage);
