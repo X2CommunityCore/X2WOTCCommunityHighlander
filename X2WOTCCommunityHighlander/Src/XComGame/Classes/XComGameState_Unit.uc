@@ -3461,7 +3461,11 @@ function RollForTrainingCenterAbilities()
 	local int Idx, RemIdx, NumRanks, RankIdx, AbilityIdx;
 	local X2SoldierClassTemplate SoldierClassTemplate;
 
-	if (!bRolledForAWCAbility)
+	// Start Issue #80
+	// List of classes to exclude from rolling awc abilities
+	// These classes have bAllowAWCAbilities set to true just to participate in the ComInt / AP system
+	if (!bRolledForAWCAbility && class'CHHelpers'.default.ClassesExcludedFromAWCRoll.Find(GetSoldierClassTemplateName()) == INDEX_NONE)
+	// End Issue #80
 	{
 		bRolledForAWCAbility = true;
 		EligibleAbilities = class'X2SoldierClassTemplateManager'.static.GetSoldierClassTemplateManager().GetCrossClassAbilities(GetSoldierClassTemplate());

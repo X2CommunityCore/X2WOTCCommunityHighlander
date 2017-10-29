@@ -9,3 +9,9 @@ var config int MAX_TACTICAL_AUTOSAVES; // Issue #53 - make configurable, only us
 var config bool ENABLE_CHOSEN_RAGDOLL;
 var config bool ENABLE_RAGDOLL_COLLISION;
 // End Issue #41
+
+// Start Issue #80
+// List of classes to exclude from rolling awc abilities
+// These classes have bAllowAWCAbilities set to true just to participate in the ComInt / AP system
+var config array<name> ClassesExcludedFromAWCRoll;
+// End Issue #80
