@@ -3480,7 +3480,11 @@ function RollForTrainingCenterAbilities()
 	local int Idx, RemIdx, NumRanks, RankIdx, AbilityIdx;
 	local X2SoldierClassTemplate SoldierClassTemplate;
 
-	if (!bRolledForAWCAbility)
+	// Start Issue #80
+	// List of classes to exclude from rolling awc abilities
+	// These classes have bAllowAWCAbilities set to true just to participate in the ComInt / AP system
+	if (!bRolledForAWCAbility && class'CHHelpers'.default.ClassesExcludedFromAWCRoll.Find(GetSoldierClassTemplateName()) == INDEX_NONE)
+	// End Issue #80
 	{
 		bRolledForAWCAbility = true;
 		EligibleAbilities = class'X2SoldierClassTemplateManager'.static.GetSoldierClassTemplateManager().GetCrossClassAbilities(GetSoldierClassTemplate());
@@ -5533,6 +5537,10 @@ function bool ShouldBleedOut(int OverkillDamage)
 	local int Chance;
 	local int Roll, RollOutOf;
 	local XComGameState_HeadquartersXCom XComHQ;
+	// Start Issue #91:
+	// Add Tuple Object to pass values through the event trigger
+	local XComLWTuple Tuple;
+	// End Issue #91
 
 	`log("ShouldBleedOut called for" @ ToString(),,'XCom_HitRolls');
 	if (CanBleedOut())
@@ -5552,6 +5560,29 @@ function bool ShouldBleedOut(int OverkillDamage)
 				`log("Applying bonus chance for StayWithMeUnlock...",,'XCom_HitRolls');
 				RollOutOf = class'X2StatusEffects'.default.BLEEDOUT_BONUS_ROLL;
 			}
+
+			// Start Issue #91:
+			// Set up a Tuple to pass the Bleedout chance, roll max, and overkill damage
+			Tuple = new class'XComLWTuple';
+			Tuple.Id = 'OverrideBleedoutChance';
+			Tuple.Data.Add(3);
+			Tuple.Data[0].kind = XComLWTVInt;
+			Tuple.Data[0].i = Chance;
+			Tuple.Data[1].kind = XComLWTVInt;
+			Tuple.Data[1].i = RollOutOf;
+			Tuple.Data[2].kind = XComLWTVInt;
+			Tuple.Data[2].i = OverkillDamage;
+
+			// To use, register the XComGameState_Effect for the event, pull in the Tuple, and manipulate the standard Bleedout Chance Roll
+			// threshold in Tuple.Data[0].i and/or the Bleedout Chance Roll Max in Tuple.Data[1].i, as desired.
+			// NOTE: OverkillDamage isn't actually used as part of the Bleedout Chance calculation or rolls by default, though the value is
+			// passed from the TakeDamage event and can be used to modify the Bleedout Chance accordingly, if desired.
+			`XEVENTMGR.TriggerEvent('OverrideBleedoutChance', Tuple, self);
+
+			// Read back in the new values for Chance and RollOutOf
+			Chance = Tuple.Data[0].i;
+			RollOutOf = Tuple.Data[1].i;
+			// End Issue #91
 
 			Roll = `SYNC_RAND(RollOutOf);
 			`log("Chance to bleed out:" @ Chance @ "Rolled:" @ Roll,,'XCom_HitRolls');
