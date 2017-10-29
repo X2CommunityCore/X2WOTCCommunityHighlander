@@ -1224,21 +1224,23 @@ function SetUpFactions(XComGameState StartState)
 	local int RandIndex;
 	//issue #82 variables - used for filtering out faction templates
 	local int i;
-	local array<name> AllowedFactions;
+	local array<name> ExcludedFactions;
 	local X2StrategyElementTemplate StratTemplate;
 	//end issue #82
 	// Grab all the faction templates
 	StratMgr = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
 	//start issue #82: filter out factions
 
-	AllowedFactions = class'CHHelpers'.default.FACTIONS_AT_START;
-
-	for(i = 0; i < AllowedFactions.Length, i++)
+	ExcludedFactions = class'CHHelpers'.default.EXCLUDED_FACTIONS;
+	AllFactions = StratMgr.GetAllTemplatesOfClass(class'X2ResistanceFactionTemplate');
+	
+	for(i = 0; i < AllFactions.Length, i++)
 	{
-		StratTemplate = StratMgr.FindStrategyElementTemplate(AllowedFactions[i]);
-		if(StratTemplate != none)
+		if(ExcludedFactions.Find(AllFactions[i].DataName) != INDEX_NONE)
 		{
-			AllFactions.AddItem(StratTemplate);
+			StratTemplate = StratMgr.FindStrategyElementTemplate(AllFactions[i].DataName); //get the strat template
+			AllFactions.Remove(AllFactions.Find(StratTemplate), 1); //remove the match in the array
+			i--; //go back one so we make sure we check every faction
 		}
 	}
 	//end issue #82
