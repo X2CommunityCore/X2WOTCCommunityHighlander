@@ -1937,6 +1937,11 @@ static function CleanupTacticalMission(optional bool bSimCombat = false)
 	BattleData = XComGameState_BattleData(History.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
 	BattleData = XComGameState_BattleData(NewGameState.ModifyStateObject(class'XComGameState_BattleData', BattleData.ObjectID));
 
+	// Start Issue #96:
+	// Let mods handle any necessary cleanup before we do recovery.
+	`XEVENTMGR.TriggerEvent('CleanupTacticalMission', BattleData, none, NewGameState);
+	// End Issue #96
+
 	// Sweep objective resolution:
 	// if all tactical mission objectives completed, all bodies and loot are recovered
 	if( BattleData.AllTacticalObjectivesCompleted() )
