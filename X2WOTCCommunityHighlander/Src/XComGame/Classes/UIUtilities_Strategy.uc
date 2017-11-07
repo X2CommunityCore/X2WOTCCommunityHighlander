@@ -803,7 +803,11 @@ simulated static function array<XComGameState_Item> GetEquippedItemsInSlot(XComG
 			// Ignore any items in the grenade pocket when checking for utility items, since otherwise grenades get added as utility items
 			if (SlotType == eInvSlot_Utility)
 			{
-				if (ItemState.InventorySlot != eInvSlot_GrenadePocket)
+				if (ItemState.InventorySlot != eInvSlot_GrenadePocket
+					// Start Issue #99 -- add ammo pocket
+					&& ItemState.InventorySlot != eInvSlot_AmmoPocket
+					// End Issue #99
+					)
 					arrItems.AddItem(ItemState);
 			}
 			else
