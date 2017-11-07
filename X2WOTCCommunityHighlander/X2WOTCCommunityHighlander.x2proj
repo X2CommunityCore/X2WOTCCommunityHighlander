@@ -19,6 +19,8 @@
     <Folder Include="Config\" />
     <Folder Include="Localization\" />
     <Folder Include="Src\" />
+    <Folder Include="Src\Engine" />
+    <Folder Include="Src\Engine\Classes" />
     <Folder Include="Src\XComGame" />
     <Folder Include="Src\X2WOTCCommunityHighlander\" />
     <Folder Include="Src\X2WOTCCommunityHighlander\Classes\" />
@@ -39,10 +41,16 @@
     <Content Include="Config\XComEngine.ini" />
     <Content Include="Config\XComGame.ini" />
     <Content Include="Localization\XComGame.int" />
+    <Content Include="Src\Engine\Classes\AudioComponent.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2WOTCCH_UIScreenListener_ShellSplash.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2DownloadableContentInfo_X2WOTCCommunityHighlander.uc" />
+    <Content Include="Src\XComGame\Classes\CharacterPoolManager.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\CHEventListenerTemplate.uc">
       <SubType>Content</SubType>
     </Content>
@@ -56,6 +64,12 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIArmory_Loadout.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2AbilityTemplate.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIUtilities_Colors.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2Ability_GrenadierAbilitySet.uc">

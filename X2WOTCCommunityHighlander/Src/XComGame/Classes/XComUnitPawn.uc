@@ -1342,7 +1342,7 @@ simulated state RagDollBlend
 		History = `XCOMHISTORY;
 		UnitState = XComGameState_Unit(History.GetGameStateForObjectID(m_kGameUnit.ObjectID));
 		bIsSoldier = UnitState.IsSoldier();
-		if (bIsSoldier && !bProcessingDeathOnLoad)
+		if ((bIsSoldier || UnitState.CanBeCarried()) && !bProcessingDeathOnLoad)
 		{
 			//Normally not allowed to push game states from visual sequences like this, but we make an exception for xcom soldier bodies
 			SyncCorpseContext = XComGameStateContext_TacticalGameRule(class'XComGameStateContext_TacticalGameRule'.static.CreateXComGameStateContext());
@@ -1365,7 +1365,7 @@ simulated state RagDollBlend
 		{
 			//Before turning off skeleton updates, create and run a pose based on our rag doll bone positions. This will keep 
 			//the character from doing anything strange if a system, material change, etc. force the component to update
-			AnimParams.AnimName = 'Pose';
+			AnimParams.AnimName = 'FinishRagdollPose';
 			AnimParams.Looping = true;
 			AnimParams.BlendTime = 0.0f;
 			AnimParams.HasPoseOverride = true;

@@ -46,10 +46,14 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Modding Exposures
 - Deprivatise variables to protected in XComIdleAnimationStateMachine to allow
   for subclassing overrides (#15)
+- Remove protectedwrite on X2AbilityTemplate effects arrays: AbilityTarget,
+  AbilityMultiTarget, and AbilityShooter Effects (#68)
 
 ### Improvements
 - Make suppression work with weapons that don't have suppression specific
   animations set on them (#45)
+- Make suppression work with units that don't have a suppression specific
+  idle animation animation set on them (#74)
 
 ### Fixes
 - Ensure Gremlins use the walk/run animation based on the alert status of their
@@ -82,9 +86,15 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   than a generic label. (#52)
 - Check a soldiers 'NeedsSecondaryWeapon' in UIArmory_Loadout, rather than
   hardcoding based on Rookie Rank (#55)
+- Change UIUtilities_Colors.GetColorForFaction to use Faction template color as
+  a backup (#72)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
   Shadowstep Strength in the narrative mission, instead Shadowstep is forced
   ahead of awarding the remaining traits, so the trait roll takes the strength
   into account (#51)
+- Enable ForceCountry in CharacterPoolManager - was ignored despite being
+  an argument in the CreateCharacter function (#70)
+- Fixes game terminating SoundCue narrative moments after three seconds because
+  it assumes they didn't play at all. (#66)
