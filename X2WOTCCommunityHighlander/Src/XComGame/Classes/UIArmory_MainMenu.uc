@@ -46,14 +46,30 @@ var UIList List;
 var UIListItemString PromoteItem;
 var bool bListingTraits; 
 
+// Issue #47
+var UIPanel BGPanel;
+var UIListItemString CustomizeButton, LoadoutButton, PCSButton, WeaponUpgradeButton, PromotionButton, PropagandaButton, SoldierBondsButton, DismissButton;
+
 simulated function InitArmory(StateObjectReference UnitRef, optional name DispEvent, optional name SoldSpawnEvent, optional name NavBackEvent, optional name HideEvent, optional name RemoveEvent, optional bool bInstant = false, optional XComGameState InitCheckGameState)
 {
 	bUseNavHelp = class'XComGameState_HeadquartersXCom'.static.IsObjectiveCompleted('T0_M2_WelcomeToArmory');
 	super.InitArmory(UnitRef, DispEvent, SoldSpawnEvent, NavBackEvent, HideEvent, RemoveEvent, bInstant, CheckGameState);
 
-	List = Spawn(class'UIList', self).InitList('armoryMenuList');
-	List.OnItemClicked = OnItemClicked;
+	// Start Issue #47
+	List = Spawn(class'UIList', self).InitList(); // Initialize a new list so it can be positions
+	// List.OnItemClicked = OnItemClicked; // Remove this and let each button handle its own callbacks, so that mod buttons can change order/insert without breaking stuff
 	List.OnSelectionChanged = OnSelectionChanged;
+	// Adjust position slightly for larger list
+	List.SetPosition(113, 143);
+	List.SetSize(401, 360); // Should I reduce width to leave room for scrollbar on background?
+
+	// Create background BGPanel so can make some changes and move the existing panel
+	BGPanel = Spawn(class'UIPanel', self).InitPanel('armoryMenuBG');
+	BGPanel.SetPosition(101, 126);
+	BGPanel.SetSize(425, 600);
+	BGPanel.bShouldPlayGenericUIAudioEvents = false;  
+	BGPanel.ProcessMouseEvents(List.OnChildMouseEvent); // hook mousewheel to scroll MainMenu list instead of rotating soldier
+	// End Issue #47
 
 	CreateSoldierPawn();
 	PopulateData();
@@ -62,31 +78,82 @@ simulated function InitArmory(StateObjectReference UnitRef, optional name DispEv
 
 simulated function PopulateData()
 {
-	local bool bEnableImplantsOption, bEnableWeaponUpgradeOption, bInTutorialPromote;
-	local TWeaponUpgradeAvailabilityData WeaponUpgradeAvailabilityData;
-	local TPCSAvailabilityData PCSAvailabilityData;
-	local string ImplantsTooltip, WeaponUpgradeTooltip, PromoteIcon, ImplantsOption, WeaponsOption;
-	local XComGameState_Unit Unit;
-	local UIListItemString ListItem;
-	local StateObjectReference BondmateRef;
-	local SoldierBond BondData;
+	local bool bInTutorialPromote;
 
 	super.PopulateData();
 
 	List.ClearItems();
 
-	Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitReference.ObjectID));
-
 	bInTutorialPromote = !class'XComGameState_HeadquartersXCom'.static.IsObjectiveCompleted('T0_M2_WelcomeToArmory');
 
+	// Start Issue #47
 	// -------------------------------------------------------------------------------
 	// Customize soldier: 
-	Spawn(class'UIListItemString', List.ItemContainer).InitListItem(m_strCustomizeSoldier).SetDisabled(bInTutorialPromote, "");
+	CustomizeButton = Spawn(class'UIListItemString', List.ItemContainer).InitListItem(m_strCustomizeSoldier).SetDisabled(bInTutorialPromote, "");
+	CustomizeButton.MCName = 'ArmoryMainMenu_CustomizeButton';
+	CustomizeButton.ButtonBG.OnClickedDelegate = OnCustomize;
 
 	// -------------------------------------------------------------------------------
 	// Loadout:
-	Spawn(class'UIListItemString', List.ItemContainer).InitListItem(m_strLoadout).SetDisabled(bInTutorialPromote, "");
+	LoadoutButton = Spawn(class'UIListItemString', List.ItemContainer).InitListItem(m_strLoadout).SetDisabled(bInTutorialPromote, "");
+	LoadoutButton.MCName = 'ArmoryMainMenu_LoadoutButton';
+	LoadoutButton.ButtonBG.OnClickedDelegate = OnLoadout;
 
+	// -------------------------------------------------------------------------------
+	// PCS:
+	PCSButton = Spawn(class'UIListItemString', List.ItemContainer).InitListItem(m_strImplants);
+	PCSButton.MCName = 'ArmoryMainMenu_PCSButton';
+	PCSButton.ButtonBG.OnClickedDelegate = OnPCS;
+
+	// -------------------------------------------------------------------------------
+	// Customize Weapons:
+	WeaponUpgradeButton = Spawn(class'UIListItemString', List.ItemContainer).InitListItem(m_strCustomizeWeapon);
+	WeaponUpgradeButton.MCName = 'ArmoryMainMenu_WeaponUpgradeButton';
+	WeaponUpgradeButton.ButtonBG.OnClickedDelegate = OnWeaponUpgrade;
+	// -------------------------------------------------------------------------------
+	// Promotion:
+	PromotionButton = Spawn(class'UIListItemString', List.ItemContainer).InitListItem();
+	PromotionButton.MCName = 'ArmoryMainMenu_PromotionButton';
+	PromotionButton.ButtonBG.OnClickedDelegate = OnPromote;
+
+	// -------------------------------------------------------------------------------
+	// Propaganda
+	PropagandaButton = Spawn(class'UIListItemString', List.ItemContainer).InitListItem(m_strPropaganda).SetDisabled((bInTutorialPromote || class'XComGameState_HeadquartersXCom'.static.AnyTutorialObjectivesInProgress()), "");
+	PropagandaButton.MCName = 'ArmoryMainMenu_PropagandaButton';
+	PropagandaButton.ButtonBG.OnClickedDelegate = OnPropaganda;
+
+	// -------------------------------------------------------------------------------
+	// Soldier Bonds:
+	SoldierBondsButton = Spawn(class'UIListItemString', List.ItemContainer).InitListItem(m_strSoldierBonds);
+	SoldierBondsButton.MCName = 'ArmoryMainMenu_SoldierBondsButton';
+	SoldierBondsButton.ButtonBG.OnClickedDelegate = OnSoldierBonds;
+
+	// -------------------------------------------------------------------------------
+	// Dismiss: 
+	DismissButton = Spawn(class'UIListItemString', List.ItemContainer).InitListItem(m_strDismiss).SetDisabled((bInTutorialPromote || class'XComGameState_HeadquartersXCom'.static.AnyTutorialObjectivesInProgress() || !class'XComGameState_HeadquartersXCom'.static.LostAndAbandonedCompleted()), "");
+	DismissButton.MCName = 'ArmoryMainMenu_DismissButton';
+	DismissButton.ButtonBG.OnClickedDelegate = OnDismiss;
+
+	UpdateData();
+	// End Issue #47
+
+	List.Navigator.SelectFirstAvailable();
+}
+
+// Start Issue #47
+simulated function UpdateData()
+{
+	local bool bEnableImplantsOption, bEnableWeaponUpgradeOption, bInTutorialPromote;
+	local TWeaponUpgradeAvailabilityData WeaponUpgradeAvailabilityData;
+	local TPCSAvailabilityData PCSAvailabilityData;
+	local string ImplantsTooltip, WeaponUpgradeTooltip, PromoteIcon;
+	local XComGameState_Unit Unit;
+	local StateObjectReference BondmateRef;
+	local SoldierBond BondData;
+
+	Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitReference.ObjectID));
+
+	bInTutorialPromote = !class'XComGameState_HeadquartersXCom'.static.IsObjectiveCompleted('T0_M2_WelcomeToArmory');
 
 	// -------------------------------------------------------------------------------
 	// PCS:
@@ -105,20 +172,19 @@ simulated function PopulateData()
 
 	bEnableImplantsOption = PCSAvailabilityData.bCanEquipCombatSims && PCSAvailabilityData.bHasAchievedCombatSimsRank && 
 		PCSAvailabilityData.bHasNeurochipImplantsInInventory &&	PCSAvailabilityData.bHasGTS && !bInTutorialPromote;
-	ImplantsOption = m_strImplants;
 	
-	ListItem = Spawn(class'UIListItemString', List.ItemContainer).InitListItem(ImplantsOption).SetDisabled(!bEnableImplantsOption, ImplantsTooltip);
-	
+	PCSButton.SetDisabled(!bEnableImplantsOption, ImplantsTooltip);
+
 	if( bEnableImplantsOption )
 	{
 		if( PCSAvailabilityData.bHasNeurochipImplantsInInventory && PCSAvailabilityData.bHasCombatSimsSlotsAvailable)
-			ListItem.NeedsAttention(true);
+			PCSButton.NeedsAttention(true);
 		else
-			ListItem.NeedsAttention(false);
+			PCSButton.NeedsAttention(false);
 	} 
 	else
 	{
-		ListItem.NeedsAttention(false);
+		PCSButton.NeedsAttention(false);
 	}
 
 	// -------------------------------------------------------------------------------
@@ -131,55 +197,150 @@ simulated function PopulateData()
 		WeaponUpgradeTooltip = m_strCannotUpgradeWeaponTooltip;
 	else if( !WeaponUpgradeAvailabilityData.bHasWeaponUpgrades )
 		WeaponUpgradeTooltip = m_strNoWeaponUpgradesTooltip;
-	
-	WeaponsOption = m_strCustomizeWeapon;
 
 	bEnableWeaponUpgradeOption = WeaponUpgradeAvailabilityData.bHasModularWeapons && WeaponUpgradeAvailabilityData.bCanWeaponBeUpgraded && !bInTutorialPromote;
-	ListItem = Spawn(class'UIListItemString', List.ItemContainer).InitListItem(WeaponsOption).SetDisabled(!bEnableWeaponUpgradeOption, WeaponUpgradeTooltip);
-	
+	WeaponUpgradeButton.SetDisabled(!bEnableWeaponUpgradeOption, WeaponUpgradeTooltip);
+
 	if( WeaponUpgradeAvailabilityData.bHasWeaponUpgrades && WeaponUpgradeAvailabilityData.bHasWeaponUpgradeSlotsAvailable && WeaponUpgradeAvailabilityData.bHasModularWeapons)
-		ListItem.NeedsAttention(true);
+		WeaponUpgradeButton.NeedsAttention(true);
 	else
-		ListItem.NeedsAttention(false);
+		WeaponUpgradeButton.NeedsAttention(false);
 
 	// -------------------------------------------------------------------------------
 	// Promotion:
-
 	if(Unit.ShowPromoteIcon())
 	{
 		PromoteIcon = class'UIUtilities_Text'.static.InjectImage(class'UIUtilities_Image'.const.HTML_PromotionIcon, 20, 20, 0) $ " ";
-		PromoteItem = Spawn(class'UIListItemString', List.ItemContainer).InitListItem(PromoteIcon $ m_strPromote);
+		PromotionButton.SetText(PromoteIcon $ m_strPromote);
 	}
 	else
 	{
-		PromoteItem = Spawn(class'UIListItemString', List.ItemContainer).InitListItem(m_strAbilities);
+		PromotionButton.SetText(m_strAbilities);
 	}
 		
 	UpdatePromoteItem();
 
 	// -------------------------------------------------------------------------------
-	// Propaganda
-	Spawn(class'UIListItemString', List.ItemContainer).InitListItem(m_strPropaganda).SetDisabled((bInTutorialPromote || class'XComGameState_HeadquartersXCom'.static.AnyTutorialObjectivesInProgress()), "");
-
-	// -------------------------------------------------------------------------------
 	// Soldier Bonds:
-	ListItem = Spawn(class'UIListItemString', List.ItemContainer).InitListItem(m_strSoldierBonds).SetDisabled((bInTutorialPromote || !Unit.GetSoldierClassTemplate().bCanHaveBonds), "");
 	if( Unit.ShowBondAvailableIcon(BondmateRef, BondData) )
-		ListItem.NeedsAttention(true);
+		SoldierBondsButton.NeedsAttention(true);
 	else
-		ListItem.NeedsAttention(false);
+		SoldierBondsButton.NeedsAttention(false);
+	SoldierBondsButton.SetDisabled(bInTutorialPromote || !Unit.GetSoldierClassTemplate().bCanHaveBonds);
 
-	// -------------------------------------------------------------------------------
-	// Dismiss: 
-
-	Spawn(class'UIListItemString', List.ItemContainer).InitListItem(m_strDismiss).SetDisabled((bInTutorialPromote || class'XComGameState_HeadquartersXCom'.static.AnyTutorialObjectivesInProgress() || 
-																							   !class'XComGameState_HeadquartersXCom'.static.LostAndAbandonedCompleted()), "");
+	// trigger now to allow inserting new buttons
+	`XEVENTMGR.TriggerEvent('OnArmoryMainMenuUpdate', List, self);
 
 	RefreshAbilitySummary();
 	UpdateNavHelp();
-
-	List.Navigator.SelectFirstAvailable();
 }
+
+//follows is a series of handlers for each individual button
+simulated function OnCustomize(UIButton kButton)
+{
+	local XComGameState_Unit UnitState;
+
+	if(CheckForDisabledListItem(kButton)) return;
+
+	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitReference.ObjectID));
+	Movie.Pres.UICustomize_Menu(UnitState, ActorPawn);
+	`XSTRATEGYSOUNDMGR.PlaySoundEvent("Play_MenuSelect");
+}
+
+simulated function OnLoadout(UIButton kButton)
+{
+	local XComHQPresentationLayer HQPres;
+
+	if(CheckForDisabledListItem(kButton)) return;
+
+	HQPres = XComHQPresentationLayer(Movie.Pres);
+	if( HQPres != none )
+		HQPres.UIArmory_Loadout(UnitReference);
+	`XSTRATEGYSOUNDMGR.PlaySoundEvent("Play_MenuSelect");
+}
+
+simulated function OnPCS(UIButton kButton)
+{
+	local XComHQPresentationLayer HQPres;
+
+	if(CheckForDisabledListItem(kButton)) return;
+
+	HQPres = XComHQPresentationLayer(Movie.Pres);
+	if( HQPres != none && `XCOMHQ.HasCombatSimsInInventory() )
+		`HQPRES.UIInventory_Implants();
+	`XSTRATEGYSOUNDMGR.PlaySoundEvent("Play_MenuSelect");
+}
+
+simulated function OnWeaponUpgrade(UIButton kButton)
+{
+	local XComHQPresentationLayer HQPres;
+
+	if(CheckForDisabledListItem(kButton)) return;
+
+	HQPres = XComHQPresentationLayer(Movie.Pres);
+	ReleasePawn();
+	if( HQPres != none && `XCOMHQ.bModularWeapons )
+		HQPres.UIArmory_WeaponUpgrade(UnitReference);
+	`XSTRATEGYSOUNDMGR.PlaySoundEvent("Play_MenuSelect");
+}
+
+simulated function OnPromote(UIButton kButton)
+{
+	local XComHQPresentationLayer HQPres;
+
+	if(CheckForDisabledListItem(kButton)) return;
+
+	HQPres = XComHQPresentationLayer(Movie.Pres);
+	if( HQPres != none && GetUnit().GetRank() >= 1 || GetUnit().CanRankUpSoldier() || GetUnit().HasAvailablePerksToAssign() )
+		HQPres.UIArmory_Promotion(UnitReference);
+	`XSTRATEGYSOUNDMGR.PlaySoundEvent("Play_MenuSelect");
+}
+
+simulated function OnPropaganda(UIButton kButton)
+{
+	local XComHQPresentationLayer HQPres;
+
+	if(CheckForDisabledListItem(kButton)) return;
+
+	HQPres = XComHQPresentationLayer(Movie.Pres);
+	if (HQPres != none)
+		HQPres.UIArmory_Photobooth(UnitReference);
+	`XSTRATEGYSOUNDMGR.PlaySoundEvent("Play_MenuSelect");
+}
+
+simulated function OnSoldierBonds(UIButton kButton)
+{
+	local XComHQPresentationLayer HQPres;
+
+	if(CheckForDisabledListItem(kButton)) return;
+
+	HQPres = XComHQPresentationLayer(Movie.Pres);
+	if( HQPres != none )
+		HQPres.UISoldierBonds(UnitReference);
+	`XSTRATEGYSOUNDMGR.PlaySoundEvent("Play_MenuSelect");
+}
+
+simulated function OnDismiss(UIButton kButton)
+{
+	if(CheckForDisabledListItem(kButton)) return;
+
+	OnDismissUnit();
+	`XSTRATEGYSOUNDMGR.PlaySoundEvent("Play_MenuSelect");
+}
+
+simulated function bool CheckForDisabledListItem(UIButton kButton)
+{
+	local UIListItemString Parent;
+
+	Parent = UIListItemString(kButton.ParentPanel);
+	if( Parent != none && Parent.bDisabled )
+	{
+		`XSTRATEGYSOUNDMGR.PlaySoundEvent("Play_MenuClickNegative");
+		return true;
+	}
+	return false;
+}
+// End Issue #47
 
 simulated function RefreshAbilitySummary()
 {
@@ -249,7 +410,7 @@ simulated function UpdatePromoteItem()
 {
 	if(GetUnit().GetRank() < 1 && !GetUnit().CanRankUpSoldier())
 	{
-		PromoteItem.SetDisabled(true, m_strRookiePromoteTooltip);
+		PromotionButton.SetDisabled(true, m_strRookiePromoteTooltip);
 	}
 }
 
@@ -282,57 +443,20 @@ simulated function OnReceiveFocus()
 
 simulated function OnAccept()
 {
-	local XComGameState_Unit UnitState;
-	local XComGameState_HeadquartersXCom XComHQ;
-	local XComHQPresentationLayer HQPres;
-
+	// Start Issue #47
 	if( UIListItemString(List.GetSelectedItem()).bDisabled )
 	{
 		`XSTRATEGYSOUNDMGR.PlaySoundEvent("Play_MenuClickNegative");
 		return;
 	}
 
-	XComHQ = class'UIUtilities_Strategy'.static.GetXComHQ();
-	HQPres = XComHQPresentationLayer(Movie.Pres);
-
-	// Index order matches order that elements get added in 'PopulateData'
-	switch( List.selectedIndex )
-	{
-	case 0: // CUSTOMIZE
-		UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitReference.ObjectID));
-		Movie.Pres.UICustomize_Menu(UnitState, ActorPawn);
-		break;
-	case 1: // LOADOUT
-		if( HQPres != none )    
-			HQPres.UIArmory_Loadout(UnitReference);
-		break;
-	case 2: // NEUROCHIP IMPLANTS
-		if( HQPres != none && XComHQ.HasCombatSimsInInventory() )		
-			`HQPRES.UIInventory_Implants();
-		break;
-	case 3: // WEAPON UPGRADE
-		// Release pawn so it can get recreated when the screen receives focus
-		ReleasePawn();
-		if( HQPres != none && XComHQ.bModularWeapons )
-			HQPres.UIArmory_WeaponUpgrade(UnitReference);
-		break;
-	case 4: // PROMOTE
-		if( HQPres != none && GetUnit().GetRank() >= 1 || GetUnit().CanRankUpSoldier() || GetUnit().HasAvailablePerksToAssign() )
-			HQPres.UIArmory_Promotion(UnitReference);
-		break;
-	case 5:
-		if (HQPres != none)
-			HQPres.UIArmory_Photobooth(UnitReference);
-		break;
-	case 6: // Soldier bonds 
-		if( HQPres != none )
-			HQPres.UISoldierBonds(UnitReference);
-		break;
-	case 7: // DISMISS
-		OnDismissUnit();
-		break;
-	}
+	// robojumper: issue #58: navigable button bg for UIListItemString start
+	// buttons are self-contained. send event to list
+	// assume arg and cmd
+	List.OnUnrealCommand(class'UIUtilities_Input'.const.FXS_KEY_ENTER, class'UIUtilities_Input'.const.FXS_ACTION_RELEASE);
+	// robojumper: issue #58: navigable button bg for UIListItemString end
 	`XSTRATEGYSOUNDMGR.PlaySoundEvent("Play_MenuSelect");
+	// End Issue #47
 }
 
 simulated function OnItemClicked(UIList ContainerList, int ItemIndex)
@@ -340,44 +464,47 @@ simulated function OnItemClicked(UIList ContainerList, int ItemIndex)
 	OnAccept();
 }
 
+// Start Issue #47
+//reworked to switch off button instead of list index
 simulated function OnSelectionChanged(UIList ContainerList, int ItemIndex)
 {
 	local XComGameState_Unit UnitState;
 	local string Description, CustomizeDesc;
 	
 	// Index order matches order that elements get added in 'PopulateData'
-	switch(ItemIndex)
+	switch(ContainerList.GetItem(ItemIndex))
 	{
-	case 0: // CUSTOMIZE
+	case CustomizeButton: // CUSTOMIZE
 		UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitReference.ObjectID));
 		CustomizeDesc = UnitState.GetMyTemplate().strCustomizeDesc;
 		Description = CustomizeDesc != "" ? CustomizeDesc : m_strCustomizeSoldierDesc;
 		break;
-	case 1: // LOADOUT
+	case LoadoutButton: // LOADOUT
 		Description = m_strLoadoutDesc;
 		break;
-	case 2: // NEUROCHIP IMPLANTS
+	case PCSButton: // NEUROCHIP IMPLANTS
 		Description = m_strImplantsDesc;
 		break;
-	case 3: // WEAPON UPGRADE
+	case WeaponUpgradeButton: // WEAPON UPGRADE
 		Description = m_strCustomizeWeaponDesc;
 		break;
-	case 4: // PROMOTE
+	case PromotionButton: // PROMOTE
 		Description = m_strPromoteDesc;
 		break;
-	case 5: // PROPAGANDA
+	case PropagandaButton: // PROPAGANDA
 		Description = m_strPropagandaDesc;
 		break;
-	case 6: // SOLDIER BONDS
+	case SoldierBondsButton: // SOLDIER BONDS
 		Description = m_strSoldierBondsDesc;
 		break;
-	case 7: // DISMISS
+	case DismissButton: // DISMISS
 		Description = m_strDismissDesc;
 		break;
 	}
 
 	MC.ChildSetString("descriptionText", "htmlText", class'UIUtilities_Text'.static.AddFontInfo(Description, bIsIn3D));
 }
+// End Issue #47
 
 simulated function OnDismissUnit()
 {
