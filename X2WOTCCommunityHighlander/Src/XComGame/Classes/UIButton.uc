@@ -399,6 +399,13 @@ simulated function bool OnUnrealCommand(int cmd, int arg)
 	case class'UIUtilities_Input'.const.FXS_KEY_ENTER:
 	case class'UIUtilities_Input'.const.FXS_KEY_SPACEBAR:
 		Click();
+		// Start Issue #47
+		// navigable button bg for UIListItemString
+		if (!Click())
+		{
+			bHandled = false;
+		}
+		// End Issure #47
 		break;
 	default:
 		bHandled = false;

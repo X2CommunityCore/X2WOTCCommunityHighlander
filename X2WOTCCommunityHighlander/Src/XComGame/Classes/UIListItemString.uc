@@ -520,6 +520,13 @@ simulated function bool OnUnrealCommand(int cmd, int arg)
 	{
 		if( ConfirmButton != none ) 
 			return ConfirmButton.OnUnrealCommand(cmd, arg);
+
+		// Start Issue #47: navigable button bg for UIListItemString start
+		if (ButtonBG.OnUnrealCommand(cmd, arg))
+		{
+			return true;
+		}
+		// End Issue #47
 	}
 
 	return Navigator.OnUnrealCommand(cmd, arg);
