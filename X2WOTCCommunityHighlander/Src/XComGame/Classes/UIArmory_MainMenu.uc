@@ -450,11 +450,11 @@ simulated function OnAccept()
 		return;
 	}
 
-	// robojumper: issue #58: navigable button bg for UIListItemString start
+	// Start Issue #47: navigable button bg for UIListItemString start
 	// buttons are self-contained. send event to list
 	// assume arg and cmd
 	List.OnUnrealCommand(class'UIUtilities_Input'.const.FXS_KEY_ENTER, class'UIUtilities_Input'.const.FXS_ACTION_RELEASE);
-	// robojumper: issue #58: navigable button bg for UIListItemString end
+	// navigable button bg for UIListItemString end
 	`XSTRATEGYSOUNDMGR.PlaySoundEvent("Play_MenuSelect");
 	// End Issue #47
 }
