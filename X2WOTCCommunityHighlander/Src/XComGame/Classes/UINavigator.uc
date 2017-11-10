@@ -116,6 +116,17 @@ public function RemoveControl(UIPanel Control)
 	}
 }
 
+// Start Issue #47
+// Add SwapControls function to handle control reordering from the owning UI element.
+public function SwapControls(int ControlIndexA, int ControlIndexB)
+{
+	local UIPanel Panel;
+	Panel = NavigableControls[ControlIndexA];
+	NavigableControls[ControlIndexA] = NavigableControls[ControlIndexB];
+	NavigableControls[ControlIndexB] = Panel;
+}
+// End Issue #47
+
 simulated function bool OnUnrealCommand( int Cmd, int Arg )
 {
 	local bool bHandled;

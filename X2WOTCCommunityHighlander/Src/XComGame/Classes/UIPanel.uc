@@ -935,6 +935,12 @@ simulated function SwapChildren(int ChildIndexA, int ChildIndexB)
 	Panel = ChildPanels[ChildIndexA];
 	ChildPanels[ChildIndexA] = ChildPanels[ChildIndexB];
 	ChildPanels[ChildIndexB] = Panel;
+
+	// Start Issue #47
+	// Tell the navigator to swap its controls too
+	// or keyboard nav will be out of sync.
+	Navigator.SwapControls(ChildIndexA, ChildIndexB);
+	// End Issue #47
 }
 
 simulated function int NumChildren()
