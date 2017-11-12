@@ -32,17 +32,24 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 
 ### Event Hooks
 
-- `OnProjectileFireSound` and `OnProjectileDeathSound` in X2UnifiedProjectile that allow to override the default projectile sounds. (#10)
+- `OnProjectileFireSound` and `OnProjectileDeathSound` in X2UnifiedProjectile
+  that allow to override the default projectile sounds. (#10)
 - Add `WillRollContext` for modifying Will Rolls in
   XComGameStateContext_WillRoll (#13)
 - Allow to use the Reaper UI without being super concealed. New events
   `TacticalHUD_RealizeConcealmentStatus` and `TacticalHUD_UpdateReaperHUD` (#6)
+- Trigger `CleanupTacticalMission` for end of mission recovery. (#96)
+- Allow override of bleedout chances on event basis with
+  `OverrideBleedoutChance`. (#91)
+  
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
 - Added ability to modify number of tactical auto-saves kept (#53)
 - Added ability to prevent ragdolls from ever turning off their physics, plus
   enable Chosen ragdolling (#41)
+- Added ability to customise both Burning and Poison bypassing shields when
+  applied to targets (#89)
 
 ### Modding Exposures
 - Deprivatise variables to protected in XComIdleAnimationStateMachine to allow
@@ -77,6 +84,11 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   equip a particular item as an extension to the standand rules (#50)
 
 ### Event Hooks
+
+### Configuration
+- Able to list classes as excluded from AWC Skill Rolling, so they can still
+  take part in the Combat Intelligence / AP System, without getting randomised
+  skills (#80)
 
 ### Modding Exposures
 
