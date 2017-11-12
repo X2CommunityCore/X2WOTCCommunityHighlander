@@ -18,7 +18,7 @@ var config array<name> EXCLUDED_FACTIONS;
 //start issue #85
 //variable for controlling whether the game is allowed to track whether a unit has ever gotten a trait before
 //this is kept disabled for balance reasons
-/var config bool CHECK_CURED_TRAITS;
+var config bool CHECK_CURED_TRAITS;
 //end issue #85
 
 // Start Issue #80

@@ -1234,7 +1234,7 @@ function SetUpFactions(XComGameState StartState)
 	ExcludedFactions = class'CHHelpers'.default.EXCLUDED_FACTIONS;
 	AllFactions = StratMgr.GetAllTemplatesOfClass(class'X2ResistanceFactionTemplate');
 	
-	for(i = 0; i < AllFactions.Length, i++)
+	for(i = 0; i < AllFactions.Length; i++)
 	{
 		if(ExcludedFactions.Find(AllFactions[i].DataName) != INDEX_NONE)
 		{

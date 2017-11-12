@@ -66,6 +66,12 @@
     <Content Include="Src\XComGame\Classes\UIArmory_Loadout.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIAvengerHud_SoldierStatusIndicatorContainer.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIStrategyMap.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIUtilities_Strategy.uc">
       <SubType>Content</SubType>
     </Content>
@@ -103,6 +109,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_AdventChosen.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_HeadquartersResistance.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComHumanPawn.uc">
