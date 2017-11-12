@@ -12,8 +12,13 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Modding Exposures
 
 ### Configuration
+- Allow disabling of Factions being initialized on startup by
+  `XComGameState_HeadquartersResistance`, as it can break if it collect custom
+  factions and then assigns Chosen to them instead of the base game factions.
+  (#82)
 
 ### Improvements
+- Allow `UIStrategyMap` to display custom Faction HQ icons (#76)
 
 ### Fixes
 - Fix an issue in base game where strategy X2EventListenerTemplates only
@@ -91,6 +96,9 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   skills (#80)
 
 ### Modding Exposures
+- Renable the ability to add positive traits in codebase, as well as additional
+  filtering and behaviour on the various Trait Functions on `XComGameState_Unit`
+  (#85)
 
 ### Improvements
 - Create a mod friendly way to manipulate loot tables (#8)
