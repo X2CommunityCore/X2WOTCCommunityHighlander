@@ -38,7 +38,6 @@ function RegisterForEvents()
 	local X2EventManager EventManager;
 	local Object selfObject;
 	local CHEventListenerTemplate_Event EventListener;
-	local int EventListenerIndex;
 
 	EventManager = `XEVENTMGR;
 	selfObject = self;

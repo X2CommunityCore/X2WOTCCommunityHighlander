@@ -13,15 +13,21 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Modding Exposures
 
 ### Configuration
+- Allow disabling of Factions being initialized on startup by
+  `XComGameState_HeadquartersResistance`, as it can break if it collect custom
+  factions and then assigns Chosen to them instead of the base game factions.
+  (#82)
 
 ### Improvements
+- Allow `UIStrategyMap` to display custom Faction HQ icons (#76)
 
 ### Fixes
 - Fix an issue in base game where strategy X2EventListenerTemplates only
   register on tactical->strategy transfer, not when loading directly into
   strategy (#3)
 - Fix GetCrossClassAbilities collecting abilities that are already in that
-  particular Unit Class's skill tree (#30)
+  particular Unit Class's skill tree (#30, #62)
+- Fix Loadout utility items when unit has an item equipped in the Ammo Pocket (#99)
 
 
 ## Tactical
@@ -32,23 +38,31 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 
 ### Event Hooks
 
-- `OnProjectileFireSound` and `OnProjectileDeathSound` in X2UnifiedProjectile that allow to override the default projectile sounds. (#10)
+- `OnProjectileFireSound` and `OnProjectileDeathSound` in X2UnifiedProjectile
+  that allow to override the default projectile sounds. (#10)
 - Add `WillRollContext` for modifying Will Rolls in
   XComGameStateContext_WillRoll (#13)
 - Allow to use the Reaper UI without being super concealed. New events
   `TacticalHUD_RealizeConcealmentStatus` and `TacticalHUD_UpdateReaperHUD` (#6)
+- Trigger `CleanupTacticalMission` for end of mission recovery. (#96)
+- Allow override of bleedout chances on event basis with
+  `OverrideBleedoutChance`. (#91)
+  
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
 - Added ability to modify number of tactical auto-saves kept (#53)
 - Added ability to prevent ragdolls from ever turning off their physics, plus
   enable Chosen ragdolling (#41)
+- Added ability to customise both Burning and Poison bypassing shields when
+  applied to targets (#89)
 
 ### Modding Exposures
 - Deprivatise variables to protected in XComIdleAnimationStateMachine to allow
   for subclassing overrides (#15)
 - Remove protectedwrite on X2AbilityTemplate effects arrays: AbilityTarget,
   AbilityMultiTarget, and AbilityShooter Effects (#68)
+- Deprivatise/const config variables in XComTacticalMissionManager (#101)
 
 ### Improvements
 - Make suppression work with weapons that don't have suppression specific
@@ -77,7 +91,15 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 
 ### Event Hooks
 
+### Configuration
+- Able to list classes as excluded from AWC Skill Rolling, so they can still
+  take part in the Combat Intelligence / AP System, without getting randomised
+  skills (#80)
+
 ### Modding Exposures
+- Renable the ability to add positive traits in codebase, as well as additional
+  filtering and behaviour on the various Trait Functions on `XComGameState_Unit`
+  (#85)
 
 ### Improvements
 - Create a mod friendly way to manipulate loot tables (#8)
