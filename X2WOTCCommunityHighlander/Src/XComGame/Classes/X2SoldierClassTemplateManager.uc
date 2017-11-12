@@ -53,6 +53,49 @@ function array<X2SoldierClassTemplate> GetAllSoldierClassTemplates(optional bool
 	return arrClassTemplates;
 }
 
+function array<SoldierClassAbilityType> GetCrossClassAbilities(optional X2SoldierClassTemplate ExcludeClass)
+{
+	local X2AbilityTemplateManager AbilityMgr;
+	local X2AbilityTemplate AbilityTemplate;
+	local array<X2SoldierClassTemplate> arrClassTemplates;
+	local X2SoldierClassTemplate ClassTemplate;
+	local array<SoldierClassAbilityType> CrossClassAbilities, AbilityTree;
+	local int idx;
+
+	AbilityMgr = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
+	arrClassTemplates = GetAllSoldierClassTemplates();
+	CrossClassAbilities.Length = 0;
+
+	foreach arrClassTemplates(ClassTemplate)
+	{
+		if(ClassTemplate.DataName != DefaultSoldierClass && ClassTemplate != ExcludeClass && ClassTemplate.bAllowAWCAbilities)
+		{
+			AbilityTree = ClassTemplate.GetAllPossibleAbilities();
+			for(idx = 0; idx < AbilityTree.Length; idx++)
+			{
+				AbilityTemplate = AbilityMgr.FindAbilityTemplate(AbilityTree[idx].AbilityName);
+
+				if(AbilityTemplate != none && AbilityTemplate.bCrossClassEligible && CrossClassAbilities.Find('AbilityName', AbilityTree[idx].AbilityName) == INDEX_NONE)
+				{
+					CrossClassAbilities.AddItem(AbilityTree[idx]);
+				}
+			}
+		}
+	}
+
+	for(idx = 0; idx < default.ExtraCrossClassAbilities.Length; idx++)
+	{
+		AbilityTemplate = AbilityMgr.FindAbilityTemplate(default.ExtraCrossClassAbilities[idx].AbilityName);
+
+		if(AbilityTemplate != none && AbilityTemplate.bCrossClassEligible && CrossClassAbilities.Find('AbilityName', default.ExtraCrossClassAbilities[idx].AbilityName) == INDEX_NONE)
+		{
+			CrossClassAbilities.AddItem(default.ExtraCrossClassAbilities[idx]);
+		}
+	}
+
+	return CrossClassAbilities;
+}
+
 // Start Issue #62
 //
 // The CH variant of GetCrossClassAbilities compared to vanilla does two things differently:
@@ -62,6 +105,9 @@ function array<X2SoldierClassTemplate> GetAllSoldierClassTemplates(optional bool
 //    tree, instead of comparing against all the potential abilities the soldier could have had available.
 //    This is especially important when classes uses the RandomAbilityDecks, since otherwise in the worst
 //    case scenario, you could end up with no available cross class abilities.
+//
+// The old function is kept in case mods call it, but is otherwise ignored
+// throughout the XComGame codebase
 function array<SoldierClassAbilityType> GetCrossClassAbilities_CH(array <SoldierRankAbilities> SoldierAbilityTree)	
 {
 	local X2AbilityTemplateManager AbilityMgr;

@@ -20,7 +20,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   register on tactical->strategy transfer, not when loading directly into
   strategy (#3)
 - Fix GetCrossClassAbilities collecting abilities that are already in that
-  particular Unit Class's skill tree (#30)
+  particular Unit Class's skill tree (#30, #62)
 - Fix Loadout utility items when unit has an item equipped in the Ammo Pocket (#99)
 
 
