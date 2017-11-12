@@ -8,7 +8,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Mod/DLC Hooks
 
 ### Event Hooks
-- Triggers the event `OnArmoryMainMenuUpdate` that allows adding elements into the ArmoryList
+- Triggers the event `OnArmoryMainMenuUpdate` that allows adding elements into
+  the ArmoryList (#47)
 
 ### Modding Exposures
 
