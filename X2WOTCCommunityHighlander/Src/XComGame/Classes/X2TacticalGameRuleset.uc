@@ -733,7 +733,7 @@ simulated function DrawDebugLabel(Canvas kCanvas)
 	}
 }
 
-private function Object GetEventFilterObject(AbilityEventFilter eventFilter, XComGameState_Unit FilterUnit, XComGameState_Player FilterPlayerState)
+private static function Object GetEventFilterObject(AbilityEventFilter eventFilter, XComGameState_Unit FilterUnit, XComGameState_Player FilterPlayerState)
 {
 	local Object FilterObj;
 
@@ -754,7 +754,7 @@ private function Object GetEventFilterObject(AbilityEventFilter eventFilter, XCo
 }
 
 //  THIS SHOULD ALMOST NEVER BE CALLED OUTSIDE OF NORMAL TACTICAL INIT SEQUENCE. USE WITH EXTREME CAUTION.
-simulated function StateObjectReference InitAbilityForUnit(X2AbilityTemplate AbilityTemplate, XComGameState_Unit Unit, XComGameState StartState, optional StateObjectReference ItemRef, optional StateObjectReference AmmoRef)
+static simulated function StateObjectReference InitAbilityForUnit(X2AbilityTemplate AbilityTemplate, XComGameState_Unit Unit, XComGameState StartState, optional StateObjectReference ItemRef, optional StateObjectReference AmmoRef)
 {
 	local X2EventManager EventManager;
 	local XComGameState_Ability kAbility;
@@ -1813,6 +1813,7 @@ simulated private function RestoreDirectTransferUnitStats()
 		UnitState.AddShreddedValue(UnitStats.ArmorShred);
 		UnitState.LowestHP = UnitStats.LowestHP;
 		UnitState.HighestHP = UnitStats.HighestHP;
+		UnitState.MissingHP = UnitStats.MissingHP;
 
 		if (UnitStats.FocusAmount > 0)
 		{
@@ -1935,6 +1936,11 @@ static function CleanupTacticalMission(optional bool bSimCombat = false)
 
 	BattleData = XComGameState_BattleData(History.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
 	BattleData = XComGameState_BattleData(NewGameState.ModifyStateObject(class'XComGameState_BattleData', BattleData.ObjectID));
+
+	// Start Issue #96:
+	// Let mods handle any necessary cleanup before we do recovery.
+	`XEVENTMGR.TriggerEvent('CleanupTacticalMission', BattleData, none, NewGameState);
+	// End Issue #96
 
 	// Sweep objective resolution:
 	// if all tactical mission objectives completed, all bodies and loot are recovered
@@ -4773,9 +4779,20 @@ simulated state PerformingReplay
 {
 	simulated event BeginState(name PreviousStateName)
 	{
+		local UIReplay ReplayUI;
 		`SETLOC("BeginState");
 
 		bTacticalGameInPlay = true;
+
+		//Auto-start the replay, but not if we are in the tutorial
+		if (!`REPLAY.bInTutorial)
+		{	
+			ReplayUI = UIReplay(`PRES.ScreenStack.GetCurrentScreen());
+			if (ReplayUI != none)
+			{
+				ReplayUI.OnPlayClicked();
+			}
+		}
 	}
 
 	function EndReplay()
@@ -4868,12 +4885,18 @@ simulated state EndTacticalGame
 	{
 		local XComGameState_TimerData Timer;
 		local XComGameState_ChallengeData ChallengeData;
+		local XComGameState_BattleData BattleData;
 		local XComGameState NewGameState;
 		local X2ChallengeModeInterface ChallengeModeInterface;
 		local XComChallengeModeManager ChallengeModeManager;
+		local X2TacticalChallengeModeManager TacticalChallengeModeManager;
 
 		ChallengeModeManager = `CHALLENGEMODE_MGR;
 		ChallengeModeInterface = `CHALLENGEMODE_INTERFACE;
+		BattleData = XComGameState_BattleData(CachedHistory.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
+		TacticalChallengeModeManager = `TACTICALGRI.ChallengeModeManager;
+		TacticalChallengeModeManager.OnEventTriggered((BattleData.bLocalPlayerWon) ? ECME_CompletedMission : ECME_FailedMission);
+		`log(`location @ "Triggered Event on Tactical Challenge Mode Manager: " @ `ShowVar(BattleData.bLocalPlayerWon));
 
 		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("EndTacticalGame: SubmitChallengeMode");
 

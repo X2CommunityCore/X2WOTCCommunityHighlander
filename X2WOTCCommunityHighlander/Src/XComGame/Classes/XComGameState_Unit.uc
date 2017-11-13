@@ -825,21 +825,32 @@ function AcquireTrait(XComGameState NewGameState, name TraitTemplateName, option
 function AddAcquiredTrait(XComGameState NewGameState, name TraitTemplateName, optional name ReplacedTraitName)
 {
 	local NegativeTraitRecoveryInfo NegativeTrait;
-
+	//start issue #85: variables required to check the trait template of what we've been given
+	local X2EventListenerTemplateManager EventTemplateManager;
+	local X2TraitTemplate TraitTemplate;
+	//end issue #85
+	
 	if( !IsAlive() )
 	{
 		return;
 	}
-
+	//start issue #85: init variables here after confirming it's a unit valid for it
+	EventTemplateManager = class'X2EventListenerTemplateManager'.static.GetEventListenerTemplateManager();
+	TraitTemplate = X2TraitTemplate(EventTemplateManager.FindEventListenerTemplate(TraitTemplateName));
+	//end issue #85
 	if( AcquiredTraits.Find(TraitTemplateName) == INDEX_NONE )
 	{
 		AcquiredTraits.AddItem(TraitTemplateName);
 		WorldMessageTraits.AddItem(TraitTemplateName);
 		AlertTraits.AddItem(TraitTemplateName);
-		
-		NegativeTrait.TraitName = TraitTemplateName;
-		NegativeTrait.PerfectMissionsCompleted = 0;
-		NegativeTraits.AddItem(NegativeTrait);		
+		//start issue #85: check if the trait's not positive: if so, we can add it to the negative trait array
+		if(!TraitTemplate.bPositiveTrait)
+		{
+			NegativeTrait.TraitName = TraitTemplateName;
+			NegativeTrait.PerfectMissionsCompleted = 0;
+			NegativeTraits.AddItem(NegativeTrait);		
+		}
+		//end issue #85
 	}
 	else
 	{
@@ -953,7 +964,10 @@ function RecoverFromTraits()
 
 				NewUnitState.NegativeTraits.Remove(CurrentTraitIndex, 1);
 
-				// replace it with a positive trait
+
+				//start of issue #85: uncommenting function to add positive traits + added cured trait to proper array
+				NewUnitState.CuredTraits.AddItem(CurrentTraitTemplate.DataName);
+				// replace it with a positive trait if possible
 				if(CanAcquireTrait(true))
 				{
 					if(CurrentTraitTemplate.PositiveReplacementTrait != '')
@@ -965,6 +979,8 @@ function RecoverFromTraits()
 						NewUnitState.ApplyGenericPositiveTrait(NewGameState, CurrentTraitTemplate.DataName);
 					}
 				}
+				//end of issue #85
+
 			}
 		}
 
@@ -996,6 +1012,9 @@ function RecoverFromAllTraits(XComGameState NewGameState)
 			CurrentTraitTemplate = X2TraitTemplate(EventTemplateManager.FindEventListenerTemplate(NegativeTraits[CurrentTraitIndex].TraitName));
 			AcquiredTraits.RemoveItem(CurrentTraitTemplate.DataName);
 			NegativeTraits.Remove(CurrentTraitIndex, 1);
+			//start of issue #85: add cured trait to proper array
+			CuredTraits.AddItem(CurrentTraitTemplate.DataName);		
+			//end of issue #85
 		}
 	}
 }
@@ -1068,7 +1087,7 @@ function bool HasTrait(name TraitTemplateName)
 
 function bool EverHadTrait(name TraitTemplateName)
 {
-	return (CuredTraits.Find(TraitTemplateName) != INDEX_NONE) || HasTrait(TraitTemplateName);
+	return (CuredTraits.Find(TraitTemplateName) != INDEX_NONE && class'CHHelpers'.default.CHECK_CURED_TRAITS) || HasTrait(TraitTemplateName);
 }
 
 simulated function bool HasHeightAdvantageOver(XComGameState_Unit OtherUnit, bool bAsAttacker)
@@ -2246,12 +2265,19 @@ function ApplyFirstTimeStatModifiers()
 
 	bEverAppliedFirstTimeStatModifiers = true;
 
-	if( `SecondWaveEnabled('BetaStrike' ) && GetMyTemplate().CharacterGroupName != 'TheLost' )
+	if( `SecondWaveEnabled('BetaStrike' ) && GetMyTemplate().CharacterGroupName != 'TheLost')
 	{
 		CurrentHealthMax = GetMaxStat(eStat_HP);
-		SetBaseMaxStat(eStat_HP, CurrentHealthMax + 
-					   GetMyTemplate().GetCharacterBaseStat(eStat_HP) *
-					     (class'X2StrategyGameRulesetDataStructures'.default.SecondWaveBetaStrikeHealthMod - 1.0));
+		if (!bIsSpecial)
+		{
+			SetBaseMaxStat(eStat_HP, CurrentHealthMax +
+				GetMyTemplate().GetCharacterBaseStat(eStat_HP) *
+				(class'X2StrategyGameRulesetDataStructures'.default.SecondWaveBetaStrikeHealthMod - 1.0));
+		}
+		else // Alien Rulers have 1.5X their HP with Beta Strike
+		{
+			SetBaseMaxStat(eStat_HP, Round(CurrentHealthMax + GetMyTemplate().GetCharacterBaseStat(eStat_HP) * 0.5));
+		}
 		SetCurrentStat(eStat_HP, GetMaxStat(eStat_HP));
 
 		// Redo the stat assignment complete
@@ -3454,10 +3480,16 @@ function RollForTrainingCenterAbilities()
 	local int Idx, RemIdx, NumRanks, RankIdx, AbilityIdx;
 	local X2SoldierClassTemplate SoldierClassTemplate;
 
-	if (!bRolledForAWCAbility)
+	// Start Issue #80
+	// List of classes to exclude from rolling awc abilities
+	// These classes have bAllowAWCAbilities set to true just to participate in the ComInt / AP system
+	if (!bRolledForAWCAbility && class'CHHelpers'.default.ClassesExcludedFromAWCRoll.Find(GetSoldierClassTemplateName()) == INDEX_NONE)
+	// End Issue #80
 	{
 		bRolledForAWCAbility = true;
-		EligibleAbilities = class'X2SoldierClassTemplateManager'.static.GetSoldierClassTemplateManager().GetCrossClassAbilities(GetSoldierClassTemplate());
+		// Start Issue #62
+		EligibleAbilities = class'X2SoldierClassTemplateManager'.static.GetSoldierClassTemplateManager().GetCrossClassAbilities_CH(AbilityTree);
+		// End Issue #62
 
 		SoldierClassTemplate = GetSoldierClassTemplate();
 		for (Idx = 0; Idx < SoldierClassTemplate.ExcludedAbilities.Length; ++Idx)
@@ -5507,6 +5539,10 @@ function bool ShouldBleedOut(int OverkillDamage)
 	local int Chance;
 	local int Roll, RollOutOf;
 	local XComGameState_HeadquartersXCom XComHQ;
+	// Start Issue #91:
+	// Add Tuple Object to pass values through the event trigger
+	local XComLWTuple Tuple;
+	// End Issue #91
 
 	`log("ShouldBleedOut called for" @ ToString(),,'XCom_HitRolls');
 	if (CanBleedOut())
@@ -5526,6 +5562,29 @@ function bool ShouldBleedOut(int OverkillDamage)
 				`log("Applying bonus chance for StayWithMeUnlock...",,'XCom_HitRolls');
 				RollOutOf = class'X2StatusEffects'.default.BLEEDOUT_BONUS_ROLL;
 			}
+
+			// Start Issue #91:
+			// Set up a Tuple to pass the Bleedout chance, roll max, and overkill damage
+			Tuple = new class'XComLWTuple';
+			Tuple.Id = 'OverrideBleedoutChance';
+			Tuple.Data.Add(3);
+			Tuple.Data[0].kind = XComLWTVInt;
+			Tuple.Data[0].i = Chance;
+			Tuple.Data[1].kind = XComLWTVInt;
+			Tuple.Data[1].i = RollOutOf;
+			Tuple.Data[2].kind = XComLWTVInt;
+			Tuple.Data[2].i = OverkillDamage;
+
+			// To use, register the XComGameState_Effect for the event, pull in the Tuple, and manipulate the standard Bleedout Chance Roll
+			// threshold in Tuple.Data[0].i and/or the Bleedout Chance Roll Max in Tuple.Data[1].i, as desired.
+			// NOTE: OverkillDamage isn't actually used as part of the Bleedout Chance calculation or rolls by default, though the value is
+			// passed from the TakeDamage event and can be used to modify the Bleedout Chance accordingly, if desired.
+			`XEVENTMGR.TriggerEvent('OverrideBleedoutChance', Tuple, self);
+
+			// Read back in the new values for Chance and RollOutOf
+			Chance = Tuple.Data[0].i;
+			RollOutOf = Tuple.Data[1].i;
+			// End Issue #91
 
 			Roll = `SYNC_RAND(RollOutOf);
 			`log("Chance to bleed out:" @ Chance @ "Rolled:" @ Roll,,'XCom_HitRolls');
@@ -5602,12 +5661,6 @@ function bool IsLootable(XComGameState NewGameState)
 				break;
 			}
 		}
-	}
-
-	// no loot drops in Challenge Mode
-	if (History.GetSingleGameStateObjectForClass( class'XComGameState_ChallengeData', true ) != none)
-	{
-		return false;
 	}
 
 	return EffectsAllowLooting;
@@ -6122,6 +6175,15 @@ protected function OnUnitDied(XComGameState NewGameState, Object CauseOfDeath, c
 		// when enemies are killed with pending loot, start the loot expiration timer
 		if( IsLootable(NewGameState) )
 		{
+			// no loot drops in Challenge Mode
+			// This would really be done in the AI spawn manager, just don't roll loot for enemies,
+			// but that would require fixing up all the existing start states.  Doing it here at runtime is way easier.
+			// Also we do it before RollForSpecialLoot so that Templar Focus drops will still occur.
+			if (History.GetSingleGameStateObjectForClass( class'XComGameState_ChallengeData', true ) != none)
+			{
+				PendingLoot.LootToBeCreated.Length = 0;
+			}
+
 			RollForSpecialLoot();
 
 			if( HasAvailableLoot() )
@@ -6133,7 +6195,11 @@ protected function OnUnitDied(XComGameState NewGameState, Object CauseOfDeath, c
 				NewGameState.GetContext().PostBuildVisualizationFn.AddItem(VisualizeLootDestroyedByExplosives);
 			}
 
-			RollForAutoLoot(NewGameState);
+			// no loot drops in Challenge Mode
+			if (History.GetSingleGameStateObjectForClass( class'XComGameState_ChallengeData', true ) == none)
+			{
+				RollForAutoLoot(NewGameState);
+			}
 		}
 		else
 		{
@@ -6328,7 +6394,7 @@ native function float GetMaxStat( ECharStatType Stat );
 native function float GetCurrentStat( ECharStatType Stat ) const;
 native function ModifyCurrentStat(ECharStatType Stat, float Delta);
 native function SetCurrentStat( ECharStatType Stat, float NewValue );
-native function GetStatModifiers(ECharStatType Stat, out array<XComGameState_Effect> Mods, out array<float> ModValues);
+native function GetStatModifiers(ECharStatType Stat, out array<XComGameState_Effect> Mods, out array<float> ModValues, optional XComGameStateHistory GameStateHistoryObject);
 
 native function ApplyEffectToStats( const ref XComGameState_Effect SourceEffect, optional XComGameState NewGameState );
 native function UnApplyEffectFromStats( const ref XComGameState_Effect SourceEffect, optional XComGameState NewGameState );
@@ -6618,13 +6684,20 @@ function bool HasAvailablePerksToAssign()
 	return true;
 }
 
-function bool HasPurchasedPerkAtRank(int Rank)
+function bool HasPurchasedPerkAtRank(int Rank, optional int NumBranchesToCheck)
 {
 	local int i;
 	local array<SoldierClassAbilityType> RankAbilities;
 		
 	RankAbilities = AbilityTree[Rank].Abilities;
-	for (i = 0; i < RankAbilities.Length; ++i)
+	
+	// Do not let the num of branches to check be 0, or larger than the available abilities
+	if (NumBranchesToCheck == 0 || NumBranchesToCheck > RankAbilities.Length)
+	{
+		NumBranchesToCheck = RankAbilities.Length;
+	}
+
+	for (i = 0; i < NumBranchesToCheck; ++i)
 	{
 		if (HasSoldierAbility(RankAbilities[i].AbilityName))
 			return true;
@@ -6732,7 +6805,6 @@ simulated function LoadPawnPackagesAsync( Actor PawnOwner, vector UseLocation, r
     alr = new class'XComGameState_Unit_AsyncLoadRequest';
 
     alr.ArchetypeName = strArchetype;
-    alr.PawnOwner = PawnOwner;
     alr.UseLocation = UseLocation;
     alr.UseRotation = UseRotation;
     alr.bForceMenuState = false;
@@ -13004,12 +13076,12 @@ function bool FindAvailableNeighborTile(out TTile OutTileLocation)
 	return class'Helpers'.static.FindAvailableNeighborTile(TileLocation, OutTileLocation);
 }
 
-delegate bool ValidateTileDelegate(const out TTile TileOption, const out TTile SourceTile)
+delegate bool ValidateTileDelegate(const out TTile TileOption, const out TTile SourceTile, const out Object PassedObject)
 {
 	return true;
 }
 
-function bool FindAvailableNeighborTileWeighted(Vector PreferredDirection, out TTile OutTileLocation, optional delegate<ValidateTileDelegate> IsValidTileFn=ValidateTileDelegate)
+function bool FindAvailableNeighborTileWeighted(Vector PreferredDirection, out TTile OutTileLocation, optional delegate<ValidateTileDelegate> IsValidTileFn=ValidateTileDelegate, optional Object PassToDelegate)
 {
 	local TTile NeighborTileLocation;
 	local XComWorldData World;
@@ -13040,7 +13112,7 @@ function bool FindAvailableNeighborTileWeighted(Vector PreferredDirection, out T
 			// If the tile is empty and is on the same z as this unit's location
 			if ((TileActors.Length == 0) && (World.GetFloorTileZ(NeighborTileLocation, false) == TileLocation.Z))
 			{
-				if( !IsValidTileFn(NeighborTileLocation, TileLocation) )
+				if( !IsValidTileFn(NeighborTileLocation, TileLocation, PassToDelegate) )
 				{
 					continue;
 				}

@@ -19,6 +19,8 @@
     <Folder Include="Config\" />
     <Folder Include="Localization\" />
     <Folder Include="Src\" />
+    <Folder Include="Src\Engine" />
+    <Folder Include="Src\Engine\Classes" />
     <Folder Include="Src\XComGame" />
     <Folder Include="Src\X2WOTCCommunityHighlander\" />
     <Folder Include="Src\X2WOTCCommunityHighlander\Classes\" />
@@ -39,10 +41,16 @@
     <Content Include="Config\XComEngine.ini" />
     <Content Include="Config\XComGame.ini" />
     <Content Include="Localization\XComGame.int" />
+    <Content Include="Src\Engine\Classes\AudioComponent.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2WOTCCH_UIScreenListener_ShellSplash.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2DownloadableContentInfo_X2WOTCCommunityHighlander.uc" />
+    <Content Include="Src\XComGame\Classes\CharacterPoolManager.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\CHEventListenerTemplate.uc">
       <SubType>Content</SubType>
     </Content>
@@ -58,10 +66,43 @@
     <Content Include="Src\XComGame\Classes\UIArmory_Loadout.uc">
       <SubType>Content</SubType>
     </Content>
+<<<<<<< HEAD
+=======
+    <Content Include="Src\XComGame\Classes\UIArmory_MainMenu.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIButton.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIListItemString.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UINavigator.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIPanel.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIAvengerHud_SoldierStatusIndicatorContainer.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIStrategyMap.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIUtilities_Strategy.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2AbilityTemplate.uc">
+      <SubType>Content</SubType>
+    </Content>
+>>>>>>> X2CommunityCore/master
     <Content Include="Src\XComGame\Classes\UIUtilities_Colors.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2Ability_GrenadierAbilitySet.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2Effect_Burning.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2SoldierClassTemplateManager.uc">
@@ -71,6 +112,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2DownloadableContentInfo.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2StatusEffects.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2TacticalGameRuleset.uc">
@@ -83,6 +127,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_AdventChosen.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_HeadquartersResistance.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComHumanPawn.uc">
@@ -98,6 +145,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameStateContext_WillRoll.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComTacticalMissionManager.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComUnitPawn.uc">
