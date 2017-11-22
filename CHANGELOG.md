@@ -10,6 +10,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Event Hooks
 - Triggers the event `OnArmoryMainMenuUpdate` that allows adding elements into
   the ArmoryList (#47)
+  
+- Triggers the events `SoldierClassIcon`, `SoldierClassDisplayName`, `SoldierClassSummary` that allow replacement of the class icon/display name/summary dynamicly e.g. depending on UnitState or Soldier Loadout. 
 
 ### Modding Exposures
 
