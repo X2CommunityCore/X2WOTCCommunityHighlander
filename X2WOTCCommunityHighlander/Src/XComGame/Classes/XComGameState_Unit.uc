@@ -13650,7 +13650,7 @@ function String GetSoldierClassIcon()
 	Tuple.Data.Add(1);
 
 	Tuple.Data[0].kind = XComLWTVString;
-	Tuple.Data[0].s = m_SoldierClassTemplate.IconImage;
+	Tuple.Data[0].s = GetSoldierClassTemplate().IconImage;
 
 	`XEVENTMGR.TriggerEvent('SoldierClassIcon', Tuple, self, none);
 
@@ -13666,7 +13666,7 @@ function String GetSoldierClassDisplayName()
 	Tuple.Data.Add(1);
 
 	Tuple.Data[0].kind = XComLWTVString;
-	Tuple.Data[0].s = m_SoldierClassTemplate.DisplayName;
+	Tuple.Data[0].s = GetSoldierClassTemplate().DisplayName;
 
 	`XEVENTMGR.TriggerEvent('SoldierClassDisplayName', Tuple, self, none);
 
@@ -13682,7 +13682,7 @@ function String GetSoldierClassSummary()
 	Tuple.Data.Add(1);
 
 	Tuple.Data[0].kind = XComLWTVString;
-	Tuple.Data[0].s = m_SoldierClassTemplate.ClassSummary;
+	Tuple.Data[0].s = GetSoldierClassTemplate().ClassSummary;
 
 	`XEVENTMGR.TriggerEvent('SoldierClassSummary', Tuple, self, none);
 
