@@ -90,9 +90,6 @@
     <Content Include="Src\XComGame\Classes\UIButton.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\XComGame\Classes\UIChooseClass.uc">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Src\XComGame\Classes\UICovertActionStaffSlot.uc">
       <SubType>Content</SubType>
     </Content>
