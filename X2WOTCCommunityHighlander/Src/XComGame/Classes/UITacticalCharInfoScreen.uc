@@ -111,10 +111,12 @@ simulated function PopulateCharacterData()
 			//Initialize Class Name
 			ClassNameLabel = Spawn(class'UIScrollingText', Self);
 			ClassNameLabel.InitScrollingText('mc_classLabel');
-			ClassNameLabel.SetHTMLText(SoldierClassTemplate.DisplayName);
+			// Start Issue #106
+			ClassNameLabel.SetHTMLText(kGameStateUnit.GetSoldierClassDisplayName());
 
 			//Initialize the Class Icon
-			ClassIconString = SoldierClassTemplate.IconImage;
+			ClassIconString = kGameStateUnit.GetSoldierClassIcon();
+			// End Issue #106
 		}
 		else if(!kGameStateUnit.GetMyTemplate().bIsCivilian)
 		{

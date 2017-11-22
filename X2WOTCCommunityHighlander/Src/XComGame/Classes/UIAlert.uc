@@ -2869,8 +2869,10 @@ simulated function BuildTrainingCompleteAlert(string TitleLabel)
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(
 		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(DisplayPropertySet, 'UnitRef')));
 	ClassTemplate = UnitState.GetSoldierClassTemplate();
-	ClassName = Caps(ClassTemplate.DisplayName);
-	ClassIcon = ClassTemplate.IconImage;
+	// Start Issue #106
+	ClassName = Caps(UnitState.GetSoldierClassDisplayName());
+	ClassIcon = UnitState.GetSoldierClassIcon();
+	// End Issue #106
 	RankName = Caps(class'X2ExperienceConfig'.static.GetRankName(UnitState.GetRank(), ClassTemplate.DataName));
 	
 	FactionState = UnitState.GetResistanceFaction();
@@ -2967,8 +2969,10 @@ simulated function BuildPsiTrainingCompleteAlert(string TitleLabel)
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(
 		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(DisplayPropertySet, 'UnitRef')));
 	ClassTemplate = UnitState.GetSoldierClassTemplate();
-	ClassName = Caps(ClassTemplate.DisplayName);
-	ClassIcon = ClassTemplate.IconImage;
+	// Start Issue #106
+	ClassName = Caps(UnitState.GetSoldierClassDisplayName());
+	ClassIcon = UnitState.GetSoldierClassIcon();
+	// End Issue #106
 	RankName = Caps(class'X2ExperienceConfig'.static.GetRankName(UnitState.GetRank(), ClassTemplate.DataName));
 
 	kTag = XGParamTag(`XEXPANDCONTEXT.FindTag("XGParam"));
@@ -3021,8 +3025,10 @@ simulated function BuildSoldierPromotedAlert()
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(
 		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(DisplayPropertySet, 'UnitRef')));
 	ClassTemplate = UnitState.GetSoldierClassTemplate();
-	ClassName = Caps(ClassTemplate.DisplayName);
-	ClassIcon = ClassTemplate.IconImage;
+	// Start Issue #106
+	ClassName = Caps(UnitState.GetSoldierClassDisplayName());
+	ClassIcon = UnitState.GetSoldierClassIcon();
+	// End Issue #106
 	RankName = Caps(class'X2ExperienceConfig'.static.GetRankName(UnitState.GetRank(), ClassTemplate.DataName));
 
 	kTag = XGParamTag(`XEXPANDCONTEXT.FindTag("XGParam"));
@@ -3092,7 +3098,9 @@ simulated function BuildPsiOperativeIntroAlert()
 	LibraryPanel.MC.BeginFunctionOp("UpdateData");
 	LibraryPanel.MC.QueueString(m_strSoldierShakenHeader); //ATTENTION
 	LibraryPanel.MC.QueueString(IntroPsiOpTitle); //SOLDIER SHAKEN 
-	LibraryPanel.MC.QueueString(UnitState.GetSoldierClassTemplate().IconImage); //ICON
+	// Start Issue #106
+	LibraryPanel.MC.QueueString(UnitState.GetSoldierClassIcon()); //ICON
+	// End Issue #106
 	LibraryPanel.MC.QueueString(Caps(UnitState.GetName(eNameType_FullNick))); //STAFF AVAILABLE STRING
 	LibraryPanel.MC.QueueString(m_strPsiOperativeIntro); //STAFF BONUS STRING
 	LibraryPanel.MC.QueueString(IntroPsiOpBody); //STAFF BENEFIT STRING
@@ -3570,7 +3578,6 @@ simulated function BuildNewStaffAvailableAlert()
 	local XComGameState_HeadquartersRoom Room;
 	local XComGameState_FacilityXCom Facility;
 	local array<XComGameState_StaffSlot> arrStaffSlots;
-	local X2SoldierClassTemplate ClassTemplate;
 	local XComGameState_ResistanceFaction FactionState;
 	local string StaffAvailableTitle, StaffAvailableStr, StaffBonusStr, UnitTypeIcon;
 	local float BonusAmt;
@@ -3634,8 +3641,9 @@ simulated function BuildNewStaffAvailableAlert()
 		StaffAvailableTitle = m_strNewSoldierAvailableTitle;
 		StaffAvailableStr = UnitState.GetName(eNameType_RankFull);
 
-		ClassTemplate = UnitState.GetSoldierClassTemplate();
-		UnitTypeIcon = ClassTemplate.IconImage;
+		// Start Issue #106
+		UnitTypeIcon = UnitState.GetSoldierClassIcon();
+		// End Issue #106
 	}
 
 
@@ -3699,7 +3707,6 @@ simulated function BuildStaffInfoAlert()
 	local XComGameState_HeadquartersRoom Room;
 	local XComGameState_FacilityXCom Facility;
 	local array<XComGameState_StaffSlot> arrStaffSlots;
-	local X2SoldierClassTemplate ClassTemplate;
 	local string StaffAvailableStr, UnitTypeIcon;
 
 	if (LibraryPanel == none)
@@ -3728,8 +3735,9 @@ simulated function BuildStaffInfoAlert()
 	{
 		StaffAvailableStr = UnitState.GetName(eNameType_RankFull);
 
-		ClassTemplate = UnitState.GetSoldierClassTemplate();
-		UnitTypeIcon = ClassTemplate.IconImage;
+		// Start Issue #106
+		UnitTypeIcon = UnitState.GetSoldierClassIcon();
+		// End Issue #106
 	}
 
 	// Then, if there are staffing slots available for the new staff, detail what benefits they could provide
@@ -4008,7 +4016,9 @@ simulated function BuildSuperSoldierAlert()
 	LibraryPanel.MC.BeginFunctionOp("UpdateData");
 	LibraryPanel.MC.QueueString(m_strSoldierShakenHeader); //ATTENTION
 	LibraryPanel.MC.QueueString(class'XComOnlineEventMgr'.default.m_sXComHeroSummonTitle); //SOLDIER SHAKEN 
-	LibraryPanel.MC.QueueString(UnitState.GetSoldierClassTemplate() != none ? UnitState.GetSoldierClassTemplate().IconImage : ""); //ICON
+	// Start Issue #106
+	LibraryPanel.MC.QueueString(UnitState.GetSoldierClassTemplate() != none ? UnitState.GetSoldierClassIcon() : ""); //ICON
+	// End Issue #106
 	LibraryPanel.MC.QueueString(Caps(UnitState.GetName(eNameType_FullNick))); //STAFF AVAILABLE STRING
 	LibraryPanel.MC.QueueString(""); //STAFF BONUS STRING
 	LibraryPanel.MC.QueueString(class'XComOnlineEventMgr'.default.m_sXComHeroSummonText); //STAFF BENEFIT STRING
@@ -4050,14 +4060,18 @@ simulated function BuildNegativeTraitAcquiredAlert()
 	
 	if (UnitState.GetRank() > 0)
 	{
-		ClassName = Caps(ClassTemplate.DisplayName);
+		// Start Issue #106
+		ClassName = Caps(UnitState.GetSoldierClassDisplayName());
+		// End Issue #106
 	}
 	else
 	{
 		ClassName = "";
 	}
 
-	ClassIcon = ClassTemplate.IconImage;
+	// Start Issue #106
+	ClassIcon = UnitState.GetSoldierClassIcon();
+	// End Issue #106
 	RankName = Caps(class'X2ExperienceConfig'.static.GetRankName(UnitState.GetRank(), ClassTemplate.DataName));
 
 	TraitDesc = NegativeTrait.TraitDescription;
@@ -5091,7 +5105,9 @@ simulated function BuildComIntIntroAlert()
 	LibraryPanel.MC.BeginFunctionOp("UpdateData");
 	LibraryPanel.MC.QueueString(m_strSoldierShakenHeader); //ATTENTION
 	LibraryPanel.MC.QueueString(m_strComIntIntroTitle); //COMBAT INTELLIGENCE
-	LibraryPanel.MC.QueueString(UnitState.GetSoldierClassTemplate().IconImage); //ICON
+	// Start Issue #106
+	LibraryPanel.MC.QueueString(UnitState.GetSoldierClassIcon()); //ICON
+	// End Issue #106
 	LibraryPanel.MC.QueueString(Caps(UnitState.GetName(eNameType_FullNick))); //STAFF AVAILABLE STRING
 	LibraryPanel.MC.QueueString(IntroComIntSubtitle); //Ex: Gifted Level Intelligence
 	LibraryPanel.MC.QueueString(IntroComIntBody); //STAFF BENEFIT STRING
@@ -5270,7 +5286,9 @@ simulated function BuildConfirmCovertActionAlert()
 			if (StaffUnit.IsSoldier())
 			{
 				RankImage = class'UIUtilities_Image'.static.GetRankIcon(StaffUnit.GetRank(), StaffUnit.GetSoldierClassTemplateName());
-				ClassImage = StaffUnit.GetSoldierClassTemplate().IconImage;
+				// Start Issue #106
+				ClassImage = StaffUnit.GetSoldierClassIcon();
+				// End Issue #106
 			}
 			else if (StaffUnit.IsScientist())
 			{

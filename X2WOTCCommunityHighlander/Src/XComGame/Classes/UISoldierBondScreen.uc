@@ -127,7 +127,9 @@ function RefreshHeader()
 
 	flagIcon = Unit.GetCountryTemplate().FlagImage;
 	rankIcon = class'UIUtilities_Image'.static.GetRankIcon(iRank, SoldierClass.DataName);
-	classIcon = SoldierClass.IconImage;
+	// Start Issue #106
+	classIcon = Unit.GetSoldierClassIcon();
+	// End Issue #106
 
 	SetPlayerInfo(Caps(`GET_RANK_STR(Unit.GetRank(), SoldierClass.DataName)), 
 					Caps(Unit.GetName(eNameType_FullNick)),
@@ -146,25 +148,28 @@ function RefreshHeader()
 
 		flagIcon = Bondmate.GetCountryTemplate().FlagImage;
 		rankIcon = class'UIUtilities_Image'.static.GetRankIcon(iRank, SoldierClass.DataName);
-		classIcon = SoldierClass.IconImage;
+		// Start Issue #106
+		classIcon = Bondmate.GetSoldierClassIcon();
+		// End Issue #106
 		
 		CohesionThresholds = class'X2StrategyGameRulesetDataStructures'.default.CohesionThresholds;
 		CohesionMax = float(CohesionThresholds[Clamp(BondData.BondLevel + 1, 0, CohesionThresholds.Length - 1)]);
 		CohesionPercent = float(BondData.Cohesion) / CohesionMax;
 
+		// Start Issue #106
 		SetBondMateInfo(BondMateTitle, 
 						BondData.BondLevel,
 						Caps(Bondmate.GetName(eNameType_Full)),
 						Caps(Bondmate.GetName(eNameType_Nick)),
 						Caps(`GET_RANK_ABBRV(Bondmate.GetRank(), SoldierClass.DataName)),
 						rankIcon,
-						Caps(SoldierClass != None ? SoldierClass.DisplayName : ""),
+						Caps(SoldierClass != None ? Bondmate.GetSoldierClassDisplayName() : ""),
 						classIcon,
 						flagIcon,
 						class'X2StrategyGameRulesetDataStructures'.static.GetSoldierCompatibilityLabel(BondData.Compatibility),
 						CohesionPercent,
 						false /*todo: is disabled*/ );
-
+		// End Issue #106
 	}
 	else
 	{
@@ -821,17 +826,15 @@ simulated function int SortByName(StateObjectReference A, StateObjectReference B
 simulated function int SortByClass(StateObjectReference A, StateObjectReference B)
 {
 	local XComGameState_Unit UnitA, UnitB;
-	local X2SoldierClassTemplate SoldierClassA, SoldierClassB;
 	local string NameA, NameB;
 
 	UnitA = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(A.ObjectID));
 	UnitB = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(B.ObjectID));
 
-	SoldierClassA = UnitA.GetSoldierClassTemplate();
-	SoldierClassB = UnitB.GetSoldierClassTemplate();
-
-	NameA = SoldierClassA.DisplayName;
-	NameB = SoldierClassB.DisplayName;
+	// Start Issue #106
+	NameA = UnitA.GetSoldierClassDisplayName();
+	NameB = UnitB.GetSoldierClassDisplayName();
+	// End Issue #106
 
 	if (NameA < NameB)
 	{

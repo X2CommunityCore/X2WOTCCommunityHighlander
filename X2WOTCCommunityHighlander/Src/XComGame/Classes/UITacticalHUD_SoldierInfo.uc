@@ -230,7 +230,9 @@ simulated function SetStats( XGUnit kActiveUnit )
 		if( StateUnit.IsSoldier() )
 		{
 			charRank = class'UIUtilities_Image'.static.GetRankIcon(StateUnit.GetRank(), StateUnit.GetSoldierClassTemplateName());
-			charClass = StateUnit.GetSoldierClassTemplate().IconImage;
+			// Start Issue #106
+			charClass = StateUnit.GetSoldierClassIcon();
+			// End Issue #106
 			isLeveledUp = StateUnit.CanRankUpSoldier();
 			aimPercent = StateUnit.GetCurrentStat(eStat_Offense);
 		}

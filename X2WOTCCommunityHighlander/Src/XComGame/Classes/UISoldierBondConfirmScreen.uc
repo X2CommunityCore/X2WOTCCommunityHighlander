@@ -53,7 +53,9 @@ simulated function OnInit()
 	SoldierClass1 = Soldier1State.GetSoldierClassTemplate();
 
 	rankIcon1 = class'UIUtilities_Image'.static.GetRankIcon(iRank1, SoldierClass1.DataName);
-	classIcon1 = SoldierClass1.IconImage;
+	// Start Issue #106
+	classIcon1 = Soldier1State.GetSoldierClassIcon();
+	// End Issue #106
 
 	Soldier1State.HasSoldierBond(unitRef, BondData);
 
@@ -63,10 +65,13 @@ simulated function OnInit()
 	SoldierClass2 = Soldier2State.GetSoldierClassTemplate();
 
 	rankIcon2 = class'UIUtilities_Image'.static.GetRankIcon(iRank2, SoldierClass2.DataName);
-	classIcon2 = SoldierClass2.IconImage;
-
-	SetBondData(BondData.BondLevel + 1, rankIcon1, classIcon1, SoldierClass1.DisplayName, Caps(Soldier1State.GetName(eNameType_Full)),
-		rankIcon2, classIcon2, SoldierClass2.DisplayName, Caps(Soldier2State.GetName(eNameType_Full)), m_strBenefits);
+	// Start Issue #106
+	classIcon2 = Soldier2State.GetSoldierClassIcon();
+	
+	
+	SetBondData(BondData.BondLevel + 1, rankIcon1, classIcon1, Soldier1State.GetSoldierClassDisplayName(), Caps(Soldier1State.GetName(eNameType_Full)),
+		rankIcon2, classIcon2, Soldier2State.GetSoldierClassDisplayName(), Caps(Soldier2State.GetName(eNameType_Full)), m_strBenefits);
+	// End Issue #106
 
 	i = 0;
 	AbilityTemplateMan = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();

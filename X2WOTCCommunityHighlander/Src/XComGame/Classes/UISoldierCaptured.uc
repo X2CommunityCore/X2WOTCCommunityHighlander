@@ -73,18 +73,20 @@ simulated function BuildScreen()
 
 	AS_SetChosenIcon(ChosenState.GetChosenIcon());
 
+	// Start Issue #106
 	AS_UpdateData(  GetOrStartWaitingForPosterImage(),
 				  ""/*InspectingChosen.GetChosenIcon()*/,
 					string(ChosenState.Level),
 					Caps(strChosenType),
 					strChosenName,
 					Caps(strChosenNickname),
-					UnitState.IsSoldier() ? SoldierClass.IconImage : UnitState.GetMPCharacterTemplate().IconImage,
+					UnitState.IsSoldier() ? UnitState.GetSoldierClassIcon() : UnitState.GetMPCharacterTemplate().IconImage,
 					Caps(class'UIUtilities_Image'.static.GetRankIcon(UnitState.GetRank(), UnitState.GetSoldierClassTemplateName())),
-					Caps(SoldierClass != None ? SoldierClass.DisplayName : ""),
+					Caps(SoldierClass != None ? UnitState.GetSoldierClassDisplayName() : ""),
 					Caps(UnitState.GetFullName()),
 					Caps(UnitState.IsSoldier() ? `GET_RANK_STR(UnitState.GetRank(), UnitState.GetSoldierClassTemplateName()) : ""),
 					strBody);
+	// End Issue #106
 
 	GetOrStartWaitingForStaffImage();
 	if( `SCREENSTACK.IsTopScreen(self) )

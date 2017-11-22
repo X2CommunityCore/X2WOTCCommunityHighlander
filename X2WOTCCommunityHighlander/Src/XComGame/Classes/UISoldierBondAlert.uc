@@ -48,11 +48,15 @@ function UpdateData()
 
 	SoldierClass1 = Unit1.GetSoldierClassTemplate();
 	RankIcon1 = class'UIUtilities_Image'.static.GetRankIcon(Unit1.GetRank(), SoldierClass1.DataName);
-	ClassIcon1 = SoldierClass1.IconImage;
+	// Start Issue #106
+	ClassIcon1 = Unit1.GetSoldierClassIcon();
+	// End Issue #106
 
 	SoldierClass2 = Unit2.GetSoldierClassTemplate();
 	RankIcon2 = class'UIUtilities_Image'.static.GetRankIcon(Unit2.GetRank(), SoldierClass2.DataName);
-	ClassIcon2 = SoldierClass2.IconImage;
+	// Start Issue #106
+	ClassIcon2 = Unit2.GetSoldierClassIcon();
+	// End Issue #106
 
 	Unit1.GetBondData(UnitRef2, BondData);
 	kTag = XGParamTag(`XEXPANDCONTEXT.FindTag("XGParam"));

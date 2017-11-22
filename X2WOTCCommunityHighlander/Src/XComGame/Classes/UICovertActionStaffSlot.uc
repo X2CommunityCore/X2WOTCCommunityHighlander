@@ -151,7 +151,9 @@ function UpdateData()
 
 		Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitRef.ObjectID));
 		RankImage = Unit.IsSoldier() ? class'UIUtilities_Image'.static.GetRankIcon(Unit.GetRank(), Unit.GetSoldierClassTemplateName()) : "";
-		ClassImage = Unit.IsSoldier() ? Unit.GetSoldierClassTemplate().IconImage : Unit.GetMPCharacterTemplate().IconImage;
+		// Start Issue #106
+		ClassImage = Unit.IsSoldier() ? Unit.GetSoldierClassIcon() : Unit.GetMPCharacterTemplate().IconImage;
+		// End Issue #106
 
 		if( Unit.IsSoldier() && ActionState.HasAmbushRisk() && !ActionState.bStarted)
 		{

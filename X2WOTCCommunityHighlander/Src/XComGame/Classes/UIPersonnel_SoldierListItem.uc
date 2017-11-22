@@ -60,7 +60,9 @@ simulated function InitListItem(StateObjectReference initUnitRef)
 
 	flagIcon = Unit.GetCountryTemplate().FlagImage;
 	rankIcon = class'UIUtilities_Image'.static.GetRankIcon(iRank, SoldierClass.DataName);
-	classIcon = SoldierClass.IconImage;
+	// Start Issue #106
+	classIcon = Unit.GetSoldierClassIcon();
+	// End Issue #106
 
 	// if personnel is not staffed, don't show location
 	if( class'UIUtilities_Strategy'.static.DisplayLocation(Unit) )
@@ -109,11 +111,12 @@ simulated function InitListItem(StateObjectReference initUnitRef)
 		BondLevel = -1; 
 	}
 
+	// Start Issue #106
 	AS_UpdateDataSoldier(Caps(Unit.GetName(eNameType_Full)),
 					Caps(Unit.GetName(eNameType_Nick)),
 					Caps(`GET_RANK_ABBRV(Unit.GetRank(), SoldierClass.DataName)),
 					rankIcon,
-					Caps(SoldierClass != None ? SoldierClass.DisplayName : ""),
+					Caps(SoldierClass != None ? Unit.GetSoldierClassDisplayName() : ""),
 					classIcon,
 					status,
 					statusTimeValue $"\n" $ Class'UIUtilities_Text'.static.CapsCheckForGermanScharfesS(Class'UIUtilities_Text'.static.GetSizedText( statusTimeLabel, 12)),
@@ -124,6 +127,7 @@ simulated function InitListItem(StateObjectReference initUnitRef)
 					false, // psi soldiers can't rank up via missions
 					mentalStatus,
 					BondLevel);
+	// End Issue #106
 
 	AS_SetFactionIcon(FactionState.GetFactionIcon());
 }

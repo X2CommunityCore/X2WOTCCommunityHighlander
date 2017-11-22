@@ -135,7 +135,9 @@ simulated function PopulateData()
 	FactionState = Unit.GetResistanceFaction();
 	
 	rankIcon = class'UIUtilities_Image'.static.GetRankIcon(Unit.GetRank(), ClassTemplate.DataName);
-	classIcon = ClassTemplate.IconImage;
+	// Start Issue #106
+	classIcon = Unit.GetSoldierClassIcon();
+	// End Issue #106
 
 	HeaderString = m_strAbilityHeader;
 	if (Unit.GetRank() != 1 && Unit.HasAvailablePerksToAssign())
@@ -303,15 +305,15 @@ function bool UpdateAbilityIcons(out UIArmory_PromotionHeroColumn Column)
 
 function HidePreview()
 {
+	// Start Issue #106
 	local XComGameState_Unit Unit;
-	local X2SoldierClassTemplate ClassTemplate;
 	local string ClassName, ClassDesc;
 
 	Unit = GetUnit();
-	ClassTemplate = Unit.GetSoldierClassTemplate();
 
-	ClassName = Caps(ClassTemplate.DisplayName);
-	ClassDesc = ClassTemplate.ClassSummary;
+	ClassName = Caps(Unit.GetSoldierClassDisplayName());
+	ClassDesc = Unit.GetSoldierClassSummary();
+	// End Issue #106
 
 	// By default when not previewing an ability, display class data
 	AS_SetDescriptionData("", ClassName, ClassDesc, "", "", "", "");

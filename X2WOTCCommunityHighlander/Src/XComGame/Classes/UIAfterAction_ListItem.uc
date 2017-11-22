@@ -125,17 +125,23 @@ simulated function UpdateData(optional StateObjectReference UnitRef)
 
 	// Don't show class label for rookies since their rank is shown which would result in a duplicate string
 	if(Unit.GetRank() > 0)
-		ClassStr = class'UIUtilities_Text'.static.GetColoredText(Caps(Unit.GetSoldierClassTemplate().DisplayName), eUIState_Faded, 17);
+	{
+		// Start Issue #106
+		ClassStr = class'UIUtilities_Text'.static.GetColoredText(Caps(Unit.GetSoldierClassDisplayName()), eUIState_Faded, 17);
+		// End Issue #106
+	}
 	else
 		ClassStr = "";
 
+	// Start Issue #106
 	AS_SetData( class'UIUtilities_Text'.static.GetColoredText(Caps(class'X2ExperienceConfig'.static.GetRankName(Unit.GetRank(), Unit.GetSoldierClassTemplateName())), eUIState_Faded, 18),
 				class'UIUtilities_Text'.static.GetColoredText(Caps(Unit.GetName(eNameType_Last)), eUIState_Normal, 22),
 				class'UIUtilities_Text'.static.GetColoredText(Caps(Unit.GetName(eNameType_Nick)), eUIState_Header, 28),
-				Unit.GetSoldierClassTemplate().IconImage, class'UIUtilities_Image'.static.GetRankIcon(Unit.GetRank(), Unit.GetSoldierClassTemplateName()),
+				Unit.GetSoldierClassIcon(), class'UIUtilities_Image'.static.GetRankIcon(Unit.GetRank(), Unit.GetSoldierClassTemplateName()),
 				(bCanPromote) ? class'UISquadSelect_ListItem'.default.m_strPromote : "",
 				statusLabel, statusText, daysLabel, daysText, m_strMissionsLabel, string(Unit.GetNumMissions()),
 				m_strKillsLabel, string(Unit.GetNumKills()), false, ClassStr);
+	// End Issue #106
 
 	AS_SetUnitHealth(class'UIUtilities_Strategy'.static.GetUnitCurrentHealth(Unit, true), class'UIUtilities_Strategy'.static.GetUnitMaxHealth(Unit));
 

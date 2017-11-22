@@ -62,7 +62,9 @@ simulated function UpdateData()
 
 	flagIcon = Unit.GetCountryTemplate().FlagImage;
 	rankIcon = class'UIUtilities_Image'.static.GetRankIcon(iRank, SoldierClass.DataName);
-	classIcon = SoldierClass.IconImage;
+	// Start Issue #106
+	classIcon = Unit.GetSoldierClassIcon();
+	// End Issue #106
 
 	CohesionThresholds = class'X2StrategyGameRulesetDataStructures'.default.CohesionThresholds;
 	CohesionMax = float(CohesionThresholds[Clamp(BondData.BondLevel + 1, 0, CohesionThresholds.Length - 1)]);
@@ -106,17 +108,18 @@ simulated function UpdateData()
 		ActivateBondButton.Hide();
 		MC.FunctionBool("CanShowBondButton", false);
 	}
-
+	// Start Issue #106
 	AS_UpdateDataSoldier(Caps(Unit.GetName(eNameType_Full)),
 						 Caps(Unit.GetName(eNameType_Nick)),
 						 Caps(`GET_RANK_ABBRV(Unit.GetRank(), SoldierClass.DataName)),
 						rankIcon,
-						Caps(SoldierClass != None ? SoldierClass.DisplayName : ""),
+						Caps(SoldierClass != None ? Unit.GetSoldierClassDisplayName() : ""),
 						classIcon,
 						flagIcon,
 						class'X2StrategyGameRulesetDataStructures'.static.GetSoldierCompatibilityLabel(BondData.Compatibility),
 						CohesionPercent,
 						IsDisabled);
+	// End Issue #106
 }
 
 simulated function AS_UpdateDataSoldier(string UnitName,

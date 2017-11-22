@@ -89,8 +89,7 @@ simulated function array<Commodity> ConvertClassesToCommodities()
 	for (iClass = 0; iClass < m_arrClasses.Length; iClass++)
 	{
 		ClassTemplate = m_arrClasses[iClass];
-		
-		ClassComm.Title = ClassTemplate.DisplayName;
+		ClassComm.Title =  ClassTemplate.DisplayName;
 		ClassComm.Image = ClassTemplate.IconImage;
 		ClassComm.Desc = ClassTemplate.ClassSummary;
 		ClassComm.OrderHours = XComHQ.GetTrainRookieDays() * 24;

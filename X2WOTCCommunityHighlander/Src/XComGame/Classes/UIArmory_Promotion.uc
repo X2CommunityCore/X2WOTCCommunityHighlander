@@ -313,7 +313,9 @@ simulated function PopulateData()
 		HeaderString = m_strSelectAbility;
 	}
 
-	AS_SetTitle(ClassTemplate.IconImage, HeaderString, ClassTemplate.LeftAbilityTreeTitle, ClassTemplate.RightAbilityTreeTitle, Caps(ClassTemplate.DisplayName));
+	// Start Issue #106
+	AS_SetTitle(Unit.GetSoldierClassIcon(), HeaderString, ClassTemplate.LeftAbilityTreeTitle, ClassTemplate.RightAbilityTreeTitle, Caps(Unit.GetSoldierClassDisplayName()));
+	// End Issue #106
 
 	if(ActorPawn == none || (Unit.GetRank() == 1 && bAfterActionPromotion)) //This condition is TRUE when in the after action report, and we need to rank someone up to squaddie
 	{
@@ -397,7 +399,9 @@ simulated function PopulateData()
 
 	ClassRowItem.SetEquippedAbilities(true, true);
 	ClassRowItem.SetAbilityData("", "", AbilityIcon2, AbilityName2);
-	ClassRowItem.SetClassData(ClassTemplate.IconImage, Caps(ClassTemplate.DisplayName));
+	// Start Issue #106
+	ClassRowItem.SetClassData(Unit.GetSoldierClassIcon(), Caps(Unit.GetSoldierClassDisplayName()));
+	// End Issue #106
 
 	for(i = 2; i < maxRank; ++i)
 	{
@@ -557,7 +561,6 @@ simulated function PreviewRow(UIList ContainerList, int ItemIndex)
 {
 	local int i, Rank;
 	local string TmpStr;
-	local X2SoldierClassTemplate ClassTemplate;
 	local X2AbilityTemplate AbilityTemplate;
 	local array<SoldierClassAbilityType> AbilityTree;
 	local X2AbilityTemplateManager AbilityTemplateManager;
@@ -584,7 +587,6 @@ simulated function PreviewRow(UIList ContainerList, int ItemIndex)
 	}
 	else
 	{
-		ClassTemplate = Unit.GetSoldierClassTemplate();
 		AbilityTree = Unit.GetRankAbilities(Rank);
 		AbilityTemplateManager = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
 
@@ -593,9 +595,11 @@ simulated function PreviewRow(UIList ContainerList, int ItemIndex)
 			// Left icon is the class icon for the first item, show class icon plus class desc.
 			if(i == 0 && Rank == 0)
 			{
-				MC.QueueString(ClassTemplate.IconImage); // icon
-				MC.QueueString(Caps(ClassTemplate.DisplayName)); // name
-				MC.QueueString(ClassTemplate.ClassSummary); // description
+				// Start Issue #106
+				MC.QueueString(Unit.GetSoldierClassIcon()); // icon
+				MC.QueueString(Caps(Unit.GetSoldierClassDisplayName())); // name
+				MC.QueueString(Unit.GetSoldierClassSummary()); // description
+				// End Issue #106
 				MC.QueueBoolean(true); // isClassIcon
 			}
 			

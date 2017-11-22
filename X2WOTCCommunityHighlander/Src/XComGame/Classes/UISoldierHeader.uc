@@ -195,7 +195,9 @@ public function PopulateData(optional XComGameState_Unit Unit, optional StateObj
 
 	flagIcon  = (Unit.IsSoldier() && !bHideFlag) ? Unit.GetCountryTemplate().FlagImage : "";
 	rankIcon  = Unit.IsSoldier() ? class'UIUtilities_Image'.static.GetRankIcon(iRank, Unit.GetSoldierClassTemplateName()) : Unit.GetMPCharacterTemplate().IconImage;
-	classIcon = Unit.IsSoldier() ? SoldierClass.IconImage : Unit.GetMPCharacterTemplate().IconImage;
+	// Start Issue #106
+	classIcon = Unit.IsSoldier() ? Unit.GetSoldierClassIcon() : Unit.GetMPCharacterTemplate().IconImage;
+	// End Issue #106
 
 	if (classIcon == rankIcon)
 		rankIcon = "";
@@ -226,13 +228,15 @@ public function PopulateData(optional XComGameState_Unit Unit, optional StateObj
 	}
 	else
 	{
+		// Start Issue #106
 		SetSoldierInfo( Caps(Unit.GetName( eNameType_FullNick )),
 							  StatusLabel, StatusValue,
 							  m_strMissionsLabel, string(Unit.GetNumMissions()),
 							  m_strKillsLabel, string(Unit.GetNumKills()),
-							  classIcon, Caps(SoldierClass != None ? SoldierClass.DisplayName : ""),
+							  classIcon, Caps(SoldierClass != None ? Unit.GetSoldierClassDisplayName() : ""),
 							  rankIcon, Caps(`GET_RANK_STR(Unit.GetRank(), Unit.GetSoldierClassTemplateName())),
 							  flagIcon, (Unit.ShowPromoteIcon()), DaysValue);
+		// End Issue #106
 	}
 
 	SetFactionIcon(FactionState.GetFactionIcon());
