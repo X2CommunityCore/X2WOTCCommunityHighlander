@@ -80,7 +80,8 @@ simulated function UpdateData()
 			{
 			//start issue #85: init variables here to check for trait template
 			EventTemplateManager = class'X2EventListenerTemplateManager'.static.GetEventListenerTemplateManager();
-			TraitTemplate = X2TraitTemplate(EventTemplateManager.FindEventListenerTemplate(AlertTraits[0])); //while it's an array, we go with the base game's assumption of having only one trait to worry about when it changes				
+			TraitTemplate = X2TraitTemplate(EventTemplateManager.FindEventListenerTemplate(Unit.AlertTraits[0]));
+			//while it's an array, we go with the base game's assumption of having only one trait to worry about when it changes				
 				
 			if(!TraitTemplate.bPositiveTrait)
 				AddStatusIndicator(Unit, CreateTraitIcon(Unit, false));
@@ -284,7 +285,8 @@ function OnClickTraitIcon(UITraitIcon Icon)
 
 	//start issue #85: init variables here to check for trait template. If Positive, we cancel this callback.
 	EventTemplateManager = class'X2EventListenerTemplateManager'.static.GetEventListenerTemplateManager();
-	TraitTemplate = X2TraitTemplate(EventTemplateManager.FindEventListenerTemplate(AlertTraits[0])); //while it's an array, we go with the base game's assumption of having only one trait to worry about when it changes				
+	TraitTemplate = X2TraitTemplate(EventTemplateManager.FindEventListenerTemplate(Unit.AlertTraits[0]));
+	//while it's an array, we go with the base game's assumption of having only one trait to worry about when it changes				
 			
 	if(TraitTemplate.bPositiveTrait)
 		return; 
