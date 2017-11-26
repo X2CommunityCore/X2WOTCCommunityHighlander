@@ -244,6 +244,10 @@ static function CalculateWillRoll(WillEventRollData RollInfo, XComGameState_Unit
 	local XComGameState_BattleData BattleDataState;
 	local X2SitRepEffect_ModifyWillPenalties SitRepEffect;
 	local float SitRepWillLossScalar;
+	// Start Issue #44
+	local float WillStartOfMission;
+	local UnitValue WillStartOfMissionUnitVal;
+	// End Issue #44
 
 	if( InSourceUnit.IsDead()
 		|| InSourceUnit.IsIncapacitated()
@@ -344,11 +348,23 @@ static function CalculateWillRoll(WillEventRollData RollInfo, XComGameState_Unit
 
 		if(RollInfo.MaxWillPercentageLostPerMission > 0)
 		{
-			// get the unit's will at the start of the mission
-			History = `XCOMHISTORY;
-			StartOfMissionUnit = XComGameState_Unit(History.GetGameStateForObjectID(InSourceUnit.ObjectID,, History.FindStartStateIndex()));
+			// Start Issue #44
+			// If we want to use the changed behavior (no reset of Start-of-mission Will on Tactical-To-Tactical Transfer),
+			// check if we have the UnitValue recorded -- otherwise it might break when we add the Highlander in the middle of a mission
+			if (class'CHHelpers'.default.MULTIPART_MISSION_WILL_LOSS_CAP && InSourceUnit.GetUnitValue('CH_StartMissionWill', WillStartOfMissionUnitVal))
+			{
+				WillStartOfMission = WillStartOfMissionUnitVal.fValue;
+			}
+			else
+			{
+				// get the unit's will at the start of the mission
+				History = `XCOMHISTORY;
+				StartOfMissionUnit = XComGameState_Unit(History.GetGameStateForObjectID(InSourceUnit.ObjectID,, History.FindStartStateIndex()));
+				WillStartOfMission = StartOfMissionUnit.GetCurrentStat(eStat_Will);
+			}
 			MaximumWillLossPerMission = RollInfo.MaxWillPercentageLostPerMission * InSourceUnit.GetMaxStat(eStat_Will);
-			MinimumAllowedWill = max(MinimumAllowedWill, StartOfMissionUnit.GetCurrentStat(eStat_Will) - MaximumWillLossPerMission);
+			MinimumAllowedWill = max(MinimumAllowedWill, WillStartOfMission - MaximumWillLossPerMission);
+			// End Issue #44
 		}
 
 		// now that we know our lower floor, make sure we won't drop below the minimum
