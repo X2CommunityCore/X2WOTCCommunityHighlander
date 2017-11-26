@@ -13656,6 +13656,56 @@ function bool UnitIsValidForPhotobooth()
 	return false;
 }
 
+// Start Issue #106
+function String GetSoldierClassIcon()
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'SoldierClassIcon';
+	Tuple.Data.Add(1);
+
+	Tuple.Data[0].kind = XComLWTVString;
+	Tuple.Data[0].s = GetSoldierClassTemplate().IconImage;
+
+	`XEVENTMGR.TriggerEvent('SoldierClassIcon', Tuple, self, none);
+
+	return Tuple.Data[0].s;
+}
+
+function String GetSoldierClassDisplayName()
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'SoldierClassDisplayName';
+	Tuple.Data.Add(1);
+
+	Tuple.Data[0].kind = XComLWTVString;
+	Tuple.Data[0].s = GetSoldierClassTemplate().DisplayName;
+
+	`XEVENTMGR.TriggerEvent('SoldierClassDisplayName', Tuple, self, none);
+
+	return Tuple.Data[0].s;
+}
+
+function String GetSoldierClassSummary()
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'SoldierClassSummary';
+	Tuple.Data.Add(1);
+
+	Tuple.Data[0].kind = XComLWTVString;
+	Tuple.Data[0].s = GetSoldierClassTemplate().ClassSummary;
+
+	`XEVENTMGR.TriggerEvent('SoldierClassSummary', Tuple, self, none);
+
+	return Tuple.Data[0].s;
+}
+// End Issue #106
+
 ////////////////////////////////////////////////////////////////////////////////////////
 // cpptext
 
