@@ -10,6 +10,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Event Hooks
 - Triggers the event `OnArmoryMainMenuUpdate` that allows adding elements into
   the ArmoryList (#47)
+  
 
 ### Modding Exposures
 
@@ -91,6 +92,10 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   equip a particular item as an extension to the standand rules (#50)
 
 ### Event Hooks
+- Triggers the events `SoldierClassIcon`, `SoldierClassDisplayName`,
+  `SoldierClassSummary` that allow replacement of the class icon/display
+  name/summary dynamically e.g. depending on UnitState or Soldier Loadout,
+  and adds accessor functions for those to XComGameState_Unit. (#106)
 
 ### Configuration
 - Able to list classes as excluded from AWC Skill Rolling, so they can still
@@ -112,6 +117,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   hardcoding based on Rookie Rank (#55)
 - Change UIUtilities_Colors.GetColorForFaction to use Faction template color as
   a backup (#72)
+- Prevent items from stacking if they have ComponentObjects attached to them,
+  useful for mods to create uniques out of stackable items. (#104)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
