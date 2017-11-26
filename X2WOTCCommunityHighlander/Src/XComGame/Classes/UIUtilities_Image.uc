@@ -839,6 +839,7 @@ simulated static function string GetPCSImage(XComGameState_Item Item)
     
 	// Start Issue #110: OnGetPCSImage Event
 	Tuple = new class'XComLWTuple';
+	Tuple.id = 'GetPCSImageTuple';
 	Tuple.Data.Add(2);
 	
 	Tuple.Data[0].kind = XComLWTVObject;
