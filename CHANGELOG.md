@@ -57,6 +57,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   enable Chosen ragdolling (#41)
 - Added ability to customise both Burning and Poison bypassing shields when
   applied to targets (#89)
+- Added ability to prevent multi-part missions counting as separate missions
+  for will loss purposes (#44)
 
 ### Modding Exposures
 - Deprivatise variables to protected in XComIdleAnimationStateMachine to allow
