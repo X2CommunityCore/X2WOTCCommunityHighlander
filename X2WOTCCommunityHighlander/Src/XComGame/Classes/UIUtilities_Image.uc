@@ -838,12 +838,11 @@ simulated static function string GetPCSImage(XComGameState_Item Item)
 	StatType = class'UIUtilities_Strategy'.static.GetStatBoost(Item).StatType;
     
 	// Start Issue #110: OnGetPCSImage Event
-	// Listener functions should assign Tuple.Data[0].i to a local ECharStatType variable in order to use the StatType
 	Tuple = new class'XComLWTuple';
 	Tuple.Data.Add(2);
-
-	Tuple.Data[0].kind = XComLWTVInt;
-	Tuple.Data[0].i = StatType;
+	
+	Tuple.Data[0].kind = XComLWTVObject;
+	Tuple.Data[0].o = Item;
 
 	Tuple.Data[1].kind = XComLWTVString;
 	Tuple.Data[1].s = ""; // To be used for return value
@@ -854,15 +853,15 @@ simulated static function string GetPCSImage(XComGameState_Item Item)
 		return Tuple.Data[1].s;
     //End issue
 
-     switch(StatType)
-     {
-     case eStat_HP:          return "img:///UILibrary_Common.implants_health";
-     case eStat_Mobility:    return "img:///UILibrary_Common.implants_mobility";
-     case eStat_Offense:     return "img:///UILibrary_Common.implants_offense";
-     case eStat_PsiOffense:  return "img:///UILibrary_Common.implants_psi";
-     case eStat_Will:        return "img:///UILibrary_Common.implants_will";
-      case eStat_Dodge:        return "img:///UILibrary_Common.implants_psi";
-    default:                return "img:///UILibrary_Common.implants_empty";
+	switch(StatType)
+	{
+	case eStat_HP:			return "img:///UILibrary_Common.implants_health";
+	case eStat_Mobility:	return "img:///UILibrary_Common.implants_mobility";
+	case eStat_Offense:		return "img:///UILibrary_Common.implants_offense";
+	case eStat_PsiOffense:	return "img:///UILibrary_Common.implants_psi";
+	case eStat_Will:		return "img:///UILibrary_Common.implants_will";
+	case eStat_Dodge:		return "img:///UILibrary_Common.implants_psi";
+	default:				return "img:///UILibrary_Common.implants_empty";
     }
 }
 
