@@ -832,19 +832,38 @@ simulated static function string GetPsiFeedbackMeterLabel( int iMindshockValue )
 simulated static function string GetPCSImage(XComGameState_Item Item)
 {
 	local ECharStatType StatType;
+	// Variables for Issue #110: OnGetPCSImade Event
+	local XComLWTuple Tuple;
 
 	StatType = class'UIUtilities_Strategy'.static.GetStatBoost(Item).StatType;
+    
+	// Start Issue #110: OnGetPCSImage Event
+	// Listener functions should assign Tuple.Data[0].i to a local ECharStatType variable in order to use the StatType
+	Tuple = new class'XComLWTuple';
+	Tuple.Data.Add(2);
 
-	switch(StatType)
-	{
-	case eStat_HP:          return "img:///UILibrary_Common.implants_health";
-	case eStat_Mobility:    return "img:///UILibrary_Common.implants_mobility";
-	case eStat_Offense:     return "img:///UILibrary_Common.implants_offense";
-	case eStat_PsiOffense:  return "img:///UILibrary_Common.implants_psi";
-	case eStat_Will:        return "img:///UILibrary_Common.implants_will";
-	case eStat_Dodge:		return "img:///UILibrary_Common.implants_psi";
-	default:                return "img:///UILibrary_Common.implants_empty";
-	}
+	Tuple.Data[0].kind = XComLWTVInt;
+	Tuple.Data[0].i = StatType;
+
+	Tuple.Data[1].kind = XComLWTVString;
+	Tuple.Data[1].s = ""; // To be used for return value
+
+	`XEVENTMGR.TriggerEvent('OnGetPCSImage', Tuple);
+
+	if (Tuple.Data[1].s != "")
+		return Tuple.Data[1].s;
+    //End issue
+
+     switch(StatType)
+     {
+     case eStat_HP:          return "img:///UILibrary_Common.implants_health";
+     case eStat_Mobility:    return "img:///UILibrary_Common.implants_mobility";
+     case eStat_Offense:     return "img:///UILibrary_Common.implants_offense";
+     case eStat_PsiOffense:  return "img:///UILibrary_Common.implants_psi";
+     case eStat_Will:        return "img:///UILibrary_Common.implants_will";
+      case eStat_Dodge:        return "img:///UILibrary_Common.implants_psi";
+    default:                return "img:///UILibrary_Common.implants_empty";
+    }
 }
 
 simulated static function string GetTutorialImage_Ambush()
