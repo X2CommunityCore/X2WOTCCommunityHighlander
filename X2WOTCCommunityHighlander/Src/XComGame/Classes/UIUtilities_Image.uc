@@ -856,14 +856,14 @@ simulated static function string GetPCSImage(XComGameState_Item Item)
 
 	switch(StatType)
 	{
-	case eStat_HP:			return "img:///UILibrary_Common.implants_health";
-	case eStat_Mobility:	return "img:///UILibrary_Common.implants_mobility";
-	case eStat_Offense:		return "img:///UILibrary_Common.implants_offense";
-	case eStat_PsiOffense:	return "img:///UILibrary_Common.implants_psi";
-	case eStat_Will:		return "img:///UILibrary_Common.implants_will";
+	case eStat_HP:          return "img:///UILibrary_Common.implants_health";
+	case eStat_Mobility:    return "img:///UILibrary_Common.implants_mobility";
+	case eStat_Offense:     return "img:///UILibrary_Common.implants_offense";
+	case eStat_PsiOffense:  return "img:///UILibrary_Common.implants_psi";
+	case eStat_Will:        return "img:///UILibrary_Common.implants_will";
 	case eStat_Dodge:		return "img:///UILibrary_Common.implants_psi";
-	default:				return "img:///UILibrary_Common.implants_empty";
-    }
+	default:                return "img:///UILibrary_Common.implants_empty";
+	}
 }
 
 simulated static function string GetTutorialImage_Ambush()
