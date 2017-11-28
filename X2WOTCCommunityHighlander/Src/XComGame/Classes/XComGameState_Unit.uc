@@ -7124,7 +7124,7 @@ simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate,
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
-		if(DLCInfos[i].CanAddItemToInventory_CH(bCanAddItem, Slot, ItemTemplate, Quantity, self, CheckGameState))
+		if(DLCInfos[i].CanAddItemToInventory_CH_Improved(bCanAddItem, Slot, ItemTemplate, Quantity, self, CheckGameState))
 		{
 			return bCanAddItem > 0;
 		}
