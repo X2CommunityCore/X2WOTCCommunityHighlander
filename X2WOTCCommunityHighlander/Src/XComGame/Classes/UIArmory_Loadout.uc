@@ -857,17 +857,19 @@ simulated function string GetDisabledReason(XComGameState_Item Item, EInventoryS
 	}
 	
 	//start of Issue #50: add hook to UI to show disabled reason, if possible
+	//start of Issue #114: added ItemState of what's being looked at for more expansive disabling purposes
 	if(DisabledReason == "")
 	{
 		for(i = 0; i < DLCInfos.Length; ++i)
 		{
-			if(!DLCInfos[i].CanAddItemToInventory_CH(UnusedOutInt, SelectedSlot, ItemTemplate, Item.Quantity, UpdatedUnit, , DLCReason))
+			if(!DLCInfos[i].CanAddItemToInventory_CH(UnusedOutInt, SelectedSlot, ItemTemplate, Item.Quantity, UpdatedUnit, , DLCReason, Item))
 			{
 				DisabledReason = DLCReason;
 			}
 		}
 	}
 	//end of Issue #50
+	//end of issue #114
 	
 	// If this is a utility item, and cannot be equipped, it must be disabled because of one item per category restriction
 	if(DisabledReason == "" && SelectedSlot == eInvSlot_Utility)
