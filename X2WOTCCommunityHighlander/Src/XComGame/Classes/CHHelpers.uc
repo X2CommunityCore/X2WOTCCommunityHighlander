@@ -26,3 +26,9 @@ var config bool CHECK_CURED_TRAITS;
 // These classes have bAllowAWCAbilities set to true just to participate in the ComInt / AP system
 var config array<name> ClassesExcludedFromAWCRoll;
 // End Issue #80
+
+// start issue #113
+// list of classes to exclude from being considered "needed" by XComGameState_HeadquartersResistance
+// these are for classes which are meant to be rarely acquired via rookie level up, though others may also be here for their own reasons
+var config array<name> ClassesExcludedFromResHQ;
+//end issue #113
