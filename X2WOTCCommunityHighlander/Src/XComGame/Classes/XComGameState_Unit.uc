@@ -6981,8 +6981,10 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 	local X2ItemTemplate ItemTemplate;
 
 	ItemTemplate = Item.GetMyTemplate();
-	if (CanAddItemToInventory(ItemTemplate, Slot, NewGameState, Item.Quantity))
+	// issue #114: pass along item state when possible
+	if (CanAddItemToInventory(ItemTemplate, Slot, NewGameState, Item.Quantity, Item))
 	{
+	// end issue #114
 		if( ItemTemplate.OnEquippedFn != None )
 		{
 			ItemTemplate.OnEquippedFn(Item, self, NewGameState);
@@ -7109,8 +7111,8 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 	}
 	return false;
 }
-
-simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate, const EInventorySlot Slot, optional XComGameState CheckGameState, optional int Quantity=1)
+//issue #114: function can now take in item states for new hook
+simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate, const EInventorySlot Slot, optional XComGameState CheckGameState, optional int Quantity=1, optional XComGameState_Item Item)
 {
 	local int i, iUtility;
 	local XComGameState_Item kItem;
@@ -7120,16 +7122,16 @@ simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate,
 	local array<X2DownloadableContentInfo> DLCInfos; // Issue #50: Added for hook
 	local int bCanAddItem; // Issue #50: hackery to avoid bool not being allowed to be out parameter
 	
-	// Start Issue #50
+	// Start Issue #50 and #114: inventory hook
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
-		if(DLCInfos[i].CanAddItemToInventory_CH_Improved(bCanAddItem, Slot, ItemTemplate, Quantity, self, CheckGameState))
+		if(DLCInfos[i].CanAddItemToInventory_CH_Improved(bCanAddItem, Slot, ItemTemplate, Quantity, self, CheckGameState, Item))
 		{
 			return bCanAddItem > 0;
 		}
 	}
-	// End Issue #50
+	// End Issue #50 and #114
 	
 	if( bIgnoreItemEquipRestrictions )
 		return true;
@@ -11231,8 +11233,10 @@ function EquipOldItems(XComGameState NewGameState)
 				ItemState = none;
 
 				//  If we can't add an item, there's probably one occupying the slot already, so find it so we can remove it.
-				if(!CanAddItemToInventory(ItemTemplate, OldInventoryItems[idx].eSlot, NewGameState))
+				//start issue #114: pass along item state in case there's a reason the soldier should be unable to re-equip from a mod
+				if(!CanAddItemToInventory(ItemTemplate, OldInventoryItems[idx].eSlot, NewGameState, InvItemState.Quantity, InvItemState))
 				{
+				//end issue #114
 					if (OldInventoryItems[idx].eSlot == eInvSlot_Utility)
 					{
 						// If there are multiple utility items, grab the last one to try and replace it with the restored item
@@ -11264,8 +11268,10 @@ function EquipOldItems(XComGameState NewGameState)
 				}
 
 				// If we still can't add the restored item to our inventory, put it back into the HQ inventory where we found it and move on
-				if(!CanAddItemToInventory(ItemTemplate, OldInventoryItems[idx].eSlot, NewGameState))
+				//issue #114: pass along item state in case a mod has a reason to prevent this from being equipped
+				if(!CanAddItemToInventory(ItemTemplate, OldInventoryItems[idx].eSlot, NewGameState, InvItemState.Quantity, InvItemState))
 				{
+				//end issue #114
 					XComHQ.PutItemInInventory(NewGameState, InvItemState);
 					continue;
 				}

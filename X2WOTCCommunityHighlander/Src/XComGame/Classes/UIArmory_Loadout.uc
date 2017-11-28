@@ -1175,9 +1175,10 @@ simulated function bool EquipItem(UIArmory_LoadoutItem Item)
 
 		Weapon.Destroy();
 	}
-
-	CanEquip = ((PrevItem == none || UpdatedUnit.RemoveItemFromInventory(PrevItem, UpdatedState)) && UpdatedUnit.CanAddItemToInventory(Item.ItemTemplate, GetSelectedSlot(), UpdatedState));
-
+	
+	//issue #114: pass along item state in CanAddItemToInventory check, in case there's a mod that wants to prevent a specific item from being equipped
+	CanEquip = ((PrevItem == none || UpdatedUnit.RemoveItemFromInventory(PrevItem, UpdatedState)) && UpdatedUnit.CanAddItemToInventory(Item.ItemTemplate, GetSelectedSlot(), UpdatedState, Item.Quantity, Item));
+	//end issue #114
 	if(CanEquip)
 	{
 		GetItemFromInventory(UpdatedState, NewItemRef, NewItem);
