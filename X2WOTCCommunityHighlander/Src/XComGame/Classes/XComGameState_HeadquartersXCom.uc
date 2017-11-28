@@ -7421,15 +7421,21 @@ function GetEvents(out array<HQEvent> arrEvents)
 function GetDLCInfoEvents(out array<HQEvent> arrEvents)
 {
 	local HQEvent kEvent;
+	local array<HQEvent> jEvents;
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local X2DownloadableContentInfo DLCInfo;
 	
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 	foreach DLCInfos(DLCInfo)
 	{
-		if(DLCInfo.GetDLCEventInfo(kEvent)) //if this is true, a mod has added an event and we need to add it
+		jEvents.Length = 0; //this is to prevent stale data from previous DLCInfos from being kept
+		if(DLCInfo.GetDLCEventInfo(jEvents)) //if this is true, a mod has added at least one event and we need to add it
 		{		
-			AddEventToEventList(arrEvents, kEvent);
+			foreach jEvents(kEvent)
+			{
+				AddEventToEventList(arrEvents, kEvent);
+			}
+
 		}
 	}
 

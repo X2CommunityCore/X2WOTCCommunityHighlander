@@ -306,8 +306,8 @@ static private function bool CanAddItemToInventory(out int bCanAddItem, const EI
 /// lets mods add their own events to the event queue when the player is at the Avenger or the Geoscape
 /// </summary>
 
-static function bool GetDLCEventInfo(out HQEvent kEvent)
+static function bool GetDLCEventInfo(out array<HQEvent> arrEvents)
 {
-	return false; //returning true will tell the game to add an event to the queue
+	return false; //returning true will tell the game to add the events have been added to the above array
 }
 //end issue #112
