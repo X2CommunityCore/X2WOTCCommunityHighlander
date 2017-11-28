@@ -279,10 +279,9 @@ static function bool GetValidFloorSpawnLocations(out array<Vector> FloorPoints, 
 ///
 static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, optional XComGameState CheckGameState, optional out string DisabledReason, optional XComGameState_Item ItemState)
 {
-	if(CheckGameState == none)
-		return CanAddItemToInventory_CH(bCanAddItem, Slot, ItemTemplate, Quantity, UnitState, CheckGameState, DisabledReason) //this can be handled by this function by newer mods
 
-	return CanAddItemToInventory(bCanAddItem, Slot, ItemTemplate, Quantity, UnitState, CheckGameState);
+	return CanAddItemToInventory_CH(bCanAddItem, Slot, ItemTemplate, Quantity, UnitState, CheckGameState, DisabledReason) //for mods not using item state, we can just by default, go straight to here. Newer mods can handle implementaion using the item state.
+	
 }
 //end Issue #114
 
@@ -292,7 +291,7 @@ static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, cons
 /// defaults to using the wrapper function below for calls from XCGS_U. Return false with a non-empty string in this function to show the disabled reason in UIArmory_Loadout
 /// Note: due to how UIArmory_Loadout does its check, expect only Slot, ItemTemplate, and UnitState to be filled when trying to fill out a disabled reason. Hence the check for CheckGameState == none
 /// </summary>
-static function bool CanAddItemToInventory_CH(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, optional XComGameState CheckGameState, optional out string DisabledReason, optional XComGameState_Item ItemState)
+static function bool CanAddItemToInventory_CH(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, optional XComGameState CheckGameState, optional out string DisabledReason)
 {
 	if(CheckGameState == none)
 		return false;
@@ -304,7 +303,7 @@ static function bool CanAddItemToInventory_CH(out int bCanAddItem, const EInvent
 /// wrapper function: original function from base game LW/Community highlander
 //  Return true to the actual DLC hook
 /// </summary>
-static private function bool CanAddItemToInventory(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, XComGameState CheckGameState, optional XComGameState_Item ItemState)
+static private function bool CanAddItemToInventory(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, XComGameState CheckGameState)
 {
 	return false;
 }
