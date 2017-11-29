@@ -75,6 +75,9 @@
     <Content Include="Src\XComGame\Classes\UIArmory_Loadout.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIArmory_LoadoutItem.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIArmory_MainMenu.uc">
       <SubType>Content</SubType>
     </Content>
@@ -129,6 +132,9 @@
     <Content Include="Src\XComGame\Classes\UISoldierHeader.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UISquadSelect.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UISquadSelect_ListItem.uc">
       <SubType>Content</SubType>
     </Content>
@@ -172,6 +178,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2TacticalGameRuleset.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2TacticalGameRulesetDataStructures.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2UnifiedProjectile.uc">
