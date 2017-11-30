@@ -49,6 +49,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Trigger `CleanupTacticalMission` for end of mission recovery. (#96)
 - Allow override of bleedout chances on event basis with
   `OverrideBleedoutChance`. (#91)
+- `OnGetItemRange` override an item's range (#119)
   
 
 ### Configuration
