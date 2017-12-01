@@ -26,3 +26,21 @@ var config bool CHECK_CURED_TRAITS;
 // These classes have bAllowAWCAbilities set to true just to participate in the ComInt / AP system
 var config array<name> ClassesExcludedFromAWCRoll;
 // End Issue #80
+
+// Start Issue #123
+// List of AbilityTemplateNames that have associated XComPerkContent
+var config array<name> AbilityTemplatePerksToLoad;
+// End Issue #123
+
+// Start Issue #123
+simulated static function RebuildPerkContentCache() {
+	local XComContentManager		Content;
+	local name						AbilityTemplateName;
+
+	Content = `CONTENT;
+	Content.BuildPerkPackageCache();
+	foreach default.AbilityTemplatePerksToLoad(AbilityTemplateName) {
+		Content.CachePerkContent(AbilityTemplateName);
+	}
+}
+// End Issue #123
