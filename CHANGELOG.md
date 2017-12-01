@@ -90,6 +90,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `DLCAppendSockets` added to allow appending sockets to UnitPawns (#21)
 - `CanAddItemToInventory` added to allow configuring whether or not a unit can
   equip a particular item as an extension to the standand rules (#50)
+- `GetLocalizedCategory`added to allow inject custom weapon category localizations (#125)
 
 ### Event Hooks
 - Triggers the events `SoldierClassIcon`, `SoldierClassDisplayName`,
