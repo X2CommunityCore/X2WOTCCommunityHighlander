@@ -858,14 +858,12 @@ simulated function string GetDisabledReason(XComGameState_Item Item, EInventoryS
 	
 	//start of Issue #50: add hook to UI to show disabled reason, if possible
 	//start of Issue #114: added ItemState of what's being looked at for more expansive disabling purposes
-	if(DisabledReason == "")
+	//issue #127: hook now fires all the time instead of a specific use case scenario
+	for(i = 0; i < DLCInfos.Length; ++i)
 	{
-		for(i = 0; i < DLCInfos.Length; ++i)
+		if(!DLCInfos[i].CanAddItemToInventory_CH_Improved(UnusedOutInt, SelectedSlot, ItemTemplate, Item.Quantity, UpdatedUnit, , DLCReason, Item))
 		{
-			if(!DLCInfos[i].CanAddItemToInventory_CH_Improved(UnusedOutInt, SelectedSlot, ItemTemplate, Item.Quantity, UpdatedUnit, , DLCReason, Item))
-			{
-				DisabledReason = DLCReason;
-			}
+			DisabledReason = DLCReason;
 		}
 	}
 	//end of Issue #50
