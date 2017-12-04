@@ -54,6 +54,38 @@ enum EInventorySlot
 	eInvSlot_QuinaryWeapon,
 	eInvSlot_SenaryWeapon,
 	eInvSlot_SeptenaryWeapon,
+	// Start Issue #118
+	// Add a marker slot, and buffer in case
+	// Firaxis adds more in the future
+	// ALL MARKER SLOTS SHOULD NOT BE USED IN CODE OTHER THAN XCOMGAME
+	// CHItemSlotTemplate has static helper functions for this
+	// purpose! Since enums are compile-time constants,
+	// mods may have old values that dont apply anymore for markers
+	eInvSlot_END_VANILLA_SLOTS,
+	eInvSlot_Buffer018,
+	eInvSlot_Buffer019,
+	eInvSlot_Buffer020,
+	eInvSlot_Buffer021,
+	eInvSlot_Buffer022,
+	eInvSlot_Buffer023,
+	eInvSlot_Buffer024,
+	eInvSlot_Buffer025,
+	eInvSlot_Buffer026,
+	eInvSlot_Buffer027,
+	eInvSlot_Buffer028,
+	eInvSlot_Buffer029,
+	eInvSlot_Buffer030,
+	eInvSlot_Buffer031,
+	// again, don't use in mod code
+	eInvSlot_BEGIN_TEMPLATED_SLOTS,
+	// here, we can insert as many slots as we like.
+	// We just need to be minimally considerate about what slots we add
+	// But we have space for ~220 slots, should be enough
+	// These slots can be used in Mod code and config values!
+
+	// Marker slot, don't use
+	eInvSlot_END_TEMPLATED_SLOTS,
+	// End Issue #118
 };
 
 enum EffectTemplateLookupType
