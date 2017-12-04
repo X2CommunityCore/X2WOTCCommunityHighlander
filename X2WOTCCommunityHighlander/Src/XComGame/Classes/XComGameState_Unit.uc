@@ -7099,6 +7099,12 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 		{
 			ApplyCombatSimStats(Item);
 		}
+		// Issue #118 Start
+		else if (class'CHItemSlot'.static.SlotIsTemplated(Slot))
+		{
+			class'CHItemSlot'.static.GetTemplateForSlot(Slot).AddItemToSlot(self, Item, NewGameState);
+		}
+		// Issue #118 End
 
 		if (Item.IsMissionObjectiveItem())
 		{
@@ -7199,6 +7205,13 @@ simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate,
 		case eInvSlot_CombatSim:
 			return (ItemTemplate.ItemCat == 'combatsim' && GetCurrentStat(eStat_CombatSims) > 0);
 		default:
+			// Issue #118 Start
+			if (class'CHItemSlot'.static.SlotIsTemplated(Slot))
+			{
+				// TODO: Update with #114, ItemState
+				return class'CHItemSlot'.static.GetTemplateForSlot(Slot).CanAddItemToSlot(self, ItemTemplate, CheckGameState, Quantity);
+			}
+			// Issue #118 End
 			return (GetItemInSlot(Slot, CheckGameState) == none);
 		}
 	}
@@ -7444,6 +7457,13 @@ simulated function bool RemoveItemFromInventory(XComGameState_Item Item, optiona
 		case eInvSlot_CombatSim:
 			UnapplyCombatSimStats(Item);
 			break;
+		default:
+			// Issue #118 Start
+			if (class'CHItemSlot'.static.SlotIsTemplated(Item.InventorySlot))
+			{
+				class'CHItemSlot'.static.GetTemplateForSlot(Item.InventorySlot).RemoveItemFromSlot(self, Item, ModifyGameState);
+			}
+			// Issue #118 End
 		}
 
 		Item.InventorySlot = eInvSlot_Unknown;
@@ -7475,7 +7495,19 @@ simulated function bool CanRemoveItemFromInventory(XComGameState_Item Item, opti
 	foreach InventoryItems(Ref)
 	{
 		if (Ref.ObjectID == Item.ObjectID)
-			return true;
+		// Issue #118 Start, was return true;
+		{
+			if (class'CHItemSlot'.static.SlotIsTemplated(Item.InventorySlot))
+			{
+				return class'CHItemSlot'.static.GetTemplateForSlot(Item.InventorySlot).CanRemoveItemFromSlot(self, Item, CheckGameState);
+			}
+			else
+			{
+				return true;
+			}
+		}
+		// Issue #118 End
+			
 	}
 	return false;
 }
@@ -10312,6 +10344,13 @@ function array<X2EquipmentTemplate> GetBestGearForSlot(EInventorySlot Slot)
 	case eInvSlot_Utility:
 		return GetBestUtilityItemTemplates();
 		break;
+	default:
+		// Issue #118 Start
+		if (class'CHItemSlot'.static.SlotIsTemplated(Slot))
+		{
+			return class'CHItemSlot'.static.GetTemplateForSlot(Slot).GetBestGearForSlot(self);
+		}
+		// Issue #118 End
 	}
 
 	EmptyList.Length = 0;
@@ -10422,6 +10461,8 @@ function ValidateLoadout(XComGameState NewGameState)
 	local XComGameState_Item EquippedHeavyWeapon, EquippedGrenade, EquippedAmmo, UtilityItem; // Special slots
 	local array<XComGameState_Item> EquippedUtilityItems; // Utility Slots
 	local int idx;
+
+	local array<CHItemSlot> ModSlots; // Variable for Issue #118
 
 	// Grab HQ Object
 	History = `XCOMHISTORY;
@@ -10552,6 +10593,14 @@ function ValidateLoadout(XComGameState NewGameState)
 		AddItemToInventory(UtilityItem, eInvSlot_Utility, NewGameState);
 		EquippedUtilityItems.AddItem(UtilityItem);
 	}
+
+	// Issue #118 Start
+	ModSlots = class'CHItemSlot'.static.GetAllSlotTemplates();
+	for (idx = 0; idx < ModSlots.Length; idx++)
+	{
+		ModSlots[idx].ValidateLoadout(self, XComHQ, NewGameState);
+	}
+	// Issue #118 End
 }
 
 //------------------------------------------------------

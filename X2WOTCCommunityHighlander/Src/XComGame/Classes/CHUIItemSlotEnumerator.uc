@@ -86,9 +86,9 @@ protected function Init(XComGameState_Unit _UnitState, optional XComGameState _C
 	{
 		// For Multi item slots, a count > 0 is the number of items, -1 means infinite. So == 0 means we don't want to show it at all.
 		if (class'CHItemSlot'.static.SlotIsMultiItem(SlotOrder[i].Slot)
-			&& class'CHItemSlot'.static.SlotGetMaxItemCount(Slot, UnitState, CheckGameState) == 0
+			&& class'CHItemSlot'.static.SlotGetMaxItemCount(SlotOrder[i].Slot, UnitState, CheckGameState) == 0
 			// We still might want to show an unlock hint though
-			&& !class'CHItemSlot'.static.SlotGetMultiUnlockHint(Slot, UnitState, strDummy, CheckGameState))
+			&& !(UseUnlockHints && class'CHItemSlot'.static.SlotGetMultiUnlockHint(SlotOrder[i].Slot, UnitState, strDummy, CheckGameState)))
 		{
 			SlotOrder.Remove(i, 1);
 		}
@@ -105,7 +105,7 @@ private function int BySmallAndPriority(CHSlotPriority A, CHSlotPriority B)
 	{
 		return -1;
 	}
-	return A.Priority - B.Priority;
+	return B.Priority - A.Priority;
 }
 
 // Returns true if a call to Next() still leaves the Enumerator in a valid state
@@ -132,26 +132,30 @@ function Next()
 		Slot = SlotOrder[SlotIdx].Slot;
 		IsMultiSlot = class'CHItemSlot'.static.SlotIsMultiItem(Slot);
 		IndexInSlot = 0;
-		iMax = class'CHItemSlot'.static.SlotGetMaxItemCount(Slot, UnitState, CheckGameState);
-		SlotUsesUnlockHint = UseUnlockHints && class'CHItemSlot'.static.SlotGetMultiUnlockHint(Slot, UnitState, strDummy, CheckGameState);
-		if (SlotUsesUnlockHint)
+		if (IsMultiSlot)
 		{
-			iMax++;
+			iMax = class'CHItemSlot'.static.SlotGetMaxItemCount(Slot, UnitState, CheckGameState);
+			SlotUsesUnlockHint = UseUnlockHints && class'CHItemSlot'.static.SlotGetMultiUnlockHint(Slot, UnitState, strDummy, CheckGameState);
+			if (SlotUsesUnlockHint)
+			{
+				iMax++;
+			}
+			// Only show items with a size here. Generally, items are supposed to have a size, which makes them occupy several slots
+			// But that functionality is not well supported in XComGame. The only item with size 0 is the XPAD, which we don't want
+			// And we will be consistent with that behavior here
+			MaxShownSlots = iMax == -1 ? UnitState.GetAllItemsInSlot(Slot, CheckGameState, , true /* bHasSize */).Length + 1 : iMax;
 		}
-		// Only show items with a size here. Generally, items are supposed to have a size, which makes them occupy several slots
-		// But that functionality is not well supported in XComGame. The only item with size 0 is the XPAD, which we don't want
-		// And we will be consistent with that behavior here
-		MaxShownSlots = iMax == -1 ? UnitState.GetAllItemsInSlot(Slot, CheckGameState, , true /* bHasSize */).Length + 1 : iMax;
 	}
 	else
 	{
 		`REDSCREEN(default.Class $ "::" $ GetFuncName() $ " : reached end of slots, make sure to check HasNext() before\n" @ GetScriptTrace());
 	}
 
+	IsLocked = false;
 	if (IsMultiSlot)
 	{
 		Items = UnitState.GetAllItemsInSlot(Slot, CheckGameState, , true /* bHasSize */);
-		if (IndexInSlot == MaxShownSlots - 1 && class'CHItemSlot'.static.SlotGetMultiUnlockHint(Slot, UnitState, LockedReason, CheckGameState))
+		if (IndexInSlot == MaxShownSlots - 1 && SlotUsesUnlockHint && class'CHItemSlot'.static.SlotGetMultiUnlockHint(Slot, UnitState, LockedReason, CheckGameState))
 		{
 			ItemState = none;
 			IsLocked = true;
@@ -170,5 +174,5 @@ function Next()
 	{
 		ItemState = UnitState.GetItemInSlot(Slot, CheckGameState);
 	}
-	IsLocked = class'CHItemSlot'.static.SlotAvailable(Slot, LockedReason, UnitState, CheckGameState);	
+	IsLocked = !class'CHItemSlot'.static.SlotAvailable(Slot, LockedReason, UnitState, CheckGameState);	
 }

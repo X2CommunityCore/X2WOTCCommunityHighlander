@@ -359,11 +359,16 @@ function OnDropItemClicked(UIButton kButton)
 		if (OwnerState.RemoveItemFromInventory(ItemState, NewGameState))
 		{
 			XComHQ.PutItemInInventory(NewGameState, ItemState); // Add the dropped item back to the HQ
-
-			// Give the owner the best infinite item in its place
-			BestGearTemplates = OwnerState.GetBestGearForSlot(EquipmentSlot);
-			bUpgradeSucceeded = OwnerState.UpgradeEquipment(NewGameState, none, BestGearTemplates, EquipmentSlot, ReplacementItemState);
+			// Issue #118 Start
+			if (!class'CHItemSlot'.static.SlotIsTemplated(EquipmentSlot) 
+				|| class'CHItemSlot'.static.GetTemplateForSlot(EquipmentSlot).CanSlotBeUnequipped(OwnerState, ItemState, NewGameState))
+			{
+				// Give the owner the best infinite item in its place
+				BestGearTemplates = OwnerState.GetBestGearForSlot(EquipmentSlot);
+				bUpgradeSucceeded = OwnerState.UpgradeEquipment(NewGameState, none, BestGearTemplates, EquipmentSlot, ReplacementItemState);
+			}
 			OwnerState.ValidateLoadout(NewGameState);
+			// Issue #118 End
 
 			`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
 			

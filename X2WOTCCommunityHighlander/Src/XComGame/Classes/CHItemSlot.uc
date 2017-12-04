@@ -60,7 +60,6 @@ var bool IsSmallSlot;
 
 // Required
 delegate bool CanAddItemToSlotFn(CHItemSlot Slot, XComGameState_Unit Unit, X2ItemTemplate Template, optional XComGameState CheckGameState, optional int Quantity = 1, optional XComGameState_Item ItemState);
-delegate bool CanRemoveItemFromSlotFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_Item ItemState, optional XComGameState CheckGameState);
 delegate bool UnitHasSlotFn(CHItemSlot Slot, XComGameState_Unit UnitState, out string LockedReason, optional XComGameState CheckGameState);
 delegate int GetPriorityFn(CHItemSlot Slot, XComGameState_Unit UnitState, optional XComGameState CheckGameState);
 // Required if IsMultiItemSlot
@@ -68,11 +67,12 @@ delegate int GetMaxItemCountFn(CHItemSlot Slot, XComGameState_Unit UnitState, op
 
 // Optional
 delegate AddItemToSlotFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_Item Item, XComGameState NewGameState);
+delegate bool CanRemoveItemFromSlotFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_Item ItemState, optional XComGameState CheckGameState);
 delegate RemoveItemFromSlotFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_Item ItemState, optional XComGameState NewGameState);
 // Default true. If false, make sure to update ValidateLoadout.
 delegate bool CanSlotBeUnequippedFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_Item ItemState, optional XComGameState CheckGameState);
 delegate array<X2EquipmentTemplate> GetBestGearForSlotFn(CHItemSlot Slot, XComGameState_Unit Unit);
-delegate ValidateLoadoutFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState NewGameState);
+delegate ValidateLoadoutFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_HeadquartersXCom XComHQ, XComGameState NewGameState);
 // Falls back to class'UIArmory_Loadout'.default.m_strInventoryLabels
 delegate string GetDisplayNameFn(CHItemSlot Slot);
 // Uses the first character DisplayName, encouraged to override because language doesn't work that way
@@ -84,14 +84,14 @@ delegate bool UnitShowSlotFn(CHItemSlot Slot, XComGameState_Unit UnitState, opti
 // This is only called if this slot is shown at all (via UnitShowSlotFn)
 delegate bool GetMultiSlotUnlockHintFn(CHItemSlot Slot, XComGameState_Unit UnitState, out string strReason, optional XComGameState CheckGameState);
 
-// TODO: Called from XComGameState_Unit::CanAddItemToInventory if the slot is templated and the Game doesn't know what to do
+// Called from XComGameState_Unit::CanAddItemToInventory if the slot is templated and the Game doesn't know what to do
 // Quantity is unused in any of the vanilla slots
 function bool CanAddItemToSlot(XComGameState_Unit Unit, X2ItemTemplate Template, optional XComGameState CheckGameState, optional int Quantity = 1, optional XComGameState_Item ItemState)
 {
 	return CanAddItemToSlotFn(self, Unit, Template,  CheckGameState, Quantity, ItemState);
 }
 
-// TODO: Called from XComGameState_Unit::AddItemToInventory if the slot is templated and the Game doesn't know what to do
+// Called from XComGameState_Unit::AddItemToInventory if the slot is templated and the Game doesn't know what to do
 function AddItemToSlot(XComGameState_Unit Unit, XComGameState_Item Item, XComGameState NewGameState)
 {
 	if (AddItemToSlotFn != none)
@@ -100,13 +100,17 @@ function AddItemToSlot(XComGameState_Unit Unit, XComGameState_Item Item, XComGam
 	}
 }
 
-// TODO: Called from XComGameState_Unit::CanRemoveItemFromInventory if the slot is templated and the Game doesn't know what to do
+// Called from XComGameState_Unit::CanRemoveItemFromInventory if the slot is templated and the Game doesn't know what to do
 function bool CanRemoveItemFromSlot(XComGameState_Unit Unit, XComGameState_Item ItemState, optional XComGameState CheckGameState)
 {
-	return CanRemoveItemFromSlotFn(self, Unit, ItemState, CheckGameState);
+	if (CanRemoveItemFromSlotFn != none)
+	{
+		return CanRemoveItemFromSlotFn(self, Unit, ItemState, CheckGameState);
+	}
+	return true;
 }
 
-// TODO: Called from XComGameState_Unit::RemoveItemFromInventory if the slot is templated and the Game doesn't know what to do
+// Called from XComGameState_Unit::RemoveItemFromInventory if the slot is templated and the Game doesn't know what to do
 function RemoveItemFromSlot(XComGameState_Unit Unit, XComGameState_Item ItemState, optional XComGameState NewGameState)
 {
 	if (RemoveItemFromSlotFn != none)
@@ -115,7 +119,7 @@ function RemoveItemFromSlot(XComGameState_Unit Unit, XComGameState_Item ItemStat
 	}
 }
 
-// TODO: Called from UIArmory_LoadoutItem, can be used to allow slots to be empty (instead of re-equipping an infinite item)
+// Called from UIArmory_LoadoutItem, can be used to allow slots to be empty (instead of re-equipping an infinite item)
 // ItemState is the Item that was just removed
 function bool CanSlotBeUnequipped(XComGameState_Unit Unit, XComGameState_Item ItemState, optional XComGameState CheckGameState)
 {
@@ -126,7 +130,7 @@ function bool CanSlotBeUnequipped(XComGameState_Unit Unit, XComGameState_Item It
 	return false;
 }
 
-// TODO: Called from XComGameState_Unit::GetBestGearForSlot if the slot is templated and the Game doesn't know what to do
+// Called from XComGameState_Unit::GetBestGearForSlot if the slot is templated and the Game doesn't know what to do
 function array<X2EquipmentTemplate> GetBestGearForSlot(XComGameState_Unit Unit)
 {
 	local array<X2EquipmentTemplate> arr;
@@ -138,13 +142,13 @@ function array<X2EquipmentTemplate> GetBestGearForSlot(XComGameState_Unit Unit)
 	return arr;
 }
 
-// TODO: Called from XComGameState_Unit::ValidateLoadout, regardless of whether the unit has the slot or not.
+// Called from XComGameState_Unit::ValidateLoadout, regardless of whether the unit has the slot or not.
 // This can be used to add a missing item, or remove an item the unit shouldn't have
-function ValidateLoadout(XComGameState_Unit Unit, XComGameState NewGameState)
+function ValidateLoadout(XComGameState_Unit Unit, XComGameState_HeadquartersXCom XComHQ, XComGameState NewGameState)
 {
 	if (ValidateLoadoutFn != none)
 	{
-		ValidateLoadoutFn(self, Unit, NewGameState);
+		ValidateLoadoutFn(self, Unit, XComHQ, NewGameState);
 	}
 }
 
@@ -208,7 +212,7 @@ function bool UnitHasSlot(XComGameState_Unit UnitState, out string LockedReason,
 	return UnitHasSlotFn(self, UnitState, LockedReason, CheckGameState);
 }
 
-// TODO: Called from CHUIItemSlotEnumerator to determine a slot order
+// Called from CHUIItemSlotEnumerator to determine a slot order
 // Higher number -> appears later. See notes in IsSmallSlot
 // For vanilla slots, Priority = int(Slot) * 10;
 function int GetPriority(XComGameState_Unit UnitState, optional XComGameState CheckGameState)
@@ -396,7 +400,7 @@ static function int SlotGetMaxItemCount(EInventorySlot Slot, XComGameState_Unit 
 	switch (Slot)
 	{
 		case eInvSlot_Utility:
-			return int(Unit.GetCurrentStat(eStat_UtilityItems));
+			return Unit.IsMPCharacter() ? Unit.GetMPCharacterTemplate().NumUtilitySlots : int(Unit.GetCurrentStat(eStat_UtilityItems));
 		case eInvSlot_CombatSim:
 			return int(Unit.GetCurrentStat(eStat_CombatSims));
 		case eInvSlot_Backpack:

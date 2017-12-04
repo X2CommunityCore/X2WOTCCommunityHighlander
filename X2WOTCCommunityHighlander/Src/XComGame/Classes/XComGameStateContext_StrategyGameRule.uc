@@ -1414,13 +1414,16 @@ static function RemoveInvalidSoldiersFromSquad()
 	MissionData = XComHQ.GetGeneratedMissionData(XComHQ.MissionRef.ObjectID);
 	SpecialSoldierNames = MissionData.Mission.SpecialSoldiers;
 
-	SpecialSoldierSlotsToClear.AddItem(eInvSlot_Armor);
-	SpecialSoldierSlotsToClear.AddItem(eInvSlot_PrimaryWeapon);
-	SpecialSoldierSlotsToClear.AddItem(eInvSlot_SecondaryWeapon);
-	SpecialSoldierSlotsToClear.AddItem(eInvSlot_HeavyWeapon);
-	SpecialSoldierSlotsToClear.AddItem(eInvSlot_Utility);
-	SpecialSoldierSlotsToClear.AddItem(eInvSlot_GrenadePocket);
-	SpecialSoldierSlotsToClear.AddItem(eInvSlot_AmmoPocket);
+	// Issue #118 Start
+	//SpecialSoldierSlotsToClear.AddItem(eInvSlot_Armor);
+	//SpecialSoldierSlotsToClear.AddItem(eInvSlot_PrimaryWeapon);
+	//SpecialSoldierSlotsToClear.AddItem(eInvSlot_SecondaryWeapon);
+	//SpecialSoldierSlotsToClear.AddItem(eInvSlot_HeavyWeapon);
+	//SpecialSoldierSlotsToClear.AddItem(eInvSlot_Utility);
+	//SpecialSoldierSlotsToClear.AddItem(eInvSlot_GrenadePocket);
+	//SpecialSoldierSlotsToClear.AddItem(eInvSlot_AmmoPocket);
+	class'CHItemSlot'.static.CollectSlots(class'CHItemSlot'.const.SLOT_ALL, SpecialSoldierSlotsToClear);
+	// Issue #118 End
 	
 	foreach History.IterateByClassType(class'XComGameState_Unit', UnitState)
 	{

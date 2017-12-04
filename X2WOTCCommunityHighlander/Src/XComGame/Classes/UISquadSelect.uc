@@ -771,9 +771,12 @@ simulated function MakeWoundedSoldierItemsAvailable()
 	UpdateState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Make Wounded Soldier Items Available");
 	XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
 
-	RelevantSlots.AddItem(eInvSlot_Utility);
-	RelevantSlots.AddItem(eInvSlot_GrenadePocket);
-	RelevantSlots.AddItem(eInvSlot_AmmoPocket);
+	// Issue #118 Start
+	//RelevantSlots.AddItem(eInvSlot_Utility);
+	//RelevantSlots.AddItem(eInvSlot_GrenadePocket);
+	//RelevantSlots.AddItem(eInvSlot_AmmoPocket);
+	class'CHItemSlot'.static.CollectSlots(class'CHItemSlot'.const.SLOT_ITEM, RelevantSlots);
+	// Issue #118 End
 
 	for(idx = 0; idx < XComHQ.Crew.Length; idx++)
 	{
@@ -1058,9 +1061,12 @@ simulated function OnStripItemsDialogCallback(Name eAction)
 		XComHQ = XComGameState_HeadquartersXCom(UpdateState.ModifyStateObject(class'XComGameState_HeadquartersXCom', XComHQ.ObjectID));
 		Soldiers = XComHQ.GetSoldiers(true, true);
 
-		RelevantSlots.AddItem(eInvSlot_Utility);
-		RelevantSlots.AddItem(eInvSlot_GrenadePocket);
-		RelevantSlots.AddItem(eInvSlot_AmmoPocket);
+		// Issue #118 Start
+		//RelevantSlots.AddItem(eInvSlot_Utility);
+		//RelevantSlots.AddItem(eInvSlot_GrenadePocket);
+		//RelevantSlots.AddItem(eInvSlot_AmmoPocket);
+		class'CHItemSlot'.static.CollectSlots(class'CHItemSlot'.const.SLOT_ITEM, RelevantSlots);
+		// Issue #118 End
 
 		for(idx = 0; idx < Soldiers.Length; idx++)
 		{
@@ -1101,8 +1107,11 @@ simulated function OnStripGearDialogCallback(Name eAction)
 		XComHQ = XComGameState_HeadquartersXCom(UpdateState.ModifyStateObject(class'XComGameState_HeadquartersXCom', XComHQ.ObjectID));
 		Soldiers = XComHQ.GetSoldiers(true, true);
 
-		RelevantSlots.AddItem(eInvSlot_Armor);
-		RelevantSlots.AddItem(eInvSlot_HeavyWeapon);
+		// Issue #118 Start
+		//RelevantSlots.AddItem(eInvSlot_Armor);
+		//RelevantSlots.AddItem(eInvSlot_HeavyWeapon);
+		class'CHItemSlot'.static.CollectSlots(class'CHItemSlot'.const.SLOT_ARMOR, RelevantSlots);
+		// Issue #118 End
 
 		for(idx = 0; idx < Soldiers.Length; idx++)
 		{
@@ -1145,9 +1154,12 @@ simulated function OnStripWeaponsDialogCallback(Name eAction)
 		XComHQ = XComGameState_HeadquartersXCom(UpdateState.ModifyStateObject(class'XComGameState_HeadquartersXCom', XComHQ.ObjectID));
 		Soldiers = XComHQ.GetSoldiers(true, true);
 
-		RelevantSlots.AddItem(eInvSlot_PrimaryWeapon);
-		RelevantSlots.AddItem(eInvSlot_SecondaryWeapon);
-		RelevantSlots.AddItem(eInvSlot_HeavyWeapon);
+		// Issue #118 Start
+		//RelevantSlots.AddItem(eInvSlot_PrimaryWeapon);
+		//RelevantSlots.AddItem(eInvSlot_SecondaryWeapon);
+		//RelevantSlots.AddItem(eInvSlot_HeavyWeapon);
+		class'CHItemSlot'.static.CollectSlots(class'CHItemSlot'.const.SLOT_WEAPON, RelevantSlots);
+		// Issue #118 End
 
 		for (idx = 0; idx < Soldiers.Length; idx++)
 		{

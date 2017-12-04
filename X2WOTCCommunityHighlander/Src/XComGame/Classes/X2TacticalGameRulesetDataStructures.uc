@@ -1092,6 +1092,13 @@ static function bool InventorySlotIsEquipped(EInventorySlot Slot)
 	case eInvSlot_Backpack:
 	case eInvSlot_Loot:
 		return false;
+	default:
+		// Issue #118 Start
+		if (class'CHItemSlot'.static.SlotIsTemplated(Slot))
+		{
+			return class'CHItemSlot'.static.GetTemplateForSlot(Slot).IsEquippedSlot;
+		}
+		// Issue #118 End
 	}
 	return true;
 }
@@ -1103,6 +1110,13 @@ static function bool InventorySlotBypassesUniqueRule(EInventorySlot Slot)
 	case eInvSlot_AmmoPocket:
 	case eInvSlot_GrenadePocket:
 		return true;
+	default:
+		// Issue #118 Start
+		if (class'CHItemSlot'.static.SlotIsTemplated(Slot))
+		{
+			return class'CHItemSlot'.static.GetTemplateForSlot(Slot).BypassesUniqueRule;
+		}
+		// Issue #118 End
 	}
 	return false;
 }

@@ -348,9 +348,12 @@ simulated function OnStripItemsDialogCallback(Name eAction)
 		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Strip Gear");
 		Soldiers = GetSoldiersToStrip();
 
-		RelevantSlots.AddItem(eInvSlot_Utility);
-		RelevantSlots.AddItem(eInvSlot_GrenadePocket);
-		RelevantSlots.AddItem(eInvSlot_AmmoPocket);
+		// Issue #118 Start
+		//RelevantSlots.AddItem(eInvSlot_Utility);
+		//RelevantSlots.AddItem(eInvSlot_GrenadePocket);
+		//RelevantSlots.AddItem(eInvSlot_AmmoPocket);
+		class'CHItemSlot'.static.CollectSlots(class'CHItemSlot'.const.SLOT_ITEM, RelevantSlots);
+		// Issue #118 End
 
 		for(idx = 0; idx < Soldiers.Length; idx++)
 		{
@@ -399,8 +402,11 @@ simulated function OnStripGearDialogCallback(Name eAction)
 		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Strip Gear");
 		Soldiers = GetSoldiersToStrip();
 
-		RelevantSlots.AddItem(eInvSlot_Armor);
-		RelevantSlots.AddItem(eInvSlot_HeavyWeapon);
+		// Issue #118 Start
+		//RelevantSlots.AddItem(eInvSlot_Armor);
+		//RelevantSlots.AddItem(eInvSlot_HeavyWeapon);
+		class'CHItemSlot'.static.CollectSlots(class'CHItemSlot'.const.SLOT_ARMOR, RelevantSlots);
+		// Issue #118 End
 
 		for(idx = 0; idx < Soldiers.Length; idx++)
 		{
@@ -448,9 +454,12 @@ simulated function OnStripWeaponsDialogCallback(Name eAction)
 		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Strip Gear");
 		Soldiers = GetSoldiersToStrip();
 
-		RelevantSlots.AddItem(eInvSlot_PrimaryWeapon);
-		RelevantSlots.AddItem(eInvSlot_SecondaryWeapon);
-		RelevantSlots.AddItem(eInvSlot_HeavyWeapon);
+		// Issue #118 Start
+		//RelevantSlots.AddItem(eInvSlot_PrimaryWeapon);
+		//RelevantSlots.AddItem(eInvSlot_SecondaryWeapon);
+		//RelevantSlots.AddItem(eInvSlot_HeavyWeapon);
+		class'CHItemSlot'.static.CollectSlots(class'CHItemSlot'.const.SLOT_WEAPON, RelevantSlots);
+		// Issue #118 End
 
 		for (idx = 0; idx < Soldiers.Length; idx++)
 		{
@@ -588,6 +597,7 @@ simulated function UpdateEquippedList()
 	local array<XComGameState_Item> UtilityItems;
 	local XComGameState_Unit UpdatedUnit;
 	local int prevIndex;
+	local CHUIItemSlotEnumerator En; // Variable for Issue #118
 
 	prevIndex = EquippedList.SelectedIndex;
 	UpdatedUnit = GetUnit();
@@ -596,82 +606,25 @@ simulated function UpdateEquippedList()
 	// Clear out tooltips from removed list items
 	Movie.Pres.m_kTooltipMgr.RemoveTooltipsByPartialPath(string(EquippedList.MCPath));
 
-	// units can only have one item equipped in the slots bellow
-	Item = UIArmory_LoadoutItem(EquippedList.CreateItem(class'UIArmory_LoadoutItem'));
-	if (CannotEditSlotsList.Find(eInvSlot_Armor) != INDEX_NONE)
-		Item.InitLoadoutItem(GetEquippedItem(eInvSlot_Armor), eInvSlot_Armor, true, m_strCannotEdit);
-	else
-		Item.InitLoadoutItem(GetEquippedItem(eInvSlot_Armor), eInvSlot_Armor, true);
-
-	Item = UIArmory_LoadoutItem(EquippedList.CreateItem(class'UIArmory_LoadoutItem'));
-	if (CannotEditSlotsList.Find(eInvSlot_PrimaryWeapon) != INDEX_NONE)
-		Item.InitLoadoutItem(GetEquippedItem(eInvSlot_PrimaryWeapon), eInvSlot_PrimaryWeapon, true, m_strCannotEdit);
-	else
-		Item.InitLoadoutItem(GetEquippedItem(eInvSlot_PrimaryWeapon), eInvSlot_PrimaryWeapon, true);
-
-	// Start Issue #55 UIArmory_Loadout should evaluate X2SoldierClassTemplate.bNoSecondaryWeapon
-	if(UpdatedUnit.NeedsSecondaryWeapon())
-	// End Issue #55
+	// Issue #118 Start
+	// Here used to be a lot of code handling individual slots, this has been abstracted in CHItemSlot (and the Enumerator)
+	En = class'CHUIItemSlotEnumerator'.static.CreateEnumerator(UpdatedUnit, CheckGameState);
+	while (En.HasNext())
 	{
+		En.Next();
 		Item = UIArmory_LoadoutItem(EquippedList.CreateItem(class'UIArmory_LoadoutItem'));
-		if (CannotEditSlotsList.Find(eInvSlot_SecondaryWeapon) != INDEX_NONE)
-			Item.InitLoadoutItem(GetEquippedItem(eInvSlot_SecondaryWeapon), eInvSlot_SecondaryWeapon, true, m_strCannotEdit);
+		if (CannotEditSlotsList.Find(En.Slot) != INDEX_NONE)
+			Item.InitLoadoutItem(En.ItemState, En.Slot, true, m_strCannotEdit);
+		else if (En.IsLocked)
+			Item.InitLoadoutItem(En.ItemState, En.Slot, true, En.LockedReason);
 		else
-			Item.InitLoadoutItem(GetEquippedItem(eInvSlot_SecondaryWeapon), eInvSlot_SecondaryWeapon, true);
+			Item.InitLoadoutItem(En.ItemState, En.Slot, true);
 	}
-
-	if (UpdatedUnit.HasHeavyWeapon(CheckGameState))
-	{
-		Item = UIArmory_LoadoutItem(EquippedList.CreateItem(class'UIArmory_LoadoutItem'));
-		if (CannotEditSlotsList.Find(eInvSlot_HeavyWeapon) != INDEX_NONE)
-			Item.InitLoadoutItem(GetEquippedItem(eInvSlot_HeavyWeapon), eInvSlot_HeavyWeapon, true, m_strCannotEdit);
-		else
-			Item.InitLoadoutItem(GetEquippedItem(eInvSlot_HeavyWeapon), eInvSlot_HeavyWeapon, true);
-	}
-
-	// units can have multiple utility items
-	numUtilityItems = GetNumAllowedUtilityItems();
-	UtilityItems = class'UIUtilities_Strategy'.static.GetEquippedUtilityItems(UpdatedUnit, CheckGameState);
-	
-	for(i = 0; i < numUtilityItems; ++i)
-	{
-		Item = UIArmory_LoadoutItem(EquippedList.CreateItem(class'UIArmory_LoadoutItem'));
-
-		if(UtilityItems.Length >= (i + 1))
-		{
-			if (CannotEditSlotsList.Find(eInvSlot_Utility) != INDEX_NONE)
-				Item.InitLoadoutItem(UtilityItems[i], eInvSlot_Utility, true, m_strCannotEdit);
-			else
-				Item.InitLoadoutItem(UtilityItems[i], eInvSlot_Utility, true);
-		}
-		else
-		{
-			if (CannotEditSlotsList.Find(eInvSlot_Utility) != INDEX_NONE)
-				Item.InitLoadoutItem(none, eInvSlot_Utility, true, m_strCannotEdit);
-			else
-				Item.InitLoadoutItem(none, eInvSlot_Utility, true);
-		}
-	}
-
-	if (UpdatedUnit.HasGrenadePocket())
-	{
-		Item = UIArmory_LoadoutItem(EquippedList.CreateItem(class'UIArmory_LoadoutItem'));
-		if (CannotEditSlotsList.Find(eInvSlot_GrenadePocket) != INDEX_NONE)
-			Item.InitLoadoutItem(GetEquippedItem(eInvSlot_GrenadePocket), eInvSlot_GrenadePocket, true, m_strCannotEdit);
-		else
-			Item.InitLoadoutItem(GetEquippedItem(eInvSlot_GrenadePocket), eInvSlot_GrenadePocket, true);
-	}
-	if (UpdatedUnit.HasAmmoPocket())
-	{
-		Item = UIArmory_LoadoutItem(EquippedList.CreateItem(class'UIArmory_LoadoutItem'));
-		if (CannotEditSlotsList.Find(eInvSlot_AmmoPocket) != INDEX_NONE)
-			Item.InitLoadoutItem(GetEquippedItem(eInvSlot_AmmoPocket), eInvSlot_AmmoPocket, true, m_strCannotEdit);
-		else
-			Item.InitLoadoutItem(GetEquippedItem(eInvSlot_AmmoPocket), eInvSlot_AmmoPocket, true);
-	}
+	// Issue #118 End
 	EquippedList.SetSelectedIndex(prevIndex < EquippedList.ItemCount ? prevIndex : 0);
 }
 
+// Issue #118 -- should be obsolete
 function int GetNumAllowedUtilityItems()
 {
 	// units can have multiple utility items
@@ -1273,6 +1226,7 @@ simulated function bool EquipItem(UIArmory_LoadoutItem Item)
 	return EquipSucceeded;
 }
 
+// Issue #118 -- should be obsolete
 simulated function XComGameState_Item GetEquippedItem(EInventorySlot eSlot)
 {
 	return GetUnit().GetItemInSlot(eSlot, CheckGameState);
