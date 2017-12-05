@@ -42,7 +42,9 @@ simulated function UIArmory_LoadoutItem InitLoadoutItem(XComGameState_Item Item,
 	if(InitSlot)
 	{
 		bLoadoutSlot = true;
-		SetSlotType(class'UIArmory_Loadout'.default.m_strInventoryLabels[int(InitEquipmentSlot)]);
+		// Issue #118
+		//SetSlotType(class'UIArmory_Loadout'.default.m_strInventoryLabels[int(InitEquipmentSlot)]);
+		SetSlotType(class'CHItemSlot'.static.SlotGetName(InitEquipmentSlot));
 	}
 	else if(Movie.Stack.GetLastInstanceOf(class'UIMPShell_Lobby') != none || Movie.Stack.GetLastInstanceOf(class'UIMPShell_MainMenu') != none)
 	{

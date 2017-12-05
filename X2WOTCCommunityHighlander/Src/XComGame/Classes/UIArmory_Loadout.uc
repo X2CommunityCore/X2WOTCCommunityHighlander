@@ -643,7 +643,9 @@ simulated function UpdateLockerList()
 	SelectedSlot = GetSelectedSlot();
 
 	// set title according to selected slot
-	LocTag.StrValue0 = m_strInventoryLabels[SelectedSlot];
+	// Issue #118
+	LocTag.StrValue0 = class'CHItemSlot'.static.SlotGetName(SelectedSlot);
+	//LocTag.StrValue0 = m_strInventoryLabels[SelectedSlot];
 	MC.FunctionString("setRightPanelTitle", `XEXPAND.ExpandString(m_strLockerTitle));
 
 	GetInventory(Inventory);

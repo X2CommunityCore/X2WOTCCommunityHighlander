@@ -398,6 +398,15 @@ static function int SlotGetPriority(EInventorySlot Slot, XComGameState_Unit Unit
 	return -1;
 }
 
+static function string SlotGetName(EInventorySlot Slot)
+{
+	if (SlotIsTemplated(Slot))
+	{
+		return GetTemplateForSlot(Slot).GetDisplayName();
+	}
+	return class'UIArmory_Loadout'.default.m_strInventoryLabels[int(Slot)];
+}
+
 static function array<EInventorySlot> GetDisplayedSlots(XComGameState_Unit Unit, optional XComGameState CheckGameState)
 {
 	local int i;
