@@ -695,18 +695,7 @@ simulated function bool ShowInLockerList(XComGameState_Item Item, EInventorySlot
 	
 	if(MeetsAllStrategyRequirements(ItemTemplate.ArmoryDisplayRequirements) && MeetsDisplayRequirement(ItemTemplate))
 	{
-		switch(SelectedSlot)
-		{
-		case eInvSlot_GrenadePocket:
-			GrenadeTemplate = X2GrenadeTemplate(ItemTemplate);
-			return GrenadeTemplate != none;
-		case eInvSlot_AmmoPocket:
-			return ItemTemplate.ItemCat == 'ammo';
-		default:
-			EquipmentTemplate = X2EquipmentTemplate(ItemTemplate);
-			// xpad is only item with size 0, that is always equipped
-			return (EquipmentTemplate != none && EquipmentTemplate.iItemSize > 0 && EquipmentTemplate.InventorySlot == SelectedSlot);
-		}
+		return class'CHItemSlot'.static.SlotShowItemInLockerList(SelectedSlot, GetUnit(), Item, ItemTemplate, CheckGameState);
 	}
 
 	return false;

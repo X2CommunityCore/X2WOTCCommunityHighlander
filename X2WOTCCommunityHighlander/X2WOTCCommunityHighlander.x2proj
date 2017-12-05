@@ -147,6 +147,9 @@
     <Content Include="Src\XComGame\Classes\UISquadSelect_ListItem.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UISquadSelect_UtilityItem.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIStrategyMap.uc">
       <SubType>Content</SubType>
     </Content>

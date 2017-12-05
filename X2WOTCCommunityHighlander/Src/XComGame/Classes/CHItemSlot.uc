@@ -69,6 +69,8 @@ delegate int GetMaxItemCountFn(CHItemSlot Slot, XComGameState_Unit UnitState, op
 delegate AddItemToSlotFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_Item Item, XComGameState NewGameState);
 delegate bool CanRemoveItemFromSlotFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_Item ItemState, optional XComGameState CheckGameState);
 delegate RemoveItemFromSlotFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_Item ItemState, optional XComGameState NewGameState);
+// Falls back to matching slots
+delegate bool ShowItemInLockerListFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_Item ItemState, X2ItemTemplate ItemTemplate, XComGameState CheckGameState);
 // Default true. If false, make sure to update ValidateLoadout.
 delegate bool CanSlotBeUnequippedFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_Item ItemState, optional XComGameState CheckGameState);
 delegate array<X2EquipmentTemplate> GetBestGearForSlotFn(CHItemSlot Slot, XComGameState_Unit Unit);
@@ -192,6 +194,19 @@ function string GetDisplayLetter()
 	}
 	// Inevitably breaks with Unicode characters
 	return Left(GetDisplayName(), 1);
+}
+
+function bool ShowItemInLockerList(XComGameState_Unit Unit, XComGameState_Item ItemState, X2ItemTemplate ItemTemplate, XComGameState CheckGameState)
+{
+	local X2EquipmentTemplate EquipmentTemplate;
+	if (ShowItemInLockerListFn != none)
+	{
+		return ShowItemInLockerListFn(self, Unit, ItemState, ItemTemplate, CheckGameState);
+	}
+	EquipmentTemplate = X2EquipmentTemplate(ItemTemplate);
+	// xpad is only item with size 0, that is always equipped
+	return (EquipmentTemplate != none && EquipmentTemplate.iItemSize > 0 && EquipmentTemplate.InventorySlot == self.InvSlot);
+
 }
 
 // Return true if the slot should be shown for this unit
@@ -345,7 +360,29 @@ static function bool SlotAvailable(EInventorySlot Slot, out string LockedReason,
 			// Mission, backpack, Loot, Tertiary-Septenary are always available
 			return true;
 	}
-	
+}
+
+static function bool SlotShowItemInLockerList(EInventorySlot Slot, XComGameState_Unit Unit, XComGameState_Item ItemState, X2ItemTemplate ItemTemplate, XComGameState CheckGameState)
+{
+	local X2GrenadeTemplate GrenadeTemplate;
+	local X2EquipmentTemplate EquipmentTemplate;
+
+	switch(Slot)
+	{
+		case eInvSlot_GrenadePocket:
+			GrenadeTemplate = X2GrenadeTemplate(ItemTemplate);
+			return GrenadeTemplate != none;
+		case eInvSlot_AmmoPocket:
+			return ItemTemplate.ItemCat == 'ammo';
+		default:
+			if (SlotIsTemplated(Slot))
+			{
+				return GetTemplateForSlot(Slot).ShowItemInLockerList(Unit, ItemState, ItemTemplate, CheckGameState);
+			}
+			EquipmentTemplate = X2EquipmentTemplate(ItemTemplate);
+			// xpad is only item with size 0, that is always equipped
+			return (EquipmentTemplate != none && EquipmentTemplate.iItemSize > 0 && EquipmentTemplate.InventorySlot == Slot);
+	}
 }
 
 static function int SlotGetPriority(EInventorySlot Slot, XComGameState_Unit Unit, optional XComGameState CheckGameState)

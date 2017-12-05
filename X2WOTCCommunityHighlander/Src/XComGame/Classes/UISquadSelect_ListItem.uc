@@ -146,13 +146,6 @@ simulated function UpdateData(optional int Index = -1, optional bool bDisableEdi
 	// Variables for Issue #118
 	local CHUIItemSlotEnumerator En;
 	local bool AddedMedkitHint;
-	// The small items need to know about the total number of items, so we're just gonna keep the Info in some arrays
-	// Struct would be cleaner, don't want to introduce a new struct definition
-	local array<XComGameState_Item> SmallItems;
-	local array<bool> SmallItemsEnabled;
-	local array<EInventorySlot> SmallItemsSlots;
-	local array<string> SmallItemsDisabledReasons;
-	local array<int> SmallItemsIndexInSlots;
 
 	if(bDisabled)
 		return;
@@ -212,83 +205,70 @@ simulated function UpdateData(optional int Index = -1, optional bool bDisableEdi
 		// Issue #118 Start
 		// We can only show small slots, the other ones are hardcoded in flash
 		En = class'CHUIItemSlotEnumerator'.static.CreateEnumerator(Unit, , , true /* UseUnlockHints */);
+		i = -1;
+		UtilitySlots.ClearItems();
+		AddedMedkitHint = !(class'XComGameState_HeadquartersXCom'.static.GetObjectiveStatus('T0_M5_EquipMedikit') == eObjectiveState_InProgress);
 		while (En.HasNext())
 		{
 			En.Next();
 			if (class'CHItemSlot'.static.SlotIsSmall(En.Slot))
 			{
-				SmallItems.AddItem(En.ItemState);
-				SmallItemsSlots.AddItem(En.Slot);
-				SmallItemsIndexInSlots.AddItem(En.IsMultiSlot ? En.IndexInSlot : 0);
-				if (bDisableLoadout)
+				i++;
+
+				if(i >= UtilitySlots.ItemCount)
 				{
-					SmallItemsEnabled.AddItem(false);
-					SmallItemsDisabledReasons.AddItem("");
+					UtilityItem = UISquadSelect_UtilityItem(UtilitySlots.CreateItem(class'UISquadSelect_UtilityItem').InitPanel());
 				}
-				else if (En.IsLocked)
+				UtilityItem = UISquadSelect_UtilityItem(UtilitySlots.GetItem(i));
+				UtilityItem.CannotEditSlots = CannotEditSlotsList;
+				if (bDisableLoadout || En.IsLocked)
 				{
-					SmallItemsEnabled.AddItem(false);
-					SmallItemsDisabledReasons.AddItem(En.LockedReason);
+					if (En.ItemState == none)
+					{
+						UtilityItem.SetLocked(En.IsLocked ? En.LockedReason : "");
+					}
+					else
+					{
+						// Send 2 as the total number, we fix it afterwards
+						UtilityItem.SetDisabled(En.ItemState, En.Slot, En.IsMultiSlot ? En.IndexInSlot : 0, 2);
+					}
+
+					if(GetChildByName('attentionIconMC', false) != none)
+					{
+						GetChildByName('attentionIconMC').Remove();
+					}
 				}
 				else
 				{
-					SmallItemsEnabled.AddItem(true);
-					SmallItemsDisabledReasons.AddItem("");
+					// Send 2 as the total number, we fix it afterwards
+					UtilityItem.SetAvailable(En.ItemState, En.Slot, En.IsMultiSlot ? En.IndexInSlot : 0, 2);
+					if (En.Slot == eInvSlot_Utility && !AddedMedkitHint)
+					{
+						AddedMedkitHint = true;
+						// spawn the attention icon externally so it draws on top of the button and image 
+						Spawn(class'UIPanel', UtilityItem).InitPanel('attentionIconMC', class'UIUtilities_Controls'.const.MC_AttentionIcon)
+							.SetPosition(2, 4)
+							.SetSize(70, 70); //the animated rings count as part of the size. 
+					}
+					else if(GetChildByName('attentionIconMC', false) != none)
+					{
+						GetChildByName('attentionIconMC').Remove();
+					}
 				}
 			}
 		}
-		NumUtilitySlots = SmallItems.Length;
+		NumUtilitySlots = UtilitySlots.GetItemCount();
 		UtilityItemWidth = (UtilitySlots.GetTotalWidth() - (UtilitySlots.ItemPadding * (NumUtilitySlots - 1))) / NumUtilitySlots;
 		UtilityItemHeight = UtilitySlots.Height;
-
-		if(UtilitySlots.ItemCount != NumUtilitySlots)
-			UtilitySlots.ClearItems();
-
-		AddedMedkitHint = !(class'XComGameState_HeadquartersXCom'.static.GetObjectiveStatus('T0_M5_EquipMedikit') == eObjectiveState_InProgress);
-
+		// Now fix up the item size
 		for(i = 0; i < NumUtilitySlots; ++i)
 		{
-			if(i >= UtilitySlots.ItemCount)
-			{
-				UtilityItem = UISquadSelect_UtilityItem(UtilitySlots.CreateItem(class'UISquadSelect_UtilityItem').InitPanel());
-				UtilityItem.SetSize(UtilityItemWidth, UtilityItemHeight);
-				UtilityItem.CannotEditSlots = CannotEditSlotsList;
-				UtilitySlots.OnItemSizeChanged(UtilityItem);
-			}
 			UtilityItem = UISquadSelect_UtilityItem(UtilitySlots.GetItem(i));
-			if (SmallItemsEnabled[i])
-			{
-				UtilityItem.SetAvailable(SmallItems[i], SmallItemsSlots[i], SmallItemsIndexInSlots[i], NumUtilitySlots);
-				if (SmallItemsSlots[i] == eInvSlot_Utility && !AddedMedkitHint)
-				{
-					AddedMedkitHint = true;
-					// spawn the attention icon externally so it draws on top of the button and image 
-					Spawn(class'UIPanel', UtilityItem).InitPanel('attentionIconMC', class'UIUtilities_Controls'.const.MC_AttentionIcon)
-						.SetPosition(2, 4)
-						.SetSize(70, 70); //the animated rings count as part of the size. 
-				}
-				else if(GetChildByName('attentionIconMC', false) != none)
-				{
-					GetChildByName('attentionIconMC').Remove();
-				}
-			}
-			else
-			{
-				if (SmallItems[i] == none)
-				{
-					UtilityItem.SetLocked(SmallItemsDisabledReasons[i]);
-				}
-				else
-				{
-					UtilityItem.SetDisabled(SmallItems[i], SmallItemsSlots[i], SmallItemsIndexInSlots[i], NumUtilitySlots);
-				}
-
-				if(GetChildByName('attentionIconMC', false) != none)
-				{
-					GetChildByName('attentionIconMC').Remove();
-				}
-			}
+			UtilityItem.SetSize(UtilityItemWidth, UtilityItemHeight);
+			UtilityItem.SetNumSlots(NumUtilitySlots);
+			UtilitySlots.OnItemSizeChanged(UtilityItem);
 		}
+		// Issue #118 End
 		
 		// Don't show class label for rookies since their rank is shown which would result in a duplicate string
 		if(Unit.GetRank() > 0)

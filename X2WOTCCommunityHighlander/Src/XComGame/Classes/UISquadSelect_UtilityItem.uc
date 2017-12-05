@@ -61,7 +61,10 @@ simulated function SetItemImage(XComGameState_Item Item, optional int NumSlots)
 	if(Item != none)
 	{
 		Image.LoadImage(Item.GetMyTemplate().strImage);
-		Image.SetScale(NumSlots > 2 ? 0.18 : 0.25);
+		// Issue #118 Start
+		//Image.SetScale(NumSlots > 2 ? 0.18 : 0.25);
+		SetNumSlots(NumSlots);
+		// Issue #118 End
 		Image.Show();
 	}
 	else
@@ -69,6 +72,14 @@ simulated function SetItemImage(XComGameState_Item Item, optional int NumSlots)
 		Image.Hide();
 	}
 }
+
+// Issue #118 Start
+// Allows us to resize the Slot after passing the data to it
+simulated function SetNumSlots(int NumSlots)
+{
+	Image.SetScale(NumSlots > 2 ? 0.18 : 0.25);
+}
+// Issue #118 End
 
 simulated function SetSlotType(EInventorySlot InventorySlot)
 {
