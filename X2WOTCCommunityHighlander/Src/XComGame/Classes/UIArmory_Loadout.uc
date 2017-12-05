@@ -620,8 +620,10 @@ simulated function UpdateEquippedList()
 		else
 			Item.InitLoadoutItem(En.ItemState, En.Slot, true);
 	}
-	// Issue #118 End
 	EquippedList.SetSelectedIndex(prevIndex < EquippedList.ItemCount ? prevIndex : 0);
+	// Force item into view
+	EquippedList.NavigatorSelectionChanged(EquippedList.SelectedIndex);
+	// Issue #118 End
 }
 
 // Issue #118 -- should be obsolete
@@ -812,7 +814,10 @@ simulated function string GetDisabledReason(XComGameState_Item Item, EInventoryS
 	//end of Issue #50
 	
 	// If this is a utility item, and cannot be equipped, it must be disabled because of one item per category restriction
-	if(DisabledReason == "" && SelectedSlot == eInvSlot_Utility)
+	// Issue #118, taking the Utility slot restriction out -- RespectsUniqueRule does everything we need
+	// Proof of correctness -- by taking this out, we potentially disallow more equipment, but that would have been a bug in vanilla anyway,
+	// because the unit state would have rejected the item due to the Unique Rule
+	if(DisabledReason == "" /*&& SelectedSlot == eInvSlot_Utility*/)
 	{
 		EquippedObjectID = UIArmory_LoadoutItem(EquippedList.GetSelectedItem()).ItemRef.ObjectID;
 		if(!UpdatedUnit.RespectsUniqueRule(ItemTemplate, SelectedSlot, , EquippedObjectID))
