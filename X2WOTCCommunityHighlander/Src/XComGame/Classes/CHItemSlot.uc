@@ -10,11 +10,7 @@
 // using this in multiplayer at all, but it's better to use a single approach
 // Mod code is encouraged to make use of this, by not relying on the history alone
 // (i.e. use Unit.GetItemInSlot, it can search an existing game state)
-class CHItemSlot extends Object;
-
-// Simple array of Slot Templates. Only accessed on the static CDO.
-// Add to it from any given CreateTemplates function, modify in OnPostTemplatesCreated
-var private CHItemSlot SlotTemplates[EInventorySlot.EnumCount];
+class CHItemSlot extends X2DataTemplate;
 
 // These are Slot Categories! In vanilla:
 // Item = Utility, Grenade/Ammo Pocket; Weapon = Primary, Secondary, Heavy; Armor = Armor, Heavy Weapon
@@ -129,7 +125,7 @@ function bool CanSlotBeUnequipped(XComGameState_Unit Unit, XComGameState_Item It
 	{
 		return CanSlotBeUnequippedFn(self, Unit, ItemState, CheckGameState);
 	}
-	return false;
+	return true;
 }
 
 // Called from XComGameState_Unit::GetBestGearForSlot if the slot is templated and the Game doesn't know what to do
@@ -260,39 +256,15 @@ final static function bool SlotIsTemplated(EInventorySlot Slot)
 // Returns the template controlling this slot if it exists, none otherwise
 final static function CHItemSlot GetTemplateForSlot(EInventorySlot Slot)
 {
-	if (Slot > eInvSlot_BEGIN_TEMPLATED_SLOTS && Slot < eInvSlot_END_TEMPLATED_SLOTS)
-	{
-		// May be none, but a static array handles that just fine
-		return class'CHItemSlot'.default.SlotTemplates[int(Slot)];
-	}
-	return none;
+	local CHItemSlotStore Store;
+	Store = class'CHItemSlotStore'.static.GetStore();
+	return Store.GetSlot(Slot);
 }
 
 final static function array<CHItemSlot> GetAllSlotTemplates()
 {
-	local array<CHItemSlot> Slots;
-	local int i;
-	for (i = 0; i < ArrayCount(class'CHItemSlot'.default.SlotTemplates); i++)
-	{
-		if (class'CHItemSlot'.default.SlotTemplates[i] != none)
-		{
-			Slots.AddItem(class'CHItemSlot'.default.SlotTemplates[i]);
-		}
-	}
-	return Slots;
+	return class'CHItemSlotStore'.static.GetStore().GetAllSlotTemplates();
 }
-
-// Only call during Template creation!
-final static function AddSlotTemplate(CHItemSlot Slot, optional bool bOverwrite = false)
-{
-	local CHItemSlot SlotsCDO;
-	SlotsCDO = CHItemSlot(class'XComEngine'.static.GetClassDefaultObject(class'CHItemSlot'));
-	if (IsWithinTemplatedSlotRange(Slot.InvSlot) && (SlotsCDO.SlotTemplates[Slot.InvSlot] == none || bOverwrite))
-	{
-		SlotsCDO.SlotTemplates[Slot.InvSlot] = Slot;
-	}
-}
-
 
 // Abstraction functions so we don't have to put the switch() and SlotIsTemplated() everywhere in the code base
 
