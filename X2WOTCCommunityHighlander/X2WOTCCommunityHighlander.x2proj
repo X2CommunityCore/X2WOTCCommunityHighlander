@@ -78,6 +78,9 @@
     <Content Include="Src\XComGame\Classes\UIArmory_LoadoutItem.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIArmory_Loadout_MP.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIArmory_MainMenu.uc">
       <SubType>Content</SubType>
     </Content>
