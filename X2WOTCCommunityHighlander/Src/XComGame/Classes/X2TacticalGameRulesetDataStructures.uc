@@ -83,6 +83,8 @@ enum EInventorySlot
 	// But we have space for ~220 slots, should be enough
 	// These slots can be used in Mod code and config values!
 
+	eInvSlot_Vest, // robojumper/Mythrell
+
 	// Marker slot, don't use
 	eInvSlot_END_TEMPLATED_SLOTS,
 	// End Issue #118

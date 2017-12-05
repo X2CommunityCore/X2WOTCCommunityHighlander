@@ -592,9 +592,9 @@ simulated static function UIList CreateList(UIPanel Container)
 
 simulated function UpdateEquippedList()
 {
-	local int i, numUtilityItems;
+	//local int i, numUtilityItems; // Issue #118, unneeded
 	local UIArmory_LoadoutItem Item;
-	local array<XComGameState_Item> UtilityItems;
+	//ocal array<XComGameState_Item> UtilityItems; // Issue #118, unneeded
 	local XComGameState_Unit UpdatedUnit;
 	local int prevIndex;
 	local CHUIItemSlotEnumerator En; // Variable for Issue #118
@@ -688,8 +688,6 @@ function GetInventory(out array<StateObjectReference> Inventory)
 simulated function bool ShowInLockerList(XComGameState_Item Item, EInventorySlot SelectedSlot)
 {
 	local X2ItemTemplate ItemTemplate;
-	local X2GrenadeTemplate GrenadeTemplate;
-	local X2EquipmentTemplate EquipmentTemplate;
 
 	ItemTemplate = Item.GetMyTemplate();
 	
@@ -1082,7 +1080,11 @@ simulated function bool EquipItem(UIArmory_LoadoutItem Item)
 	UpdatedState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Equip Item");
 	UpdatedUnit = XComGameState_Unit(UpdatedState.ModifyStateObject(class'XComGameState_Unit', GetUnit().ObjectID));
 	
-	PrevUtilityItems = class'UIUtilities_Strategy'.static.GetEquippedUtilityItems(UpdatedUnit, UpdatedState);
+	// Issue #118 -- don't use utility items but the actual slot
+	if (class'CHItemSlot'.static.SlotIsMultiItem(GetSelectedSlot()))
+	{
+		PrevUtilityItems = UpdatedUnit.GetAllItemsInSlot(GetSelectedSlot(), UpdatedState);
+	}
 
 	NewItemRef = Item.ItemRef;
 	PrevItemRef = UIArmory_LoadoutItem(EquippedList.GetSelectedItem()).ItemRef;

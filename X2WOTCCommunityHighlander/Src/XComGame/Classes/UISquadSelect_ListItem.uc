@@ -130,10 +130,10 @@ simulated function UpdateData(optional int Index = -1, optional bool bDisableEdi
 {
 	local bool bCanPromote;
 	local string ClassStr, NameStr;
-	local int i, NumUtilitySlots, UtilityItemIndex, NumUnitUtilityItems;
+	local int i, NumUtilitySlots; //, UtilityItemIndex, NumUnitUtilityItems; // Issue #118, not needed
 	local float UtilityItemWidth, UtilityItemHeight;
 	local UISquadSelect_UtilityItem UtilityItem;
-	local array<XComGameState_Item> EquippedItems;
+	//local array<XComGameState_Item> EquippedItems; // Issue #118, unneeded
 	local XComGameState_Unit Unit;
 	local XComGameState_Item PrimaryWeapon, HeavyWeapon;
 	local X2WeaponTemplate PrimaryWeaponTemplate, HeavyWeaponTemplate;
@@ -203,7 +203,6 @@ simulated function UpdateData(optional int Index = -1, optional bool bDisableEdi
 		FactionState = Unit.GetResistanceFaction();
 
 		// Issue #118 Start
-		// We can only show small slots, the other ones are hardcoded in flash
 		En = class'CHUIItemSlotEnumerator'.static.CreateEnumerator(Unit, , , true /* UseUnlockHints */);
 		i = -1;
 		UtilitySlots.ClearItems();
@@ -211,6 +210,7 @@ simulated function UpdateData(optional int Index = -1, optional bool bDisableEdi
 		while (En.HasNext())
 		{
 			En.Next();
+			// We can only show small slots, the other ones are hardcoded in flash
 			if (class'CHItemSlot'.static.SlotIsSmall(En.Slot))
 			{
 				i++;

@@ -6918,7 +6918,8 @@ simulated function array<XComGameState_Item> GetAllItemsInSlot(EInventorySlot Sl
 	local XComGameState_Item kItem;
 	local array<XComGameState_Item> Items;
 	
-	`assert(Slot == eInvSlot_Backpack || Slot == eInvSlot_Utility || Slot == eInvSlot_CombatSim);     //  these are the only multi-item slots
+	// Issue #118 -- don't hardcode multi item slots here
+	`assert(class'CHItemSlot'.static.SlotIsMultiItem(Slot));     //  these are the only multi-item slots
 	
 	for (i = 0; i < InventoryItems.Length; ++i)
 	{

@@ -195,7 +195,11 @@ simulated function bool EquipItem(UIArmory_LoadoutItem Item)
 	
 	UpdatedUnit = XComGameState_Unit(CheckGameState.ModifyStateObject(class'XComGameState_Unit', GetUnit().ObjectID));
 
-	PrevUtilityItems = class'UIUtilities_Strategy'.static.GetEquippedUtilityItems(UpdatedUnit, CheckGameState);
+	// Issue #118 -- don't use utility items but the actual slot
+	if (class'CHItemSlot'.static.SlotIsMultiItem(GetSelectedSlot()))
+	{
+		PrevUtilityItems = UpdatedUnit.GetAllItemsInSlot(GetSelectedSlot(), CheckGameState);
+	}
 
 	NewItemRef = Item.ItemRef;
 	PrevItemRef = UIArmory_LoadoutItem(EquippedList.GetSelectedItem()).ItemRef;
