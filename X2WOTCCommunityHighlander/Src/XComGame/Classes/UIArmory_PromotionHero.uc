@@ -27,6 +27,9 @@ var localized string m_strAPLabel;
 var localized string m_strSharedAPWarning;
 var localized string m_strSharedAPWarningSingular;
 var localized string m_strPrereqAbility;
+// Start Issue #128
+var localized string m_strMutuallyExclusiveAbility;
+// End Issue #128
 
 var int m_iCurrentlySelectedColumn;  // bsg-nlong (1.25.17): Used to track which column has focus
 
@@ -327,6 +330,8 @@ function PreviewAbility(int Rank, int Branch)
 	local array<SoldierClassAbilityType> AbilityTree;
 	local string AbilityIcon, AbilityName, AbilityDesc, AbilityHint, AbilityCost, CostLabel, APLabel, PrereqAbilityNames;
 	local name PrereqAbilityName;
+	// Variable for Issue #128
+	local string MutuallyExclusiveNames;
 
 	Unit = GetUnit();
 	
@@ -374,24 +379,48 @@ function PreviewAbility(int Rank, int Branch)
 			{
 				// Look back to the previous rank and check to see if that ability is a prereq for this one
 				// If so, display a message warning the player that there is a prereq
+				// Start Issue #128
 				foreach AbilityTemplate.PrerequisiteAbilities(PrereqAbilityName)
 				{
-					PreviousAbilityTemplate = AbilityTemplateManager.FindAbilityTemplate(PrereqAbilityName);
-					if (PreviousAbilityTemplate != none && !Unit.HasSoldierAbility(PrereqAbilityName))
+					if (InStr(PrereqAbilityName, "NOT_") == 0)
 					{
-						if (PrereqAbilityNames != "")
+						PreviousAbilityTemplate = AbilityTemplateManager.FindAbilityTemplate(name(Repl(PrereqAbilityName, "NOT_", "")));
+						if (PreviousAbilityTemplate != none )
 						{
-							PrereqAbilityNames $= ", ";
+							if (MutuallyExclusiveNames != "")
+							{
+								MutuallyExclusiveNames $= ", ";
+							}
+							MutuallyExclusiveNames $= PreviousAbilityTemplate.LocFriendlyName;
 						}
-						PrereqAbilityNames $= PreviousAbilityTemplate.LocFriendlyName;
 					}
+					else
+					{
+						PreviousAbilityTemplate = AbilityTemplateManager.FindAbilityTemplate(PrereqAbilityName);
+						if (PreviousAbilityTemplate != none && !Unit.HasSoldierAbility(PrereqAbilityName))
+						{
+							if (PrereqAbilityNames != "")
+							{
+								PrereqAbilityNames $= ", ";
+							}
+							PrereqAbilityNames $= PreviousAbilityTemplate.LocFriendlyName;
+						}
+					}
+					
 				}
 				PrereqAbilityNames = class'UIUtilities_Text'.static.FormatCommaSeparatedNouns(PrereqAbilityNames);
+				MutuallyExclusiveNames = class'UIUtilities_Text'.static.FormatCommaSeparatedNouns(MutuallyExclusiveNames);
+
+				if (MutuallyExclusiveNames != "")
+				{
+					AbilityDesc = class'UIUtilities_Text'.static.GetColoredText(m_strMutuallyExclusiveAbility @ MutuallyExclusiveNames, eUIState_Warning) $ "\n" $ AbilityDesc;
+				}
 
 				if (PrereqAbilityNames != "")
 				{
 					AbilityDesc = class'UIUtilities_Text'.static.GetColoredText(m_strPrereqAbility @ PrereqAbilityNames, eUIState_Warning) $ "\n" $ AbilityDesc;
 				}
+				// End Issue #128
 			}
 		}
 		else

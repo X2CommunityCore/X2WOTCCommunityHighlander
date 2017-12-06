@@ -3633,7 +3633,17 @@ function bool MeetsAbilityPrerequisites(name AbilityName)
 		for (iName = 0; iName < AbilityTemplate.PrerequisiteAbilities.Length; iName++)
 		{
 			AbilityName = AbilityTemplate.PrerequisiteAbilities[iName];
-			if (!HasSoldierAbility(AbilityName)) // if the soldier does not have a prereq ability, return false
+
+			// Start Issue #128
+			if (InStr(AbilityName, "NOT_") == 0)
+			{
+				if (HasSoldierAbility(name(Repl(AbilityName, "NOT_", ""))))
+				{
+					return false;
+				}
+			}
+			// End Issue #128
+			else if (!HasSoldierAbility(AbilityName)) // if the soldier does not have a prereq ability, return false
 			{
 				return false;
 			}
