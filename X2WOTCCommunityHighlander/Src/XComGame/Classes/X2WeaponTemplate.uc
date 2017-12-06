@@ -160,27 +160,38 @@ function bool IsHighTech()
 
 function string GetLocalizedCategory()
 {
+	// Start Issue #125
 	// Variables for Issue #125
 	local XComLWTuple Tuple;
+	local string CategoryLocale;
 
 	switch(WeaponCat)
 	{
-	case 'grenade':     return class'XGLocalizedData'.default.UtilityCatGrenade;
-	case 'heal':        return class'XGLocalizedData'.default.UtilityCatHeal;
-	case 'medikit':		return class'XGLocalizedData'.default.UtilityCatHeal;
-	case 'skulljack':	return class'XGLocalizedData'.default.UtilityCatSkulljack;
-	// Start Issue #125
-	default:
-		Tuple = new class'XComLWTuple';
-		Tuple.Id = 'GetLocalizedCategory';
-		Tuple.Data.Add(1);
-		Tuple.Data[0].kind = XComLWTVString;
-		Tuple.Data[0].s = class'XGLocalizedData'.default.WeaponCatUnknown;
-		`XEVENTMGR.TriggerEvent('GetLocalizedCategory', Tuple, self, none);
-		return Tuple.Data[0].s;
-		break;
-	// End Issue #125
+		case 'grenade':
+			CategoryLocale = class'XGLocalizedData'.default.UtilityCatGrenade;
+			break;
+		case 'heal':
+			CategoryLocale = class'XGLocalizedData'.default.UtilityCatHeal;
+			break;
+		case 'medikit':
+			CategoryLocale = class'XGLocalizedData'.default.UtilityCatHeal;
+			break:
+		case 'skulljack':
+			CategoryLocale = class'XGLocalizedData'.default.UtilityCatSkulljack;
+			break;
+		default:
+			CategoryLocale = class'XGLocalizedData'.default.WeaponCatUnknown;
+			break;
 	}
+	
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'GetLocalizedCategory';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVString;
+	Tuple.Data[0].s = CategoryLocale;
+	`XEVENTMGR.TriggerEvent('GetLocalizedCategory', Tuple, self, none);
+	return Tuple.Data[0].s;
+	// End Issue #125
 }
 
 function int GetUIStatMarkup(ECharStatType Stat, optional XComGameState_Item Weapon)
