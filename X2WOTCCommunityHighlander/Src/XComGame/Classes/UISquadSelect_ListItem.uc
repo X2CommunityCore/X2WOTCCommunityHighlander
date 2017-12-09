@@ -850,7 +850,9 @@ simulated function bool IsActiveButtonDisabled()
 		return true;
 	else if(m_eActiveButton == eSSB_WeaponHeavy && !HasHeavyWeapon())
 		return true;
-	else if(m_eActiveButton == eSSB_Utility && (UtilitySlots.GetSelectedItem() != none && UISquadSelect_UtilityItem(UtilitySlots.GetSelectedItem()).Button.IsDisabled ))
+	// Issue #118 Start -- allow selecting utility slots even if the default one is not selected
+	else if(m_eActiveButton == eSSB_Utility && (UtilitySlots.GetSelectedItem() != none && UISquadSelect_UtilityItem(UtilitySlots.GetSelectedItem()).Button.IsDisabled && !SelectNonDisabledUtilitySlot()))
+	// Issue #118 end
 		return true;
 	else if(m_eActiveButton == eSSB_Promote && (UnitState == none || !UnitState.ShowPromoteIcon()))
 		return true;
@@ -860,6 +862,27 @@ simulated function bool IsActiveButtonDisabled()
 	
 	return false;
 }
+
+// Issue #118 Start -- allow selecting utility slots even if the default one is not selected
+simulated function bool SelectNonDisabledUtilitySlot()
+{
+	local int i;
+	for (i = 0; i < UtilitySlots.GetItemCount(); i++)
+	{
+		if (!UISquadSelect_UtilityItem(UtilitySlots.GetItem(i)).Button.IsDisabled)
+		{
+			//remove current focus
+			UtilitySlots.GetSelectedItem().OnLoseFocus();
+			//Assign new current focus
+			UtilitySlots.SetSelectedIndex(i);
+			//Give focus to new utility item
+			UtilitySlots.GetSelectedItem().OnReceiveFocus();
+			return true;
+		}
+	}
+	return false;
+}
+// Issue #118 End
 
 //Handles the visuals to simulate mouse-hover focus
 simulated function HandleButtonFocus(ESquadSelectButton ButtonControl, bool bFocusGiven)
