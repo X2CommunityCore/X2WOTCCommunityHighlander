@@ -540,6 +540,12 @@ static function SquadTacticalToStrategyTransfer()
 
 			UnitState.ClearRemovedFromPlayFlag();
 
+			// Issue #44 Start
+			// Clear the UnitValue that records start-of-mission will. Would get overwritten next Mission,
+			// but clearing it because it makes sense
+			UnitState.ClearUnitValue('CH_StartMissionWill');
+			// Issue #44 End
+
 			// Bleeding out soldiers die if not rescued, some characters die when captured
 			if (UnitState.bBleedingOut || (UnitState.bCaptured && UnitState.GetMyTemplate().bDiesWhenCaptured))
 			{
