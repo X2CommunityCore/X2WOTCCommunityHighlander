@@ -91,6 +91,7 @@ var bool bGearStrippedFromSoldiers;
 
 // PI Added: Configure auto remove equipment. These have two different senses to ensure that all false values
 // maintains baseline behavior.
+// JLPH: Config vars for issue #134
 var config bool NoStripWoundedInventory;	// If true, suppress the normal behavior of stripping utility items from wounded soldiers.
 var config bool NoStripOnTraining;			// If true, suppress the normal behavior of stripping items when a soldier is put
 											// in a training slot. Note that this is not referenced in this class but is 
@@ -775,7 +776,7 @@ simulated function MakeWoundedSoldierItemsAvailable()
 	local bool bIgnoreInjuries;
 	local int idx;
 
-	// PI Added: INI setting to prevent wounded soldiers from having their equipment stripped.
+	// Issue #134, PI Added: INI setting to prevent wounded soldiers from having their equipment stripped.
 	if (NoStripWoundedInventory)
 	{
 		return;
@@ -789,7 +790,7 @@ simulated function MakeWoundedSoldierItemsAvailable()
 	RelevantSlots.AddItem(eInvSlot_GrenadePocket);
 	RelevantSlots.AddItem(eInvSlot_AmmoPocket);
 
-	// PI Added: new INI setting to strip *all* slots from wounded soldiers.
+	//Issue #134, PI Added: new INI setting to strip *all* slots from wounded soldiers.
 	if (AutoStripWoundedAllItems)
 	{
 		RelevantSlots.AddItem(eInvSlot_Armor);
