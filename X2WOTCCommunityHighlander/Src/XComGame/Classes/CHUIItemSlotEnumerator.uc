@@ -45,18 +45,25 @@ var protected bool UseUnlockHints;
 
 
 // Pseudo-constructor, use this instead of new'ing
-// If UseUnlockHints is true, multi-item slots like utility items may provide visual locked slots that signal "you can unlock this slot (or not)"
-static function CHUIItemSlotEnumerator CreateEnumerator(XComGameState_Unit _UnitState, optional XComGameState _CheckGameState, optional array<CHSlotPriority> _SlotPriorities, optional bool _UseUnlockHints)
+// Parameters:
+//     _UnitState: The unit state (required)
+//     _CheckGameState: For MP, if the changes are made to a unit within a game state (optional)
+//     _SlotPriorities: A list of 2-tuples associating a slot with a priority override (optional
+//     _UseUnlockHints: For Multi-item slots, the slot may provide locked indicator slots (ex: locked utility slots in UISquadSelect), (optional)
+//     _OverrideSlotsList: Instead of considering UnitShowSlot on the Slot Templates (and using the default vanilla slots that should be shown), 
+//                         provide a slot list that overrides the default slots. Yields varying results when slots don't implement the functions UI code expects them to.
+//                         Added so the code in this class can easily be reused (optional)
+static function CHUIItemSlotEnumerator CreateEnumerator(XComGameState_Unit _UnitState, optional XComGameState _CheckGameState, optional array<CHSlotPriority> _SlotPriorities, optional bool _UseUnlockHints, optional array<EInventorySlot> _OverrideSlotsList)
 {
 	local CHUIItemSlotEnumerator En;
 
 	En = new default.Class;
-	En.Init(_UnitState, _CheckGameState, _SlotPriorities, _UseUnlockHints);
+	En.Init(_UnitState, _CheckGameState, _SlotPriorities, _UseUnlockHints, _OverrideSlotsList);
 
 	return En;
 }
 
-protected function Init(XComGameState_Unit _UnitState, optional XComGameState _CheckGameState, optional array<CHSlotPriority> _SlotPriorities, optional bool _UseUnlockHints)
+protected function Init(XComGameState_Unit _UnitState, optional XComGameState _CheckGameState, optional array<CHSlotPriority> _SlotPriorities, optional bool _UseUnlockHints, optional array<EInventorySlot> _OverrideSlotsList)
 {
 	local array<EInventorySlot> SlotEnums;
 	local int i, idx;
@@ -67,7 +74,14 @@ protected function Init(XComGameState_Unit _UnitState, optional XComGameState _C
 	UseUnlockHints = _UseUnlockHints;
 	Data = new class'XComLWTuple';
 
-	SlotEnums = class'CHItemSlot'.static.GetDisplayedSlots(UnitState, CheckGameState);
+	if (_OverrideSlotsList.Length > 0)
+	{
+		SlotEnums = _OverrideSlotsList;
+	}
+	else
+	{
+		SlotEnums = class'CHItemSlot'.static.GetDefaultDisplayedSlots(UnitState, CheckGameState);
+	}
 	SlotOrder.Length = SlotEnums.Length;
 	for (i = 0; i < SlotEnums.Length; i++)
 	{

@@ -77,6 +77,7 @@ delegate string GetDisplayNameFn(CHItemSlot Slot);
 delegate string GetDisplayLetterFn(CHItemSlot Slot);
 // Falls back to UnitHasSlot. This is only used for generic loadout code. For example, 
 // eInvSlot_CombatSim has this as false, but UIArmory_Implants still allows it to be equipped
+// Further, CHUIItemSlotEnumerator can handle this slot if UI explicitely requests it
 delegate bool UnitShowSlotFn(CHItemSlot Slot, XComGameState_Unit UnitState, optional XComGameState CheckGameState);
 // if IsMultiItemSlot, show an addditional locked slot with an optional tooltip for how to unlock it
 // This is only called if this slot is shown at all (via UnitShowSlotFn)
@@ -273,6 +274,7 @@ static function bool SlotIsSmall(EInventorySlot Slot)
 	return Slot == eInvSlot_Utility || Slot == eInvSlot_GrenadePocket || Slot == eInvSlot_AmmoPocket || (SlotIsTemplated(Slot) && GetTemplateForSlot(Slot).IsSmallSlot);
 }
 
+// Should this slot be shown in generic loadout UI? (UIArmory_Loadout, UISquadSelect)
 static function bool SlotShouldBeShown(EInventorySlot Slot, XComGameState_Unit Unit, optional XComGameState CheckGameState)
 {
 	local string strDummy;
@@ -379,7 +381,7 @@ static function string SlotGetName(EInventorySlot Slot)
 	return class'UIArmory_Loadout'.default.m_strInventoryLabels[int(Slot)];
 }
 
-static function array<EInventorySlot> GetDisplayedSlots(XComGameState_Unit Unit, optional XComGameState CheckGameState)
+static function array<EInventorySlot> GetDefaultDisplayedSlots(XComGameState_Unit Unit, optional XComGameState CheckGameState)
 {
 	local int i;
 	local array<EInventorySlot> Slots;
