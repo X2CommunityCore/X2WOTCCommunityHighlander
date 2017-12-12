@@ -292,16 +292,29 @@ simulated private function ClearIcons()
 simulated function UpdateDropItemButton(optional XComGameState_Item Item)
 {
 	local bool bShowClearButton;
+	// Variable for Issue #118
+	local XComGameState_Unit OwnerState;
 
 	if(!bLoadoutSlot || IsDisabled) return;
 
 	if(Item == none)
 		Item = XComGameState_Item(`XCOMHISTORY.GetGameStateForObjectID(ItemRef.ObjectID));
 
+	// Issue #118 Start, allow slots to change the unequip behavior
 	if(UIArmory_Loadout_MP(Screen) != none)
+	{
 		bShowClearButton = Item != none && !UIArmory_Loadout_MP(Screen).GetUnit().ItemIsInMPBaseLoadout(Item.GetMyTemplateName());
+	}
 	else
-		bShowClearButton = (Item != none) && (!ItemTemplate.bInfiniteItem || Item.HasBeenModified());
+	{
+		if (Item.OwnerStateObject.ObjectID > 0)
+		{
+			// If we get here, we are not in MP and the History has the Unit State
+			OwnerState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(Item.OwnerStateObject.ObjectID));
+		}
+		bShowClearButton = Item != none && class'CHItemSlot'.static.SlotGetUnequipBehavior(EquipmentSlot, OwnerState, Item, none) != eCHSUB_DontAllow;
+	}
+	// Issue #118 End
 
 	bCanBeCleared = bShowClearButton;
 	if(!Movie.IsMouseActive())
@@ -362,8 +375,7 @@ function OnDropItemClicked(UIButton kButton)
 		{
 			XComHQ.PutItemInInventory(NewGameState, ItemState); // Add the dropped item back to the HQ
 			// Issue #118 Start
-			if (!class'CHItemSlot'.static.SlotIsTemplated(EquipmentSlot) 
-				|| class'CHItemSlot'.static.GetTemplateForSlot(EquipmentSlot).CanSlotBeUnequipped(OwnerState, ItemState, NewGameState))
+			if (class'CHItemSlot'.static.SlotGetUnequipBehavior(EquipmentSlot, OwnerState, ItemState, NewGameState) == eCHSUB_AttemptReEquip)
 			{
 				// Give the owner the best infinite item in its place
 				BestGearTemplates = OwnerState.GetBestGearForSlot(EquipmentSlot);

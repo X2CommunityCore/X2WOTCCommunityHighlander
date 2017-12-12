@@ -21,6 +21,14 @@ const SLOT_ITEM        = 0x00000004; // affected by StripItems
 const SLOT_MISC        = 0x00000008; // affected by code that strips all items
 const SLOT_ALL         = 0x0000000F; // combined mask for all these slot types
 
+// For the slot unequip behavior, used in UIArmory_Loadout
+enum ECHSlotUnequipBehavior
+{
+	eCHSUB_AttemptReEquip, // Show drop button, attempt to re-equip another item if dropped
+	eCHSUB_DontAllow, // Do not show a drop button, item can only ever be directly replaced
+	eCHSUB_AllowEmpty, // Show drop button, No attempt will be made to equip another item when the item is dropped
+};
+
 
 // There can only be one Template per slot
 var EInventorySlot InvSlot;
@@ -67,8 +75,9 @@ delegate bool CanRemoveItemFromSlotFn(CHItemSlot Slot, XComGameState_Unit Unit, 
 delegate RemoveItemFromSlotFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_Item ItemState, optional XComGameState NewGameState);
 // Falls back to matching slots
 delegate bool ShowItemInLockerListFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_Item ItemState, X2ItemTemplate ItemTemplate, XComGameState CheckGameState);
-// Default true. If false, make sure to update ValidateLoadout.
-delegate bool CanSlotBeUnequippedFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_Item ItemState, optional XComGameState CheckGameState);
+// ItemState is the Item that IS or WAS in the slot
+// Make sure ValidateLoadoutFn matches this setting
+delegate ECHSlotUnequipBehavior GetSlotUnequipBehaviorFn(CHItemSlot Slot, ECHSlotUnequipBehavior DefaultBehavior, XComGameState_Unit Unit, XComGameState_Item ItemState, optional XComGameState CheckGameState);
 delegate array<X2EquipmentTemplate> GetBestGearForSlotFn(CHItemSlot Slot, XComGameState_Unit Unit);
 delegate ValidateLoadoutFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_HeadquartersXCom XComHQ, XComGameState NewGameState);
 // Falls back to class'UIArmory_Loadout'.default.m_strInventoryLabels
@@ -118,15 +127,14 @@ function RemoveItemFromSlot(XComGameState_Unit Unit, XComGameState_Item ItemStat
 	}
 }
 
-// Called from UIArmory_LoadoutItem, can be used to allow slots to be empty (instead of re-equipping an infinite item)
-// ItemState is the Item that was just removed
-function bool CanSlotBeUnequipped(XComGameState_Unit Unit, XComGameState_Item ItemState, optional XComGameState CheckGameState)
+// Called from UIArmory_LoadoutItem to determine whether to show a drop button and whether to attempt re-equipping an now empty slot
+function ECHSlotUnequipBehavior GetSlotUnequipBehavior(ECHSlotUnequipBehavior DefaultBehavior, XComGameState_Unit Unit, XComGameState_Item ItemState, optional XComGameState CheckGameState)
 {
-	if (CanSlotBeUnequippedFn != none)
+	if (GetSlotUnequipBehaviorFn != none)
 	{
-		return CanSlotBeUnequippedFn(self, Unit, ItemState, CheckGameState);
+		return GetSlotUnequipBehaviorFn(self, DefaultBehavior, Unit, ItemState, CheckGameState);
 	}
-	return true;
+	return DefaultBehavior;
 }
 
 // Called from XComGameState_Unit::GetBestGearForSlot if the slot is templated and the Game doesn't know what to do
@@ -357,6 +365,44 @@ static function bool SlotShowItemInLockerList(EInventorySlot Slot, XComGameState
 			// xpad is only item with size 0, that is always equipped
 			return (EquipmentTemplate != none && EquipmentTemplate.iItemSize > 0 && EquipmentTemplate.InventorySlot == Slot);
 	}
+}
+
+
+static function ECHSlotUnequipBehavior SlotGetUnequipBehavior(EInventorySlot Slot, XComGameState_Unit Unit, XComGameState_Item ItemState, optional XComGameState CheckGameState)
+{	
+	local ECHSlotUnequipBehavior DefaultBehavior;
+	local XComLWTuple OverrideTuple;
+
+	// Base game behavior: If the item is not infinite or has been modified, show the drop button and attempt to replace it with another item
+	// Otherwise, don't show the drop button
+	DefaultBehavior = (!ItemState.GetMyTemplate().bInfiniteItem ||ItemState.HasBeenModified()) ? eCHSUB_AttemptReEquip : eCHSUB_DontAllow;
+
+	// If the slot is templated, the slot can define whether to let this item be unequipped / replaced. If the slot doesn't implement this,
+	// The default behavior is used
+	if (SlotIsTemplated(Slot))
+	{
+		return GetTemplateForSlot(Slot).GetSlotUnequipBehavior(DefaultBehavior, Unit, ItemState, CheckGameState);
+	}
+
+	// Add an event trigger from the original Highlander to do it on a per-item basis for arbitrary slots
+
+	// Adapted from the Original Highlander (#89)
+	// Instead of a boolean, we use the Enum instead
+	//set up a Tuple for return value
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideItemUnequipBehavior';
+	OverrideTuple.Data.Add(2);
+	// XComLWTuple does not have a Byte kind
+	OverrideTuple.Data[0].kind = XComLWTVInt;
+	OverrideTuple.Data[0].i = DefaultBehavior;
+	OverrideTuple.Data[1].kind = XComLWTVObject;
+	OverrideTuple.Data[1].o = Unit;
+	OverrideTuple.Data[2].kind = XComLWTVObject;
+	OverrideTuple.Data[2].o = CheckGameState;
+
+	`XEVENTMGR.TriggerEvent('OverrideItemUnequipBehavior', OverrideTuple, ItemState);
+	
+	return ECHSlotUnequipBehavior(OverrideTuple.Data[0].i);
 }
 
 static function int SlotGetPriority(EInventorySlot Slot, XComGameState_Unit Unit, optional XComGameState CheckGameState)
