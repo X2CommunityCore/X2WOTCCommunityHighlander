@@ -441,7 +441,8 @@ static function array<EInventorySlot> GetDefaultDisplayedSlots(XComGameState_Uni
 
 	for (i = eInvSlot_BEGIN_TEMPLATED_SLOTS + 1; i < eInvSlot_END_TEMPLATED_SLOTS; i++)
 	{
-		if (SlotShouldBeShown(EInventorySlot(i), Unit, CheckGameState))
+		// Just because the enum value exists, the slot doesn't necessarily exist
+		if (SlotIsTemplated(EInventorySlot(i)) && SlotShouldBeShown(EInventorySlot(i), Unit, CheckGameState))
 		{
 			Slots.AddItem(EInventorySlot(i));
 		}
