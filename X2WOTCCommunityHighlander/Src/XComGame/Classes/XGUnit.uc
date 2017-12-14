@@ -509,7 +509,12 @@ simulated function ApplyLoadoutFromGameState(XComGameState_Unit UnitState, XComG
 	local XGInventory kInventory;
 	local XComWeapon ItemWeapon;
 	local bool bMultipleItems;
-	local XGWeapon HeavyWeaponVisualizer, ItemVis;
+	// Variables for Issue #188
+	local XGWeapon /*HeavyWeaponVisualizer,*/ ItemVis;
+	local array<EInventorySlot> PresEquipSlots;
+	local array<CHItemSlot> SlotTemplates;
+	local CHItemSlot SlotIter;
+	local EInventorySlot Slot;
 
 	kInventory = GetInventory();
 	if( kInventory == none )
@@ -569,42 +574,33 @@ simulated function ApplyLoadoutFromGameState(XComGameState_Unit UnitState, XComG
 		kInventory.m_kSecondaryWeapon.m_eSlot = kInventory.m_kSecondaryWeapon.m_eReserveLocation;
 		kInventory.PresEquip(kInventory.m_kSecondaryWeapon, true);
 	}
-	ItemState = UnitState.GetItemInSlot(eInvSlot_HeavyWeapon);
-	if (ItemState != none)
+
+	// Issue #118 Start, squash Heavy+Tertiary to Septenary into a single loop
+	PresEquipSlots.AddItem(eInvSlot_HeavyWeapon);
+	PresEquipSlots.AddItem(eInvSlot_TertiaryWeapon);
+	PresEquipSlots.AddItem(eInvSlot_QuaternaryWeapon);
+	PresEquipSlots.AddItem(eInvSlot_QuinaryWeapon);
+	PresEquipSlots.AddItem(eInvSlot_SenaryWeapon);
+	PresEquipSlots.AddItem(eInvSlot_SeptenaryWeapon);
+
+	SlotTemplates = class'CHItemSlot'.static.GetAllSlotTemplates();
+	foreach SlotTemplates(SlotIter)
 	{
-		HeavyWeaponVisualizer = XGWeapon(ItemState.GetVisualizer());
-		kInventory.PresEquip(HeavyWeaponVisualizer, true);
+		if (!SlotIter.IsMultiItemSlot && SlotIter.NeedsPresEquip)
+		{
+			PresEquipSlots.AddItem(SlotIter.InvSlot);
+		}
 	}
-	ItemState = UnitState.GetItemInSlot(eInvSlot_TertiaryWeapon);
-	if (ItemState != none)
+	foreach PresEquipSlots(Slot)
 	{
-		ItemVis = XGWeapon(ItemState.GetVisualizer());
-		kInventory.PresEquip(ItemVis, true);
+		ItemState = UnitState.GetItemInSlot(Slot);
+		if (ItemState != none)
+		{
+			ItemVis = XGWeapon(ItemState.GetVisualizer());
+			kInventory.PresEquip(ItemVis, true);
+		}
 	}
-	ItemState = UnitState.GetItemInSlot(eInvSlot_QuaternaryWeapon);
-	if (ItemState != none)
-	{
-		ItemVis = XGWeapon(ItemState.GetVisualizer());
-		kInventory.PresEquip(ItemVis, true);
-	}
-	ItemState = UnitState.GetItemInSlot(eInvSlot_QuinaryWeapon);
-	if (ItemState != none)
-	{
-		ItemVis = XGWeapon(ItemState.GetVisualizer());
-		kInventory.PresEquip(ItemVis, true);
-	}
-	ItemState = UnitState.GetItemInSlot(eInvSlot_SenaryWeapon);
-	if (ItemState != none)
-	{
-		ItemVis = XGWeapon(ItemState.GetVisualizer());
-		kInventory.PresEquip(ItemVis, true);
-	}
-	ItemState = UnitState.GetItemInSlot(eInvSlot_SeptenaryWeapon);
-	if (ItemState != none)
-	{
-		ItemVis = XGWeapon(ItemState.GetVisualizer());
-		kInventory.PresEquip(ItemVis, true);
-	}
+	// Issue #118 End
 
 	if (kInventory.m_kPrimaryWeapon != none)
 		kItemToEquip = kInventory.m_kPrimaryWeapon;
