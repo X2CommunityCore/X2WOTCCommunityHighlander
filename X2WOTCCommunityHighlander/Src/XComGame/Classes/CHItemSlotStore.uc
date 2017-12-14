@@ -52,18 +52,23 @@ public function CacheTemplates()
 			{
 				if ((Slot.SlotCatMask != 0) != Slot.IsUserEquipSlot)
 				{
-					class'X2TacticalGameRuleset'.static.ReleaseScriptLog("Warning, Slot" @ GetEnum(Enum'EInventorySlot', Slot.InvSlot) $":" @ Slot.DataName @ "has inconsistent slot category attributes");
+					`REDSCREEN("Warning, Slot" @ GetEnum(Enum'EInventorySlot', Slot.InvSlot) $":" @ Slot.DataName @ "has inconsistent slot category attributes");
+				}
+				if (Slot.IsMultiItemSlot && (Slot.NeedsPresEquip || Slot.ShowOnCinematicPawns))
+				{
+					`REDSCREEN("Warning, Slot" @ GetEnum(Enum'EInventorySlot', Slot.InvSlot) $":" @ Slot.DataName @ "is a multi item slot, so it can't have ShowOnCinematicPawns or NeedsPresEquip set");
+					
 				}
 				SlotTemplates[Slot.InvSlot] = Slot;
 			}
 			else
 			{
-				class'X2TacticalGameRuleset'.static.ReleaseScriptLog("Slot" @ GetEnum(Enum'EInventorySlot', Slot.InvSlot) $":" @ Slot.DataName @ "conflicts with" @ SlotTemplates[Slot.InvSlot].DataName);
+				`REDSCREEN("Slot" @ GetEnum(Enum'EInventorySlot', Slot.InvSlot) $":" @ Slot.DataName @ "conflicts with" @ SlotTemplates[Slot.InvSlot].DataName);
 			}
 		}
 		else
 		{
-			class'X2TacticalGameRuleset'.static.ReleaseScriptLog(Slot.DataName @ GetEnum(Enum'EInventorySlot', Slot.InvSlot) @ "not within Templated Slot Range");
+			`REDSCREEN(Slot.DataName @ GetEnum(Enum'EInventorySlot', Slot.InvSlot) @ "not within Templated Slot Range");
 		}
 		
 	}
