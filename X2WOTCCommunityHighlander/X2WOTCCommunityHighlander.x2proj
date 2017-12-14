@@ -258,6 +258,9 @@
     <Content Include="Src\XComGame\Classes\XComLWTuple.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XGUnit.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XGUnitNativeBase.uc">
       <SubType>Content</SubType>
     </Content>
