@@ -50,6 +50,7 @@ var bool IsEquippedSlot;
 var bool BypassesUniqueRule;
 
 // Can this slot hold more than one item (similar to Utility Slots)?
+// Imposes the limitation that its items can not be shown on cinematic pawns (Armory, SquadSelect, tactical Matinee).
 var bool IsMultiItemSlot;
 
 // If this slot is displayed, it can be displayed in a compact format in the SquadSelect screen
@@ -58,6 +59,17 @@ var bool IsMultiItemSlot;
 // 2) Its priority is forced to be lower than any other non-small slot ("small items come last")
 // Slots are sorted first by priority, and then by Small-Notsmall
 var bool IsSmallSlot;
+
+// This slot contains items that need to be PresEquip()ed in XGUnit::ApplyLoadoutFromGameState()
+// The code behind this involves a lot of legacy Inventory code from EU/EW that I'm not entirely comfortable with.
+// It's best to follow the vanilla rule for slots involved, which is "only do it for weapons" (primary-septenary + heavy)
+// This seems to be mandatory for weapons that have a sheath mesh, as well as gremlins / bits
+var bool NeedsPresEquip;
+
+// Items in this slot will be shown in the Armory, in SquadSelect, and tactical Matinees
+// Can not be a multi-item slot due to UIPawnMgr restrictions, but other than that, you should se it to
+// true for all slots that the user should be able to see on the Unit Pawn (see XComUnitPawn::CreateVisualInventoryAttachments())
+var bool ShowOnCinematicPawns;
 
 // DELEGATES
 // A LOT OF DELEGATES
