@@ -10180,7 +10180,9 @@ function ApplySquaddieLoadout(XComGameState GameState, optional XComGameState_He
 			if (ItemTemplate != none)
 			{
 				ItemState = none;
-				if (ItemTemplate.InventorySlot == eInvSlot_Utility)
+				// Issue #118 Start: Change hardcoded check for Utility Items to multi-item slot
+				if (class'CHItemSlot'.static.SlotIsMultiItem(ItemTemplate.InventorySlot))
+				// Issue #118 End
 				{
 					//  If we can't add a utility item, remove the first one. That should fix it. If not, we may need more logic later.
 					if (!CanAddItemToInventory(ItemTemplate, ItemTemplate.InventorySlot, GameState))
@@ -11283,10 +11285,11 @@ function EquipOldItems(XComGameState NewGameState)
 				//  If we can't add an item, there's probably one occupying the slot already, so find it so we can remove it.
 				if(!CanAddItemToInventory(ItemTemplate, OldInventoryItems[idx].eSlot, NewGameState))
 				{
-					if (OldInventoryItems[idx].eSlot == eInvSlot_Utility)
+					// Issue #118 Start: change hardcoded check for utility item
+					if (class'CHItemSlot'.static.SlotIsMultiItem(OldInventoryItems[idx].eSlot))
 					{
 						// If there are multiple utility items, grab the last one to try and replace it with the restored item
-						UtilityItems = GetAllItemsInSlot(eInvSlot_Utility, NewGameState, , true);
+						UtilityItems = GetAllItemsInSlot(OldInventoryItems[idx].eSlot, NewGameState, , true);
 						ItemState = UtilityItems[UtilityItems.Length - 1];
 					}
 					else
