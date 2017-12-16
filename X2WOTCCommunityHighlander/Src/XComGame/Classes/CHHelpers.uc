@@ -32,8 +32,27 @@ var config bool CHECK_CURED_TRAITS;
 var config array<name> ClassesExcludedFromAWCRoll;
 // End Issue #80
 
+// Start Issue #123
+// List of AbilityTemplateNames that have associated XComPerkContent
+var config array<name> AbilityTemplatePerksToLoad;
+// End Issue #123
+
+// Start Issue #123
+simulated static function RebuildPerkContentCache() {
+	local XComContentManager		Content;
+	local name						AbilityTemplateName;
+
+	Content = `CONTENT;
+	Content.BuildPerkPackageCache();
+	foreach default.AbilityTemplatePerksToLoad(AbilityTemplateName) {
+		Content.CachePerkContent(AbilityTemplateName);
+	}
+}
+// End Issue #123
+
 // start issue #113
 // list of classes to exclude from being considered "needed" by XComGameState_HeadquartersResistance
 // these are for classes which are meant to be rarely acquired via rookie level up, though others may also be here for their own reasons
 var config array<name> ClassesExcludedFromResHQ;
 //end issue #113
+
