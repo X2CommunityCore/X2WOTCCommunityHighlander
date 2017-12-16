@@ -545,7 +545,7 @@ static function SquadTacticalToStrategyTransfer()
 			// but clearing it because it makes sense
 			UnitState.ClearUnitValue('CH_StartMissionWill');
 			// Issue #44 End
-
+      
 			// Bleeding out soldiers die if not rescued, some characters die when captured
 			if (UnitState.bBleedingOut || (UnitState.bCaptured && UnitState.GetMyTemplate().bDiesWhenCaptured))
 			{
@@ -1420,13 +1420,16 @@ static function RemoveInvalidSoldiersFromSquad()
 	MissionData = XComHQ.GetGeneratedMissionData(XComHQ.MissionRef.ObjectID);
 	SpecialSoldierNames = MissionData.Mission.SpecialSoldiers;
 
-	SpecialSoldierSlotsToClear.AddItem(eInvSlot_Armor);
-	SpecialSoldierSlotsToClear.AddItem(eInvSlot_PrimaryWeapon);
-	SpecialSoldierSlotsToClear.AddItem(eInvSlot_SecondaryWeapon);
-	SpecialSoldierSlotsToClear.AddItem(eInvSlot_HeavyWeapon);
-	SpecialSoldierSlotsToClear.AddItem(eInvSlot_Utility);
-	SpecialSoldierSlotsToClear.AddItem(eInvSlot_GrenadePocket);
-	SpecialSoldierSlotsToClear.AddItem(eInvSlot_AmmoPocket);
+	// Issue #118 Start
+	//SpecialSoldierSlotsToClear.AddItem(eInvSlot_Armor);
+	//SpecialSoldierSlotsToClear.AddItem(eInvSlot_PrimaryWeapon);
+	//SpecialSoldierSlotsToClear.AddItem(eInvSlot_SecondaryWeapon);
+	//SpecialSoldierSlotsToClear.AddItem(eInvSlot_HeavyWeapon);
+	//SpecialSoldierSlotsToClear.AddItem(eInvSlot_Utility);
+	//SpecialSoldierSlotsToClear.AddItem(eInvSlot_GrenadePocket);
+	//SpecialSoldierSlotsToClear.AddItem(eInvSlot_AmmoPocket);
+	class'CHItemSlot'.static.CollectSlots(class'CHItemSlot'.const.SLOT_ALL, SpecialSoldierSlotsToClear);
+	// Issue #118 End
 	
 	foreach History.IterateByClassType(class'XComGameState_Unit', UnitState)
 	{
