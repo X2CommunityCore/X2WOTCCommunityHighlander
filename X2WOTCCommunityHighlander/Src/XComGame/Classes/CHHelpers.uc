@@ -10,6 +10,11 @@ var config bool ENABLE_CHOSEN_RAGDOLL;
 var config bool ENABLE_RAGDOLL_COLLISION;
 // End Issue #41
 
+// Start Issue #44
+// Set to true to prevent Multi-part missions escaping the Will loss cap that is defined in most will rolls
+var config bool MULTIPART_MISSION_WILL_LOSS_CAP;
+// End Issue #44
+
 //start issue #82
 //allow factions to be filtered at game start so we don't have broken base game factions
 var config array<name> EXCLUDED_FACTIONS;
