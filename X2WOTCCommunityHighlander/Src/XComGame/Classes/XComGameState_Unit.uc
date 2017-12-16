@@ -2243,6 +2243,22 @@ function OnBeginTacticalPlay(XComGameState NewGameState)
 
 	CleanupUnitValues(eCleanup_BeginTactical);
 
+	// Start Issue #44
+	// Store our starting will the first time we enter a mission sequence, for use in XComGameStateContext_WillRoll
+	BattleDataState = XComGameState_BattleData(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
+	// Don't store the will if we are in a multi-mission and we have already appeared in this mission
+	// This should catch cases like Lost&Abandoned, where units may appear first in the second part
+	if (
+		(BattleDataState.DirectTransferInfo.IsDirectMissionTransfer 
+		&& BattleDataState.DirectTransferInfo.TransferredUnitStats.Find('UnitStateRef', self.GetReference()) != INDEX_NONE)
+		== false)
+	{
+		// This is the value consistent with base-game behavior (before any stat bonuses from abilities, since this is set before any abilities are triggered)
+		// We can't ever let it be cleared, since a "BeginTactical" rule would clean it up when we want to explicitely keep it
+		SetUnitFloatValue('CH_StartMissionWill', GetCurrentStat(eStat_Will), eCleanup_Never);
+	}
+	// End Issue #44
+
 	//Units removed from play in previous tactical play are no longer removed, unless they are explicitly set to remain so.
 	//However, this update happens too late to get caught in the usual tile-data build.
 	//So, if we're coming back into play, make sure to update the tile we now occupy.
@@ -3633,7 +3649,17 @@ function bool MeetsAbilityPrerequisites(name AbilityName)
 		for (iName = 0; iName < AbilityTemplate.PrerequisiteAbilities.Length; iName++)
 		{
 			AbilityName = AbilityTemplate.PrerequisiteAbilities[iName];
-			if (!HasSoldierAbility(AbilityName)) // if the soldier does not have a prereq ability, return false
+
+			// Start Issue #128
+			if (InStr(AbilityName, "NOT_") == 0)
+			{
+				if (HasSoldierAbility(name(Repl(AbilityName, "NOT_", ""))))
+				{
+					return false;
+				}
+			}
+			// End Issue #128
+			else if (!HasSoldierAbility(AbilityName)) // if the soldier does not have a prereq ability, return false
 			{
 				return false;
 			}
