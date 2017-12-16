@@ -6,6 +6,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ## Strategy
 
 ### Mod/DLC Hooks
+- `GetDLCEventInfo` allows mods to add their own events for the Geoscape Event
+  List (#112)
 
 ### Event Hooks
 - Triggers the event `OnArmoryMainMenuUpdate` that allows adding elements into
