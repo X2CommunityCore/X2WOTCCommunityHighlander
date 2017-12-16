@@ -10,7 +10,6 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Event Hooks
 - Triggers the event `OnArmoryMainMenuUpdate` that allows adding elements into
   the ArmoryList (#47)
-  
 
 ### Modding Exposures
 
@@ -96,6 +95,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   `SoldierClassSummary` that allow replacement of the class icon/display
   name/summary dynamically e.g. depending on UnitState or Soldier Loadout,
   and adds accessor functions for those to XComGameState_Unit. (#106)
+- `GetPCSImageTuple` added to allow customising PCS Image string (#110)
 
 ### Configuration
 - Able to list classes as excluded from AWC Skill Rolling, so they can still
