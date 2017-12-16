@@ -125,6 +125,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   a backup (#72)
 - Prevent items from stacking if they have ComponentObjects attached to them,
   useful for mods to create uniques out of stackable items. (#104)
+- Allow to define mutually exclusive abilities (#128) like `Template.PrerequisiteAbilities.AddItem('NOT_SomeAbility');`
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
