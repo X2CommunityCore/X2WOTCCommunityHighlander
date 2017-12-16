@@ -832,8 +832,27 @@ simulated static function string GetPsiFeedbackMeterLabel( int iMindshockValue )
 simulated static function string GetPCSImage(XComGameState_Item Item)
 {
 	local ECharStatType StatType;
+	// Variables for Issue #110: OnGetPCSImade Event
+	local XComLWTuple Tuple;
 
 	StatType = class'UIUtilities_Strategy'.static.GetStatBoost(Item).StatType;
+    
+	// Start Issue #110: OnGetPCSImage Event
+	Tuple = new class'XComLWTuple';
+	Tuple.id = 'GetPCSImageTuple';
+	Tuple.Data.Add(2);
+	
+	Tuple.Data[0].kind = XComLWTVObject;
+	Tuple.Data[0].o = Item;
+
+	Tuple.Data[1].kind = XComLWTVString;
+	Tuple.Data[1].s = ""; // To be used for return value
+
+	`XEVENTMGR.TriggerEvent('OnGetPCSImage', Tuple);
+
+	if (Tuple.Data[1].s != "")
+		return Tuple.Data[1].s;
+    //End issue
 
 	switch(StatType)
 	{

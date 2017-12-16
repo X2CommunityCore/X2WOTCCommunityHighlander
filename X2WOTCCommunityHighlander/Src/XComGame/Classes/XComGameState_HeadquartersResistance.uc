@@ -227,7 +227,7 @@ function name SelectNextSoldierClass()
 	local XComGameState_HeadquartersXCom XComHQ;
 	local name RetName;
 	local int idx;
-	local array<name> NeededClasses, RewardClasses;
+	local array<name> NeededClasses, RewardClasses, AvoidedClasses; //issue #113: added AvoidedClasses array
 
 	History = `XCOMHISTORY;
 
@@ -238,10 +238,12 @@ function name SelectNextSoldierClass()
 	 
 	XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
 	NeededClasses = XComHQ.GetNeededSoldierClasses();
-
+	//start Issue #113: we use AvoidedClasses to not count classes that mod authors do not want used here
+	AvoidedClasses = class'CHHelpers'.default.ClassesExcludedFromResHQ;
+	
 	for(idx = 0; idx < SoldierClassDeck.Length; idx++)
 	{
-		if(NeededClasses.Find(SoldierClassDeck[idx]) != INDEX_NONE)
+		if(NeededClasses.Find(SoldierClassDeck[idx]) != INDEX_NONE && AvoidedClasses.Find(SoldierClassDeck[idx]) == INDEX_NONE)
 		{
 			RewardClasses.AddItem(SoldierClassDeck[idx]);
 		}
@@ -253,13 +255,14 @@ function name SelectNextSoldierClass()
 
 		for(idx = 0; idx < SoldierClassDeck.Length; idx++)
 		{
-			if(NeededClasses.Find(SoldierClassDeck[idx]) != INDEX_NONE)
+			if(NeededClasses.Find(SoldierClassDeck[idx]) != INDEX_NONE && AvoidedClasses.Find(SoldierClassDeck[idx]) == INDEX_NONE)
 			{
 				RewardClasses.AddItem(SoldierClassDeck[idx]);
 			}
 		}
 	}
-
+	//end issue #113
+	
 	`assert(SoldierClassDeck.Length != 0);
 	`assert(RewardClasses.Length != 0);
 	RetName = RewardClasses[`SYNC_RAND(RewardClasses.Length)];
