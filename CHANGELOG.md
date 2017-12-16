@@ -10,7 +10,6 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Event Hooks
 - Triggers the event `OnArmoryMainMenuUpdate` that allows adding elements into
   the ArmoryList (#47)
-  
 
 ### Modding Exposures
 
@@ -58,6 +57,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   enable Chosen ragdolling (#41)
 - Added ability to customise both Burning and Poison bypassing shields when
   applied to targets (#89)
+- Added ability to prevent multi-part missions counting as separate missions
+  for will loss purposes (#44)
 
 ### Modding Exposures
 - Deprivatise variables to protected in XComIdleAnimationStateMachine to allow
@@ -96,11 +97,14 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   `SoldierClassSummary` that allow replacement of the class icon/display
   name/summary dynamically e.g. depending on UnitState or Soldier Loadout,
   and adds accessor functions for those to XComGameState_Unit. (#106)
+- `GetPCSImageTuple` added to allow customising PCS Image string (#110)
 
 ### Configuration
 - Able to list classes as excluded from AWC Skill Rolling, so they can still
   take part in the Combat Intelligence / AP System, without getting randomised
   skills (#80)
+- Able to list classes to be excluded from being 'needed', which means they are
+  rarely meant to be acquired via Rookie level up and instead trained (#113)
 
 ### Modding Exposures
 - Renable the ability to add positive traits in codebase, as well as additional
