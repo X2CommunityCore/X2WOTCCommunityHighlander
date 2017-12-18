@@ -7154,12 +7154,12 @@ simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate,
 	local X2ArmorTemplate ArmorTemplate;
 	local array<X2DownloadableContentInfo> DLCInfos; // Issue #50: Added for hook
 	local int bCanAddItem; // Issue #50: hackery to avoid bool not being allowed to be out parameter
-	
+	local string BlankString; //issue #114: blank string variable for the out variable
 	// Start Issue #50 and #114: inventory hook
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
-		if(DLCInfos[i].CanAddItemToInventory_CH_Improved(bCanAddItem, Slot, ItemTemplate, Quantity, self, CheckGameState, , Item))
+		if(DLCInfos[i].CanAddItemToInventory_CH_Improved(bCanAddItem, Slot, ItemTemplate, Quantity, self, CheckGameState, BlankString, Item))
 		{
 			return bCanAddItem > 0;
 		}
