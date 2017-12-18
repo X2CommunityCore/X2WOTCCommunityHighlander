@@ -514,7 +514,7 @@ static function DetermineLoot(array<StateObjectReference> Enemies)
 			if(!UnitState.IsDead() && UnitState.HasBackpack() &&
 			   UnitState.CanAddItemToInventory(ItemState.GetMyTemplate(), eInvSlot_Backpack, NewGameState, ItemState.Quantity, ItemState))
 			{
-				UnitState.AddItemToInventory(ItemState.GetMyTemplate(), eInvSlot_BackPack, NewGameState, ItemState.Quantity, ItemState);
+				UnitState.AddItemToInventory(ItemState, eInvSlot_BackPack, NewGameState);
 				bLootSuccess = true;
 				break;
 			}
