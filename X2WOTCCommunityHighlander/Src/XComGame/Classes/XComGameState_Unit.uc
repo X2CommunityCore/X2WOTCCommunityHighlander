@@ -2243,6 +2243,22 @@ function OnBeginTacticalPlay(XComGameState NewGameState)
 
 	CleanupUnitValues(eCleanup_BeginTactical);
 
+	// Start Issue #44
+	// Store our starting will the first time we enter a mission sequence, for use in XComGameStateContext_WillRoll
+	BattleDataState = XComGameState_BattleData(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
+	// Don't store the will if we are in a multi-mission and we have already appeared in this mission
+	// This should catch cases like Lost&Abandoned, where units may appear first in the second part
+	if (
+		(BattleDataState.DirectTransferInfo.IsDirectMissionTransfer 
+		&& BattleDataState.DirectTransferInfo.TransferredUnitStats.Find('UnitStateRef', self.GetReference()) != INDEX_NONE)
+		== false)
+	{
+		// This is the value consistent with base-game behavior (before any stat bonuses from abilities, since this is set before any abilities are triggered)
+		// We can't ever let it be cleared, since a "BeginTactical" rule would clean it up when we want to explicitely keep it
+		SetUnitFloatValue('CH_StartMissionWill', GetCurrentStat(eStat_Will), eCleanup_Never);
+	}
+	// End Issue #44
+
 	//Units removed from play in previous tactical play are no longer removed, unless they are explicitly set to remain so.
 	//However, this update happens too late to get caught in the usual tile-data build.
 	//So, if we're coming back into play, make sure to update the tile we now occupy.
@@ -3633,7 +3649,17 @@ function bool MeetsAbilityPrerequisites(name AbilityName)
 		for (iName = 0; iName < AbilityTemplate.PrerequisiteAbilities.Length; iName++)
 		{
 			AbilityName = AbilityTemplate.PrerequisiteAbilities[iName];
-			if (!HasSoldierAbility(AbilityName)) // if the soldier does not have a prereq ability, return false
+
+			// Start Issue #128
+			if (InStr(AbilityName, "NOT_") == 0)
+			{
+				if (HasSoldierAbility(name(Repl(AbilityName, "NOT_", ""))))
+				{
+					return false;
+				}
+			}
+			// End Issue #128
+			else if (!HasSoldierAbility(AbilityName)) // if the soldier does not have a prereq ability, return false
 			{
 				return false;
 			}
@@ -6981,8 +7007,10 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 	local X2ItemTemplate ItemTemplate;
 
 	ItemTemplate = Item.GetMyTemplate();
-	if (CanAddItemToInventory(ItemTemplate, Slot, NewGameState, Item.Quantity))
+	// issue #114: pass along item state when possible
+	if (CanAddItemToInventory(ItemTemplate, Slot, NewGameState, Item.Quantity, Item))
 	{
+	// end issue #114
 		if( ItemTemplate.OnEquippedFn != None )
 		{
 			ItemTemplate.OnEquippedFn(Item, self, NewGameState);
@@ -7109,8 +7137,8 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 	}
 	return false;
 }
-
-simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate, const EInventorySlot Slot, optional XComGameState CheckGameState, optional int Quantity=1)
+//issue #114: function can now take in item states for new hook
+simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate, const EInventorySlot Slot, optional XComGameState CheckGameState, optional int Quantity=1, optional XComGameState_Item Item)
 {
 	local int i, iUtility;
 	local XComGameState_Item kItem;
@@ -7120,16 +7148,16 @@ simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate,
 	local array<X2DownloadableContentInfo> DLCInfos; // Issue #50: Added for hook
 	local int bCanAddItem; // Issue #50: hackery to avoid bool not being allowed to be out parameter
 	
-	// Start Issue #50
+	// Start Issue #50 and #114: inventory hook
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
-		if(DLCInfos[i].CanAddItemToInventory_CH(bCanAddItem, Slot, ItemTemplate, Quantity, self, CheckGameState))
+		if(DLCInfos[i].CanAddItemToInventory_CH_Improved(bCanAddItem, Slot, ItemTemplate, Quantity, self, CheckGameState, Item))
 		{
 			return bCanAddItem > 0;
 		}
 	}
-	// End Issue #50
+	// End Issue #50 and #114
 	
 	if( bIgnoreItemEquipRestrictions )
 		return true;
@@ -11231,8 +11259,10 @@ function EquipOldItems(XComGameState NewGameState)
 				ItemState = none;
 
 				//  If we can't add an item, there's probably one occupying the slot already, so find it so we can remove it.
-				if(!CanAddItemToInventory(ItemTemplate, OldInventoryItems[idx].eSlot, NewGameState))
+				//start issue #114: pass along item state in case there's a reason the soldier should be unable to re-equip from a mod
+				if(!CanAddItemToInventory(ItemTemplate, OldInventoryItems[idx].eSlot, NewGameState, InvItemState.Quantity, InvItemState))
 				{
+				//end issue #114
 					if (OldInventoryItems[idx].eSlot == eInvSlot_Utility)
 					{
 						// If there are multiple utility items, grab the last one to try and replace it with the restored item
@@ -11264,8 +11294,10 @@ function EquipOldItems(XComGameState NewGameState)
 				}
 
 				// If we still can't add the restored item to our inventory, put it back into the HQ inventory where we found it and move on
-				if(!CanAddItemToInventory(ItemTemplate, OldInventoryItems[idx].eSlot, NewGameState))
+				//issue #114: pass along item state in case a mod has a reason to prevent this from being equipped
+				if(!CanAddItemToInventory(ItemTemplate, OldInventoryItems[idx].eSlot, NewGameState, InvItemState.Quantity, InvItemState))
 				{
+				//end issue #114
 					XComHQ.PutItemInInventory(NewGameState, InvItemState);
 					continue;
 				}
