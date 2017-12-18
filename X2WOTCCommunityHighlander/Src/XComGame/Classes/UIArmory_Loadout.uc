@@ -348,9 +348,12 @@ simulated function OnStripItemsDialogCallback(Name eAction)
 		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Strip Gear");
 		Soldiers = GetSoldiersToStrip();
 
-		RelevantSlots.AddItem(eInvSlot_Utility);
-		RelevantSlots.AddItem(eInvSlot_GrenadePocket);
-		RelevantSlots.AddItem(eInvSlot_AmmoPocket);
+		// Issue #118 Start
+		//RelevantSlots.AddItem(eInvSlot_Utility);
+		//RelevantSlots.AddItem(eInvSlot_GrenadePocket);
+		//RelevantSlots.AddItem(eInvSlot_AmmoPocket);
+		class'CHItemSlot'.static.CollectSlots(class'CHItemSlot'.const.SLOT_ITEM, RelevantSlots);
+		// Issue #118 End
 
 		for(idx = 0; idx < Soldiers.Length; idx++)
 		{
@@ -399,8 +402,11 @@ simulated function OnStripGearDialogCallback(Name eAction)
 		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Strip Gear");
 		Soldiers = GetSoldiersToStrip();
 
-		RelevantSlots.AddItem(eInvSlot_Armor);
-		RelevantSlots.AddItem(eInvSlot_HeavyWeapon);
+		// Issue #118 Start
+		//RelevantSlots.AddItem(eInvSlot_Armor);
+		//RelevantSlots.AddItem(eInvSlot_HeavyWeapon);
+		class'CHItemSlot'.static.CollectSlots(class'CHItemSlot'.const.SLOT_ARMOR, RelevantSlots);
+		// Issue #118 End
 
 		for(idx = 0; idx < Soldiers.Length; idx++)
 		{
@@ -448,9 +454,12 @@ simulated function OnStripWeaponsDialogCallback(Name eAction)
 		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Strip Gear");
 		Soldiers = GetSoldiersToStrip();
 
-		RelevantSlots.AddItem(eInvSlot_PrimaryWeapon);
-		RelevantSlots.AddItem(eInvSlot_SecondaryWeapon);
-		RelevantSlots.AddItem(eInvSlot_HeavyWeapon);
+		// Issue #118 Start
+		//RelevantSlots.AddItem(eInvSlot_PrimaryWeapon);
+		//RelevantSlots.AddItem(eInvSlot_SecondaryWeapon);
+		//RelevantSlots.AddItem(eInvSlot_HeavyWeapon);
+		class'CHItemSlot'.static.CollectSlots(class'CHItemSlot'.const.SLOT_WEAPON, RelevantSlots);
+		// Issue #118 End
 
 		for (idx = 0; idx < Soldiers.Length; idx++)
 		{
@@ -583,11 +592,12 @@ simulated static function UIList CreateList(UIPanel Container)
 
 simulated function UpdateEquippedList()
 {
-	local int i, numUtilityItems;
+	//local int i, numUtilityItems; // Issue #118, unneeded
 	local UIArmory_LoadoutItem Item;
-	local array<XComGameState_Item> UtilityItems;
+	//ocal array<XComGameState_Item> UtilityItems; // Issue #118, unneeded
 	local XComGameState_Unit UpdatedUnit;
 	local int prevIndex;
+	local CHUIItemSlotEnumerator En; // Variable for Issue #118
 
 	prevIndex = EquippedList.SelectedIndex;
 	UpdatedUnit = GetUnit();
@@ -596,82 +606,27 @@ simulated function UpdateEquippedList()
 	// Clear out tooltips from removed list items
 	Movie.Pres.m_kTooltipMgr.RemoveTooltipsByPartialPath(string(EquippedList.MCPath));
 
-	// units can only have one item equipped in the slots bellow
-	Item = UIArmory_LoadoutItem(EquippedList.CreateItem(class'UIArmory_LoadoutItem'));
-	if (CannotEditSlotsList.Find(eInvSlot_Armor) != INDEX_NONE)
-		Item.InitLoadoutItem(GetEquippedItem(eInvSlot_Armor), eInvSlot_Armor, true, m_strCannotEdit);
-	else
-		Item.InitLoadoutItem(GetEquippedItem(eInvSlot_Armor), eInvSlot_Armor, true);
-
-	Item = UIArmory_LoadoutItem(EquippedList.CreateItem(class'UIArmory_LoadoutItem'));
-	if (CannotEditSlotsList.Find(eInvSlot_PrimaryWeapon) != INDEX_NONE)
-		Item.InitLoadoutItem(GetEquippedItem(eInvSlot_PrimaryWeapon), eInvSlot_PrimaryWeapon, true, m_strCannotEdit);
-	else
-		Item.InitLoadoutItem(GetEquippedItem(eInvSlot_PrimaryWeapon), eInvSlot_PrimaryWeapon, true);
-
-	// Start Issue #55 UIArmory_Loadout should evaluate X2SoldierClassTemplate.bNoSecondaryWeapon
-	if(UpdatedUnit.NeedsSecondaryWeapon())
-	// End Issue #55
+	// Issue #118 Start
+	// Here used to be a lot of code handling individual slots, this has been abstracted in CHItemSlot (and the Enumerator)
+	En = class'CHUIItemSlotEnumerator'.static.CreateEnumerator(UpdatedUnit, CheckGameState);
+	while (En.HasNext())
 	{
+		En.Next();
 		Item = UIArmory_LoadoutItem(EquippedList.CreateItem(class'UIArmory_LoadoutItem'));
-		if (CannotEditSlotsList.Find(eInvSlot_SecondaryWeapon) != INDEX_NONE)
-			Item.InitLoadoutItem(GetEquippedItem(eInvSlot_SecondaryWeapon), eInvSlot_SecondaryWeapon, true, m_strCannotEdit);
+		if (CannotEditSlotsList.Find(En.Slot) != INDEX_NONE)
+			Item.InitLoadoutItem(En.ItemState, En.Slot, true, m_strCannotEdit);
+		else if (En.IsLocked)
+			Item.InitLoadoutItem(En.ItemState, En.Slot, true, En.LockedReason);
 		else
-			Item.InitLoadoutItem(GetEquippedItem(eInvSlot_SecondaryWeapon), eInvSlot_SecondaryWeapon, true);
-	}
-
-	if (UpdatedUnit.HasHeavyWeapon(CheckGameState))
-	{
-		Item = UIArmory_LoadoutItem(EquippedList.CreateItem(class'UIArmory_LoadoutItem'));
-		if (CannotEditSlotsList.Find(eInvSlot_HeavyWeapon) != INDEX_NONE)
-			Item.InitLoadoutItem(GetEquippedItem(eInvSlot_HeavyWeapon), eInvSlot_HeavyWeapon, true, m_strCannotEdit);
-		else
-			Item.InitLoadoutItem(GetEquippedItem(eInvSlot_HeavyWeapon), eInvSlot_HeavyWeapon, true);
-	}
-
-	// units can have multiple utility items
-	numUtilityItems = GetNumAllowedUtilityItems();
-	UtilityItems = class'UIUtilities_Strategy'.static.GetEquippedUtilityItems(UpdatedUnit, CheckGameState);
-	
-	for(i = 0; i < numUtilityItems; ++i)
-	{
-		Item = UIArmory_LoadoutItem(EquippedList.CreateItem(class'UIArmory_LoadoutItem'));
-
-		if(UtilityItems.Length >= (i + 1))
-		{
-			if (CannotEditSlotsList.Find(eInvSlot_Utility) != INDEX_NONE)
-				Item.InitLoadoutItem(UtilityItems[i], eInvSlot_Utility, true, m_strCannotEdit);
-			else
-				Item.InitLoadoutItem(UtilityItems[i], eInvSlot_Utility, true);
-		}
-		else
-		{
-			if (CannotEditSlotsList.Find(eInvSlot_Utility) != INDEX_NONE)
-				Item.InitLoadoutItem(none, eInvSlot_Utility, true, m_strCannotEdit);
-			else
-				Item.InitLoadoutItem(none, eInvSlot_Utility, true);
-		}
-	}
-
-	if (UpdatedUnit.HasGrenadePocket())
-	{
-		Item = UIArmory_LoadoutItem(EquippedList.CreateItem(class'UIArmory_LoadoutItem'));
-		if (CannotEditSlotsList.Find(eInvSlot_GrenadePocket) != INDEX_NONE)
-			Item.InitLoadoutItem(GetEquippedItem(eInvSlot_GrenadePocket), eInvSlot_GrenadePocket, true, m_strCannotEdit);
-		else
-			Item.InitLoadoutItem(GetEquippedItem(eInvSlot_GrenadePocket), eInvSlot_GrenadePocket, true);
-	}
-	if (UpdatedUnit.HasAmmoPocket())
-	{
-		Item = UIArmory_LoadoutItem(EquippedList.CreateItem(class'UIArmory_LoadoutItem'));
-		if (CannotEditSlotsList.Find(eInvSlot_AmmoPocket) != INDEX_NONE)
-			Item.InitLoadoutItem(GetEquippedItem(eInvSlot_AmmoPocket), eInvSlot_AmmoPocket, true, m_strCannotEdit);
-		else
-			Item.InitLoadoutItem(GetEquippedItem(eInvSlot_AmmoPocket), eInvSlot_AmmoPocket, true);
+			Item.InitLoadoutItem(En.ItemState, En.Slot, true);
 	}
 	EquippedList.SetSelectedIndex(prevIndex < EquippedList.ItemCount ? prevIndex : 0);
+	// Force item into view
+	EquippedList.NavigatorSelectionChanged(EquippedList.SelectedIndex);
+	// Issue #118 End
 }
 
+// Issue #118 -- should be obsolete
 function int GetNumAllowedUtilityItems()
 {
 	// units can have multiple utility items
@@ -690,7 +645,9 @@ simulated function UpdateLockerList()
 	SelectedSlot = GetSelectedSlot();
 
 	// set title according to selected slot
-	LocTag.StrValue0 = m_strInventoryLabels[SelectedSlot];
+	// Issue #118
+	LocTag.StrValue0 = class'CHItemSlot'.static.SlotGetName(SelectedSlot);
+	//LocTag.StrValue0 = m_strInventoryLabels[SelectedSlot];
 	MC.FunctionString("setRightPanelTitle", `XEXPAND.ExpandString(m_strLockerTitle));
 
 	GetInventory(Inventory);
@@ -735,25 +692,12 @@ function GetInventory(out array<StateObjectReference> Inventory)
 simulated function bool ShowInLockerList(XComGameState_Item Item, EInventorySlot SelectedSlot)
 {
 	local X2ItemTemplate ItemTemplate;
-	local X2GrenadeTemplate GrenadeTemplate;
-	local X2EquipmentTemplate EquipmentTemplate;
 
 	ItemTemplate = Item.GetMyTemplate();
 	
 	if(MeetsAllStrategyRequirements(ItemTemplate.ArmoryDisplayRequirements) && MeetsDisplayRequirement(ItemTemplate))
 	{
-		switch(SelectedSlot)
-		{
-		case eInvSlot_GrenadePocket:
-			GrenadeTemplate = X2GrenadeTemplate(ItemTemplate);
-			return GrenadeTemplate != none;
-		case eInvSlot_AmmoPocket:
-			return ItemTemplate.ItemCat == 'ammo';
-		default:
-			EquipmentTemplate = X2EquipmentTemplate(ItemTemplate);
-			// xpad is only item with size 0, that is always equipped
-			return (EquipmentTemplate != none && EquipmentTemplate.iItemSize > 0 && EquipmentTemplate.InventorySlot == SelectedSlot);
-		}
+		return class'CHItemSlot'.static.SlotShowItemInLockerList(SelectedSlot, GetUnit(), Item, ItemTemplate, CheckGameState);
 	}
 
 	return false;
@@ -857,20 +801,23 @@ simulated function string GetDisabledReason(XComGameState_Item Item, EInventoryS
 	}
 	
 	//start of Issue #50: add hook to UI to show disabled reason, if possible
-	if(DisabledReason == "")
+	//start of Issue #114: added ItemState of what's being looked at for more expansive disabling purposes
+	//issue #127: hook now fires all the time instead of a specific use case scenario
+	for(i = 0; i < DLCInfos.Length; ++i)
 	{
-		for(i = 0; i < DLCInfos.Length; ++i)
+		if(!DLCInfos[i].CanAddItemToInventory_CH_Improved(UnusedOutInt, SelectedSlot, ItemTemplate, Item.Quantity, UpdatedUnit, , DLCReason, Item))
 		{
-			if(!DLCInfos[i].CanAddItemToInventory_CH(UnusedOutInt, SelectedSlot, ItemTemplate, Item.Quantity, UpdatedUnit, , DLCReason))
-			{
-				DisabledReason = DLCReason;
-			}
+			DisabledReason = DLCReason;
 		}
 	}
 	//end of Issue #50
+	//end of issue #114
 	
 	// If this is a utility item, and cannot be equipped, it must be disabled because of one item per category restriction
-	if(DisabledReason == "" && SelectedSlot == eInvSlot_Utility)
+	// Issue #118, taking the Utility slot restriction out -- RespectsUniqueRule does everything we need
+	// Proof of correctness -- by taking this out, we potentially disallow more equipment, but that would have been a bug in vanilla anyway,
+	// because the unit state would have rejected the item due to the Unique Rule
+	if(DisabledReason == "" /*&& SelectedSlot == eInvSlot_Utility*/)
 	{
 		EquippedObjectID = UIArmory_LoadoutItem(EquippedList.GetSelectedItem()).ItemRef.ObjectID;
 		if(!UpdatedUnit.RespectsUniqueRule(ItemTemplate, SelectedSlot, , EquippedObjectID))
@@ -1140,7 +1087,11 @@ simulated function bool EquipItem(UIArmory_LoadoutItem Item)
 	UpdatedState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Equip Item");
 	UpdatedUnit = XComGameState_Unit(UpdatedState.ModifyStateObject(class'XComGameState_Unit', GetUnit().ObjectID));
 	
-	PrevUtilityItems = class'UIUtilities_Strategy'.static.GetEquippedUtilityItems(UpdatedUnit, UpdatedState);
+	// Issue #118 -- don't use utility items but the actual slot
+	if (class'CHItemSlot'.static.SlotIsMultiItem(GetSelectedSlot()))
+	{
+		PrevUtilityItems = UpdatedUnit.GetAllItemsInSlot(GetSelectedSlot(), UpdatedState);
+	}
 
 	NewItemRef = Item.ItemRef;
 	PrevItemRef = UIArmory_LoadoutItem(EquippedList.GetSelectedItem()).ItemRef;
@@ -1173,9 +1124,10 @@ simulated function bool EquipItem(UIArmory_LoadoutItem Item)
 
 		Weapon.Destroy();
 	}
-
-	CanEquip = ((PrevItem == none || UpdatedUnit.RemoveItemFromInventory(PrevItem, UpdatedState)) && UpdatedUnit.CanAddItemToInventory(Item.ItemTemplate, GetSelectedSlot(), UpdatedState));
-
+	
+	//issue #114: pass along item state in CanAddItemToInventory check, in case there's a mod that wants to prevent a specific item from being equipped
+	CanEquip = ((PrevItem == none || UpdatedUnit.RemoveItemFromInventory(PrevItem, UpdatedState)) && UpdatedUnit.CanAddItemToInventory(Item.ItemTemplate, GetSelectedSlot(), UpdatedState, Item.Quantity, Item));
+	//end issue #114
 	if(CanEquip)
 	{
 		GetItemFromInventory(UpdatedState, NewItemRef, NewItem);
@@ -1273,6 +1225,7 @@ simulated function bool EquipItem(UIArmory_LoadoutItem Item)
 	return EquipSucceeded;
 }
 
+// Issue #118 -- should be obsolete
 simulated function XComGameState_Item GetEquippedItem(EInventorySlot eSlot)
 {
 	return GetUnit().GetItemInSlot(eSlot, CheckGameState);

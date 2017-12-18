@@ -893,7 +893,60 @@ simulated function int GetItemSize()
 	return GetMyTemplate().iItemSize;
 }
 
-simulated native function int GetItemRange(const XComGameState_Ability AbilityState);
+// Start Issue #119
+// Allow mods to override range returned, otherwise perform native behaviour,
+// which has been extracted out of native method.
+//
+//simulated native function int GetItemRange(const XComGameState_Ability AbilityState);
+simulated function int GetItemRange(const XComGameState_Ability AbilityState)
+{
+	local XComLWTuple OverrideTuple;
+	local X2GrenadeLauncherTemplate GLTemplate;
+	local X2WeaponTemplate WeaponTemplate;
+	local XComGameState_Item SourceAmmo;
+	local int ReturnRange;
+
+	//`LOG("WE ARE GETTING TO GETNUMUTILITYSLOTS");
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'GetItemRange';
+	OverrideTuple.Data.Add(3);
+	OverrideTuple.Data[0].kind = XComLWTVBool;
+	OverrideTuple.Data[0].b = false;  // override? (true) or add? (false)
+	OverrideTuple.Data[1].kind = XComLWTVInt;
+	OverrideTuple.Data[1].i = 0;  // override/bonus range
+	OverrideTuple.Data[2].kind = XComLWTVObject;
+	OverrideTuple.Data[2].o = AbilityState;  // optional ability
+
+	`XEVENTMGR.TriggerEvent('OnGetItemRange', OverrideTuple, self);
+
+	if(OverrideTuple.Data[0].b)
+		return OverrideTuple.Data[1].i;
+
+	ReturnRange = OverrideTuple.Data[1].i;
+
+	GetMyTemplate();
+	GLTemplate = X2GrenadeLauncherTemplate(m_ItemTemplate);
+	if(GLTemplate != none)
+	{
+		SourceAmmo = AbilityState.GetSourceAmmo();
+		if(SourceAmmo != none)
+		{
+			WeaponTemplate = X2WeaponTemplate(SourceAmmo.GetMyTemplate());
+			if(WeaponTemplate != none)
+			{
+				return ReturnRange + WeaponTemplate.iRange + GLTemplate.IncreaseGrenadeRange;
+			}
+		}
+	}
+	WeaponTemplate = X2WeaponTemplate(m_ItemTemplate);
+	if(WeaponTemplate != none)
+	{
+		return ReturnRange + WeaponTemplate.iRange;
+	}
+	return -1;
+}
+// End Issue #119
+
 simulated native function int GetItemRadius(const XComGameState_Ability AbilityState);
 simulated native function float GetItemCoverage(const XComGameState_Ability AbilityState);
 

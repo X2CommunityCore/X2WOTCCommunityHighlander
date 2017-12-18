@@ -273,6 +273,17 @@ static function bool GetValidFloorSpawnLocations(out array<Vector> FloorPoints, 
 }
 /// End Issue #18
 
+/// start Issue #114: added XComGameState_Item as something that can be passed down for disabled reason purposes
+/// basically the inventory hook wtih an added paramter to pass through
+/// we leave the old one alone for compatibility reasons, as we call it through here for those mods.
+///
+static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, optional XComGameState CheckGameState, optional out string DisabledReason, optional XComGameState_Item ItemState)
+{
+
+	return CanAddItemToInventory_CH(bCanAddItem, Slot, ItemTemplate, Quantity, UnitState, CheckGameState, DisabledReason) //for mods not using item state, we can just by default, go straight to here. Newer mods can handle implementaion using the item state.
+	
+}
+//end Issue #114
 
 /// start Issue #50
 /// <summary>
@@ -298,3 +309,15 @@ static private function bool CanAddItemToInventory(out int bCanAddItem, const EI
 }
 
 //end Issue #50
+
+//start Issue #112
+/// <summary>
+/// Called from XComGameState_HeadquartersXCom
+/// lets mods add their own events to the event queue when the player is at the Avenger or the Geoscape
+/// </summary>
+
+static function bool GetDLCEventInfo(out array<HQEvent> arrEvents)
+{
+	return false; //returning true will tell the game to add the events have been added to the above array
+}
+//end issue #112
