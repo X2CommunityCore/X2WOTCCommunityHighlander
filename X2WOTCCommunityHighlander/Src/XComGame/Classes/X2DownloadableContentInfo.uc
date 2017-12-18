@@ -294,7 +294,7 @@ static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, cons
 static function bool CanAddItemToInventory_CH(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, optional XComGameState CheckGameState, optional out string DisabledReason)
 {
 	if(CheckGameState == none)
-		return false;
+		return true;
 
 	return CanAddItemToInventory(bCanAddItem, Slot, ItemTemplate, Quantity, UnitState, CheckGameState);
 }
