@@ -134,6 +134,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   PerkContent attachments to Units (#123)
 - Check DLCInfo for `CanAddItemToInventory` no matter what, rather than short
   circuiting if DisabledReason != "" (#127)
+- Major Overhaul of InventorySlot handling so modders can suggest extra
+  inventory slots (#118, #137)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the

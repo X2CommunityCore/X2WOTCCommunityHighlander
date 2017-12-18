@@ -87,6 +87,10 @@ enum EInventorySlot
 	// Mod authors who USE or ADD another slot should read that one first,
 	// and leave a note so other mod authors can be aware of that.
 	eInvSlot_Vest,
+	eInvSlot_AugmentationHead,
+	eInvSlot_AugmentationTorso,
+	eInvSlot_AugmentationArms,
+	eInvSlot_AugmentationLegs,
 
 	// Marker slot, don't use
 	eInvSlot_END_TEMPLATED_SLOTS,
