@@ -1929,19 +1929,40 @@ simulated function EquipWeapon( XComWeapon kWeapon, bool bImmediate, bool bIsRea
 simulated function CreateVisualInventoryAttachments(UIPawnMgr PawnMgr, XComGameState_Unit UnitState, optional XComGameState CheckGameState, bool bSetAsVisualizer=true, bool OffsetCosmeticPawn=true, bool bUsePhotoboothPawns=false, bool bArmorAppearanceOnly=false)
 {
 	local array<AnimSet> PhotoboothAnimSets;
+	// Variables for Issue #118
+	local array<EInventorySlot> ValidSlots;
+	local array<CHItemSlot> SlotTemplates;
+	local CHItemSlot SlotIter;
+	local EInventorySlot Slot;
 
 	PhotoboothAnimSets.Length = 0;
 
-	CreateVisualInventoryAttachment(PawnMgr, eInvSlot_PrimaryWeapon, UnitState, CheckGameState, bSetAsVisualizer, OffsetCosmeticPawn, bUsePhotoboothPawns, PhotoboothAnimSets, bArmorAppearanceOnly);
-	CreateVisualInventoryAttachment(PawnMgr, eInvSlot_SecondaryWeapon, UnitState, CheckGameState, bSetAsVisualizer, OffsetCosmeticPawn, bUsePhotoboothPawns, PhotoboothAnimSets, bArmorAppearanceOnly);
-	CreateVisualInventoryAttachment(PawnMgr, eInvSlot_HeavyWeapon, UnitState, CheckGameState, bSetAsVisualizer, OffsetCosmeticPawn, bUsePhotoboothPawns, PhotoboothAnimSets, bArmorAppearanceOnly);
-	CreateVisualInventoryAttachment(PawnMgr, eInvSlot_GrenadePocket, UnitState, CheckGameState, bSetAsVisualizer, OffsetCosmeticPawn, bUsePhotoboothPawns, PhotoboothAnimSets, bArmorAppearanceOnly);
-	CreateVisualInventoryAttachment(PawnMgr, eInvSlot_AmmoPocket, UnitState, CheckGameState, bSetAsVisualizer, OffsetCosmeticPawn, bUsePhotoboothPawns, PhotoboothAnimSets, bArmorAppearanceOnly);
-	CreateVisualInventoryAttachment(PawnMgr, eInvSlot_TertiaryWeapon, UnitState, CheckGameState, bSetAsVisualizer, OffsetCosmeticPawn , bUsePhotoboothPawns, PhotoboothAnimSets, bArmorAppearanceOnly);
-	CreateVisualInventoryAttachment(PawnMgr, eInvSlot_QuaternaryWeapon, UnitState, CheckGameState, bSetAsVisualizer, OffsetCosmeticPawn, bUsePhotoboothPawns, PhotoboothAnimSets, bArmorAppearanceOnly);
-	CreateVisualInventoryAttachment(PawnMgr, eInvSlot_QuinaryWeapon, UnitState, CheckGameState, bSetAsVisualizer, OffsetCosmeticPawn, bUsePhotoboothPawns, PhotoboothAnimSets, bArmorAppearanceOnly);
-	CreateVisualInventoryAttachment(PawnMgr, eInvSlot_SenaryWeapon, UnitState, CheckGameState, bSetAsVisualizer, OffsetCosmeticPawn, bUsePhotoboothPawns, PhotoboothAnimSets, bArmorAppearanceOnly);
-	CreateVisualInventoryAttachment(PawnMgr, eInvSlot_SeptenaryWeapon, UnitState, CheckGameState, bSetAsVisualizer, OffsetCosmeticPawn, bUsePhotoboothPawns, PhotoboothAnimSets, bArmorAppearanceOnly);
+	// Issue #118 Start, clean up and add mod added slots
+	ValidSlots.AddItem(eInvSlot_PrimaryWeapon);
+	ValidSlots.AddItem(eInvSlot_SecondaryWeapon);
+	ValidSlots.AddItem(eInvSlot_HeavyWeapon);
+	ValidSlots.AddItem(eInvSlot_GrenadePocket);
+	ValidSlots.AddItem(eInvSlot_AmmoPocket);
+	ValidSlots.AddItem(eInvSlot_TertiaryWeapon);
+	ValidSlots.AddItem(eInvSlot_QuaternaryWeapon);
+	ValidSlots.AddItem(eInvSlot_QuinaryWeapon);
+	ValidSlots.AddItem(eInvSlot_SenaryWeapon);
+	ValidSlots.AddItem(eInvSlot_SeptenaryWeapon);
+
+	SlotTemplates = class'CHItemSlot'.static.GetAllSlotTemplates();
+	foreach SlotTemplates(SlotIter)
+	{
+		if (!SlotIter.IsMultiItemSlot && SlotIter.ShowOnCinematicPawns)
+		{
+			ValidSlots.AddItem(SlotIter.InvSlot);
+		}
+	}
+
+	foreach ValidSlots(Slot)
+	{
+		CreateVisualInventoryAttachment(PawnMgr, Slot, UnitState, CheckGameState, bSetAsVisualizer, OffsetCosmeticPawn, bUsePhotoboothPawns, PhotoboothAnimSets, bArmorAppearanceOnly);
+	}
+	// Issue #118 End
 
 	if (bUsePhotoboothPawns)
 	{
