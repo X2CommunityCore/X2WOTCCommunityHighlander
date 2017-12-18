@@ -6,11 +6,12 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ## Strategy
 
 ### Mod/DLC Hooks
+- `GetDLCEventInfo` allows mods to add their own events for the Geoscape Event
+  List (#112)
 
 ### Event Hooks
 - Triggers the event `OnArmoryMainMenuUpdate` that allows adding elements into
   the ArmoryList (#47)
-  
 
 ### Modding Exposures
 
@@ -49,6 +50,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Trigger `CleanupTacticalMission` for end of mission recovery. (#96)
 - Allow override of bleedout chances on event basis with
   `OverrideBleedoutChance`. (#91)
+- `PreAcquiredHackReward` for overriding Hack Rewards (#120)
   
 
 ### Configuration
@@ -58,6 +60,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   enable Chosen ragdolling (#41)
 - Added ability to customise both Burning and Poison bypassing shields when
   applied to targets (#89)
+- Added ability to prevent multi-part missions counting as separate missions
+  for will loss purposes (#44)
 
 ### Modding Exposures
 - Deprivatise variables to protected in XComIdleAnimationStateMachine to allow
@@ -90,17 +94,21 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `DLCAppendSockets` added to allow appending sockets to UnitPawns (#21)
 - `CanAddItemToInventory` added to allow configuring whether or not a unit can
   equip a particular item as an extension to the standand rules (#50)
+- `GetLocalizedCategory`added to allow inject custom weapon category localizations (#125)
 
 ### Event Hooks
 - Triggers the events `SoldierClassIcon`, `SoldierClassDisplayName`,
   `SoldierClassSummary` that allow replacement of the class icon/display
   name/summary dynamically e.g. depending on UnitState or Soldier Loadout,
   and adds accessor functions for those to XComGameState_Unit. (#106)
+- `GetPCSImageTuple` added to allow customising PCS Image string (#110)
 
 ### Configuration
 - Able to list classes as excluded from AWC Skill Rolling, so they can still
   take part in the Combat Intelligence / AP System, without getting randomised
   skills (#80)
+- Able to list classes to be excluded from being 'needed', which means they are
+  rarely meant to be acquired via Rookie level up and instead trained (#113)
 
 ### Modding Exposures
 - Renable the ability to add positive traits in codebase, as well as additional
@@ -119,6 +127,9 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   a backup (#72)
 - Prevent items from stacking if they have ComponentObjects attached to them,
   useful for mods to create uniques out of stackable items. (#104)
+- Allow to define mutually exclusive abilities (#128) like `Template.PrerequisiteAbilities.AddItem('NOT_SomeAbility');`
+- Rebuild PerkContentCache during OnPostTemplatesCreated to improve handling for
+  PerkContent attachments to Units (#123)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
