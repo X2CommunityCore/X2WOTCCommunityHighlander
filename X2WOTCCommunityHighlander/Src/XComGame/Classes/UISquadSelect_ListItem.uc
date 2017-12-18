@@ -130,10 +130,10 @@ simulated function UpdateData(optional int Index = -1, optional bool bDisableEdi
 {
 	local bool bCanPromote;
 	local string ClassStr, NameStr;
-	local int i, NumUtilitySlots, UtilityItemIndex, NumUnitUtilityItems;
+	local int i, NumUtilitySlots; //, UtilityItemIndex, NumUnitUtilityItems; // Issue #118, not needed
 	local float UtilityItemWidth, UtilityItemHeight;
 	local UISquadSelect_UtilityItem UtilityItem;
-	local array<XComGameState_Item> EquippedItems;
+	//local array<XComGameState_Item> EquippedItems; // Issue #118, unneeded
 	local XComGameState_Unit Unit;
 	local XComGameState_Item PrimaryWeapon, HeavyWeapon;
 	local X2WeaponTemplate PrimaryWeaponTemplate, HeavyWeaponTemplate;
@@ -142,6 +142,10 @@ simulated function UpdateData(optional int Index = -1, optional bool bDisableEdi
 	local SoldierBond BondData;
 	local StateObjectReference BondmateRef;
 	local XComGameState_ResistanceFaction FactionState;
+
+	// Variables for Issue #118
+	local CHUIItemSlotEnumerator En;
+	local bool AddedMedkitHint;
 
 	if(bDisabled)
 		return;
@@ -198,95 +202,73 @@ simulated function UpdateData(optional int Index = -1, optional bool bDisableEdi
 
 		FactionState = Unit.GetResistanceFaction();
 
-		NumUtilitySlots = 2;
-		if(Unit.GetResistanceFaction() != none && Unit.GetResistanceFaction().GetMyTemplateName() == 'Faction_Reapers') NumUtilitySlots = 1;
-		if(Unit.HasGrenadePocket()) NumUtilitySlots++;
-		if(Unit.HasAmmoPocket()) NumUtilitySlots++;
-		
+		// Issue #118 Start
+		En = class'CHUIItemSlotEnumerator'.static.CreateEnumerator(Unit, , , true /* UseUnlockHints */);
+		i = -1;
+		UtilitySlots.ClearItems();
+		AddedMedkitHint = !(class'XComGameState_HeadquartersXCom'.static.GetObjectiveStatus('T0_M5_EquipMedikit') == eObjectiveState_InProgress);
+		while (En.HasNext())
+		{
+			En.Next();
+			// We can only show small slots, the other ones are hardcoded in flash
+			if (class'CHItemSlot'.static.SlotIsSmall(En.Slot))
+			{
+				i++;
+
+				if(i >= UtilitySlots.ItemCount)
+				{
+					UtilityItem = UISquadSelect_UtilityItem(UtilitySlots.CreateItem(class'UISquadSelect_UtilityItem').InitPanel());
+				}
+				UtilityItem = UISquadSelect_UtilityItem(UtilitySlots.GetItem(i));
+				UtilityItem.CannotEditSlots = CannotEditSlotsList;
+				if (bDisableLoadout || En.IsLocked)
+				{
+					if (En.ItemState == none)
+					{
+						UtilityItem.SetLocked(En.IsLocked ? En.LockedReason : "");
+					}
+					else
+					{
+						// Send 2 as the total number, we fix it afterwards
+						UtilityItem.SetDisabled(En.ItemState, En.Slot, En.IsMultiSlot ? En.IndexInSlot : 0, 2);
+					}
+
+					if(GetChildByName('attentionIconMC', false) != none)
+					{
+						GetChildByName('attentionIconMC').Remove();
+					}
+				}
+				else
+				{
+					// Send 2 as the total number, we fix it afterwards
+					UtilityItem.SetAvailable(En.ItemState, En.Slot, En.IsMultiSlot ? En.IndexInSlot : 0, 2);
+					if (En.Slot == eInvSlot_Utility && !AddedMedkitHint)
+					{
+						AddedMedkitHint = true;
+						// spawn the attention icon externally so it draws on top of the button and image 
+						Spawn(class'UIPanel', UtilityItem).InitPanel('attentionIconMC', class'UIUtilities_Controls'.const.MC_AttentionIcon)
+							.SetPosition(2, 4)
+							.SetSize(70, 70); //the animated rings count as part of the size. 
+					}
+					else if(GetChildByName('attentionIconMC', false) != none)
+					{
+						GetChildByName('attentionIconMC').Remove();
+					}
+				}
+			}
+		}
+		NumUtilitySlots = UtilitySlots.GetItemCount();
 		UtilityItemWidth = (UtilitySlots.GetTotalWidth() - (UtilitySlots.ItemPadding * (NumUtilitySlots - 1))) / NumUtilitySlots;
 		UtilityItemHeight = UtilitySlots.Height;
-
-		if(UtilitySlots.ItemCount != NumUtilitySlots)
-			UtilitySlots.ClearItems();
-
+		// Now fix up the item size
 		for(i = 0; i < NumUtilitySlots; ++i)
 		{
-			if(i >= UtilitySlots.ItemCount)
-			{
-				UtilityItem = UISquadSelect_UtilityItem(UtilitySlots.CreateItem(class'UISquadSelect_UtilityItem').InitPanel());
-				UtilityItem.SetSize(UtilityItemWidth, UtilityItemHeight);
-				UtilityItem.CannotEditSlots = CannotEditSlotsList;
-				UtilitySlots.OnItemSizeChanged(UtilityItem);
-			}
+			UtilityItem = UISquadSelect_UtilityItem(UtilitySlots.GetItem(i));
+			UtilityItem.SetSize(UtilityItemWidth, UtilityItemHeight);
+			UtilityItem.SetNumSlots(NumUtilitySlots);
+			UtilitySlots.OnItemSizeChanged(UtilityItem);
 		}
-
-		NumUnitUtilityItems = Unit.GetCurrentStat(eStat_UtilityItems); // Check how many utility items this unit can use
-		
-		UtilityItemIndex = 0;
-		UtilityItem = UISquadSelect_UtilityItem(UtilitySlots.GetItem(UtilityItemIndex++));
-		if (NumUnitUtilityItems > 0)
-		{
-			EquippedItems = class'UIUtilities_Strategy'.static.GetEquippedItemsInSlot(Unit, eInvSlot_Utility);
-			if (bDisableLoadout)
-				UtilityItem.SetDisabled(EquippedItems.Length > 0 ? EquippedItems[0] : none, eInvSlot_Utility, 0, NumUtilitySlots);
-			else
-				UtilityItem.SetAvailable(EquippedItems.Length > 0 ? EquippedItems[0] : none, eInvSlot_Utility, 0, NumUtilitySlots);
-		}
-		else
-		{
-			if (Unit.GetResistanceFaction() != none)
-				UtilityItem.SetLocked(class'UIArmory_Loadout'.default.m_strCannotEdit);
-			else
-				UtilityItem.SetLocked(NumUtilitySlots == 2 ? m_strNoUtilitySlots : m_strNeedsMediumArmor); // If the unit has no utility slots allowed, lock the slot
-		}
-		if(class'XComGameState_HeadquartersXCom'.static.GetObjectiveStatus('T0_M5_EquipMedikit') == eObjectiveState_InProgress)
-		{
-			// spawn the attention icon externally so it draws on top of the button and image 
-			Spawn(class'UIPanel', UtilityItem).InitPanel('attentionIconMC', class'UIUtilities_Controls'.const.MC_AttentionIcon)
-			.SetPosition(2, 4)
-			.SetSize(70, 70); //the animated rings count as part of the size. 
-		} else if(GetChildByName('attentionIconMC', false) != none) {
-			GetChildByName('attentionIconMC').Remove();
-		}
-
-		if (NumUtilitySlots >= 2)
-		{
-			UtilityItem = UISquadSelect_UtilityItem(UtilitySlots.GetItem(UtilityItemIndex++));
-			if (Unit.HasExtraUtilitySlot())
-			{
-				if (bDisableLoadout)
-					UtilityItem.SetDisabled(EquippedItems.Length > 1 ? EquippedItems[1] : none, eInvSlot_Utility, 1, NumUtilitySlots);
-				else
-					UtilityItem.SetAvailable(EquippedItems.Length > 1 ? EquippedItems[1] : none, eInvSlot_Utility, 1, NumUtilitySlots);
-			}
-			else
-			{
-				if (Unit.GetResistanceFaction() != none)
-					UtilityItem.SetLocked(class'UIArmory_Loadout'.default.m_strCannotEdit);
-				else
-					UtilityItem.SetLocked(NumUnitUtilityItems > 0 ? m_strNeedsMediumArmor : m_strNoUtilitySlots);
-			}
-		}
-
-		if(Unit.HasGrenadePocket())
-		{
-			UtilityItem = UISquadSelect_UtilityItem(UtilitySlots.GetItem(UtilityItemIndex++));
-			EquippedItems = class'UIUtilities_Strategy'.static.GetEquippedItemsInSlot(Unit, eInvSlot_GrenadePocket); 
-			if (bDisableLoadout)
-				UtilityItem.SetDisabled(EquippedItems.Length > 0 ? EquippedItems[0] : none, eInvSlot_GrenadePocket, 0, NumUtilitySlots);
-			else
-				UtilityItem.SetAvailable(EquippedItems.Length > 0 ? EquippedItems[0] : none, eInvSlot_GrenadePocket, 0, NumUtilitySlots);
-		}
-
-		if(Unit.HasAmmoPocket())
-		{
-			UtilityItem = UISquadSelect_UtilityItem(UtilitySlots.GetItem(UtilityItemIndex++));
-			EquippedItems = class'UIUtilities_Strategy'.static.GetEquippedItemsInSlot(Unit, eInvSlot_AmmoPocket);
-			if (bDisableLoadout)
-				UtilityItem.SetDisabled(EquippedItems.Length > 0 ? EquippedItems[0] : none, eInvSlot_AmmoPocket, 0, NumUtilitySlots);
-			else
-				UtilityItem.SetAvailable(EquippedItems.Length > 0 ? EquippedItems[0] : none, eInvSlot_AmmoPocket, 0, NumUtilitySlots);
-		}
+		// Issue #118 End
 		
 		// Don't show class label for rookies since their rank is shown which would result in a duplicate string
 		if(Unit.GetRank() > 0)
@@ -868,7 +850,9 @@ simulated function bool IsActiveButtonDisabled()
 		return true;
 	else if(m_eActiveButton == eSSB_WeaponHeavy && !HasHeavyWeapon())
 		return true;
-	else if(m_eActiveButton == eSSB_Utility && (UtilitySlots.GetSelectedItem() != none && UISquadSelect_UtilityItem(UtilitySlots.GetSelectedItem()).Button.IsDisabled ))
+	// Issue #118 Start -- allow selecting utility slots even if the default one is not selected
+	else if(m_eActiveButton == eSSB_Utility && (UtilitySlots.GetSelectedItem() != none && UISquadSelect_UtilityItem(UtilitySlots.GetSelectedItem()).Button.IsDisabled && !SelectNonDisabledUtilitySlot()))
+	// Issue #118 end
 		return true;
 	else if(m_eActiveButton == eSSB_Promote && (UnitState == none || !UnitState.ShowPromoteIcon()))
 		return true;
@@ -878,6 +862,27 @@ simulated function bool IsActiveButtonDisabled()
 	
 	return false;
 }
+
+// Issue #118 Start -- allow selecting utility slots even if the default one is not selected
+simulated function bool SelectNonDisabledUtilitySlot()
+{
+	local int i;
+	for (i = 0; i < UtilitySlots.GetItemCount(); i++)
+	{
+		if (!UISquadSelect_UtilityItem(UtilitySlots.GetItem(i)).Button.IsDisabled)
+		{
+			//remove current focus
+			UtilitySlots.GetSelectedItem().OnLoseFocus();
+			//Assign new current focus
+			UtilitySlots.SetSelectedIndex(i);
+			//Give focus to new utility item
+			UtilitySlots.GetSelectedItem().OnReceiveFocus();
+			return true;
+		}
+	}
+	return false;
+}
+// Issue #118 End
 
 //Handles the visuals to simulate mouse-hover focus
 simulated function HandleButtonFocus(ESquadSelectButton ButtonControl, bool bFocusGiven)
