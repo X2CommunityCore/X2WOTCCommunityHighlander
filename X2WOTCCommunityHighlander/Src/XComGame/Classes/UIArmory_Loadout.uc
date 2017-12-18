@@ -801,17 +801,17 @@ simulated function string GetDisabledReason(XComGameState_Item Item, EInventoryS
 	}
 	
 	//start of Issue #50: add hook to UI to show disabled reason, if possible
-	if(DisabledReason == "")
+	//start of Issue #114: added ItemState of what's being looked at for more expansive disabling purposes
+	//issue #127: hook now fires all the time instead of a specific use case scenario
+	for(i = 0; i < DLCInfos.Length; ++i)
 	{
-		for(i = 0; i < DLCInfos.Length; ++i)
+		if(!DLCInfos[i].CanAddItemToInventory_CH_Improved(UnusedOutInt, SelectedSlot, ItemTemplate, Item.Quantity, UpdatedUnit, , DLCReason, Item))
 		{
-			if(!DLCInfos[i].CanAddItemToInventory_CH(UnusedOutInt, SelectedSlot, ItemTemplate, Item.Quantity, UpdatedUnit, , DLCReason))
-			{
-				DisabledReason = DLCReason;
-			}
+			DisabledReason = DLCReason;
 		}
 	}
 	//end of Issue #50
+	//end of issue #114
 	
 	// If this is a utility item, and cannot be equipped, it must be disabled because of one item per category restriction
 	// Issue #118, taking the Utility slot restriction out -- RespectsUniqueRule does everything we need
@@ -1124,9 +1124,10 @@ simulated function bool EquipItem(UIArmory_LoadoutItem Item)
 
 		Weapon.Destroy();
 	}
-
-	CanEquip = ((PrevItem == none || UpdatedUnit.RemoveItemFromInventory(PrevItem, UpdatedState)) && UpdatedUnit.CanAddItemToInventory(Item.ItemTemplate, GetSelectedSlot(), UpdatedState));
-
+	
+	//issue #114: pass along item state in CanAddItemToInventory check, in case there's a mod that wants to prevent a specific item from being equipped
+	CanEquip = ((PrevItem == none || UpdatedUnit.RemoveItemFromInventory(PrevItem, UpdatedState)) && UpdatedUnit.CanAddItemToInventory(Item.ItemTemplate, GetSelectedSlot(), UpdatedState, Item.Quantity, Item));
+	//end issue #114
 	if(CanEquip)
 	{
 		GetItemFromInventory(UpdatedState, NewItemRef, NewItem);
