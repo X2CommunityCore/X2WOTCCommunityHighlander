@@ -94,6 +94,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `DLCAppendSockets` added to allow appending sockets to UnitPawns (#21)
 - `CanAddItemToInventory` added to allow configuring whether or not a unit can
   equip a particular item as an extension to the standand rules (#50)
+- `CanAddItemToInventory_CH_Improved` added as a backwards compatible extension
+  to other CanAddItem... helpers, allowing access to the ItemState (#114)
 - `GetLocalizedCategory`added to allow inject custom weapon category localizations (#125)
 
 ### Event Hooks
@@ -130,6 +132,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Allow to define mutually exclusive abilities (#128) like `Template.PrerequisiteAbilities.AddItem('NOT_SomeAbility');`
 - Rebuild PerkContentCache during OnPostTemplatesCreated to improve handling for
   PerkContent attachments to Units (#123)
+- Check DLCInfo for `CanAddItemToInventory` no matter what, rather than short
+  circuiting if DisabledReason != "" (#127)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
