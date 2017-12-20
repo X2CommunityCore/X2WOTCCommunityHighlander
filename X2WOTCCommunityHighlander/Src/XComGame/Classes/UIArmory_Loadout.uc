@@ -1125,8 +1125,9 @@ simulated function bool EquipItem(UIArmory_LoadoutItem Item)
 		Weapon.Destroy();
 	}
 	
-	//issue #114: pass along item state in CanAddItemToInventory check, in case there's a mod that wants to prevent a specific item from being equipped
-	CanEquip = ((PrevItem == none || UpdatedUnit.RemoveItemFromInventory(PrevItem, UpdatedState)) && UpdatedUnit.CanAddItemToInventory(Item.ItemTemplate, GetSelectedSlot(), UpdatedState, Item.Quantity, Item));
+	//issue #114: pass along item state in CanAddItemToInventory check, in case there's a mod that wants to prevent a specific item from being equipped. We also assign an itemstate to NewItem now, so we can use it for the full inventory check.
+	NewItem = XComGameState_Item(`XCOMHISTORY.GetGameStateForObjectID(NewItemRef.ObjectID));
+	CanEquip = ((PrevItem == none || UpdatedUnit.RemoveItemFromInventory(PrevItem, UpdatedState)) && UpdatedUnit.CanAddItemToInventory(Item.ItemTemplate, GetSelectedSlot(), UpdatedState, NewItem.Quantity, NewItem));
 	//end issue #114
 	if(CanEquip)
 	{

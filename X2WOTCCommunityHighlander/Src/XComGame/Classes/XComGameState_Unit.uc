@@ -7154,12 +7154,12 @@ simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate,
 	local X2ArmorTemplate ArmorTemplate;
 	local array<X2DownloadableContentInfo> DLCInfos; // Issue #50: Added for hook
 	local int bCanAddItem; // Issue #50: hackery to avoid bool not being allowed to be out parameter
-	
+	local string BlankString; //issue #114: blank string variable for the out variable
 	// Start Issue #50 and #114: inventory hook
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
-		if(DLCInfos[i].CanAddItemToInventory_CH_Improved(bCanAddItem, Slot, ItemTemplate, Quantity, self, CheckGameState, Item))
+		if(DLCInfos[i].CanAddItemToInventory_CH_Improved(bCanAddItem, Slot, ItemTemplate, Quantity, self, CheckGameState, BlankString, Item))
 		{
 			return bCanAddItem > 0;
 		}
@@ -11310,6 +11310,7 @@ function EquipOldItems(XComGameState NewGameState)
 			{
 				ItemState = none;
 
+
 				//  If we can't add an item, there's probably one occupying the slot already, so find it so we can remove it.
 				//start issue #114: pass along item state in case there's a reason the soldier should be unable to re-equip from a mod
 				if(!CanAddItemToInventory(ItemTemplate, OldInventoryItems[idx].eSlot, NewGameState, InvItemState.Quantity, InvItemState))
@@ -11328,7 +11329,7 @@ function EquipOldItems(XComGameState NewGameState)
 						ItemState = GetItemInSlot(OldInventoryItems[idx].eSlot, NewGameState);
 					}
 				}
-				
+        
 				// If we found an item to replace with the restored equipment, it will be stored in ItemState, and we need to put it back into the inventory
 				if(ItemState != none)
 				{
