@@ -798,10 +798,14 @@ simulated static function array<XComGameState_Item> GetEquippedItemsInSlot(XComG
 		EquipmentTemplate = X2EquipmentTemplate(ItemState.GetMyTemplate());
 
 		// xpad is only item with size 0, that is always equipped
-		if (ItemState.GetItemSize() > 0 && (ItemState.InventorySlot == SlotType || (EquipmentTemplate != None && EquipmentTemplate.InventorySlot == SlotType)))
+		// Issue #118 -- taking out the "potentially in this slot" condition because it tends to break things and there's no real reason to use it
+		// The Slots overhaul should make this function obsolete anyways, but leaving it in for purposes of not breaking too much
+		// if you have any concerns, message @robojumper
+		if (ItemState.GetItemSize() > 0 && (ItemState.InventorySlot == SlotType /*|| (EquipmentTemplate != None && EquipmentTemplate.InventorySlot == SlotType)*/))
 		{
 			// Ignore any items in the grenade pocket when checking for utility items, since otherwise grenades get added as utility items
-			if (SlotType == eInvSlot_Utility)
+			// Issue #118, this condition is now obsolete with the updated condition above
+			/*if (SlotType == eInvSlot_Utility)
 			{
 				if (ItemState.InventorySlot != eInvSlot_GrenadePocket
 					// Start Issue #99 -- add ammo pocket
@@ -810,8 +814,8 @@ simulated static function array<XComGameState_Item> GetEquippedItemsInSlot(XComG
 					)
 					arrItems.AddItem(ItemState);
 			}
-			else
-				arrItems.AddItem(ItemState);
+			else*/
+			arrItems.AddItem(ItemState);
 		}
 	}
 	

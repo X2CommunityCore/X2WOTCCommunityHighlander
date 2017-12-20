@@ -57,6 +57,18 @@
     <Content Include="Src\XComGame\Classes\CHHelpers.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\CHItemSlotSet.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\CHItemSlotStore.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\CHUIItemSlotEnumerator.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\CHItemSlot.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\CHXComGameVersion.uc">
       <SubType>Content</SubType>
     </Content>
@@ -73,6 +85,12 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIArmory_Loadout.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIArmory_LoadoutItem.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIArmory_Loadout_MP.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIArmory_MainMenu.uc">
@@ -129,7 +147,13 @@
     <Content Include="Src\XComGame\Classes\UISoldierHeader.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UISquadSelect.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UISquadSelect_ListItem.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UISquadSelect_UtilityItem.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIStrategyMap.uc">
@@ -159,6 +183,9 @@
     <Content Include="Src\XComGame\Classes\X2Effect_Burning.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2HackRewardTemplateManager.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2SoldierClassTemplateManager.uc">
       <SubType>Content</SubType>
     </Content>
@@ -174,10 +201,19 @@
     <Content Include="Src\XComGame\Classes\X2TacticalGameRuleset.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2TacticalGameRulesetDataStructures.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2UnifiedProjectile.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2WeaponTemplate.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComAutosaveMgr.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComGameStateContext_StrategyGameRule.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_AdventChosen.uc">
@@ -226,6 +262,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComLWTuple.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XGUnit.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XGUnitNativeBase.uc">

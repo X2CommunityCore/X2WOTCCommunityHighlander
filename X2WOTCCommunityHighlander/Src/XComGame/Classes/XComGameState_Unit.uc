@@ -2243,6 +2243,22 @@ function OnBeginTacticalPlay(XComGameState NewGameState)
 
 	CleanupUnitValues(eCleanup_BeginTactical);
 
+	// Start Issue #44
+	// Store our starting will the first time we enter a mission sequence, for use in XComGameStateContext_WillRoll
+	BattleDataState = XComGameState_BattleData(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
+	// Don't store the will if we are in a multi-mission and we have already appeared in this mission
+	// This should catch cases like Lost&Abandoned, where units may appear first in the second part
+	if (
+		(BattleDataState.DirectTransferInfo.IsDirectMissionTransfer 
+		&& BattleDataState.DirectTransferInfo.TransferredUnitStats.Find('UnitStateRef', self.GetReference()) != INDEX_NONE)
+		== false)
+	{
+		// This is the value consistent with base-game behavior (before any stat bonuses from abilities, since this is set before any abilities are triggered)
+		// We can't ever let it be cleared, since a "BeginTactical" rule would clean it up when we want to explicitely keep it
+		SetUnitFloatValue('CH_StartMissionWill', GetCurrentStat(eStat_Will), eCleanup_Never);
+	}
+	// End Issue #44
+
 	//Units removed from play in previous tactical play are no longer removed, unless they are explicitly set to remain so.
 	//However, this update happens too late to get caught in the usual tile-data build.
 	//So, if we're coming back into play, make sure to update the tile we now occupy.
@@ -3633,7 +3649,17 @@ function bool MeetsAbilityPrerequisites(name AbilityName)
 		for (iName = 0; iName < AbilityTemplate.PrerequisiteAbilities.Length; iName++)
 		{
 			AbilityName = AbilityTemplate.PrerequisiteAbilities[iName];
-			if (!HasSoldierAbility(AbilityName)) // if the soldier does not have a prereq ability, return false
+
+			// Start Issue #128
+			if (InStr(AbilityName, "NOT_") == 0)
+			{
+				if (HasSoldierAbility(name(Repl(AbilityName, "NOT_", ""))))
+				{
+					return false;
+				}
+			}
+			// End Issue #128
+			else if (!HasSoldierAbility(AbilityName)) // if the soldier does not have a prereq ability, return false
 			{
 				return false;
 			}
@@ -6918,7 +6944,8 @@ simulated function array<XComGameState_Item> GetAllItemsInSlot(EInventorySlot Sl
 	local XComGameState_Item kItem;
 	local array<XComGameState_Item> Items;
 	
-	`assert(Slot == eInvSlot_Backpack || Slot == eInvSlot_Utility || Slot == eInvSlot_CombatSim);     //  these are the only multi-item slots
+	// Issue #118 -- don't hardcode multi item slots here
+	`assert(class'CHItemSlot'.static.SlotIsMultiItem(Slot));     //  these are the only multi-item slots
 	
 	for (i = 0; i < InventoryItems.Length; ++i)
 	{
@@ -6981,8 +7008,10 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 	local X2ItemTemplate ItemTemplate;
 
 	ItemTemplate = Item.GetMyTemplate();
-	if (CanAddItemToInventory(ItemTemplate, Slot, NewGameState, Item.Quantity))
+	// issue #114: pass along item state when possible
+	if (CanAddItemToInventory(ItemTemplate, Slot, NewGameState, Item.Quantity, Item))
 	{
+	// end issue #114
 		if( ItemTemplate.OnEquippedFn != None )
 		{
 			ItemTemplate.OnEquippedFn(Item, self, NewGameState);
@@ -7099,6 +7128,12 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 		{
 			ApplyCombatSimStats(Item);
 		}
+		// Issue #118 Start
+		else if (class'CHItemSlot'.static.SlotIsTemplated(Slot))
+		{
+			class'CHItemSlot'.static.GetTemplateForSlot(Slot).AddItemToSlot(self, Item, NewGameState);
+		}
+		// Issue #118 End
 
 		if (Item.IsMissionObjectiveItem())
 		{
@@ -7109,8 +7144,8 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 	}
 	return false;
 }
-
-simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate, const EInventorySlot Slot, optional XComGameState CheckGameState, optional int Quantity=1)
+//issue #114: function can now take in item states for new hook
+simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate, const EInventorySlot Slot, optional XComGameState CheckGameState, optional int Quantity=1, optional XComGameState_Item Item)
 {
 	local int i, iUtility;
 	local XComGameState_Item kItem;
@@ -7120,16 +7155,16 @@ simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate,
 	local array<X2DownloadableContentInfo> DLCInfos; // Issue #50: Added for hook
 	local int bCanAddItem; // Issue #50: hackery to avoid bool not being allowed to be out parameter
 	
-	// Start Issue #50
+	// Start Issue #50 and #114: inventory hook
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
-		if(DLCInfos[i].CanAddItemToInventory_CH(bCanAddItem, Slot, ItemTemplate, Quantity, self, CheckGameState))
+		if(DLCInfos[i].CanAddItemToInventory_CH_Improved(bCanAddItem, Slot, ItemTemplate, Quantity, self, CheckGameState, Item))
 		{
 			return bCanAddItem > 0;
 		}
 	}
-	// End Issue #50
+	// End Issue #50 and #114
 	
 	if( bIgnoreItemEquipRestrictions )
 		return true;
@@ -7199,6 +7234,13 @@ simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate,
 		case eInvSlot_CombatSim:
 			return (ItemTemplate.ItemCat == 'combatsim' && GetCurrentStat(eStat_CombatSims) > 0);
 		default:
+			// Issue #118 Start
+			if (class'CHItemSlot'.static.SlotIsTemplated(Slot))
+			{
+				// TODO: Update with #114, ItemState
+				return class'CHItemSlot'.static.GetTemplateForSlot(Slot).CanAddItemToSlot(self, ItemTemplate, CheckGameState, Quantity);
+			}
+			// Issue #118 End
 			return (GetItemInSlot(Slot, CheckGameState) == none);
 		}
 	}
@@ -7444,6 +7486,13 @@ simulated function bool RemoveItemFromInventory(XComGameState_Item Item, optiona
 		case eInvSlot_CombatSim:
 			UnapplyCombatSimStats(Item);
 			break;
+		default:
+			// Issue #118 Start
+			if (class'CHItemSlot'.static.SlotIsTemplated(Item.InventorySlot))
+			{
+				class'CHItemSlot'.static.GetTemplateForSlot(Item.InventorySlot).RemoveItemFromSlot(self, Item, ModifyGameState);
+			}
+			// Issue #118 End
 		}
 
 		Item.InventorySlot = eInvSlot_Unknown;
@@ -7475,7 +7524,19 @@ simulated function bool CanRemoveItemFromInventory(XComGameState_Item Item, opti
 	foreach InventoryItems(Ref)
 	{
 		if (Ref.ObjectID == Item.ObjectID)
-			return true;
+		// Issue #118 Start, was return true;
+		{
+			if (class'CHItemSlot'.static.SlotIsTemplated(Item.InventorySlot))
+			{
+				return class'CHItemSlot'.static.GetTemplateForSlot(Item.InventorySlot).CanRemoveItemFromSlot(self, Item, CheckGameState);
+			}
+			else
+			{
+				return true;
+			}
+		}
+		// Issue #118 End
+			
 	}
 	return false;
 }
@@ -10147,7 +10208,9 @@ function ApplySquaddieLoadout(XComGameState GameState, optional XComGameState_He
 			if (ItemTemplate != none)
 			{
 				ItemState = none;
-				if (ItemTemplate.InventorySlot == eInvSlot_Utility)
+				// Issue #118 Start: Change hardcoded check for Utility Items to multi-item slot
+				if (class'CHItemSlot'.static.SlotIsMultiItem(ItemTemplate.InventorySlot))
+				// Issue #118 End
 				{
 					//  If we can't add a utility item, remove the first one. That should fix it. If not, we may need more logic later.
 					if (!CanAddItemToInventory(ItemTemplate, ItemTemplate.InventorySlot, GameState))
@@ -10312,6 +10375,13 @@ function array<X2EquipmentTemplate> GetBestGearForSlot(EInventorySlot Slot)
 	case eInvSlot_Utility:
 		return GetBestUtilityItemTemplates();
 		break;
+	default:
+		// Issue #118 Start
+		if (class'CHItemSlot'.static.SlotIsTemplated(Slot))
+		{
+			return class'CHItemSlot'.static.GetTemplateForSlot(Slot).GetBestGearForSlot(self);
+		}
+		// Issue #118 End
 	}
 
 	EmptyList.Length = 0;
@@ -10422,6 +10492,8 @@ function ValidateLoadout(XComGameState NewGameState)
 	local XComGameState_Item EquippedHeavyWeapon, EquippedGrenade, EquippedAmmo, UtilityItem; // Special slots
 	local array<XComGameState_Item> EquippedUtilityItems; // Utility Slots
 	local int idx;
+
+	local array<CHItemSlot> ModSlots; // Variable for Issue #118
 
 	// Grab HQ Object
 	History = `XCOMHISTORY;
@@ -10552,6 +10624,14 @@ function ValidateLoadout(XComGameState NewGameState)
 		AddItemToInventory(UtilityItem, eInvSlot_Utility, NewGameState);
 		EquippedUtilityItems.AddItem(UtilityItem);
 	}
+
+	// Issue #118 Start
+	ModSlots = class'CHItemSlot'.static.GetAllSlotTemplates();
+	for (idx = 0; idx < ModSlots.Length; idx++)
+	{
+		ModSlots[idx].ValidateLoadout(self, XComHQ, NewGameState);
+	}
+	// Issue #118 End
 }
 
 //------------------------------------------------------
@@ -11231,12 +11311,15 @@ function EquipOldItems(XComGameState NewGameState)
 				ItemState = none;
 
 				//  If we can't add an item, there's probably one occupying the slot already, so find it so we can remove it.
-				if(!CanAddItemToInventory(ItemTemplate, OldInventoryItems[idx].eSlot, NewGameState))
+				//start issue #114: pass along item state in case there's a reason the soldier should be unable to re-equip from a mod
+				if(!CanAddItemToInventory(ItemTemplate, OldInventoryItems[idx].eSlot, NewGameState, InvItemState.Quantity, InvItemState))
 				{
-					if (OldInventoryItems[idx].eSlot == eInvSlot_Utility)
+          //end issue #114
+					// Issue #118 Start: change hardcoded check for utility item
+					if (class'CHItemSlot'.static.SlotIsMultiItem(OldInventoryItems[idx].eSlot))
 					{
 						// If there are multiple utility items, grab the last one to try and replace it with the restored item
-						UtilityItems = GetAllItemsInSlot(eInvSlot_Utility, NewGameState, , true);
+						UtilityItems = GetAllItemsInSlot(OldInventoryItems[idx].eSlot, NewGameState, , true);
 						ItemState = UtilityItems[UtilityItems.Length - 1];
 					}
 					else
@@ -11264,8 +11347,10 @@ function EquipOldItems(XComGameState NewGameState)
 				}
 
 				// If we still can't add the restored item to our inventory, put it back into the HQ inventory where we found it and move on
-				if(!CanAddItemToInventory(ItemTemplate, OldInventoryItems[idx].eSlot, NewGameState))
+				//issue #114: pass along item state in case a mod has a reason to prevent this from being equipped
+				if(!CanAddItemToInventory(ItemTemplate, OldInventoryItems[idx].eSlot, NewGameState, InvItemState.Quantity, InvItemState))
 				{
+				//end issue #114
 					XComHQ.PutItemInInventory(NewGameState, InvItemState);
 					continue;
 				}
