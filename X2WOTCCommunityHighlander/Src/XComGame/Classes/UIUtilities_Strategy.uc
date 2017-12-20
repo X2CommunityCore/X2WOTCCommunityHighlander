@@ -789,13 +789,13 @@ simulated static function array<XComGameState_Item> GetEquippedItemsInSlot(XComG
 {
 	local StateObjectReference ItemRef;
 	local XComGameState_Item ItemState;
-	local X2EquipmentTemplate EquipmentTemplate;
+	// local X2EquipmentTemplate EquipmentTemplate;
 	local array<XComGameState_Item> arrItems;
 
 	foreach Unit.InventoryItems(ItemRef)
 	{
 		ItemState = Unit.GetItemGameState(ItemRef, CheckGameState);
-		EquipmentTemplate = X2EquipmentTemplate(ItemState.GetMyTemplate());
+		// EquipmentTemplate = X2EquipmentTemplate(ItemState.GetMyTemplate());
 
 		// xpad is only item with size 0, that is always equipped
 		// Issue #118 -- taking out the "potentially in this slot" condition because it tends to break things and there's no real reason to use it

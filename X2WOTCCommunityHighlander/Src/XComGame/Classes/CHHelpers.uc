@@ -37,6 +37,12 @@ var config array<name> ClassesExcludedFromAWCRoll;
 var config array<name> AbilityTemplatePerksToLoad;
 // End Issue #123
 
+// start issue #113
+// list of classes to exclude from being considered "needed" by XComGameState_HeadquartersResistance
+// these are for classes which are meant to be rarely acquired via rookie level up, though others may also be here for their own reasons
+var config array<name> ClassesExcludedFromResHQ;
+//end issue #113
+
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
 	local XComContentManager		Content;
@@ -49,10 +55,4 @@ simulated static function RebuildPerkContentCache() {
 	}
 }
 // End Issue #123
-
-// start issue #113
-// list of classes to exclude from being considered "needed" by XComGameState_HeadquartersResistance
-// these are for classes which are meant to be rarely acquired via rookie level up, though others may also be here for their own reasons
-var config array<name> ClassesExcludedFromResHQ;
-//end issue #113
 
