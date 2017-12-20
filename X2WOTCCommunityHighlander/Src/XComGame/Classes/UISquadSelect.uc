@@ -89,6 +89,14 @@ var int MaxRank;
 
 var bool bGearStrippedFromSoldiers;
 
+// Start Issue #134
+var config bool NoStripWoundedInventory;	// If true, suppress the normal behavior of stripping utility items from wounded soldiers.
+var config bool NoStripOnTraining;			// If true, suppress the normal behavior of stripping items when a soldier is put
+											// in a training slot. Note that this is not referenced in this class but is 
+											// added here for consistency and back-compatibility to keep related flags together.
+var config bool AutoStripWoundedAllItems;	// If true, also strip other equipment slots on wounded soldiers.
+// End Issue #134
+
 // Constructor
 simulated function InitScreen(XComPlayerController InitController, UIMovie InitMovie, optional name InitName)
 {
@@ -767,6 +775,12 @@ simulated function MakeWoundedSoldierItemsAvailable()
 	local bool bIgnoreInjuries;
 	local int idx;
 
+	// Issue #134, PI Added: INI setting to prevent wounded soldiers from having their equipment stripped.
+	if (NoStripWoundedInventory)
+	{
+		return;
+	}
+
 	History = `XCOMHISTORY;
 	UpdateState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Make Wounded Soldier Items Available");
 	XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
@@ -777,6 +791,13 @@ simulated function MakeWoundedSoldierItemsAvailable()
 	//RelevantSlots.AddItem(eInvSlot_AmmoPocket);
 	class'CHItemSlot'.static.CollectSlots(class'CHItemSlot'.const.SLOT_ITEM, RelevantSlots);
 	// Issue #118 End
+
+  // Start Issue #134, PI Added: new INI setting to strip *all* slots from wounded soldiers.
+	if (AutoStripWoundedAllItems)
+	{
+    class'CHItemSlot'.static.CollectSlots(class'CHItemSlot'.const.SLOT_ALL, RelevantSlots);
+	}
+  // End Issue #134
 
 	for(idx = 0; idx < XComHQ.Crew.Length; idx++)
 	{
@@ -1153,6 +1174,7 @@ simulated function OnStripWeaponsDialogCallback(Name eAction)
 		XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class' XComGameState_HeadquartersXCom'));
 		XComHQ = XComGameState_HeadquartersXCom(UpdateState.ModifyStateObject(class'XComGameState_HeadquartersXCom', XComHQ.ObjectID));
 		Soldiers = XComHQ.GetSoldiers(true, true);
+
 
 		// Issue #118 Start
 		//RelevantSlots.AddItem(eInvSlot_PrimaryWeapon);
