@@ -280,7 +280,7 @@ static function bool GetValidFloorSpawnLocations(out array<Vector> FloorPoints, 
 static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, optional XComGameState CheckGameState, optional out string DisabledReason, optional XComGameState_Item ItemState)
 {
 
-	return CanAddItemToInventory_CH(bCanAddItem, Slot, ItemTemplate, Quantity, UnitState, CheckGameState, DisabledReason) //for mods not using item state, we can just by default, go straight to here. Newer mods can handle implementaion using the item state.
+	return CanAddItemToInventory_CH(bCanAddItem, Slot, ItemTemplate, Quantity, UnitState, CheckGameState, DisabledReason); //for mods not using item state, we can just by default, go straight to here. Newer mods can handle implementaion using the item state.
 	
 }
 //end Issue #114
@@ -294,7 +294,7 @@ static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, cons
 static function bool CanAddItemToInventory_CH(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, optional XComGameState CheckGameState, optional out string DisabledReason)
 {
 	if(CheckGameState == none)
-		return false;
+		return true;
 
 	return CanAddItemToInventory(bCanAddItem, Slot, ItemTemplate, Quantity, UnitState, CheckGameState);
 }

@@ -175,7 +175,7 @@ function string GetLocalizedCategory()
 			break;
 		case 'medikit':
 			CategoryLocale = class'XGLocalizedData'.default.UtilityCatHeal;
-			break:
+			break;
 		case 'skulljack':
 			CategoryLocale = class'XGLocalizedData'.default.UtilityCatSkulljack;
 			break;

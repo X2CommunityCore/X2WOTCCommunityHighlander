@@ -23,6 +23,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 
 ### Improvements
 - Allow `UIStrategyMap` to display custom Faction HQ icons (#76)
+- Allow customization of auto-equipment removal behavior in 'UISquadSelect' (#134)
 
 ### Fixes
 - Fix an issue in base game where strategy X2EventListenerTemplates only
