@@ -321,3 +321,15 @@ static function bool GetDLCEventInfo(out array<HQEvent> arrEvents)
 	return false; //returning true will tell the game to add the events have been added to the above array
 }
 //end issue #112
+
+//start Issue #148
+/// <summary>
+/// Called from UIShellDifficulty
+/// lets mods change the new game options when changing difficulty
+/// </summary>
+static function UpdateUIOnDifficultyChange(UIShellDifficulty UIShellDifficulty)
+{
+
+}
+
+//end Issue #148
