@@ -133,6 +133,7 @@ the main XCOM2 folder point to the same folders within the SDK. Delete the follo
 ```
 %STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\XComGame\Content
 %STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\XComGame\Script
+%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\XComGame\__Trashcan
 %STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\Engine\Content
 %STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\Engine\EditorResources
 ```
@@ -143,6 +144,7 @@ commands:
 ```
 mklink /J "%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\XComGame\Content" "%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\XComGame\Content"
 mklink /J "%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\XComGame\Script" "%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\XComGame\Script"
+mklink /J "%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\XComGame\__Trashcan" "%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\XComGame\__Trashcan"
 mklink /J "%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\Engine\Content" "%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\Engine\Content"
 mklink /J "%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\Engine\EditorResources" "%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\Engine\EditorResources"
 ```
