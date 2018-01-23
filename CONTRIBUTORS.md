@@ -10,5 +10,5 @@ bountygiver - development
 .vhs - ModPreview thumbnail  
 TNychka - development  
 PixalVortex - development  
-Danice123 - development
-LeaderEnemyBoss - development
+Danice123 - development  
+LeaderEnemyBoss - development  
