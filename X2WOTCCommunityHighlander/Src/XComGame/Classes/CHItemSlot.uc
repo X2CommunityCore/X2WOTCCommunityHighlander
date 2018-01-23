@@ -382,18 +382,18 @@ static function bool SlotShowItemInLockerList(EInventorySlot Slot, XComGameState
 
 static function ECHSlotUnequipBehavior SlotGetUnequipBehavior(EInventorySlot Slot, XComGameState_Unit Unit, XComGameState_Item ItemState, optional XComGameState CheckGameState)
 {	
-	local ECHSlotUnequipBehavior DefaultBehavior;
+	local ECHSlotUnequipBehavior Behavior;
 	local XComLWTuple OverrideTuple;
 
 	// Base game behavior: If the item is not infinite or has been modified, show the drop button and attempt to replace it with another item
 	// Otherwise, don't show the drop button
-	DefaultBehavior = (!ItemState.GetMyTemplate().bInfiniteItem ||ItemState.HasBeenModified()) ? eCHSUB_AttemptReEquip : eCHSUB_DontAllow;
+	Behavior = (!ItemState.GetMyTemplate().bInfiniteItem ||ItemState.HasBeenModified()) ? eCHSUB_AttemptReEquip : eCHSUB_DontAllow;
 
 	// If the slot is templated, the slot can define whether to let this item be unequipped / replaced. If the slot doesn't implement this,
 	// The default behavior is used
 	if (SlotIsTemplated(Slot))
 	{
-		return GetTemplateForSlot(Slot).GetSlotUnequipBehavior(DefaultBehavior, Unit, ItemState, CheckGameState);
+		Behavior = GetTemplateForSlot(Slot).GetSlotUnequipBehavior(Behavior, Unit, ItemState, CheckGameState);
 	}
 
 	// Add an event trigger from the original Highlander to do it on a per-item basis for arbitrary slots
@@ -406,7 +406,7 @@ static function ECHSlotUnequipBehavior SlotGetUnequipBehavior(EInventorySlot Slo
 	OverrideTuple.Data.Add(2);
 	// XComLWTuple does not have a Byte kind
 	OverrideTuple.Data[0].kind = XComLWTVInt;
-	OverrideTuple.Data[0].i = DefaultBehavior;
+	OverrideTuple.Data[0].i = Behavior;
 	OverrideTuple.Data[1].kind = XComLWTVObject;
 	OverrideTuple.Data[1].o = Unit;
 	OverrideTuple.Data[2].kind = XComLWTVObject;
@@ -522,6 +522,7 @@ static function bool SlotGetMultiUnlockHint(EInventorySlot Slot, XComGameState_U
 	{
 		return GetTemplateForSlot(Slot).GetMultiSlotUnlockHint(Unit, strReason, CheckGameState);
 	}
+	return false;
 }
 
 // Use this to collect slots to MakeItemsAvailable. SlotMask is a Bit Mask from the consts above, SLOT_ALL is a shortcut for SLOT_ARMOR|SLOT_WEAPON|SLOT_ITEM
