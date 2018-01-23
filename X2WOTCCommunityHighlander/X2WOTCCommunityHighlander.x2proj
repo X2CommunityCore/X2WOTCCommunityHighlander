@@ -132,6 +132,9 @@
     <Content Include="Src\XComGame\Classes\UIPersonnel_SoldierListItem.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIShellDifficulty.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UISoldierBondAlert.uc">
       <SubType>Content</SubType>
     </Content>
