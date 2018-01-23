@@ -331,5 +331,29 @@ static function UpdateUIOnDifficultyChange(UIShellDifficulty UIShellDifficulty)
 {
 
 }
-
 //end Issue #148
+
+
+// Start Issue #136
+/// <summary>
+/// Called from XComGameState_MissionSite:CacheSelectedMissionData
+/// Encounter Data is modified immediately prior to being added to the SelectedMissionData, ported from LW2
+/// </summary>
+static function PostEncounterCreation(out name EncounterName, out PodSpawnInfo Encounter, int ForceLevel, int AlertLevel, optional XComGameState_BaseObject SourceObject)
+{
+
+}
+// End Issue #136
+
+// Start Issue #157
+/// <summary>
+/// Called from XComGameState_Missionsite:SetMissionData
+/// lets mods add SitReps with custom spawn rules to newly generated missions
+/// Advice: Check for present Strategy game if you dont want this to affect TQL/Multiplayer/Main Menu 
+/// Example: If (`HQGAME  != none && `HQPC != None && `HQPRES != none) ...
+/// </summary>
+static function PostSitRepCreation(out GeneratedMissionData GeneratedMission, optional XComGameState_BaseObject SourceObject)
+{
+	
+}
+// End Issue #157
