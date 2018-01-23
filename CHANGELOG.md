@@ -101,6 +101,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `CanAddItemToInventory_CH_Improved` added as a backwards compatible extension
   to other CanAddItem... helpers, allowing access to the ItemState (#114)
 - `GetLocalizedCategory`added to allow inject custom weapon category localizations (#125)
+- `UpdateUIOnDifficultyChange` added to allow modders to modify the UI on the
+  difficulty selection (UIShellDifficulty) (#148)
 
 ### Event Hooks
 - Triggers the events `SoldierClassIcon`, `SoldierClassDisplayName`,
