@@ -7064,7 +7064,7 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 					//  setup filter based on new armor
 					Filter = `XCOMGAME.SharedBodyPartFilter;
 					//start issue #155, get usable DLC part pack names when upgrading armours
-					DLCNames = class'CHHelpers'.static.GetAcceptablePartPackNames();
+					DLCNames = class'CHHelpers'.static.GetAcceptablePartPacks();
 					Filter.Set(EGender(kAppearance.iGender), ECharacterRace(kAppearance.iRace), '', , , DLCNames); //end issue #155
 					Filter.SetTorsoSelection('ForceArmorMatch', Item.GetMyTemplateName()); //ForceArmorMatch will make the system choose a torso based on the armor type
 

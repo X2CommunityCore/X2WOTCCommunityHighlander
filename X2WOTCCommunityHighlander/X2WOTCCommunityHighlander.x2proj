@@ -123,6 +123,9 @@
     <Content Include="Src\XComGame\Classes\UINavigator.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIOptionsPCScreen.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIPanel.uc">
       <SubType>Content</SubType>
     </Content>
@@ -259,6 +262,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComUnitPawn.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XGCharacterGenerator.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XGStrategy.uc">

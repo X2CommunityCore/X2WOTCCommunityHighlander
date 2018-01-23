@@ -142,6 +142,12 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   circuiting if DisabledReason != "" (#127)
 - Major Overhaul of InventorySlot handling so modders can suggest extra
   inventory slots (#118, #137)
+- Fix UIOptionsPCScreen so part pack sliders actually get shown as intended
+  (#150)
+- Fix XGCharacterGenerator so it's actually possible to disable part packs for
+  new soldiers (#154)
+- Alter XComGameState_Unit so it obeys part pack sliders when picking new armour
+  appearances (#155)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the

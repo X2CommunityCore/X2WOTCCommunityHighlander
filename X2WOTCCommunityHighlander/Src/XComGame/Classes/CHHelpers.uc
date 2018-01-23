@@ -81,8 +81,11 @@ static function array<name> GetAcceptablePartPacks()
 			if(ProfileSettings.Data.PartPackPresets[Index].PartPackName == PartPackNames[PartPackIndex])
 			{
 				bHasSetting = true;
-				if(`SYNC_FRAND() <= ProfileSettings.Data.PartPackPresets[Index].ChanceToSelect &&
-					ProfileSettings.Data.PartPackPresets[Index].ChanceToSelect > 0.02f ) //0.02 so sliders being set to the minimum actually do something
+				if (
+					`SYNC_FRAND_STATIC() <= ProfileSettings.Data.PartPackPresets[Index].ChanceToSelect &&
+					ProfileSettings.Data.PartPackPresets[Index].ChanceToSelect > 0.02f
+					//0.02 so sliders being set to the minimum actually do something
+				)
 				{
 					DLCNames.AddItem(ProfileSettings.Data.PartPackPresets[Index].PartPackName);
 					break;
@@ -91,9 +94,9 @@ static function array<name> GetAcceptablePartPacks()
 		}
 
 		//Handle the case where a setting has not been specified in the options menu
-		if(!bHasSetting && `SYNC_FRAND() <= class'XGCharacterGenerator'.default.DLCPartPackDefaultChance)
+		if(!bHasSetting && `SYNC_FRAND_STATIC() <= class'XGCharacterGenerator'.default.DLCPartPackDefaultChance)
 		{
-			DLCNames.AddItem(PartPackNames[PartPackIndex]);			
+			DLCNames.AddItem(PartPackNames[PartPackIndex]);
 		}
 	}
 
