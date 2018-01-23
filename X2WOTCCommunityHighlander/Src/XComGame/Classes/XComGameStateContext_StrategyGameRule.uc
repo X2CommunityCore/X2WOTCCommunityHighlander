@@ -1039,8 +1039,21 @@ private static function PostMissionUpdateSoldierHealing(XComGameState NewGameSta
 	local XComGameState_HeadquartersXCom XComHQ;
 	local XComGameState_HeadquartersProjectHealSoldier ProjectState;
 	local int NewBlocksRemaining, NewProjectPointsRemaining;
+	// variables for issue #140
+	local XComLWTuple Tuple;
 
-	if (!UnitState.IsDead() && !UnitState.bCaptured && UnitState.IsSoldier() && UnitState.IsInjured() && UnitState.GetStatus() != eStatus_Healing)
+	// Start issue #140
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'PostMissionUpdateSoldierHealing';
+	Tuple.Data.Add(1);
+
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = true;
+
+	`XEVENTMGR.TriggerEvent('PostMissionUpdateSoldierHealing', Tuple, UnitState, NewGameState);
+
+	if (!UnitState.IsDead() && !UnitState.bCaptured && UnitState.IsSoldier() && UnitState.IsInjured() && UnitState.GetStatus() != eStatus_Healing && Tuple.Data[0].b)
+	// End issue #140
 	{
 		History = `XCOMHISTORY;
 		XComHQ = GetAndAddXComHQ(NewGameState);
