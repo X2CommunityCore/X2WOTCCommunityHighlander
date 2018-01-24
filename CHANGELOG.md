@@ -12,7 +12,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Event Hooks
 - Triggers the event `OnArmoryMainMenuUpdate` that allows adding elements into
   the ArmoryList (#47)
-- Triggers the event `PostMissionUpdateSoldierHealing` that allows excluding soldiers from starting healing projects
+- Triggers the event `PostMissionUpdateSoldierHealing` that allows excluding soldiers from starting healing projects (#140)
 
 ### Modding Exposures
 
