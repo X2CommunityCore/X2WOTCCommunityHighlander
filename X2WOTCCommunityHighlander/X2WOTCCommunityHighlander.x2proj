@@ -108,6 +108,9 @@
     <Content Include="Src\XComGame\Classes\UIArmory_PromotionPsiOp.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIAvengerShortcuts.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIButton.uc">
       <SubType>Content</SubType>
     </Content>
