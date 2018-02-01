@@ -12088,6 +12088,10 @@ function ResetRankToRookie()
 		SetCurrentStat(ECharStatType(idx), GetMyTemplate().GetCharacterBaseStat(ECharStatType(idx)));
 	}
 
+	// Start Issue #95
+	ApplyFirstTimeStatModifiers();
+	// End Issue #95
+
 	// reset XP to squaddie threshold
 	SetXPForRank(m_SoldierRank + 1);
 }
