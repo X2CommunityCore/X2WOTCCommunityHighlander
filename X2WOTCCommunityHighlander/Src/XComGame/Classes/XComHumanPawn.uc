@@ -870,6 +870,9 @@ simulated function UpdateMeshMaterials(MeshComponent MeshComp, optional bool bAt
 	local MaterialInstanceConstant MIC, ParentMIC, NewMIC;
 	local int Idx;
 	local name ParentName;
+	// Variables for issue #169
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local int i;
 	
 	if (MeshComp != none)
 	{
@@ -949,6 +952,14 @@ simulated function UpdateMeshMaterials(MeshComponent MeshComp, optional bool bAt
 						//`log("UpdateMeshMaterials: Unknown material" @ ParentName @ "found on" @ self @ MeshComp);
 						break;
 				}
+
+				// Start Issue #169
+				DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+				for(i = 0; i < DLCInfos.Length; ++i)
+				{
+					DLCInfos[i].UpdateMaterial(self, MeshComp, ParentName, MIC);
+				}
+				// End Issue #169
 			}
 		}
 
