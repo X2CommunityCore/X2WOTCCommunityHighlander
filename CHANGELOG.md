@@ -95,6 +95,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 
 ### Mod/DLC Hooks
 - `UpdateAnimations` added to allow adding CustomAnimsets to UnitPawns (#24)
+- `UpdateMaterial`added to allow manipulate pawn materials (#169)
 - `DLCAppendSockets` added to allow appending sockets to UnitPawns (#21)
 - `CanAddItemToInventory` added to allow configuring whether or not a unit can
   equip a particular item as an extension to the standand rules (#50)
