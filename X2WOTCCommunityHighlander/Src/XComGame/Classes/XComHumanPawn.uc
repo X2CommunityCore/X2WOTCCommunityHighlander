@@ -872,6 +872,9 @@ simulated function UpdateMeshMaterials(MeshComponent MeshComp, optional bool bAt
 	local name ParentName;
 	// Variables for issue #169
 	local array<X2DownloadableContentInfo> DLCInfos;
+	local XComGameState_Unit UnitState;
+	local XComGameStateHistory TempHistory;
+	local CharacterPoolManager CPManager;
 	local int i;
 	
 	if (MeshComp != none)
@@ -954,10 +957,32 @@ simulated function UpdateMeshMaterials(MeshComponent MeshComp, optional bool bAt
 				}
 
 				// Start Issue #169
+				if (`SCREENSTACK.GetCurrentScreen() == none) // We're at the Main Menu
+				{
+					`ONLINEEVENTMGR.LatestSaveState(TempHistory);
+					UnitState = XComGameState_Unit(TempHistory.GetGameStateForObjectID(ObjectID));
+				}
+				else if (`SCREENSTACK.IsInStack(class'UICharacterPool')) // We're at the Character Pool
+				{
+					CPManager = CharacterPoolManager(`XENGINE.GetCharacterPoolManager());
+					for (i = 0; i < CPManager.CharacterPool.Length; ++i)
+					{
+						UnitState = CPManager.CharacterPool[i];
+						if (UnitState.GetReference().ObjectID == ObjectID)
+						{
+							break;
+						}
+					}
+				}
+				else // We're at a Saved Game
+				{
+					UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(ObjectID));
+				}
+
 				DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 				for(i = 0; i < DLCInfos.Length; ++i)
 				{
-					DLCInfos[i].UpdateMaterial(self, MeshComp, ParentName, MIC);
+					DLCInfos[i].UpdateMaterial(UnitState, self, MeshComp, ParentName, MIC);
 				}
 				// End Issue #169
 			}
