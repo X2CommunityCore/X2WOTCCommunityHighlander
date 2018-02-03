@@ -3731,6 +3731,31 @@ function bool HasHeavyWeapon(optional XComGameState CheckGameState)
 {
 	local XComGameState_Item ItemState;
 	local name CheckAbility;
+	// Variables for Issue #172
+	local XComLWTuple Tuple;
+	local bool bOverrideHasHeavyWeapon, bHasHeavyWeapon;
+
+	// Start Issue #172
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideHasHeavyWeapon';
+	Tuple.Data.Add(3);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = bOverrideHasHeavyWeapon;
+	Tuple.Data[1].kind = XComLWTVBool;
+	Tuple.Data[1].b = bHasHeavyWeapon;
+	Tuple.Data[2].kind = XComLWTVObject;
+	Tuple.Data[2].o = CheckGameState;
+
+	`XEVENTMGR.TriggerEvent('OverrideHasHeavyWeapon', Tuple, self);
+
+	bOverrideHasHeavyWeapon = Tuple.Data[0].b;
+	bHasHeavyWeapon = Tuple.Data[1].b;
+
+	if (bOverrideHasHeavyWeapon)
+	{
+		return bHasHeavyWeapon;
+	}
+	// End Issue Issue #172
 
 	foreach class'X2AbilityTemplateManager'.default.AbilityUnlocksHeavyWeapon(CheckAbility)
 	{
