@@ -358,7 +358,6 @@ static function PostSitRepCreation(out GeneratedMissionData GeneratedMission, op
 }
 // End Issue #157
 
-
 //start issue #159
 /// <summary>
 /// Called from X2StrategyElement_DefaultStaffSlots:IsUnitValidForPsiChamberSoldierSlot
@@ -370,3 +369,15 @@ static function bool AlterPsiOpSlotRequirement(out int bCanAddItem, XComGameStat
 	return false;
 }
 // end issue #159
+
+// Start Issue #169
+/// <summary>
+/// Called from XComHumanPawn:UpdateMeshMaterials
+/// lets mods manipulate pawn materials.
+/// </summary>
+static function UpdateHumanPawnMeshMaterial(XComGameState_Unit UnitState, XComHumanPawn Pawn, MeshComponent MeshComp, name ParentMaterialName, MaterialInstanceConstant MIC)
+{
+
+}
+// End Issue #157
+
