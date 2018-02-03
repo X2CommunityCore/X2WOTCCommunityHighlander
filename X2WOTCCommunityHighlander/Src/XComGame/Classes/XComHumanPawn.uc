@@ -982,7 +982,7 @@ simulated function UpdateMeshMaterials(MeshComponent MeshComp, optional bool bAt
 				DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 				for(i = 0; i < DLCInfos.Length; ++i)
 				{
-					DLCInfos[i].UpdateMaterial(UnitState, self, MeshComp, ParentName, MIC);
+					DLCInfos[i].UpdateHumanPawnMeshMaterial(UnitState, self, MeshComp, ParentName, MIC);
 				}
 				// End Issue #169
 			}

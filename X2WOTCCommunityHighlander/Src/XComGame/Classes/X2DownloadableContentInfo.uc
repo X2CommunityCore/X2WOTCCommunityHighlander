@@ -363,7 +363,7 @@ static function PostSitRepCreation(out GeneratedMissionData GeneratedMission, op
 /// Called from XComHumanPawn:UpdateMeshMaterials
 /// lets mods manipulate pawn materials.
 /// </summary>
-static function UpdateMaterial(XComGameState_Unit UnitState, XComHumanPawn Pawn, MeshComponent MeshComp, name ParentMaterialName, MaterialInstanceConstant MIC)
+static function UpdateHumanPawnMeshMaterial(XComGameState_Unit UnitState, XComHumanPawn Pawn, MeshComponent MeshComp, name ParentMaterialName, MaterialInstanceConstant MIC)
 {
 
 }
