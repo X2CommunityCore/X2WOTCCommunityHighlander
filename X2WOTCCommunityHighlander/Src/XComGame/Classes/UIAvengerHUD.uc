@@ -238,6 +238,13 @@ simulated function UpdateResources()
 		HideResources();
 		break;
 	}
+
+	// Issue #174 Start
+	// Add event hook. Mods should register for this event with an ELD_Immediate listener (for example using CHEventListenerTemplate)
+	// and check if they want to affect the current screen on the stack. They should add resources with `HQPRES.m_kAvengerHUD.AddResource and
+	// call ShowResources() when they add at least one. This is mod-interoperable.
+	`XEVENTMGR.TriggerEvent('CHUpdateResources', self, self, none);
+	// Issue #174 End
 }
 
 simulated function UpdateDefaultResources()
