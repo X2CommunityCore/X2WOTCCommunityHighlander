@@ -7006,8 +7006,9 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 	local X2BodyPartTemplateManager BodyPartMgr;
 	local X2SimpleBodyPartFilter Filter;
 	local X2ItemTemplate ItemTemplate;
-
+	local array<name> DLCNames; //issue #155 addition
 	ItemTemplate = Item.GetMyTemplate();
+	
 	// issue #114: pass along item state when possible
 	if (CanAddItemToInventory(ItemTemplate, Slot, NewGameState, Item.Quantity, Item))
 	{
@@ -7062,14 +7063,16 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 				{
 					//  setup filter based on new armor
 					Filter = `XCOMGAME.SharedBodyPartFilter;
-					Filter.Set(EGender(kAppearance.iGender), ECharacterRace(kAppearance.iRace), '');
+					//start issue #155, get usable DLC part pack names when upgrading armours
+					DLCNames = class'CHHelpers'.static.GetAcceptablePartPacks();
+					Filter.Set(EGender(kAppearance.iGender), ECharacterRace(kAppearance.iRace), '', , , DLCNames); //end issue #155
 					Filter.SetTorsoSelection('ForceArmorMatch', Item.GetMyTemplateName()); //ForceArmorMatch will make the system choose a torso based on the armor type
 
 					//  need to pick a new torso, which will necessitate updating arms and legs
 					ArmorPartTemplate = BodyPartMgr.GetRandomUberTemplate("Torso", Filter, Filter.FilterTorso);
 					kAppearance.nmTorso = (ArmorPartTemplate != none) ? ArmorPartTemplate.DataName : DefaultGetRandomUberTemplate_WarnAboutFilter("Torso", Filter);
 					//  update filter to include specific torso data to match
-					Filter.Set(EGender(kAppearance.iGender), ECharacterRace(kAppearance.iRace), kAppearance.nmTorso);
+					Filter.Set(EGender(kAppearance.iGender), ECharacterRace(kAppearance.iRace), kAppearance.nmTorso, , , DLCNames); //issue #155, re-set filter with new DLC names
 
 					BodyPartTemplate = BodyPartMgr.GetRandomUberTemplate("Arms", Filter, Filter.FilterByTorsoAndArmorMatch);
 					if(BodyPartTemplate == none)

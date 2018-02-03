@@ -123,6 +123,9 @@
     <Content Include="Src\XComGame\Classes\UINavigator.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIOptionsPCScreen.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIPanel.uc">
       <SubType>Content</SubType>
     </Content>
@@ -130,6 +133,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIPersonnel_SoldierListItem.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIShellDifficulty.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UISoldierBondAlert.uc">
@@ -234,6 +240,9 @@
     <Content Include="Src\XComGame\Classes\XComGameState_Item.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_MissionSite.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComHumanPawn.uc">
       <SubType>Content</SubType>
     </Content>
@@ -253,6 +262,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComUnitPawn.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XGCharacterGenerator.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XGStrategy.uc">

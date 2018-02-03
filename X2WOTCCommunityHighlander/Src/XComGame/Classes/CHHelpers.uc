@@ -56,3 +56,50 @@ simulated static function RebuildPerkContentCache() {
 }
 // End Issue #123
 
+//start issue #155
+static function array<name> GetAcceptablePartPacks()
+{
+	local int Index;
+	local XComOnlineProfileSettings ProfileSettings;
+	local X2BodyPartTemplateManager PartTemplateManager;
+	local int PartPackIndex;
+	local array<name> PartPackNames, DLCNames;
+	local bool bHasSetting;
+
+	ProfileSettings = `XPROFILESETTINGS;
+
+	PartTemplateManager = class'X2BodyPartTemplateManager'.static.GetBodyPartTemplateManager();
+	PartPackNames = PartTemplateManager.GetPartPackNames();
+		
+	DLCNames.Length = 0;
+	DLCNames.AddItem(''); //this represents vanilla or otherwise unassigned parts
+	for(PartPackIndex = 0; PartPackIndex < PartPackNames.Length; ++PartPackIndex)
+	{
+		bHasSetting = false;
+		for(Index = 0; Index < ProfileSettings.Data.PartPackPresets.Length; ++Index)
+		{
+			if(ProfileSettings.Data.PartPackPresets[Index].PartPackName == PartPackNames[PartPackIndex])
+			{
+				bHasSetting = true;
+				if (
+					`SYNC_FRAND_STATIC() <= ProfileSettings.Data.PartPackPresets[Index].ChanceToSelect &&
+					ProfileSettings.Data.PartPackPresets[Index].ChanceToSelect > 0.02f
+					//0.02 so sliders being set to the minimum actually do something
+				)
+				{
+					DLCNames.AddItem(ProfileSettings.Data.PartPackPresets[Index].PartPackName);
+					break;
+				}
+			}
+		}
+
+		//Handle the case where a setting has not been specified in the options menu
+		if(!bHasSetting && `SYNC_FRAND_STATIC() <= class'XGCharacterGenerator'.default.DLCPartPackDefaultChance)
+		{
+			DLCNames.AddItem(PartPackNames[PartPackIndex]);
+		}
+	}
+
+	return DLCNames;
+}
+//end issue #155

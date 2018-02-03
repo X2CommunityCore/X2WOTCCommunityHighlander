@@ -12,6 +12,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Event Hooks
 - Triggers the event `OnArmoryMainMenuUpdate` that allows adding elements into
   the ArmoryList (#47)
+- Triggers the event `PostMissionUpdateSoldierHealing` that allows excluding soldiers from starting healing projects (#140)
 
 ### Modding Exposures
 
@@ -39,6 +40,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Mod/DLC Hooks
 - Allow Mods/DLC to modify spawn locations for player units (#18)
 - Trigger an event for RetainConcealmentOnActivation (#2)
+- Allow Mods/DLC to modify encounters after creation (#136)
+- Allow Mods/DLC to alter mission data after SitRep creation (#157)
 
 ### Event Hooks
 
@@ -98,6 +101,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `CanAddItemToInventory_CH_Improved` added as a backwards compatible extension
   to other CanAddItem... helpers, allowing access to the ItemState (#114)
 - `GetLocalizedCategory`added to allow inject custom weapon category localizations (#125)
+- `UpdateUIOnDifficultyChange` added to allow modders to modify the UI on the
+  difficulty selection (UIShellDifficulty) (#148)
 
 ### Event Hooks
 - Triggers the events `SoldierClassIcon`, `SoldierClassDisplayName`,
@@ -137,6 +142,12 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   circuiting if DisabledReason != "" (#127)
 - Major Overhaul of InventorySlot handling so modders can suggest extra
   inventory slots (#118, #137)
+- Fix UIOptionsPCScreen so part pack sliders actually get shown as intended
+  (#150)
+- Fix XGCharacterGenerator so it's actually possible to disable part packs for
+  new soldiers (#154)
+- Alter XComGameState_Unit so it obeys part pack sliders when picking new armour
+  appearances (#155)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
