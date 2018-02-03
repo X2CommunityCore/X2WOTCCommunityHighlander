@@ -3324,7 +3324,7 @@ simulated exec function UpdateAnimations()
 
 	super.UpdateAnimations();
 
-	if (ScreenStack.GetCurrentScreen() == none) // We're at the Main Menu
+	if (ScreenStack.GetCurrentScreen() == none || `SCREENSTACK.HasInstanceOf(class'UIShell')) // We're at the Main Menu
 	{
 		`ONLINEEVENTMGR.LatestSaveState(TempHistory);
 		UnitState = XComGameState_Unit(TempHistory.GetGameStateForObjectID(ObjectID));

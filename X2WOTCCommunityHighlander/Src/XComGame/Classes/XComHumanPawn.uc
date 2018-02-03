@@ -957,7 +957,7 @@ simulated function UpdateMeshMaterials(MeshComponent MeshComp, optional bool bAt
 				}
 
 				// Start Issue #169
-				if (`SCREENSTACK.GetCurrentScreen() == none) // We're at the Main Menu
+				if (`SCREENSTACK.GetCurrentScreen() == none || `SCREENSTACK.HasInstanceOf(class'UIShell')) // We're at the Main Menu
 				{
 					`ONLINEEVENTMGR.LatestSaveState(TempHistory);
 					UnitState = XComGameState_Unit(TempHistory.GetGameStateForObjectID(ObjectID));
