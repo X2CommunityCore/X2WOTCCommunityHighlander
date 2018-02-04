@@ -43,8 +43,8 @@ static function CleanupObsoleteTacticalGamestate()
 		}
 	}
 
-	`log("REMOVED " $ UnitGameStatesRemoved $ " obsolete enemy unit gamestates when loading into strategy");
-	`log("REMOVED " $ ItemGameStatesRemoved $ " obsolete enemy item gamestates when loading into strategy");
+	class'X2TacticalGameRuleset'.static.ReleaseScriptLog("REMOVED " $ UnitGameStatesRemoved $ " obsolete enemy unit gamestates when loading into strategy");
+	class'X2TacticalGameRuleset'.static.ReleaseScriptLog("REMOVED " $ ItemGameStatesRemoved $ " obsolete enemy item gamestates when loading into strategy");
 	History.AddGameStateToHistory(NewGameState);
 }
 
@@ -60,16 +60,12 @@ static function bool UnitTypeShouldBeCleanedUp(XComGameState_Unit UnitState)
 	CharTemplateName = UnitState.GetMyTemplateName();
 	if (CharTemplateName == '') { return false; }
 	
-	// Safety Checks, but are they necessary with Whitelist?
-	if (!CharTemplate.bIsSoldier)
+	if (!CharTemplate.bIsSoldier) // Sanity check
 	{
-		if (CharTemplate.bIsAlien || CharTemplate.bIsAdvent || CharTemplate.bIsCivilian)
+		IncludeIdx = default.CharacterTypesToCleanup.Find(CharTemplateName);
+		if (IncludeIdx != INDEX_NONE)
 		{
-			IncludeIdx = default.CharacterTypesToCleanup.Find(CharTemplateName);
-			if (IncludeIdx != INDEX_NONE)
-			{
-				return true;
-			}
+			return true;
 		}
 	}
 	return false;
