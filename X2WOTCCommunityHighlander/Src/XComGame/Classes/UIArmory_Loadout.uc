@@ -598,6 +598,9 @@ simulated function UpdateEquippedList()
 	local XComGameState_Unit UpdatedUnit;
 	local int prevIndex;
 	local CHUIItemSlotEnumerator En; // Variable for Issue #118
+	// Issue #171 Variables
+	local int NumUtility, NumHeavy, i;
+	local array<X2DownloadableContentInfo> DLCInfos;
 
 	prevIndex = EquippedList.SelectedIndex;
 	UpdatedUnit = GetUnit();
@@ -605,6 +608,21 @@ simulated function UpdateEquippedList()
 
 	// Clear out tooltips from removed list items
 	Movie.Pres.m_kTooltipMgr.RemoveTooltipsByPartialPath(string(EquippedList.MCPath));
+
+	// Issue #171 Start
+	// Realize Inventory so mods changing utility slots get updated faster
+	NumUtility = UpdatedUnit.GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems);
+
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	NumHeavy = -1;
+	for(i = 0; i < DLCInfos.Length; ++i)
+	{
+		DLCInfos[i].GetNumSlotsOverride(NumUtility, NumHeavy, none, UpdatedUnit, CheckGameState);
+	}
+
+	UpdatedUnit.SetBaseMaxStat(eStat_UtilityItems, NumUtility);
+	UpdatedUnit.SetCurrentStat(eStat_UtilityItems, NumUtility);
+	// Issue #171 End
 
 	// Issue #118 Start
 	// Here used to be a lot of code handling individual slots, this has been abstracted in CHItemSlot (and the Enumerator)

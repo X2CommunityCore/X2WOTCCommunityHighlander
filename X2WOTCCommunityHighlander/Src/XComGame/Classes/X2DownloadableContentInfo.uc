@@ -310,6 +310,23 @@ static private function bool CanAddItemToInventory(out int bCanAddItem, const EI
 
 //end Issue #50
 
+// Start Issue #171
+/// Calls to override item image shown in UIArmory_Loadout
+/// For example it allows you to show multiple grenades on grenade slot for someone with heavy ordnance
+/// Just change the value of imagePath
+static function OverrideItemImage(out array<string> imagePath, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, XComGameState_Unit UnitState)
+{
+}
+
+/// Also Issue #64
+/// Allows override number of utility and heavy weapons slots
+/// NumHeavySlots or NumUtilitySlots will pass in -1 if it is irrelevant
+/// These are the only base game slots that can be safely unrestricted since they are optional and not expected by class perks, if you want other multi slots use the CHItemSlot feature
+static function GetNumSlotsOverride(out int NumUtilitySlots, out int NumHeavySlots, XComGameState_Item EquippedArmor, XComGameState_Unit UnitState, XComGameState CheckGameState)
+{
+}
+// End Issue #171
+
 //start Issue #112
 /// <summary>
 /// Called from XComGameState_HeadquartersXCom

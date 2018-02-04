@@ -7007,6 +7007,12 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 	local X2SimpleBodyPartFilter Filter;
 	local X2ItemTemplate ItemTemplate;
 	local array<name> DLCNames; //issue #155 addition
+	// Issue #171 Variables
+	local int NumUtility, NumHeavy, i;
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local XComGameState_Item EquippedAmmo;
+	local XComGameState_HeadquartersXCom XComHQ;
+
 	ItemTemplate = Item.GetMyTemplate();
 	
 	// issue #114: pass along item state when possible
@@ -7043,8 +7049,19 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 		{
 			if(!IsMPCharacter() && X2ArmorTemplate(Item.GetMyTemplate()).bAddsUtilitySlot)
 			{
-				SetBaseMaxStat(eStat_UtilityItems, GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems) + 1.0f);
-				SetCurrentStat(eStat_UtilityItems, GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems) + 1.0f);
+				// Start Issue #171
+				NumUtility = GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems) + 1.0f;
+
+				DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+				NumHeavy = -1;
+				for(i = 0; i < DLCInfos.Length; ++i)
+				{
+					DLCInfos[i].GetNumSlotsOverride(NumUtility, NumHeavy, Item, self, NewGameState);
+				}
+
+				SetBaseMaxStat(eStat_UtilityItems, NumUtility);
+				SetCurrentStat(eStat_UtilityItems, NumUtility);
+				// End Issue #171
 			}
 
 			//  must ensure appearance matches 
@@ -7131,6 +7148,32 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 		{
 			ApplyCombatSimStats(Item);
 		}
+		// Start Issue #171
+		else if (Slot == eInvSlot_Utility)
+		{
+			if (X2AmmoTemplate(ItemTemplate) != none)
+			{
+				// Unequip ammo pocket since ValidateLoadout now stops ammo stacking
+				EquippedAmmo = GetItemInSlot(eInvSlot_AmmoPocket, NewGameState);
+				if (EquippedAmmo != none)
+				{
+					foreach NewGameState.IterateByClassType(class'XComGameState_HeadquartersXCom', XComHQ)
+					{
+						break;
+					}
+					if(XComHQ == none)
+					{
+						XComHQ = XComGameState_HeadquartersXCom(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
+						XComHQ = XComGameState_HeadquartersXCom(NewGameState.ModifyStateObject(class'XComGameState_HeadquartersXCom', XComHQ.ObjectID));
+					}
+					EquippedAmmo = XComGameState_Item(NewGameState.ModifyStateObject(class'XComGameState_Item', EquippedAmmo.ObjectID));
+					RemoveItemFromInventory(EquippedAmmo, NewGameState);
+					XComHQ.PutItemInInventory(NewGameState, EquippedAmmo);
+					EquippedAmmo = none;
+				}
+			}
+		}
+		// End Issues # 171
 		// Issue #118 Start
 		else if (class'CHItemSlot'.static.SlotIsTemplated(Slot))
 		{
@@ -7158,6 +7201,8 @@ simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate,
 	local array<X2DownloadableContentInfo> DLCInfos; // Issue #50: Added for hook
 	local int bCanAddItem; // Issue #50: hackery to avoid bool not being allowed to be out parameter
 	local string BlankString; //issue #114: blank string variable for the out variable
+	// Issue #171 Variables
+	local int NumHeavy, NumUtility;
 	// Start Issue #50 and #114: inventory hook
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 	for(i = 0; i < DLCInfos.Length; ++i)
@@ -7229,11 +7274,19 @@ simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate,
 				return false;
 			return ItemTemplate.ItemCat == 'ammo';
 		case eInvSlot_HeavyWeapon:
-			if (!HasHeavyWeapon(CheckGameState))
+			// Start Issue #171
+			NumHeavy = HasHeavyWeapon(CheckGameState) ? 1 : 0;
+			NumUtility = -1;
+			for(i = 0; i < DLCInfos.Length; ++i)
+			{
+				DLCInfos[i].GetNumSlotsOverride(NumUtility, NumHeavy, none, self, CheckGameState);
+			}
+			if (NumHeavy == 0)
 				return false;
 			if (WeaponTemplate ==  none)
 				return false;
-			return (GetItemInSlot(eInvSlot_HeavyWeapon, CheckGameState) == none);
+			return GetAllItemsInSlot(eInvSlot_HeavyWeapon, CheckGameState).Length < NumHeavy;
+			// End Issue #171
 		case eInvSlot_CombatSim:
 			return (ItemTemplate.ItemCat == 'combatsim' && GetCurrentStat(eStat_CombatSims) > 0);
 		default:
@@ -7439,6 +7492,9 @@ simulated function bool RemoveItemFromInventory(XComGameState_Item Item, optiona
 	local X2ItemTemplate ItemTemplate;
 	local X2ArmorTemplate ArmorTemplate;
 	local int RemoveIndex;
+	// Issue #171 Variables
+	local int NumUtility, NumHeavy, i;
+	local array<X2DownloadableContentInfo> DLCInfos;
 
 	if (CanRemoveItemFromInventory(Item, ModifyGameState))
 	{				
@@ -7478,8 +7534,19 @@ simulated function bool RemoveItemFromInventory(XComGameState_Item Item, optiona
 			{
 				if (!HasExtraUtilitySlotFromAbility())      //  don't lower the bonus if one is given via an ability
 				{
-					SetBaseMaxStat(eStat_UtilityItems, GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems));
-					SetCurrentStat(eStat_UtilityItems, GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems));
+					// Start Issue #171
+					NumUtility = GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems);
+
+					DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+					NumHeavy = -1;
+					for(i = 0; i < DLCInfos.Length; ++i)
+					{
+						DLCInfos[i].GetNumSlotsOverride(NumUtility, NumHeavy, none, self, ModifyGameState);
+					}
+
+					SetBaseMaxStat(eStat_UtilityItems, NumUtility);
+					SetCurrentStat(eStat_UtilityItems, NumUtility);
+					// End Issue #171
 				}
 			}
 			break;
@@ -10495,6 +10562,11 @@ function ValidateLoadout(XComGameState NewGameState)
 	local XComGameState_Item EquippedHeavyWeapon, EquippedGrenade, EquippedAmmo, UtilityItem; // Special slots
 	local array<XComGameState_Item> EquippedUtilityItems; // Utility Slots
 	local int idx;
+	// Issue #171 Variables
+	local int NumUtility, NumHeavy, i;
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local array<XComGameState_Item> EquippedHeavyWeapons;
+	local bool AmmoPocketFilled;
 
 	local array<CHItemSlot> ModSlots; // Variable for Issue #118
 
@@ -10528,13 +10600,33 @@ function ValidateLoadout(XComGameState NewGameState)
 		AddItemToInventory(EquippedPrimaryWeapon, eInvSlot_PrimaryWeapon, NewGameState);
 	}
 
-	// Check Ammo Item compatibility (utility slot)
+	// Check Ammo Item compatibility
+	// Start Issue #171 - Handling ammo pocket
+	EquippedAmmo = GetItemInSlot(eInvSlot_AmmoPocket, NewGameState);
+	if (EquippedAmmo != none)
+	{
+		if (X2AmmoTemplate(EquippedAmmo.GetMyTemplate()) != none && 
+		   (!X2AmmoTemplate(EquippedAmmo.GetMyTemplate()).IsWeaponValidForAmmo(X2WeaponTemplate(EquippedPrimaryWeapon.GetMyTemplate())) ||
+		   !HasAmmoPocket()))
+		{
+			EquippedAmmo = XComGameState_Item(NewGameState.ModifyStateObject(class'XComGameState_Item', EquippedAmmo.ObjectID));
+			RemoveItemFromInventory(EquippedAmmo, NewGameState);
+			XComHQ.PutItemInInventory(NewGameState, EquippedAmmo);
+			EquippedAmmo = none;
+		}
+		else
+		{
+			AmmoPocketFilled = true;
+		}
+	}
 	EquippedUtilityItems = GetAllItemsInSlot(eInvSlot_Utility, NewGameState, ,true);
 	for(idx = 0; idx < EquippedUtilityItems.Length; idx++)
 	{
-		if(X2AmmoTemplate(EquippedUtilityItems[idx].GetMyTemplate()) != none && 
-		   !X2AmmoTemplate(EquippedUtilityItems[idx].GetMyTemplate()).IsWeaponValidForAmmo(X2WeaponTemplate(EquippedPrimaryWeapon.GetMyTemplate())))
+		if (X2AmmoTemplate(EquippedUtilityItems[idx].GetMyTemplate()) != none && 
+		   (!X2AmmoTemplate(EquippedUtilityItems[idx].GetMyTemplate()).IsWeaponValidForAmmo(X2WeaponTemplate(EquippedPrimaryWeapon.GetMyTemplate())) ||
+		   AmmoPocketFilled))
 		{
+	// End Issue #171
 			EquippedAmmo = XComGameState_Item(NewGameState.ModifyStateObject(class'XComGameState_Item', EquippedUtilityItems[idx].ObjectID));
 			RemoveItemFromInventory(EquippedAmmo, NewGameState);
 			XComHQ.PutItemInInventory(NewGameState, EquippedAmmo);
@@ -10559,24 +10651,58 @@ function ValidateLoadout(XComGameState NewGameState)
 		EquippedSecondaryWeapon = none;
 	}
 
+	// Start Issue #171
+	// UtilitySlots and heavy slots (Already grabbed equipped)
+	if(!IsMPCharacter())
+	{
+		if(X2ArmorTemplate(EquippedArmor.GetMyTemplate()).bAddsUtilitySlot || HasExtraUtilitySlotFromAbility())
+		{
+			NumUtility = GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems) + 1.0f;
+		}
+		else
+		{
+			NumUtility = GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems);
+		}
+	}
+
+	NumHeavy = HasHeavyWeapon(NewGameState) ? 1 : 0;
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	for(i = 0; i < DLCInfos.Length; ++i)
+	{
+		DLCInfos[i].GetNumSlotsOverride(NumUtility, NumHeavy, EquippedArmor, self, NewGameState);
+	}
+
+	if(!IsMPCharacter())
+	{
+		SetBaseMaxStat(eStat_UtilityItems, NumUtility);
+		SetCurrentStat(eStat_UtilityItems, NumUtility);
+	}
+
 	// Heavy Weapon Slot
-	EquippedHeavyWeapon = GetItemInSlot(eInvSlot_HeavyWeapon, NewGameState);
-	if(EquippedHeavyWeapon == none && HasHeavyWeapon(NewGameState))
+	EquippedHeavyWeapons = GetAllItemsInSlot(eInvSlot_HeavyWeapon, NewGameState);
+	for (i = 0; i < NumHeavy; i++)
 	{
-		EquippedHeavyWeapon = GetBestHeavyWeapon(NewGameState);
-		AddItemToInventory(EquippedHeavyWeapon, eInvSlot_HeavyWeapon, NewGameState);
+		if (i >= EquippedHeavyWeapons.Length && class'CHItemSlot'.static.SlotGetUnequipBehavior(eInvSlot_HeavyWeapon, self, none, none) == eCHSUB_AttemptReEquip)
+		{
+			EquippedHeavyWeapon = GetBestHeavyWeapon(NewGameState);
+			AddItemToInventory(EquippedHeavyWeapon, eInvSlot_HeavyWeapon, NewGameState);
+		}
 	}
-	else if(EquippedHeavyWeapon != none && !HasHeavyWeapon(NewGameState))
+	for (i = 0; i < EquippedHeavyWeapons.Length; i++)
 	{
-		EquippedHeavyWeapon = XComGameState_Item(NewGameState.ModifyStateObject(class'XComGameState_Item', EquippedHeavyWeapon.ObjectID));
-		RemoveItemFromInventory(EquippedHeavyWeapon, NewGameState);
-		XComHQ.PutItemInInventory(NewGameState, EquippedHeavyWeapon);
-		EquippedHeavyWeapon = none;
+		if (i >= NumHeavy)
+		{
+			EquippedHeavyWeapon = XComGameState_Item(NewGameState.ModifyStateObject(class'XComGameState_Item', EquippedHeavyWeapons[idx].ObjectID));
+			RemoveItemFromInventory(EquippedHeavyWeapon, NewGameState);
+			XComHQ.PutItemInInventory(NewGameState, EquippedHeavyWeapon);
+			EquippedHeavyWeapon = none;
+		}
 	}
+	// End Issue #171
 
 	// Grenade Pocket
 	EquippedGrenade = GetItemInSlot(eInvSlot_GrenadePocket, NewGameState);
-	if(EquippedGrenade == none && HasGrenadePocket())
+	if(EquippedGrenade == none && HasGrenadePocket() && class'CHItemSlot'.static.SlotGetUnequipBehavior(eInvSlot_GrenadePocket, self, none, none) == eCHSUB_AttemptReEquip)
 	{
 		EquippedGrenade = GetBestGrenade(NewGameState);
 		AddItemToInventory(EquippedGrenade, eInvSlot_GrenadePocket, NewGameState);
@@ -10589,20 +10715,7 @@ function ValidateLoadout(XComGameState NewGameState)
 		EquippedGrenade = none;
 	}
 
-	// UtilitySlots (Already grabbed equipped)
-	if(!IsMPCharacter())
-	{
-		if(X2ArmorTemplate(EquippedArmor.GetMyTemplate()).bAddsUtilitySlot || HasExtraUtilitySlotFromAbility())
-		{
-			SetBaseMaxStat(eStat_UtilityItems, GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems) + 1.0f);
-			SetCurrentStat(eStat_UtilityItems, GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems) + 1.0f);
-		}
-		else
-		{
-			SetBaseMaxStat(eStat_UtilityItems, GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems));
-			SetCurrentStat(eStat_UtilityItems, GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems));
-		}
-	}
+	// Issue #171 - code moved
 
 	// Remove Extra Utility Items
 	for(idx = GetCurrentStat(eStat_UtilityItems); idx < EquippedUtilityItems.Length; idx++)
@@ -10621,11 +10734,14 @@ function ValidateLoadout(XComGameState NewGameState)
 	}
 
 	// Equip Default Utility Item in first slot if needed
-	while(EquippedUtilityItems.Length < 1 && GetCurrentStat(eStat_UtilityItems) > 0)
+	if (class'CHItemSlot'.static.SlotGetUnequipBehavior(eInvSlot_Utility, self, none, none) == eCHSUB_AttemptReEquip)
 	{
-		UtilityItem = GetBestUtilityItem(NewGameState);
-		AddItemToInventory(UtilityItem, eInvSlot_Utility, NewGameState);
-		EquippedUtilityItems.AddItem(UtilityItem);
+		while(EquippedUtilityItems.Length < 1 && GetCurrentStat(eStat_UtilityItems) > 0)
+		{
+			UtilityItem = GetBestUtilityItem(NewGameState);
+			AddItemToInventory(UtilityItem, eInvSlot_Utility, NewGameState);
+			EquippedUtilityItems.AddItem(UtilityItem);
+		}
 	}
 
 	// Issue #118 Start

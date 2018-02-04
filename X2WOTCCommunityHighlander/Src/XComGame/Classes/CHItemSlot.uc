@@ -328,6 +328,10 @@ static function bool SlotShouldBeShown(EInventorySlot Slot, XComGameState_Unit U
 
 static function bool SlotAvailable(EInventorySlot Slot, out string LockedReason, XComGameState_Unit Unit, optional XComGameState CheckGameState)
 {
+	// Issue #171 Variables
+	local int NumHeavy, NumUtility, i;
+	local array<X2DownloadableContentInfo> DLCInfos;
+
 	LockedReason = "";
 	switch (Slot)
 	{
@@ -337,7 +341,14 @@ static function bool SlotAvailable(EInventorySlot Slot, out string LockedReason,
 		case eInvSlot_SecondaryWeapon:
 			return Unit.NeedsSecondaryWeapon();
 		case eInvSlot_HeavyWeapon:
-			return Unit.HasHeavyWeapon(CheckGameState);
+			DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+			NumUtility = -1;
+			NumHeavy = Unit.HasHeavyWeapon(CheckGameState) ? 1 : 0;
+			for(i = 0; i < DLCInfos.Length; ++i)
+			{
+				DLCInfos[i].GetNumSlotsOverride(NumUtility, NumHeavy, none, Unit, CheckGameState);
+			}
+			return NumHeavy > 0;
 		case eInvSlot_Utility:
 		case eInvSlot_CombatSim:
 			// Units always have a utility slot, but sometimes eStat_UtilityItems == 0. We consider the slot to be available
@@ -387,7 +398,7 @@ static function ECHSlotUnequipBehavior SlotGetUnequipBehavior(EInventorySlot Slo
 
 	// Base game behavior: If the item is not infinite or has been modified, show the drop button and attempt to replace it with another item
 	// Otherwise, don't show the drop button
-	Behavior = (!ItemState.GetMyTemplate().bInfiniteItem ||ItemState.HasBeenModified()) ? eCHSUB_AttemptReEquip : eCHSUB_DontAllow;
+	Behavior = (ItemState == none || (!ItemState.GetMyTemplate().bInfiniteItem ||ItemState.HasBeenModified())) ? eCHSUB_AttemptReEquip : eCHSUB_DontAllow;
 
 	// If the slot is templated, the slot can define whether to let this item be unequipped / replaced. If the slot doesn't implement this,
 	// The default behavior is used
@@ -464,13 +475,16 @@ static function array<EInventorySlot> GetDefaultDisplayedSlots(XComGameState_Uni
 
 static function bool SlotIsMultiItem(EInventorySlot Slot)
 {
-	return Slot == eInvSlot_Backpack || Slot == eInvSlot_Utility || Slot == eInvSlot_CombatSim || (SlotIsTemplated(Slot) && GetTemplateForSlot(Slot).IsMultiItemSlot);
+	return Slot == eInvSlot_Backpack || Slot == eInvSlot_Utility || Slot == eInvSlot_HeavyWeapon || Slot == eInvSlot_CombatSim || (SlotIsTemplated(Slot) && GetTemplateForSlot(Slot).IsMultiItemSlot);
 }
 
 // Only valid for Multi-Item slots!
 // Return -1 for infinite
 static function int SlotGetMaxItemCount(EInventorySlot Slot, XComGameState_Unit Unit, optional XComGameState CheckGameState)
 {
+	// Issue #171 Variables
+	local int NumHeavy, NumUtility, i;
+	local array<X2DownloadableContentInfo> DLCInfos;
 	if (SlotIsMultiItem(Slot) == false)
 	{
 		`REDSCREEN(GetFuncName() $ " called with Slot " $ GetEnum(Enum'EInventorySlot', Slot) $ " which is no Multi-item slot!\n" @ GetScriptTrace());
@@ -484,6 +498,17 @@ static function int SlotGetMaxItemCount(EInventorySlot Slot, XComGameState_Unit 
 			return int(Unit.GetCurrentStat(eStat_CombatSims));
 		case eInvSlot_Backpack:
 			return -1;
+		// Start Issue #171
+		case eInvSlot_HeavyWeapon:
+			DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+			NumUtility = -1;
+			NumHeavy = Unit.HasHeavyWeapon(CheckGameState) ? 1 : 0;
+			for(i = 0; i < DLCInfos.Length; ++i)
+			{
+				DLCInfos[i].GetNumSlotsOverride(NumUtility, NumHeavy, none, Unit, CheckGameState);
+			}
+			return NumHeavy;
+		// End Issue #171
 		default:
 			// Due to the check for SlotIsMultiItem, this slot must be templated
 			return GetTemplateForSlot(Slot).GetMaxItemCount(Unit, CheckGameState);
