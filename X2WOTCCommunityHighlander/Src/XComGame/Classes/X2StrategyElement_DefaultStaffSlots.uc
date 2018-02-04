@@ -858,9 +858,8 @@ static function bool IsUnitValidForPsiChamberSoldierSlot(XComGameState_StaffSlot
 	local XComGameState_Unit Unit; 
 	local SCATProgression ProgressAbility;
 	local name AbilityName;
-	local array<X2DownloadableContentInfo> DLCInfos; // Issue #159: Added for hook
-	local int bCanAddItem; // Issue #159: hackery to avoid bool not being allowed to be out parameter
-	local int i;
+	local bool bOverridePsiTrain, bCanTrain; //issue #159 - booleans for mod override
+	local XComLWTuple Tuple; //issue #159 - tuple for event
 	Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitInfo.UnitRef.ObjectID));
 
 	if (Unit.CanBeStaffed()
@@ -868,13 +867,21 @@ static function bool IsUnitValidForPsiChamberSoldierSlot(XComGameState_StaffSlot
 		&& Unit.IsActive()
 		&& SlotState.GetMyTemplate().ExcludeClasses.Find(Unit.GetSoldierClassTemplateName()) == INDEX_NONE)
 	{
-		DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
-		for(i = 0; i < DLCInfos.Length; ++i)
-		{
-			if(DLCInfos[i].AlterPsiOpSlotRequirement(bCanAddItem, Unit, SlotState))
-			{
-				return bCanAddItem > 0;
-			}
+		Tuple = new class'XComLWTuple';
+		Tuple.Id = 'OverridePsiOpTraining';
+		Tuple.Data.Add(3);
+		Tuple.Data[0].kind = XComLWTVBool;
+		Tuple.Data[0].b = bOverridePsiTrain;
+		Tuple.Data[1].kind = XComLWTVBool;
+		Tuple.Data[1].b = bCanTrain;
+		Tuple.Data[2].kind = XComLWTVObject;
+		Tuple.Data[2].o = Unit;
+		
+		`XEVENTMGR.TriggerEvent('OverridePsiOpTraining', Tuple, self);
+		bOverridePsiTrain = Tuple.Data[0].b;
+		bCanTrain = Tuple.Data[1].b;
+		if(bOverridePsiTrain){
+			return bCanTrain;
 		}
 		if (Unit.GetRank() == 0 && !Unit.CanRankUpSoldier()) // All rookies who have not yet ranked up can be trained as Psi Ops
 		{

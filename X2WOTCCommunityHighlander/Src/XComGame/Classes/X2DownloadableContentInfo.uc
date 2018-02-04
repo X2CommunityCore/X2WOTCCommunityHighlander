@@ -358,18 +358,6 @@ static function PostSitRepCreation(out GeneratedMissionData GeneratedMission, op
 }
 // End Issue #157
 
-//start issue #159
-/// <summary>
-/// Called from X2StrategyElement_DefaultStaffSlots:IsUnitValidForPsiChamberSoldierSlot
-/// lets mods interact with whether a psi op (or other unit) can be trained in the psi lab, without needing to override the slot directly
-/// return true if a mod should override the vanilla methods
-/// </summary>
-static function bool AlterPsiOpSlotRequirement(out int bCanAddItem, XComGameState_Unit Unit, XComGameState_StaffSlot SlotState)
-{
-	return false;
-}
-// end issue #159
-
 // Start Issue #169
 /// <summary>
 /// Called from XComHumanPawn:UpdateMeshMaterials
