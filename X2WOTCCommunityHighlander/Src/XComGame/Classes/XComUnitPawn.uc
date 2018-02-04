@@ -3311,35 +3311,18 @@ function PlayHQIdleAnim(optional name OverrideAnimName, optional bool bIsCapture
 simulated exec function UpdateAnimations()
 {
 	local XComGameStateHistory History;
-	local XComGameStateHistory TempHistory;
-	local UIScreenStack ScreenStack;
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local array<AnimSet> CustomAnimSets;
 	local XComGameState_Unit UnitState;
-	local CharacterPoolManager CPManager;
 	local int i;
 
 	History = `XCOMHISTORY;
-	ScreenStack = `SCREENSTACK;
 
 	super.UpdateAnimations();
 
-	if (ScreenStack.GetCurrentScreen() == none || `SCREENSTACK.HasInstanceOf(class'UIShell')) // We're at the Main Menu
+	if (UnitState_Menu != none) // We're at the Main Menu
 	{
-		`ONLINEEVENTMGR.LatestSaveState(TempHistory);
-		UnitState = XComGameState_Unit(TempHistory.GetGameStateForObjectID(ObjectID));
-	}
-	else if (`SCREENSTACK.IsInStack(class'UICharacterPool')) // We're at the Character Pool
-	{
-		CPManager = CharacterPoolManager(`XENGINE.GetCharacterPoolManager());
-		for (i = 0; i < CPManager.CharacterPool.Length; ++i)
-		{
-			UnitState = CPManager.CharacterPool[i];
-			if (UnitState.GetReference().ObjectID == ObjectID)
-			{
-				break;
-			}
-		}
+		UnitState = UnitState_Menu;
 	}
 	else // We're at a Saved Game
 	{
