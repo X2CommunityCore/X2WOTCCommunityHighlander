@@ -599,8 +599,7 @@ simulated function UpdateEquippedList()
 	local int prevIndex;
 	local CHUIItemSlotEnumerator En; // Variable for Issue #118
 	// Issue #171 Variables
-	local int NumUtility, NumHeavy, i;
-	local array<X2DownloadableContentInfo> DLCInfos;
+	local int NumUtility, NumHeavy;
 
 	prevIndex = EquippedList.SelectedIndex;
 	UpdatedUnit = GetUnit();
@@ -611,17 +610,7 @@ simulated function UpdateEquippedList()
 
 	// Issue #171 Start
 	// Realize Inventory so mods changing utility slots get updated faster
-	NumUtility = UpdatedUnit.GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems);
-
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
-	NumHeavy = -1;
-	for(i = 0; i < DLCInfos.Length; ++i)
-	{
-		DLCInfos[i].GetNumSlotsOverride(NumUtility, NumHeavy, none, UpdatedUnit, CheckGameState);
-	}
-
-	UpdatedUnit.SetBaseMaxStat(eStat_UtilityItems, NumUtility);
-	UpdatedUnit.SetCurrentStat(eStat_UtilityItems, NumUtility);
+	UpdatedUnit.RealizeItemSlotsCount(NumUtility, NumHeavy, none, CheckGameState);
 	// Issue #171 End
 
 	// Issue #118 Start
