@@ -66,7 +66,7 @@ static function bool UnitTypeShouldBeCleanedUp(XComGameState_Unit UnitState)
 		if (CharTemplate.bIsAlien || CharTemplate.bIsAdvent || CharTemplate.bIsCivilian)
 		{
 			IncludeIdx = default.CharacterTypesToCleanup.Find(CharTemplateName);
-			if (ExcludeIdx != INDEX_NONE)
+			if (IncludeIdx != INDEX_NONE)
 			{
 				return true;
 			}
