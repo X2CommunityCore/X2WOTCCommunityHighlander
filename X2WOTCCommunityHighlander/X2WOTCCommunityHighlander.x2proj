@@ -44,6 +44,9 @@
     <Content Include="Src\Engine\Classes\AudioComponent.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\X2WOTCCommunityHighlander\Classes\CHTacticalCleanupHelper.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2WOTCCH_UIScreenListener_ShellSplash.uc">
       <SubType>Content</SubType>
     </Content>
