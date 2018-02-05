@@ -323,43 +323,9 @@ function X2BodyPartTemplate RandomizeSetBodyPart(X2BodyPartTemplateManager PartT
 
 function UpdateDLCPackFilters()
 {
-	local int Index;
-	local XComOnlineProfileSettings ProfileSettings;
-	local X2BodyPartTemplateManager PartTemplateManager;
-	local int PartPackIndex;
-	local array<name> PartPackNames;
-	local bool bHasSetting;
-
-	ProfileSettings = `XPROFILESETTINGS;
-
-	PartTemplateManager = class'X2BodyPartTemplateManager'.static.GetBodyPartTemplateManager();
-	PartPackNames = PartTemplateManager.GetPartPackNames();
-		
-	DLCNames.Length = 0;
-	DLCNames.AddItem('');
-	for(PartPackIndex = 0; PartPackIndex < PartPackNames.Length; ++PartPackIndex)
-	{
-		bHasSetting = false;
-		for(Index = 0; Index < ProfileSettings.Data.PartPackPresets.Length; ++Index)
-		{
-			if(ProfileSettings.Data.PartPackPresets[Index].PartPackName == PartPackNames[PartPackIndex])
-			{
-				bHasSetting = true;
-				if(`SYNC_FRAND() <= ProfileSettings.Data.PartPackPresets[Index].ChanceToSelect &&
-					ProfileSettings.Data.PartPackPresets[Index].ChanceToSelect > 0.02f ) //issue #154: sliders of part packs can only go as low as 0.01f due to a bug with UISlider. As a workaround, we just set the needed limit to 0.02f.
-				{
-					DLCNames.AddItem(ProfileSettings.Data.PartPackPresets[Index].PartPackName);
-					break;
-				}
-			}
-		}
-
-		//Handle the case where a setting has not been specified in the options menu
-		if(!bHasSetting && `SYNC_FRAND() <= DLCPartPackDefaultChance)
-		{
-			DLCNames.AddItem(PartPackNames[PartPackIndex]);			
-		}
-	}
+	// Issue #155 follow-up Start
+	DLCNames = class'CHHelpers'.static.GetAcceptablePartPacks();
+	// Issue #155 End
 }
 
 function TSoldier CreateTSoldier( optional name CharacterTemplateName, optional EGender eForceGender, optional name nmCountry = '', optional int iRace = -1, optional name ArmorName )
