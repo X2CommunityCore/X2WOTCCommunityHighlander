@@ -608,7 +608,7 @@ simulated function UpdateEquippedList()
 
 	// Issue #171 Start
 	// Realize Inventory so mods changing utility slots get updated faster
-	UpdatedUnit.RealizeItemSlotsCount(none, CheckGameState);
+	UpdatedUnit.RealizeItemSlotsCount(CheckGameState);
 	// Issue #171 End
 
 	// Issue #118 Start

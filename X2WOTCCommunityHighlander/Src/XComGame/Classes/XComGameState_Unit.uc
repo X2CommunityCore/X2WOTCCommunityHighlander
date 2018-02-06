@@ -7007,9 +7007,6 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 	local X2SimpleBodyPartFilter Filter;
 	local X2ItemTemplate ItemTemplate;
 	local array<name> DLCNames; //issue #155 addition
-	// Issue #171 Variables
-	local XComGameState_Item EquippedAmmo;
-	local XComGameState_HeadquartersXCom XComHQ;
 
 	ItemTemplate = Item.GetMyTemplate();
 	
@@ -7048,7 +7045,7 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 			// Start Issue #171
 			if(!IsMPCharacter())
 			{
-				RealizeItemSlotsCount(Item, NewGameState);
+				RealizeItemSlotsCount(NewGameState);
 				// End Issue #171
 			}
 
@@ -7136,32 +7133,6 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 		{
 			ApplyCombatSimStats(Item);
 		}
-		// Start Issue #171
-		else if (Slot == eInvSlot_Utility)
-		{
-			if (X2AmmoTemplate(ItemTemplate) != none)
-			{
-				// Unequip ammo pocket since ValidateLoadout now stops ammo stacking
-				EquippedAmmo = GetItemInSlot(eInvSlot_AmmoPocket, NewGameState);
-				if (EquippedAmmo != none)
-				{
-					foreach NewGameState.IterateByClassType(class'XComGameState_HeadquartersXCom', XComHQ)
-					{
-						break;
-					}
-					if(XComHQ == none)
-					{
-						XComHQ = XComGameState_HeadquartersXCom(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
-						XComHQ = XComGameState_HeadquartersXCom(NewGameState.ModifyStateObject(class'XComGameState_HeadquartersXCom', XComHQ.ObjectID));
-					}
-					EquippedAmmo = XComGameState_Item(NewGameState.ModifyStateObject(class'XComGameState_Item', EquippedAmmo.ObjectID));
-					RemoveItemFromInventory(EquippedAmmo, NewGameState);
-					XComHQ.PutItemInInventory(NewGameState, EquippedAmmo);
-					EquippedAmmo = none;
-				}
-			}
-		}
-		// End Issues # 171
 		// Issue #118 Start
 		else if (class'CHItemSlot'.static.SlotIsTemplated(Slot))
 		{
@@ -7513,7 +7484,7 @@ simulated function bool RemoveItemFromInventory(XComGameState_Item Item, optiona
 			// Start Issue #171
 			if(!IsMPCharacter())
 			{
-				RealizeItemSlotsCount(Item, ModifyGameState);
+				RealizeItemSlotsCount(ModifyGameState);
 			}
 			// End Issue #171
 			break;
@@ -10589,8 +10560,7 @@ function ValidateLoadout(XComGameState NewGameState)
 	for(idx = 0; idx < EquippedUtilityItems.Length; idx++)
 	{
 		if (X2AmmoTemplate(EquippedUtilityItems[idx].GetMyTemplate()) != none && 
-		   (!X2AmmoTemplate(EquippedUtilityItems[idx].GetMyTemplate()).IsWeaponValidForAmmo(X2WeaponTemplate(EquippedPrimaryWeapon.GetMyTemplate())) ||
-		   AmmoPocketFilled))
+		   (!X2AmmoTemplate(EquippedUtilityItems[idx].GetMyTemplate()).IsWeaponValidForAmmo(X2WeaponTemplate(EquippedPrimaryWeapon.GetMyTemplate()))))
 		{
 	// End Issue #171
 			EquippedAmmo = XComGameState_Item(NewGameState.ModifyStateObject(class'XComGameState_Item', EquippedUtilityItems[idx].ObjectID));
@@ -10622,7 +10592,7 @@ function ValidateLoadout(XComGameState NewGameState)
 
 	if(!IsMPCharacter())
 	{
-		RealizeItemSlotsCount(EquippedArmor, NewGameState);
+		RealizeItemSlotsCount(NewGameState);
 	}
 
 	NumHeavy = GetNumHeavyWeapons(NewGameState);
@@ -13845,18 +13815,16 @@ function String GetSoldierClassSummary()
 // End Issue #106
 
 // Start Issue #171
-// Sets the eStat_UtilityItems of the unit and returns the number of heavy weapons
-function int RealizeItemSlotsCount(XComGameState_Item ArmorItem, XComGameState CheckGameState, optional bool bSetStat=true)
+// Sets the eStat_UtilityItems of the unit and returns it.
+function int RealizeItemSlotsCount(XComGameState CheckGameState)
 {
 	local int i, NumUtility;
 	local array<X2DownloadableContentInfo> DLCInfos;
+	local XComGameState_Item ArmorItem;
 
 	NumUtility = GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems);
 
-	if (ArmorItem == none)
-	{
-		ArmorItem = GetItemInSlot(eInvSlot_Armor, CheckGameState);
-	}
+	ArmorItem = GetItemInSlot(eInvSlot_Armor, CheckGameState);
 
 	if ((ArmorItem != none && X2ArmorTemplate(ArmorItem.GetMyTemplate()).bAddsUtilitySlot) || HasExtraUtilitySlotFromAbility())
 	{

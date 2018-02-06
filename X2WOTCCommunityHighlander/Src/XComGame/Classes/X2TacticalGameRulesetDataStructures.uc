@@ -1117,9 +1117,12 @@ static function bool InventorySlotBypassesUniqueRule(EInventorySlot Slot)
 {
 	switch(Slot)
 	{
+	// Start Issue #171 - Allow ammo and grenade unique rule to be modified
 	case eInvSlot_AmmoPocket:
+		return class'CHHelpers'.default.AmmoSlotRespectUniqueRule;
 	case eInvSlot_GrenadePocket:
-		return true;
+		return !class'CHHelpers'.default.GrenadeBypassUniqueRule;
+	// End Issue #171
 	default:
 		// Issue #118 Start
 		if (class'CHItemSlot'.static.SlotIsTemplated(Slot))
