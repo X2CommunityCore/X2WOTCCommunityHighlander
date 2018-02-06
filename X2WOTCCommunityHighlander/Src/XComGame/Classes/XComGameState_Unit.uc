@@ -10503,7 +10503,6 @@ function ValidateLoadout(XComGameState NewGameState)
 	// Issue #171 Variables
 	local int NumHeavy, i;
 	local array<XComGameState_Item> EquippedHeavyWeapons;
-	local bool AmmoPocketFilled;
 
 	local array<CHItemSlot> ModSlots; // Variable for Issue #118
 
@@ -10550,10 +10549,6 @@ function ValidateLoadout(XComGameState NewGameState)
 			RemoveItemFromInventory(EquippedAmmo, NewGameState);
 			XComHQ.PutItemInInventory(NewGameState, EquippedAmmo);
 			EquippedAmmo = none;
-		}
-		else
-		{
-			AmmoPocketFilled = true;
 		}
 	}
 	EquippedUtilityItems = GetAllItemsInSlot(eInvSlot_Utility, NewGameState, ,true);
