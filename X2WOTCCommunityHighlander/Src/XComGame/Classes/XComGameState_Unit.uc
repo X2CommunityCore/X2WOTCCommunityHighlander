@@ -13837,11 +13837,8 @@ function int RealizeItemSlotsCount(XComGameState CheckGameState)
 		DLCInfos[i].GetNumUtilitySlotsOverride(NumUtility, ArmorItem, self, CheckGameState);
 	}
 
-	if (bSetStat)
-	{
-		SetBaseMaxStat(eStat_UtilityItems, NumUtility);
-		SetCurrentStat(eStat_UtilityItems, NumUtility);
-	}
+	SetBaseMaxStat(eStat_UtilityItems, NumUtility);
+	SetCurrentStat(eStat_UtilityItems, NumUtility);
 
 	return NumUtility;
 }
