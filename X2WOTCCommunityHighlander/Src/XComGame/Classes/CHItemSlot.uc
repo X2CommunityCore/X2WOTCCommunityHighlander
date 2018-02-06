@@ -328,8 +328,6 @@ static function bool SlotShouldBeShown(EInventorySlot Slot, XComGameState_Unit U
 
 static function bool SlotAvailable(EInventorySlot Slot, out string LockedReason, XComGameState_Unit Unit, optional XComGameState CheckGameState)
 {
-	// Issue #171 Variables
-	local int NumHeavy, NumUtility;
 
 	LockedReason = "";
 	switch (Slot)
@@ -340,7 +338,7 @@ static function bool SlotAvailable(EInventorySlot Slot, out string LockedReason,
 		case eInvSlot_SecondaryWeapon:
 			return Unit.NeedsSecondaryWeapon();
 		case eInvSlot_HeavyWeapon:
-			return Unit.RealizeItemSlotsCount(NumUtility, NumHeavy, none, CheckGameState, false) > 0;
+			return Unit.GetNumHeavyWeapons(CheckGameState) > 0;
 		case eInvSlot_Utility:
 		case eInvSlot_CombatSim:
 			// Units always have a utility slot, but sometimes eStat_UtilityItems == 0. We consider the slot to be available
@@ -474,8 +472,6 @@ static function bool SlotIsMultiItem(EInventorySlot Slot)
 // Return -1 for infinite
 static function int SlotGetMaxItemCount(EInventorySlot Slot, XComGameState_Unit Unit, optional XComGameState CheckGameState)
 {
-	// Issue #171 Variables
-	local int NumHeavy, NumUtility;
 	if (SlotIsMultiItem(Slot) == false)
 	{
 		`REDSCREEN(GetFuncName() $ " called with Slot " $ GetEnum(Enum'EInventorySlot', Slot) $ " which is no Multi-item slot!\n" @ GetScriptTrace());
@@ -491,7 +487,7 @@ static function int SlotGetMaxItemCount(EInventorySlot Slot, XComGameState_Unit 
 			return -1;
 		// Start Issue #171
 		case eInvSlot_HeavyWeapon:
-			return Unit.RealizeItemSlotsCount(NumUtility, NumHeavy, none, CheckGameState, false);
+			return Unit.GetNumHeavyWeapons(CheckGameState);
 		// End Issue #171
 		default:
 			// Due to the check for SlotIsMultiItem, this slot must be templated

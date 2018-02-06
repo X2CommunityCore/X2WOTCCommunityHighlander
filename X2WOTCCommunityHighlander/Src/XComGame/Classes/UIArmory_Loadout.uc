@@ -598,8 +598,6 @@ simulated function UpdateEquippedList()
 	local XComGameState_Unit UpdatedUnit;
 	local int prevIndex;
 	local CHUIItemSlotEnumerator En; // Variable for Issue #118
-	// Issue #171 Variables
-	local int NumUtility, NumHeavy;
 
 	prevIndex = EquippedList.SelectedIndex;
 	UpdatedUnit = GetUnit();
@@ -610,7 +608,7 @@ simulated function UpdateEquippedList()
 
 	// Issue #171 Start
 	// Realize Inventory so mods changing utility slots get updated faster
-	UpdatedUnit.RealizeItemSlotsCount(NumUtility, NumHeavy, none, CheckGameState);
+	UpdatedUnit.RealizeItemSlotsCount(none, CheckGameState);
 	// Issue #171 End
 
 	// Issue #118 Start

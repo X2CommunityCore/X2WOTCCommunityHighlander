@@ -7008,7 +7008,6 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 	local X2ItemTemplate ItemTemplate;
 	local array<name> DLCNames; //issue #155 addition
 	// Issue #171 Variables
-	local int NumUtility, NumHeavy;
 	local XComGameState_Item EquippedAmmo;
 	local XComGameState_HeadquartersXCom XComHQ;
 
@@ -7049,7 +7048,7 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 			// Start Issue #171
 			if(!IsMPCharacter())
 			{
-				RealizeItemSlotsCount(NumUtility, NumHeavy, Item, NewGameState);
+				RealizeItemSlotsCount(Item, NewGameState);
 				// End Issue #171
 			}
 
@@ -7191,7 +7190,7 @@ simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate,
 	local int bCanAddItem; // Issue #50: hackery to avoid bool not being allowed to be out parameter
 	local string BlankString; //issue #114: blank string variable for the out variable
 	// Issue #171 Variables
-	local int NumHeavy, NumUtility;
+	local int NumHeavy;
 	// Start Issue #50 and #114: inventory hook
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 	for(i = 0; i < DLCInfos.Length; ++i)
@@ -7264,7 +7263,7 @@ simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate,
 			return ItemTemplate.ItemCat == 'ammo';
 		case eInvSlot_HeavyWeapon:
 			// Start Issue #171
-			RealizeItemSlotsCount(NumUtility, NumHeavy, none, CheckGameState, false);
+			NumHeavy = GetNumHeavyWeapons(CheckGameState);
 			if (NumHeavy == 0)
 				return false;
 			if (WeaponTemplate ==  none)
@@ -7476,8 +7475,6 @@ simulated function bool RemoveItemFromInventory(XComGameState_Item Item, optiona
 	local X2ItemTemplate ItemTemplate;
 	local X2ArmorTemplate ArmorTemplate;
 	local int RemoveIndex;
-	// Issue #171 Variables
-	local int NumUtility, NumHeavy;
 
 	if (CanRemoveItemFromInventory(Item, ModifyGameState))
 	{				
@@ -7516,7 +7513,7 @@ simulated function bool RemoveItemFromInventory(XComGameState_Item Item, optiona
 			// Start Issue #171
 			if(!IsMPCharacter())
 			{
-				RealizeItemSlotsCount(NumUtility, NumHeavy, Item, ModifyGameState);
+				RealizeItemSlotsCount(Item, ModifyGameState);
 			}
 			// End Issue #171
 			break;
@@ -10533,7 +10530,7 @@ function ValidateLoadout(XComGameState NewGameState)
 	local array<XComGameState_Item> EquippedUtilityItems; // Utility Slots
 	local int idx;
 	// Issue #171 Variables
-	local int NumUtility, NumHeavy, i;
+	local int NumHeavy, i;
 	local array<XComGameState_Item> EquippedHeavyWeapons;
 	local bool AmmoPocketFilled;
 
@@ -10625,8 +10622,10 @@ function ValidateLoadout(XComGameState NewGameState)
 
 	if(!IsMPCharacter())
 	{
-		RealizeItemSlotsCount(NumUtility, NumHeavy, EquippedArmor, NewGameState);
+		RealizeItemSlotsCount(EquippedArmor, NewGameState);
 	}
+
+	NumHeavy = GetNumHeavyWeapons(NewGameState);
 
 	// Heavy Weapon Slot
 	EquippedHeavyWeapons = GetAllItemsInSlot(eInvSlot_HeavyWeapon, NewGameState);
@@ -13847,9 +13846,9 @@ function String GetSoldierClassSummary()
 
 // Start Issue #171
 // Sets the eStat_UtilityItems of the unit and returns the number of heavy weapons
-function int RealizeItemSlotsCount(out int NumUtility, out int NumHeavy, XComGameState_Item ArmorItem, XComGameState CheckGameState, optional bool bSetStat=true)
+function int RealizeItemSlotsCount(XComGameState_Item ArmorItem, XComGameState CheckGameState, optional bool bSetStat=true)
 {
-	local int i;
+	local int i, NumUtility;
 	local array<X2DownloadableContentInfo> DLCInfos;
 
 	NumUtility = GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems);
@@ -13863,12 +13862,11 @@ function int RealizeItemSlotsCount(out int NumUtility, out int NumHeavy, XComGam
 	{
 		NumUtility += 1.0f;
 	}
-	NumHeavy = HasHeavyWeapon(CheckGameState) ? 1 : 0;
 
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
-		DLCInfos[i].GetNumSlotsOverride(NumUtility, NumHeavy, ArmorItem, self, CheckGameState);
+		DLCInfos[i].GetNumUtilitySlotsOverride(NumUtility, ArmorItem, self, CheckGameState);
 	}
 
 	if (bSetStat)
@@ -13877,6 +13875,22 @@ function int RealizeItemSlotsCount(out int NumUtility, out int NumHeavy, XComGam
 		SetCurrentStat(eStat_UtilityItems, NumUtility);
 	}
 
+	return NumUtility;
+}
+
+function int GetNumHeavyWeapons(optional XComGameState CheckGameState)
+{
+	local int i, NumHeavy;
+	local array<X2DownloadableContentInfo> DLCInfos;
+
+	NumHeavy = HasHeavyWeapon(CheckGameState) ? 1 : 0;
+
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	for(i = 0; i < DLCInfos.Length; ++i)
+	{
+		DLCInfos[i].GetNumHeavyWeaponSlotsOverride(NumHeavy, self, CheckGameState);
+	}
+	
 	return NumHeavy;
 }
 // End Issue #171

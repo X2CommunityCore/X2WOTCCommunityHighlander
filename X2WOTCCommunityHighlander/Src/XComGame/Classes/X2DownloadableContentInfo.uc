@@ -319,10 +319,14 @@ static function OverrideItemImage(out array<string> imagePath, const EInventoryS
 }
 
 /// Also Issue #64
-/// Allows override number of utility and heavy weapons slots
-/// NumHeavySlots or NumUtilitySlots will pass in -1 if it is irrelevant
+/// Allows override number of utility slots
+static function GetNumUtilitySlotsOverride(out int NumUtilitySlots, XComGameState_Item EquippedArmor, XComGameState_Unit UnitState, XComGameState CheckGameState)
+{
+}
+
+/// Allows override number of heavy weapons slots
 /// These are the only base game slots that can be safely unrestricted since they are optional and not expected by class perks, if you want other multi slots use the CHItemSlot feature
-static function GetNumSlotsOverride(out int NumUtilitySlots, out int NumHeavySlots, XComGameState_Item EquippedArmor, XComGameState_Unit UnitState, XComGameState CheckGameState)
+static function GetNumHeavyWeaponSlotsOverride(out int NumHeavySlots, XComGameState_Unit UnitState, XComGameState CheckGameState)
 {
 }
 // End Issue #171
