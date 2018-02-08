@@ -3166,12 +3166,15 @@ simulated function XComGameState HotLoadAmmo_BuildGameState(XComGameStateContext
 	NewWeaponState = XComGameState_Item(NewGameState.ModifyStateObject(class'XComGameState_Item', WeaponState.ObjectID));
 	WeaponTemplate = X2WeaponTemplate(WeaponState.GetMyTemplate());
 
-	UtilityItems = UnitState.GetAllItemsInSlot(eInvSlot_Utility);
+	// Start Issue #171
+	UtilityItems = UnitState.GetAllInventoryItems(, true);
 	foreach UtilityItems(AmmoState)
 	{
 		AmmoTemplate = X2AmmoTemplate(AmmoState.GetMyTemplate());
-		if (AmmoTemplate != none && AmmoTemplate.IsWeaponValidForAmmo(WeaponTemplate))
+		// Ignore looted/droppbale ammos as well
+		if (AmmoTemplate != none && AmmoTemplate.IsWeaponValidForAmmo(WeaponTemplate) && AmmoState.InventorySlot != eInvSlot_Backpack && AmmoState.InventorySlot != eInvSlot_Loot)
 		{
+	// End Issue #171
 			FoundAmmo = true;
 			break;
 		}
@@ -3431,11 +3434,9 @@ static function X2AbilityTemplate TacticalRigging()
 
 function TacticalRiggingPurchased(XComGameState NewGameState, XComGameState_Unit UnitState)
 {
-	if (UnitState.GetBaseStat(eStat_UtilityItems) <= UnitState.GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems))
-	{
-		UnitState.SetBaseMaxStat(eStat_UtilityItems, UnitState.GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems) + 1.0f);
-		UnitState.SetCurrentStat(eStat_UtilityItems, UnitState.GetMyTemplate().GetCharacterBaseStat(eStat_UtilityItems) + 1.0f);
-	}
+	// Start Isse #171
+	UnitState.RealizeItemSlotsCount(NewGameState);
+	// End Isse #171
 }
 
 // Added DisableConsumeAllPoints ability to be kicked off for Panicking units.
