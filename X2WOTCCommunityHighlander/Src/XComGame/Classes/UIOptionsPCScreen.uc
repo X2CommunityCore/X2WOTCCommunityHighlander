@@ -208,7 +208,7 @@ struct native TUIGraphicsOptionSettingConfig
 };
 
 const NumGraphicsOptions = 15;
-const NUM_LISTITEMS = 16;
+const NUM_LISTITEMS = 999; //issue #160 - lets a LOT more part packs be shown at a time when players go to adjust them
 var TUIGraphicsOptionSettingConfig GraphicsOptions[NumGraphicsOptions];
 var byte GraphicsVals[NumGraphicsOptions];
 

@@ -727,6 +727,25 @@ simulated function WipeUpgradeTemplates()
 
 simulated function bool HasBeenModified()
 {
+	local XComLWTuple Tuple; //start of issue #183 - added mod event hook for mods wanting to have certain items not be stacked
+	local bool bOverrideItemModified, bItemModified; 
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideItemIsModified';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = bOverrideItemModified;
+	Tuple.Data[1].kind = XComLWTVBool;
+	Tuple.Data[1].b = bItemModified;
+
+	`XEVENTMGR.TriggerEvent('OverrideItemIsModified', Tuple, self, none);
+	bOverrideItemModified = Tuple.Data[0].b;
+	bItemModified = Tuple.Data[1].b;
+	if(bOverrideItemModified){
+		return bItemModified; 
+	} //end issue #183
+
+
 	//start issue #104: added check for whether a item gamestate has any attached component object ids. If so, don't put it in a stack since a mod has attached something to it.
 	return Nickname != "" || GetMyWeaponUpgradeTemplateNames().Length > 0 || ComponentObjectIds.Length > 0;
 	//end issue #104
