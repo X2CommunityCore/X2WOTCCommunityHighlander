@@ -41,6 +41,12 @@
     <Content Include="Config\XComEngine.ini" />
     <Content Include="Config\XComGame.ini" />
     <Content Include="Localization\XComGame.int" />
+    <Content Include="ModPreviewLinux.jpg">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="ModPreviewWindows.jpg">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\Engine\Classes\AudioComponent.uc">
       <SubType>Content</SubType>
     </Content>
@@ -106,6 +112,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIArmory_PromotionPsiOp.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIAvengerHUD.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIButton.uc">
