@@ -596,7 +596,13 @@ simulated protected function SetAuxParameters(bool bNeedsPrimary, bool bNeedsSec
 {
 	SetAuxParametersNative(bNeedsPrimary, bNeedsSecondary, bUse3POutline);
 
-	if( !m_bAuxParamNeedsAOEMaterial )
+
+	if(
+	// Start Issue #186: Guard with a config option, will hopefully improve performance especially with many mods
+		class'CHHelpers'.default.UPDATE_MATERIALS_CONSTANTLY &&
+	// End Issue #186
+		!m_bAuxParamNeedsAOEMaterial )
+
 		UpdateAllMeshMaterials();
 }
 

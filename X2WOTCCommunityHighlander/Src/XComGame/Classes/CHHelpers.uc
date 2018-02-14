@@ -43,6 +43,15 @@ var config array<name> AbilityTemplatePerksToLoad;
 var config array<name> ClassesExcludedFromResHQ;
 //end issue #113
 
+// Start Issue #186
+// This is a performance improvement, so we want the default setting to actually change the game behavior
+// This change shouldn't break anything, but the logic is so tightly interfaced with native code I want to provide
+// an easy opt-out in case it breaks anything, especially in combination with mods that relied on quirky behavior.
+// If it turns out that this setting has any noticable effects with Materials, that should be considered a separate issue
+// and fixed before touching this again.
+var config bool UPDATE_MATERIALS_CONSTANTLY;
+// End Issue #186
+
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
 	local XComContentManager		Content;
