@@ -602,8 +602,9 @@ simulated protected function SetAuxParameters(bool bNeedsPrimary, bool bNeedsSec
 		class'CHHelpers'.default.UPDATE_MATERIALS_CONSTANTLY &&
 	// End Issue #186
 		!m_bAuxParamNeedsAOEMaterial )
-
+	{
 		UpdateAllMeshMaterials();
+	}
 }
 
 simulated protected native function SetAuxParametersNative(bool bNeedsPrimary, bool bNeedsSecondary, bool bUse3POutline);
