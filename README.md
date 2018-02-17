@@ -4,7 +4,7 @@ Welcome to the X2WOTCCommunityHighlander Github project. This is where the work 
 
 # What version are we at?
 
-[Check out the latest release here.](/releases/latest)
+[Check out the latest release here.](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/releases)
 
 # The Job List
 
