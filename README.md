@@ -146,7 +146,7 @@ Start by building the mod through ModBuddy, as you normally would. Then, enter t
 
 ```
 "%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\Binaries\Win64\XComGame.exe" make -final_release -full
-"%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\Binaries\Win64\XComGame.exe" CookPackages -platform=pcconsole -final_release -quickanddirty -modcook -sha -multilanguagecook=INT+FRA+ITA+DEU+RUS+POL+KOR+ESN -singlethread -tfcsuffix=_XPACK_
+"%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\Binaries\Win64\XComGame.exe" CookPackages -platform=pcconsole -final_release -quickanddirty -modcook -sha -multilanguagecook=INT+FRA+ITA+DEU+RUS+POL+KOR+ESN -singlethread
 ```
 
 The commands above create cooked files for your `XComGame` and `Engine` package replacements in
