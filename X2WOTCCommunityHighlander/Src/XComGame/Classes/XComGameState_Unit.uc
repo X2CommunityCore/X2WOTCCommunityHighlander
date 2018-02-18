@@ -10808,7 +10808,7 @@ function XComGameState_Item GetBestUtilityItem(XComGameState NewGameState)
 		return none;
 	}
 	// Issue #171, not neccessarily a weapon. Fixing here for convenience
-	ItemState = X2EquipmentTemplate(UtilityItemTemplates[`SYNC_RAND(UtilityItemTemplates.Length)]).CreateInstanceFromTemplate(NewGameState);
+	ItemState = UtilityItemTemplates[`SYNC_RAND(UtilityItemTemplates.Length)].CreateInstanceFromTemplate(NewGameState);
 
 	return ItemState;
 }
