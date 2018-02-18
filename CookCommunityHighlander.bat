@@ -7,9 +7,6 @@ REM Each variable should be formatted like this "SDKLocation=.\steamapps\common\
 SET "SDKLocation=.\steamapps\common\XCOM 2 War of the Chosen SDK"
 SET "GameLocation=.\steamapps\common\XCOM 2\XCom2-WarOfTheChosen"
 
-REM When set to 'y', this variable will trigger the user's default notify sound upon completion
-SET "UseCompletionSound=y"
-
 REM Verify folders exist before proceeding
 echo Verifying SDK and game folders exist...
 if not exist "%SDKLocation%" GOTO MissingSDKFolder
@@ -119,7 +116,6 @@ GOTO END
 
 
 :END
-if %UseCompletionSound%==y echo 
 
 popd
 pause
