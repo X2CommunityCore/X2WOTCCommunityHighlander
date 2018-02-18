@@ -22,11 +22,14 @@ const SLOT_MISC        = 0x00000008; // affected by code that strips all items
 const SLOT_ALL         = 0x0000000F; // combined mask for all these slot types
 
 // For the slot unequip behavior, used in UIArmory_Loadout
+// Issue #171 -- this receives a change in semantics. These are only used for determining whether to show the drop button.
+// This should be backwards compatible, as we required ValidateLoadout to mirror this setting.
+// This makes AttemptReEquip and AllowEmpty behave the same way, but both can be used to clarify the intent of the Drop button
 enum ECHSlotUnequipBehavior
 {
-	eCHSUB_AttemptReEquip, // Show drop button, attempt to re-equip another item if dropped
-	eCHSUB_DontAllow, // Do not show a drop button, item can only ever be directly replaced
-	eCHSUB_AllowEmpty, // Show drop button, No attempt will be made to equip another item when the item is dropped
+	eCHSUB_AttemptReEquip, // Show a drop button, equivalent to AllowEmpty
+	eCHSUB_DontAllow, // Do not show a drop button
+	eCHSUB_AllowEmpty, // Show a drop button
 };
 
 
@@ -90,8 +93,8 @@ delegate bool CanRemoveItemFromSlotFn(CHItemSlot Slot, XComGameState_Unit Unit, 
 delegate RemoveItemFromSlotFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_Item ItemState, optional XComGameState NewGameState);
 // Falls back to matching slots
 delegate bool ShowItemInLockerListFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_Item ItemState, X2ItemTemplate ItemTemplate, XComGameState CheckGameState);
-// ItemState is the Item that IS or WAS in the slot
-// Make sure ValidateLoadoutFn matches this setting
+// ItemState is the Item that is in the slot
+// Return eCHSUB_DontAllow to not show a drop button, eCHSUB_AllowEmpty to show one. If another item needs to be equipped, handle in ValidateLoadout
 delegate ECHSlotUnequipBehavior GetSlotUnequipBehaviorFn(CHItemSlot Slot, ECHSlotUnequipBehavior DefaultBehavior, XComGameState_Unit Unit, XComGameState_Item ItemState, optional XComGameState CheckGameState);
 delegate array<X2EquipmentTemplate> GetBestGearForSlotFn(CHItemSlot Slot, XComGameState_Unit Unit);
 delegate ValidateLoadoutFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_HeadquartersXCom XComHQ, XComGameState NewGameState);
@@ -391,7 +394,7 @@ static function ECHSlotUnequipBehavior SlotGetUnequipBehavior(EInventorySlot Slo
 
 	// Base game behavior: If the item is not infinite or has been modified, show the drop button and attempt to replace it with another item
 	// Otherwise, don't show the drop button
-	Behavior = (ItemState == none || (!ItemState.GetMyTemplate().bInfiniteItem ||ItemState.HasBeenModified())) ? eCHSUB_AttemptReEquip : eCHSUB_DontAllow;
+	Behavior = (!ItemState.GetMyTemplate().bInfiniteItem ||ItemState.HasBeenModified()) ? eCHSUB_AttemptReEquip : eCHSUB_DontAllow;
 
 	// If the slot is templated, the slot can define whether to let this item be unequipped / replaced. If the slot doesn't implement this,
 	// The default behavior is used
@@ -421,6 +424,8 @@ static function ECHSlotUnequipBehavior SlotGetUnequipBehavior(EInventorySlot Slo
 	return ECHSlotUnequipBehavior(OverrideTuple.Data[0].i);
 }
 
+// If UnitHasSlot(), this returns the minimum number of items that need to be in that slot for ValidateLoadout, or -1 for "all"
+// Calling code must ensure that the Unit has the slot.
 static function int SlotGetMinimumEquipped(EInventorySlot Slot, XComGameState_Unit Unit)
 {
 	local int MinSlots;
@@ -435,8 +440,6 @@ static function int SlotGetMinimumEquipped(EInventorySlot Slot, XComGameState_Un
 		switch (Slot)
 		{
 			case eInvSlot_SecondaryWeapon:
-				MinSlots = (Unit != none && Unit.NeedsSecondaryWeapon()) ? 1 : 0;
-				break;
 			case eInvSlot_Armor:
 			case eInvSlot_PrimaryWeapon:
 			case eInvSlot_GrenadePocket:
@@ -453,9 +456,9 @@ static function int SlotGetMinimumEquipped(EInventorySlot Slot, XComGameState_Un
 	OverrideTuple = new class'XComLWTuple';
 	OverrideTuple.Id = 'OverrideItemMinEquipped';
 	OverrideTuple.Data.Add(1);
-	// XComLWTuple does not have a Byte kind
 	OverrideTuple.Data[0].kind = XComLWTVInt;
 	OverrideTuple.Data[0].i = MinSlots;
+	// XComLWTuple does not have a Byte kind
 	OverrideTuple.Data[1].kind = XComLWTVInt;
 	OverrideTuple.Data[1].i = int(Slot);
 

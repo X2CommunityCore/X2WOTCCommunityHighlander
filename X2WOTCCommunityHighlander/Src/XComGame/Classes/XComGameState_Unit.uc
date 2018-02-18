@@ -10576,13 +10576,13 @@ function ValidateLoadout(XComGameState NewGameState)
 			EquippedAmmo = none;
 		}
 	}
+
 	EquippedUtilityItems = GetAllItemsInSlot(eInvSlot_Utility, NewGameState, ,true);
 	for(idx = 0; idx < EquippedUtilityItems.Length; idx++)
 	{
 		if (X2AmmoTemplate(EquippedUtilityItems[idx].GetMyTemplate()) != none && 
-		   (!X2AmmoTemplate(EquippedUtilityItems[idx].GetMyTemplate()).IsWeaponValidForAmmo(X2WeaponTemplate(EquippedPrimaryWeapon.GetMyTemplate()))))
+		   !X2AmmoTemplate(EquippedUtilityItems[idx].GetMyTemplate()).IsWeaponValidForAmmo(X2WeaponTemplate(EquippedPrimaryWeapon.GetMyTemplate())))
 		{
-	// End Issue #171
 			EquippedAmmo = XComGameState_Item(NewGameState.ModifyStateObject(class'XComGameState_Item', EquippedUtilityItems[idx].ObjectID));
 			RemoveItemFromInventory(EquippedAmmo, NewGameState);
 			XComHQ.PutItemInInventory(NewGameState, EquippedAmmo);
@@ -10594,8 +10594,8 @@ function ValidateLoadout(XComGameState NewGameState)
 
 	// Secondary Weapon Slot
 	EquippedSecondaryWeapon = GetItemInSlot(eInvSlot_SecondaryWeapon, NewGameState);
-	// Start Issue #171 - Secondary slot MinEquip will default to 1 or 0 base on NeedsSecondaryWeapon()
-	if(EquippedSecondaryWeapon == none && class'CHItemSlot'.static.SlotGetMinimumEquipped(eInvSlot_SecondaryWeapon, self) != 0)
+	// Start Issue #171
+	if(EquippedSecondaryWeapon == none && NeedsSecondaryWeapon() && class'CHItemSlot'.static.SlotGetMinimumEquipped(eInvSlot_SecondaryWeapon, self) != 0)
 	{
 	// End Issue #171
 		EquippedSecondaryWeapon = GetBestSecondaryWeapon(NewGameState);
@@ -10621,6 +10621,8 @@ function ValidateLoadout(XComGameState NewGameState)
 
 	// Heavy Weapon Slot
 	EquippedHeavyWeapons = GetAllItemsInSlot(eInvSlot_HeavyWeapon, NewGameState);
+	// NumMinEquip will only be relevant if the Unit has the slot, as the Max number of
+	// Heavy weapons can only be > 0 when the unit has the slot.
 	NumMinEquip = class'CHItemSlot'.static.SlotGetMinimumEquipped(eInvSlot_HeavyWeapon, self);
 	for (idx = 0; idx < NumHeavy; idx++)
 	{
@@ -10633,6 +10635,7 @@ function ValidateLoadout(XComGameState NewGameState)
 			}
 		}
 	}
+
 	for (idx = NumHeavy; idx < EquippedHeavyWeapons.Length; idx++)
 	{
 		EquippedHeavyWeapon = XComGameState_Item(NewGameState.ModifyStateObject(class'XComGameState_Item', EquippedHeavyWeapons[idx].ObjectID));
@@ -10804,8 +10807,8 @@ function XComGameState_Item GetBestUtilityItem(XComGameState NewGameState)
 	{
 		return none;
 	}
-
-	ItemState = X2WeaponTemplate(UtilityItemTemplates[`SYNC_RAND(UtilityItemTemplates.Length)]).CreateInstanceFromTemplate(NewGameState);
+	// Issue #171, not neccessarily a weapon. Fixing here for convenience
+	ItemState = X2EquipmentTemplate(UtilityItemTemplates[`SYNC_RAND(UtilityItemTemplates.Length)]).CreateInstanceFromTemplate(NewGameState);
 
 	return ItemState;
 }
