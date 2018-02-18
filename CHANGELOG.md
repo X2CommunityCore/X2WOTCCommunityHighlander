@@ -13,6 +13,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Triggers the event `OnArmoryMainMenuUpdate` that allows adding elements into
   the ArmoryList (#47)
 - Triggers the event `PostMissionUpdateSoldierHealing` that allows excluding soldiers from starting healing projects (#140)
+- Triggers the event `UpdateResources` that allows mods to show resources in the ResourceHeader (#174)
 
 ### Modding Exposures
 
@@ -95,6 +96,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 
 ### Mod/DLC Hooks
 - `UpdateAnimations` added to allow adding CustomAnimsets to UnitPawns (#24)
+- `UpdateMaterial`added to allow manipulate pawn materials (#169)
 - `DLCAppendSockets` added to allow appending sockets to UnitPawns (#21)
 - `CanAddItemToInventory` added to allow configuring whether or not a unit can
   equip a particular item as an extension to the standand rules (#50)
@@ -110,6 +112,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   name/summary dynamically e.g. depending on UnitState or Soldier Loadout,
   and adds accessor functions for those to XComGameState_Unit. (#106)
 - `GetPCSImageTuple` added to allow customising PCS Image string (#110)
+- Triggers the event `OverrideHasHeavyWeapon` that allows to override the result of `XComGameState_Unit.HasHeavyWeapon` (#172)
 
 ### Configuration
 - Able to list classes as excluded from AWC Skill Rolling, so they can still
