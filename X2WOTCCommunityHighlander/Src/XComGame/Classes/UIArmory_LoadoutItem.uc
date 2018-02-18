@@ -385,12 +385,8 @@ function OnDropItemClicked(UIButton kButton)
 		{
 			XComHQ.PutItemInInventory(NewGameState, ItemState); // Add the dropped item back to the HQ
 			// Issue #118 Start
-			if (class'CHItemSlot'.static.SlotGetUnequipBehavior(EquipmentSlot, OwnerState, ItemState, NewGameState) == eCHSUB_AttemptReEquip)
-			{
-				// Give the owner the best infinite item in its place
-				BestGearTemplates = OwnerState.GetBestGearForSlot(EquipmentSlot);
-				bUpgradeSucceeded = OwnerState.UpgradeEquipment(NewGameState, none, BestGearTemplates, EquipmentSlot, ReplacementItemState);
-			}
+			// Item is now re-equipped in ValidateLoadout, don't update ItemRef or ItemTemplate because UIArmory_Loadout(Screen).UpdateData(true) will destroy this anyways
+			bUpgradeSucceeded = false;
 			OwnerState.ValidateLoadout(NewGameState);
 			// Issue #118 End
 

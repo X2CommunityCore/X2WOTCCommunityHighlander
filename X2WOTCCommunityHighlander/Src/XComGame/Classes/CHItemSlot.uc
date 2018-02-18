@@ -53,6 +53,9 @@ var bool BypassesUniqueRule;
 // Imposes the limitation that its items can not be shown on cinematic pawns (Armory, SquadSelect, tactical Matinee).
 var bool IsMultiItemSlot;
 
+// Minimum number of items equipped on this slot, set to -1 to fill until all multi slots is full.
+var int MinimumEquipped;
+
 // If this slot is displayed, it can be displayed in a compact format in the SquadSelect screen
 // This imposes two limitations:
 // 1) Its item 2d images should be higher than wide, and 
@@ -416,6 +419,51 @@ static function ECHSlotUnequipBehavior SlotGetUnequipBehavior(EInventorySlot Slo
 	`XEVENTMGR.TriggerEvent('OverrideItemUnequipBehavior', OverrideTuple, ItemState);
 	
 	return ECHSlotUnequipBehavior(OverrideTuple.Data[0].i);
+}
+
+static function int SlotGetMinimumEquipped(EInventorySlot Slot, XComGameState_Unit Unit)
+{
+	local int MinSlots;
+	local XComLWTuple OverrideTuple;
+
+	if (SlotIsTemplated(Slot))
+	{
+		MinSlots = GetTemplateForSlot(Slot).MinimumEquipped;
+	}
+	else
+	{
+		switch (Slot)
+		{
+			case eInvSlot_SecondaryWeapon:
+				MinSlots = (Unit != none && Unit.NeedsSecondaryWeapon()) ? 1 : 0;
+				break;
+			case eInvSlot_Armor:
+			case eInvSlot_PrimaryWeapon:
+			case eInvSlot_GrenadePocket:
+			case eInvSlot_Utility:
+			case eInvSlot_HeavyWeapon:
+				MinSlots = 1;
+				break;
+			default:
+				MinSlots = 0;
+				break;
+		}
+	}
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideItemMinEquipped';
+	OverrideTuple.Data.Add(1);
+	// XComLWTuple does not have a Byte kind
+	OverrideTuple.Data[0].kind = XComLWTVInt;
+	OverrideTuple.Data[0].i = MinSlots;
+	OverrideTuple.Data[1].kind = XComLWTVInt;
+	OverrideTuple.Data[1].i = int(Slot);
+
+	`XEVENTMGR.TriggerEvent('OverrideItemUnequipBehavior', OverrideTuple, Unit);
+
+	MinSlots = OverrideTuple.Data[0].i;
+
+	return MinSlots;
 }
 
 static function int SlotGetPriority(EInventorySlot Slot, XComGameState_Unit Unit, optional XComGameState CheckGameState)
