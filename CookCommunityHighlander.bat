@@ -24,9 +24,19 @@ echo.
 echo Creating CookedPCConsole SDK directory... 
 mkdir "%SDKLocation%\XComGame\Mods\X2WOTCCommunityHighlander\CookedPCConsole" 
 )
+if not exist "%SDKLocation%\XComGame\Published" (
+echo. 
+echo Creating Published SDK directory... 
+mkdir "%SDKLocation%\XComGame\Published" 
+)
+if not exist "%SDKLocation%\XComGame\Published\CookedPCConsole" (
+echo. 
+echo Creating Published\CookedPCConsole SDK directory... 
+mkdir "%SDKLocation%\XComGame\Published\CookedPCConsole" 
+)
 
 REM One time only: Copy specific CookedPCConsole files from vanilla to the SDK, if they don't exist. These are required for a successful cook.
- if not exist "%SDKLocation%\XComGame\Published\CookedPCConsole\GuidCache.upk" (
+if not exist "%SDKLocation%\XComGame\Published\CookedPCConsole\GuidCache.upk" (
 echo.
 echo Copying GuidCache.upk to CookedPCConsole folder...
 copy /Y "%GameLocation%\XComGame\CookedPCConsole\GuidCache.upk" "%SDKLocation%\XComGame\Published\CookedPCConsole\GuidCache.upk"
