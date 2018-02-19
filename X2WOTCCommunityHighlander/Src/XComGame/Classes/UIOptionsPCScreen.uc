@@ -208,7 +208,7 @@ struct native TUIGraphicsOptionSettingConfig
 };
 
 const NumGraphicsOptions = 15;
-const NUM_LISTITEMS = 100; //issue #160 - lets a LOT more part packs be shown at a time when players go to adjust them
+const NUM_LISTITEMS = 16; 
 var TUIGraphicsOptionSettingConfig GraphicsOptions[NumGraphicsOptions];
 var byte GraphicsVals[NumGraphicsOptions];
 
@@ -3106,40 +3106,64 @@ simulated function AS_SetTabData( string title0, string title1, string title2, s
 {
 	Movie.ActionScriptVoid(MCPath$".SetTabData");
 }
-
+//issue #160 - lists are now dynamically built and disabled according to what the lists say: we ignore the NUM_LISTITEMS const, in other words.
 function ResetMechaListItems()
 {
 	local int i;
-	for( i = 0; i < NUM_LISTITEMS; i++ )
+	local UIMechaListItem ListItem;
+	
+	List.ClearItems();
+	m_arrMechaItems.Length = 0; //destroy the whole list after clearing it
+	for(i=0; i < NUM_LISTITEMS; ++i)
 	{
-		m_arrMechaItems[i].SetDisabled(false);
-		m_arrMechaItems[i].OnLoseFocus();
-		m_arrMechaItems[i].Hide();
-		m_arrMechaItems[i].BG.RemoveTooltip();
-		m_arrMechaItems[i].DisableNavigation();
+		ListItem = Spawn(class'UIMechaListItem', List.ItemContainer );	
+		ListItem.bAnimateOnInit = false;
+		ListItem.InitListItem();
+		ListItem.SetY(i * class'UIMechaListItem'.default.Height);
+		ListItem.OnMouseEventDelegate = DetailItemMouseEvent;
+		m_arrMechaItems.AddItem(ListItem);
 	}
+	
 	List.SetSelectedIndex(-1);
 }
 
 function RenableMechaListItems(int maxItems)
 {
 	local int i;
+	local UIMechaListItem ListItem;
+	
+	if(maxItems > NUM_LISTITEMS) //our initial list made is 16 items long, if a function gives us more than this...
+	{
+		for(i = NUM_LISTITEMS; i < maxItems.Length; i++)
+		{
+			ListItem = Spawn(class'UIMechaListItem', List.ItemContainer );	
+			ListItem.bAnimateOnInit = false;
+			ListItem.InitListItem();
+			ListItem.SetY(i * class'UIMechaListItem'.default.Height);
+			ListItem.OnMouseEventDelegate = DetailItemMouseEvent;
+			m_arrMechaItems.AddItem(ListItem);
+		}		
+	}
+	
 	for( i = 0; i < maxItems; i++)
 	{
 		m_arrMechaItems[i].SetDisabled(false); //This will be reset in the tab info update for each mechalistitem.
 		m_arrMechaItems[i].Show();
 		m_arrMechaItems[i].EnableNavigation();
 	}
-	for( i = maxItems; i < NUM_LISTITEMS; i++ )
-	{
-		m_arrMechaItems[i].SetDisabled(false);
-		m_arrMechaItems[i].OnLoseFocus();
-		m_arrMechaItems[i].Hide();
-		m_arrMechaItems[i].BG.RemoveTooltip();
-		m_arrMechaItems[i].DisableNavigation();
-	}
+	
+	
+//	for( i = maxItems; i < NUM_LISTITEMS; i++ )
+//	{
+//		m_arrMechaItems[i].SetDisabled(false);
+//		m_arrMechaItems[i].OnLoseFocus();
+//		m_arrMechaItems[i].Hide();
+//		m_arrMechaItems[i].BG.RemoveTooltip();
+//		m_arrMechaItems[i].DisableNavigation();
+//	}
 	Navigator.SetSelected(List);
 }
+//end issue #160
 
 //==============================================================================
 //		CLEANUP:
