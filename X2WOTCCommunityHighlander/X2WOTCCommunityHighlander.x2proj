@@ -252,6 +252,9 @@
     <Content Include="Src\XComGame\Classes\XComGameState_MissionSite.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComHeadquartersCamera.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComHumanPawn.uc">
       <SubType>Content</SubType>
     </Content>
