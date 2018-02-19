@@ -3106,6 +3106,7 @@ simulated function AS_SetTabData( string title0, string title1, string title2, s
 {
 	Movie.ActionScriptVoid(MCPath$".SetTabData");
 }
+
 //issue #160 - lists are now dynamically built and disabled according to what the lists say: we ignore the NUM_LISTITEMS const, in other words.
 function ResetMechaListItems()
 {
@@ -3121,7 +3122,13 @@ function ResetMechaListItems()
 		ListItem.InitListItem();
 		ListItem.SetY(i * class'UIMechaListItem'.default.Height);
 		ListItem.OnMouseEventDelegate = DetailItemMouseEvent;
+		ListItem.SetDisabled(false);
+		ListItem.OnLoseFocus();
+		ListItem.Hide();
+		ListItem.BG.RemoveTooltip();
+		ListItem.DisableNavigation();
 		m_arrMechaItems.AddItem(ListItem);
+
 	}
 	
 	List.SetSelectedIndex(-1);
@@ -3134,7 +3141,7 @@ function RenableMechaListItems(int maxItems)
 	
 	if(maxItems > NUM_LISTITEMS) //our initial list made is 16 items long, if a function gives us more than this...
 	{
-		for(i = NUM_LISTITEMS; i < maxItems.Length; i++)
+		for(i = NUM_LISTITEMS; i < maxItems; i++)
 		{
 			ListItem = Spawn(class'UIMechaListItem', List.ItemContainer );	
 			ListItem.bAnimateOnInit = false;
@@ -3152,7 +3159,14 @@ function RenableMechaListItems(int maxItems)
 		m_arrMechaItems[i].EnableNavigation();
 	}
 	
-	
+	for(i = maxItems; i < m_arrMechaItems.Length; i++) //disable any extraneous options we don't need on startup, this is for when the menu is first opened.
+	{
+		m_arrMechaItems[i].SetDisabled(false);
+		m_arrMechaItems[i].OnLoseFocus();
+		m_arrMechaItems[i].Hide();
+		m_arrMechaItems[i].BG.RemoveTooltip();
+		m_arrMechaItems[i].DisableNavigation();
+	}
 //	for( i = maxItems; i < NUM_LISTITEMS; i++ )
 //	{
 //		m_arrMechaItems[i].SetDisabled(false);
