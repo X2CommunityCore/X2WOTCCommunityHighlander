@@ -410,7 +410,7 @@ static function ECHSlotUnequipBehavior SlotGetUnequipBehavior(EInventorySlot Slo
 	//set up a Tuple for return value
 	OverrideTuple = new class'XComLWTuple';
 	OverrideTuple.Id = 'OverrideItemUnequipBehavior';
-	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data.Add(3);
 	// XComLWTuple does not have a Byte kind
 	OverrideTuple.Data[0].kind = XComLWTVInt;
 	OverrideTuple.Data[0].i = Behavior;
@@ -455,7 +455,7 @@ static function int SlotGetMinimumEquipped(EInventorySlot Slot, XComGameState_Un
 
 	OverrideTuple = new class'XComLWTuple';
 	OverrideTuple.Id = 'OverrideItemMinEquipped';
-	OverrideTuple.Data.Add(1);
+	OverrideTuple.Data.Add(2);
 	OverrideTuple.Data[0].kind = XComLWTVInt;
 	OverrideTuple.Data[0].i = MinSlots;
 	// XComLWTuple does not have a Byte kind
