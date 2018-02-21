@@ -462,7 +462,7 @@ static function int SlotGetMinimumEquipped(EInventorySlot Slot, XComGameState_Un
 	OverrideTuple.Data[1].kind = XComLWTVInt;
 	OverrideTuple.Data[1].i = int(Slot);
 
-	`XEVENTMGR.TriggerEvent('OverrideItemUnequipBehavior', OverrideTuple, Unit);
+	`XEVENTMGR.TriggerEvent('OverrideItemMinEquipped', OverrideTuple, Unit);
 
 	MinSlots = OverrideTuple.Data[0].i;
 

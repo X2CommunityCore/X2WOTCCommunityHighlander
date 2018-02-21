@@ -10526,8 +10526,9 @@ function ValidateLoadout(XComGameState NewGameState)
 	local array<XComGameState_Item> EquippedUtilityItems; // Utility Slots
 	local int idx;
 	// Issue #171 Variables
-	local int NumHeavy, NumUtility, NumMinEquip;
+	local int NumHeavy, NumUtility, NumMinEquip, item_idx;
 	local array<XComGameState_Item> EquippedHeavyWeapons;
+	local array<X2EquipmentTemplate> BestUtilityItems;
 
 	local array<CHItemSlot> ModSlots; // Variable for Issue #118
 
@@ -10683,14 +10684,24 @@ function ValidateLoadout(XComGameState NewGameState)
 	// Start Issue #171 - Fill out slot based on inventory equipped
 	NumMinEquip = class'CHItemSlot'.static.SlotGetMinimumEquipped(eInvSlot_Utility, self);
 	NumUtility = GetCurrentStat(eStat_UtilityItems);
+	BestUtilityItems = GetBestUtilityItemTemplates();
 	for (idx = 0; idx < NumUtility; idx++)
 	{
 		if (idx >= EquippedUtilityItems.Length && (idx < NumMinEquip || NumMinEquip == -1))
 		{
-			UtilityItem = GetBestUtilityItem(NewGameState);
-			if (AddItemToInventory(UtilityItem, eInvSlot_Utility, NewGameState))
+			while (BestUtilityItems.Length > 0)
 			{
-				EquippedUtilityItems.AddItem(UtilityItem);
+				item_idx = `SYNC_RAND(BestUtilityItems.Length);
+				UtilityItem = BestUtilityItems[item_idx].CreateInstanceFromTemplate(NewGameState);;
+				if (AddItemToInventory(UtilityItem, eInvSlot_Utility, NewGameState))
+				{
+					EquippedUtilityItems.AddItem(UtilityItem);
+					break;
+				}
+				else
+				{
+					BestUtilityItems.Remove(item_idx, 1);
+				}
 			}
 		}
 	// End Issue #171
