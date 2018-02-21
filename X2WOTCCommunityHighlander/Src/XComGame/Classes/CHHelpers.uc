@@ -1,5 +1,16 @@
 class CHHelpers extends Object config(Game);
 
+//issue #188 - creating a struct and usable array for modders
+struct TeamRequest
+{
+	var name XGAIPlayerUsed; //when eTeam_One or eTeam_Two is requested to be activated by a mod, we need to assign a XGAIPlayer class to that player state made for the team
+	var ETeam Team; //eTeam_One and eTeam_Two should be the only ones here.
+	var bool AlertsAreVerified; 
+};
+
+var config array<TeamRequest> ModAddedTeams;
+//end issue #188
+
 var config int SPAWN_EXTRA_TILE; // Issue #18 - Add extra ini config
 var config int MAX_TACTICAL_AUTOSAVES; // Issue #53 - make configurable, only use if over 0
 
@@ -78,6 +89,68 @@ simulated static function RebuildPerkContentCache() {
 	}
 }
 // End Issue #123
+
+//start issue #188 - functions for checking the config array
+static function bool TeamOneRequired()
+{
+	local TeamRequest CheckedRequest;
+	
+	foreach ModAddedTeams(CheckedRequest)
+	{
+		if(CheckedRequest.Team == eTeam_One){
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+static function bool TeamTwoRequired()
+{
+	local TeamRequest CheckedRequest;
+	
+	foreach ModAddedTeams(CheckedRequest)
+	{
+		if(CheckedRequest.Team == eTeam_Two){
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+static function XGAIPlayer GetTeamOnePlayer()
+{
+	local XComGameState_Player PlayerState;
+
+	foreach `XCOMHISTORY.IterateByClassType(class'XComGameState_Player', PlayerState, eReturnType_Reference)
+	{
+		if( PlayerState.TeamFlag == eTeam_One)
+		{
+			break;
+		}
+	}
+
+	return PlayerState != none ? XGAIPlayer(PlayerState.GetVisualizer()) : none;
+
+}
+
+static function XGAIPlayer GetTeamTwoPlayer()
+{
+	local XComGameState_Player PlayerState;
+
+	foreach `XCOMHISTORY.IterateByClassType(class'XComGameState_Player', PlayerState, eReturnType_Reference)
+	{
+		if( PlayerState.TeamFlag == eTeam_Two)
+		{
+			break;
+		}
+	}
+
+	return PlayerState != none ? XGAIPlayer(PlayerState.GetVisualizer()) : none;
+
+}
+//end issue #188
 
 //start issue #155
 static function array<name> GetAcceptablePartPacks()

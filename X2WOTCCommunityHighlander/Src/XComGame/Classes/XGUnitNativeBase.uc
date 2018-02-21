@@ -1343,7 +1343,12 @@ function EUIState GetMyHUDIconColor()
 		return eUIState_Bad;
 	if( StateObject.GetTeam() == eTeam_TheLost )
 		return eUIState_TheLost;
-
+	if(StateObject.GetTeam() == eTeam_One) //issue #188 - default colours for these teams for now. Should be made customizable at some point.
+		return eUIState_Warning2;
+	if(StateObject.GetTeam() == eTeam_Two)
+		return eUIState_Cash;
+	//end issue #188
+	
 	//Default to show something is wrong: 
 	return eUIState_Disabled;
 }

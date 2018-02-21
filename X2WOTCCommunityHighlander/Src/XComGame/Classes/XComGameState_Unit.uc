@@ -1502,7 +1502,14 @@ function PostCreateInit(XComGameState NewGameState, X2CharacterTemplate kTemplat
 
 	if( PerformAIUpdate )
 	{
+		if(GetTeam() != eTeam_One && GetTeam() != eTeam_Two){
 		XGAIPlayer(XGBattle_SP(`BATTLE).GetAIPlayer()).AddNewSpawnAIData(NewGameState);
+		}
+		else
+		{
+		XGAIPlayer(XGPlayer(PlayerState.GetVisualizer())).AddNewSpawnAIData(NewGameState);
+		}
+		
 	}
 
 	if( GetTeam() == eTeam_Alien )
@@ -6167,7 +6174,7 @@ protected function OnUnitDied(XComGameState NewGameState, Object CauseOfDeath, c
 		Killer = XComGameState_Unit(History.GetGameStateForObjectID(Killer.GhostSourceUnit.ObjectID));
 	}
 
-	if( GetTeam() == eTeam_Alien || GetTeam() == eTeam_TheLost )
+	if( GetTeam() == eTeam_Alien || GetTeam() == eTeam_TheLost || GetTeam() == eTeam_One || GetTeam() == eTeam_Two) //issue #188 - let eTeam_One and eTeam_Two units count as enemies when they die
 	{
 		if( SourceStateObjectRef.ObjectID != 0 )
 		{	
@@ -9291,12 +9298,15 @@ static function UnitAGainsKnowledgeOfUnitB(XComGameState_Unit UnitA, XComGameSta
 	local bool bGainedRedAlert;
 	local bool bAlertDataSuccessfullyAdded;
 	local ETeam UnitATeam, UnitBTeam;
-
+	local XComLWTuple OverrideTuple; //issue #188 variables
+	local bool OverrideAlertReq;
+	
 	if (UnitB == none)
 		return;
 
 	if( AlertCause != eAC_None )
 	{
+		OverrideAlertReq = false;
 		History = `XCOMHISTORY;
 		UnitB.GetKeystoneVisibilityLocation(AlertInfo.AlertTileLocation);
 		AlertInfo.AlertUnitSourceID = UnitB.ObjectID;
@@ -9319,9 +9329,15 @@ static function UnitAGainsKnowledgeOfUnitB(XComGameState_Unit UnitA, XComGameSta
 		{
 			return;
 		}
-
+		//issue #188 - set up a Tuple for return value
+		OverrideTuple = new class'XComLWTuple';
+		OverrideTuple.Id = 'OverrideAIAlertReq';
+		OverrideTuple.Data.Add(1);
+		OverrideTuple.Data[0].kind = XComLWTVBool;
+		OverrideTuple.Data[0].b = OverrideAlertReq;
+		`XEVENTMGR.TriggerEvent('OverrideAIAlertReq', OverrideTuple, self, AlertInstigatingGameState);
 		// no knowledge updates for The Lost
-		if( UnitATeam != eTeam_TheLost && UnitBTeam != eTeam_TheLost )
+		if( UnitATeam != eTeam_TheLost && UnitBTeam != eTeam_TheLost && !OverrideAlertReq)
 		{
 			bAlertDataSuccessfullyAdded = UnitA.UpdateAlertData(AlertCause, AlertInfo);
 		}
