@@ -733,7 +733,7 @@ function UnsubscribeFromOnInput(delegate<CHOnInputDelegate> callback)
     }
 }
 
-/* helper function to OnInput() that returns true if any mods are subscribing to the key that was pressed
+/* helper function to OnInput() that returns true if any mods handled this input event
 	Parameters:
 		iInput is the int of the most recent input event. See UIUtilities_Input class for values
 		ActionMask is the action bitmask associated with the input event. Search for 'Actions - bitmasks' 
