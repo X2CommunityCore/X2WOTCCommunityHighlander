@@ -180,7 +180,7 @@ simulated function ApplyEffectToWorld(const out EffectAppliedData ApplyEffectPar
 	local X2AbilityMultiTargetStyle TargetStyle;
 	local GameRulesCache_VisibilityInfo OutVisibilityInfo;
 
-    // Variable for Issue #200
+	// Variable for Issue #200
 	local XComLWTuple ModifyEnvironmentDamageTuple;
 
 	//If this damage effect has an associated position, it does world damage
@@ -260,30 +260,30 @@ simulated function ApplyEffectToWorld(const out EffectAppliedData ApplyEffectPar
 					DamageTypeTemplateName = 'Explosion';
 				}
 			}
-            
-	        // Issue #200 Start, allow listeners to modify environment damage
-	        ModifyEnvironmentDamageTuple = new class'XComLWTuple';
-	        ModifyEnvironmentDamageTuple.Id = 'ModifyEnvironmentDamage';
-	        ModifyEnvironmentDamageTuple.Data.Add(3);
-	        ModifyEnvironmentDamageTuple.Data[0].kind = XComLWTVBool;
-	        ModifyEnvironmentDamageTuple.Data[0].b = false;  // override? (true) or add? (false)
-	        ModifyEnvironmentDamageTuple.Data[1].kind = XComLWTVInt;
-	        ModifyEnvironmentDamageTuple.Data[1].i = 0;  // override/bonus environment damage
-	        ModifyEnvironmentDamageTuple.Data[2].kind = XComLWTVObject;
-	        ModifyEnvironmentDamageTuple.Data[2].o = AbilityStateObject;  // ability being used
+			
+			// Issue #200 Start, allow listeners to modify environment damage
+			ModifyEnvironmentDamageTuple = new class'XComLWTuple';
+			ModifyEnvironmentDamageTuple.Id = 'ModifyEnvironmentDamage';
+			ModifyEnvironmentDamageTuple.Data.Add(3);
+			ModifyEnvironmentDamageTuple.Data[0].kind = XComLWTVBool;
+			ModifyEnvironmentDamageTuple.Data[0].b = false;  // override? (true) or add? (false)
+			ModifyEnvironmentDamageTuple.Data[1].kind = XComLWTVInt;
+			ModifyEnvironmentDamageTuple.Data[1].i = 0;  // override/bonus environment damage
+			ModifyEnvironmentDamageTuple.Data[2].kind = XComLWTVObject;
+			ModifyEnvironmentDamageTuple.Data[2].o = AbilityStateObject;  // ability being used
 
-		    `XEVENTMGR.TriggerEvent('ModifyEnvironmentDamage', ModifyEnvironmentDamageTuple, self, NewGameState);
-            
-		    if(ModifyEnvironmentDamageTuple.Data[0].b)
-		    {
-			    DamageAmount = ModifyEnvironmentDamageTuple.Data[1].i;
-		    }
-            else
-            {
-			    DamageAmount += ModifyEnvironmentDamageTuple.Data[1].i;
-            }
+			`XEVENTMGR.TriggerEvent('ModifyEnvironmentDamage', ModifyEnvironmentDamageTuple, self, NewGameState);
+			
+			if(ModifyEnvironmentDamageTuple.Data[0].b)
+			{
+				DamageAmount = ModifyEnvironmentDamageTuple.Data[1].i;
+			}
+			else
+			{
+				DamageAmount += ModifyEnvironmentDamageTuple.Data[1].i;
+			}
 
-            // Issue #200 End
+			// Issue #200 End
 
 			if( ( bLinearDamage || AbilityRadius > 0.0f || AbilityContext.ResultContext.HitResult == eHit_Miss) && DamageAmount > 0 )
 			{
