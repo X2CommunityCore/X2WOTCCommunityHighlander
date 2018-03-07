@@ -77,9 +77,9 @@ simulated function bool OnInput( int iInput,  optional int ActionMask = class'UI
 
 	// start issue #198
 	if (ModOnInput(iInput, ActionMask))
-    {
-        return true;
-    }
+	{
+		return true;
+	}
 	// end issue #198
 
 	// Not using foreach to enforce calling via stack order: LIFO
@@ -718,19 +718,19 @@ simulated function bool IsNotInStack( class<UIScreen> ScreenClass, optional bool
 function SubscribeToOnInput(delegate<CHOnInputDelegate> callback)
 {
 	// add the delegate to the array of subscribers, if it doesn't exist
-    if (OnInputSubscribers.Find(callback) == INDEX_NONE)
-    {
-        OnInputSubscribers.AddItem(callback);
-    }
+	if (OnInputSubscribers.Find(callback) == INDEX_NONE)
+	{
+		OnInputSubscribers.AddItem(callback);
+	}
 }
  
 function UnsubscribeFromOnInput(delegate<CHOnInputDelegate> callback)
 {
 	// remove the delegate from the array, if it exists
-    if (OnInputSubscribers.Find(callback) != INDEX_NONE)
-    {
-        OnInputSubscribers.RemoveItem(callback);
-    }
+	if (OnInputSubscribers.Find(callback) != INDEX_NONE)
+	{
+		OnInputSubscribers.RemoveItem(callback);
+	}
 }
 
 /* helper function to OnInput() that returns true if any mods handled this input event
@@ -741,16 +741,17 @@ function UnsubscribeFromOnInput(delegate<CHOnInputDelegate> callback)
 */
 simulated function bool ModOnInput(int iInput, int ActionMask)
 {
-    local int i;
-    local delegate<CHOnInputDelegate> callback;
-    for (i = OnInputSubscribers.Length - 1; i >= 0; i--)
-    {
-        callback = OnInputSubscribers[i];
-        if (callback(iInput, ActionMask))
-        {
-            return true;
-        }
-    }
+	local int i;
+	local delegate<CHOnInputDelegate> callback;
+	for (i = OnInputSubscribers.Length - 1; i >= 0; i--)
+	{
+		callback = OnInputSubscribers[i];
+		if (callback(iInput, ActionMask))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 // end issue #198
 
