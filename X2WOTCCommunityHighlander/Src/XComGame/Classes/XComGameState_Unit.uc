@@ -10684,15 +10684,16 @@ function ValidateLoadout(XComGameState NewGameState)
 	// Start Issue #171 - Fill out slot based on inventory equipped
 	NumMinEquip = class'CHItemSlot'.static.SlotGetMinimumEquipped(eInvSlot_Utility, self);
 	NumUtility = GetCurrentStat(eStat_UtilityItems);
-	BestUtilityItems = GetBestUtilityItemTemplates();
+	BestUtilityItems = GetUtilityItemTemplatesByTier(true);
 	for (idx = 0; idx < NumUtility; idx++)
 	{
 		if (idx >= EquippedUtilityItems.Length && (idx < NumMinEquip || NumMinEquip == -1))
 		{
 			while (BestUtilityItems.Length > 0)
 			{
-				item_idx = `SYNC_RAND(BestUtilityItems.Length);
-				UtilityItem = BestUtilityItems[item_idx].CreateInstanceFromTemplate(NewGameState);;
+				// Array is already randomized, then sorted by tier, so we can just grab the first one
+				item_idx = 0;
+				UtilityItem = BestUtilityItems[item_idx].CreateInstanceFromTemplate(NewGameState);
 				if (AddItemToInventory(UtilityItem, eInvSlot_Utility, NewGameState))
 				{
 					EquippedUtilityItems.AddItem(UtilityItem);
@@ -10700,6 +10701,8 @@ function ValidateLoadout(XComGameState NewGameState)
 				}
 				else
 				{
+					// Prevent leaking state objects!
+					NewGameState.PurgeGameStateForObjectID(UtilityItem.ObjectID);
 					BestUtilityItems.Remove(item_idx, 1);
 				}
 			}
@@ -11093,15 +11096,16 @@ function array<X2GrenadeTemplate> GetBestGrenadeTemplates()
 }
 
 //------------------------------------------------------
-function array<X2EquipmentTemplate> GetBestUtilityItemTemplates()
+// Issue #171 Start
+function array<X2EquipmentTemplate> GetUtilityItemTemplatesByTier(optional bool bRandomizeWithinTiers)
 {
 	local XComGameStateHistory History;
 	local XComGameState_HeadquartersXCom XComHQ;
 	local array<X2EquipmentTemplate> DefaultEquipment;
-	local X2EquipmentTemplate UtilityTemplate, BestUtilityTemplate;
+	local X2EquipmentTemplate UtilityTemplate;
 	local array<X2EquipmentTemplate> BestUtilityTemplates;
 	local XComGameState_Item ItemState;
-	local int idx, HighestTier;
+	local int idx;
 
 	History = `XCOMHISTORY;
 	XComHQ = class'UIUtilities_Strategy'.static.GetXComHQ();
@@ -11112,9 +11116,7 @@ function array<X2EquipmentTemplate> GetBestUtilityItemTemplates()
 	{
 		if (DefaultEquipment[idx].InventorySlot == eInvSlot_Utility)
 		{
-			BestUtilityTemplate = DefaultEquipment[idx];
-			BestUtilityTemplates.AddItem(BestUtilityTemplate);
-			HighestTier = BestUtilityTemplate.Tier;
+			BestUtilityTemplates.AddItem(DefaultEquipment[idx]);
 			break;
 		}
 	}
@@ -11127,26 +11129,53 @@ function array<X2EquipmentTemplate> GetBestUtilityItemTemplates()
 			ItemState = XComGameState_Item(History.GetGameStateForObjectID(XComHQ.Inventory[idx].ObjectID));
 			UtilityTemplate = X2EquipmentTemplate(ItemState.GetMyTemplate());
 
-			if(UtilityTemplate != none && UtilityTemplate.bInfiniteItem && (BestUtilityTemplate == none || (BestUtilityTemplates.Find(UtilityTemplate) == INDEX_NONE && UtilityTemplate.Tier >= BestUtilityTemplate.Tier))
+			if(UtilityTemplate != none && UtilityTemplate.bInfiniteItem && BestUtilityTemplates.Find(UtilityTemplate) == INDEX_NONE
 			   && UtilityTemplate.InventorySlot == eInvSlot_Utility)
 			{
-				BestUtilityTemplate = UtilityTemplate;
-				BestUtilityTemplates.AddItem(BestUtilityTemplate);
-				HighestTier = BestUtilityTemplate.Tier;
+				BestUtilityTemplates.AddItem(UtilityTemplate);
 			}
 		}
 	}
 
-	for(idx = 0; idx < BestUtilityTemplates.Length; idx++)
+	if (bRandomizeWithinTiers)
 	{
-		if(BestUtilityTemplates[idx].Tier < HighestTier)
+		BestUtilityTemplates.RandomizeOrder();
+	}
+	BestUtilityTemplates.Sort(EquipmentByTier);
+
+	return BestUtilityTemplates;
+}
+
+private function int EquipmentByTier(X2EquipmentTemplate A, X2EquipmentTemplate B)
+{
+	return A.Tier - B.Tier;
+}
+
+function array<X2EquipmentTemplate> GetBestUtilityItemTemplates()
+{
+	local array<X2EquipmentTemplate> UtilityTemplates;
+	local int i, HighestTier;
+
+	UtilityTemplates = GetUtilityItemTemplatesByTier(false);
+
+	if (UtilityTemplates.Length > 0)
+	{
+		HighestTier = UtilityTemplates[0].Tier;
+		// The array is sorted by tier. This means that we can find the first Item with a lower tier
+		// and remove all subsequent items in the array with one function call
+		for (i = 1; i < UtilityTemplates.Length; i++)
 		{
-			BestUtilityTemplates.Remove(idx, 1);
-			idx--;
+			if (UtilityTemplates[i].Tier < HighestTier)
+			{
+				// i is the first item that needs to be removed, UtilityTemplates.Length - i is the number we need to remove
+				UtilityTemplates.Remove(i, UtilityTemplates.Length - i);
+				break;
+			}
 		}
 	}
 
-	return BestUtilityTemplates;
+	return UtilityTemplates;
+
 }
 
 //------------------------------------------------------
