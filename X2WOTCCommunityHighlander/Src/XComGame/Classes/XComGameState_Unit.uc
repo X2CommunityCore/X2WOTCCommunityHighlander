@@ -11175,8 +11175,8 @@ function array<X2EquipmentTemplate> GetBestUtilityItemTemplates()
 	}
 
 	return UtilityTemplates;
-
 }
+// Issue #171 End
 
 //------------------------------------------------------
 function bool NeedsSecondaryWeapon()
