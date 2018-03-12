@@ -191,9 +191,9 @@ Write-Host "Copied."
 Write-Host "Compiling base game scripts..."
 if ($final_release -eq $true)
 {
-    Invoke-Make "$sdkPath/binaries/Win64/XComGame.com" "make -nopause -unattended -final_release -mods $modNameCanonical $stagingPath" $sdkPath $modSrcRoot
+    Invoke-Make "$sdkPath/binaries/Win64/XComGame.com" "make -nopause -unattended -final_release" $sdkPath $modSrcRoot
 } else {
-    Invoke-Make "$sdkPath/binaries/Win64/XComGame.com" "make -nopause -unattended  -mods $modNameCanonical $stagingPath" $sdkPath $modSrcRoot
+    Invoke-Make "$sdkPath/binaries/Win64/XComGame.com" "make -nopause -unattended" $sdkPath $modSrcRoot
 }
 if ($LASTEXITCODE -ne 0)
 {
@@ -239,18 +239,21 @@ Write-Host "Copying Texture File Caches"
 Robocopy.exe "$cookedpcconsoledir" "$modcookdir" *.tfc /NJH /XC /XN /XO
 
 # Cook it!
-Write-Host "Invoking CookPackages"
+# The CookPackages commandlet generally is super unhelpful. The output is basically always the same and errors don't occur -- it rather just crashes the game
+Write-Host "Invoking CookPackages (this may take a while)"
 if ($final_release -eq $true)
 {
-    & "$sdkPath/binaries/Win64/XComGame.com" CookPackages -platform=pcconsole -final_release -unattended -quickanddirty -modcook -sha -multilanguagecook=INT+FRA+ITA+DEU+RUS+POL+KOR+ESN -singlethread -nopause
+    & "$sdkPath/binaries/Win64/XComGame.com" CookPackages -platform=pcconsole -final_release -unattended -quickanddirty -modcook -sha -multilanguagecook=INT+FRA+ITA+DEU+RUS+POL+KOR+ESN -singlethread -nopause >$null 2>&1
 } else {
-    & "$sdkPath/binaries/Win64/XComGame.com" CookPackages -platform=pcconsole -unattended -quickanddirty -modcook -sha -multilanguagecook=INT+FRA+ITA+DEU+RUS+POL+KOR+ESN -singlethread -nopause
+    & "$sdkPath/binaries/Win64/XComGame.com" CookPackages -platform=pcconsole -unattended -quickanddirty -modcook -sha -multilanguagecook=INT+FRA+ITA+DEU+RUS+POL+KOR+ESN -singlethread -nopause >$null 2>&1
 }
 
 if ($LASTEXITCODE -ne 0)
 {
     throw "Failed to cook packages"
 }
+
+Write-Host "Cooked packages"
 
 # Create CookedPCConsole folder for the mod
 New-Item "$stagingPath/CookedPCConsole" -ItemType Directory
