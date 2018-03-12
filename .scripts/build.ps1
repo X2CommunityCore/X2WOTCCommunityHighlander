@@ -272,8 +272,14 @@ for ($i=0; $i -lt $thismodpackages.length; $i++) {
         Write-Host "$modcookdir/$name.upk"
     } else {
         # This is a normal script package
-        Copy-Item "$sdkPath/XComGame/Script/$name.u" "$stagingPath/Script" -Force -WarningAction SilentlyContinue
-        Write-Host "$sdkPath/XComGame/Script/$name.u"        
+        if ($final_release -eq $true)
+        {
+            Copy-Item "$sdkPath/XComGame/ScriptFinalRelease/$name.u" "$stagingPath/Script" -Force -WarningAction SilentlyContinue
+            Write-Host "$sdkPath/XComGame/ScriptFinalRelease/$name.u"
+        } else {
+            Copy-Item "$sdkPath/XComGame/Script/$name.u" "$stagingPath/Script" -Force -WarningAction SilentlyContinue
+            Write-Host "$sdkPath/XComGame/Script/$name.u"
+        }
     }
 }
 Write-Host "Copied compiled and cooked script packages."
