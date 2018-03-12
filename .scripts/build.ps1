@@ -187,11 +187,6 @@ Write-Host "Copied."
 # the mod's packages
 [System.String[]]$thismodpackages = Get-ChildItem "$modSrcRoot/Src" -Directory
 
-
-Write-Host "Full build requested. Cleaning all compiled scripts from $sdkPath/XComGame/Script..."
-Remove-Item "$sdkPath/XComGame/Script/*.u"
-Write-Host "Cleaned."
-
 # build the base game scripts
 Write-Host "Compiling base game scripts..."
 if ($final_release -eq $true)
