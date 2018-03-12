@@ -6,14 +6,14 @@
         {
             "label": "build",
             "type": "shell",
-            "command": "powershell.exe -file \"${workspaceRoot}\\.scripts\\build.ps1\" -mod \"X2WOTCCommunityHighlander\" -srcDirectory '${workspaceRoot}' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}' -final_release",
+            "command": "powershell.exe -file '${workspaceRoot}\\.scripts\\build.ps1' -mod \"X2WOTCCommunityHighlander\" -srcDirectory '${workspaceRoot}' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}' -final_release",
             "group": "build",
             "problemMatcher": []
         },
         {
             "label": "build-debug",
             "type": "shell",
-            "command": "powershell.exe -file \"${workspaceRoot}\\.scripts\\build.ps1\" -mod \"X2WOTCCommunityHighlander\" -srcDirectory '${workspaceRoot}' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}'",
+            "command": "powershell.exe -file '${workspaceRoot}\\.scripts\\build.ps1' -mod \"X2WOTCCommunityHighlander\" -srcDirectory '${workspaceRoot}' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}'",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -22,12 +22,12 @@
         {
             "label": "debug",
             "type": "shell",
-            "command": "powershell.exe -file \"${workspaceRoot}\\.scripts\\run.ps1\" -gamePath '${config:xcom.highlander.gameroot}'"
+            "command": "powershell.exe -file '${workspaceRoot}\\.scripts\\run.ps1' -gamePath '${config:xcom.highlander.gameroot}'"
         },
         {
             "label": "runUnrealEditor",
             "type": "shell",
-            "command": "powershell.exe -file \"${workspaceRoot}\\.scripts\\runUnrealEditor.ps1\" -gamePath '${config:xcom.highlander.sdkroot}'",
+            "command": "powershell.exe -file '${workspaceRoot}\\.scripts\\runUnrealEditor.ps1' -gamePath '${config:xcom.highlander.sdkroot}'",
             "problemMatcher": []
         }
     ]
