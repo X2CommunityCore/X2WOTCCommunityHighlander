@@ -121,9 +121,17 @@ Write-Host "SDK Path: $sdkPath"
 Write-Host "Game Path: $gamePath"
 
 # Check if the user config is set up correctly
-if ([string]::IsNullOrEmpty($sdkPath) -or [string]::IsNullOrEmpty($gamePath))
+if (([string]::IsNullOrEmpty($sdkPath) -or $sdkPath -eq '${config:xcom.highlander.sdkroot}') -or ([string]::IsNullOrEmpty($gamePath) -or $gamePath -eq '${config:xcom.highlander.gameroot}'))
 {
     throw "Please set up user config xcom.highlander.sdkroot and xcom.highlander.gameroot"
+}
+elseif (!(Test-Path $sdkPath)) # Verify the SDK and game paths exist before proceeding
+{
+    throw "The path '$sdkPath' doesn't exist. Please adjust the xcom.highlander.sdkroot variable in your user config and retry."
+}
+elseif (!(Test-Path $gamePath)) 
+{
+    throw "The path '$gamePath' doesn't exist. Please adjust the xcom.highlander.gameroot variable in your user config and retry."
 }
 
 # list of all native script packages
@@ -203,7 +211,6 @@ Write-Host "Compiled base game scripts."
 
 # build the mod's scripts
 Write-Host "Compiling mod scripts..."
-# &"$sdkPath/binaries/Win64/XComGame.com" make -nopause -mods $modNameCanonical "$stagingPath"
 Invoke-Make "$sdkPath/binaries/Win64/XComGame.com" "make -nopause -mods $modNameCanonical $stagingPath" $sdkPath $modSrcRoot
 if ($LASTEXITCODE -ne 0)
 {
@@ -239,7 +246,8 @@ Write-Host "Copying Texture File Caches"
 Robocopy.exe "$cookedpcconsoledir" "$modcookdir" *.tfc /NJH /XC /XN /XO
 
 # Cook it!
-# The CookPackages commandlet generally is super unhelpful. The output is basically always the same and errors don't occur -- it rather just crashes the game
+# The CookPackages commandlet generally is super unhelpful. The output is basically always the same and errors
+# don't occur -- it rather just crashes the game. Hence, we just pipe the output to $null
 Write-Host "Invoking CookPackages (this may take a while)"
 if ($final_release -eq $true)
 {
@@ -270,14 +278,8 @@ for ($i=0; $i -lt $thismodpackages.length; $i++) {
         Write-Host "$modcookdir/$name.upk"
     } else {
         # This is a normal script package
-        if ($final_release -eq $true)
-        {
-            Copy-Item "$sdkPath/XComGame/ScriptFinalRelease/$name.u" "$stagingPath/Script" -Force -WarningAction SilentlyContinue
-            Write-Host "$sdkPath/XComGame/ScriptFinalRelease/$name.u"
-        } else {
-            Copy-Item "$sdkPath/XComGame/Script/$name.u" "$stagingPath/Script" -Force -WarningAction SilentlyContinue
-            Write-Host "$sdkPath/XComGame/Script/$name.u"
-        }
+        Copy-Item "$sdkPath/XComGame/Script/$name.u" "$stagingPath/Script" -Force -WarningAction SilentlyContinue
+        Write-Host "$sdkPath/XComGame/Script/$name.u"
     }
 }
 Write-Host "Copied compiled and cooked script packages."
