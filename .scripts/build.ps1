@@ -114,6 +114,19 @@ function Invoke-Make([string] $makeCmd, [string] $makeFlags, [string] $sdkPath, 
     $global:LASTEXITCODE = $process.ExitCode
 }
 
+function FailureMessage($message)
+{
+    [System.Media.SystemSounds]::Hand.Play();
+    throw $message
+}
+
+function SuccessMessage($message)
+{
+    [System.Media.SystemSounds]::Asterisk.Play();
+    Write-Host $message
+    Write-Host "$modNameCanonical ready to run."
+}
+
 # This doesn't work yet, but it might at some point
 Clear-Host
 
@@ -123,15 +136,15 @@ Write-Host "Game Path: $gamePath"
 # Check if the user config is set up correctly
 if (([string]::IsNullOrEmpty($sdkPath) -or $sdkPath -eq '${config:xcom.highlander.sdkroot}') -or ([string]::IsNullOrEmpty($gamePath) -or $gamePath -eq '${config:xcom.highlander.gameroot}'))
 {
-    throw "Please set up user config xcom.highlander.sdkroot and xcom.highlander.gameroot"
+    FailureMessage "Please set up user config xcom.highlander.sdkroot and xcom.highlander.gameroot"
 }
 elseif (!(Test-Path $sdkPath)) # Verify the SDK and game paths exist before proceeding
 {
-    throw "The path '$sdkPath' doesn't exist. Please adjust the xcom.highlander.sdkroot variable in your user config and retry."
+    FailureMessage "The path '$sdkPath' doesn't exist. Please adjust the xcom.highlander.sdkroot variable in your user config and retry."
 }
 elseif (!(Test-Path $gamePath)) 
 {
-    throw "The path '$gamePath' doesn't exist. Please adjust the xcom.highlander.gameroot variable in your user config and retry."
+    FailureMessage "The path '$gamePath' doesn't exist. Please adjust the xcom.highlander.gameroot variable in your user config and retry."
 }
 
 # list of all native script packages
@@ -205,7 +218,7 @@ if ($final_release -eq $true)
 }
 if ($LASTEXITCODE -ne 0)
 {
-    throw "Failed to compile base game scripts!"
+    FailureMessage "Failed to compile base game scripts!"
 }
 Write-Host "Compiled base game scripts."
 
@@ -214,7 +227,7 @@ Write-Host "Compiling mod scripts..."
 Invoke-Make "$sdkPath/binaries/Win64/XComGame.com" "make -nopause -mods $modNameCanonical $stagingPath" $sdkPath $modSrcRoot
 if ($LASTEXITCODE -ne 0)
 {
-    throw "Failed to compile mod scripts!"
+    FailureMessage "Failed to compile mod scripts!"
 }
 Write-Host "Compiled mod scripts."
 
@@ -258,7 +271,7 @@ if ($final_release -eq $true)
 
 if ($LASTEXITCODE -ne 0)
 {
-    throw "Failed to cook packages"
+    FailureMessage "Failed to cook packages"
 }
 
 Write-Host "Cooked packages"
@@ -295,7 +308,7 @@ if(Test-Path "$modSrcRoot/Content")
         &"$sdkPath/binaries/Win64/XComGame.com" precompileshaders -nopause platform=pc_sm4 DLC=$modNameCanonical
         if ($LASTEXITCODE -ne 0)
         {
-            throw "Failed to compile mod shader cache!"
+            FailureMessage "Failed to compile mod shader cache!"
         }
         Write-Host "Generated Shader Cache."
     }
@@ -307,5 +320,4 @@ Copy-Item $stagingPath "$gamePath/XComGame/Mods/" -Force -Recurse -WarningAction
 Write-Host "Copied mod to game directory."
 
 # we made it!
-Write-Host "*** SUCCESS! ***"
-Write-Host "$modNameCanonical ready to run."
+SuccessMessage("*** SUCCESS! ***")
