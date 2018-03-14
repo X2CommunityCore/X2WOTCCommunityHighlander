@@ -159,6 +159,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   appearances. Use `CHHelpers.CosmeticDLCNamesUnaffectedByRoll` to remove the 
   random roll from specific part names (#155)
 - `eInvSlot_HeavyWeapon` is now a multi-item slot (#171)
+- Improve performance by removing unnecessary calls to UpdateAllMeshMaterials (#186)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
