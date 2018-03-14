@@ -16,6 +16,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Triggers the event `UpdateResources` that allows mods to show resources in the ResourceHeader (#174)
 
 ### Modding Exposures
+- Allows mods to add custom items to the Avenger Shortcuts (#163)
 
 ### Configuration
 - Allow disabling of Factions being initialized on startup by
