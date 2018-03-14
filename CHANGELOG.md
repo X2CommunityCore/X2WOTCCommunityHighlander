@@ -133,6 +133,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Renable the ability to add positive traits in codebase, as well as additional
   filtering and behaviour on the various Trait Functions on `XComGameState_Unit`
   (#85)
+- Allow mods to register custom OnInput UI handlers (#198)
 
 ### Improvements
 - Create a mod friendly way to manipulate loot tables (#8)
