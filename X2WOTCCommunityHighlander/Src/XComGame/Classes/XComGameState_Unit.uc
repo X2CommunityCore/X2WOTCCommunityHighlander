@@ -5059,6 +5059,7 @@ function RandomizeStats()
 {
 	local int iMultiple;
 
+	`XEVENTMGR.TriggerEvent('UnitRandomizedStats', self, self); // issue #185 - fires event containing unitstate to indicate new unit has been created, due to where this event is used commonly
 	if( `GAMECORE.IsOptionEnabled( eGO_RandomRookieStats ) )
 	{
 		iMultiple = 5;
