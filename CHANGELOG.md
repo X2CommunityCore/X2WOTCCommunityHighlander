@@ -124,6 +124,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `GetPCSImageTuple` added to allow customising PCS Image string (#110)
 - Triggers the event `OverrideHasHeavyWeapon` that allows to override the result of `XComGameState_Unit.HasHeavyWeapon` (#172)
 - `OverrideItemMinEquipped` added to allow mods to override the min number of equipped items in a slot (#171)
+- `AddConversation` added to allow mods to change narrative behavior before they are played (#204)
 
 ### Configuration
 - Able to list classes as excluded from AWC Skill Rolling, so they can still
