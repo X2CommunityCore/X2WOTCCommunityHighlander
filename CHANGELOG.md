@@ -62,6 +62,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   `OverrideBleedoutChance`. (#91)
 - `OnGetItemRange` override an item's range (#119)
 - `PreAcquiredHackReward` for overriding Hack Rewards (#120)
+- `ModifyEnvironmentDamage` to modify environment damage (#200)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
