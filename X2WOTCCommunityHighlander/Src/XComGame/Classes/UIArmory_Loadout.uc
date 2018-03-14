@@ -606,6 +606,11 @@ simulated function UpdateEquippedList()
 	// Clear out tooltips from removed list items
 	Movie.Pres.m_kTooltipMgr.RemoveTooltipsByPartialPath(string(EquippedList.MCPath));
 
+	// Issue #171 Start
+	// Realize Inventory so mods changing utility slots get updated faster
+	UpdatedUnit.RealizeItemSlotsCount(CheckGameState);
+	// Issue #171 End
+
 	// Issue #118 Start
 	// Here used to be a lot of code handling individual slots, this has been abstracted in CHItemSlot (and the Enumerator)
 	En = class'CHUIItemSlotEnumerator'.static.CreateEnumerator(UpdatedUnit, CheckGameState);

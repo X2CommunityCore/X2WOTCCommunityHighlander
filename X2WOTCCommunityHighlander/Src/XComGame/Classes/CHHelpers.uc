@@ -43,6 +43,11 @@ var config array<name> AbilityTemplatePerksToLoad;
 var config array<name> ClassesExcludedFromResHQ;
 //end issue #113
 
+// Start Issue #171
+var config bool GrenadeRespectUniqueRule;
+var config bool AmmoSlotBypassUniqueRule;
+// End Issue #171
+
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
 	local XComContentManager		Content;
