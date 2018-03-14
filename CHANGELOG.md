@@ -16,6 +16,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Triggers the event `UpdateResources` that allows mods to show resources in the ResourceHeader (#174)
 - Triggers the event `OverridePsiOpTraining` that allows mods to override unit eligibility for Psi Op slots (#159)
 - Triggers the event `OverrideItemIsModified` to prevent items with custom modifications from being stacked / removed
+- Triggers the events `UnitRandomizedStats` and `RewardUnitGenerated` for unit initialization logic (#185)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
