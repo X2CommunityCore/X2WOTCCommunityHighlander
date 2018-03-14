@@ -155,7 +155,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Fix XGCharacterGenerator so it's actually possible to disable part packs for
   new soldiers (#154)
 - Alter XComGameState_Unit so it obeys part pack sliders when picking new armour
-  appearances (#155)
+  appearances. Use `CHHelpers.CosmeticDLCNamesUnaffectedByRoll` to remove the 
+  random roll from specific part names (#155)
 - `eInvSlot_HeavyWeapon` is now a multi-item slot (#171)
 
 ### Fixes
