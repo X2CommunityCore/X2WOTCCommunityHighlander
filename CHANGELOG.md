@@ -37,6 +37,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Fix GetCrossClassAbilities collecting abilities that are already in that
   particular Unit Class's skill tree (#30, #62)
 - Fix Loadout utility items when unit has an item equipped in the Ammo Pocket (#99)
+- Fix units unequipping items they shouldn't, resulting in duplicate Paired Weapons (#189)
 
 
 ## Tactical

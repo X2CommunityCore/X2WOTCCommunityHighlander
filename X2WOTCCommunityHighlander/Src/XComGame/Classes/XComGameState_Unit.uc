@@ -11214,10 +11214,17 @@ function MakeItemsAvailable(XComGameState NewGameState, optional bool bStoreOldI
 	local EInventorySlot eSlot;
 	local EquipmentInfo OldEquip;
 	local int idx;
-	local bool bClearAll;
+	// local bool bClearAll; // Issue #189
 
 	History = `XCOMHISTORY;
-	bClearAll = (SlotsToClear.Length == 0);
+	// Issue #189 Start
+	// bClearAll = (SlotsToClear.Length == 0);
+	if (SlotsToClear.Length == 0)
+	{
+		// This will primarily avoid unequipping the Ternary-Septernary slots, as well as the Backpack/Loot/Mission slots (which should be empty already).
+		class'CHItemSlot'.static.CollectSlots(class'CHItemSlot'.const.SLOT_ALL, SlotsToClear);
+	}
+	// Issue #189 End
 
 	// Grab HQ Object
 	foreach NewGameState.IterateByClassType(class'XComGameState_HeadquartersXCom', XComHQ)
@@ -11239,7 +11246,8 @@ function MakeItemsAvailable(XComGameState NewGameState, optional bool bStoreOldI
 		eSlot = AllItems[idx].InventorySlot;
 		ItemState = XComGameState_Item(History.GetGameStateForObjectID(AllItems[idx].ObjectID));
 
-		if(bClearAll || SlotsToClear.Find(eSlot) != INDEX_NONE)
+		// Issue #189 - bClearAll is not a thing
+		if(/*bClearAll || */SlotsToClear.Find(eSlot) != INDEX_NONE)
 		{
 			ItemState = XComGameState_Item(NewGameState.ModifyStateObject(class'XComGameState_Item', ItemState.ObjectID));
 
