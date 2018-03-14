@@ -1756,6 +1756,7 @@ function SetGameplayTabSelected()
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local int DLCInfoIndex;
 	local GFxObject GameplayTabMC;
+	local int Skip; // Issue #155
 	
 	ResetMechaListItems();
 	
@@ -1789,41 +1790,53 @@ function SetGameplayTabSelected()
 
 	RenableMechaListItems(ePCTabGameplay_Max + PartPackNames.Length - 1);
 
+	Skip = 0; // Issue #155
 	for(Index = 1; Index < PartPackNames.Length; ++Index) //There will always be a NULL entry at the beginning of the list
-	{		
-		PartPackPresetIndex = m_kProfileSettings.Data.PartPackPresets.Find('PartPackName', PartPackNames[Index]);
-		if(PartPackPresetIndex == INDEX_NONE)
+	{
+		// Issue #155 Start -- do not show slider if mod requested this to be 100% for purposes of random rolls
+		if (class'CHHelpers'.default.CosmeticDLCNamesUnaffectedByRoll.Find(PartPackNames[Index]) == INDEX_NONE)
 		{
-			PartPackPresetIndex = m_kProfileSettings.Data.PartPackPresets.Length;
-			PartPackData.ChanceToSelect = 0.15f;
-			PartPackData.PartPackName = PartPackNames[Index];
-			m_kProfileSettings.Data.PartPackPresets.AddItem(PartPackData);
-		}
-
-		//Retrieve the localized string for this menu option from the DLC info object. Default to just using the DLC identifier if it did not provide nice strings
-		Label = string(PartPackNames[Index]);
-		Tooltip = "";
-		for(DLCInfoIndex = 0; DLCInfoIndex < DLCInfos.Length; ++DLCInfoIndex)
-		{
-			if((name(DLCInfos[DLCInfoIndex].DLCIdentifier) == PartPackNames[Index]) && (DLCInfos[DLCInfoIndex].PartContentLabel != "")) //issue #150: this now works as intended by Firaxis comment above
+		// Issue #115 End
+			PartPackPresetIndex = m_kProfileSettings.Data.PartPackPresets.Find('PartPackName', PartPackNames[Index]);
+			if(PartPackPresetIndex == INDEX_NONE)
 			{
-				Label = DLCInfos[DLCInfoIndex].PartContentLabel;
-				Tooltip = DLCInfos[DLCInfoIndex].PartContentSummary;
+				PartPackPresetIndex = m_kProfileSettings.Data.PartPackPresets.Length;
+				PartPackData.ChanceToSelect = 0.15f;
+				PartPackData.PartPackName = PartPackNames[Index];
+				m_kProfileSettings.Data.PartPackPresets.AddItem(PartPackData);
 			}
-		}
 
-		MechaItemIndex = ePCTabGameplay_Max + Index - 1;
-		m_arrMechaItems[MechaItemIndex].UpdateDataSlider(Label, "", int(m_kProfileSettings.Data.PartPackPresets[PartPackPresetIndex].ChanceToSelect * 100.0f), , UpdatePartChance);
-		m_arrMechaItems[MechaItemIndex].BG.SetTooltipText(Tooltip, , , 10, , , , 0.0f);
-		if( Label == "" )
+			//Retrieve the localized string for this menu option from the DLC info object. Default to just using the DLC identifier if it did not provide nice strings
+			Label = string(PartPackNames[Index]);
+			Tooltip = "";
+			for(DLCInfoIndex = 0; DLCInfoIndex < DLCInfos.Length; ++DLCInfoIndex)
+			{
+				if((name(DLCInfos[DLCInfoIndex].DLCIdentifier) == PartPackNames[Index]) && (DLCInfos[DLCInfoIndex].PartContentLabel != "")) //issue #150: this now works as intended by Firaxis comment above
+				{
+					Label = DLCInfos[DLCInfoIndex].PartContentLabel;
+					Tooltip = DLCInfos[DLCInfoIndex].PartContentSummary;
+				}
+			}
+
+			MechaItemIndex = ePCTabGameplay_Max + Index - 1 - Skip; // Issue #155
+			m_arrMechaItems[MechaItemIndex].UpdateDataSlider(Label, "", int(m_kProfileSettings.Data.PartPackPresets[PartPackPresetIndex].ChanceToSelect * 100.0f), , UpdatePartChance);
+			m_arrMechaItems[MechaItemIndex].BG.SetTooltipText(Tooltip, , , 10, , , , 0.0f);
+			if( Label == "" )
+			{
+				m_arrMechaItems[MechaItemIndex].Hide();
+				m_arrMechaItems[MechaItemIndex].DisableNavigation();
+			}
+
+			Mapping.Slider = m_arrMechaItems[MechaItemIndex].Slider;
+			Mapping.PresetIndex = PartPackPresetIndex;
+			SliderMapping.AddItem(Mapping);
+		// Issue #155 Start
+		}
+		else
 		{
-			m_arrMechaItems[MechaItemIndex].Hide();
-			m_arrMechaItems[MechaItemIndex].DisableNavigation();
+			Skip += 1;
 		}
-
-		Mapping.Slider = m_arrMechaItems[MechaItemIndex].Slider;
-		Mapping.PresetIndex = PartPackPresetIndex;
-		SliderMapping.AddItem(Mapping);
+		// Issue #155 End
 	}
 
 }
