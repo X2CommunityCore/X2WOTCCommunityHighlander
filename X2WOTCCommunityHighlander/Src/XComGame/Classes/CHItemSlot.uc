@@ -22,11 +22,14 @@ const SLOT_MISC        = 0x00000008; // affected by code that strips all items
 const SLOT_ALL         = 0x0000000F; // combined mask for all these slot types
 
 // For the slot unequip behavior, used in UIArmory_Loadout
+// Issue #171 -- this receives a change in semantics. These are only used for determining whether to show the drop button.
+// This should be backwards compatible, as we required ValidateLoadout to mirror this setting.
+// This makes AttemptReEquip and AllowEmpty behave the same way, but both can be used to clarify the intent of the Drop button
 enum ECHSlotUnequipBehavior
 {
-	eCHSUB_AttemptReEquip, // Show drop button, attempt to re-equip another item if dropped
-	eCHSUB_DontAllow, // Do not show a drop button, item can only ever be directly replaced
-	eCHSUB_AllowEmpty, // Show drop button, No attempt will be made to equip another item when the item is dropped
+	eCHSUB_AttemptReEquip, // Show a drop button, equivalent to AllowEmpty
+	eCHSUB_DontAllow, // Do not show a drop button
+	eCHSUB_AllowEmpty, // Show a drop button
 };
 
 
@@ -52,6 +55,9 @@ var bool BypassesUniqueRule;
 // Can this slot hold more than one item (similar to Utility Slots)?
 // Imposes the limitation that its items can not be shown on cinematic pawns (Armory, SquadSelect, tactical Matinee).
 var bool IsMultiItemSlot;
+
+// Minimum number of items equipped on this slot, set to -1 to fill until all multi slots is full.
+var int MinimumEquipped;
 
 // If this slot is displayed, it can be displayed in a compact format in the SquadSelect screen
 // This imposes two limitations:
@@ -87,8 +93,8 @@ delegate bool CanRemoveItemFromSlotFn(CHItemSlot Slot, XComGameState_Unit Unit, 
 delegate RemoveItemFromSlotFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_Item ItemState, optional XComGameState NewGameState);
 // Falls back to matching slots
 delegate bool ShowItemInLockerListFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_Item ItemState, X2ItemTemplate ItemTemplate, XComGameState CheckGameState);
-// ItemState is the Item that IS or WAS in the slot
-// Make sure ValidateLoadoutFn matches this setting
+// ItemState is the Item that is in the slot
+// Return eCHSUB_DontAllow to not show a drop button, eCHSUB_AllowEmpty to show one. If another item needs to be equipped, handle in ValidateLoadout
 delegate ECHSlotUnequipBehavior GetSlotUnequipBehaviorFn(CHItemSlot Slot, ECHSlotUnequipBehavior DefaultBehavior, XComGameState_Unit Unit, XComGameState_Item ItemState, optional XComGameState CheckGameState);
 delegate array<X2EquipmentTemplate> GetBestGearForSlotFn(CHItemSlot Slot, XComGameState_Unit Unit);
 delegate ValidateLoadoutFn(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_HeadquartersXCom XComHQ, XComGameState NewGameState);
@@ -328,6 +334,7 @@ static function bool SlotShouldBeShown(EInventorySlot Slot, XComGameState_Unit U
 
 static function bool SlotAvailable(EInventorySlot Slot, out string LockedReason, XComGameState_Unit Unit, optional XComGameState CheckGameState)
 {
+
 	LockedReason = "";
 	switch (Slot)
 	{
@@ -337,7 +344,7 @@ static function bool SlotAvailable(EInventorySlot Slot, out string LockedReason,
 		case eInvSlot_SecondaryWeapon:
 			return Unit.NeedsSecondaryWeapon();
 		case eInvSlot_HeavyWeapon:
-			return Unit.HasHeavyWeapon(CheckGameState);
+			return Unit.GetNumHeavyWeapons(CheckGameState) > 0;
 		case eInvSlot_Utility:
 		case eInvSlot_CombatSim:
 			// Units always have a utility slot, but sometimes eStat_UtilityItems == 0. We consider the slot to be available
@@ -403,7 +410,7 @@ static function ECHSlotUnequipBehavior SlotGetUnequipBehavior(EInventorySlot Slo
 	//set up a Tuple for return value
 	OverrideTuple = new class'XComLWTuple';
 	OverrideTuple.Id = 'OverrideItemUnequipBehavior';
-	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data.Add(3);
 	// XComLWTuple does not have a Byte kind
 	OverrideTuple.Data[0].kind = XComLWTVInt;
 	OverrideTuple.Data[0].i = Behavior;
@@ -415,6 +422,51 @@ static function ECHSlotUnequipBehavior SlotGetUnequipBehavior(EInventorySlot Slo
 	`XEVENTMGR.TriggerEvent('OverrideItemUnequipBehavior', OverrideTuple, ItemState);
 	
 	return ECHSlotUnequipBehavior(OverrideTuple.Data[0].i);
+}
+
+// If UnitHasSlot(), this returns the minimum number of items that need to be in that slot for ValidateLoadout, or -1 for "all"
+// Calling code must ensure that the Unit has the slot.
+static function int SlotGetMinimumEquipped(EInventorySlot Slot, XComGameState_Unit Unit)
+{
+	local int MinSlots;
+	local XComLWTuple OverrideTuple;
+
+	if (SlotIsTemplated(Slot))
+	{
+		MinSlots = GetTemplateForSlot(Slot).MinimumEquipped;
+	}
+	else
+	{
+		switch (Slot)
+		{
+			case eInvSlot_SecondaryWeapon:
+			case eInvSlot_Armor:
+			case eInvSlot_PrimaryWeapon:
+			case eInvSlot_GrenadePocket:
+			case eInvSlot_Utility:
+			case eInvSlot_HeavyWeapon:
+				MinSlots = 1;
+				break;
+			default:
+				MinSlots = 0;
+				break;
+		}
+	}
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideItemMinEquipped';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].kind = XComLWTVInt;
+	OverrideTuple.Data[0].i = MinSlots;
+	// XComLWTuple does not have a Byte kind
+	OverrideTuple.Data[1].kind = XComLWTVInt;
+	OverrideTuple.Data[1].i = int(Slot);
+
+	`XEVENTMGR.TriggerEvent('OverrideItemMinEquipped', OverrideTuple, Unit);
+
+	MinSlots = OverrideTuple.Data[0].i;
+
+	return MinSlots;
 }
 
 static function int SlotGetPriority(EInventorySlot Slot, XComGameState_Unit Unit, optional XComGameState CheckGameState)
@@ -464,7 +516,7 @@ static function array<EInventorySlot> GetDefaultDisplayedSlots(XComGameState_Uni
 
 static function bool SlotIsMultiItem(EInventorySlot Slot)
 {
-	return Slot == eInvSlot_Backpack || Slot == eInvSlot_Utility || Slot == eInvSlot_CombatSim || (SlotIsTemplated(Slot) && GetTemplateForSlot(Slot).IsMultiItemSlot);
+	return Slot == eInvSlot_Backpack || Slot == eInvSlot_Utility || Slot == eInvSlot_HeavyWeapon || Slot == eInvSlot_CombatSim || (SlotIsTemplated(Slot) && GetTemplateForSlot(Slot).IsMultiItemSlot);
 }
 
 // Only valid for Multi-Item slots!
@@ -484,6 +536,10 @@ static function int SlotGetMaxItemCount(EInventorySlot Slot, XComGameState_Unit 
 			return int(Unit.GetCurrentStat(eStat_CombatSims));
 		case eInvSlot_Backpack:
 			return -1;
+		// Start Issue #171
+		case eInvSlot_HeavyWeapon:
+			return Unit.GetNumHeavyWeapons(CheckGameState);
+		// End Issue #171
 		default:
 			// Due to the check for SlotIsMultiItem, this slot must be templated
 			return GetTemplateForSlot(Slot).GetMaxItemCount(Unit, CheckGameState);

@@ -52,6 +52,20 @@ var config array<name> ClassesExcludedFromResHQ;
 var config bool UPDATE_MATERIALS_CONSTANTLY;
 // End Issue #186
 
+// Start Issue #155
+// In the base game, XComGameState_Unit doesn't care about sliders all that much. However, the fix to
+// handle sliders correctly has one problem -- mods may add part types for a specific armor and assign
+// it a DLC Name. If those parts are the only valid ones, but the roll fails, we have invisible parts.
+// Hence, we allow DLCNames to be specified here that are excluded by the chance roll and are always
+// valid, effectively making them "vanilla" parts (parts without a DLCName)
+var config array<name> CosmeticDLCNamesUnaffectedByRoll;
+// End Issue #155
+
+// Start Issue #171
+var config bool GrenadeRespectUniqueRule;
+var config bool AmmoSlotBypassUniqueRule;
+// End Issue #171
+
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
 	local XComContentManager		Content;
@@ -85,19 +99,24 @@ static function array<name> GetAcceptablePartPacks()
 	for(PartPackIndex = 0; PartPackIndex < PartPackNames.Length; ++PartPackIndex)
 	{
 		bHasSetting = false;
-		for(Index = 0; Index < ProfileSettings.Data.PartPackPresets.Length; ++Index)
+		if (default.CosmeticDLCNamesUnaffectedByRoll.Find(PartPackNames[PartPackIndex]) != INDEX_NONE)
 		{
-			if(ProfileSettings.Data.PartPackPresets[Index].PartPackName == PartPackNames[PartPackIndex])
+			bHasSetting = true;
+			DLCNames.AddItem(PartPackNames[PartPackIndex]);
+		}
+		else
+		{
+			for(Index = 0; Index < ProfileSettings.Data.PartPackPresets.Length; ++Index)
 			{
-				bHasSetting = true;
-				if (
-					`SYNC_FRAND_STATIC() <= ProfileSettings.Data.PartPackPresets[Index].ChanceToSelect &&
-					ProfileSettings.Data.PartPackPresets[Index].ChanceToSelect > 0.02f
-					//0.02 so sliders being set to the minimum actually do something
-				)
+				if(ProfileSettings.Data.PartPackPresets[Index].PartPackName == PartPackNames[PartPackIndex])
 				{
-					DLCNames.AddItem(ProfileSettings.Data.PartPackPresets[Index].PartPackName);
-					break;
+					bHasSetting = true;
+					if (`SYNC_FRAND_STATIC() <= ProfileSettings.Data.PartPackPresets[Index].ChanceToSelect &&
+						ProfileSettings.Data.PartPackPresets[Index].ChanceToSelect > 0.02f) //0.02 so sliders being set to the minimum actually do something
+					{
+						DLCNames.AddItem(ProfileSettings.Data.PartPackPresets[Index].PartPackName);
+						break;
+					}
 				}
 			}
 		}
