@@ -368,3 +368,4 @@ static function UpdateHumanPawnMeshMaterial(XComGameState_Unit UnitState, XComHu
 
 }
 // End Issue #157
+
