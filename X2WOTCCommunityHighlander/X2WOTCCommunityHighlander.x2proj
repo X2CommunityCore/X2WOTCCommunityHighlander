@@ -132,6 +132,9 @@
     <Content Include="Src\XComGame\Classes\UIListItemString.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UINarrativeMgr.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UINavigator.uc">
       <SubType>Content</SubType>
     </Content>
