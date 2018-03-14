@@ -14,6 +14,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   the ArmoryList (#47)
 - Triggers the event `PostMissionUpdateSoldierHealing` that allows excluding soldiers from starting healing projects (#140)
 - Triggers the event `UpdateResources` that allows mods to show resources in the ResourceHeader (#174)
+- Triggers the event `OverridePsiOpTraining` that allows mods to override unit eligibility for Psi Op slots (#159)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
