@@ -63,6 +63,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `OnGetItemRange` override an item's range (#119)
 - `PreAcquiredHackReward` for overriding Hack Rewards (#120)
 - `ModifyEnvironmentDamage` to modify environment damage (#200)
+- `OverrideKilledByExplosion` to allow mods to override the
+  "was killed by explosion" flag (#202)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
