@@ -52,6 +52,11 @@ var config array<name> ClassesExcludedFromResHQ;
 var config array<name> CosmeticDLCNamesUnaffectedByRoll;
 // End Issue #155
 
+// Start Issue #171
+var config bool GrenadeRespectUniqueRule;
+var config bool AmmoSlotBypassUniqueRule;
+// End Issue #171
+
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
 	local XComContentManager		Content;

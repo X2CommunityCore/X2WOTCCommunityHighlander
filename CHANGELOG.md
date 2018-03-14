@@ -14,8 +14,10 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   the ArmoryList (#47)
 - Triggers the event `PostMissionUpdateSoldierHealing` that allows excluding soldiers from starting healing projects (#140)
 - Triggers the event `UpdateResources` that allows mods to show resources in the ResourceHeader (#174)
+- Triggers the event `OverridePsiOpTraining` that allows mods to override unit eligibility for Psi Op slots (#159)
 
 ### Modding Exposures
+- Allows mods to add custom items to the Avenger Shortcuts (#163)
 
 ### Configuration
 - Allow disabling of Factions being initialized on startup by
@@ -105,6 +107,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `GetLocalizedCategory`added to allow inject custom weapon category localizations (#125)
 - `UpdateUIOnDifficultyChange` added to allow modders to modify the UI on the
   difficulty selection (UIShellDifficulty) (#148)
+- `GetNumUtilitySlotsOverride` and `GetNumHeavyWeaponSlotsOverride` added to allow mods to override the numer of available slots (#171)
+- `OverrideItemImage` added to conditionally change the loadout image of an item (#171)
 
 ### Event Hooks
 - Triggers the events `SoldierClassIcon`, `SoldierClassDisplayName`,
@@ -113,6 +117,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   and adds accessor functions for those to XComGameState_Unit. (#106)
 - `GetPCSImageTuple` added to allow customising PCS Image string (#110)
 - Triggers the event `OverrideHasHeavyWeapon` that allows to override the result of `XComGameState_Unit.HasHeavyWeapon` (#172)
+- `OverrideItemMinEquipped` added to allow mods to override the min number of equipped items in a slot (#171)
 
 ### Configuration
 - Able to list classes as excluded from AWC Skill Rolling, so they can still
@@ -151,6 +156,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   new soldiers (#154)
 - Alter XComGameState_Unit so it obeys part pack sliders when picking new armour
   appearances (#155)
+- `eInvSlot_HeavyWeapon` is now a multi-item slot (#171)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
