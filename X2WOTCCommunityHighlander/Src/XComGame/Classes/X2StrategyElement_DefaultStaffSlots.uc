@@ -871,9 +871,9 @@ static function bool IsUnitValidForPsiChamberSoldierSlot(XComGameState_StaffSlot
 		Tuple.Id = 'OverridePsiOpTraining';
 		Tuple.Data.Add(2);
 		Tuple.Data[0].kind = XComLWTVBool;
-		Tuple.Data[0].b = bOverridePsiTrain;
+		Tuple.Data[0].b = false; //bOverridePsiTrain;
 		Tuple.Data[1].kind = XComLWTVBool;
-		Tuple.Data[1].b = bCanTrain;
+		Tuple.Data[1].b = false; //bCanTrain;
 		
 		`XEVENTMGR.TriggerEvent('OverridePsiOpTraining', Tuple, Unit);
 		bOverridePsiTrain = Tuple.Data[0].b;

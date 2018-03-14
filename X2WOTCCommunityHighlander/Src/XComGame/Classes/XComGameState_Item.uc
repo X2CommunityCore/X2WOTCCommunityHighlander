@@ -734,9 +734,9 @@ simulated function bool HasBeenModified()
 	Tuple.Id = 'OverrideItemIsModified';
 	Tuple.Data.Add(2);
 	Tuple.Data[0].kind = XComLWTVBool;
-	Tuple.Data[0].b = bOverrideItemModified;
+	Tuple.Data[0].b = false; //bOverrideItemModified;
 	Tuple.Data[1].kind = XComLWTVBool;
-	Tuple.Data[1].b = bItemModified;
+	Tuple.Data[1].b = false; //bItemModified;
 
 	`XEVENTMGR.TriggerEvent('OverrideItemIsModified', Tuple, self, none);
 	bOverrideItemModified = Tuple.Data[0].b;
