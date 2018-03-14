@@ -5800,6 +5800,9 @@ event TakeDamage( XComGameState NewGameState, const int DamageAmount, const int 
 	local XComGameState_Unit DamageSourceUnit;
 	local name PreCheckName;
 	local X2Effect_ApplyWeaponDamage DamageEffect;
+    
+	// Variable for Issue #202
+	local XComLWTuple KilledByExplosionTuple;
 
 	//  Cosmetic units should not take damage
 	if (GetMyTemplate( ).bIsCosmetic)
@@ -5965,7 +5968,20 @@ event TakeDamage( XComGameState NewGameState, const int DamageAmount, const int 
 	OverkillDamage = (GetCurrentStat( eStat_HP )) - DmgResult.DamageAmount;
 	if (OverkillDamage <= 0)
 	{
-		bKilledByExplosion = bExplosiveDamage;
+		// Issue #202 Start, allow listeners to override killed by explosion
+		KilledByExplosionTuple = new class'XComLWTuple';
+		KilledByExplosionTuple.Id = 'OverrideKilledByExplosion';
+		KilledByExplosionTuple.Data.Add(2);
+		KilledByExplosionTuple.Data[0].kind = XComLWTVBool;
+		KilledByExplosionTuple.Data[0].b = bExplosiveDamage;
+		KilledByExplosionTuple.Data[1].kind = XComLWTVInt;
+		KilledByExplosionTuple.Data[1].i = DamageSource.ObjectID;
+
+		`XEVENTMGR.TriggerEvent('KilledByExplosion', KilledByExplosionTuple, self, NewGameState);
+
+		bKilledByExplosion = KilledByExplosionTuple.Data[0].b;
+		// Issue #202 End
+
 		KilledByDamageTypes = DamageTypes;
 
 		DamageEffect = X2Effect_ApplyWeaponDamage(CauseOfDeath);
