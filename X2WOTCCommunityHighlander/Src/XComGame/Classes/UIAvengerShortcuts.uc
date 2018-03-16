@@ -178,7 +178,7 @@ simulated function UIAvengerShortcuts InitShortcuts(optional name InitName)
 	local XComGameState_FacilityXCom Facility;
 
 	// Start Issue #163 New Menu Hooks
-    ModSubMenus.length = eUIAvengerShortcutCat_MAX;
+	ModSubMenus.length = eUIAvengerShortcutCat_MAX;
 	// End Issue #163 New Menu Hooks
 
 	InitPanel(InitName); 
@@ -349,10 +349,10 @@ simulated function UpdateCategories()
 			Categories[i].Button.Hide();
 		}
 		// Start Issue #163 New Menu Hooks
-        for (j = 0; j < ModSubMenus[i].SubMenuItems.Length; ++j)
-        {
-            Categories[i].Messages.AddItem(ModSubMenus[i].SubMenuItems[j].Message);
-        }
+		for (j = 0; j < ModSubMenus[i].SubMenuItems.Length; ++j)
+		{
+			Categories[i].Messages.InsertItem(0, ModSubMenus[i].SubMenuItems[j].Message);
+		}
 		// End Issue #163 New Menu Hooks
 	}
 	OnCategoryButtonSizeRealized();
