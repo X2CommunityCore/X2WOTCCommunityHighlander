@@ -27,7 +27,7 @@
         {
             "label": "runUnrealEditor",
             "type": "shell",
-            "command": "powershell.exe -file '${workspaceRoot}\\.scripts\\runUnrealEditor.ps1' -gamePath '${config:xcom.highlander.sdkroot}'",
+            "command": "powershell.exe -file '${workspaceRoot}\\.scripts\\runUnrealEditor.ps1' -sdkPath '${config:xcom.highlander.sdkroot}'",
             "problemMatcher": []
         }
     ]
