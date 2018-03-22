@@ -301,7 +301,7 @@ Write-Host "Copied compiled and cooked script packages."
 if(Test-Path "$modSrcRoot/Content")
 {
     $contentfiles = Get-ChildItem "$modSrcRoot/Content\*"  -Include *.upk, *.umap -Recurse -File -Name
-    if($contentfiles.length -lt 0)
+    if($contentfiles.length -gt 0)
     {
         # build the mod's shader cache
         Write-Host "Precompiling Shaders..."
