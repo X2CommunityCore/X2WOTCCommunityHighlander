@@ -189,7 +189,7 @@ $modSrcRoot = "$srcDirectory\$modNameCanonical"
 ValidateProjectFiles $modSrcRoot $modNameCanonical
 
 # clean
-$stagingPath = "{0}\XComGame\Mods\{1}\" -f $sdkPath, $modNameCanonical
+$stagingPath = "{0}\XComGame\Mods\{1}" -f $sdkPath, $modNameCanonical
 Write-Host "Cleaning mod project at $stagingPath...";
 if (Test-Path $stagingPath) {
     Remove-Item $stagingPath -Recurse -WarningAction SilentlyContinue;
@@ -286,7 +286,7 @@ for ($i=0; $i -lt $files.length; $i++) {
 }
 
 # Ideally, the cooking process wouldn't modify the big *.tfc files, but it does, so we don't overwrite existing ones (/XC /XN /XO)
-# In order to "reset" the cooking direcory, just delete it and let the game recreate them
+# In order to "reset" the cooking direcory, just delete it and let the script recreate them
 Write-Host "Copying Texture File Caches"
 Robocopy.exe "$cookedpcconsoledir" "$modcookdir" *.tfc /NJH /XC /XN /XO
 
@@ -348,7 +348,7 @@ if(Test-Path "$modSrcRoot/Content")
 
 # copy all staged files to the actual game's mods folder
 Write-Host "Copying all staging files to production..."
-Copy-Item $stagingPath "$gamePath/XComGame/Mods/" -Force -Recurse -WarningAction SilentlyContinue
+Robocopy.exe "$stagingPath" "$gamePath\XComGame\Mods\X2WOTCCommunityHighlander" *.* /S /E /DCOPY:DA /COPY:DAT /PURGE /MIR /NP /R:1000000 /W:30
 Write-Host "Copied mod to game directory."
 
 # we made it!
