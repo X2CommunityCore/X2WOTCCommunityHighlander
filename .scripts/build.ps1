@@ -203,7 +203,7 @@ Write-Host "Cleaned."
 #StageDirectory "Src" $modSrcRoot $stagingPath
 #Copy-Item "$modSrcRoot" "$sdkPath\XComGame\Mods" -Force -Recurse -WarningAction SilentlyContinue
 
-Robocopy.exe "$modSrcRoot" "$sdkPath\XComGame\Mods\$modNameCanonical" *.* /XD Assets /S /E /DCOPY:DA /COPY:DAT /PURGE /MIR /NP /R:1000000 /W:30
+Robocopy.exe "$modSrcRoot" "$sdkPath\XComGame\Mods\$modNameCanonical" *.* /S /E /DCOPY:DA /COPY:DAT /PURGE /MIR /NP /R:1000000 /W:30
 if (Test-Path "$stagingPath\$modNameCanonical.x2proj") {
     Remove-Item "$stagingPath\$modNameCanonical.x2proj"
 }
