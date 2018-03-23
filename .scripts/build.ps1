@@ -114,6 +114,35 @@ function Invoke-Make([string] $makeCmd, [string] $makeFlags, [string] $sdkPath, 
     $global:LASTEXITCODE = $process.ExitCode
 }
 
+
+# This function verifies that all project files in the mod subdirectories actually exist in the .x2proj file
+function ValidateProjectFiles([string] $modProjectRoot, [string] $modName)
+{
+    Write-Host "Checking for missing entries in .x2proj file..."
+    $projFilepath = "$modProjectRoot\$modName.x2proj"
+    if(Test-Path $projFilepath)
+    {
+        $missingFiles = New-Object System.Collections.Generic.List[System.Object]
+        $projContent = Get-Content $projFilepath
+        # Loop through all files in subdirectories and fail the build if any filenames are missing inside the project file
+        Get-ChildItem $modProjectRoot -Directory | Get-ChildItem -File -Recurse |
+        ForEach-Object {
+            If (!($projContent | Select-String -Pattern $_.Name)) {
+                $missingFiles.Add($_.Name)
+            }
+        }
+
+        if($missingFiles.Length -gt 0)
+        {
+            FailureMessage("Filenames missing in the .x2proj file: $missingFiles")
+        }
+    }
+    else
+    {
+        throw "The project file '$projFilepath' doesn't exist"
+    }
+}
+
 function FailureMessage($message)
 {
     [System.Media.SystemSounds]::Hand.Play();
@@ -155,6 +184,9 @@ $modNameCanonical = $mod
 # we're going to ask that people specify the folder that has their .XCOM_sln in it as the -srcDirectory argument, but a lot of the time all we care about is
 # the folder below that that contains Config, Localization, Src, etc...
 $modSrcRoot = "$srcDirectory\$modNameCanonical"
+
+# check that all files in the mod folder are present in the .x2proj file
+ValidateProjectFiles $modSrcRoot $modNameCanonical
 
 # clean
 $stagingPath = "{0}\XComGame\Mods\{1}\" -f $sdkPath, $modNameCanonical
