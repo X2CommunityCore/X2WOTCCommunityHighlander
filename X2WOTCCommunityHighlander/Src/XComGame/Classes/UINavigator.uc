@@ -118,12 +118,21 @@ public function RemoveControl(UIPanel Control)
 
 // Start Issue #47
 // Add SwapControls function to handle control reordering from the owning UI element.
-public function SwapControls(int ControlIndexA, int ControlIndexB)
+public function SwapControls(UIPanel ChildA, UIPanel ChildB)
 {
 	local UIPanel Panel;
-	Panel = NavigableControls[ControlIndexA];
-	NavigableControls[ControlIndexA] = NavigableControls[ControlIndexB];
-	NavigableControls[ControlIndexB] = Panel;
+	local int ControlIndexA, ControlIndexB;
+
+	ControlIndexA = NavigableControls.Find(ChildA);
+	ControlIndexB = NavigableControls.Find(ChildB);
+
+	// It is perfectly valid for children to not actually be navigable, hence the explicit check here
+	if (ControlIndexA > INDEX_NONE && ControlIndexB > INDEX_NONE)
+	{
+		Panel = NavigableControls[ControlIndexA];
+		NavigableControls[ControlIndexA] = NavigableControls[ControlIndexB];
+		NavigableControls[ControlIndexB] = Panel;
+	}
 }
 // End Issue #47
 
