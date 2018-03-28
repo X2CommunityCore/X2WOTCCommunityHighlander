@@ -1489,9 +1489,13 @@ function SetVideoTabSelected()
 //	local int i;
 	ResetMechaListItems();
 
+	// Issue #160, fix tooltips
+	RenableMechaListItems(ePCTabVideo_Max);
+
 	VideoTabMC = Movie.GetVariableObject(MCPath$".TabGroup.Tab1");
 	if(VideoTabMC != none)
 		VideoTabMC.ActionScriptVoid("select");
+
 		
 	// NOTE: Keeping the actual widgets of removed settings so that the remaining
 	//		 ones are still operational - KD
@@ -1533,7 +1537,6 @@ function SetVideoTabSelected()
 		m_arrMechaItems[i].Hide();
 		m_arrMechaItems[i].DisableNavigation();
 	}*/
-	RenableMechaListItems(ePCTabVideo_Max);
 }
 
 public function SpinnerUpdated(UIListItemSpinner spinnerControl, int direction)
@@ -1651,6 +1654,8 @@ function SetGraphicsTabSelected()
 	m_bApplyingPreset = true;
 
 	ResetMechaListItems();
+	// Issue #160, fix tooltips
+	RenableMechaListItems(ePCGraphics_Max);
 
 	for (i = 0; i < NumGraphicsOptions; i++)
 	{
@@ -1674,7 +1679,6 @@ function SetGraphicsTabSelected()
 		m_arrMechaItems[i].Hide();
 		m_arrMechaItems[i].DisableNavigation();
 	}*/
-	RenableMechaListItems(ePCGraphics_Max);
 }
 
 function SetAudioTabSelected()
@@ -1686,7 +1690,9 @@ function SetAudioTabSelected()
 	if(AudioTabMC != none)
 		AudioTabMC.ActionScriptVoid("select");
 		
-	//ResetMechaListItems();
+	ResetMechaListItems();
+	// Issue #160, fix tooltips
+	RenableMechaListItems(ePCTabAudio_Max);
 
 	// Master Volume: --------------------------------------------
 	m_arrMechaItems[ePCTabAudio_MasterVolume].UpdateDataSlider(m_strAudioLabel_MasterVolume, "", m_kProfileSettings.Data.m_iMasterVolume, , UpdateMasterVolume);
@@ -1739,7 +1745,6 @@ function SetAudioTabSelected()
 		m_arrMechaItems[i].Hide();
 		m_arrMechaItems[i].DisableNavigation();
 	}*/
-	RenableMechaListItems(ePCTabAudio_Max); 
 }
 
 function SetGameplayTabSelected()
@@ -1756,9 +1761,23 @@ function SetGameplayTabSelected()
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local int DLCInfoIndex;
 	local GFxObject GameplayTabMC;
-	local int Skip; // Issue #155
-	
+
+	// Issue #155 Start
+	// Also #160, move this code up so that we can make the tooltips work
+	PartTemplateManager = class'X2BodyPartTemplateManager'.static.GetBodyPartTemplateManager();
+	PartPackNames = PartTemplateManager.GetPartPackNames();
+
+	// filter out forced 100% packs
+	for (Index = PartPackNames.Length; Index > 0; Index--)
+	{
+		if (class'CHHelpers'.default.CosmeticDLCNamesUnaffectedByRoll.Find(PartPackNames[Index]) != INDEX_NONE)
+		{
+			PartPackNames.Remove(Index, 1);
+		}
+	}
 	ResetMechaListItems();
+	RenableMechaListItems(ePCTabGameplay_Max + PartPackNames.Length - 1);
+	// Issue #155, #160 End
 	
 	GameplayTabMC = Movie.GetVariableObject(MCPath$".TabGroup.Tab3");
 	if(GameplayTabMC != none)
@@ -1785,58 +1804,42 @@ function SetGameplayTabSelected()
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);	
 
 	SliderMapping.Length = 0;
-	PartTemplateManager = class'X2BodyPartTemplateManager'.static.GetBodyPartTemplateManager();
-	PartPackNames = PartTemplateManager.GetPartPackNames();
 
-	RenableMechaListItems(ePCTabGameplay_Max + PartPackNames.Length - 1);
-
-	Skip = 0; // Issue #155
 	for(Index = 1; Index < PartPackNames.Length; ++Index) //There will always be a NULL entry at the beginning of the list
 	{
-		// Issue #155 Start -- do not show slider if mod requested this to be 100% for purposes of random rolls
-		if (class'CHHelpers'.default.CosmeticDLCNamesUnaffectedByRoll.Find(PartPackNames[Index]) == INDEX_NONE)
+		PartPackPresetIndex = m_kProfileSettings.Data.PartPackPresets.Find('PartPackName', PartPackNames[Index]);
+		if(PartPackPresetIndex == INDEX_NONE)
 		{
-		// Issue #115 End
-			PartPackPresetIndex = m_kProfileSettings.Data.PartPackPresets.Find('PartPackName', PartPackNames[Index]);
-			if(PartPackPresetIndex == INDEX_NONE)
-			{
-				PartPackPresetIndex = m_kProfileSettings.Data.PartPackPresets.Length;
-				PartPackData.ChanceToSelect = 0.15f;
-				PartPackData.PartPackName = PartPackNames[Index];
-				m_kProfileSettings.Data.PartPackPresets.AddItem(PartPackData);
-			}
-
-			//Retrieve the localized string for this menu option from the DLC info object. Default to just using the DLC identifier if it did not provide nice strings
-			Label = string(PartPackNames[Index]);
-			Tooltip = "";
-			for(DLCInfoIndex = 0; DLCInfoIndex < DLCInfos.Length; ++DLCInfoIndex)
-			{
-				if((name(DLCInfos[DLCInfoIndex].DLCIdentifier) == PartPackNames[Index]) && (DLCInfos[DLCInfoIndex].PartContentLabel != "")) //issue #150: this now works as intended by Firaxis comment above
-				{
-					Label = DLCInfos[DLCInfoIndex].PartContentLabel;
-					Tooltip = DLCInfos[DLCInfoIndex].PartContentSummary;
-				}
-			}
-
-			MechaItemIndex = ePCTabGameplay_Max + Index - 1 - Skip; // Issue #155
-			m_arrMechaItems[MechaItemIndex].UpdateDataSlider(Label, "", int(m_kProfileSettings.Data.PartPackPresets[PartPackPresetIndex].ChanceToSelect * 100.0f), , UpdatePartChance);
-			m_arrMechaItems[MechaItemIndex].BG.SetTooltipText(Tooltip, , , 10, , , , 0.0f);
-			if( Label == "" )
-			{
-				m_arrMechaItems[MechaItemIndex].Hide();
-				m_arrMechaItems[MechaItemIndex].DisableNavigation();
-			}
-
-			Mapping.Slider = m_arrMechaItems[MechaItemIndex].Slider;
-			Mapping.PresetIndex = PartPackPresetIndex;
-			SliderMapping.AddItem(Mapping);
-		// Issue #155 Start
+			PartPackPresetIndex = m_kProfileSettings.Data.PartPackPresets.Length;
+			PartPackData.ChanceToSelect = 0.15f;
+			PartPackData.PartPackName = PartPackNames[Index];
+			m_kProfileSettings.Data.PartPackPresets.AddItem(PartPackData);
 		}
-		else
+
+		//Retrieve the localized string for this menu option from the DLC info object. Default to just using the DLC identifier if it did not provide nice strings
+		Label = string(PartPackNames[Index]);
+		Tooltip = "";
+		for(DLCInfoIndex = 0; DLCInfoIndex < DLCInfos.Length; ++DLCInfoIndex)
 		{
-			Skip += 1;
+			if((name(DLCInfos[DLCInfoIndex].DLCIdentifier) == PartPackNames[Index]) && (DLCInfos[DLCInfoIndex].PartContentLabel != "")) //issue #150: this now works as intended by Firaxis comment above
+			{
+				Label = DLCInfos[DLCInfoIndex].PartContentLabel;
+				Tooltip = DLCInfos[DLCInfoIndex].PartContentSummary;
+			}
 		}
-		// Issue #155 End
+
+		MechaItemIndex = ePCTabGameplay_Max + Index - 1;
+		m_arrMechaItems[MechaItemIndex].UpdateDataSlider(Label, "", int(m_kProfileSettings.Data.PartPackPresets[PartPackPresetIndex].ChanceToSelect * 100.0f), , UpdatePartChance);
+		m_arrMechaItems[MechaItemIndex].BG.SetTooltipText(Tooltip, , , 10, , , , 0.0f);
+		if( Label == "" )
+		{
+			m_arrMechaItems[MechaItemIndex].Hide();
+			m_arrMechaItems[MechaItemIndex].DisableNavigation();
+		}
+
+		Mapping.Slider = m_arrMechaItems[MechaItemIndex].Slider;
+		Mapping.PresetIndex = PartPackPresetIndex;
+		SliderMapping.AddItem(Mapping);
 	}
 
 }
@@ -3151,8 +3154,17 @@ function RenableMechaListItems(int maxItems)
 {
 	local int i;
 	local UIMechaListItem ListItem;
-	
-	if(maxItems > NUM_LISTITEMS) //our initial list made is 16 items long, if a function gives us more than this...
+
+	// Issue #160: FIRST, enable navigation on the existing items, so the navigator properly tracks the items
+	for (i = 0; i < maxItems; i++)
+	{
+		m_arrMechaItems[i].SetDisabled(false); //This will be reset in the tab info update for each mechalistitem.
+		m_arrMechaItems[i].Show();
+		m_arrMechaItems[i].EnableNavigation();
+	}
+
+	// Then, spawn any additional items we may need
+	if (maxItems > NUM_LISTITEMS) //our initial list made is 16 items long, if a function gives us more than this...
 	{
 		for(i = NUM_LISTITEMS; i < maxItems; i++)
 		{
@@ -3164,15 +3176,8 @@ function RenableMechaListItems(int maxItems)
 			m_arrMechaItems.AddItem(ListItem);
 		}		
 	}
-	
-	for( i = 0; i < maxItems; i++)
-	{
-		m_arrMechaItems[i].SetDisabled(false); //This will be reset in the tab info update for each mechalistitem.
-		m_arrMechaItems[i].Show();
-		m_arrMechaItems[i].EnableNavigation();
-	}
-	
-	for(i = maxItems; i < m_arrMechaItems.Length; i++) //disable any extraneous options we don't need on startup, this is for when the menu is first opened.
+	// And finally, disable any extraneous ones
+	for (i = maxItems; i < m_arrMechaItems.Length; i++) //disable any extraneous options we don't need on startup, this is for when the menu is first opened.
 	{
 		m_arrMechaItems[i].SetDisabled(false);
 		m_arrMechaItems[i].OnLoseFocus();
@@ -3180,14 +3185,11 @@ function RenableMechaListItems(int maxItems)
 		m_arrMechaItems[i].BG.RemoveTooltip();
 		m_arrMechaItems[i].DisableNavigation();
 	}
-//	for( i = maxItems; i < NUM_LISTITEMS; i++ )
-//	{
-//		m_arrMechaItems[i].SetDisabled(false);
-//		m_arrMechaItems[i].OnLoseFocus();
-//		m_arrMechaItems[i].Hide();
-//		m_arrMechaItems[i].BG.RemoveTooltip();
-//		m_arrMechaItems[i].DisableNavigation();
-//	}
+
+	// Also set the list size to a good value: Flash overrides it with the default
+	// from the movie, so we can't do it in OnInit()
+	List.SetHeight(class'UIMechaListItem'.default.Height * NUM_LISTITEMS);
+
 	Navigator.SetSelected(List);
 }
 //end issue #160
