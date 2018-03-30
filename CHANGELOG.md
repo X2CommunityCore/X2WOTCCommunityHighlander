@@ -12,8 +12,14 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Event Hooks
 - Triggers the event `OnArmoryMainMenuUpdate` that allows adding elements into
   the ArmoryList (#47)
+- Triggers the event `PostMissionUpdateSoldierHealing` that allows excluding soldiers from starting healing projects (#140)
+- Triggers the event `UpdateResources` that allows mods to show resources in the ResourceHeader (#174)
+- Triggers the event `OverridePsiOpTraining` that allows mods to override unit eligibility for Psi Op slots (#159)
+- Triggers the event `OverrideItemIsModified` to prevent items with custom modifications from being stacked / removed
+- Triggers the events `UnitRandomizedStats` and `RewardUnitGenerated` for unit initialization logic (#185)
 
 ### Modding Exposures
+- Allows mods to add custom items to the Avenger Shortcuts (#163)
 
 ### Configuration
 - Allow disabling of Factions being initialized on startup by
@@ -32,6 +38,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Fix GetCrossClassAbilities collecting abilities that are already in that
   particular Unit Class's skill tree (#30, #62)
 - Fix Loadout utility items when unit has an item equipped in the Ammo Pocket (#99)
+- Fix units unequipping items they shouldn't, resulting in duplicate Paired Weapons (#189)
 
 
 ## Tactical
@@ -39,6 +46,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Mod/DLC Hooks
 - Allow Mods/DLC to modify spawn locations for player units (#18)
 - Trigger an event for RetainConcealmentOnActivation (#2)
+- Allow Mods/DLC to modify encounters after creation (#136)
+- Allow Mods/DLC to alter mission data after SitRep creation (#157)
 
 ### Event Hooks
 
@@ -53,6 +62,9 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   `OverrideBleedoutChance`. (#91)
 - `OnGetItemRange` override an item's range (#119)
 - `PreAcquiredHackReward` for overriding Hack Rewards (#120)
+- `ModifyEnvironmentDamage` to modify environment damage (#200)
+- `OverrideKilledByExplosion` to allow mods to override the
+  "was killed by explosion" flag (#202)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
@@ -92,12 +104,17 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 
 ### Mod/DLC Hooks
 - `UpdateAnimations` added to allow adding CustomAnimsets to UnitPawns (#24)
+- `UpdateMaterial`added to allow manipulate pawn materials (#169)
 - `DLCAppendSockets` added to allow appending sockets to UnitPawns (#21)
 - `CanAddItemToInventory` added to allow configuring whether or not a unit can
   equip a particular item as an extension to the standand rules (#50)
 - `CanAddItemToInventory_CH_Improved` added as a backwards compatible extension
   to other CanAddItem... helpers, allowing access to the ItemState (#114)
 - `GetLocalizedCategory`added to allow inject custom weapon category localizations (#125)
+- `UpdateUIOnDifficultyChange` added to allow modders to modify the UI on the
+  difficulty selection (UIShellDifficulty) (#148)
+- `GetNumUtilitySlotsOverride` and `GetNumHeavyWeaponSlotsOverride` added to allow mods to override the numer of available slots (#171)
+- `OverrideItemImage` added to conditionally change the loadout image of an item (#171)
 
 ### Event Hooks
 - Triggers the events `SoldierClassIcon`, `SoldierClassDisplayName`,
@@ -105,6 +122,9 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   name/summary dynamically e.g. depending on UnitState or Soldier Loadout,
   and adds accessor functions for those to XComGameState_Unit. (#106)
 - `GetPCSImageTuple` added to allow customising PCS Image string (#110)
+- Triggers the event `OverrideHasHeavyWeapon` that allows to override the result of `XComGameState_Unit.HasHeavyWeapon` (#172)
+- `OverrideItemMinEquipped` added to allow mods to override the min number of equipped items in a slot (#171)
+- `AddConversation` added to allow mods to change narrative behavior before they are played (#204)
 
 ### Configuration
 - Able to list classes as excluded from AWC Skill Rolling, so they can still
@@ -117,6 +137,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Renable the ability to add positive traits in codebase, as well as additional
   filtering and behaviour on the various Trait Functions on `XComGameState_Unit`
   (#85)
+- Allow mods to register custom OnInput UI handlers (#198)
 
 ### Improvements
 - Create a mod friendly way to manipulate loot tables (#8)
@@ -137,6 +158,15 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   circuiting if DisabledReason != "" (#127)
 - Major Overhaul of InventorySlot handling so modders can suggest extra
   inventory slots (#118, #137)
+- Fix UIOptionsPCScreen so part pack sliders actually get shown as intended
+  (#150)
+- Fix XGCharacterGenerator so it's actually possible to disable part packs for
+  new soldiers (#154)
+- Alter XComGameState_Unit so it obeys part pack sliders when picking new armour
+  appearances. Use `CHHelpers.CosmeticDLCNamesUnaffectedByRoll` to remove the 
+  random roll from specific part names (#155)
+- `eInvSlot_HeavyWeapon` is now a multi-item slot (#171)
+- Improve performance by removing unnecessary calls to UpdateAllMeshMaterials (#186)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the

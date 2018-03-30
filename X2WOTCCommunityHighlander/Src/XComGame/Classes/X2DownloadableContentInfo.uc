@@ -310,6 +310,27 @@ static private function bool CanAddItemToInventory(out int bCanAddItem, const EI
 
 //end Issue #50
 
+// Start Issue #171
+/// Calls to override item image shown in UIArmory_Loadout
+/// For example it allows you to show multiple grenades on grenade slot for someone with heavy ordnance
+/// Just change the value of imagePath
+static function OverrideItemImage(out array<string> imagePath, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, XComGameState_Unit UnitState)
+{
+}
+
+/// Also Issue #64
+/// Allows override number of utility slots
+static function GetNumUtilitySlotsOverride(out int NumUtilitySlots, XComGameState_Item EquippedArmor, XComGameState_Unit UnitState, XComGameState CheckGameState)
+{
+}
+
+/// Allows override number of heavy weapons slots
+/// These are the only base game slots that can be safely unrestricted since they are optional and not expected by class perks, if you want other multi slots use the CHItemSlot feature
+static function GetNumHeavyWeaponSlotsOverride(out int NumHeavySlots, XComGameState_Unit UnitState, XComGameState CheckGameState)
+{
+}
+// End Issue #171
+
 //start Issue #112
 /// <summary>
 /// Called from XComGameState_HeadquartersXCom
@@ -321,3 +342,51 @@ static function bool GetDLCEventInfo(out array<HQEvent> arrEvents)
 	return false; //returning true will tell the game to add the events have been added to the above array
 }
 //end issue #112
+
+//start Issue #148
+/// <summary>
+/// Called from UIShellDifficulty
+/// lets mods change the new game options when changing difficulty
+/// </summary>
+static function UpdateUIOnDifficultyChange(UIShellDifficulty UIShellDifficulty)
+{
+
+}
+//end Issue #148
+
+
+// Start Issue #136
+/// <summary>
+/// Called from XComGameState_MissionSite:CacheSelectedMissionData
+/// Encounter Data is modified immediately prior to being added to the SelectedMissionData, ported from LW2
+/// </summary>
+static function PostEncounterCreation(out name EncounterName, out PodSpawnInfo Encounter, int ForceLevel, int AlertLevel, optional XComGameState_BaseObject SourceObject)
+{
+
+}
+// End Issue #136
+
+// Start Issue #157
+/// <summary>
+/// Called from XComGameState_Missionsite:SetMissionData
+/// lets mods add SitReps with custom spawn rules to newly generated missions
+/// Advice: Check for present Strategy game if you dont want this to affect TQL/Multiplayer/Main Menu 
+/// Example: If (`HQGAME  != none && `HQPC != None && `HQPRES != none) ...
+/// </summary>
+static function PostSitRepCreation(out GeneratedMissionData GeneratedMission, optional XComGameState_BaseObject SourceObject)
+{
+	
+}
+// End Issue #157
+
+// Start Issue #169
+/// <summary>
+/// Called from XComHumanPawn:UpdateMeshMaterials
+/// lets mods manipulate pawn materials.
+/// </summary>
+static function UpdateHumanPawnMeshMaterial(XComGameState_Unit UnitState, XComHumanPawn Pawn, MeshComponent MeshComp, name ParentMaterialName, MaterialInstanceConstant MIC)
+{
+
+}
+// End Issue #157
+

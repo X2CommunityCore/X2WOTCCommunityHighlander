@@ -41,6 +41,12 @@
     <Content Include="Config\XComEngine.ini" />
     <Content Include="Config\XComGame.ini" />
     <Content Include="Localization\XComGame.int" />
+    <Content Include="ModPreviewLinux.jpg">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="ModPreviewWindows.jpg">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\Engine\Classes\AudioComponent.uc">
       <SubType>Content</SubType>
     </Content>
@@ -108,6 +114,12 @@
     <Content Include="Src\XComGame\Classes\UIArmory_PromotionPsiOp.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIAvengerShortcuts.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIAvengerHUD.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIButton.uc">
       <SubType>Content</SubType>
     </Content>
@@ -120,7 +132,13 @@
     <Content Include="Src\XComGame\Classes\UIListItemString.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UINarrativeMgr.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UINavigator.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIOptionsPCScreen.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIPanel.uc">
@@ -130,6 +148,12 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIPersonnel_SoldierListItem.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIScreenStack.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIShellDifficulty.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UISoldierBondAlert.uc">
@@ -183,6 +207,9 @@
     <Content Include="Src\XComGame\Classes\X2Ability_GrenadierAbilitySet.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Effect_ApplyWeaponDamage.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Effect_Burning.uc">
       <SubType>Content</SubType>
     </Content>
@@ -234,6 +261,12 @@
     <Content Include="Src\XComGame\Classes\XComGameState_Item.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_MissionSite.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComHeadquartersCamera.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComHumanPawn.uc">
       <SubType>Content</SubType>
     </Content>
@@ -255,6 +288,12 @@
     <Content Include="Src\XComGame\Classes\XComUnitPawn.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComUnitPawnNativeBase.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XGCharacterGenerator.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XGStrategy.uc">
       <SubType>Content</SubType>
     </Content>
@@ -266,6 +305,9 @@
     </Content>
     <Content Include="Src\XComGame\Classes\X2EventListenerTemplate.uc">
       <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src/XComGame/Classes/X2StrategyElement_DefaultStaffSlots.uc">
+      <Subtype>Content</Subtype>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_Unit.uc">
       <SubType>Content</SubType>
@@ -279,6 +321,9 @@
     <Content Include="Src\XComGame\Classes\XGUnitNativeBase.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2StrategyElement_DefaultRewards.uc">
+      <SubType>Content</SubType>
+    </Content>	
   </ItemGroup>
   <Import Project="$(MSBuildLocalExtensionPath)\XCOM2.targets" />
 </Project>
