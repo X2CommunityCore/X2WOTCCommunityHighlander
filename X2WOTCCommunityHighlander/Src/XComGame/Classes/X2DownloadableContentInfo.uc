@@ -429,3 +429,4 @@ static function UpdateHumanPawnMeshComponent(XComGameState_Unit UnitState, XComH
 		}
 	}
 }
+/// End Issue #216
