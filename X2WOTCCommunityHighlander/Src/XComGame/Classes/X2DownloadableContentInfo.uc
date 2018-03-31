@@ -381,8 +381,9 @@ static function PostSitRepCreation(out GeneratedMissionData GeneratedMission, op
 
 // Start Issue #169
 /// <summary>
-/// Called from XComHumanPawn:UpdateMeshMaterials
-/// lets mods manipulate pawn materials.
+/// Called from XComHumanPawn:UpdateMeshMaterials; lets mods manipulate pawn materials.
+/// This hook is called for each standard attachment for each MaterialInstanceConstant.
+/// Superseded by UpdateHumanPawnMeshComponent, which provides a more universal hook.
 /// </summary>
 static function UpdateHumanPawnMeshMaterial(XComGameState_Unit UnitState, XComHumanPawn Pawn, MeshComponent MeshComp, name ParentMaterialName, MaterialInstanceConstant MIC)
 {
@@ -390,3 +391,41 @@ static function UpdateHumanPawnMeshMaterial(XComGameState_Unit UnitState, XComHu
 }
 // End Issue #157
 
+/// Start Issue #216
+/// <summary>
+/// Called from XComHumanPawn:UpdateMeshMaterials. This function acts as a wrapper for
+/// UpdateHumanPawnMeshMaterial to still support that hook.
+/// This hook is called after the base game has updated the materials on this mesh component:
+/// - MaterialInstanceConstants will be "instancified" to make sure that pawns' materials don't conflict
+/// - Materials / MaterialInstanceTimeVaryings will not be touched
+/// </summary>
+static function UpdateHumanPawnMeshComponent(XComGameState_Unit UnitState, XComHumanPawn Pawn, MeshComponent MeshComp)
+{
+	local int Idx;
+	local MaterialInterface Mat, ParentMat;
+	local MaterialInstanceConstant MIC, ParentMIC;
+	local name ParentName;
+
+	for (Idx = 0; Idx < MeshComp.GetNumElements(); ++Idx)
+	{
+		Mat = MeshComp.GetMaterial(Idx);
+		MIC = MaterialInstanceConstant(Mat);
+
+		if (MIC != none)
+		{
+			// Calling code has already "instancified" the MIC -- just make sure we find the correct parent
+			ParentMat = MIC.Parent;
+			while (!ParentMat.IsA('Material'))
+			{
+				ParentMIC = MaterialInstanceConstant(ParentMat);
+				if (ParentMIC != none)
+					ParentMat = ParentMIC.Parent;
+				else
+					break;
+			}
+			ParentName = ParentMat.Name;
+
+			UpdateHumanPawnMeshMaterial(UnitState, Pawn, MeshComp, ParentName, MIC);
+		}
+	}
+}
