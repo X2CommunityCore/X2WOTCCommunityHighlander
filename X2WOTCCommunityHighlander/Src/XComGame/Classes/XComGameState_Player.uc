@@ -282,7 +282,7 @@ function SetCooldown( name strAbilityName, int iCooldown )
 static function XComGameState_Player CreatePlayer(XComGameState NewGameState, ETeam NewTeam)
 {
 	local XComGameState_Player NewPlayerState;
-	local XComLWTuple TeamOneTuple, TeamTwoTuples; //issue #188 variables
+	local XComLWTuple TeamOneTuple, TeamTwoTuple; //issue #188 variables
 	local name TeamOnePlayer, TeamTwoPlayer; //end issue #188
 	NewPlayerState = XComGameState_Player(NewGameState.CreateNewStateObject(class'XComGameState_Player'));
 	NewPlayerState.TeamFlag = NewTeam;
@@ -334,7 +334,7 @@ static function XComGameState_Player CreatePlayer(XComGameState NewGameState, ET
 		}
 		else
 		{
-			NewPlayerState.PlayerClassName = Name("XGAIPlayer_TeamOneDefault")
+			NewPlayerState.PlayerClassName = Name("XGAIPlayer_TeamOneDefault");
 			break;
 		}
 	case eTeam_Two:
@@ -344,7 +344,7 @@ static function XComGameState_Player CreatePlayer(XComGameState NewGameState, ET
 		}		
 		else
 		{
-			NewPlayerState.PlayerClassName = Name("XGAIPlayer_TeamTwoDefault")
+			NewPlayerState.PlayerClassName = Name("XGAIPlayer_TeamTwoDefault");
 			break;
 		}		
 	default:

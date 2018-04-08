@@ -95,7 +95,7 @@ static function bool TeamOneRequired()
 {
 	local TeamRequest CheckedRequest;
 	
-	foreach ModAddedTeams(CheckedRequest)
+	foreach default.ModAddedTeams(CheckedRequest)
 	{
 		if(CheckedRequest.Team == eTeam_One){
 			return true;
@@ -109,7 +109,7 @@ static function bool TeamTwoRequired()
 {
 	local TeamRequest CheckedRequest;
 	
-	foreach ModAddedTeams(CheckedRequest)
+	foreach default.ModAddedTeams(CheckedRequest)
 	{
 		if(CheckedRequest.Team == eTeam_Two){
 			return true;

@@ -69,7 +69,7 @@ simulated function UpdateAIData(XComGameState NewGameState, XComGameState_Unit M
 
 		//issue #188 - changing if statement to exclude eTeam_Neutral
 		//if( InstigatorTeam == eTeam_Alien || InstigatorTeam == eTeam_XCom || InstigatorTeam == eTeam_TheLost || InstigatorTeam == eTeam_Resistance )
-		if(!InstigatorTeam != eTeam_Neutral)
+		if(InstigatorTeam != eTeam_Neutral)
 		{
 			iAIDataID = InstigatorState.GetAIPlayerDataID(true);
 			kAIData = XComGameState_AIPlayerData(NewGameState.ModifyStateObject(class'XComGameState_AIPlayerData', iAIDataID));
