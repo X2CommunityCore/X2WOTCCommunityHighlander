@@ -333,6 +333,9 @@
 	<Content Include="Src\XComGame\Classes\UITurnOverlay.uc">
 	      <SubType>Content</SubType>
     </Content>		
+	<Content Include="Src\XComGame\Classes\X2Action.uc">
+	      <SubType>Content</SubType>
+    </Content>			
   </ItemGroup>
   <Import Project="$(MSBuildLocalExtensionPath)\XCOM2.targets" />
 </Project>
