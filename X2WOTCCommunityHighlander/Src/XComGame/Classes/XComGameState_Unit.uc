@@ -9332,10 +9332,12 @@ static function UnitAGainsKnowledgeOfUnitB(XComGameState_Unit UnitA, XComGameSta
 		//issue #188 - set up a Tuple for return value
 		OverrideTuple = new class'XComLWTuple';
 		OverrideTuple.Id = 'OverrideAIAlertReq';
-		OverrideTuple.Data.Add(1);
+		OverrideTuple.Data.Add(2);
 		OverrideTuple.Data[0].kind = XComLWTVBool;
 		OverrideTuple.Data[0].b = OverrideAlertReq;
-		`XEVENTMGR.TriggerEvent('OverrideAIAlertReq', OverrideTuple, self, AlertInstigatingGameState);
+		OverrideTuple.Data[1].kind = XComLWTVObject;
+		OverrideTuple.Data[1].o = UnitB; //this is the instigator or cause of the alert: the event trigger sends the unit receiving the alert
+		`XEVENTMGR.TriggerEvent('OverrideAIAlertReq', OverrideTuple, UnitA, AlertInstigatingGameState);
 		// no knowledge updates for The Lost
 		if( UnitATeam != eTeam_TheLost && UnitBTeam != eTeam_TheLost && !OverrideAlertReq)
 		{

@@ -362,6 +362,12 @@
     </Content>		
 	<Content Include="Src\XComGame\Classes\X2Action.uc">
 	      <SubType>Content</SubType>
+    </Content>	
+	<Content Include="Src\XComGame\Classes\XComPresentationLayer.uc">
+	      <SubType>Content</SubType>
+    </Content>		
+	<Content Include="Src\XComGame\Classes\X2Ability_DefaultAbilitySet.uc">
+	      <SubType>Content</SubType>
     </Content>			
   </ItemGroup>
   <Import Project="$(MSBuildLocalExtensionPath)\XCOM2.targets" />

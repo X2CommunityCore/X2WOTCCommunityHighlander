@@ -433,12 +433,12 @@ static function int GetNumEnemiesKilled(out int iOutTotal)
 			
 		if(class'CHHelpers'.static.TeamOneRequired()) // issue #188 - account for added enemy teams
 		{
-			XGPlayer(class'CHHelpers'.static.GetTeamOnePlayer()).GetOriginalUnits(arrUnits);
+			class'CHHelpers'.static.GetTeamOnePlayer().GetOriginalUnits(arrUnits);
 		}
 		
 		if(class'CHHelpers'.static.TeamTwoRequired()) // issue #188 - account for added enemy teams
 		{
-			XGPlayer(class'CHHelpers'.static.GetTeamTwoPlayer()).GetOriginalUnits(arrUnits);
+			class'CHHelpers'.static.GetTeamTwoPlayer().GetOriginalUnits(arrUnits);
 		}		
 	}
 	
