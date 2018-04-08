@@ -114,6 +114,9 @@
     <Content Include="Src\XComGame\Classes\UIArmory_PromotionPsiOp.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIAvengerShortcuts.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIAvengerHUD.uc">
       <SubType>Content</SubType>
     </Content>
@@ -129,6 +132,9 @@
     <Content Include="Src\XComGame\Classes\UIListItemString.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UINarrativeMgr.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UINavigator.uc">
       <SubType>Content</SubType>
     </Content>
@@ -142,6 +148,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIPersonnel_SoldierListItem.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIScreenStack.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIShellDifficulty.uc">
@@ -198,6 +207,9 @@
     <Content Include="Src\XComGame\Classes\X2Ability_GrenadierAbilitySet.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Effect_ApplyWeaponDamage.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Effect_Burning.uc">
       <SubType>Content</SubType>
     </Content>
@@ -252,6 +264,9 @@
     <Content Include="Src\XComGame\Classes\XComGameState_MissionSite.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComHeadquartersCamera.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComHumanPawn.uc">
       <SubType>Content</SubType>
     </Content>
@@ -273,6 +288,9 @@
     <Content Include="Src\XComGame\Classes\XComUnitPawn.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComUnitPawnNativeBase.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XGCharacterGenerator.uc">
       <SubType>Content</SubType>
     </Content>
@@ -287,6 +305,9 @@
     </Content>
     <Content Include="Src\XComGame\Classes\X2EventListenerTemplate.uc">
       <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src/XComGame/Classes/X2StrategyElement_DefaultStaffSlots.uc">
+      <Subtype>Content</Subtype>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_Unit.uc">
       <SubType>Content</SubType>
@@ -327,10 +348,10 @@
     <Content Include="Src\XComGame\Classes\XGAIPlayer_TeamOneDefault.uc">
       <SubType>Content</SubType>
     </Content>	
-	<Content Include="Src\XComGame\Classes\X2StrategyElement_DefaultRewards.uc">
+	  <Content Include="Src\XComGame\Classes\X2StrategyElement_DefaultRewards.uc">
 	      <SubType>Content</SubType>
     </Content>	
-	<Content Include="Src\XComGame\Classes\UITurnOverlay.uc">
+	  <Content Include="Src\XComGame\Classes\UITurnOverlay.uc">
 	      <SubType>Content</SubType>
     </Content>		
   </ItemGroup>
