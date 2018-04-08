@@ -989,6 +989,10 @@ simulated function UIHideAllTurnBanners()
 	if( m_kTurnOverlay.IsShowingSpecialTurn() )
 		m_kTurnOverlay.HideSpecialTurn();
 
+	if( m_kTurnOverlay.IsShowingReflexAction() ){
+		m_kTurnOverlay.HideReflexAction();
+	}	
+		
 	if( m_kTurnOverlay.IsShowingXComTurn() ) // XCom turn actually means resistance turn
 		m_kTurnOverlay.HideXComTurn();
 }
