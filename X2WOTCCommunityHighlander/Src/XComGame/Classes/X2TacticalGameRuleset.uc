@@ -2246,7 +2246,7 @@ simulated state CreateTacticalGame
 		// After spawning, the AI player still needs to sync the data
 		foreach StartState.IterateByClassType(class'XComGameState_Player', IteratePlayerState)
 		{
-			if( IteratePlayerState.TeamFlag != eTeam_One && IteratePlayerState.TeamFlag == eTeam_TheLost ) //issue #188 change check to auto adding every team that isn't the MP teams...
+			if( IteratePlayerState.TeamFlag != eTeam_One && IteratePlayerState.TeamFlag != eTeam_Two ) //issue #188 change check to auto adding every team that isn't the MP teams...
 			{				
 				XGAIPlayer( CachedHistory.GetVisualizer(IteratePlayerState.ObjectID) ).UpdateDataToAIGameState(true);
 				//break;

@@ -1036,7 +1036,7 @@ simulated function UIEndTurn( ETurnOverlay eOverlayType )
 				HUDHide();
 				m_kUnitFlagManager.EndTurn();
 				UIHideAllTurnBanners();
-				m_kTurnOverlay.ShowAlienTurn();
+				m_kTurnOverlay.ShowOtherTurn();
 				`XTACTICALSOUNDMGR.OnTurnVisualized(eTeam_Alien);			
 			} //end issue #188
 			break;
