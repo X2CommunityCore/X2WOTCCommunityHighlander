@@ -9,6 +9,7 @@
 
 class UITurnOverlay extends UIScreen;
 
+//issue #188: added additional overlay under eTurnOverlay_Resistance so we could diffentriate between eTeam_One and eTeam_Two
 enum ETurnOverlay
 {
 	eTurnOverlay_Local,
@@ -17,6 +18,7 @@ enum ETurnOverlay
 	eTurnOverlay_TheLost,
 	eTurnOverlay_Chosen,
 	eTurnOverlay_Resistance,
+	eTurnOverlay_OtherTeam, 
 };
 
 var float m_fAnimateTime;

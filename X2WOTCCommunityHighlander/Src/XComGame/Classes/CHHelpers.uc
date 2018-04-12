@@ -131,7 +131,7 @@ static function XGAIPlayer GetTeamOnePlayer()
 		}
 	}
 
-	return PlayerState != none ? XGAIPlayer(PlayerState.GetVisualizer()) : none;
+	return PlayerState.TeamFlag == eTeam_One ? XGAIPlayer(PlayerState.GetVisualizer()) : none;
 
 }
 
@@ -147,7 +147,7 @@ static function XGAIPlayer GetTeamTwoPlayer()
 		}
 	}
 
-	return PlayerState != none ? XGAIPlayer(PlayerState.GetVisualizer()) : none;
+	return PlayerState == eTeam_Two ? XGAIPlayer(PlayerState.GetVisualizer()) : none;
 
 }
 //end issue #188
