@@ -861,9 +861,14 @@ simulated function OnBeginTurnVisualized(int InitiativeObjectID)
 	GroupState = XComGameState_AIGroup(`XCOMHISTORY.GetGameStateForObjectID(InitiativeObjectID));
 	if(( GroupState != None && GroupState.bSummoningSicknessCleared && GroupState.GetLivingMembers(GroupMemberIDs)) || `REPLAY.bInTutorial)  // only change Turn Banner when the first initiative group with valid members activates on each turn.
 	{
-		if( IsRemote() || IsModTeam) //issue #188 - let eTeam_One and eTeam_Two auto pass in singleplayer to this
+		if( IsRemote() || IsModTeam) //issue #188 - let eTeam_One and eTeam_Two auto pass in singleplayer to this, we use our new overlay type for eTeam_One
 		{
-			OverlayType = eTurnOverlay_Remote;
+			if( m_eTeam == eTeam_Two){
+				OverlayType = eTurnOverlay_Remote;
+			}
+			if( m_eTeam == eTeam_One){
+				OverlayType = eTurnOverlay_OtherTeam;
+			}
 		}
 		else if( m_eTeam == eTeam_Alien )
 		{

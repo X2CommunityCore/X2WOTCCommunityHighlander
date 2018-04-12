@@ -1019,14 +1019,20 @@ simulated function UIEndTurn( ETurnOverlay eOverlayType )
 
 			//m_kUnitFlagManager.StartTurn();
 			break;
-
+		case eTurnOverlay_OtherTeam:
+				HUDHide(); //issue #188 - add in case for added overlay
+				GetSpecialMissionHUD().m_kGenericTurnCounter.OnTurnChange(false);
+				m_kUnitFlagManager.EndTurn();
+				m_kTurnOverlay.ShowReflexAction();
+				`XTACTICALSOUNDMGR.OnTurnVisualized(eTeam_Alien);
+				break;
 		case eTurnOverlay_Remote:
 			if(!`XENGINE.IsSinglePlayerGame()) //issue #188 - use default MP standards in....well, MP
 			{
 				HUDHide();
 				GetSpecialMissionHUD().m_kGenericTurnCounter.OnTurnChange(false);
 				m_kUnitFlagManager.EndTurn();
-				m_kTurnOverlay.ShowOtherTurn();
+				m_kTurnOverlay.ShowAlienTurn();
 				`XTACTICALSOUNDMGR.OnTurnVisualized(eTeam_Alien);
 			}
 			else //otherwise, we change it up. For now this is a basic implementation, this should be improved at some point.
