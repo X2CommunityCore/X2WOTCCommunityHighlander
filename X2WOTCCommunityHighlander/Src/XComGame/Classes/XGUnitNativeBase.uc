@@ -1326,14 +1326,18 @@ function EUIState GetMyHUDIconColor()
 	local XComGameState_Unit StateObject;
 	local EUIState TeamOneColor, TeamTwoColor;
 	local XComLWTuple OverrideTuple;
+
 	TeamOneColor = eUIState_Warning2;
 	TeamTwoColor = eUIState_Cash;
+
 	// issue #188: let mods override default hud colours for these teams
 	// Instead of a boolean, we use the Enum instead
 	//set up a Tuple for return value
+
 	OverrideTuple = new class'XComLWTuple';
 	OverrideTuple.Id = 'OverrideEnemyHudColors';
 	OverrideTuple.Data.Add(2);
+
 	// XComLWTuple does not have a Byte kind
 	OverrideTuple.Data[0].kind = XComLWTVInt;
 	OverrideTuple.Data[0].i = TeamOneColor;
@@ -1360,7 +1364,7 @@ function EUIState GetMyHUDIconColor()
 		return eUIState_Bad;
 	if( StateObject.GetTeam() == eTeam_TheLost )
 		return eUIState_TheLost;
-	if(StateObject.GetTeam() == eTeam_One) //issue #188 - default colours for these teams for now. Should be made customizable at some point.
+	if(StateObject.GetTeam() == eTeam_One) //issue #188 - support for added team colours
 		return EUIState(TeamOneColor);
 	if(StateObject.GetTeam() == eTeam_Two)
 		return EUIState(TeamTwoColor);
