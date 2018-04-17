@@ -29,9 +29,10 @@ simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffe
 		UnitState.StunnedActionPoints = 0;
 		UnitState.UpdateTurretState(false);
 	}
-
-	UpdateAIData(NewGameState, UnitState, true);
-
+	// issue #188 - make sure this only fires in singleplayer games
+	if(`XENGINE.IsSinglePlayerGame()){
+		UpdateAIData(NewGameState, UnitState, true);
+	}
 	EffectObj = NewEffectState;
 
 	`XEVENTMGR.TriggerEvent('MindControlled', UnitState, UnitState, NewGameState);

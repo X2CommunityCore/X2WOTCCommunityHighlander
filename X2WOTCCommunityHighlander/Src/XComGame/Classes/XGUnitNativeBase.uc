@@ -1345,7 +1345,8 @@ function EUIState GetMyHUDIconColor()
 	OverrideTuple.Data[1].i = TeamTwoColor;
 
 	`XEVENTMGR.TriggerEvent('OverrideEnemyHudColors', OverrideTuple, OverrideTuple);
-
+	TeamOneColor = EUIState(OverrideTuple.Data[0].i);
+	TeamTwoColor = EUIState(OverrideTuple.Data[1].i);
 	StateObject = GetVisualizedGameState();
 
 	//TODO: @gameplay
