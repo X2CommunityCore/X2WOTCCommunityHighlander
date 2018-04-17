@@ -308,7 +308,8 @@ static function XComGameState_Player CreatePlayer(XComGameState NewGameState, ET
 		TeamTwoTuple.Data[0].n = TeamTwoPlayer;	
 		`XEVENTMGR.TriggerEvent('ActivateTeamTwoTeam', TeamTwoTuple, NewPlayerState, NewGameState);
 	}
-	
+	TeamOnePlayer = TeamOneTuple.Data[0].n;
+	TeamTwoPlayer = TeamTwoTuple.Data[0].n;
 	switch (NewTeam)
 	{
 	case eTeam_XCom:
