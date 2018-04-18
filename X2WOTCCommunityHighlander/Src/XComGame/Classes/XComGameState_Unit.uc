@@ -6173,17 +6173,26 @@ protected function OnUnitDied(XComGameState NewGameState, Object CauseOfDeath, c
 	{
 		Killer = XComGameState_Unit(History.GetGameStateForObjectID(Killer.GhostSourceUnit.ObjectID));
 	}
-
+	//issue #221 - let any kill be tracked no matter what unit made the kill, as long as a killer exists
+	if(Killer != none)
+	{
+		Killer = XComGameState_Unit(NewGameState.ModifyStateObject(Killer.Class, Killer.ObjectID));
+		Killer.KilledUnits.AddItem(GetReference());
+		Killer.KillCount += GetMyTemplate().KillContribution; // Allows specific units to contribute different amounts to the kill total
+	}
+	//end issue #221
 	if( GetTeam() == eTeam_Alien || GetTeam() == eTeam_TheLost || GetTeam() == eTeam_One || GetTeam() == eTeam_Two) //issue #188 - let eTeam_One and eTeam_Two units count as enemies when they die
 	{
 		if( SourceStateObjectRef.ObjectID != 0 )
 		{	
 			if (Killer != none && Killer.CanEarnXp())
 			{
+				/* issue #221 - move this section out of this check so all units track kill counts
 				Killer = XComGameState_Unit(NewGameState.ModifyStateObject(Killer.Class, Killer.ObjectID));
 				Killer.KilledUnits.AddItem(GetReference());
 				Killer.KillCount += GetMyTemplate().KillContribution; // Allows specific units to contribute different amounts to the kill total
-
+				*/ 
+				//end issue #221
 				// If the Wet Work GTS bonus is active, increment the Wet Work kill counter
 				XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom', true));
 				if(XComHQ != none)
