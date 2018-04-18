@@ -147,7 +147,7 @@ static function XGAIPlayer GetTeamTwoPlayer()
 		}
 	}
 
-	return PlayerState == eTeam_Two ? XGAIPlayer(PlayerState.GetVisualizer()) : none;
+	return PlayerState.TeamFlag == eTeam_Two ? XGAIPlayer(PlayerState.GetVisualizer()) : none;
 
 }
 //end issue #188
