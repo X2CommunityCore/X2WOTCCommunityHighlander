@@ -2246,11 +2246,21 @@ simulated state CreateTacticalGame
 		// After spawning, the AI player still needs to sync the data
 		foreach StartState.IterateByClassType(class'XComGameState_Player', IteratePlayerState)
 		{
-			if( IteratePlayerState.TeamFlag == eTeam_Alien || IteratePlayerState.TeamFlag == eTeam_TheLost )
+			if( IteratePlayerState.TeamFlag != eTeam_One && IteratePlayerState.TeamFlag != eTeam_Two ) //issue #188 change check to auto adding every team that isn't the MP teams...
 			{				
 				XGAIPlayer( CachedHistory.GetVisualizer(IteratePlayerState.ObjectID) ).UpdateDataToAIGameState(true);
-				break;
+				//break;
 			}
+			if(IteratePlayerState.TeamFlag == eTeam_One && class'CHHelpers'.static.TeamOneRequired()) //and check the MP teams depending on what mods are installed
+			{
+				XGAIPlayer( CachedHistory.GetVisualizer(IteratePlayerState.ObjectID) ).UpdateDataToAIGameState(true);
+			}
+			
+			if(IteratePlayerState.TeamFlag == eTeam_Two && class'CHHelpers'.static.TeamTwoRequired())
+			{
+				XGAIPlayer( CachedHistory.GetVisualizer(IteratePlayerState.ObjectID) ).UpdateDataToAIGameState(true);
+			}			
+			//end issue #188
 		}
 	}
 
