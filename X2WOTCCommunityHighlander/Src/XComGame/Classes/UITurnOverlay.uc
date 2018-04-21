@@ -98,6 +98,7 @@ simulated function OnInit()
 		TeamOneTurn = Tuple.Data[1].s;
 		TeamTwoTurn = Tuple.Data[2].s;
 	}
+
 	super.OnInit();
 
 	//When starting a match, this UI element was showing a spurious "reflex action" label for one frame (though nothing called for a reflex action in any way). 

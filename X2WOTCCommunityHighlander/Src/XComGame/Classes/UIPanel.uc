@@ -932,6 +932,7 @@ simulated function GetChildrenOfType(class ClassType, out array<UIPanel> Childre
 simulated function SwapChildren(int ChildIndexA, int ChildIndexB)
 {
 	local UIPanel Panel;
+
 	Panel = ChildPanels[ChildIndexA];
 	ChildPanels[ChildIndexA] = ChildPanels[ChildIndexB];
 	ChildPanels[ChildIndexB] = Panel;
@@ -939,7 +940,8 @@ simulated function SwapChildren(int ChildIndexA, int ChildIndexB)
 	// Start Issue #47
 	// Tell the navigator to swap its controls too
 	// or keyboard nav will be out of sync.
-	Navigator.SwapControls(ChildIndexA, ChildIndexB);
+	// Note the swap of B and A, we already changed them in the array above
+	Navigator.SwapControls(ChildPanels[ChildIndexB], ChildPanels[ChildIndexA]);
 	// End Issue #47
 }
 

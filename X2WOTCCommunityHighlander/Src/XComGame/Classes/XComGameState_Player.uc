@@ -297,6 +297,9 @@ static function XComGameState_Player CreatePlayer(XComGameState NewGameState, ET
 		TeamOneTuple.Data[0].kind = XComLWTVName;
 		TeamOneTuple.Data[0].n = TeamOnePlayer;
 		`XEVENTMGR.TriggerEvent('ActivateTeamOneTeam', TeamOneTuple, NewPlayerState, NewGameState);
+
+		TeamOnePlayer = TeamOneTuple.Data[0].n;
+    
 	}
 	
 	if(class'CHHelpers'.static.TeamTwoRequired())
@@ -307,9 +310,10 @@ static function XComGameState_Player CreatePlayer(XComGameState NewGameState, ET
 		TeamTwoTuple.Data[0].kind = XComLWTVName;
 		TeamTwoTuple.Data[0].n = TeamTwoPlayer;	
 		`XEVENTMGR.TriggerEvent('ActivateTeamTwoTeam', TeamTwoTuple, NewPlayerState, NewGameState);
+
+		TeamTwoPlayer = TeamTwoTuple.Data[0].n;
 	}
-	TeamOnePlayer = TeamOneTuple.Data[0].n;
-	TeamTwoPlayer = TeamTwoTuple.Data[0].n;
+
 	switch (NewTeam)
 	{
 	case eTeam_XCom:
