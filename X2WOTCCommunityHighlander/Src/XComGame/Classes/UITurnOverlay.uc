@@ -77,7 +77,7 @@ simulated function OnInit()
 	TeamOneTurn = m_sReflexAction;
 	TeamTwoTurn = m_sOtherTurn;
 	OverrideStrings = false;
-	
+
 	Tuple = new class'XComLWTuple';
 	Tuple.id = 'SetFourthTeamStrings';
 	Tuple.Data.Add(3);
@@ -88,11 +88,16 @@ simulated function OnInit()
 	Tuple.Data[1].kind = XComLWTVString;
 	Tuple.Data[1].s = TeamOneTurn;
 	
-	Tuple.Data[1].kind = XComLWTVString;
-	Tuple.Data[1].s = TeamTwoTurn;
+	Tuple.Data[2].kind = XComLWTVString;
+	Tuple.Data[2].s = TeamTwoTurn;
 
 	`XEVENTMGR.TriggerEvent('SetFourthTeamStrings', Tuple);
-	
+
+	OverrideStrings = Tuple.Data[0].b;
+	if(OverrideStrings){
+		TeamOneTurn = Tuple.Data[1].s;
+		TeamTwoTurn = Tuple.Data[2].s;
+	}
 	super.OnInit();
 
 	//When starting a match, this UI element was showing a spurious "reflex action" label for one frame (though nothing called for a reflex action in any way). 
