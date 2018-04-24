@@ -3127,8 +3127,8 @@ function XComGameState_Unit GetChosenOnMission()
 
 	History = `XCOMHISTORY;
 
-	AIPlayerData = XComGameState_AIPlayerData(History.GetSingleGameStateObjectForClass(class'XComGameState_AIPlayerData', true));
-	if (AIPlayerData != none)
+	// Issue #224 -- convert GetSingleGameStateObjectForClass to an iterator
+	foreach History.IterateByClassType(class'XComGameState_AIPlayerData', AIPlayerData)
 	{
 		ChosenTemplateNames = GetAllChosenCharacterTemplateNames();
 

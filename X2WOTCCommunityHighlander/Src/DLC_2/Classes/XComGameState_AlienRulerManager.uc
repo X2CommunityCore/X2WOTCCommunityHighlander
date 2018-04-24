@@ -256,51 +256,53 @@ function OnEndTacticalPlay(XComGameState NewGameState)
 		}
 
 		// Grab the ruler unit actually used in this tactical mission and check if they died
-		AIPlayerData = XComGameState_AIPlayerData(History.GetSingleGameStateObjectForClass(class'XComGameState_AIPlayerData'));
-
-		for (GroupIndex = 0; GroupIndex < AIPlayerData.GroupList.Length; GroupIndex++)
+		// Issue #224 -- convert GetSingleGameStateObjectForClass to an iterator
+		foreach History.IterateByClassType(class'XComGameState_AIPlayerData', AIPlayerData)
 		{
-			if (bRulerDefeated)
+			for (GroupIndex = 0; GroupIndex < AIPlayerData.GroupList.Length; GroupIndex++)
 			{
-				break;
-			}
-
-			AIGroup = XComGameState_AIGroup(History.GetGameStateForObjectID(AIPlayerData.GroupList[GroupIndex].ObjectID));
-			if (AIGroup != none)
-			{
-				for (UnitIndex = 0; UnitIndex < AIGroup.m_arrMembers.Length; UnitIndex++)
+				if (bRulerDefeated)
 				{
-					UnitState = XComGameState_Unit(History.GetGameStateForObjectID(AIGroup.m_arrMembers[UnitIndex].ObjectID));
+					break;
+				}
 
-					if (UnitState != none && UnitState.GetMyTemplateName() == RulerState.GetMyTemplateName())
+				AIGroup = XComGameState_AIGroup(History.GetGameStateForObjectID(AIPlayerData.GroupList[GroupIndex].ObjectID));
+				if (AIGroup != none)
+				{
+					for (UnitIndex = 0; UnitIndex < AIGroup.m_arrMembers.Length; UnitIndex++)
 					{
-						RulerState.SetCurrentStat(eStat_HP, UnitState.GetCurrentStat(eStat_HP));
-						RulerState.SetCurrentStat(eStat_ArmorMitigation, max(UnitState.GetCurrentStat(eStat_ArmorMitigation) - UnitState.Shredded, 0));
+						UnitState = XComGameState_Unit(History.GetGameStateForObjectID(AIGroup.m_arrMembers[UnitIndex].ObjectID));
 
-						if (UnitState.IsDead())
+						if (UnitState != none && UnitState.GetMyTemplateName() == RulerState.GetMyTemplateName())
 						{
-							DefeatedAlienRulers.AddItem(RulerOnCurrentMission);
-							ActiveAlienRulers.RemoveItem(RulerOnCurrentMission);
-							EscapedAlienRulers.RemoveItem(RulerOnCurrentMission); // Safety check
-							RulerIndex = default.AlienRulerTemplates.Find('AlienRulerTemplateName', RulerState.GetMyTemplateName());
-							XComHQ.TacticalGameplayTags.AddItem(default.AlienRulerTemplates[RulerIndex].DeadTacticalTag);
-							bRulerDefeated = true;
-							break;
-						}
-						else if (class'X2Helpers_DLC_Day60'.static.GetRulerNumAppearances(UnitState) >= `ScaleStrategyArrayInt(default.RulerMaxNumEncounters))
-						{
-							EscapedAlienRulers.AddItem(RulerOnCurrentMission);
-							ActiveAlienRulers.RemoveItem(RulerOnCurrentMission);
-							break;
-						}
-						else
-						{
-							// If the ruler escaped for the first time, check to see if it was on a specific location
-							LocationIndex = AlienRulerLocations.Find('RulerRef', RulerOnCurrentMission);
-							if (LocationIndex != INDEX_NONE)
+							RulerState.SetCurrentStat(eStat_HP, UnitState.GetCurrentStat(eStat_HP));
+							RulerState.SetCurrentStat(eStat_ArmorMitigation, max(UnitState.GetCurrentStat(eStat_ArmorMitigation) - UnitState.Shredded, 0));
+
+							if (UnitState.IsDead())
 							{
-								// Remove the specific location for the ruler so it can start spawning on any mission
-								AlienRulerLocations.Remove(LocationIndex, 1);
+								DefeatedAlienRulers.AddItem(RulerOnCurrentMission);
+								ActiveAlienRulers.RemoveItem(RulerOnCurrentMission);
+								EscapedAlienRulers.RemoveItem(RulerOnCurrentMission); // Safety check
+								RulerIndex = default.AlienRulerTemplates.Find('AlienRulerTemplateName', RulerState.GetMyTemplateName());
+								XComHQ.TacticalGameplayTags.AddItem(default.AlienRulerTemplates[RulerIndex].DeadTacticalTag);
+								bRulerDefeated = true;
+								break;
+							}
+							else if (class'X2Helpers_DLC_Day60'.static.GetRulerNumAppearances(UnitState) >= `ScaleStrategyArrayInt(default.RulerMaxNumEncounters))
+							{
+								EscapedAlienRulers.AddItem(RulerOnCurrentMission);
+								ActiveAlienRulers.RemoveItem(RulerOnCurrentMission);
+								break;
+							}
+							else
+							{
+								// If the ruler escaped for the first time, check to see if it was on a specific location
+								LocationIndex = AlienRulerLocations.Find('RulerRef', RulerOnCurrentMission);
+								if (LocationIndex != INDEX_NONE)
+								{
+									// Remove the specific location for the ruler so it can start spawning on any mission
+									AlienRulerLocations.Remove(LocationIndex, 1);
+								}
 							}
 						}
 					}

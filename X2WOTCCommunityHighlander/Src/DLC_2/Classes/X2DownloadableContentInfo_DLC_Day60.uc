@@ -315,6 +315,7 @@ static event OnExitPostMissionSequence()
 /// </summary>
 static event OnPostTemplatesCreated()
 {
+	class'X2TacticalGameRuleset'.static.ReleaseScriptLog("x2wotccommunityhighlander: DLC_Day60 override active");
 	class'X2Helpers_DLC_Day60'.static.OnPostAbilityTemplatesCreated();
 	class'X2Helpers_DLC_Day60'.static.OnPostTechTemplatesCreated();
 	class'X2Helpers_DLC_Day60'.static.OnPostCharacterTemplatesCreated();
