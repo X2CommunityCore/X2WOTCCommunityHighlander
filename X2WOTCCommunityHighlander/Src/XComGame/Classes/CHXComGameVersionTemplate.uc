@@ -58,6 +58,6 @@ defaultproperties
 {
     MajorVersion = 1;
     MinorVersion = 10;
-    PatchVersion = 0;
+    PatchVersion = 1;
 }
 

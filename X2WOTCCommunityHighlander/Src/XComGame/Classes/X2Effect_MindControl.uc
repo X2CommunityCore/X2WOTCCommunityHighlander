@@ -72,6 +72,7 @@ simulated function UpdateAIData(XComGameState NewGameState, XComGameState_Unit M
 		//if( InstigatorTeam == eTeam_Alien || InstigatorTeam == eTeam_XCom || InstigatorTeam == eTeam_TheLost || InstigatorTeam == eTeam_Resistance )
 		if(InstigatorTeam != eTeam_Neutral)
 		{
+			// Issue #224 -- make it grab the right data
 			iAIDataID = InstigatorState.GetAIPlayerDataID(true);
 			kAIData = XComGameState_AIPlayerData(NewGameState.ModifyStateObject(class'XComGameState_AIPlayerData', iAIDataID));
 
