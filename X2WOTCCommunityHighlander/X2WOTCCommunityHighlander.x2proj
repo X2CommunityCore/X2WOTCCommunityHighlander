@@ -47,12 +47,6 @@
     <Content Include="ModPreviewWindows.jpg">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\DLC_2\Classes\X2DownloadableContentInfo_DLC_Day60.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\DLC_2\Classes\XComGameState_AlienRulerManager.uc">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Src\Engine\Classes\AudioComponent.uc">
       <SubType>Content</SubType>
     </Content>
@@ -261,9 +255,6 @@
     <Content Include="Src\XComGame\Classes\XComGameState_AdventChosen.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\XComGame\Classes\XComGameState_HeadquartersAlien.uc">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_HeadquartersResistance.uc">
       <SubType>Content</SubType>
     </Content>
@@ -333,50 +324,8 @@
     <Content Include="Src\XComGame\Classes\XGUnitNativeBase.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\XComGame\Classes\X2Effect_MindControl.uc">
+    <Content Include="Src\XComGame\Classes\X2StrategyElement_DefaultRewards.uc">
       <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\XComGame\Classes\XComGameState_Player.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\XComGame\Classes\XComGameStateContext_TacticalGameRule.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\XComGame\Classes\XGAIBehavior.uc">
-      <SubType>Content</SubType>
-    </Content>	
-    <Content Include="Src\XComGame\Classes\XGAIPlayer_TheLost.uc">
-      <SubType>Content</SubType>
-    </Content>	
-    <Content Include="Src\XComGame\Classes\XGBattle_SP.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\XComGame\Classes\XGPlayer.uc">
-      <SubType>Content</SubType>
-    </Content>	
-    <Content Include="Src\XComGame\Classes\UIMissionSummary.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\XComGame\Classes\UITacticalQuickLaunch.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\XComGame\Classes\XGAIPlayer_TeamTwoDefault.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\XComGame\Classes\XGAIPlayer_TeamOneDefault.uc">
-      <SubType>Content</SubType>
-    </Content>	
-	<Content Include="Src\XComGame\Classes\X2StrategyElement_DefaultRewards.uc">
-	  <SubType>Content</SubType>
-    </Content>	
-	<Content Include="Src\XComGame\Classes\UITurnOverlay.uc">
-	  <SubType>Content</SubType>
-    </Content>		
-	<Content Include="Src\XComGame\Classes\X2Action.uc">
-	  <SubType>Content</SubType>
-    </Content>	
-	<Content Include="Src\XComGame\Classes\XComPresentationLayer.uc">
-	  <SubType>Content</SubType>
     </Content>	
   </ItemGroup>
   <Import Project="$(MSBuildLocalExtensionPath)\XCOM2.targets" />
