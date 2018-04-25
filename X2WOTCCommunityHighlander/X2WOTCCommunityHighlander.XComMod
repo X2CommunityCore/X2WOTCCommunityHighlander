@@ -1,0 +1,5 @@
+[mod]
+publishedFileId=0
+Title=X2WOTCCommunityHighlander PropertyGroup PropertyGroup
+Description=A base highlander for 'XCOM 2 - War of the Chosen' that all mods should be able to build upon.  
+RequiresXPACK=true
