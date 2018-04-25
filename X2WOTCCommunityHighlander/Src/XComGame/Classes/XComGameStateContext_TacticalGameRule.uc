@@ -162,7 +162,8 @@ function XComGameState ContextBuildGameState()
 		NewGameState = History.CreateNewGameState(true, self);
 		foreach History.IterateByClassType(class'XComGameState_AIPlayerData', AIState)
 		{
-			if ( AIState.m_iPlayerObjectID == PlayerRef.ObjectID )
+			//if ( AIState.m_iPlayerObjectID == PlayerRef.ObjectID )
+			if(AIState.m_iPlayerObjectID > 0) //issue #226 - just grab the first available AIState
 			{
 				UpdatedAIState = XComGameState_AIPlayerData(NewGameState.ModifyStateObject(class'XComGameState_AIPlayerData', AIState.ObjectID));
 				UpdatedAIState.UpdateData(PlayerRef.ObjectID);

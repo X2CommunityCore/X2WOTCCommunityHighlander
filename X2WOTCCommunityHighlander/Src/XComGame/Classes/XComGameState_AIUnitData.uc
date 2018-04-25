@@ -525,7 +525,7 @@ private function AddGroupAlertData(AlertData AIAlertData, XComGameState_Unit AIU
 	foreach History.IterateByClassType(class'XComGameState_AIPlayerData', AIPlayerData)
 	{
 		//if (AIPlayerData.m_iPlayerObjectID == AIUnit.ControllingPlayer.ObjectID)
-		if(AIPlayerData.m_iPlayerObjectID > 0) //issue #188 - grab the first AIPlayerData, since there should only be one
+		if(AIPlayerData.m_iPlayerObjectID > 0) //issue #226 - grab the first AIPlayerData, since there should only be one
 		{
 			break;
 		}

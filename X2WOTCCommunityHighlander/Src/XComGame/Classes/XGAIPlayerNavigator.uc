@@ -176,7 +176,7 @@ function RefreshGameState()
 	foreach History.IterateByClassType(class'XComGameState_AIPlayerData', kAIState, eReturnType_Copy)
 	{
 		//if (kAIState.m_iPlayerObjectID == m_kPlayer.ObjectID)
-		if(kAIState.m_iPlayerObjectID > 0) //issue #188 - have it grab the first existing AIPlayerData it finds, since that's the only AIPlayerData it can find
+		if(kAIState.m_iPlayerObjectID > 0) //issue #226 - have it grab the first existing AIPlayerData it finds, since that's the only AIPlayerData it can find
 		{
 			m_kPlayer.m_iDataID = kAIState.ObjectID;
 			m_kGameState = kAIState;

@@ -1131,7 +1131,7 @@ function UpdateDataToAIGameState( bool bStartState=false, bool bAISpawning=false
 		{
 			// Update game state AI data.
 			StartState = History.GetStartState();
-			//issue #188 - grab the first possible AI data state if it exists. If not, make a new one.
+			//issue #226 - grab the first possible AI data state if it exists. If not, make a new one.
 			foreach History.IterateByClassType(class'XComGameState_AIPlayerData', AIData)
 			{
 				AIState = AIData;
@@ -1142,6 +1142,7 @@ function UpdateDataToAIGameState( bool bStartState=false, bool bAISpawning=false
 				AIState = XComGameState_AIPlayerData(StartState.CreateNewStateObject(class'XComGameState_AIPlayerData'));
 				AIState.Init(ObjectID, StartState);
 			}
+			//end issue #226
 			m_iDataID = AIState.ObjectID;
 
 			//Loop through every unit, if it is ours and it has actions available add it to the list
