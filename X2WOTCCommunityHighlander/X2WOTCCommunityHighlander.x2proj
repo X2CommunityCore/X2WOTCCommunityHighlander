@@ -359,28 +359,40 @@
     </Content>
     <Content Include="Src\XComGame\Classes\XGAIPlayer_TeamOneDefault.uc">
       <SubType>Content</SubType>
+    </Content>
+	<Content Include="Src\XComGame\Classes\X2StrategyElement_DefaultRewards.uc">
+	  <SubType>Content</SubType>
+    </Content>
+	<Content Include="Src\XComGame\Classes\UITurnOverlay.uc">
+	  <SubType>Content</SubType>
     </Content>	
+	<Content Include="Src\XComGame\Classes\X2Action.uc">
+	  <SubType>Content</SubType>
+    </Content>
+	<Content Include="Src\XComGame\Classes\XComPresentationLayer.uc">
+	  <SubType>Content</SubType>
+	</Content>
     <Content Include="Src\XComGame\Classes\X2StrategyElement_DefaultRewards.uc">
       <SubType>Content</SubType>
-    </Content>	
+    </Content>
     <Content Include="Src\XComGame\Classes\UITurnOverlay.uc">
       <SubType>Content</SubType>
-    </Content>		
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Action.uc">
       <SubType>Content</SubType>
-    </Content>	
+    </Content>
     <Content Include="Src\XComGame\Classes\XComPresentationLayer.uc">
       <SubType>Content</SubType>
-    </Content>	
+    </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_AIUnitData.uc">
       <SubType>Content</SubType>
-    </Content>		
+    </Content>	
     <Content Include="Src\XComGame\Classes\XGAIPlayer.uc">
       <SubType>Content</SubType>
-    </Content>	
+    </Content>
     <Content Include="Src\XComGame\Classes\XGAIPlayerNavigator.uc">
       <SubType>Content</SubType>
-    </Content>	
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildLocalExtensionPath)\XCOM2.targets" />
 </Project>
