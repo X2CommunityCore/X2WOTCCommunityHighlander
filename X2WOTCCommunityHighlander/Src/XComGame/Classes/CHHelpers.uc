@@ -3,9 +3,7 @@ class CHHelpers extends Object config(Game);
 //issue #188 - creating a struct and usable array for modders
 struct TeamRequest
 {
-	var name XGAIPlayerUsed; //when eTeam_One or eTeam_Two is requested to be activated by a mod, we need to assign a XGAIPlayer class to that player state made for the team
 	var ETeam Team; //eTeam_One and eTeam_Two should be the only ones here.
-	var bool AlertsAreVerified; 
 };
 
 var config array<TeamRequest> ModAddedTeams;

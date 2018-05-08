@@ -3124,11 +3124,10 @@ function XComGameState_Unit GetChosenOnMission()
 	local XComGameState_AIGroup AIGroup;
 	local array<name> ChosenTemplateNames;
 	local int GroupIndex, UnitIndex;
-
 	History = `XCOMHISTORY;
 
-	// Issue #224 -- convert GetSingleGameStateObjectForClass to an iterator
-	foreach History.IterateByClassType(class'XComGameState_AIPlayerData', AIPlayerData)
+	AIPlayerData = XComGameState_AIPlayerData(History.GetSingleGameStateObjectForClass(class'XComGameState_AIPlayerData', true));
+	if (AIPlayerData != none)
 	{
 		ChosenTemplateNames = GetAllChosenCharacterTemplateNames();
 

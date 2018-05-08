@@ -4798,8 +4798,8 @@ function XComGameState_AIPlayerData GetAIPlayerData()
 	}
 	else
 	{
-		// Issue #224 -- make it grab the right data
-		kData = XComGameState_AIPlayerData(`XCOMHISTORY.GetGameStateForObjectID(UnitState.GetAIPlayerDataID(false)));
+		// Issue #226 - just grab the only existing AIPlayerData that should be there if we don't have it from a player
+		kData = XComGameState_AIPlayerData(`XCOMHISTORY.GetGameStateForObjectID(UnitState.GetAIPlayerDataID(true)));
 	}
 	return kData;
 }
