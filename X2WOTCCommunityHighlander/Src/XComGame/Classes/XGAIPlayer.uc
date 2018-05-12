@@ -1132,6 +1132,8 @@ function UpdateDataToAIGameState( bool bStartState=false, bool bAISpawning=false
 			// Update game state AI data.
 			StartState = History.GetStartState();
 			//issue #226 - grab the first possible AI data state if it exists. If not, make a new one.
+			//this is done because the game is generally set up to expect one XComGameState_AIPlayerData to exist, when it comes to mechanics like Alien Rulers or the Chosen
+			//and we know the few exceptions to that rule expect eTeam_Alien, which will always be the first team to get here (and thus create the AIPlayerData state)
 			foreach History.IterateByClassType(class'XComGameState_AIPlayerData', AIData)
 			{
 				AIState = AIData;

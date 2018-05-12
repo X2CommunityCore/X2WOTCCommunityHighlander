@@ -2246,12 +2246,15 @@ simulated state CreateTacticalGame
 		// After spawning, the AI player still needs to sync the data
 		foreach StartState.IterateByClassType(class'XComGameState_Player', IteratePlayerState)
 		{
-			if( IteratePlayerState.TeamFlag != eTeam_One && IteratePlayerState.TeamFlag != eTeam_Two ) //issue #188 change check to auto adding every team that isn't the MP teams...
+			//issue #188 change vanilla addition to auto adding every AIPlayer that isn't the MP teams, this lets AIPlayers sync their units to a singleton AIPlayerData, letting units resolve alerts they receive
+			//this is vital for how XCOM 2's gameplay works: if a unit can't resolve an alert telling them to go into red alert, they will never be able to fire on hostiles
+			//this should also expand the capability of what modders can do with teams like eTeam_Resistance: units on these teams will be able to work normally, instead of relying on kismet to be alerted
+			if( IteratePlayerState.TeamFlag != eTeam_One && IteratePlayerState.TeamFlag != eTeam_Two ) 
 			{				
 				XGAIPlayer( CachedHistory.GetVisualizer(IteratePlayerState.ObjectID) ).UpdateDataToAIGameState(true);
 				//break;
 			}
-			if(IteratePlayerState.TeamFlag == eTeam_One && class'CHHelpers'.static.TeamOneRequired()) //and check the MP teams depending on what mods are installed
+			if(IteratePlayerState.TeamFlag == eTeam_One && class'CHHelpers'.static.TeamOneRequired()) //and check the MP teams, and add AIPlayers for them depending on what mods are installed
 			{
 				XGAIPlayer( CachedHistory.GetVisualizer(IteratePlayerState.ObjectID) ).UpdateDataToAIGameState(true);
 			}
