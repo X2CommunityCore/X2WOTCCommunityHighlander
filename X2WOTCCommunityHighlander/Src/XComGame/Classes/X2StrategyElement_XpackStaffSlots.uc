@@ -736,23 +736,18 @@ static function CheckToUpgradeItems(XComGameState NewGameState, XComGameState_Un
 			if (UpgradedItemTemplate != none)
 			{
 				// This gets crazy to read. If HQ has the upgrade, check for a further upgrade.
-				// If HQ has the further upgrade, keep checking further until the upgrade doesn't exist or HQ doesn't have it.
+				// If HQ has the further upgrade, that is the new upgrade. Repeat until none or HQ doesn't have the further upgrade.
 				// For vanilla and most mods, there is a soft maximum of 1 FurtherUpgradedItemTemplate, but future mods may have more.
 				if (XComHQ.HasItem(UpgradedItemTemplate))
 				{
 					FurtherUpgradedItemTemplate = ItemMgr.GetUpgradedItemTemplateFromBase(UpgradedItemTemplate.DataName);
 					
-					if (FurtherUpgradedItemTemplate != none)
+					while (FurtherUpgradedItemTemplate != none)
 					{
-						while (XComHQ.HasItem(FurtherUpgradedItemTemplate))
+						if (XComHQ.HasItem(FurtherUpgradedItemTemplate))
 						{
 							UpgradedItemTemplate = FurtherUpgradedItemTemplate;
 							FurtherUpgradedItemTemplate = ItemMgr.GetUpgradedItemTemplateFromBase(UpgradedItemTemplate.DataName);
-
-							if (FurtherUpgradedItemTemplate == none)
-							{
-								break;
-							}
 						}
 					}
 
