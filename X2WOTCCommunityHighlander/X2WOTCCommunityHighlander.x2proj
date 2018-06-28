@@ -27,9 +27,6 @@
     <Folder Include="Src\XComGame\Classes" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Config\XComGameBoard.ini">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Config\XComGameCore.ini">
       <SubType>Content</SubType>
     </Content>
@@ -234,9 +231,6 @@
     <Content Include="Src\XComGame\Classes\X2StatusEffects.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\XComGame\Classes\X2StrategyElement_XpackStaffSlots.uc">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Src\XComGame\Classes\X2StrategyGame_SimCombat.uc">
       <SubType>Content</SubType>
     </Content>
@@ -259,6 +253,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_AdventChosen.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_AIUnitData.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_CovertAction.uc">
@@ -338,7 +335,7 @@
     </Content>
     <Content Include="Src\XComGame\Classes\X2StrategyElement_DefaultRewards.uc">
       <SubType>Content</SubType>
-    </Content>	
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Effect_MindControl.uc">
       <SubType>Content</SubType>
     </Content>
@@ -350,16 +347,13 @@
     </Content>
     <Content Include="Src\XComGame\Classes\XGAIBehavior.uc">
       <SubType>Content</SubType>
-    </Content>	
-    <Content Include="Src\XComGame\Classes\XGAIPlayer_TheLost.uc">
-      <SubType>Content</SubType>
-    </Content>	
+    </Content>
     <Content Include="Src\XComGame\Classes\XGBattle_SP.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XGPlayer.uc">
       <SubType>Content</SubType>
-    </Content>	
+    </Content>
     <Content Include="Src\XComGame\Classes\UIMissionSummary.uc">
       <SubType>Content</SubType>
     </Content>
@@ -372,21 +366,6 @@
     <Content Include="Src\XComGame\Classes\XGAIPlayer_TeamOneDefault.uc">
       <SubType>Content</SubType>
     </Content>
-	  <Content Include="Src\XComGame\Classes\X2StrategyElement_DefaultRewards.uc">
-	    <SubType>Content</SubType>
-    </Content>
-	  <Content Include="Src\XComGame\Classes\UITurnOverlay.uc">
-	    <SubType>Content</SubType>
-    </Content>	
-	  <Content Include="Src\XComGame\Classes\X2Action.uc">
-	    <SubType>Content</SubType>
-    </Content>
-	  <Content Include="Src\XComGame\Classes\XComPresentationLayer.uc">
-	    <SubType>Content</SubType>
-	  </Content>
-    <Content Include="Src\XComGame\Classes\X2StrategyElement_DefaultRewards.uc">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Src\XComGame\Classes\UITurnOverlay.uc">
       <SubType>Content</SubType>
     </Content>
@@ -396,9 +375,6 @@
     <Content Include="Src\XComGame\Classes\XComPresentationLayer.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\XComGame\Classes\XComGameState_AIUnitData.uc">
-      <SubType>Content</SubType>
-    </Content>	
     <Content Include="Src\XComGame\Classes\XGAIPlayer.uc">
       <SubType>Content</SubType>
     </Content>
