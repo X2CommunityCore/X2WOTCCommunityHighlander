@@ -10238,7 +10238,14 @@ function ApplySquaddieLoadout(XComGameState GameState, optional XComGameState_He
 	local array<XComGameState_Item> UtilityItems;
 	local int i;
 
+	//Variable for Issue #232
+	local X2EventManager EventMgr;
+
 	`assert(GameState != none);
+
+	// Issue #232 start
+	EventMgr = `XEVENTMGR;
+	// Issue #232 end
 
 	SquaddieLoadout = GetSoldierClassTemplate().SquaddieLoadout;
 	ItemTemplateMan = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
@@ -10321,6 +10328,9 @@ function ApplySquaddieLoadout(XComGameState GameState, optional XComGameState_He
 				}
 
 				AddItemToInventory(ItemState, ItemTemplate.InventorySlot, GameState);
+				// Issue #232 start
+				EventMgr.TriggerEvent('OnSquaddieItemStateApplied', ItemState, self, GameState);
+				// Issue #232 end
 			}
 			else
 			{
