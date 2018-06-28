@@ -131,3 +131,30 @@ static function array<name> GetAcceptablePartPacks()
 	return DLCNames;
 }
 //end issue #155
+
+// Issue #235 start
+static function GroupItemStatsByLabel(out array<UISummary_ItemStat> InArray)
+{
+	local int i, j;
+
+	for (i = 0; i < InArray.Length; i++)
+	{
+		for (j = i+1; j < InArray.Length; j++)
+		{
+			if (InArray[i].Label == InArray[j].Label)
+			{
+				InArray[i].Value = string(int(InArray[i].Value) + int(InArray[j].Value)); // WARNING: Only use GroupItemStatsByLabel in places where the values are string representations of ints! i.e. Not ammo.
+				InArray.Remove(j, 1);
+				j--; // Important! Removing an entry in the array shifts all other entries down one. Don't skip an entry by accident.
+			}
+		}
+
+		// We actually DO want to show any stats that total 0, so the player doesn't think their modifications got ignored
+		//if (InArray[i].Value == 0)
+		//{
+			//InArray.Remove(i, 1);
+			//i--; // Important! Removing an entry in the array shifts all other entries down one. Don't skip an entry by accident.
+		//}
+	}
+}
+// Issue #235 end
