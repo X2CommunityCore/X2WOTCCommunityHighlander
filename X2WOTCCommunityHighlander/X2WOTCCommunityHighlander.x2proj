@@ -27,9 +27,6 @@
     <Folder Include="Src\XComGame\Classes" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Config\XComGameBoard.ini">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Config\XComGameCore.ini">
       <SubType>Content</SubType>
     </Content>
@@ -234,9 +231,6 @@
     <Content Include="Src\XComGame\Classes\X2StatusEffects.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\XComGame\Classes\X2StrategyElement_XpackStaffSlots.uc">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Src\XComGame\Classes\X2StrategyGame_SimCombat.uc">
       <SubType>Content</SubType>
     </Content>
@@ -259,9 +253,6 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_AdventChosen.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\XComGame\Classes\XComGameState_CovertAction.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_HeadquartersResistance.uc">

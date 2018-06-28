@@ -10329,7 +10329,7 @@ function ApplySquaddieLoadout(XComGameState GameState, optional XComGameState_He
 
 				AddItemToInventory(ItemState, ItemTemplate.InventorySlot, GameState);
 				// Issue #232 start
-				EventMgr.TriggerEvent('OnSquaddieItemStateApplied', ItemState, self, GameState);
+				EventMgr.TriggerEvent('SquaddieItemStateApplied', ItemState, self, GameState);
 				// Issue #232 end
 			}
 			else
