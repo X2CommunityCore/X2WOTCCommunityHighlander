@@ -1458,36 +1458,17 @@ simulated function array<UISummary_ItemStat> GetUISummary_ItemBasicStats()
 	{
 		Result = GetUISummary_DefaultStats();
 	}
-
-	// Issue #235 start
-	class'CHHelpers'.static.GroupItemStatsByLabel(Result);
-	// Issue #235 end
 	
 	return Result;
 }
 
 simulated function array<UISummary_ItemStat> GetUISummary_ItemSecondaryStats()
 {
-	// Variable for Issue #235
-	local array<UISummary_ItemStat> Result;
-
-	// Issue #235 start
 	// TODO: @gameplay: Other stat functions and types 
 	if (m_ItemTemplate.IsA('X2WeaponTemplate'))
-	{
-		//return GetUISummary_WeaponUpgradeStats();
-		Result = GetUISummary_WeaponUpgradeStats();
-	}
+		return GetUISummary_WeaponUpgradeStats();
 	else
-	{
-		//return GetUISummary_DefaultStats();
-		Result = GetUISummary_DefaultStats();
-	}
-	
-	class'CHHelpers'.static.GroupItemStatsByLabel(Result);
-
-	return Result;
-	// Issue #235 end
+		return GetUISummary_DefaultStats(); 
 }
 
 simulated function array<UISummary_ItemStat> GetUISummary_DefaultStats()

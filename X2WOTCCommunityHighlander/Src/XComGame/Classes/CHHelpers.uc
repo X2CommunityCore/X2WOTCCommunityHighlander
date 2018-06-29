@@ -206,7 +206,7 @@ static function array<name> GetAcceptablePartPacks()
 // Issue #235 start
 static function GroupItemStatsByLabel(out array<UISummary_ItemStat> InArray)
 {
-	local int i, j;
+	local int i, j, iValue, jValue;
 
 	for (i = 0; i < InArray.Length; i++)
 	{
@@ -214,7 +214,15 @@ static function GroupItemStatsByLabel(out array<UISummary_ItemStat> InArray)
 		{
 			if (InArray[i].Label == InArray[j].Label)
 			{
-				InArray[i].Value = string(int(InArray[i].Value) + int(InArray[j].Value)); // WARNING: Only use GroupItemStatsByLabel in places where the values are string representations of ints! i.e. Not ammo.
+				iValue = int(InArray[i].Value);
+				jValue = int(InArray[j].Value);
+
+				if (string(iValue) != InArray[i].Value || string(jValue) != InArray[j].Value) // The values are not string representations of ints. Ignore this one.
+				{
+					continue;
+				}
+
+				InArray[i].Value = string(iValue + jValue);
 				InArray.Remove(j, 1);
 				j--; // Important! Removing an entry in the array shifts all other entries down one. Don't skip an entry by accident.
 			}
