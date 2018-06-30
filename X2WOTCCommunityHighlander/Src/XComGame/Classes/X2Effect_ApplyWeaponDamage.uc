@@ -459,6 +459,10 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 				if (WeaponUpgradeTemplate.BonusDamage.Tag == DamageTag)
 				{
 					UpgradeTemplateBonusDamage = WeaponUpgradeTemplate.BonusDamage;
+					
+					// Issue #237 start, allow new upgrade properties to affect damage previews
+					UpgradeTemplateBonusDamage = GatherNewDamageValues(UpgradeTemplateBonusDamage, WeaponUpgradeTemplate);
+					// Issue #237 end
 
 					ModifyDamageValue(UpgradeTemplateBonusDamage, TargetUnit, AppliedDamageTypes);
 
@@ -774,6 +778,10 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 				if (WeaponUpgradeTemplate.BonusDamage.Tag == DamageTag)
 				{
 					UpgradeTemplateBonusDamage = WeaponUpgradeTemplate.BonusDamage;
+					
+					// Issue #237 start, allow new upgrade properties to affect damage amount
+					UpgradeTemplateBonusDamage = GatherNewDamageValues(UpgradeTemplateBonusDamage, WeaponUpgradeTemplate);
+					// Issue #237 end
 
 					if (UpgradeTemplateBonusDamage.Damage > 0) bHadAnyDamage = true;
 					bWasImmune = bWasImmune && ModifyDamageValue(UpgradeTemplateBonusDamage, kTarget, AppliedDamageTypes);
@@ -1318,6 +1326,10 @@ function CalculateDamageValues(XComGameState_Item SourceWeapon, XComGameState_Un
 				if (WeaponUpgradeTemplate.BonusDamage.Tag == DamageTag)
 				{
 					UpgradeTemplateBonusDamage = WeaponUpgradeTemplate.BonusDamage;
+					
+					// Issue #237 start, allow new upgrade properties to affect damage values
+					UpgradeTemplateBonusDamage = GatherNewDamageValues(UpgradeTemplateBonusDamage, WeaponUpgradeTemplate);
+					// Issue #237 end
 
 					ModifyDamageValue(UpgradeTemplateBonusDamage, TargetUnit, AppliedDamageTypes);
 
@@ -1337,9 +1349,44 @@ function CalculateDamageValues(XComGameState_Item SourceWeapon, XComGameState_Un
 	ModifyDamageValue(DamageInfo.BonusEffectDamageValue, TargetUnit, AppliedDamageTypes);
 }
 
+// Issue #237 start, copy the WeaponDamageValue because the functions themselves contain references to the original and we don't want to change the template
+function WeaponDamageValue GatherNewDamageValues(WeaponDamageValue InValue, X2WeaponUpgradeTemplate Template)
+{
+	local WeaponDamageValue DamageValue;
+
+	DamageValue.Damage += InValue.Damage;
+	DamageValue.Damage += Template.DmgBonus;
+
+	DamageValue.Spread = InValue.Spread;
+
+	DamageValue.PlusOne = InValue.PlusOne;
+
+	DamageValue.Crit += InValue.Crit;
+	DamageValue.Crit += Template.CritDmgBonus;
+
+	DamageValue.Pierce += InValue.Pierce;
+	DamageValue.Pierce += Template.PierceBonus;
+
+	DamageValue.Rupture = InValue.Rupture;
+
+	DamageValue.Shred += InValue.Shred;
+	DamageValue.Shred += Template.ShredBonus;
+
+	DamageValue.Tag = InValue.Tag;
+
+	DamageValue.BonusDamageInfo = InValue.BonusDamageInfo;
+	// I'm going to pass on trying to add a DamageModifierInfo to BonusDamageInfo for the bonuses added by the upgrade template.
+	// Doing so would require having an X2Effect_Persistent to give to it, which would increase the work required to utilize
+	// this solution, exponentially. Since reducing work is why this solution is here in the first place.... yeah.
+
+	return DamageValue;
+}
+// Issue #237 end
+
 defaultproperties
 {
 	bApplyWorldEffectsForEachTargetLocation=false
 	bAllowFreeKill=true
 	bAppliesDamage=true
+	bAllowWeaponUpgrade=true // Issue #237
 }
