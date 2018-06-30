@@ -153,6 +153,9 @@
     <Content Include="Src\XComGame\Classes\UIPersonnel_SoldierListItem.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIQueryInterfaceItem.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIScreenStack.uc">
       <SubType>Content</SubType>
     </Content>
@@ -207,6 +210,9 @@
     <Content Include="Src\XComGame\Classes\UIUtilities_Colors.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2AbilityToHitCalc_StandardAim.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Ability_GrenadierAbilitySet.uc">
       <SubType>Content</SubType>
     </Content>
@@ -250,6 +256,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2WeaponTemplate.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2WeaponUpgradeTemplate.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComAutosaveMgr.uc">

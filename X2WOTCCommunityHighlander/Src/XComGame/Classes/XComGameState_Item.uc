@@ -1062,6 +1062,19 @@ simulated function int GetItemPierceValue()
 	return class'X2WeaponTemplate'.default.BaseDamage.Pierce;
 }
 
+// Issue #237 start
+simulated function int GetItemShredValue()
+{
+	GetMyTemplate();
+	if (m_ItemTemplate.IsA('X2WeaponTemplate'))
+	{
+		return X2WeaponTemplate(m_ItemTemplate).BaseDamage.Shred;
+	}
+
+	return class'X2WeaponTemplate'.default.BaseDamage.Shred;
+}
+// Issue #237 end
+
 simulated function bool SoundOriginatesFromOwnerLocation()
 {
 	GetMyTemplate();
@@ -1266,7 +1279,24 @@ simulated function EUISummary_WeaponStats GetWeaponStatsForUI()
 			Summary.bIsCritModified = true;
 
 		//  Upgrades cannot modify damage, or range -jbouscher
-		Summary.bIsDamageModified = false;
+		// Issue #237 start
+		if (UpgradeTemplate.AddDamageModifierFn != none)
+		{
+			Summary.bIsDamageModified = true;
+		}
+		if (UpgradeTemplate.AddCritDamageModifierFn != none)
+		{
+			Summary.bIsCritDamageModified = true;
+		}
+		if (UpgradeTemplate.AddPierceModifierFn != none)
+		{
+			Summary.bIsPierceModified = true;
+		}
+		if (UpgradeTemplate.AddShredModifierFn != none)
+		{
+			Summary.bIsShredModified = true;
+		}
+		// Issue #237 end
 		Summary.bIsRangeModified = false;
 	}
 
@@ -1314,10 +1344,26 @@ simulated function string GetUpgradeEffectForUI(X2WeaponUpgradeTemplate UpgradeT
 
 		if(UpgradeStats.bIsDamageModified)
 			StatModifiers $= AddStatModifier(StatModifiers != "", class'XLocalizedData'.default.DamageLabel, UpgradeStats.Damage);
+		// Issue #237 start
+		if(UpgradeStats.bIsCritDamageModified)
+		{
+			StatModifiers $= AddStatModifier(StatModifiers != "", class'XLocalizedData'.default.CriticalDamageLabel, UpgradeStats.CritDamage);
+		}
+		// ISsue #237 end
 		if(UpgradeStats.bIsAimModified)
 			StatModifiers $= AddStatModifier(StatModifiers != "", class'XLocalizedData'.default.AimLabel, UpgradeStats.Aim);
 		if(UpgradeStats.bIsCritModified)
 			StatModifiers $= AddStatModifier(StatModifiers != "", class'XLocalizedData'.default.CritChanceLabel, UpgradeStats.Crit);
+		// Issue #237 start - Setting up two sections to keep the organization uniform
+		if(UpgradeStats.bIsPierceModified)
+		{
+			StatModifiers $= AddStatModifier(StatModifiers != "", class'XLocalizedData'.default.PierceLabel, UpgradeStats.Pierce);
+		}
+		if(UpgradeStats.bIsShredModified)
+		{
+			StatModifiers $= AddStatModifier(StatModifiers != "", class'XLocalizedData'.default.ShredLabel, UpgradeStats.Shred);
+		}
+		// Issue #237 end
 		if(UpgradeStats.bIsClipSizeModified)
 			StatModifiers $= AddStatModifier(StatModifiers != "", class'XLocalizedData'.default.ClipSizeLabel, UpgradeStats.ClipSize);
 		if (UpgradeStats.bIsFreeFirePctModified)
@@ -1375,44 +1421,72 @@ simulated function EUISummary_WeaponStats GetUpgradeModifiersForUI(X2WeaponUpgra
 		if(UpgradeTemplate == none)
 			continue;
 		
+		// Issue #237 start
+		if(UpgradeTemplate.AddDamageModifierFn != none)
+		{
+			TotalUpgradeSummary.bIsDamageModified = true;
+			UpgradeTemplate.AddDamageModifierFn(UpgradeTemplate, tmp);
+			TotalUpgradeSummary.Damage += tmp;
+		}
+		if(UpgradeTemplate.AddCritDamageModifierFn != none)
+		{
+			TotalUpgradeSummary.bIsCritDamageModified = true;
+			UpgradeTemplate.AddCritDamageModifierFn(UpgradeTemplate, tmp);
+			TotalUpgradeSummary.CritDamage += tmp;
+		}
+		// Issue #237 end
 		if(UpgradeTemplate.AddHitChanceModifierFn != none)
 		{
 			VisInfo.TargetCover = CT_MAX;
 			TotalUpgradeSummary.bIsAimModified = true;
 			UpgradeTemplate.AddHitChanceModifierFn(UpgradeTemplate, VisInfo, tmp); // we only want the modifier for max cover
-			TotalUpgradeSummary.Aim = tmp;
+			TotalUpgradeSummary.Aim += tmp; // Issue #237, allow multiple upgrades to change the same stat
 		}
 		if (UpgradeTemplate.AddCritChanceModifierFn != None)
 		{
 			TotalUpgradeSummary.bIsCritModified = true;
 			UpgradeTemplate.AddCritChanceModifierFn(UpgradeTemplate, tmp);
-			TotalUpgradeSummary.Crit = tmp;
+			TotalUpgradeSummary.Crit += tmp; // Issue #237, allow multiple upgrades to change the same stat
 		}
+		// Issue #237 start - Setting up two sections to keep the organization uniform
+		if(UpgradeTemplate.AddPierceModifierFn != none)
+		{
+			TotalUpgradeSummary.bIsPierceModified = true;
+			UpgradeTemplate.AddPierceModifierFn(UpgradeTemplate, tmp);
+			TotalUpgradeSummary.Pierce += tmp;
+		}
+		if(UpgradeTemplate.AddShredModifierFn != none)
+		{
+			TotalUpgradeSummary.bIsShredModified = true;
+			UpgradeTemplate.AddShredModifierFn(UpgradeTemplate, tmp);
+			TotalUpgradeSummary.Shred += tmp;
+		}
+		// Issue #237 end
 		if(UpgradeTemplate.AdjustClipSizeFn != none)
 		{
 			TotalUpgradeSummary.bIsClipSizeModified = true;
 			UpgradeTemplate.AdjustClipSizeFn(UpgradeTemplate, self, 0, tmp); // we only want the modifier, so pass 0 for current
-			TotalUpgradeSummary.ClipSize = tmp;
+			TotalUpgradeSummary.ClipSize += tmp; // Issue #237, allow multiple upgrades to change the same stat
 		}
 		if (UpgradeTemplate.FreeFireChance > 0)
 		{
 			TotalUpgradeSummary.bIsFreeFirePctModified = true;
-			TotalUpgradeSummary.FreeFirePct = UpgradeTemplate.GetBonusAmountFn(UpgradeTemplate);
+			TotalUpgradeSummary.FreeFirePct += UpgradeTemplate.GetBonusAmountFn(UpgradeTemplate); // Issue #237, allow multiple upgrades to change the same stat
 		}
 		if (UpgradeTemplate.NumFreeReloads > 0)
 		{
 			TotalUpgradeSummary.bIsFreeReloadsModified = true;
-			TotalUpgradeSummary.FreeReloads = UpgradeTemplate.GetBonusAmountFn(UpgradeTemplate);
+			TotalUpgradeSummary.FreeReloads += UpgradeTemplate.GetBonusAmountFn(UpgradeTemplate); // Issue #237, allow multiple upgrades to change the same stat
 		}
 		if (UpgradeTemplate.BonusDamage.Damage > 0)
 		{
 			TotalUpgradeSummary.bIsMissDamageModified = true;
-			TotalUpgradeSummary.MissDamage = UpgradeTemplate.GetBonusAmountFn(UpgradeTemplate);
+			TotalUpgradeSummary.MissDamage += UpgradeTemplate.GetBonusAmountFn(UpgradeTemplate); // Issue #237, allow multiple upgrades to change the same stat
 		}
 		if (UpgradeTemplate.FreeKillChance > 0)
 		{
 			TotalUpgradeSummary.bIsFreeKillPctModified = true;
-			TotalUpgradeSummary.FreeKillPct = UpgradeTemplate.GetBonusAmountFn(UpgradeTemplate);
+			TotalUpgradeSummary.FreeKillPct += UpgradeTemplate.GetBonusAmountFn(UpgradeTemplate); // Issue #237, allow multiple upgrades to change the same stat
 		}
 	}
 
@@ -1597,7 +1671,31 @@ simulated function array<UISummary_ItemStat> GetUISummary_WeaponStats(optional X
 		}
 	}
 	//TODO: Item.ValueState = bIsDamageModified ? eUIState_Good : eUIState_Normal;
-			
+
+	// Issue #237 start
+	// Crit Damage-----------------------------------------------------------------------
+	if (!WeaponTemplate.bHideDamageStat)
+	{
+		Item.Label = class'XLocalizedData'.default.CriticalDamageLabel;
+		GetBaseWeaponDamageValue(none, DamageValue);
+		if (DamageValue.Crit == 0 && UpgradeStats.bIsCritDamageModified)
+		{
+			Item.Value = AddStatModifier(false, "", UpgradeStats.Crit, eUIState_Good);
+			Stats.AddItem(Item);
+		}
+		else if (DamageValue.Crit > 0)
+		{
+			Item.Value = string(DamageValue.Crit);
+
+			if (UpgradeStats.bIsDamageModified)
+			{
+				Item.Value $= AddStatModifier(false, "", UpgradeStats.Crit, eUIState_Good);
+			}
+			Stats.AddItem(Item);
+		}
+	}
+	// Issue #237 end
+
 	// Clip Size --------------------------------------------------------------------
 	if (m_ItemTemplate.ItemCat == 'weapon' && !WeaponTemplate.bHideClipSizeStat)
 	{
@@ -1619,6 +1717,17 @@ simulated function array<UISummary_ItemStat> GetUISummary_WeaponStats(optional X
 		if (PopulateWeaponStat(GetItemAimModifier(), UpgradeStats.bIsAimModified, UpgradeStats.Aim, Item, true))
 			Stats.AddItem(Item);
 	}
+
+	// Issue #237 start
+	// Pierce -------------------------------------------------------------------------
+	Item.Label = class'XLocalizedData'.default.PierceLabel;
+	if (PopulateWeaponStat(GetItemPierceValue(), UpgradeStats.bIsPierceModified, UpgradeStats.Pierce, Item, false))
+		Stats.AddItem(Item);
+	// Shred -------------------------------------------------------------------------
+	Item.Label = class'XLocalizedData'.default.ShredLabel;
+	if (PopulateWeaponStat(GetItemShredValue(), UpgradeStats.bIsShredModified, UpgradeStats.Shred, Item, false))
+		Stats.AddItem(Item);
+	// Issue #237 end
 
 	// Free Fire
 	Item.Label = class'XLocalizedData'.default.FreeFireLabel;
