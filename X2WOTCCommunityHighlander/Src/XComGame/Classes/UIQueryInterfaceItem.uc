@@ -12,11 +12,9 @@ interface UIQueryInterfaceItem
 struct EUISummary_WeaponStats
 {
 	var int Damage;
-	var int CritDamage; // Issue #237
+	var WeaponDamageValue DamageValue; // Issue #237
 	var int Crit;
 	var int Aim;
-	var int Pierce; // Issue #237
-	var int Shred; // Issue #237
 	var int ClipSize;
 	var int Range;
 	var int FreeFirePct;
@@ -27,10 +25,12 @@ struct EUISummary_WeaponStats
 
 	//Is the stat modified by any upgrades? 
 	var bool bIsDamageModified;
+	var bool bIsSpreadModified; // Issue #237
 	var bool bIsCritDamageModified; // Issue #237
 	var bool bIsCritModified;
 	var bool bIsAimModified;
 	var bool bIsPierceModified; // Issue #237
+	var bool bIsRuptureModified; // Issue #237
 	var bool bIsShredModified; // Issue #237
 	var bool bIsClipSizeModified;
 	var bool bIsAmmoModified;
@@ -47,10 +47,12 @@ struct EUISummary_WeaponStats
 	structdefaultproperties
 	{
 		bIsDamageModified=false;
+		bIsSpreadModified=false; // Issue #237
 		bIsCritDamageModified=false; // Issue #237
 		bIsCritModified=false;
 		bIsAimModified=false;
 		bIsPierceModified=false; // Issue #237
+		bIsRuptureModified=false; // Issue #237
 		bIsShredModified=false; // Issue #237
 		bIsClipSizeModified=false;
 		bIsAmmoModified=false;

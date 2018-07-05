@@ -11,12 +11,6 @@ var int FreeFireChance;		// chance out of 100 that the action will be free
 var int NumFreeReloads;		// setting to 0 or less will mean no limit
 var WeaponDamageValue BonusDamage;			// amount of bonus damage on shots that allow for it
 var int FreeKillChance;		// chance out of 100 that a damaging shot will become an automatic kill
-// Issue #237 start
-var int DmgBonus;			// damage modifier
-var int CritDmgBonus;		// critical damage modifier
-var int PierceBonus;		// pierce modifier
-var int ShredBonus;			// shred modifier
-// Issue #237 end
 
 var array<name> MutuallyExclusiveUpgrades; // upgrades which cannot be equipped at the same time as any of the others
 							
@@ -33,9 +27,6 @@ var delegate<FriendlyRenameAbilityDelegate>             FriendlyRenameFn;
 var delegate<GetBonusAmountDelegate>					GetBonusAmountFn;
 // Issue #237 start
 var delegate<AddDamageModifierDelegate>					AddDamageModifierFn;
-var delegate<AddCritDamageModifierDelegate>				AddCritDamageModifierFn;
-var delegate<AddPierceModifierDelegate>					AddPierceModifierFn;
-var delegate<AddShredModifierDelegate>					AddShredModifierFn;
 // Issue #237 end
 
 delegate bool CanApplyUpgradeToWeaponDelegate(X2WeaponUpgradeTemplate UpgradeTemplate, XComGameState_Item Weapon, int SlotIndex);
@@ -48,10 +39,7 @@ delegate bool FreeKillDelegate(X2WeaponUpgradeTemplate UpgradeTemplate, XComGame
 delegate string FriendlyRenameAbilityDelegate(X2WeaponUpgradeTemplate UpgradeTemplate, XComGameState_Ability AbilityState);
 delegate int GetBonusAmountDelegate(X2WeaponUpgradeTemplate UpgradeTemplate);
 // Issue #237 start
-delegate bool AddDamageModifierDelegate(X2WeaponUpgradeTemplate UpgradeTemplate, out int DamageMod);
-delegate bool AddCritDamageModifierDelegate(X2WeaponUpgradeTemplate UpgradeTemplate, out int CritDamageMod);
-delegate bool AddPierceModifierDelegate(X2WeaponUpgradeTemplate UpgradeTemplate, out int PierceMod);
-delegate bool AddShredModifierDelegate(X2WeaponUpgradeTemplate UpgradeTemplate, out int ShredMod);
+delegate bool AddDamageModifierDelegate(X2WeaponUpgradeTemplate UpgradeTemplate, out int StatMod, name StatType);
 // Issue #237 end
 
 function AddUpgradeAttachment(

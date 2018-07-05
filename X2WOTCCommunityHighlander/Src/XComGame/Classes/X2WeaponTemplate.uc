@@ -241,7 +241,7 @@ function int GetUIStatMarkup(ECharStatType Stat, optional XComGameState_Item Wea
 			UpgradeBonuses = Weapon.GetUpgradeModifiersForUI(none);
 			if (UpgradeBonuses.bIsPierceModified)
 			{
-				BonusPierce += UpgradeBonuses.Pierce;
+				BonusPierce += UpgradeBonuses.DamageValue.Pierce;
 			}
 		}
 		return super.GetUIStatMarkup(Stat) + BonusPierce;

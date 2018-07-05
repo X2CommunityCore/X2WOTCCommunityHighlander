@@ -1063,6 +1063,17 @@ simulated function int GetItemPierceValue()
 }
 
 // Issue #237 start
+simulated function int GetItemRuptureValue()
+{
+	GetMyTemplate();
+	if (m_ItemTemplate.IsA('X2WeaponTemplate'))
+	{
+		return X2WeaponTemplate(m_ItemTemplate).BaseDamage.Rupture;
+	}
+
+	return class'X2WeaponTemplate'.default.BaseDamage.Rupture;
+}
+
 simulated function int GetItemShredValue()
 {
 	GetMyTemplate();
@@ -1282,19 +1293,30 @@ simulated function EUISummary_WeaponStats GetWeaponStatsForUI()
 		// Issue #237 start
 		if (UpgradeTemplate.AddDamageModifierFn != none)
 		{
-			Summary.bIsDamageModified = true;
-		}
-		if (UpgradeTemplate.AddCritDamageModifierFn != none)
-		{
-			Summary.bIsCritDamageModified = true;
-		}
-		if (UpgradeTemplate.AddPierceModifierFn != none)
-		{
-			Summary.bIsPierceModified = true;
-		}
-		if (UpgradeTemplate.AddShredModifierFn != none)
-		{
-			Summary.bIsShredModified = true;
+			if (UpgradeTemplate.BonusDamage.Damage > 0)
+			{
+				Summary.bIsDamageModified = true;
+			}
+			if (UpgradeTemplate.BonusDamage.Spread > 0)
+			{
+				Summary.bIsSpreadModified = true;
+			}
+			if (UpgradeTemplate.BonusDamage.Crit > 0)
+			{
+				Summary.bIsCritDamageModified = true;
+			}
+			if (UpgradeTemplate.BonusDamage.Pierce > 0)
+			{
+				Summary.bIsPierceModified = true;
+			}
+			if (UpgradeTemplate.BonusDamage.Rupture > 0)
+			{
+				Summary.bIsRuptureModified = true;
+			}
+			if (UpgradeTemplate.BonusDamage.Shred > 0)
+			{
+				Summary.bIsShredModified = true;
+			}
 		}
 		// Issue #237 end
 		Summary.bIsRangeModified = false;
@@ -1341,15 +1363,24 @@ simulated function string GetUpgradeEffectForUI(X2WeaponUpgradeTemplate UpgradeT
 	else
 	{
 		UpgradeStats = GetUpgradeModifiersForUI(UpgradeTemplate);
-
-		if(UpgradeStats.bIsDamageModified)
-			StatModifiers $= AddStatModifier(StatModifiers != "", class'XLocalizedData'.default.DamageLabel, UpgradeStats.Damage);
+		
 		// Issue #237 start
+		if(UpgradeStats.bIsDamageModified || UpgradeStats.bIsSpreadModified)
+		{
+			if (UpgradeStats.bIsSpreadModified)
+			{
+				StatModifiers $= AddStatModifierSpread(StatModifiers != "", class'XLocalizedData'.default.DamageLabel, UpgradeStats.DamageValue.Damage - UpgradeStats.DamageValue.Spread, UpgradeStats.DamageValue.Damage + UpgradeStats.DamageValue.Spread);
+			}
+			else
+			{
+				StatModifiers $= AddStatModifier(StatModifiers != "", class'XLocalizedData'.default.DamageLabel, UpgradeStats.DamageValue.Damage);
+			}
+		}
 		if(UpgradeStats.bIsCritDamageModified)
 		{
-			StatModifiers $= AddStatModifier(StatModifiers != "", class'XLocalizedData'.default.CriticalDamageLabel, UpgradeStats.CritDamage);
+			StatModifiers $= AddStatModifier(StatModifiers != "", class'XLocalizedData'.default.CriticalDamageLabel, UpgradeStats.DamageValue.Crit);
 		}
-		// ISsue #237 end
+		// Issue #237 end
 		if(UpgradeStats.bIsAimModified)
 			StatModifiers $= AddStatModifier(StatModifiers != "", class'XLocalizedData'.default.AimLabel, UpgradeStats.Aim);
 		if(UpgradeStats.bIsCritModified)
@@ -1357,11 +1388,15 @@ simulated function string GetUpgradeEffectForUI(X2WeaponUpgradeTemplate UpgradeT
 		// Issue #237 start - Setting up two sections to keep the organization uniform
 		if(UpgradeStats.bIsPierceModified)
 		{
-			StatModifiers $= AddStatModifier(StatModifiers != "", class'XLocalizedData'.default.PierceLabel, UpgradeStats.Pierce);
+			StatModifiers $= AddStatModifier(StatModifiers != "", class'XLocalizedData'.default.PierceLabel, UpgradeStats.DamageValue.Pierce);
+		}
+		if(UpgradeStats.bIsRuptureModified)
+		{
+			StatModifiers $= AddStatModifier(StatModifiers != "", class'XLocalizedData'.default.RuptureLabel, UpgradeStats.DamageValue.Rupture);
 		}
 		if(UpgradeStats.bIsShredModified)
 		{
-			StatModifiers $= AddStatModifier(StatModifiers != "", class'XLocalizedData'.default.ShredLabel, UpgradeStats.Shred);
+			StatModifiers $= AddStatModifier(StatModifiers != "", class'XLocalizedData'.default.ShredLabel, UpgradeStats.DamageValue.Shred);
 		}
 		// Issue #237 end
 		if(UpgradeStats.bIsClipSizeModified)
@@ -1393,6 +1428,38 @@ simulated function string AddStatModifier(bool bAddCommaSeparator, string Label,
 	return Result;
 }
 
+// Issue #237 start
+simulated function string AddStatModifierSpread(bool bAddCommaSeparator, string Label, int FirstValue, int SecondValue, optional int ColorState = eUIState_Normal, optional string PostFix, optional bool bSymbolOnRight)
+{
+	local string Result;
+	local bool bFirstValueNegative;
+
+	if (FirstValue < 0)
+	{
+		bFirstValueNegative = true;
+	}
+	if(bAddCommaSeparator)
+	{
+		Result $= ", ";
+	}
+
+	// Second value will always be greater than first value, so if the first value is positive, we don't need to check the second.
+	Result $= Label;
+	if(bSymbolOnRight)
+	{
+		Result @= FirstValue $ (bFirstValueNegative ? "-" : "+") $ "-" $ SecondValue $ (bFirstValueNegative && (SecondValue < 0)) ? "-" : "+";
+	}
+	else
+	{
+		Result @= (bFirstValueNegative ? "-" : "+") $ FirstValue $ "-" $ SecondValue;
+	}
+
+	Result = class'UIUtilities_Text'.static.GetColoredText(Result $ PostFix, ColorState);
+	Result = class'UIUtilities_Text'.static.FormatCommaSeparatedNouns(Result);
+	return Result;
+}
+// Issue #237 end
+
 simulated function EUISummary_WeaponStats GetUpgradeModifiersForUI(X2WeaponUpgradeTemplate UpgradeTemplate)
 {
 	local int i, tmp;
@@ -1422,17 +1489,44 @@ simulated function EUISummary_WeaponStats GetUpgradeModifiersForUI(X2WeaponUpgra
 			continue;
 		
 		// Issue #237 start
-		if(UpgradeTemplate.AddDamageModifierFn != none)
+		if (UpgradeTemplate.AddDamageModifierFn != none)
 		{
-			TotalUpgradeSummary.bIsDamageModified = true;
-			UpgradeTemplate.AddDamageModifierFn(UpgradeTemplate, tmp);
-			TotalUpgradeSummary.Damage += tmp;
-		}
-		if(UpgradeTemplate.AddCritDamageModifierFn != none)
-		{
-			TotalUpgradeSummary.bIsCritDamageModified = true;
-			UpgradeTemplate.AddCritDamageModifierFn(UpgradeTemplate, tmp);
-			TotalUpgradeSummary.CritDamage += tmp;
+			if (UpgradeTemplate.BonusDamage.Damage > 0)
+			{
+				TotalUpgradeSummary.bIsDamageModified = true;
+				UpgradeTemplate.AddDamageModifierFn(UpgradeTemplate, tmp, 'Damage');
+				TotalUpgradeSummary.DamageValue.Damage += tmp;
+			}
+			if (UpgradeTemplate.BonusDamage.Spread > 0)
+			{
+				TotalUpgradeSummary.bIsSpreadModified = true;
+				UpgradeTemplate.AddDamageModifierFn(UpgradeTemplate, tmp, 'Spread');
+				TotalUpgradeSummary.DamageValue.Spread += tmp;
+			}
+			if (UpgradeTemplate.BonusDamage.Crit > 0)
+			{
+				TotalUpgradeSummary.bIsCritDamageModified = true;
+				UpgradeTemplate.AddDamageModifierFn(UpgradeTemplate, tmp, 'Crit');
+				TotalUpgradeSummary.DamageValue.Crit += tmp;
+			}
+			if (UpgradeTemplate.BonusDamage.Pierce > 0)
+			{
+				TotalUpgradeSummary.bIsPierceModified = true;
+				UpgradeTemplate.AddDamageModifierFn(UpgradeTemplate, tmp, 'Pierce');
+				TotalUpgradeSummary.DamageValue.Pierce += tmp;
+			}
+			if (UpgradeTemplate.BonusDamage.Rupture > 0)
+			{
+				TotalUpgradeSummary.bIsRuptureModified = true;
+				UpgradeTemplate.AddDamageModifierFn(UpgradeTemplate, tmp, 'Rupture');
+				TotalUpgradeSummary.DamageValue.Rupture += tmp;
+			}
+			if (UpgradeTemplate.BonusDamage.Shred > 0)
+			{
+				TotalUpgradeSummary.bIsShredModified = true;
+				UpgradeTemplate.AddDamageModifierFn(UpgradeTemplate, tmp, 'Shred');
+				TotalUpgradeSummary.DamageValue.Shred += tmp;
+			}
 		}
 		// Issue #237 end
 		if(UpgradeTemplate.AddHitChanceModifierFn != none)
@@ -1448,20 +1542,6 @@ simulated function EUISummary_WeaponStats GetUpgradeModifiersForUI(X2WeaponUpgra
 			UpgradeTemplate.AddCritChanceModifierFn(UpgradeTemplate, tmp);
 			TotalUpgradeSummary.Crit += tmp; // Issue #237, allow multiple upgrades to change the same stat
 		}
-		// Issue #237 start - Setting up two sections to keep the organization uniform
-		if(UpgradeTemplate.AddPierceModifierFn != none)
-		{
-			TotalUpgradeSummary.bIsPierceModified = true;
-			UpgradeTemplate.AddPierceModifierFn(UpgradeTemplate, tmp);
-			TotalUpgradeSummary.Pierce += tmp;
-		}
-		if(UpgradeTemplate.AddShredModifierFn != none)
-		{
-			TotalUpgradeSummary.bIsShredModified = true;
-			UpgradeTemplate.AddShredModifierFn(UpgradeTemplate, tmp);
-			TotalUpgradeSummary.Shred += tmp;
-		}
-		// Issue #237 end
 		if(UpgradeTemplate.AdjustClipSizeFn != none)
 		{
 			TotalUpgradeSummary.bIsClipSizeModified = true;
@@ -1638,6 +1718,10 @@ simulated function array<UISummary_ItemStat> GetUISummary_WeaponStats(optional X
 	local delegate<X2StrategyGameRulesetDataStructures.SpecialRequirementsDelegate> ShouldStatDisplayFn;
 	local int Index;
 
+	// Variables for Issue #237
+	local int PreInt, PostInt;
+	local EUIState ColorState;
+
 	// Safety check: you need to be a weapon to use this. 
 	WeaponTemplate = X2WeaponTemplate(m_ItemTemplate);
 	if( WeaponTemplate == none ) 
@@ -1647,32 +1731,85 @@ simulated function array<UISummary_ItemStat> GetUISummary_WeaponStats(optional X
 		UpgradeStats = GetUpgradeModifiersForUI(PreviewUpgradeStats);
 	else
 		UpgradeStats = GetUpgradeModifiersForUI(X2WeaponUpgradeTemplate(m_ItemTemplate));
-
+		
+	// Issue #237 start
 	// Damage-----------------------------------------------------------------------
 	if (!WeaponTemplate.bHideDamageStat)
 	{
 		Item.Label = class'XLocalizedData'.default.DamageLabel;
 		GetBaseWeaponDamageValue(none, DamageValue);
-		if (DamageValue.Damage == 0 && UpgradeStats.bIsDamageModified)
+		if (DamageValue.Damage == 0 && (UpgradeStats.bIsDamageModified || UpgradeStats.bIsSpreadModified))
 		{
-			Item.Value = AddStatModifier(false, "", UpgradeStats.Damage, eUIState_Good);
+			if (UpgradeStats.bIsSpreadModified)
+			{
+				Item.Value = AddStatModifierSpread(false, "", UpgradeStats.DamageValue.Damage - UpgradeStats.DamageValue.Spread, UpgradeStats.DamageValue.Damage + UpgradeStats.DamageValue.Spread, eUIState_Good);
+			}
+			else
+			{
+				Item.Value = AddStatModifier(false, "", UpgradeStats.DamageValue.Damage, eUIState_Good);
+			}
 			Stats.AddItem(Item);
 		}
 		else if (DamageValue.Damage > 0)
 		{
+			// Trying to set this up in a single line of code is obnoxious, so I'm splitting it up
+			PreInt = DamageValue.Damage;
+			PostInt = DamageValue.Damage;
+			ColorState = eUIState_Normal;
 			if (DamageValue.Spread > 0 || DamageValue.PlusOne > 0)
-				Item.Value = string(DamageValue.Damage - DamageValue.Spread) $ "-" $ string(DamageValue.Damage + DamageValue.Spread + (DamageValue.PlusOne > 0) ? 1 : 0);
-			else
-				Item.Value = string(DamageValue.Damage);
-
+			{
+				PreInt -= DamageValue.Spread;
+				PostInt += DamageValue.Spread + ((DamageValue.PlusOne > 0) ? 1 : 0);
+			}
 			if (UpgradeStats.bIsDamageModified)
-				Item.Value $= AddStatModifier(false, "", UpgradeStats.Damage, eUIState_Good);
+			{
+				PreInt += UpgradeStats.DamageValue.Damage;
+				PostInt += UpgradeStats.DamageValue.Damage;
+			}
+			if (UpgradeStats.bIsSpreadModified)
+			{
+				PreInt -= UpgradeStats.DamageValue.Spread;
+				PostInt += UpgradeStats.DamageValue.Spread;
+			}
+
+			// Call it good if the ending average is better than the starting value, bad otherwise
+			if (((PreInt + PostInt) / 2) > DamageValue.Damage)
+			{
+				ColorState = eUIState_Good;
+			}
+			else if (((PreInt + PostInt) / 2) < DamageValue.Damage)
+			{
+				ColorState = eUIState_Bad;
+			}
+
+			if (PreInt != PostInt)
+			{
+				if (ColorState != eUIState_Normal)
+				{
+					Item.Value = AddStatModifierSpread(false, "", PreInt, PostInt, ColorState);
+				}
+				else
+				{
+					Item.Value = string(PreInt) $ "-" $ string(PostInt);
+				}
+			}
+			else
+			{
+				if (ColorState != eUIState_Normal)
+				{
+					Item.Value = AddStatModifier(false, "", PreInt, ColorState);
+				}
+				else
+				{
+					Item.Value = string(PreInt);
+				}
+			}
+
 			Stats.AddItem(Item);
 		}
 	}
 	//TODO: Item.ValueState = bIsDamageModified ? eUIState_Good : eUIState_Normal;
 
-	// Issue #237 start
 	// Crit Damage-----------------------------------------------------------------------
 	if (!WeaponTemplate.bHideDamageStat)
 	{
@@ -1680,16 +1817,16 @@ simulated function array<UISummary_ItemStat> GetUISummary_WeaponStats(optional X
 		GetBaseWeaponDamageValue(none, DamageValue);
 		if (DamageValue.Crit == 0 && UpgradeStats.bIsCritDamageModified)
 		{
-			Item.Value = AddStatModifier(false, "", UpgradeStats.Crit, eUIState_Good);
+			Item.Value = AddStatModifier(false, "", UpgradeStats.DamageValue.Crit, eUIState_Good);
 			Stats.AddItem(Item);
 		}
 		else if (DamageValue.Crit > 0)
 		{
 			Item.Value = string(DamageValue.Crit);
 
-			if (UpgradeStats.bIsDamageModified)
+			if (UpgradeStats.bIsCritDamageModified)
 			{
-				Item.Value $= AddStatModifier(false, "", UpgradeStats.Crit, eUIState_Good);
+				Item.Value $= AddStatModifier(false, "", UpgradeStats.DamageValue.Crit, eUIState_Good);
 			}
 			Stats.AddItem(Item);
 		}
@@ -1721,11 +1858,15 @@ simulated function array<UISummary_ItemStat> GetUISummary_WeaponStats(optional X
 	// Issue #237 start
 	// Pierce -------------------------------------------------------------------------
 	Item.Label = class'XLocalizedData'.default.PierceLabel;
-	if (PopulateWeaponStat(GetItemPierceValue(), UpgradeStats.bIsPierceModified, UpgradeStats.Pierce, Item, false))
+	if (PopulateWeaponStat(GetItemPierceValue(), UpgradeStats.bIsPierceModified, UpgradeStats.DamageValue.Pierce, Item, false))
+		Stats.AddItem(Item);
+	// Pierce -------------------------------------------------------------------------
+	Item.Label = class'XLocalizedData'.default.RuptureLabel;
+	if (PopulateWeaponStat(GetItemRuptureValue(), UpgradeStats.bIsRuptureModified, UpgradeStats.DamageValue.Rupture, Item, false))
 		Stats.AddItem(Item);
 	// Shred -------------------------------------------------------------------------
 	Item.Label = class'XLocalizedData'.default.ShredLabel;
-	if (PopulateWeaponStat(GetItemShredValue(), UpgradeStats.bIsShredModified, UpgradeStats.Shred, Item, false))
+	if (PopulateWeaponStat(GetItemShredValue(), UpgradeStats.bIsShredModified, UpgradeStats.DamageValue.Shred, Item, false))
 		Stats.AddItem(Item);
 	// Issue #237 end
 
