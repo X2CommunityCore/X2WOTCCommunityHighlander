@@ -1291,29 +1291,29 @@ simulated function EUISummary_WeaponStats GetWeaponStatsForUI()
 
 		//  Upgrades cannot modify damage, or range -jbouscher
 		// Issue #237 start
-		if (UpgradeTemplate.AddDamageModifierFn != none)
+		if (UpgradeTemplate.AddCHDamageModifierFn != none)
 		{
-			if (UpgradeTemplate.BonusDamage.Damage > 0)
+			if (UpgradeTemplate.CHBonusDamage.Damage > 0)
 			{
 				Summary.bIsDamageModified = true;
 			}
-			if (UpgradeTemplate.BonusDamage.Spread > 0)
+			if (UpgradeTemplate.CHBonusDamage.Spread > 0)
 			{
 				Summary.bIsSpreadModified = true;
 			}
-			if (UpgradeTemplate.BonusDamage.Crit > 0)
+			if (UpgradeTemplate.CHBonusDamage.Crit > 0)
 			{
 				Summary.bIsCritDamageModified = true;
 			}
-			if (UpgradeTemplate.BonusDamage.Pierce > 0)
+			if (UpgradeTemplate.CHBonusDamage.Pierce > 0)
 			{
 				Summary.bIsPierceModified = true;
 			}
-			if (UpgradeTemplate.BonusDamage.Rupture > 0)
+			if (UpgradeTemplate.CHBonusDamage.Rupture > 0)
 			{
 				Summary.bIsRuptureModified = true;
 			}
-			if (UpgradeTemplate.BonusDamage.Shred > 0)
+			if (UpgradeTemplate.CHBonusDamage.Shred > 0)
 			{
 				Summary.bIsShredModified = true;
 			}
@@ -1489,42 +1489,42 @@ simulated function EUISummary_WeaponStats GetUpgradeModifiersForUI(X2WeaponUpgra
 			continue;
 		
 		// Issue #237 start
-		if (UpgradeTemplate.AddDamageModifierFn != none)
+		if (UpgradeTemplate.AddCHDamageModifierFn != none)
 		{
-			if (UpgradeTemplate.BonusDamage.Damage > 0)
+			if (UpgradeTemplate.CHBonusDamage.Damage > 0)
 			{
 				TotalUpgradeSummary.bIsDamageModified = true;
-				UpgradeTemplate.AddDamageModifierFn(UpgradeTemplate, tmp, 'Damage');
+				UpgradeTemplate.AddCHDamageModifierFn(UpgradeTemplate, tmp, 'Damage');
 				TotalUpgradeSummary.DamageValue.Damage += tmp;
 			}
-			if (UpgradeTemplate.BonusDamage.Spread > 0)
+			if (UpgradeTemplate.CHBonusDamage.Spread > 0)
 			{
 				TotalUpgradeSummary.bIsSpreadModified = true;
-				UpgradeTemplate.AddDamageModifierFn(UpgradeTemplate, tmp, 'Spread');
+				UpgradeTemplate.AddCHDamageModifierFn(UpgradeTemplate, tmp, 'Spread');
 				TotalUpgradeSummary.DamageValue.Spread += tmp;
 			}
-			if (UpgradeTemplate.BonusDamage.Crit > 0)
+			if (UpgradeTemplate.CHBonusDamage.Crit > 0)
 			{
 				TotalUpgradeSummary.bIsCritDamageModified = true;
-				UpgradeTemplate.AddDamageModifierFn(UpgradeTemplate, tmp, 'Crit');
+				UpgradeTemplate.AddCHDamageModifierFn(UpgradeTemplate, tmp, 'Crit');
 				TotalUpgradeSummary.DamageValue.Crit += tmp;
 			}
-			if (UpgradeTemplate.BonusDamage.Pierce > 0)
+			if (UpgradeTemplate.CHBonusDamage.Pierce > 0)
 			{
 				TotalUpgradeSummary.bIsPierceModified = true;
-				UpgradeTemplate.AddDamageModifierFn(UpgradeTemplate, tmp, 'Pierce');
+				UpgradeTemplate.AddCHDamageModifierFn(UpgradeTemplate, tmp, 'Pierce');
 				TotalUpgradeSummary.DamageValue.Pierce += tmp;
 			}
-			if (UpgradeTemplate.BonusDamage.Rupture > 0)
+			if (UpgradeTemplate.CHBonusDamage.Rupture > 0)
 			{
 				TotalUpgradeSummary.bIsRuptureModified = true;
-				UpgradeTemplate.AddDamageModifierFn(UpgradeTemplate, tmp, 'Rupture');
+				UpgradeTemplate.AddCHDamageModifierFn(UpgradeTemplate, tmp, 'Rupture');
 				TotalUpgradeSummary.DamageValue.Rupture += tmp;
 			}
-			if (UpgradeTemplate.BonusDamage.Shred > 0)
+			if (UpgradeTemplate.CHBonusDamage.Shred > 0)
 			{
 				TotalUpgradeSummary.bIsShredModified = true;
-				UpgradeTemplate.AddDamageModifierFn(UpgradeTemplate, tmp, 'Shred');
+				UpgradeTemplate.AddCHDamageModifierFn(UpgradeTemplate, tmp, 'Shred');
 				TotalUpgradeSummary.DamageValue.Shred += tmp;
 			}
 		}
