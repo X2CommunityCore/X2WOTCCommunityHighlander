@@ -399,6 +399,9 @@
     <Content Include="Src\XComGame\Classes\XGAIPlayerNavigator.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XLocalizedData.uc">
+      <SubType>Content</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildLocalExtensionPath)\XCOM2.targets" />
 </Project>
