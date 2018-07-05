@@ -475,7 +475,7 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 			// Treat new CH upgrade damage as base damage unless a tag is specified
 			foreach WeaponUpgradeTemplates(WeaponUpgradeTemplate)
 			{
-				if ((!bIgnoreBaseDamage && DamageTag == '') || WeaponUpgradeTemplate.BonusDamage.Tag == DamageTag)
+				if ((!bIgnoreBaseDamage && DamageTag == '') || WeaponUpgradeTemplate.CHBonusDamage.Tag == DamageTag)
 				{
 					UpgradeTemplateBonusDamage = WeaponUpgradeTemplate.CHBonusDamage;
 
@@ -811,7 +811,7 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 			// Treat new CH upgrade damage as base damage unless a tag is specified
 			foreach WeaponUpgradeTemplates(WeaponUpgradeTemplate)
 			{
-				if ((!bIgnoreBaseDamage && DamageTag == '') || WeaponUpgradeTemplate.BonusDamage.Tag == DamageTag)
+				if ((!bIgnoreBaseDamage && DamageTag == '') || WeaponUpgradeTemplate.CHBonusDamage.Tag == DamageTag)
 				{
 					UpgradeTemplateBonusDamage = WeaponUpgradeTemplate.CHBonusDamage;
 
@@ -1375,7 +1375,7 @@ function CalculateDamageValues(XComGameState_Item SourceWeapon, XComGameState_Un
 			// Treat new CH upgrade damage as base damage unless a tag is specified
 			foreach WeaponUpgradeTemplates(WeaponUpgradeTemplate)
 			{
-				if ((!bIgnoreBaseDamage && DamageTag == '') || WeaponUpgradeTemplate.BonusDamage.Tag == DamageTag)
+				if ((!bIgnoreBaseDamage && DamageTag == '') || WeaponUpgradeTemplate.CHBonusDamage.Tag == DamageTag)
 				{
 					UpgradeTemplateBonusDamage = WeaponUpgradeTemplate.CHBonusDamage;
 					
