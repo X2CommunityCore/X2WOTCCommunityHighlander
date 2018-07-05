@@ -471,6 +471,26 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 					//  ignores PlusOne as there is no good way to add them up
 				}
 			}
+			// Issue #237 start
+			// Treat new CH upgrade damage as base damage unless a tag is specified
+			foreach WeaponUpgradeTemplates(WeaponUpgradeTemplate)
+			{
+				if ((!bIgnoreBaseDamage && DamageTag == '') || WeaponUpgradeTemplate.BonusDamage.Tag == DamageTag)
+				{
+					UpgradeTemplateBonusDamage = WeaponUpgradeTemplate.CHBonusDamage;
+
+					ModifyDamageValue(UpgradeTemplateBonusDamage, TargetUnit, AppliedDamageTypes);
+
+					UpgradeDamageValue.Damage += UpgradeTemplateBonusDamage.Damage;
+					UpgradeDamageValue.Spread += UpgradeTemplateBonusDamage.Spread;
+					UpgradeDamageValue.Crit += UpgradeTemplateBonusDamage.Crit;
+					UpgradeDamageValue.Pierce += UpgradeTemplateBonusDamage.Pierce;
+					UpgradeDamageValue.Rupture += UpgradeTemplateBonusDamage.Rupture;
+					UpgradeDamageValue.Shred += UpgradeTemplateBonusDamage.Shred;
+					//  ignores PlusOne as there is no good way to add them up
+				}
+			}
+			// Issue #237 end
 		}
 	}
 	BonusEffectDamageValue = GetBonusEffectDamageValue(AbilityState, SourceUnit, SourceWeapon, TargetRef);
@@ -787,6 +807,27 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 					//  ignores PlusOne as there is no good way to add them up
 				}
 			}
+			// Issue #237 start
+			// Treat new CH upgrade damage as base damage unless a tag is specified
+			foreach WeaponUpgradeTemplates(WeaponUpgradeTemplate)
+			{
+				if ((!bIgnoreBaseDamage && DamageTag == '') || WeaponUpgradeTemplate.BonusDamage.Tag == DamageTag)
+				{
+					UpgradeTemplateBonusDamage = WeaponUpgradeTemplate.CHBonusDamage;
+
+					if (UpgradeTemplateBonusDamage.Damage > 0) bHadAnyDamage = true;
+					bWasImmune = bWasImmune && ModifyDamageValue(UpgradeTemplateBonusDamage, kTarget, AppliedDamageTypes);
+
+					UpgradeDamageValue.Damage += UpgradeTemplateBonusDamage.Damage;
+					UpgradeDamageValue.Spread += UpgradeTemplateBonusDamage.Spread;
+					UpgradeDamageValue.Crit += UpgradeTemplateBonusDamage.Crit;
+					UpgradeDamageValue.Pierce += UpgradeTemplateBonusDamage.Pierce;
+					UpgradeDamageValue.Rupture += UpgradeTemplateBonusDamage.Rupture;
+					UpgradeDamageValue.Shred += UpgradeTemplateBonusDamage.Shred;
+					//  ignores PlusOne as there is no good way to add them up
+				}
+			}
+			// Issue #237 end
 		}
 	}
 
@@ -1330,6 +1371,26 @@ function CalculateDamageValues(XComGameState_Item SourceWeapon, XComGameState_Un
 					//  ignores PlusOne as there is no good way to add them up
 				}
 			}
+			// Issue #237 start
+			// Treat new CH upgrade damage as base damage unless a tag is specified
+			foreach WeaponUpgradeTemplates(WeaponUpgradeTemplate)
+			{
+				if ((!bIgnoreBaseDamage && DamageTag == '') || WeaponUpgradeTemplate.BonusDamage.Tag == DamageTag)
+				{
+					UpgradeTemplateBonusDamage = WeaponUpgradeTemplate.CHBonusDamage;
+					
+					ModifyDamageValue(UpgradeTemplateBonusDamage, TargetUnit, AppliedDamageTypes);
+
+					DamageInfo.UpgradeDamageValue.Damage += UpgradeTemplateBonusDamage.Damage;
+					DamageInfo.UpgradeDamageValue.Spread += UpgradeTemplateBonusDamage.Spread;
+					DamageInfo.UpgradeDamageValue.Crit += UpgradeTemplateBonusDamage.Crit;
+					DamageInfo.UpgradeDamageValue.Pierce += UpgradeTemplateBonusDamage.Pierce;
+					DamageInfo.UpgradeDamageValue.Rupture += UpgradeTemplateBonusDamage.Rupture;
+					DamageInfo.UpgradeDamageValue.Shred += UpgradeTemplateBonusDamage.Shred;
+					//  ignores PlusOne as there is no good way to add them up
+				}
+			}
+			// Issue #237 end
 		}
 	}
 
@@ -1342,5 +1403,4 @@ defaultproperties
 	bApplyWorldEffectsForEachTargetLocation=false
 	bAllowFreeKill=true
 	bAppliesDamage=true
-	bAllowWeaponUpgrade=true // Issue #237
 }

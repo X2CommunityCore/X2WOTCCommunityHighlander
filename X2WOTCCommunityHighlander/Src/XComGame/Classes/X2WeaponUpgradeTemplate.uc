@@ -10,6 +10,7 @@ var int ClipSizeBonus;		// extra ammo
 var int FreeFireChance;		// chance out of 100 that the action will be free
 var int NumFreeReloads;		// setting to 0 or less will mean no limit
 var WeaponDamageValue BonusDamage;			// amount of bonus damage on shots that allow for it
+var WeaponDamageValue CHBonusDamage;		// Issue #237 - secondary amount of bonus damage, more general purpose than the miss-damage-only BonusDamage
 var int FreeKillChance;		// chance out of 100 that a damaging shot will become an automatic kill
 
 var array<name> MutuallyExclusiveUpgrades; // upgrades which cannot be equipped at the same time as any of the others
@@ -25,9 +26,7 @@ var delegate<FreeReloadCostDelegate>					FreeReloadCostFn;
 var delegate<FreeKillDelegate>							FreeKillFn;
 var delegate<FriendlyRenameAbilityDelegate>             FriendlyRenameFn;
 var delegate<GetBonusAmountDelegate>					GetBonusAmountFn;
-// Issue #237 start
-var delegate<AddDamageModifierDelegate>					AddDamageModifierFn;
-// Issue #237 end
+var delegate<AddCHDamageModifierDelegate>				AddCHDamageModifierFn; // Issue #237
 
 delegate bool CanApplyUpgradeToWeaponDelegate(X2WeaponUpgradeTemplate UpgradeTemplate, XComGameState_Item Weapon, int SlotIndex);
 delegate bool AddCritChanceModifierDelegate(X2WeaponUpgradeTemplate UpgradeTemplate, out int CritChanceMod);
@@ -38,9 +37,7 @@ delegate bool FreeReloadCostDelegate(X2WeaponUpgradeTemplate UpgradeTemplate, XC
 delegate bool FreeKillDelegate(X2WeaponUpgradeTemplate UpgradeTemplate, XComGameState_Unit TargetUnit);
 delegate string FriendlyRenameAbilityDelegate(X2WeaponUpgradeTemplate UpgradeTemplate, XComGameState_Ability AbilityState);
 delegate int GetBonusAmountDelegate(X2WeaponUpgradeTemplate UpgradeTemplate);
-// Issue #237 start
-delegate bool AddDamageModifierDelegate(X2WeaponUpgradeTemplate UpgradeTemplate, out int StatMod, name StatType);
-// Issue #237 end
+delegate bool AddCHDamageModifierDelegate(X2WeaponUpgradeTemplate UpgradeTemplate, out int StatMod, name StatType); // Issue #237
 
 function AddUpgradeAttachment(
 	Name AttachSocket, 
