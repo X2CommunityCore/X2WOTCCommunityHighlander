@@ -430,3 +430,12 @@ static function UpdateHumanPawnMeshComponent(XComGameState_Unit UnitState, XComH
 	}
 }
 /// End Issue #216
+
+/// Start Issue #239
+/// <summary>
+/// Called from SeqAct_GetPawnFromSaveData.Activated
+/// It delegates the randomly chosen pawn, unitstate and gamestate from the shell screen matinee.
+/// 
+static function MatineeGetPawnFromSaveData(XComUnitPawn UnitPawn, XComGameState_Unit UnitState, XComGameState SearchState)
+{}
+/// End Issue #239

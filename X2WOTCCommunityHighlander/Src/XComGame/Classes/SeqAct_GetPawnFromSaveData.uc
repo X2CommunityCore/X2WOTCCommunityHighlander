@@ -160,7 +160,7 @@ event Activated()
 
 	if(UnitPawn != none)
 	{		
-		//UnitPawn.ObjectID = -1;
+		UnitPawn.ObjectID = -1;
 		UnitPawn.SetVisible(true);
 		UnitPawn.SetupForMatinee(none, true, false);
 		UnitPawn.StopTurning();
@@ -183,8 +183,24 @@ event Activated()
 	{
 		`ONLINEEVENTMGR.SwapHistory(OriginalHistory);
 	}
-	
+	// Start Issue #239
+	DLCInfoMatineeGetPawnFromSaveData(UnitPawn, UnitState, SearchState);
+	// End Issue #239
 }
+
+// Start Issue #239
+private static function DLCInfoMatineeGetPawnFromSaveData(XComUnitPawn UnitPawn, XComGameState_Unit UnitState, XComGameState SearchState)
+{
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local X2DownloadableContentInfo DLCInfo;
+
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	foreach DLCInfos(DLCInfo)
+	{
+		DLCInfo.MatineeGetPawnFromSaveData(UnitPawn, UnitState, SearchState);
+	}
+}
+// End Issue #239
 
 private static function int SortByKills(XComGameState_Unit UnitA, XComGameState_Unit UnitB)
 {
