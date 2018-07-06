@@ -430,3 +430,8 @@ static function UpdateHumanPawnMeshComponent(XComGameState_Unit UnitState, XComH
 	}
 }
 /// End Issue #216
+
+// Start Issue #240
+static function UpdateWeaponAttachments(out array<WeaponAttachment> Attachments)
+{}
+// End Issue #240
