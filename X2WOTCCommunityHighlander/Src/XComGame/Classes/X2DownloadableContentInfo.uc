@@ -431,6 +431,7 @@ static function UpdateHumanPawnMeshComponent(XComGameState_Unit UnitState, XComH
 }
 /// End Issue #216
 
+
 /// Start Issue #239
 /// <summary>
 /// Called from SeqAct_GetPawnFromSaveData.Activated
@@ -439,3 +440,10 @@ static function UpdateHumanPawnMeshComponent(XComGameState_Unit UnitState, XComH
 static function MatineeGetPawnFromSaveData(XComUnitPawn UnitPawn, XComGameState_Unit UnitState, XComGameState SearchState)
 {}
 /// End Issue #239
+
+/// Start Issue #240
+/// Called from XComGameState_Item:UpdateMeshMaterials:GetWeaponAttachments.
+/// This function gets called when the weapon attachemets are loaded for an item.
+static function UpdateWeaponAttachments(out array<WeaponAttachment> Attachments, XComGameState_Item ItemState)
+{}
+/// End Issue #240
