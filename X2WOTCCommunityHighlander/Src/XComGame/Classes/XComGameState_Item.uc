@@ -864,7 +864,7 @@ simulated function array<WeaponAttachment> GetWeaponAttachments(optional bool bG
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 	foreach DLCInfos(DLCInfo)
 	{
-		DLCInfo.UpdateWeaponAttachments(Attachments);
+		DLCInfo.UpdateWeaponAttachments(Attachments, self);
 	}
 	// End Issue #240
 
