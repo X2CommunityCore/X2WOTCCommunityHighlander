@@ -447,3 +447,10 @@ static function MatineeGetPawnFromSaveData(XComUnitPawn UnitPawn, XComGameState_
 static function UpdateWeaponAttachments(out array<WeaponAttachment> Attachments, XComGameState_Item ItemState)
 {}
 /// End Issue #240
+
+/// Start Issue #245
+/// Called from XGWeapon:Init.
+/// This function gets called when the weapon archetype is initialized.
+static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, optional XComGameState_Item ItemState=none)
+{}
+/// End Issue #245

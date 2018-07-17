@@ -28,7 +28,25 @@ simulated event PostBeginPlay()
 simulated function Init(optional XComGameState_Item ItemState=none)
 {
 	CreateEntity(ItemState);
+
+	// Start Issue #245
+	DLCInfoInit(ItemState);
+	// End Issue #245
 }
+
+// Start Issue #245
+simulated function DLCInfoInit(optional XComGameState_Item ItemState=none)
+{
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local X2DownloadableContentInfo DLCInfo;
+
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	foreach DLCInfos(DLCInfo)
+	{
+		DLCInfo.WeaponInitialized(self, XComWeapon(m_kEntity), ItemState);
+	}
+}
+// End Issue #245
 
 simulated function Actor CreateEntity(optional XComGameState_Item ItemState=none)
 {
