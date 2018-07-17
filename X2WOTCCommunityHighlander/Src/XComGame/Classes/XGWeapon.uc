@@ -10,7 +10,9 @@ class XGWeapon extends XGInventoryItem
 	native(Weapon);
 
 var protectedwrite TWeaponAppearance m_kAppearance;
-var private XComPatternsContent PatternsContent; 
+// Issue #246 deprivatize PatternsContent
+var protectedwrite XComPatternsContent PatternsContent; 
+// End Issue #246 
 var transient int NumPossibleTints;
 
 // HAX: This is needed because the UI depends on CreateEntity function, but we need to provide it
@@ -293,7 +295,7 @@ simulated private function UpdateMaterials(MeshComponent MeshComp)
 				UpdateWeaponMaterial(MeshComp, MIC);
 			}
 		}
-	}	
+	}
 }
 
 // Logic largely based off of UpdateArmorMaterial in XComHumanPawn
@@ -335,7 +337,25 @@ simulated function UpdateWeaponMaterial(MeshComponent MeshComp, MaterialInstance
 		MIC.SetScalarParameterValue('PatternUse', 0);
 		MIC.SetTextureParameterValue('Pattern', none);
 	}
+
+	// Start Issue #246
+	DLCInfoUpdateWeaponMaterial(MeshComp, MIC);
+	// End Issue #246
 }
+
+// Start Issue #246
+simulated function DLCInfoUpdateWeaponMaterial(MeshComponent MeshComp, MaterialInstanceConstant MIC)
+{
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local X2DownloadableContentInfo DLCInfo;
+
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	foreach DLCInfos(DLCInfo)
+	{
+		DLCInfo.UpdateWeaponMaterial(self, MeshComp, MIC);
+	}
+}
+// End Issue #246
 
 simulated function Actor CreateEntityFromWeaponState(XComGameState_Item WeaponState)
 {

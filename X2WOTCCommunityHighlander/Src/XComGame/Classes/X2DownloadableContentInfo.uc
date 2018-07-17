@@ -454,3 +454,10 @@ static function UpdateWeaponAttachments(out array<WeaponAttachment> Attachments,
 static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, optional XComGameState_Item ItemState=none)
 {}
 /// End Issue #245
+
+/// Start Issue #246
+/// Called from XGWeapon:UpdateWeaponMaterial.
+/// This function gets called when the weapon material is updated.
+static function UpdateWeaponMaterial(XGWeapon WeaponArchetype, MeshComponent MeshComp, MaterialInstanceConstant MIC)
+{}
+/// End Issue #246
