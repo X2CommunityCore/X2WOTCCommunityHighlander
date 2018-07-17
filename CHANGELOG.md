@@ -115,6 +115,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   difficulty selection (UIShellDifficulty) (#148)
 - `GetNumUtilitySlotsOverride` and `GetNumHeavyWeaponSlotsOverride` added to allow mods to override the numer of available slots (#171)
 - `OverrideItemImage` added to conditionally change the loadout image of an item (#171)
+- `MatineeGetPawnFromSaveData` added to allow manipulation of the shell screen matinee (#240)
+- `UpdateWeaponAttachments` added to allow manipulation weapon attachments at runtime (#239)
 - `WeaponInitialized` added to conditionally change the weapon archetype on initialization (#245)
 - `UpdateWeaponMaterial` added to conditionally change the weapon materials(#246)
 
