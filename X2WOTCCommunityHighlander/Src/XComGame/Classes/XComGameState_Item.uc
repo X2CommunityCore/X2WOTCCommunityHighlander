@@ -795,9 +795,6 @@ simulated function array<WeaponAttachment> GetWeaponAttachments(optional bool bG
 	local bool bReplaced;
 	local delegate<X2TacticalGameRulesetDataStructures.CheckUpgradeStatus> ValidateAttachmentFn;
 	local XComGameState_Unit OwnerState;
-	// variables for Issue #240
-	local array<X2DownloadableContentInfo> DLCInfos;
-	local X2DownloadableContentInfo DLCInfo;
 
 	WeaponTemplate = X2WeaponTemplate(GetMyTemplate());
 	if (WeaponTemplate != none)
@@ -859,15 +856,6 @@ simulated function array<WeaponAttachment> GetWeaponAttachments(optional bool bG
 			}
 		}
 	}
-
-	// Start Issue #240
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
-	foreach DLCInfos(DLCInfo)
-	{
-		DLCInfo.UpdateWeaponAttachments(Attachments, self);
-	}
-	// End Issue #240
-
 	return Attachments;
 }
 
