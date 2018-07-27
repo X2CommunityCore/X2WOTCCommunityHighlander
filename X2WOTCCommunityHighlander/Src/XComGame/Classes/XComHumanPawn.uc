@@ -160,13 +160,21 @@ static simulated function name GetUnderlayName(bool bUseUnderlay, TAppearance kA
 {
 	if (bUseUnderlay)
 	{
-		if (kAppearance.iGender <= 1)
+		// issue #251 - use torso underlay if we have one
+		if(kAppearance.nmTorso_Underlay == '')
 		{
-			return 'Clerk_Std_Torsos_A_M';
+			if (kAppearance.iGender <= 1)
+			{
+				return 'Clerk_Std_Torsos_A_M';
+			}
+			else
+			{
+				return 'Clerk_Std_A_F';
+			}
 		}
 		else
 		{
-			return 'Clerk_Std_A_F';
+			return kAppearance.nmTorso_Underlay;
 		}
 	}
 
@@ -261,8 +269,8 @@ simulated function RequestFullPawnContent()
 			PawnContentRequests.AddItem(kRequest);
 		}
 
-
-		if ((UnitState == none || UnitState.GetMyTemplateName() != 'Clerk') && !bShouldUseUnderlay && m_kAppearance.nmArms != '')
+		// issue #251 - make arms use underlay if appriopriate
+		if ((UnitState == none || UnitState.GetMyTemplateName() != 'Clerk') && ( (!bShouldUseUnderlay && m_kAppearance.nmArms != '') || (bShouldUseUnderlay && m_kAppearance.nmArms_Underlay != '') ) )
 		{
 			kRequest.ContentCategory = 'Arms';
 			kRequest.TemplateName = bShouldUseUnderlay ? m_kAppearance.nmArms_Underlay : m_kAppearance.nmArms;
@@ -318,7 +326,8 @@ simulated function RequestFullPawnContent()
 			PawnContentRequests.AddItem(kRequest);
 		}
 
-		if ((UnitState == none || UnitState.GetMyTemplateName() != 'Clerk') && !bShouldUseUnderlay && m_kAppearance.nmLegs != '')
+		// issue #251 - make legs use underlay if appriopriate
+		if ((UnitState == none || UnitState.GetMyTemplateName() != 'Clerk') && ( (!bShouldUseUnderlay && m_kAppearance.nmLegs != '') || (bShouldUseUnderlay && m_kAppearance.nmLegs_Underlay != '') ) )
 		{
 			kRequest.ContentCategory = 'Legs';
 			kRequest.TemplateName = bShouldUseUnderlay ? m_kAppearance.nmLegs_Underlay : m_kAppearance.nmLegs;
