@@ -1502,14 +1502,7 @@ function PostCreateInit(XComGameState NewGameState, X2CharacterTemplate kTemplat
 
 	if( PerformAIUpdate )
 	{
-		if(GetTeam() != eTeam_One && GetTeam() != eTeam_Two){
 		XGAIPlayer(XGBattle_SP(`BATTLE).GetAIPlayer()).AddNewSpawnAIData(NewGameState);
-		}
-		else
-		{
-		XGAIPlayer(XGPlayer(PlayerState.GetVisualizer())).AddNewSpawnAIData(NewGameState);
-		}
-		
 	}
 
 	if( GetTeam() == eTeam_Alien )
@@ -6173,26 +6166,17 @@ protected function OnUnitDied(XComGameState NewGameState, Object CauseOfDeath, c
 	{
 		Killer = XComGameState_Unit(History.GetGameStateForObjectID(Killer.GhostSourceUnit.ObjectID));
 	}
-	//issue #221 - let any kill be tracked no matter what unit made the kill, as long as a killer exists
-	if(Killer != none)
-	{
-		Killer = XComGameState_Unit(NewGameState.ModifyStateObject(Killer.Class, Killer.ObjectID));
-		Killer.KilledUnits.AddItem(GetReference());
-		Killer.KillCount += GetMyTemplate().KillContribution; // Allows specific units to contribute different amounts to the kill total
-	}
-	//end issue #221
-	if( GetTeam() == eTeam_Alien || GetTeam() == eTeam_TheLost || GetTeam() == eTeam_One || GetTeam() == eTeam_Two) //issue #188 - let eTeam_One and eTeam_Two units count as enemies when they die
+
+	if( GetTeam() == eTeam_Alien || GetTeam() == eTeam_TheLost )
 	{
 		if( SourceStateObjectRef.ObjectID != 0 )
 		{	
 			if (Killer != none && Killer.CanEarnXp())
 			{
-				/* issue #221 - move this section out of this check so all units track kill counts
 				Killer = XComGameState_Unit(NewGameState.ModifyStateObject(Killer.Class, Killer.ObjectID));
 				Killer.KilledUnits.AddItem(GetReference());
 				Killer.KillCount += GetMyTemplate().KillContribution; // Allows specific units to contribute different amounts to the kill total
-				*/ 
-				//end issue #221
+
 				// If the Wet Work GTS bonus is active, increment the Wet Work kill counter
 				XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom', true));
 				if(XComHQ != none)
@@ -9307,15 +9291,12 @@ static function UnitAGainsKnowledgeOfUnitB(XComGameState_Unit UnitA, XComGameSta
 	local bool bGainedRedAlert;
 	local bool bAlertDataSuccessfullyAdded;
 	local ETeam UnitATeam, UnitBTeam;
-	local XComLWTuple OverrideTuple; //issue #188 variables
-	local bool OverrideAlertReq;
-	
+
 	if (UnitB == none)
 		return;
 
 	if( AlertCause != eAC_None )
 	{
-		OverrideAlertReq = false;
 		History = `XCOMHISTORY;
 		UnitB.GetKeystoneVisibilityLocation(AlertInfo.AlertTileLocation);
 		AlertInfo.AlertUnitSourceID = UnitB.ObjectID;
@@ -9338,17 +9319,9 @@ static function UnitAGainsKnowledgeOfUnitB(XComGameState_Unit UnitA, XComGameSta
 		{
 			return;
 		}
-		//issue #188 - set up a Tuple for return value
-		OverrideTuple = new class'XComLWTuple';
-		OverrideTuple.Id = 'OverrideAIAlertReq';
-		OverrideTuple.Data.Add(2);
-		OverrideTuple.Data[0].kind = XComLWTVBool;
-		OverrideTuple.Data[0].b = OverrideAlertReq;
-		OverrideTuple.Data[1].kind = XComLWTVObject;
-		OverrideTuple.Data[1].o = UnitB; //this is the instigator or cause of the alert: the event trigger sends the unit receiving the alert
-		`XEVENTMGR.TriggerEvent('OverrideAIAlertReq', OverrideTuple, UnitA, AlertInstigatingGameState);
+
 		// no knowledge updates for The Lost
-		if( UnitATeam != eTeam_TheLost && UnitBTeam != eTeam_TheLost && !OverrideAlertReq)
+		if( UnitATeam != eTeam_TheLost && UnitBTeam != eTeam_TheLost )
 		{
 			bAlertDataSuccessfullyAdded = UnitA.UpdateAlertData(AlertCause, AlertInfo);
 		}
@@ -10265,14 +10238,7 @@ function ApplySquaddieLoadout(XComGameState GameState, optional XComGameState_He
 	local array<XComGameState_Item> UtilityItems;
 	local int i;
 
-	//Variable for Issue #232
-	local X2EventManager EventMgr;
-
 	`assert(GameState != none);
-
-	// Issue #232 start
-	EventMgr = `XEVENTMGR;
-	// Issue #232 end
 
 	SquaddieLoadout = GetSoldierClassTemplate().SquaddieLoadout;
 	ItemTemplateMan = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
@@ -10355,9 +10321,6 @@ function ApplySquaddieLoadout(XComGameState GameState, optional XComGameState_He
 				}
 
 				AddItemToInventory(ItemState, ItemTemplate.InventorySlot, GameState);
-				// Issue #232 start
-				EventMgr.TriggerEvent('SquaddieItemStateApplied', ItemState, self, GameState);
-				// Issue #232 end
 			}
 			else
 			{
