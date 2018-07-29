@@ -43,6 +43,25 @@ simulated function ApplyCost(XComGameStateContext_Ability AbilityContext, XComGa
 	}
 }
 
+// Start Issue #257, also see CHHelpers for Issue #257
+// Add or set the preview cost.
+// Return true to indicate that the out TotalPreviewCost should be returned immediately from XComGameState_Ability::GetFocusCost
+simulated function bool PreviewFocusCost(XComGameState_Unit UnitState, XComGameState_Ability AbilityState, out int TotalPreviewCost)
+{
+	if (GhostOnlyCost && UnitState.GhostSourceUnit.ObjectID == 0)
+		return false;
+
+	if (ConsumeAllFocus && UnitState.GetTemplarFocusLevel() != 0)
+	{
+		TotalPreviewCost = UnitState.GetTemplarFocusLevel();
+		return true;
+	}
+
+	TotalPreviewCost += FocusAmount;
+	return false;
+}
+// End Issue #257
+
 DefaultProperties
 {
 	FocusAmount = 1;

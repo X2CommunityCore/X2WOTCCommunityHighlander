@@ -665,7 +665,8 @@ simulated function SetAim(int aimPercent)
 
 simulated function RealizeHitPoints(optional XComGameState_Unit NewUnitState = none)
 {
-	local XComGameState_Effect_TemplarFocus FocusState;
+	// Issue #257, not needed
+	// local XComGameState_Effect_TemplarFocus FocusState; 
 	local XComGameState_Unit PreviousUnitState;
 	local int PreviousWill;
 	
@@ -685,11 +686,14 @@ simulated function RealizeHitPoints(optional XComGameState_Unit NewUnitState = n
 	SetArmorPoints(NewUnitState.GetArmorMitigationForUnitFlag());
 	SetWillPoints(NewUnitState.GetCurrentStat(eStat_Will), NewUnitState.GetMaxStat(eStat_Will), PreviousWill);
 
-	FocusState = NewUnitState.GetTemplarFocusEffectState();
-	if( FocusState != none )
-	{
-		SetFocusPoints(FocusState.FocusLevel, FocusState.GetMaxFocus(NewUnitState));
-	}
+	// Start Issue #257
+	// FocusState = NewUnitState.GetTemplarFocusEffectState();
+	// if( FocusState != none )
+	// {
+	//	SetFocusPoints(FocusState.FocusLevel, FocusState.GetMaxFocus(NewUnitState));
+	// }
+	RealizeFocusMeter(NewUnitState);
+	// End Issue #257
 
 	//Needs to be called after changes are made to will or focus level. This should be after all changes are made to minimize calls.
 	RealizeMeterPosition();
@@ -884,23 +888,32 @@ simulated function SetWillPoints(int _currentWill, int _maxWill, int _previousWi
 	}
 }
 
+// Start Issue #257 -- deprecated, 
 simulated function SetFocusPoints(int _currentFocus, int _maxFocus)
+{
+	RealizeFocusMeter(XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(StoredObjectID)));
+}
+
+simulated function RealizeFocusMeter(XComGameState_Unit UnitState)
 {
 	local ASValue myValue;
 	local Array<ASValue> myArray;
+	local XComLWTuple Tup;
 
-	if( m_bIsFriendly.GetValue() ) // Only show focus on friendly units
-	{
-		myValue.Type = AS_Number;
-		myValue.n = _currentFocus;
-		myArray.AddItem(myValue);
-		myValue.Type = AS_Number;
-		myValue.n = _maxFocus;
-		myArray.AddItem(myValue);
+	Tup = class'CHHelpers'.static.GetFocusTuple(UnitState);
 
-		Invoke("SetFocusPoints", myArray);
-	}
+	myValue.Type = AS_Number;
+	myValue.n = Tup.Data[0].b ? float(Tup.Data[1].i) : -1.0f;
+	myArray.AddItem(myValue);
+	myValue.Type = AS_Number;
+	myValue.n = Tup.Data[2].i;
+	myArray.AddItem(myValue);
+
+	Invoke("SetFocusPoints", myArray);
+
+	AS_SetMCColor(MCPath$".healthAnchor.focusMeter.theMeter", Tup.Data[3].s);
 }
+// End Issue #257
 
 
 simulated function SetHitPointsPreview(optional int _iPossibleDamage = 0)
