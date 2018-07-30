@@ -7,7 +7,7 @@
 //  Copyright (c) 2016 Firaxis Games, Inc. All rights reserved.
 //--------------------------------------------------------------------------------------- 
 
-class UITacticalHUD_SoldierInfo extends UIPanel;
+class UITacticalHUD_SoldierInfo extends UIPanel implements(X2VisualizationMgrObserverInterface); // Issue #257 -- correct update calls
 
 var string HackingToolTipTargetPath;
 var localized string FocusLevelLabel;
@@ -37,6 +37,8 @@ simulated function OnInit()
 	WorldInfo.MyWatchVariableMgr.RegisterWatchVariable( XComTacticalController(PC), 'm_kActiveUnit', self, UpdateStats);
 	WorldInfo.MyWatchVariableMgr.RegisterWatchVariable( UITacticalHUD(screen), 'm_isMenuRaised', self, UpdateStats);
 	WorldInfo.MyWatchVariableMgr.RegisterWatchVariable( XComPresentationLayer(Movie.Pres), 'm_kInventoryTactical', self, UpdateStats);
+
+	`XCOMVISUALIZATIONMGR.RegisterObserver(self); // Issue #257
 
 	HackingToolTipTargetPath = MCPath$".HackingInfoGroup.HackingInfo";
 	FocusToolTipTargetPath = MCPath$".FocusLevel";
@@ -417,6 +419,17 @@ public function AS_SetBondInfo(int BondLevel, bool bOnMission)
 	MC.QueueBoolean(bOnMission);
 	MC.EndOp();
 }
+
+// Start Issue #257 -- Better update calls
+event OnVisualizationBlockComplete(XComGameState AssociatedGameState)
+{
+	LastVisibleActiveUnitID = 0;
+	UpdateStats();
+}
+
+event OnActiveUnitChanged(XComGameState_Unit NewActiveUnit);
+event OnVisualizationIdle();
+// End Issue #257
 
 defaultproperties
 {
