@@ -50,7 +50,7 @@ simulated function OnInit()
 	// Start Issue #257
 	IconImage = Spawn(class'UIImage', self).InitImage();
 	IconImage.OriginCenter();
-	IconImage.SetPosition(49, -128);
+	IconImage.SetPosition(49, -126);
 	IconImage.Hide();
 	// End Issue #257
 }
