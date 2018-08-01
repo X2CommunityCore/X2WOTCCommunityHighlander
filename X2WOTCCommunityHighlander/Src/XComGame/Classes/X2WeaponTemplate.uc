@@ -201,6 +201,7 @@ function string GetLocalizedCategory()
 function int GetUIStatMarkup(ECharStatType Stat, optional XComGameState_Item Weapon)
 {
 	local int BonusAim, BonusCrit;
+	local int BonusPierce; // Issue #237
 	local EUISummary_WeaponStats UpgradeBonuses;
 
 	if (Stat == eStat_Offense)
@@ -232,6 +233,24 @@ function int GetUIStatMarkup(ECharStatType Stat, optional XComGameState_Item Wea
 		}
 		return super.GetUIStatMarkup(Stat) + BonusCrit;
 	}
+
+	// Issue #237 start
+	// ECharStatType doesn't have entries for damage, crit damage, or shred. @TODO: fix the enum definition if this proves to be doable
+	if (Stat == eStat_ArmorPiercing)
+	{
+		BonusPierce = BaseDamage.Pierce;
+		if (Weapon != none)
+		{
+			// We don't care about the stats from the template, we only care about the weapon upgrades (hence we pass none here)
+			UpgradeBonuses = Weapon.GetUpgradeModifiersForUI(none);
+			if (UpgradeBonuses.bIsPierceModified)
+			{
+				BonusPierce += UpgradeBonuses.DamageValue.Pierce;
+			}
+		}
+		return super.GetUIStatMarkup(Stat) + BonusPierce;
+	}
+	// Issue #237 end
 
 	return super.GetUIStatMarkup(Stat);
 }
