@@ -731,45 +731,29 @@ static function CheckToUpgradeItems(XComGameState NewGameState, XComGameState_Un
 	{
 		if (EquippedItemState != none)
 		{
-			UpgradedItemTemplate = ItemMgr.GetUpgradedItemTemplateFromBase(EquippedItemState.GetMyTemplateName());
+			UpgradedItemTemplate = EquippedItemState.GetMyTemplate();
+			XComHQ.UpdateItemTemplateToHighestAvailableUpgrade(UpgradedItemTemplate);
 			
-			if (UpgradedItemTemplate != none)
+			if (UpgradedItemTemplate != EquippedItemState.GetMyTemplate())
 			{
-				// This gets crazy to read. If HQ has the upgrade, check for a further upgrade.
-				// If HQ has the further upgrade, that is the new upgrade. Repeat until none or HQ doesn't have the further upgrade.
-				// For vanilla and most mods, there is a soft maximum of 1 FurtherUpgradedItemTemplate, but future mods may have more.
-				if (XComHQ.HasItem(UpgradedItemTemplate))
+				UpgradedItemState = UpgradedItemTemplate.CreateInstanceFromTemplate(NewGameState);
+				UpgradedItemState.WeaponAppearance = EquippedItemState.WeaponAppearance;
+				UpgradedItemState.Nickname = EquippedItemState.Nickname;
+				InventorySlot = EquippedItemState.InventorySlot; // save the slot location for the new item
+					
+				// Remove the old item from the soldier and transfer over all weapon upgrades to the new item
+				UnitState.RemoveItemFromInventory(EquippedItemState, NewGameState);
+				WeaponUpgrades = EquippedItemState.GetMyWeaponUpgradeTemplates();
+				foreach WeaponUpgrades(WeaponUpgradeTemplate)
 				{
-					FurtherUpgradedItemTemplate = ItemMgr.GetUpgradedItemTemplateFromBase(UpgradedItemTemplate.DataName);
-					
-					while (FurtherUpgradedItemTemplate != none)
-					{
-						if (XComHQ.HasItem(FurtherUpgradedItemTemplate))
-						{
-							UpgradedItemTemplate = FurtherUpgradedItemTemplate;
-							FurtherUpgradedItemTemplate = ItemMgr.GetUpgradedItemTemplateFromBase(UpgradedItemTemplate.DataName);
-						}
-					}
-
-					UpgradedItemState = UpgradedItemTemplate.CreateInstanceFromTemplate(NewGameState);
-					UpgradedItemState.WeaponAppearance = EquippedItemState.WeaponAppearance;
-					UpgradedItemState.Nickname = EquippedItemState.Nickname;
-					InventorySlot = EquippedItemState.InventorySlot; // save the slot location for the new item
-					
-					// Remove the old item from the soldier and transfer over all weapon upgrades to the new item
-					UnitState.RemoveItemFromInventory(EquippedItemState, NewGameState);
-					WeaponUpgrades = EquippedItemState.GetMyWeaponUpgradeTemplates();
-					foreach WeaponUpgrades(WeaponUpgradeTemplate)
-					{
-						UpgradedItemState.ApplyWeaponUpgradeTemplate(WeaponUpgradeTemplate);
-					}
-
-					// Delete the old item
-					NewGameState.RemoveStateObject(EquippedItemState.GetReference().ObjectID);
-
-					// Then add the new item to the soldier in the same slot
-					UnitState.AddItemToInventory(UpgradedItemState, InventorySlot, NewGameState);
+					UpgradedItemState.ApplyWeaponUpgradeTemplate(WeaponUpgradeTemplate);
 				}
+
+				// Delete the old item
+				NewGameState.RemoveStateObject(EquippedItemState.GetReference().ObjectID);
+
+				// Then add the new item to the soldier in the same slot
+				UnitState.AddItemToInventory(UpgradedItemState, InventorySlot, NewGameState);
 			}
 		}
 	}
