@@ -723,7 +723,6 @@ static function CheckToUpgradeItems(XComGameState NewGameState, XComGameState_Un
 	local EInventorySlot InventorySlot;
 
 	XComHQ = `XCOMHQ;
-	ItemMgr = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
 	AllEquippedItems = UnitState.GetAllInventoryItems(NewGameState, true);
 
 	foreach AllEquippedItems(EquippedItemState)
