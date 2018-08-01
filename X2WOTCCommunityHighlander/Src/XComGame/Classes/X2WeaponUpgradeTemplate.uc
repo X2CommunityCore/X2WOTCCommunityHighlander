@@ -11,11 +11,15 @@ var int FreeFireChance;		// chance out of 100 that the action will be free
 var int NumFreeReloads;		// setting to 0 or less will mean no limit
 var WeaponDamageValue BonusDamage;			// amount of bonus damage on shots that allow for it
 var WeaponDamageValue CHBonusDamage;		// Issue #237 - secondary amount of bonus damage, more general purpose than the miss-damage-only BonusDamage
+
 var int FreeKillChance;		// chance out of 100 that a damaging shot will become an automatic kill
 
 var array<name> MutuallyExclusiveUpgrades; // upgrades which cannot be equipped at the same time as any of the others
 							
 var array<name> BonusAbilities;         //  abilities granted to the unit when this upgrade is on an item in its inventory
+
+// Issue #260 variable
+var array<name> UpgradeCats;	// Mods can add weapon categories to this array and then check it from CanWeaponApplyUpgradeFn or CanApplyUpgradeToWeaponFn for simplified checking of template categories
 
 var delegate<CanApplyUpgradeToWeaponDelegate>			CanApplyUpgradeToWeaponFn;
 var delegate<AddCritChanceModifierDelegate>				AddCritChanceModifierFn;
@@ -27,6 +31,7 @@ var delegate<FreeKillDelegate>							FreeKillFn;
 var delegate<FriendlyRenameAbilityDelegate>             FriendlyRenameFn;
 var delegate<GetBonusAmountDelegate>					GetBonusAmountFn;
 var delegate<AddCHDamageModifierDelegate>				AddCHDamageModifierFn; // Issue #237
+
 
 delegate bool CanApplyUpgradeToWeaponDelegate(X2WeaponUpgradeTemplate UpgradeTemplate, XComGameState_Item Weapon, int SlotIndex);
 delegate bool AddCritChanceModifierDelegate(X2WeaponUpgradeTemplate UpgradeTemplate, out int CritChanceMod);
