@@ -80,6 +80,10 @@ var protectedwrite array<AbilityIconOverride> AbilityIconOverrides;
 var() array<AbilityAnimationOverride>		AbilitySpecificAnimations;
 var() bool             bHideWithNoAmmo <ToolTip="If true, the weapon mesh will be hidden upon loading a save if it has no ammo.">;
 
+// Issue #260 variables
+var delegate<CanWeaponApplyUpgradeDelegate>			CanWeaponApplyUpgradeFn;
+delegate bool CanWeaponApplyUpgradeDelegate(X2WeaponUpgradeTemplate UpgradeTemplate, XComGameState_Item Weapon, int SlotIndex);
+
 native function Name GetAnimationNameFromAbilityName(Name AbilityName);
 native function SetAnimationNameForAbility(Name AbilityName, Name AnimationName);
 
@@ -260,6 +264,18 @@ function string DetermineGameArchetypeForUnit(XComGameState_Item ItemState, XCom
 	}
 	return UseArchetype;
 }
+
+// Issue #260 start
+function bool CanWeaponApplyUpgrade(X2WeaponUpgradeTemplate UpgradeTemplate, XComGameState_Item Weapon, optional int SlotIndex = 0)
+{
+	if (CanWeaponApplyUpgradeFn != none)
+	{
+		return CanWeaponApplyUpgradeFn(UpgradeTemplate, Weapon, SlotIndex);
+	}
+
+	return true;
+}
+// Issue #260 end
 
 DefaultProperties
 {
