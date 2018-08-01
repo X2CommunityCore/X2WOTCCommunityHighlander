@@ -19,7 +19,7 @@ var array<name> MutuallyExclusiveUpgrades; // upgrades which cannot be equipped 
 var array<name> BonusAbilities;         //  abilities granted to the unit when this upgrade is on an item in its inventory
 
 // Issue #260 variable
-var array<name> UpgradeCats;	// Mods can add weapon categories to this array and then check it from CanWeaponApplyUpgradeFn or CanApplyUpgradeToWeaponFn for simplified checking of template categories
+var array<name> UpgradeCats;	// Mods can add names to this, which can then be checked in CanApplyUpgradeToWeaponFn or CanWeaponApplyUpgradeFn to ease the checking of whether or not upgrades can be applied
 
 var delegate<CanApplyUpgradeToWeaponDelegate>			CanApplyUpgradeToWeaponFn;
 var delegate<AddCritChanceModifierDelegate>				AddCritChanceModifierFn;
@@ -31,7 +31,6 @@ var delegate<FreeKillDelegate>							FreeKillFn;
 var delegate<FriendlyRenameAbilityDelegate>             FriendlyRenameFn;
 var delegate<GetBonusAmountDelegate>					GetBonusAmountFn;
 var delegate<AddCHDamageModifierDelegate>				AddCHDamageModifierFn; // Issue #237
-
 
 delegate bool CanApplyUpgradeToWeaponDelegate(X2WeaponUpgradeTemplate UpgradeTemplate, XComGameState_Item Weapon, int SlotIndex);
 delegate bool AddCritChanceModifierDelegate(X2WeaponUpgradeTemplate UpgradeTemplate, out int CritChanceMod);
