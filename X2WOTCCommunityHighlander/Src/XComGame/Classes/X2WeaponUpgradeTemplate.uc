@@ -18,9 +18,6 @@ var array<name> MutuallyExclusiveUpgrades; // upgrades which cannot be equipped 
 							
 var array<name> BonusAbilities;         //  abilities granted to the unit when this upgrade is on an item in its inventory
 
-// Issue #260 variable
-var array<name> UpgradeCats;	// Mods can add names to this, which can then be checked in CanApplyUpgradeToWeaponFn or CanWeaponApplyUpgradeFn to ease the checking of whether or not upgrades can be applied
-
 var delegate<CanApplyUpgradeToWeaponDelegate>			CanApplyUpgradeToWeaponFn;
 var delegate<AddCritChanceModifierDelegate>				AddCritChanceModifierFn;
 var delegate<AddHitChanceModifierDelegate>				AddHitChanceModifierFn;
