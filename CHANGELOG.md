@@ -68,6 +68,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `ModifyEnvironmentDamage` to modify environment damage (#200)
 - `OverrideKilledByExplosion` to allow mods to override the
   "was killed by explosion" flag (#202)
+- `OverrideUnitFocusUI` to allow mods to show their own "focus"
+  type using the Templar focus UI (#257)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
