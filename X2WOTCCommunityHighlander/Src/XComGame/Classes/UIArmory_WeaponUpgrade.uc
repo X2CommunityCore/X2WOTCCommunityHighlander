@@ -300,7 +300,7 @@ simulated function UpdateUpgrades()
 			continue;
 		
 		Upgrade.Item = Item;
-		Upgrade.bCanBeEquipped = X2WeaponUpgradeTemplate(Item.GetMyTemplate()).CanApplyUpgradeToWeapon(Weapon, SlotIndex) && Weapon.CanWeaponApplyUpgrade(Item.GetMyTemplate()); // Issue #260
+		Upgrade.bCanBeEquipped = X2WeaponUpgradeTemplate(Item.GetMyTemplate()).CanApplyUpgradeToWeapon(Weapon, SlotIndex) && Weapon.CanWeaponApplyUpgrade(X2WeaponUpgradeTemplate(Item.GetMyTemplate())); // Issue #260
 		Upgrade.DisabledReason = Upgrade.bCanBeEquipped ? "" : class'UIUtilities_Text'.static.GetColoredText(m_strInvalidUpgrade, eUIState_Bad);
 
 		AvailableUpgrades.AddItem(Upgrade);
