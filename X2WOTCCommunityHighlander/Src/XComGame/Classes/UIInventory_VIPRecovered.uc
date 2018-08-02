@@ -135,7 +135,7 @@ simulated function CreateVIPPawn(XComGameState_Unit Unit)
 
 	//set up a Tuple for return value
 	OverrideTuple = new class'XComLWTuple';
-	OverrideTuple.Id = 'OverrideUIArmoryScale';
+	OverrideTuple.Id = 'OverrideUIVIPScale';
 	OverrideTuple.Data.Add(3);
 	OverrideTuple.Data[0].kind = XComLWTVBool;
 	OverrideTuple.Data[0].b = false;
@@ -143,7 +143,7 @@ simulated function CreateVIPPawn(XComGameState_Unit Unit)
 	OverrideTuple.Data[1].f = CustomScale;
 	OverrideTuple.Data[2].kind = XComLWTVObject;
 	OverrideTuple.Data[2].o = Unit;
-	`XEVENTMGR.TriggerEvent('OverrideUIArmoryScale', Tuple);
+	`XEVENTMGR.TriggerEvent('OverrideUIVIPScale', Tuple);
 	
 	//if the unit should use the large armory scale by default, then either they'll use the default scale
 	//or a custom one given by a mod according to their character template
