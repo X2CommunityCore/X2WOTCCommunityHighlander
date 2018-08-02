@@ -2049,6 +2049,7 @@ function bool IsMissionObjectiveItem()
 // X2WeaponUpgradeTemplate::CanApplyUpgradeToWeapon still exists as the "can this upgrade be applied to this weapon RIGHT NOW?"
 function bool CanWeaponApplyUpgrade(X2WeaponUpgradeTemplate UpgradeTemplate)
 {
+	local int i;
 	local array<X2DownloadableContentInfo> DLCInfos;
 	
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
