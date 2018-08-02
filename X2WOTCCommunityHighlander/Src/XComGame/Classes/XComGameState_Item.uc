@@ -2044,6 +2044,25 @@ function bool IsMissionObjectiveItem()
 	return false;
 }
 
+// Issue #260 start
+// This function will be used to cycle through DLCInfos that will allow mods to check generally whether or not a weapon is compatible with an upgrade
+// X2WeaponUpgradeTemplate::CanApplyUpgradeToWeapon still exists as the "can this upgrade be applied to this weapon RIGHT NOW?"
+function bool CanWeaponApplyUpgrade(X2WeaponUpgradeTemplate UpgradeTemplate)
+{
+	local array<X2DownloadableContentInfo> DLCInfos;
+	
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	for(i = 0; i < DLCInfos.Length; ++i)
+	{
+		if (!DLCInfos[i].CanWeaponApplyUpgrade(self, UpgradeTemplate))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+// Issue #260 end
+
 DefaultProperties
 {
 	Quantity=1
