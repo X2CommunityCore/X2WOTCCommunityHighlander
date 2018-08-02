@@ -291,30 +291,29 @@ simulated function CreateSoldierPawn(optional Rotator DesiredRotation)
 	RequestPawn(DesiredRotation);
 	LoadSoldierEquipment();
 	
-	if(GetUnit().UseLargeArmoryScale())
+	//start issue #229: instead of boolean check, always trigger event to check if we should use custom unit scale.
+	CustomScale = GetUnit().UseLargeArmoryScale() ? LargeUnitScale : 1.0f;
+
+	//set up a Tuple for return value
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideUIArmoryScale';
+	OverrideTuple.Data.Add(3);
+	OverrideTuple.Data[0].kind = XComLWTVBool;
+	OverrideTuple.Data[0].b = false;
+	OverrideTuple.Data[1].kind = XComLWTVFloat;
+	OverrideTuple.Data[1].f = CustomScale;
+	OverrideTuple.Data[2].kind = XComLWTVObject;
+	OverrideTuple.Data[2].o = GetUnit();
+	`XEVENTMGR.TriggerEvent('OverrideUIArmoryScale', Tuple);
+	
+	//if the unit should use the large armory scale by default, then either they'll use the default scale
+	//or a custom one given by a mod according to their character template
+	if(OverrideTuple.Data[0].b || GetUnit().UseLargeArmoryScale()) 
 	{
-		// start issue #229: trigger event to see if we should use custom unit scale
-		//set up a Tuple for return value
-		OverrideTuple = new class'XComLWTuple';
-		OverrideTuple.Id = 'OverrideUIArmoryScale';
-		OverrideTuple.Data.Add(2);
-		// XComLWTuple does not have a Byte kind
-		OverrideTuple.Data[0].kind = XComLWTVBool;
-		OverrideTuple.Data[0].b = false;
-		OverrideTuple.Data[1].kind = XComLWTVFloat;
-		OverrideTuple.Data[1].f = CustomScale;
-		`XEVENTMGR.TriggerEvent('OverrideUIArmoryScale', Tuple);
-		
-		if(OverrideTuple.Data[0].b)
-		{
-			CustomScale = OverrideTuple.Data[1].f;
-			XComUnitPawn(ActorPawn).Mesh.SetScale(CustomScale);
-		}
-		else
-		{
-			XComUnitPawn(ActorPawn).Mesh.SetScale(LargeUnitScale);
-		}
+		CustomScale = OverrideTuple.Data[1].f;
+		XComUnitPawn(ActorPawn).Mesh.SetScale(CustomScale);
 	}
+	//end issue #229
 
 	// Prevent the pawn from obstructing mouse raycasts that are used to determine the position of the mouse cursor in 3D screens.
 	XComHumanPawn(ActorPawn).bIgnoreFor3DCursorCollision = true;
