@@ -1489,11 +1489,7 @@ simulated function EUISummary_WeaponStats GetUpgradeModifiersForUI(X2WeaponUpgra
 
 	WeaponUpgrades = GetMyWeaponUpgradeTemplates();
 
-	// Issue #237
-	// Only add this upgrade if it's not already on the item, so we don't double up on stats when hovering on UIArmory_WeaponUpgradeItem
-	// We don't have to worry about UIArmory_WeaponUpgrade (the screen where you choose an upgrade to apply to a slot)
-	// because it explicitly deletes the existing template before visualizing the new upgrade, which does our job for us
-	if(UpgradeTemplate != none && WeaponUpgrades.Find(UpgradeTemplate) != INDEX_NONE)
+	if(UpgradeTemplate != none && WeaponUpgrades.Find(UpgradeTemplate) == INDEX_NONE)	// Issue #237 - Only add this upgrade if it's not already on the item
 		WeaponUpgrades.AddItem(UpgradeTemplate);
 
 	for(i = 0; i < WeaponUpgrades.Length; ++i)
