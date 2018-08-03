@@ -8,6 +8,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Mod/DLC Hooks
 - `GetDLCEventInfo` allows mods to add their own events for the Geoscape Event
   List (#112)
+- `CanWeaponApplyUpgrade` allows mods to restrict what upgrades can be applied
+  to a specific weapon (#260)
 
 ### Event Hooks
 - Triggers the event `OnArmoryMainMenuUpdate` that allows adding elements into
