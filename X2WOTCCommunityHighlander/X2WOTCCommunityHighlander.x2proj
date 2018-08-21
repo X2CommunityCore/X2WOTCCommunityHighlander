@@ -120,6 +120,9 @@
     <Content Include="Src\XComGame\Classes\UIArmory_PromotionPsiOp.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIArmory_WeaponUpgrade.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIAvengerShortcuts.uc">
       <SubType>Content</SubType>
     </Content>
@@ -130,6 +133,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UICovertActionStaffSlot.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIDebugItems.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIHackingScreen.uc">
@@ -258,6 +264,9 @@
     <Content Include="Src\XComGame\Classes\X2WeaponTemplate.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2WeaponUpgradeTemplate.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComAutosaveMgr.uc">
       <SubType>Content</SubType>
     </Content>
@@ -304,6 +313,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameStateContext_WillRoll.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComTacticalCheatManager.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComTacticalMissionManager.uc">

@@ -461,3 +461,17 @@ static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, o
 static function UpdateWeaponMaterial(XGWeapon WeaponArchetype, MeshComponent MeshComp, MaterialInstanceConstant MIC)
 {}
 /// End Issue #246
+
+/// Start Issue #260
+/// Called from XComGameState_Item:CanWeaponApplyUpgrade.
+/// Allows weapons to specify whether or not they will accept a given upgrade.
+/// Should be used to answer the question "is this upgrade compatible with this weapon in general?"
+/// For whether or not other upgrades conflict or other "right now" concerns, X2WeaponUpgradeTemplate:CanApplyUpgradeToWeapon already exists
+/// It is suggested you explicitly check for your weapon templates, so as not to accidentally catch someone else's templates.
+/// - e.g. Even if you have a unique weapon category now, someone else may add items to that category later.
+static function bool CanWeaponApplyUpgrade(XComGameState_Item WeaponState, X2WeaponUpgradeTemplate UpgradeTemplate)
+{
+	return true;
+}
+/// End Issue #260
+
