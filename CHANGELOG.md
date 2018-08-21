@@ -174,6 +174,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   random roll from specific part names (#155)
 - `eInvSlot_HeavyWeapon` is now a multi-item slot (#171)
 - Improve performance by removing unnecessary calls to UpdateAllMeshMaterials (#186)
+- Adds ability to have weapon upgrades modify damage, and properly accounts for
+  any damage upgrades in the UI. (#237)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
