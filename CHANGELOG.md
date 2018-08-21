@@ -19,6 +19,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Triggers the event `OverridePsiOpTraining` that allows mods to override unit eligibility for Psi Op slots (#159)
 - Triggers the event `OverrideItemIsModified` to prevent items with custom modifications from being stacked / removed
 - Triggers the events `UnitRandomizedStats` and `RewardUnitGenerated` for unit initialization logic (#185)
+- Triggers the events `OverrideUIArmoryScale`, `OverrideUIVIPScale`, and `OverrideCharCustomizationScale` for strategy unit scaling (#229)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
@@ -106,7 +107,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 
 ### Mod/DLC Hooks
 - `UpdateAnimations` added to allow adding CustomAnimsets to UnitPawns (#24)
-- `UpdateMaterial`added to allow manipulate pawn materials (#169)
+- `UpdateMaterial` added to allow manipulate pawn materials (#169)
 - `DLCAppendSockets` added to allow appending sockets to UnitPawns (#21)
 - `CanAddItemToInventory` added to allow configuring whether or not a unit can
   equip a particular item as an extension to the standand rules (#50)
@@ -117,6 +118,10 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   difficulty selection (UIShellDifficulty) (#148)
 - `GetNumUtilitySlotsOverride` and `GetNumHeavyWeaponSlotsOverride` added to allow mods to override the numer of available slots (#171)
 - `OverrideItemImage` added to conditionally change the loadout image of an item (#171)
+- `MatineeGetPawnFromSaveData` added to allow manipulation of the shell screen matinee (#240)
+- `UpdateWeaponAttachments` added to allow manipulation weapon attachments at runtime (#239)
+- `WeaponInitialized` added to conditionally change the weapon archetype on initialization (#245)
+- `UpdateWeaponMaterial` added to conditionally change the weapon materials(#246)
 
 ### Event Hooks
 - Triggers the events `SoldierClassIcon`, `SoldierClassDisplayName`,
