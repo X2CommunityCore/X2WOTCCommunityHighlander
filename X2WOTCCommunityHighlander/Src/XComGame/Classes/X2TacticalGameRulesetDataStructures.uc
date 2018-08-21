@@ -93,6 +93,7 @@ enum EInventorySlot
 	eInvSlot_AugmentationLegs,
 	eInvSlot_CombatDrugs,
 	eInvSlot_Decorations,
+	eInvSlot_PsiAmp,
 
 	// Marker slot, don't use
 	eInvSlot_END_TEMPLATED_SLOTS,
