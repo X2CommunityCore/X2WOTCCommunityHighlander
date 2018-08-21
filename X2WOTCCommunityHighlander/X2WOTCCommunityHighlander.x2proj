@@ -393,6 +393,15 @@
     <Content Include="Src\XComGame\Classes\XGAIPlayerNavigator.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComCharacterCustomization.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIArmory.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIInventory_VIPRecovered.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XGWeapon.uc">
       <SubType>Content</SubType>
     </Content>
