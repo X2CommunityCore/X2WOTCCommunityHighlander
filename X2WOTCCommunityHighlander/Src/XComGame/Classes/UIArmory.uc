@@ -304,7 +304,7 @@ simulated function CreateSoldierPawn(optional Rotator DesiredRotation)
 	OverrideTuple.Data[1].f = CustomScale;
 	OverrideTuple.Data[2].kind = XComLWTVObject;
 	OverrideTuple.Data[2].o = GetUnit();
-	`XEVENTMGR.TriggerEvent('OverrideUIArmoryScale', Tuple);
+	`XEVENTMGR.TriggerEvent('OverrideUIArmoryScale', OverrideTuple, GetUnit(), none);
 	
 	//if the unit should use the large armory scale by default, then either they'll use the default scale
 	//or a custom one given by a mod according to their character template
