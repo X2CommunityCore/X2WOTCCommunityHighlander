@@ -462,6 +462,15 @@ simulated function UIPanel SetColor(string HexColor)
 	return self;
 }
 
+// Start Issue #258
+// PI Mods: Allow changing of colors of arbitrary MCs within a panel. Pass the full path to the MC
+// as the first argument as string, and the hex color as the 2nd argument as SetColor above.
+simulated function AS_SetMCColor(string ClipPath, string HexColor)
+{
+	Movie.ActionScriptVoid("Colors.setColor");
+}
+// End Issue #258
+
 /*** IMPORTANT NOTICE ****
  *  
  * The following cannot return self because we wish them to be manipulated by Scrollbar.
