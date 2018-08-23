@@ -92,6 +92,12 @@ var bool bStartedPanick;
 //****************************************
 // End Issue #15
 
+// Variables for Issue #269
+var protected bool bMatchStepOut;
+var protected vector AimAtLocation;
+// End Variables for Issue #269
+
+
 cpptext
 {
 	/* Latent Function Declarations */
@@ -708,7 +714,9 @@ event bool SetTargetUnit()
 	local int CanSeeFromDefault;
 	local int RequiresLean;
 	local int UseHistoryIndex;
-	
+	// Single line for Issue #269
+	local array<vector> TargetLocations;
+
 	History = `XCOMHISTORY;
 	UnitState = UnitNative.GetVisualizedGameState(UseHistoryIndex);
 
@@ -717,6 +725,8 @@ event bool SetTargetUnit()
 		return false;
 	}
 
+	// Single line for Issue #269
+	bMatchStepOut = false;
 	NewTargetActor = TargetActor;
 	NewTargetLocation = TargetLocation;	
 	bFoundTarget = false; //return value, indicates whether there were any targets for this unit, if there were none we clear the target info	
@@ -761,10 +771,19 @@ event bool SetTargetUnit()
 		}
 		else if ( (bActorFromTargetingMethod && TargetingMethod.GetCurrentTargetFocus(NewTargetLocation)) || (NewTargetActor != None) )
 		{
-			if( TargetActor != None )
+			// Begin Issue #269
+			if( NewTargetActor != None )
 			{
-				TargetLocation = TargetActor.Location;
+				NewTargetLocation = NewTargetActor.Location;
+				AimAtLocation = NewTargetLocation;
 			}
+			else
+			{
+				TargetingMethod.GetTargetLocations(TargetLocations);
+				AimAtLocation = TargetLocations[0];
+			}
+			bMatchStepOut = true;
+			// End Issue #269
 			bFoundTarget = true;
 		}
 	}
@@ -773,6 +792,8 @@ event bool SetTargetUnit()
 		`log("     Unit is performing a targeting action:", `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
 		ExitCoverAction = Unit.CurrentExitAction;
 			
+		// Single line for Issue #269
+		bMatchStepOut = true;
 		bFoundTarget = true;
 		NewTargetActor = ExitCoverAction.PrimaryTarget;
 		if( ExitCoverAction.PrimaryTarget != none )
@@ -781,17 +802,22 @@ event bool SetTargetUnit()
 			{
 				`log("          *ExitCover action has a target, it is ourselves. Do Nothing.", `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
 				bFoundTarget = false;
+				// Begin Issue #269
+				bMatchStepOut = false;
 			}
 			else
 			{
 				`log("          *ExitCover action has a target, aiming at"@NewTargetActor, `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
-				NewTargetLocation = ExitCoverAction.AimAtLocation;
+				AimAtLocation = ExitCoverAction.AimAtLocation;
+				NewTargetLocation = ExitCoverAction.TargetLocation;
 			}
 		}
 		else
 		{
 			`log("          *ExitCover action has no primary target, aiming at"@ExitCoverAction.TargetLocation, `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
-			NewTargetLocation = ExitCoverAction.AimAtLocation;
+				AimAtLocation = ExitCoverAction.AimAtLocation;
+				NewTargetLocation = ExitCoverAction.TargetLocation;
+			// End Issue #269
 		}			
 	}
 	else if( bEnemiesVisible ) //If enemies are visible but we are not in a targeting action
@@ -888,7 +914,12 @@ event bool SetTargetUnit()
 
 		`log("          *(NewTargetLocation != TargetLocation):"@(NewTargetLocation != TargetLocation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');			
 		TargetLocation = NewTargetLocation;
-
+		// Begin Issue #269
+		if(!bMatchStepOut)
+		{
+			AimAtLocation = TargetLocation;
+		}
+		// End Issue #269
 		`log("          *(NewTargetActor != TargetActor):"@(NewTargetActor != TargetActor), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
 
 		// Check to see if we were previously targeting a unit and no longer are
@@ -912,8 +943,8 @@ event bool SetTargetUnit()
 		}
 	}
 //**********************************************************************************************
-
-	UnitPawn.TargetLoc = TargetLocation;
+	// Single line for Issue #269
+	UnitPawn.TargetLoc = AimAtLocation;
 
 	`log("     SetTargetUnit returning:"@bFoundTarget, `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
 	`log("*** End Processing SetTargetUnit ***", `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
@@ -1037,6 +1068,8 @@ event GetDesiredCoverState(out int CoverIndex, out UnitPeekSide PeekSide)
 	local int VisualizationHistoryIndex;
 	local XComGameState_Unit TargetUnitState;
 	local GameRulesCache_VisibilityInfo OutVisibilityInfo;
+	// Variable for Issue #269
+	local bool bShouldStepOut;
 
 	UnitState = UnitNative.GetVisualizedGameState(VisualizationHistoryIndex);
 
@@ -1057,12 +1090,18 @@ event GetDesiredCoverState(out int CoverIndex, out UnitPeekSide PeekSide)
 			{
 				TargetUnitState = TargetUnit.GetVisualizedGameState();
 			}
-			Unit.GetDirectionInfoForTarget(TargetUnitState, OutVisibilityInfo, CoverIndex, PeekSide, bCanSeeFromDefault, bRequiresLean, , VisualizationHistoryIndex);
+		// Start Issue #269
 		}
-		else
+		bShouldStepOut=Unit.GetStepOutCoverInfo(TargetUnitState, TargetLocation, CoverIndex, PeekSide, bRequiresLean, bCanSeeFromDefault);
+		if(Unit.GetCoverType(CoverIndex, VisualizationHistoryIndex)==CT_None)
 		{
-			Unit.GetDirectionInfoForPosition(TargetLocation, OutVisibilityInfo, CoverIndex, PeekSide, bCanSeeFromDefault, bRequiresLean, , VisualizationHistoryIndex);
+			CoverIndex=1;
 		}
+		if (bMatchStepOut && bShouldStepOut)
+		{
+			return;
+		}
+		// End Issue #269
 
 		CurrentCoverPeekData = UnitNative.GetCachedCoverAndPeekData(VisualizationHistoryIndex);
 
@@ -1104,11 +1143,29 @@ event GetDesiredCoverState(out int CoverIndex, out UnitPeekSide PeekSide)
 					//Pick the cover side that is closest to facing the target
 					ToRight = TransformVectorByRotation(rot(0,16384,0), CurrentCoverPeekData.CoverDirectionInfo[CoverIndex].CoverDirection);
 					TempDot = NoZDot(ToRight, ToTarget);
-					if(TempDot > 0.0f && CurrentCoverPeekData.CoverDirectionInfo[CoverIndex].RightPeek.bHasPeekaround > 0)
+					// Begin Issue #269
+					If (PreviousCoverIndex!=CoverIndex)
+					{
+						if(CurrentCoverPeekData.CoverDirectionInfo[CoverIndex].RightPeek.bHasPeekaround > 0)
+						{
+							PreviousPeekSide = ePeekRight;
+						}
+						else if(CurrentCoverPeekData.CoverDirectionInfo[CoverIndex].LeftPeek.bHasPeekaround > 0)
+						{
+							PreviousPeekSide = ePeekLeft;
+						}
+						else
+						{
+							PreviousPeekSide = eNoPeek;
+						}
+					}
+					if(TempDot > 0.0f && (PreviousPeekSide == eNoPeek
+						|| CurrentCoverPeekData.CoverDirectionInfo[CoverIndex].RightPeek.bHasPeekaround > 0))
 					{
 						PeekSide = ePeekRight;
 					}
-					else if(CurrentCoverPeekData.CoverDirectionInfo[CoverIndex].LeftPeek.bHasPeekaround > 0)
+					else if(PreviousPeekSide == eNoPeek || CurrentCoverPeekData.CoverDirectionInfo[CoverIndex].LeftPeek.bHasPeekaround > 0)
+					 //End Issue #269
 					{
 						PeekSide = ePeekLeft;
 					}
@@ -1903,14 +1960,16 @@ state EvaluateStance
 		if( DesiredCoverIndex > -1 && !bForceTurnTarget )
 		{
 			//Reverse facings since the animations are named after shoulders against cover and not facing
-			if( DesiredPeekSide == ePeekLeft && CurrentCoverPeekData.CoverDirectionInfo[DesiredCoverIndex].LeftPeek.bHasPeekaround != 0 )
+			// Begin Issue #269
+			if( DesiredPeekSide == ePeekLeft && Unit.GetCoverType(DesiredCoverIndex)!=CT_None)
 			{
-				DesiredFaceLocation = Unit.Location + (CurrentCoverPeekData.CoverDirectionInfo[DesiredCoverIndex].LeftPeek.PeekaroundDirectionFromCoverPt * 1000.0f);
+				DesiredFaceLocation = Unit.Location + `XWORLD.GetPeekLeftDirection(`IDX_TO_DIR(DesiredCoverIndex) , false) * 1000.0f;
 			}
-			else if( DesiredPeekSide == ePeekRight && CurrentCoverPeekData.CoverDirectionInfo[DesiredCoverIndex].RightPeek.bHasPeekaround != 0 )
+			else if( DesiredPeekSide == ePeekRight && Unit.GetCoverType(DesiredCoverIndex)!=CT_None)
 			{
-				DesiredFaceLocation = Unit.Location + (CurrentCoverPeekData.CoverDirectionInfo[DesiredCoverIndex].RightPeek.PeekaroundDirectionFromCoverPt * 1000.0f);
+				DesiredFaceLocation = Unit.Location + `XWORLD.GetPeekRightDirection(`IDX_TO_DIR(DesiredCoverIndex) , false) * 1000.0f;
 			}
+			// End Issue #269
 			else
 			{
 				DesiredFaceLocation = Unit.Location + (Vector(Unit.Rotation) * 1000.0f); // Keep your current facing
@@ -1918,7 +1977,8 @@ state EvaluateStance
 		}
 		else
 		{
-			DesiredFaceLocation = bForceTurnTarget ? TempFaceLocation : TargetLocation;
+			// Single line for Issue #269
+			DesiredFaceLocation = bForceTurnTarget ? TempFaceLocation : AimAtLocation;
 		}
 
 		return DesiredFaceLocation;
@@ -2016,7 +2076,8 @@ begin:
 		if( bForceDesiredCover || bForceTurnTarget )
 		{
 			`log("Starting TurnTowardsPosition towards TargetLocation"@TargetLocation@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
-			TurnTowardsPosition(bForceTurnTarget ? TempFaceLocation : TargetLocation);//Latent turning function on XGUnit
+			// Single line for Issue #269
+			TurnTowardsPosition(bForceTurnTarget ? TempFaceLocation : AimAtLocation);//Latent turning function on XGUnit
 			`log("Finished TurnTowardsPosition towards TargetLocation"@TargetLocation@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
 		}
 	}
@@ -2153,7 +2214,8 @@ begin:
 				if( Unit.m_eCoverState == eCS_None || bForceTurnTarget ) //The unit is not in cover, or is forcing a turn
 				{
 					`log("Starting TurnTowardsPosition towards TargetLocation"@(bForceTurnTarget ? TempFaceLocation : TargetLocation)@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
-					TurnTowardsPosition(bForceTurnTarget ? TempFaceLocation : TargetLocation, true);//Latent turning function on XGUnit
+					// Single line for Issue #269
+					TurnTowardsPosition(bForceTurnTarget ? TempFaceLocation : AimAtLocation, true);//Latent turning function on XGUnit
 					`log("Finished TurnTowardsPosition towards TargetLocation"@(bForceTurnTarget ? TempFaceLocation : TargetLocation)@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
 				}
 			}
@@ -2342,6 +2404,8 @@ Begin:
 	if( UnitState.GetMyTemplate().CharacterGroupName == 'Sectopod' )
 	{
 		TargetLocation = GetWrathCannonTargetLoc();
+		// Single line for Issue #269
+		AimAtLocation=TargetLocation;
 		UnitPawn.SetRotation(GetWrathCannonDesiredRotation(TargetLocation));
 	}
 
@@ -2350,7 +2414,8 @@ Begin:
 		UnitState = UnitNative.GetVisualizedGameState();
 		if( -1 != UnitState.AppliedEffectNames.Find(class'X2Ability_Sectopod'.default.WrathCannonStage1EffectName) )
 		{
-			UnitPawnNative.TargetLoc = TargetLocation;
+			// Single line for Issue #269
+			UnitPawnNative.TargetLoc = AimAtLocation;
 		}
 		Sleep(0.0f);
 	}
