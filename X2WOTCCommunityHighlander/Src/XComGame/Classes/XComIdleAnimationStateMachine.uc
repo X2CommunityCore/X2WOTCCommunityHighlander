@@ -93,7 +93,11 @@ var bool bStartedPanick;
 // End Issue #15
 
 // Variables for Issue #269
+// Sets whether XComIdleAnimationStateMachine should respect the return from GetStepoutLocation()
 var protected bool bMatchStepOut;
+// TargetLocation is the location for establishing coverdirect/peekside
+// AimAtLocation is where to aim/look, which may or may not be the same location
+// X2Action_ExitCover makes a distinction, XComIdleAnimationStateMachine did not
 var protected vector AimAtLocation;
 // End Variables for Issue #269
 
@@ -815,6 +819,7 @@ event bool SetTargetUnit()
 		else
 		{
 			`log("          *ExitCover action has no primary target, aiming at"@ExitCoverAction.TargetLocation, `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
+			// Issue #269 These two ExitCoverAction properties are the principle reason for introducing AimAtLocation
 				AimAtLocation = ExitCoverAction.AimAtLocation;
 				NewTargetLocation = ExitCoverAction.TargetLocation;
 			// End Issue #269
@@ -1092,17 +1097,20 @@ event GetDesiredCoverState(out int CoverIndex, out UnitPeekSide PeekSide)
 			}
 		// Start Issue #269
 		}
+		// Issue #269 GetSteoOutCoverInfo() calls GetDirectionInfoForTarget()/GetDirectionInfoForPosition() as appropriate
+		// and performs logic as to whether a stepout should occur for X2Action_ExitCover
 		bShouldStepOut=Unit.GetStepOutCoverInfo(TargetUnitState, TargetLocation, CoverIndex, PeekSide, bRequiresLean, bCanSeeFromDefault);
 		if(Unit.GetCoverType(CoverIndex, VisualizationHistoryIndex)==CT_None)
 		{
 			CoverIndex=1;
 		}
+		// Issue #269 if we should match the stepout (ie are either targeting or have an active X2Action_ExitCover), and bShouldStepOut,
+		// then no further manipulation of CoverIndex/PeekSide is wanted
 		if (bMatchStepOut && bShouldStepOut)
 		{
 			return;
 		}
 		// End Issue #269
-
 		CurrentCoverPeekData = UnitNative.GetCachedCoverAndPeekData(VisualizationHistoryIndex);
 
 		TestEnemyUnitsForPeekSides(CoverIndex, HasEnemiesOnLeftPeek, HasEnemiesOnRightPeek, VisualizationHistoryIndex);
@@ -1144,6 +1152,7 @@ event GetDesiredCoverState(out int CoverIndex, out UnitPeekSide PeekSide)
 					ToRight = TransformVectorByRotation(rot(0,16384,0), CurrentCoverPeekData.CoverDirectionInfo[CoverIndex].CoverDirection);
 					TempDot = NoZDot(ToRight, ToTarget);
 					// Begin Issue #269
+					// If the previous cover direction is not the same, then peekside should be reestablished from scratch, no reliance on  PreviousPeekSide
 					If (PreviousCoverIndex!=CoverIndex)
 					{
 						if(CurrentCoverPeekData.CoverDirectionInfo[CoverIndex].RightPeek.bHasPeekaround > 0)
@@ -1961,6 +1970,7 @@ state EvaluateStance
 		{
 			//Reverse facings since the animations are named after shoulders against cover and not facing
 			// Begin Issue #269
+			// There may actually be no peekaround in the requested cover direction/peekside combination
 			if( DesiredPeekSide == ePeekLeft && Unit.GetCoverType(DesiredCoverIndex)!=CT_None)
 			{
 				DesiredFaceLocation = Unit.Location + `XWORLD.GetPeekLeftDirection(`IDX_TO_DIR(DesiredCoverIndex) , false) * 1000.0f;
@@ -2075,10 +2085,11 @@ begin:
 		`log("Unit.CanUseCover()                :"@Unit.CanUseCover(), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
 		if( bForceDesiredCover || bForceTurnTarget )
 		{
-			`log("Starting TurnTowardsPosition towards TargetLocation"@TargetLocation@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
-			// Single line for Issue #269
+			// Begin Issue #269
+			`log("Starting TurnTowardsPosition towards AimAtLocation"@AimAtLocation@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
 			TurnTowardsPosition(bForceTurnTarget ? TempFaceLocation : AimAtLocation);//Latent turning function on XGUnit
-			`log("Finished TurnTowardsPosition towards TargetLocation"@TargetLocation@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
+			`log("Finished TurnTowardsPosition towards AimAtLocation"@AimAtLocation@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
+			// £nd Issue #269
 		}
 	}
 	else
@@ -2213,10 +2224,11 @@ begin:
 			{			
 				if( Unit.m_eCoverState == eCS_None || bForceTurnTarget ) //The unit is not in cover, or is forcing a turn
 				{
-					`log("Starting TurnTowardsPosition towards TargetLocation"@(bForceTurnTarget ? TempFaceLocation : TargetLocation)@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
-					// Single line for Issue #269
+					// Begin Issue #269
+					`log("Starting TurnTowardsPosition towards AimAtLocation"@(bForceTurnTarget ? TempFaceLocation : AimAtLocation)@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
 					TurnTowardsPosition(bForceTurnTarget ? TempFaceLocation : AimAtLocation, true);//Latent turning function on XGUnit
-					`log("Finished TurnTowardsPosition towards TargetLocation"@(bForceTurnTarget ? TempFaceLocation : TargetLocation)@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
+					`log("Finished TurnTowardsPosition towards AimAtLocation"@(bForceTurnTarget ? TempFaceLocation : AimAtLocation)@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
+					// End Issue #269
 				}
 			}
 		}
