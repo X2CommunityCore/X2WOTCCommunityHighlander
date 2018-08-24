@@ -820,8 +820,8 @@ event bool SetTargetUnit()
 		{
 			`log("          *ExitCover action has no primary target, aiming at"@ExitCoverAction.TargetLocation, `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
 			// Issue #269 These two ExitCoverAction properties are the principle reason for introducing AimAtLocation
-				AimAtLocation = ExitCoverAction.AimAtLocation;
-				NewTargetLocation = ExitCoverAction.TargetLocation;
+			AimAtLocation = ExitCoverAction.AimAtLocation;
+			NewTargetLocation = ExitCoverAction.TargetLocation;
 			// End Issue #269
 		}			
 	}
