@@ -260,23 +260,21 @@ simulated function int GetFocusCost(XComGameState_Unit OwnerUnitState)
 	local X2AbilityCost_Focus FocusCost;
 	local int TotalFocus, i;
 
+	// Issue #257, explicitly initialize
+	TotalFocus = 0;
+
 	MyTemplate = GetMyTemplate();
 	for (i = 0; i < MyTemplate.AbilityCosts.Length; ++i)
 	{
 		FocusCost = X2AbilityCost_Focus(MyTemplate.AbilityCosts[i]);
 		if( FocusCost != none && !FocusCost.bFreeCost )
 		{
-			if (FocusCost.GhostOnlyCost && OwnerUnitState.GhostSourceUnit.ObjectID == 0)
-				continue;
-
-			if( FocusCost.ConsumeAllFocus && OwnerUnitState.GetTemplarFocusLevel() != 0 )
+			// Start Issue #257, also see CHHelpers for Issue #257
+			if (FocusCost.PreviewFocusCost(OwnerUnitState, self, TotalFocus))
 			{
-				return OwnerUnitState.GetTemplarFocusLevel();
+				return TotalFocus;
 			}
-			else
-			{
-				TotalFocus += FocusCost.FocusAmount;
-			}
+			// End Issue #257
 		}
 	}
 

@@ -8,6 +8,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Mod/DLC Hooks
 - `GetDLCEventInfo` allows mods to add their own events for the Geoscape Event
   List (#112)
+- `CanWeaponApplyUpgrade` allows mods to restrict what upgrades can be applied
+  to a specific weapon (#260)
 
 ### Event Hooks
 - Triggers the event `OnArmoryMainMenuUpdate` that allows adding elements into
@@ -17,6 +19,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Triggers the event `OverridePsiOpTraining` that allows mods to override unit eligibility for Psi Op slots (#159)
 - Triggers the event `OverrideItemIsModified` to prevent items with custom modifications from being stacked / removed
 - Triggers the events `UnitRandomizedStats` and `RewardUnitGenerated` for unit initialization logic (#185)
+- Triggers the events `OverrideUIArmoryScale`, `OverrideUIVIPScale`, and `OverrideCharCustomizationScale` for strategy unit scaling (#229)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
@@ -65,6 +68,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `ModifyEnvironmentDamage` to modify environment damage (#200)
 - `OverrideKilledByExplosion` to allow mods to override the
   "was killed by explosion" flag (#202)
+- `OverrideUnitFocusUI` to allow mods to show their own "focus"
+  type using the Templar focus UI (#257)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
@@ -104,7 +109,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 
 ### Mod/DLC Hooks
 - `UpdateAnimations` added to allow adding CustomAnimsets to UnitPawns (#24)
-- `UpdateMaterial`added to allow manipulate pawn materials (#169)
+- `UpdateMaterial` added to allow manipulate pawn materials (#169)
 - `DLCAppendSockets` added to allow appending sockets to UnitPawns (#21)
 - `CanAddItemToInventory` added to allow configuring whether or not a unit can
   equip a particular item as an extension to the standand rules (#50)
@@ -117,6 +122,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `OverrideItemImage` added to conditionally change the loadout image of an item (#171)
 - `MatineeGetPawnFromSaveData` added to allow manipulation of the shell screen matinee (#240)
 - `UpdateWeaponAttachments` added to allow manipulation weapon attachments at runtime (#239)
+- `WeaponInitialized` added to conditionally change the weapon archetype on initialization (#245)
+- `UpdateWeaponMaterial` added to conditionally change the weapon materials(#246)
 
 ### Event Hooks
 - Triggers the events `SoldierClassIcon`, `SoldierClassDisplayName`,
@@ -169,6 +176,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   random roll from specific part names (#155)
 - `eInvSlot_HeavyWeapon` is now a multi-item slot (#171)
 - Improve performance by removing unnecessary calls to UpdateAllMeshMaterials (#186)
+- Adds ability to have weapon upgrades modify damage, and properly accounts for
+  any damage upgrades in the UI. (#237)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
