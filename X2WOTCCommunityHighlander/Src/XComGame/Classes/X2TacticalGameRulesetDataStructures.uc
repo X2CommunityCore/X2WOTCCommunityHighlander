@@ -97,6 +97,8 @@ enum EInventorySlot
 	eInvSlot_Plating,
 	eInvSlot_SparkLauncher,
 	eInvSlot_ExtraSecondary,
+	eInvSlot_PrimaryPayload,
+	eInvSlot_SecondaryPayload,
 
 	// Marker slot, don't use
 	eInvSlot_END_TEMPLATED_SLOTS,
