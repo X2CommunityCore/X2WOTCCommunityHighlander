@@ -1491,7 +1491,8 @@ simulated function SequentialShot_MergeVisualization(X2Action BuildTree, out X2A
 	ExitCoverAction = X2Action_ExitCover(VisMgr.GetNodeOfType(BuildTree, class'X2Action_ExitCover'));
 	ExitCoverAction.bSkipExitCoverVisualization = true;
 
-	VisMgr.ConnectAction(MarkerStart, VisualizationTree, true, JoinMarker);
+	// Single Line for Issue #273 Line moved to end so that there will only be one EnterCover is the VisualizationTree so the GetNodesOfType() can't get the wrong one
+	//VisMgr.ConnectAction(MarkerStart, VisualizationTree, true, JoinMarker);
 	
 	//	now we have to make sure there's a wait parented to the first exit cover, which waits for the last enter cover
 	//	this will prevent the idle state machine from taking over and putting the unit back in cover
@@ -1519,6 +1520,8 @@ simulated function SequentialShot_MergeVisualization(X2Action BuildTree, out X2A
 	}
 
 	WaitAction.ActionToWaitFor = LastEnterCoverAction;
+	// Single Line for Issue #273 Line moved from earlier
+	VisMgr.ConnectAction(MarkerStart, VisualizationTree, true, JoinMarker);
 }
 
 function OverwatchShot_BuildVisualization(XComGameState VisualizeGameState)
