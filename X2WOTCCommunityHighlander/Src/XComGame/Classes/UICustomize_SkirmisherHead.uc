@@ -14,7 +14,20 @@ simulated function CreateDataListItems()
 {
 	local EUIState ColorState;
 	local bool bIsObstructed;
+	local bool bIsSuppressed; // Issue #219, bIsSuppressed => bIsObstructed (implication)
 	local int i;
+
+	// Start Issue #219
+	if (CustomizeManager.HasMultipleCustomizationOptions(eUICustomizeCat_Face))
+	{
+		// FACE
+		//-----------------------------------------------------------------------------------------
+		ColorState = bIsSuperSoldier ? eUIState_Disabled : eUIState_Normal;
+		GetListItem(i++)
+			.UpdateDataValue(CustomizeManager.CheckForAttentionIcon(eUICustomizeCat_Face)$ m_strFace, CustomizeManager.FormatCategoryDisplay(eUICustomizeCat_Face, ColorState, FontSize), CustomizeFace)
+			.SetDisabled(bIsSuperSoldier, m_strIsSuperSoldier);
+	}
+	// End Issue #219
 
 	ColorState = bIsSuperSoldier ? eUIState_Disabled : eUIState_Normal;
 		
@@ -38,16 +51,18 @@ simulated function CreateDataListItems()
 
 	// HELMET
 	//-----------------------------------------------------------------------------------------
+	bIsObstructed = XComHumanPawn(CustomizeManager.ActorPawn).SuppressHelmet(); // Issue #219
 	GetListItem(i++)
 		.UpdateDataValue(CustomizeManager.CheckForAttentionIcon(eUICustomizeCat_Helmet) $ m_strHelmet, CustomizeManager.FormatCategoryDisplay(eUICustomizeCat_Helmet, ColorState, FontSize), CustomizeHelmet)
-		.SetDisabled(bIsSuperSoldier, m_strIsSuperSoldier);
+		.SetDisabled(bIsSuperSoldier || bIsObstructed, bIsSuperSoldier ? m_strIsSuperSoldier : m_strChangeFace); // Issue #219
 
 	// LOWER FACE PROPS
 	//-----------------------------------------------------------------------------------------
-	bIsObstructed = XComHumanPawn(CustomizeManager.ActorPawn).HelmetContent.bHideLowerFacialProps;
+	bIsObstructed = XComHumanPawn(CustomizeManager.ActorPawn).SuppressLowerFaceProp(); // Issue #219
+	bIsSuppressed = class'CHHelpers'.default.HeadSuppressesLowerFaceProp.Find(XComHumanPawn(CustomizeManager.ActorPawn).HeadContent.Name) > INDEX_NONE; // Issue #219
 	ColorState = bIsObstructed ? eUIState_Disabled : eUIState_Normal;
 
-	GetListItem(i++, bIsObstructed, m_strRemoveHelmet).UpdateDataValue(CustomizeManager.CheckForAttentionIcon(eUICustomizeCat_FaceDecorationLower) $ m_strLowerFaceProps,
+	GetListItem(i++, bIsObstructed, bIsSuppressed ? m_strChangeFace : m_strRemoveHelmet).UpdateDataValue(CustomizeManager.CheckForAttentionIcon(eUICustomizeCat_FaceDecorationLower) $ m_strLowerFaceProps, // Issue #219
 		CustomizeManager.FormatCategoryDisplay(eUICustomizeCat_FaceDecorationLower, ColorState, FontSize), CustomizeLowerFaceProps);
 
 	// FACE PAINT

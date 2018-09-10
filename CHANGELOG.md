@@ -178,6 +178,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Improve performance by removing unnecessary calls to UpdateAllMeshMaterials (#186)
 - Adds ability to have weapon upgrades modify damage, and properly accounts for
   any damage upgrades in the UI. (#237)
+- Allow Human Pawns to freely switch between custom heads and base pawn heads,
+  eliminating the need for head mods to include invisible heads (#219)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
