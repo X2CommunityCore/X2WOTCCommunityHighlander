@@ -1088,9 +1088,10 @@ event GetDesiredCoverState(out int CoverIndex, out UnitPeekSide PeekSide)
 		// Issue #269 GetSteoOutCoverInfo() calls GetDirectionInfoForTarget()/GetDirectionInfoForPosition() as appropriate
 		// and performs logic as to whether a stepout should occur for X2Action_ExitCover
 		bShouldStepOut=Unit.GetStepOutCoverInfo(TargetUnitState, TargetLocation, CoverIndex, PeekSide, bRequiresLean, bCanSeeFromDefault);
-		if(Unit.GetCoverType(CoverIndex, VisualizationHistoryIndex)==CT_None)
+		if(CoverIndex==0 && Unit.GetCoverType(0, VisualizationHistoryIndex)==CT_None)
 		{
-			CoverIndex=1;
+			//There's a bug in native code which means sometimes, CoverIndex 0 instead of -1 for "no cover direction"
+			CoverIndex=-1;
 		}
 		// Issue #269 if we should match the stepout (ie are either targeting or have an active X2Action_ExitCover), and bShouldStepOut,
 		// then no further manipulation of CoverIndex/PeekSide is wanted.
