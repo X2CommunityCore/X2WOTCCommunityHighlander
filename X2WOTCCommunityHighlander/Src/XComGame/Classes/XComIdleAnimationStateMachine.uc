@@ -92,16 +92,6 @@ var bool bStartedPanick;
 //****************************************
 // End Issue #15
 
-// Variables for Issue #269
-// Sets whether XComIdleAnimationStateMachine should respect the return from GetStepoutLocation()
-var protected bool bMatchStepOut;
-// TargetLocation is the location for establishing coverdirect/peekside
-// AimAtLocation is where to aim/look, which may or may not be the same location
-// X2Action_ExitCover makes a distinction, XComIdleAnimationStateMachine did not
-var protected vector AimAtLocation;
-// End Variables for Issue #269
-
-
 cpptext
 {
 	/* Latent Function Declarations */
@@ -718,7 +708,9 @@ event bool SetTargetUnit()
 	local int CanSeeFromDefault;
 	local int RequiresLean;
 	local int UseHistoryIndex;
-	// Single line for Issue #269
+	// Variables for Issue #269
+	local bool AimLocSet;
+	local vector AimAtLocation;
 	local array<vector> TargetLocations;
 
 	History = `XCOMHISTORY;
@@ -729,8 +721,6 @@ event bool SetTargetUnit()
 		return false;
 	}
 
-	// Single line for Issue #269
-	bMatchStepOut = false;
 	NewTargetActor = TargetActor;
 	NewTargetLocation = TargetLocation;	
 	bFoundTarget = false; //return value, indicates whether there were any targets for this unit, if there were none we clear the target info	
@@ -775,18 +765,17 @@ event bool SetTargetUnit()
 		}
 		else if ( (bActorFromTargetingMethod && TargetingMethod.GetCurrentTargetFocus(NewTargetLocation)) || (NewTargetActor != None) )
 		{
-			// Begin Issue #269
 			if( NewTargetActor != None )
 			{
 				NewTargetLocation = NewTargetActor.Location;
-				AimAtLocation = NewTargetLocation;
 			}
+			// Begin Issue #269
 			else
 			{
 				TargetingMethod.GetTargetLocations(TargetLocations);
 				AimAtLocation = TargetLocations[0];
+				AimLocSet = true;
 			}
-			bMatchStepOut = true;
 			// End Issue #269
 			bFoundTarget = true;
 		}
@@ -797,7 +786,7 @@ event bool SetTargetUnit()
 		ExitCoverAction = Unit.CurrentExitAction;
 			
 		// Single line for Issue #269
-		bMatchStepOut = true;
+		AimLocSet = true;
 		bFoundTarget = true;
 		NewTargetActor = ExitCoverAction.PrimaryTarget;
 		if( ExitCoverAction.PrimaryTarget != none )
@@ -807,11 +796,12 @@ event bool SetTargetUnit()
 				`log("          *ExitCover action has a target, it is ourselves. Do Nothing.", `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
 				bFoundTarget = false;
 				// Begin Issue #269
-				bMatchStepOut = false;
+				AimLocSet = false;
 			}
 			else
 			{
 				`log("          *ExitCover action has a target, aiming at"@NewTargetActor, `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
+				// Issue #269 These two ExitCoverAction properties are the principle reason for introducing AimAtLocation
 				AimAtLocation = ExitCoverAction.AimAtLocation;
 				NewTargetLocation = ExitCoverAction.TargetLocation;
 			}
@@ -819,7 +809,6 @@ event bool SetTargetUnit()
 		else
 		{
 			`log("          *ExitCover action has no primary target, aiming at"@ExitCoverAction.TargetLocation, `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
-			// Issue #269 These two ExitCoverAction properties are the principle reason for introducing AimAtLocation
 			AimAtLocation = ExitCoverAction.AimAtLocation;
 			NewTargetLocation = ExitCoverAction.TargetLocation;
 			// End Issue #269
@@ -919,12 +908,7 @@ event bool SetTargetUnit()
 
 		`log("          *(NewTargetLocation != TargetLocation):"@(NewTargetLocation != TargetLocation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');			
 		TargetLocation = NewTargetLocation;
-		// Begin Issue #269
-		if(!bMatchStepOut)
-		{
-			AimAtLocation = TargetLocation;
-		}
-		// End Issue #269
+
 		`log("          *(NewTargetActor != TargetActor):"@(NewTargetActor != TargetActor), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
 
 		// Check to see if we were previously targeting a unit and no longer are
@@ -949,7 +933,7 @@ event bool SetTargetUnit()
 	}
 //**********************************************************************************************
 	// Single line for Issue #269
-	UnitPawn.TargetLoc = AimAtLocation;
+	UnitPawn.TargetLoc = AimLocSet ? AimAtLocation : TargetLocation;
 
 	`log("     SetTargetUnit returning:"@bFoundTarget, `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
 	`log("*** End Processing SetTargetUnit ***", `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
@@ -1072,9 +1056,13 @@ event GetDesiredCoverState(out int CoverIndex, out UnitPeekSide PeekSide)
 	local int HasEnemiesOnRightPeek;
 	local int VisualizationHistoryIndex;
 	local XComGameState_Unit TargetUnitState;
-	local GameRulesCache_VisibilityInfo OutVisibilityInfo;
-	// Variable for Issue #269
-	local bool bShouldStepOut;
+	// New variables, and one removed, for Issue #269
+	//local GameRulesCache_VisibilityInfo OutVisibilityInfo;
+	local bool bShouldStepOut, bActorFromTargetingMethod;
+	local actor TestActor;
+	local X2TargetingMethod TargetingMethod;
+	local UITacticalHUD TacticalHUD;
+	local vector DummyVector;
 
 	UnitState = UnitNative.GetVisualizedGameState(VisualizationHistoryIndex);
 
@@ -1105,10 +1093,32 @@ event GetDesiredCoverState(out int CoverIndex, out UnitPeekSide PeekSide)
 			CoverIndex=1;
 		}
 		// Issue #269 if we should match the stepout (ie are either targeting or have an active X2Action_ExitCover), and bShouldStepOut,
-		// then no further manipulation of CoverIndex/PeekSide is wanted
-		if (bMatchStepOut && bShouldStepOut)
+		// then no further manipulation of CoverIndex/PeekSide is wanted.
+		// To avoid adding properties to a native class, must repeat some SetTargetUnit() logic.
+		if (bShouldStepOut)
 		{
-			return;
+			if (Unit.CurrentExitAction!=none && Unit.CurrentExitAction.PrimaryTarget!=Unit)
+			{
+				return;
+			}
+
+			TacticalHUD = `PRES.GetTacticalHUD();
+			if (TacticalHUD != none)
+			{
+				TargetingMethod = TacticalHUD.GetTargetingMethod();
+			}
+	
+			//If targeting is happening, and we are the shooter
+			// Can also happen if the source unit is doing a multi turn ability
+			bActorFromTargetingMethod = TargetingMethod != none && (TargetingMethod.Ability.OwnerStateObject.ObjectID == UnitState.ObjectID);
+			if ( bActorFromTargetingMethod || (UnitState.m_MultiTurnTargetRef.ObjectID > 0) )
+			{
+				TestActor = bActorFromTargetingMethod ? TargetingMethod.GetTargetedActor() : `XCOMHISTORY.GetVisualizer(UnitState.m_MultiTurnTargetRef.ObjectID);
+				if (TestActor != Unit && (TestActor!=none || (bActorFromTargetingMethod && TargetingMethod.GetCurrentTargetFocus(DummyVector))))
+				{
+					return;
+				}
+			}
 		}
 		// End Issue #269
 		CurrentCoverPeekData = UnitNative.GetCachedCoverAndPeekData(VisualizationHistoryIndex);
@@ -1988,7 +1998,7 @@ state EvaluateStance
 		else
 		{
 			// Single line for Issue #269
-			DesiredFaceLocation = bForceTurnTarget ? TempFaceLocation : AimAtLocation;
+			DesiredFaceLocation = bForceTurnTarget ? TempFaceLocation : UnitPawn.TargetLoc;
 		}
 
 		return DesiredFaceLocation;
@@ -2086,10 +2096,10 @@ begin:
 		if( bForceDesiredCover || bForceTurnTarget )
 		{
 			// Begin Issue #269
-			`log("Starting TurnTowardsPosition towards AimAtLocation"@AimAtLocation@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
-			TurnTowardsPosition(bForceTurnTarget ? TempFaceLocation : AimAtLocation);//Latent turning function on XGUnit
-			`log("Finished TurnTowardsPosition towards AimAtLocation"@AimAtLocation@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
-			// £nd Issue #269
+			`log("Starting TurnTowardsPosition towards UnitPawn.TargetLoc"@UnitPawn.TargetLoc@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
+			TurnTowardsPosition(bForceTurnTarget ? TempFaceLocation : UnitPawn.TargetLoc);//Latent turning function on XGUnit
+			`log("Finished TurnTowardsPosition towards UnitPawn.TargetLoc"@UnitPawn.TargetLoc@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
+			// End Issue #269
 		}
 	}
 	else
@@ -2225,9 +2235,9 @@ begin:
 				if( Unit.m_eCoverState == eCS_None || bForceTurnTarget ) //The unit is not in cover, or is forcing a turn
 				{
 					// Begin Issue #269
-					`log("Starting TurnTowardsPosition towards AimAtLocation"@(bForceTurnTarget ? TempFaceLocation : AimAtLocation)@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
-					TurnTowardsPosition(bForceTurnTarget ? TempFaceLocation : AimAtLocation, true);//Latent turning function on XGUnit
-					`log("Finished TurnTowardsPosition towards AimAtLocation"@(bForceTurnTarget ? TempFaceLocation : AimAtLocation)@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
+					`log("Starting TurnTowardsPosition towards UnitPawn.TargetLoc"@(bForceTurnTarget ? TempFaceLocation : UnitPawn.TargetLoc)@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
+					TurnTowardsPosition(bForceTurnTarget ? TempFaceLocation : UnitPawn.TargetLoc, true);//Latent turning function on XGUnit
+					`log("Finished TurnTowardsPosition towards UnitPawn.TargetLoc"@(bForceTurnTarget ? TempFaceLocation : UnitPawn.TargetLoc)@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
 					// End Issue #269
 				}
 			}
@@ -2416,8 +2426,6 @@ Begin:
 	if( UnitState.GetMyTemplate().CharacterGroupName == 'Sectopod' )
 	{
 		TargetLocation = GetWrathCannonTargetLoc();
-		// Single line for Issue #269
-		AimAtLocation=TargetLocation;
 		UnitPawn.SetRotation(GetWrathCannonDesiredRotation(TargetLocation));
 	}
 
@@ -2426,8 +2434,7 @@ Begin:
 		UnitState = UnitNative.GetVisualizedGameState();
 		if( -1 != UnitState.AppliedEffectNames.Find(class'X2Ability_Sectopod'.default.WrathCannonStage1EffectName) )
 		{
-			// Single line for Issue #269
-			UnitPawnNative.TargetLoc = AimAtLocation;
+			UnitPawnNative.TargetLoc = TargetLocation;
 		}
 		Sleep(0.0f);
 	}
