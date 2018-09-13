@@ -1,6 +1,7 @@
 class XComAlienPawn extends XComUnitPawn;
 
-var() privatewrite XComCharacterVoice   Voice;
+// Issue #275, unprivate
+var() /*privatewrite*/ XComCharacterVoice   Voice;
 
 /** If true the weapon should play the weapon fragmentation effect when this character dies */
 var() bool m_bShouldWeaponExplodeOnDeath;
