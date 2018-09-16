@@ -203,7 +203,9 @@ simulated function EndBattle(XGPlayer VictoriousPlayer, optional UICombatLoseTyp
 	local StateObjectReference SquadMemberRef;
 	local XComGameState_Unit SquadMemberState;
 	local bool SquadDead;
-
+	local XComLWTuple OverrideTuple; // for issue #266
+	local int VictoriousPlayerID; // for issue #266
+	
 	`log(`location @ `ShowVar(VictoriousPlayer) @ `ShowEnum(UICombatLoseType, UILoseType) @ `ShowVar(GenerateReplaySave));
 	if (`ONLINEEVENTMGR.bIsChallengeModeGame)
 	{
@@ -220,7 +222,6 @@ simulated function EndBattle(XGPlayer VictoriousPlayer, optional UICombatLoseTyp
 	}
 
 	LoseType = UILoseType;
-
 	if(class'XComGameState_HeadquartersXCom'.static.AnyTutorialObjectivesInProgress())
 	{
 		SquadDead = true;
@@ -247,9 +248,19 @@ simulated function EndBattle(XGPlayer VictoriousPlayer, optional UICombatLoseTyp
 
 	// Don't end battles in PIE, at least not for now
 	if(WorldInfo.IsPlayInEditor()) return;
-
+	
+	// issue #266: set up a Tuple to determine objectID of victorious player of a battle
+	OverrideTuple = new class'XComLWTuple'; 
+	OverrideTuple.Id = 'OverrideVictoriousPlayer';
+	OverrideTuple.Data.Add(1);
+	OverrideTuple.Data[0].kind = XComLWTVInt;
+	OverrideTuple.Data[0].i = VictoriousPlayer.ObjectID;
+	`XEVENTMGR.TriggerEvent('OverrideVictoriousPlayer', , , none); // mods should be able to use XCOMHistory to check the battle data without needing any intervention here
+	
+	VictoriousPlayerID = OverrideTuple.Data[0].i;
+	
 	Context = class'XComGameStateContext_TacticalGameRule'.static.BuildContextFromGameRule(eGameRule_TacticalGameEnd);
-	Context.PlayerRef.ObjectID = VictoriousPlayer.ObjectID;
+	Context.PlayerRef.ObjectID = VictoriousPlayerID;
 	NewGameState = Context.ContextBuildGameState();
 	SubmitGameState(NewGameState);
 
