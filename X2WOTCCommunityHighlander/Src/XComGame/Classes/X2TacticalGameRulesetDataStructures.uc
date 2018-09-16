@@ -94,6 +94,11 @@ enum EInventorySlot
 	eInvSlot_CombatDrugs,
 	eInvSlot_Decorations,
 	eInvSlot_PsiAmp,
+	eInvSlot_Plating,
+	eInvSlot_SparkLauncher,
+	eInvSlot_ExtraSecondary,
+	eInvSlot_PrimaryPayload,
+	eInvSlot_SecondaryPayload,
 
 	// Marker slot, don't use
 	eInvSlot_END_TEMPLATED_SLOTS,
