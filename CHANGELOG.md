@@ -89,6 +89,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Remove protectedwrite on X2AbilityTemplate effects arrays: AbilityTarget,
   AbilityMultiTarget, and AbilityShooter Effects (#68)
 - Deprivatise/const config variables in XComTacticalMissionManager (#101)
+- Deprivatise XComAlienPawn.Voice to allow changes by mods (#275)
 
 ### Improvements
 - Make suppression work with weapons that don't have suppression specific
