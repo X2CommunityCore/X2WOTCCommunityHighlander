@@ -83,6 +83,15 @@ var config bool GrenadeRespectUniqueRule;
 var config bool AmmoSlotBypassUniqueRule;
 // End Issue #171
 
+// Start Issue #219
+// Object names of head contents that don't allow Hair/Props/Helmets/Beards
+var config(Content) array<name> HeadSuppressesHair;
+var config(Content) array<name> HeadSuppressesLowerFaceProp;
+var config(Content) array<name> HeadSuppressesUpperFaceProp;
+var config(Content) array<name> HeadSuppressesHelmet;
+var config(Content) array<name> HeadSuppressesBeard;
+// End Issue #219
+
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
 	local XComContentManager		Content;

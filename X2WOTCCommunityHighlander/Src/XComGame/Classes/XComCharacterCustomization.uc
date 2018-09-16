@@ -2332,11 +2332,7 @@ function bool ShowMaleOnlyOptions()
 
 function bool IsFacialHairDisabled()
 {
-	local XComHumanPawn HumanPawn;
-
-	HumanPawn = XComHumanPawn(ActorPawn);
-
-	return HumanPawn.HelmetContent.bHideFacialHair || HumanPawn.LowerFacialContent.bHideFacialHair; 
+	return XComHumanPawn(ActorPawn).SuppressBeard(); // Issue #219, consistency
 }
 
 simulated function bool IsArmorPatternSelected()
