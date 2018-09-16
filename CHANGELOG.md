@@ -105,6 +105,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   subsequent shots (#20)
 - Fix Initiative-Interrupting abilities giving Reinforcements a full turn
   of action points after scamper (#36)
+- Fix some edge cases regarding idle animations and targeting (#269)
+- Fix an issue causing Rapid Fire/Chain Shot/Banish/... entering cover early (#273)
 
 
 

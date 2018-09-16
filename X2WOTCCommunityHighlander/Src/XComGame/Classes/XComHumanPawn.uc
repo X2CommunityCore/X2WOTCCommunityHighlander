@@ -196,7 +196,7 @@ simulated function RequestFullPawnContent()
 	local XGUnit GameUnit;
 	local XComGameState_Unit UnitState;
 	local name UnderlayName;
-	bool HasCustomUnderlay; // for issue #251	
+	local bool HasCustomUnderlay; // for issue #251	
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(ObjectID)); 
 	HasCustomUnderlay = class'CHHelpers'.default.CustomUnderlayCharTemplates.Find(UnitState.GetMyTemplateName()) != INDEX_NONE; 
 	bShouldUseUnderlay = ShouldUseUnderlay(UnitState);
@@ -205,7 +205,7 @@ simulated function RequestFullPawnContent()
 	UnderlayName = GetUnderlayName(bShouldUseUnderlay, m_kAppearance);		
 	if(HasCustomUnderlay && UnderlayName != '') //issue #251 start
 	{
-		UnderlayName = m_kAppearance.nmTorso_Underlay
+		UnderlayName = m_kAppearance.nmTorso_Underlay;
 	}
 	// issue #251 end
 	GameUnit = XGUnit(GetGameUnit());
