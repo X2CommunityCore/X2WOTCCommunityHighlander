@@ -70,7 +70,9 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   "was killed by explosion" flag (#202)
 - `OverrideUnitFocusUI` to allow mods to show their own "focus"
   type using the Templar focus UI (#257)
-
+- Allow mods to have character templates to use custom base underlays instead of default 
+  clerk underlays on the Avenger (#251)
+  
 ### Configuration
 - Added ability to modify default spawn size (#18)
 - Added ability to modify number of tactical auto-saves kept (#53)

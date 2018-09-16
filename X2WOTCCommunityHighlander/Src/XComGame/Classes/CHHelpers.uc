@@ -70,6 +70,14 @@ var config bool UPDATE_MATERIALS_CONSTANTLY;
 var config array<name> CosmeticDLCNamesUnaffectedByRoll;
 // End Issue #155
 
+// start issue #251
+// in the base game, all units default to the clerk underlays if they can use underlays on the Avenger
+// we can have the game use custom underlay cosmetics instead, but the base game doesn't properly assign the starting
+// underlay cosmetics to normal soldiers. So we use a config array to whitelist character templates that should be using custom underlay cosmetics
+var config array<name> CustomUnderlayCharTemplates;
+//end issue #251
+
+
 // Start Issue #171
 var config bool GrenadeRespectUniqueRule;
 var config bool AmmoSlotBypassUniqueRule;
