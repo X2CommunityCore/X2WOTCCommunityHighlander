@@ -255,7 +255,7 @@ simulated function EndBattle(XGPlayer VictoriousPlayer, optional UICombatLoseTyp
 	OverrideTuple.Data.Add(1);
 	OverrideTuple.Data[0].kind = XComLWTVInt;
 	OverrideTuple.Data[0].i = VictoriousPlayer.ObjectID;
-	`XEVENTMGR.TriggerEvent('OverrideVictoriousPlayer', , , none); // mods should be able to use XCOMHistory to check the battle data without needing any intervention here
+	`XEVENTMGR.TriggerEvent('OverrideVictoriousPlayer', OverrideTuple, OverrideTuple, none); // mods should be able to use XCOMHistory to check the battle data without needing any intervention here
 	
 	VictoriousPlayerID = OverrideTuple.Data[0].i;
 	
