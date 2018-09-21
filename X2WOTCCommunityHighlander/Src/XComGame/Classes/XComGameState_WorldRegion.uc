@@ -1478,6 +1478,9 @@ simulated function BuildOutpostCallback(Name eAction, out DynamicPropertySet Ale
 	local XComGameState_HeadquartersXCom XComHQ;
 	local XComGameState_WorldRegion RegionState;
 	local StrategyCost OutpostCost;
+	
+	local XComLWTuple Tuple;				// issue #XXX
+	local bool bShouldCompleteInstantly;	// issue #XXX
 
 	XComHQ = class'UIUtilities_Strategy'.static.GetXComHQ();
 
@@ -1489,7 +1492,27 @@ simulated function BuildOutpostCallback(Name eAction, out DynamicPropertySet Ale
 		{
 			NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Initiate Building Outpost");
 			RegionState = XComGameState_WorldRegion(NewGameState.ModifyStateObject(class'XComGameState_WorldRegion', self.ObjectID));
-			RegionState.bCanScanForOutpost = true;
+			// start issue #XXX
+			//RegionState.bCanScanForOutpost = true;
+			Tuple = new class'XComLWTuple';
+			Tuple.Id = 'RegionOutpostBuildStart';
+			Tuple.Data.Add(1);
+			Tuple.Data[0].kind = XComLWTVBool;
+			Tuple.Data[0].b = false;
+
+			`XEVENTMGR.TriggerEvent('RegionOutpostBuildStart', Tuple, RegionState, none);
+			bShouldCompleteInstantly = Tuple.Data[0].b;
+
+			if(bShouldCompleteInstantly) 
+			{
+				RegionState.SetResistanceLevel(NewGameState, eResLevel_Outpost);
+				RegionState.bResLevelPopup = true;
+			}
+			else
+			{
+				RegionState.bCanScanForOutpost = true;
+			}
+			// end issue #XXX
 
 			XComHQ = XComGameState_HeadquartersXCom(NewGameState.ModifyStateObject(class'XComGameState_HeadquartersXCom', XComHQ.ObjectID));
 			XComHQ.PayStrategyCost(NewGameState, OutpostCost, OutpostCostScalars);
@@ -1500,11 +1523,16 @@ simulated function BuildOutpostCallback(Name eAction, out DynamicPropertySet Ale
 
 			`XSTRATEGYSOUNDMGR.PlaySoundEvent("Geoscape_PopularSupportThreshold");
 
-			// Avenger should fly to the region to build the outpost if it isn't already there
-			if (XComHQ.CurrentLocation.ObjectID != ObjectID)
+			// start issue #XXX
+			if(!bShouldCompleteInstantly)
 			{
-				XComHQ.SetPendingPointOfTravel(RegionState);
+				// Avenger should fly to the region to build the outpost if it isn't already there
+				if (XComHQ.CurrentLocation.ObjectID != ObjectID)
+				{
+					XComHQ.SetPendingPointOfTravel(RegionState);
+				}
 			}
+			// end issue #XXX
 		}
 		else
 		{
