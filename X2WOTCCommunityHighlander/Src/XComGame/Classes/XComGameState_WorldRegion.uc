@@ -1479,8 +1479,8 @@ simulated function BuildOutpostCallback(Name eAction, out DynamicPropertySet Ale
 	local XComGameState_WorldRegion RegionState;
 	local StrategyCost OutpostCost;
 	
-	local XComLWTuple Tuple;				// issue #XXX
-	local bool bShouldCompleteInstantly;	// issue #XXX
+	local XComLWTuple Tuple;				// issue #279
+	local bool bShouldCompleteInstantly;	// issue #279
 
 	XComHQ = class'UIUtilities_Strategy'.static.GetXComHQ();
 
@@ -1492,7 +1492,7 @@ simulated function BuildOutpostCallback(Name eAction, out DynamicPropertySet Ale
 		{
 			NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Initiate Building Outpost");
 			RegionState = XComGameState_WorldRegion(NewGameState.ModifyStateObject(class'XComGameState_WorldRegion', self.ObjectID));
-			// start issue #XXX
+			// start issue #279
 			//RegionState.bCanScanForOutpost = true;
 			Tuple = new class'XComLWTuple';
 			Tuple.Id = 'RegionOutpostBuildStart';
@@ -1512,7 +1512,7 @@ simulated function BuildOutpostCallback(Name eAction, out DynamicPropertySet Ale
 			{
 				RegionState.bCanScanForOutpost = true;
 			}
-			// end issue #XXX
+			// end issue #279
 
 			XComHQ = XComGameState_HeadquartersXCom(NewGameState.ModifyStateObject(class'XComGameState_HeadquartersXCom', XComHQ.ObjectID));
 			XComHQ.PayStrategyCost(NewGameState, OutpostCost, OutpostCostScalars);
@@ -1523,7 +1523,7 @@ simulated function BuildOutpostCallback(Name eAction, out DynamicPropertySet Ale
 
 			`XSTRATEGYSOUNDMGR.PlaySoundEvent("Geoscape_PopularSupportThreshold");
 
-			// start issue #XXX
+			// start issue #279
 			if(!bShouldCompleteInstantly)
 			{
 				// Avenger should fly to the region to build the outpost if it isn't already there
@@ -1532,7 +1532,7 @@ simulated function BuildOutpostCallback(Name eAction, out DynamicPropertySet Ale
 					XComHQ.SetPendingPointOfTravel(RegionState);
 				}
 			}
-			// end issue #XXX
+			// end issue #279
 		}
 		else
 		{
