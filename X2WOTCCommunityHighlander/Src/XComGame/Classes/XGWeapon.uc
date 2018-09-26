@@ -295,6 +295,10 @@ simulated private function UpdateMaterials(MeshComponent MeshComp)
 				UpdateWeaponMaterial(MeshComp, MIC);
 			}
 		}
+
+		// Start Issue #246
+		DLCInfoUpdateWeaponMaterial(MeshComp);
+		// End Issue #246
 	}
 }
 
@@ -337,14 +341,10 @@ simulated function UpdateWeaponMaterial(MeshComponent MeshComp, MaterialInstance
 		MIC.SetScalarParameterValue('PatternUse', 0);
 		MIC.SetTextureParameterValue('Pattern', none);
 	}
-
-	// Start Issue #246
-	DLCInfoUpdateWeaponMaterial(MeshComp, MIC);
-	// End Issue #246
 }
 
 // Start Issue #246
-simulated function DLCInfoUpdateWeaponMaterial(MeshComponent MeshComp, MaterialInstanceConstant MIC)
+simulated function DLCInfoUpdateWeaponMaterial(MeshComponent MeshComp)
 {
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local X2DownloadableContentInfo DLCInfo;
@@ -352,7 +352,7 @@ simulated function DLCInfoUpdateWeaponMaterial(MeshComponent MeshComp, MaterialI
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 	foreach DLCInfos(DLCInfo)
 	{
-		DLCInfo.UpdateWeaponMaterial(self, MeshComp, MIC);
+		DLCInfo.UpdateWeaponMaterial(self, MeshComp);
 	}
 }
 // End Issue #246
