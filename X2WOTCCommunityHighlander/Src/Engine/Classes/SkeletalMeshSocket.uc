@@ -13,8 +13,11 @@ class SkeletalMeshSocket extends Object
  *	The Outer of a SkeletalMeshSocket should always be the SkeletalMesh.
  */
 
-var()	editconst	name			SocketName;
-var()	editconst	name			BoneName;
+// Start Issue #281
+var()	/* const */ editconst	name	SocketName; // Unconst for Issue #281
+var()	/* const */ editconst	name	BoneName;	// Unconst for Issue #281
+// Start Issue #281
+
 var()					vector			RelativeLocation;
 var()					rotator			RelativeRotation;
 var()					vector			RelativeScale;
