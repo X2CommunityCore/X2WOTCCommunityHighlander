@@ -475,3 +475,14 @@ static function bool CanWeaponApplyUpgrade(XComGameState_Item WeaponState, X2Wea
 }
 /// End Issue #260
 
+/// Start Issue #281
+/// <summary>
+/// Called from XGWeapon.CreateEntity
+/// Allows DLC/Mods to append sockets to weapons
+/// NOTE: To create new sockets from script you need to unconst SocketName and BoneName in SkeletalMeshSocket
+/// </summary>
+static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets, XComWeapon Weapon, optional XComGameState_Item ItemState = none)
+{
+	return;
+}
+/// End Issue #281

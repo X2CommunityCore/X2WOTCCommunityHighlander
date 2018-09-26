@@ -100,6 +100,10 @@ simulated function Actor CreateEntity(optional XComGameState_Item ItemState=none
 
  		kNewWeapon = Spawn(Template.Class, kOwner,,,,Template);
 		
+		// Start Issue #281
+		DLCInfoAddSockets(kNewWeapon, ItemState);
+		// End Issue #281
+
 		WeaponMesh = SkeletalMeshComponent(kNewWeapon.Mesh);
 
 		if (XComUnitPawn(kOwner) != none)
@@ -201,6 +205,25 @@ simulated function Actor CreateEntity(optional XComGameState_Item ItemState=none
 
 	return kNewWeapon;
 }
+
+// Start Issue #281
+simulated function DLCInfoAddSockets(XComWeapon Weapon, optional XComGameState_Item ItemState=none)
+{
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local X2DownloadableContentInfo DLCInfo;
+	local array<SkeletalMeshSocket> NewSockets;
+
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	foreach DLCInfos(DLCInfo)
+	{
+		DLCInfo.DLCAppendWeaponSockets(NewSockets, Weapon, ItemState);
+		if (NewSockets.Length > 0)
+		{
+			SkeletalMeshComponent(Weapon.Mesh).AppendSockets(NewSockets, true);
+		}
+	}
+}
+// End Issue #281
 
 // Logic mirrored from XComHumanPawn.uc
 simulated function SetAppearance( const out TWeaponAppearance kAppearance, optional bool bRequestContent=true )

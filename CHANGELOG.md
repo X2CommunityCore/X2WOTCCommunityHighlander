@@ -129,6 +129,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `UpdateWeaponAttachments` added to allow manipulation weapon attachments at runtime (#239)
 - `WeaponInitialized` added to conditionally change the weapon archetype on initialization (#245)
 - `UpdateWeaponMaterial` added to conditionally change the weapon materials(#246)
+- `DLCAppendWeaponSockets` allows adding new sockets to weapons(#281)
 
 ### Event Hooks
 - Triggers the events `SoldierClassIcon`, `SoldierClassDisplayName`,
