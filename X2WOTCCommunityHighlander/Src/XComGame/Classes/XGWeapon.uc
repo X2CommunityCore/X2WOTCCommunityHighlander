@@ -101,7 +101,7 @@ simulated function Actor CreateEntity(optional XComGameState_Item ItemState=none
  		kNewWeapon = Spawn(Template.Class, kOwner,,,,Template);
 		
 		// Start Issue #281
-		DLCInfoAddSockets(kNewWeapon, ItemState);
+		DLCInfoAddSockets(kNewWeapon, InternalWeaponState);
 		// End Issue #281
 
 		WeaponMesh = SkeletalMeshComponent(kNewWeapon.Mesh);
@@ -207,7 +207,7 @@ simulated function Actor CreateEntity(optional XComGameState_Item ItemState=none
 }
 
 // Start Issue #281
-simulated function DLCInfoAddSockets(XComWeapon Weapon, optional XComGameState_Item ItemState=none)
+simulated function DLCInfoAddSockets(XComWeapon Weapon, XComGameState_Item ItemState)
 {
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local X2DownloadableContentInfo DLCInfo;
