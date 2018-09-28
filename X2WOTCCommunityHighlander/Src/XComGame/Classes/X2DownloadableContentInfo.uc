@@ -458,7 +458,7 @@ static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, o
 /// Start Issue #246
 /// Called from XGWeapon:UpdateWeaponMaterial.
 /// This function gets called when the weapon material is updated.
-static function UpdateWeaponMaterial(XGWeapon WeaponArchetype, MeshComponent MeshComp, MaterialInstanceConstant MIC)
+static function UpdateWeaponMaterial(XGWeapon WeaponArchetype, MeshComponent MeshComp)
 {}
 /// End Issue #246
 
