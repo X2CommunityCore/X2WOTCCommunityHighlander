@@ -20,6 +20,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Triggers the event `OverrideItemIsModified` to prevent items with custom modifications from being stacked / removed
 - Triggers the events `UnitRandomizedStats` and `RewardUnitGenerated` for unit initialization logic (#185)
 - Triggers the events `OverrideUIArmoryScale`, `OverrideUIVIPScale`, and `OverrideCharCustomizationScale` for strategy unit scaling (#229)
+- Triggers the event `RegionOutpostBuildStart` to add a strategy reward similar to the 'Resistance Network' resistance order, but for Radio Relays instead of Network Contacts. (#279)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
@@ -72,6 +73,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   type using the Templar focus UI (#257)
 - Allow mods to have character templates to use custom base underlays instead of default 
   clerk underlays on the Avenger (#251)
+- `OverrideVictoriousPlayer` to allow override whether a mission was successful or not (#266)
   
 ### Configuration
 - Added ability to modify default spawn size (#18)

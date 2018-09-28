@@ -57,7 +57,7 @@ function int GetVersionNumber()
 defaultproperties
 {
     MajorVersion = 1;
-    MinorVersion = 13;
+    MinorVersion = 14;
     PatchVersion = 0;
 }
 
