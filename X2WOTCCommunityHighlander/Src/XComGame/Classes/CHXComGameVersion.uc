@@ -16,8 +16,9 @@ static function array<X2DataTemplate> CreateTemplates()
 {
 	local array<X2DataTemplate> Templates;
 	local CHXComGameVersionTemplate XComGameVersion;
-	`log("Creating CHXCOMGameVersionTemplate");
+	`log("Creating CHXCOMGameVersionTemplate...", , 'X2WOTCCommunityHighlander');
 	`CREATE_X2TEMPLATE(class'CHXComGameVersionTemplate', XComGameVersion, 'CHXComGameVersion');
+	`log("Created CHXCOMGameVersionTemplate with version" @ XComGameVersion.MajorVersion $ "." $ XComGameVersion.MinorVersion $ "." $ XComGameVersion.PatchVersion, , 'X2WOTCCommunityHighlander');
 	Templates.AddItem(XComGameVersion);
 
 	return Templates;
