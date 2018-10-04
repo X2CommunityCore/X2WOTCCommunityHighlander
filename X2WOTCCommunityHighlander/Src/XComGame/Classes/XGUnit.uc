@@ -1445,7 +1445,7 @@ function name MaybeAddPersonalityToSpeech(Name nCharSpeech)
 
 	GameStateUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(ObjectID));
 
-	if ( GameStateUnit == none || !GameStateUnit.IsVeteran() )
+	if ( GameStateUnit == none /*|| !GameStateUnit.IsVeteran()*/ ) // Issue #215
 	{
 		return '';
 	}
