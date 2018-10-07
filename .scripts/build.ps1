@@ -254,6 +254,17 @@ if ($LASTEXITCODE -ne 0)
 }
 Write-Host "Compiled base game scripts."
 
+# If we build in final release, we must build the normal scripts too
+if ($final_release -eq $true)
+{
+    Write-Host "Compiling base game scripts without final_release..."
+    Invoke-Make "$sdkPath/binaries/Win64/XComGame.com" "make -nopause -unattended" $sdkPath $modSrcRoot
+    if ($LASTEXITCODE -ne 0)
+    {
+        FailureMessage "Failed to compile base game scripts without final_release!"
+    }
+}
+
 # build the mod's scripts
 Write-Host "Compiling mod scripts..."
 Invoke-Make "$sdkPath/binaries/Win64/XComGame.com" "make -nopause -mods $modNameCanonical $stagingPath" $sdkPath $modSrcRoot
