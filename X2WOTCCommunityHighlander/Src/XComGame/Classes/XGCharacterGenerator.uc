@@ -872,6 +872,8 @@ private function bool NeedsSoldierVoice(const name CharTemplateName)
 
 function SetVoice(name CharacterTemplateName, name CountryName)
 {
+	local X2CharacterTemplate CharTemplate;
+
 	// Determine voice
 	// If a civilian is being generated, set its voice according to its editor setting to prevent it from using soldier voices.
 	// Otherwise, only set voices for soldiers and specific character groups that use soldier voices.
@@ -891,15 +893,42 @@ function SetVoice(name CharacterTemplateName, name CountryName)
 			}
 		}
 	}
+	else
+	{
+		CharTemplate = class'X2CharacterTemplateManager'.static.GetCharacterTemplateManager().FindCharacterTemplate( CharacterTemplateName );
+		if ((CharTemplate != none) && CharTemplate.DefaultAppearance.nmVoice != '')
+		{
+			kSoldier.kAppearance.nmVoice = CharTemplate.DefaultAppearance.nmVoice;
+		}
+	}
 }
 
 function SetAttitude()
 {
 	local array<X2StrategyElementTemplate> PersonalityTemplates;
 
+	local XComOnlineProfileSettings ProfileSettings;
+	local int BronzeScore, HighScore, Choice;
+
 	// Give Random Personality
 	PersonalityTemplates = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager().GetAllTemplatesOfClass(class'X2SoldierPersonalityTemplate');
-	kSoldier.kAppearance.iAttitude = `SYNC_RAND(PersonalityTemplates.Length);
+
+	ProfileSettings = `XPROFILESETTINGS;
+	BronzeScore = class'XComGameState_LadderProgress'.static.GetLadderMedalThreshold( 4, 0 );
+	HighScore = ProfileSettings.Data.GetLadderHighScore( 4 );
+
+	if (BronzeScore > HighScore)
+	{
+		do { // repick until we choose something not from TLE
+			Choice = `SYNC_RAND(PersonalityTemplates.Length);
+		} until (PersonalityTemplates[Choice].ClassThatCreatedUs.Name != 'X2StrategyElement_TLESoldierPersonalities');
+	}
+	else // anything will do
+	{
+		Choice = `SYNC_RAND(PersonalityTemplates.Length);
+	}
+
+	kSoldier.kAppearance.iAttitude = Choice;
 }
 
 function int GetRandomRaceByCountry(name CountryName)

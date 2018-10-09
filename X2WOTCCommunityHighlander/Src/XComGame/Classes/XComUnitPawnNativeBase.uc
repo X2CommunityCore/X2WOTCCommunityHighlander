@@ -764,12 +764,13 @@ simulated function XComUpdateAnimSetList()
 	local XComWeapon currentWeapon;
 	local XGUnit kUnit;
 	local XComPerkContent kPerkContent;
-	local XComGameState_Unit UnitState;
+	local XComGameState_Unit UnitState, TempUnitState;
 	local XComGameState_Effect TestEffect;
 	local XComGameStateHistory History;
 	local StateObjectReference EffectRef;
 	local XComGameState_Effect EffectState;
 	local X2Effect_AdditionalAnimSets AdditionalAnimSetsEffect;
+	local UIPawnMgr PawnMgr;
 	
 	// MHU - Attempt to reset animsets to default (usually rifle animset)
 	//       If the default animset doesn't exist, do nothing.
@@ -806,6 +807,22 @@ simulated function XComUpdateAnimSetList()
 			}
 		}
 
+		TempUnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(ObjectID));
+		if (TempUnitState == none) // if there isn't one in the history, check for a pawn manager because shell character pool is a thing.
+		{
+			foreach `XWORLDINFO.AllActors(class'UIPawnMgr', PawnMgr)
+				break;
+			TempUnitState = PawnMgr.GetUnitState( ObjectID );
+		}
+
+		if( TempUnitState != None )
+		{
+			XComAddAnimSets(TempUnitState.GetMyTemplate().AdditionalAnimSets);
+			if( TempUnitState.kAppearance.iGender == eGender_Female )
+			{
+				XComAddAnimSets(TempUnitState.GetMyTemplate().AdditionalAnimSetsFemale);
+			}
+		}
 
 		if( UnitState != None )
 		{
@@ -823,7 +840,7 @@ simulated function XComUpdateAnimSetList()
 		}
 
 		// Loop over extra anim sets added by any X2Effect_AdditionalAnimSetsEffect
-		if( UnitState != none )
+		if( UnitState != None )
 		{
 			History = `XCOMHISTORY;
 			foreach UnitState.AffectedByEffects(EffectRef)

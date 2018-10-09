@@ -54,7 +54,7 @@ simulated function UIArmory_LoadoutItem InitLoadoutItem(XComGameState_Item Item,
 	{
 		if (Item != None)
 		{
-			if ((ItemTemplate.bInfiniteItem || ItemTemplate.StartingItem) && !Item.HasBeenModified())
+			if (ItemTemplate.bInfiniteItem && !Item.HasBeenModified())
 			{
 				SetInfinite(true);
 			}

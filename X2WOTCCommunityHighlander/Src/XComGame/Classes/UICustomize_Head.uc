@@ -82,19 +82,6 @@ simulated function CreateDataListItems()
 		.UpdateDataValue(CustomizeManager.CheckForAttentionIcon(eUICustomizeCat_Hairstyle)$ m_strHair, CustomizeManager.FormatCategoryDisplay(eUICustomizeCat_Hairstyle, ColorState, FontSize), CustomizeHair)
 		.SetDisabled(bIsSuperSoldier || bIsObstructed, bIsSuperSoldier ? m_strIsSuperSoldier : (bIsSuppressed ? m_strChangeFace : m_strRemoveHelmet)); // Issue #219
 
-	// FACIAL HAIR
-	//-----------------------------------------------------------------------------------------
-	if (CustomizeManager.ShowMaleOnlyOptions())
-	{
-		bIsObstructed = XComHumanPawn(CustomizeManager.ActorPawn).SuppressBeard(); // Issue #219
-		bIsSuppressed = class'CHHelpers'.default.HeadSuppressesBeard.Find(XComHumanPawn(CustomizeManager.ActorPawn).HeadContent.Name) > INDEX_NONE; // Issue #219
-		ColorState = (bIsSuperSoldier || bIsObstructed) ? eUIState_Disabled : eUIState_Normal;
-
-		GetListItem(i++)
-			.UpdateDataValue(CustomizeManager.CheckForAttentionIcon(eUICustomizeCat_FacialHair)$m_strFacialHair, CustomizeManager.FormatCategoryDisplay(eUICustomizeCat_FacialHair, ColorState, FontSize), CustomizeFacialHair)
-			.SetDisabled(bIsSuperSoldier || bIsObstructed, bIsSuperSoldier ? m_strIsSuperSoldier : (bIsSuppressed ? m_strChangeFace : m_strRemoveHelmetOrLowerProp)); // Issue #219
-	}
-
 	// HAIR COLOR
 	//----------------------------------------------------------------------------------------
 	// Start Issue #219
@@ -153,6 +140,19 @@ simulated function CreateDataListItems()
 
 	GetListItem(i++, bIsObstructed, bIsSuppressed ? m_strChangeFace : m_strRemoveHelmet).UpdateDataValue(CustomizeManager.CheckForAttentionIcon(eUICustomizeCat_FaceDecorationLower) $ m_strLowerFaceProps, // Issue #219
 		CustomizeManager.FormatCategoryDisplay(eUICustomizeCat_FaceDecorationLower, ColorState, FontSize), CustomizeLowerFaceProps); 
+
+	// FACIAL HAIR
+	//-----------------------------------------------------------------------------------------
+	if (CustomizeManager.ShowMaleOnlyOptions())
+	{
+		bIsObstructed = XComHumanPawn(CustomizeManager.ActorPawn).SuppressBeard(); // Issue #219
+		bIsSuppressed = class'CHHelpers'.default.HeadSuppressesBeard.Find(XComHumanPawn(CustomizeManager.ActorPawn).HeadContent.Name) > INDEX_NONE; // Issue #219
+		ColorState = (bIsSuperSoldier || bIsObstructed) ? eUIState_Disabled : eUIState_Normal;
+
+		GetListItem(i++)
+			.UpdateDataValue(CustomizeManager.CheckForAttentionIcon(eUICustomizeCat_FacialHair)$m_strFacialHair, CustomizeManager.FormatCategoryDisplay(eUICustomizeCat_FacialHair, ColorState, FontSize), CustomizeFacialHair)
+			.SetDisabled(bIsSuperSoldier || bIsObstructed, bIsSuperSoldier ? m_strIsSuperSoldier : (bIsSuppressed ? m_strChangeFace : m_strRemoveHelmetOrLowerProp)); // Issue #219
+	}
 
 	// FACE PAINT
 	//-----------------------------------------------------------------------------------------

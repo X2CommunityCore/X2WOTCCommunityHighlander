@@ -1140,3 +1140,23 @@ static function bool InventorySlotBypassesUniqueRule(EInventorySlot Slot)
 	}
 	return false;
 }
+
+static function bool TacticalOnlyGameMode( optional bool IncludeSkirmish = true )
+{
+	local XComGameStateHistory History;
+	local XComGameState_BattleData BattleData;
+
+	History = `XCOMHISTORY;
+
+	if (History.GetSingleGameStateObjectForClass( class'XComGameState_ChallengeData', true ) != none)
+		return true;
+
+	if (History.GetSingleGameStateObjectForClass( class'XComGameState_LadderProgress', true ) != none)
+		return true;
+
+	BattleData = XComGameState_BattleData( History.GetSingleGameStateObjectForClass( class'XComGameState_BattleData', true ) );
+	if (IncludeSkirmish && (BattleData != none) && (BattleData.m_strDesc == "Skirmish Mode"))
+		return true;
+
+	return false;
+}

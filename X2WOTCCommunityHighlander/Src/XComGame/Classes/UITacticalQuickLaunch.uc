@@ -14,7 +14,7 @@
 class UITacticalQuickLaunch extends UIScreen 
 	dependson(XComParcelManager, XComPlotCoverParcelManager)
 	native(UI)
-	config(Game);
+	config(TQL);
 
 var XComPresentationLayer   Pres;
 var XComTacticalController  TacticalController;
@@ -51,6 +51,7 @@ var UIButton    Button_ToggleDebugCamera;
 var UIButton    Button_ReturnToShell;
 var UIButton	Button_StartChallenge;
 var UIButton	Button_ChallengeControls;
+var UIDropdown	Dropdown_MapPreset;
 
 var bool ChallengeControlsVisible;
 var UIDropdown Challenge_SquadSize;
@@ -107,6 +108,24 @@ var int CanvasDrawScale;
 
 // used to debug TacticalGameplayTags applied before mission begins
 var array<Name> TacticalGameplayTags;
+
+struct native MapGenerationPreset
+{
+	var string PresetName;
+	var string PlotName;
+	var string Biome;
+	var int ForceLevel;
+	var int AlertLevel;
+	var name SquadName;
+	var name QuestItemName;
+
+	structdefaultproperties
+	{
+		AlertLevel = -1;
+	}
+};
+
+var config array<MapGenerationPreset> TQLMapPresets;
 
 //----------------------------------------------------------------------------
 // MEMBERS
@@ -403,10 +422,81 @@ simulated private function OnButtonChallengeControlsClicked( UIButton button )
 
 simulated private function BuildButton_GenerateMap()
 {
+	local MapGenerationPreset Preset;
+
 	Button_GenerateMap = Spawn(class'UIButton', self);
 	Button_GenerateMap.InitButton('Button_GenerateMap', "Generate Map", OnButtonGenerateMapClicked, eUIButtonStyle_NONE);
 	Button_GenerateMap.SetGamepadIcon(class'UIUtilities_Input'.static.GetBackButtonIcon());
 	Button_GenerateMap.SetPosition(200, 50);
+
+	Dropdown_MapPreset = Spawn(class'UIDropdown', self);
+	Dropdown_MapPreset.InitDropdown('MapPreset', "Map Preset", SelectMapPreset);
+	Dropdown_MapPreset.SetPosition(800, 50);
+
+	Dropdown_MapPreset.Clear( );
+	Dropdown_MapPreset.AddItem( "None" );
+
+	foreach TQLMapPresets( Preset )
+	{
+		Dropdown_MapPreset.AddItem( Preset.PresetName );
+	}
+
+	Dropdown_MapPreset.SetSelected( 0 );
+}
+
+simulated function SelectMapPreset( UIDropdown dropdown )
+{
+	local MapGenerationPreset Preset;
+	local array<name> SquadMemberNames;
+	local int AlertLevel;
+
+	if (dropdown.SelectedItem > 0)
+		Preset = TQLMapPresets[ dropdown.SelectedItem - 1 ];
+
+	if (Preset.PlotName != "")
+	{
+		BattleDataState.PlotSelectionType = ePlotSelection_Specify;
+	}
+	else
+	{
+		BattleDataState.PlotSelectionType = ePlotSelection_Random;
+		Preset.AlertLevel = class'X2StrategyGameRulesetDataStructures'.default.MinMissionDifficulty;
+		Preset.ForceLevel = 1;
+	}
+
+	BattleDataState.m_iMissionType = -1;	// randomize mission type selection
+
+	BattleDataState.MapData.PlotMapName = Preset.PlotName;
+	BattleDataState.MapData.Biome = Preset.Biome;
+	`ENVLIGHTINGMGR.SetCurrentMap(BattleDataState, "");
+
+	// start with the base alert level
+	if (Preset.AlertLevel >= 0)
+	{
+		AlertLevel = Clamp( Preset.AlertLevel, 
+			class'X2StrategyGameRulesetDataStructures'.default.MinMissionDifficulty, 
+			class'X2StrategyGameRulesetDataStructures'.default.MaxMissionDifficulty);
+
+		// then update with the campaign difficulty modifier
+		AlertLevel = Min(AlertLevel + class'X2StrategyGameRulesetDataStructures'.default.CampaignDiffModOnMissionDiff[ 2], 
+						class'X2StrategyGameRulesetDataStructures'.default.CampaignDiffMaxDiff[ 2 ]);
+
+		BattleDataState.SetAlertLevel( AlertLevel );
+	}
+
+	BattleDataState.SetForceLevel( Preset.ForceLevel );
+
+	if (Preset.SquadName != '')
+	{
+		class'UITacticalQuickLaunch_MapData'.static.GetSqaudMemberNames( Preset.SquadName, SquadMemberNames );
+		class'UITacticalQuickLaunch_MapData'.static.ApplySquad( SquadMemberNames );
+		CacheLastUsedSquad( Preset.SquadName );
+	}
+
+	if (Preset.QuestItemName != '')
+	{
+		BattleDataState.m_nQuestItem = Preset.QuestItemName;
+	}
 }
 
 simulated private function BuildButton_ToggleMapSize()
@@ -1130,7 +1220,6 @@ state GeneratingMap
 
 		Profile = `XPROFILESETTINGS;
 		Profile.WriteTacticalGameStartState(StartState);
-		`ONLINEEVENTMGR.SaveProfileSettings();
 
 		// add the strategy game start info to the tactical start state
 		if (bGenerateChallengeHistory)
@@ -1138,6 +1227,8 @@ state GeneratingMap
 			InitWithChallengeHistory( );
 			bGenerateChallengeHistory = false;
 		}
+
+		`ONLINEEVENTMGR.SaveProfileSettings();
 
 		if( !bDebugCameraActive )
 		{
@@ -1737,9 +1828,9 @@ state GeneratingMap
 							}
 						}
 						class'X2ChallengeEnemyForces'.static.SelectEnemyForces( EnemyForcesTemplate, TQLMissionSite, BattleDataState, BattleDataState.GetParentGameState() );
+					}
 				}
 			}
-		}
 		}
 
 		if (Mission.ForcedTacticalTags.Length > 0)
@@ -1750,6 +1841,14 @@ state GeneratingMap
 				XComHQ.TacticalGameplayTags.AddItem( Mission.ForcedTacticalTags[Index] );
 				XComHQ.CleanUpTacticalTags( );
 			}
+		}
+
+		if (History.GetSingleGameStateObjectForClass( class'XComGameState_LadderProgress', true ) != none)
+		{
+			`MAPS.RemoveAllStreamingMaps( );
+			BattleDataState.m_strMapCommand = "open" @ BattleDataState.MapData.PlotMapName $ "?game=XComGame.XComTacticalGame";
+			ConsoleCommand( BattleDataState.m_strMapCommand );
+			GotoState('Idle');
 		}
 	}
 
@@ -1834,7 +1933,7 @@ Begin:
 	{
 		//PIE cannot reload the quick launch map, so cannot be cleared
 		Button_GenerateMap.SetDisabled(false);
-		Button_ChooseMapData.SetDisabled(false);		
+		Button_ChooseMapData.SetDisabled(false);	
 	}
 	
 	if(bAutoStartBattleAfterGeneration)
@@ -1846,6 +1945,10 @@ Begin:
 		GotoState('Idle');
 	}
 }
+
+static native function CacheLastUsedSquad( name SquadName );
+static native function name GetLastUsedSquad( );
+static native function ResetLastUsedSquad( );
 
 //==============================================================================
 //		DEFAULTS:

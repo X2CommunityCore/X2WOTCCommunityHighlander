@@ -29,6 +29,8 @@ var UIEnemyArrowContainer       m_kEnemyArrows;
 var UIInventoryTactical			m_kInventoryTactical; //LOOTING
 var UITactical_Photobooth		m_kPhotographer;
 var UIMissionSummary            m_kMissionSummary;
+var UILadderUpgradeScreen		m_kLadderUpgrade;
+var UILadderSoldierInfo			m_kLadderSoldier;
 var UIChosenMissionSummary		m_kChosenMissionSummary;
 var UIChallengePostScreen		m_kChallengeModeSummary;
 var UIMultiplayerHUD            m_kMultiplayerHUD;
@@ -160,6 +162,10 @@ simulated function InitUIScreensComplete()
 	if (`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_ChallengeData', true) != none)
 	{
 		InitializeChallengeModeUI();
+	}
+	else if (`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_LadderProgress', true) != none)
+	{
+		InitializeLadderModeUI();
 	}
 
 	InitializeSpecialMissionUI();
@@ -480,7 +486,7 @@ simulated function UISpecialMissionHUD GetSpecialMissionHUD()
 
 simulated function UIChallengeModeHUD GetChallengeModeHUD()
 {
-	return UIChallengeModeHUD( ScreenStack.GetScreen( class'UIChallengeModeHUD' ) );
+	return UIChallengeModeHUD( ScreenStack.GetFirstInstanceOf( class'UIChallengeModeHUD' ) );
 }
 
 simulated function XComActionIconManager GetActionIconMgr()
@@ -658,6 +664,54 @@ simulated function UIEndGame()
 	ConsoleCommand("demostop");
 }
 
+simulated function UIRaiseLadderUpgradeScreen()
+{
+	if(m_kLadderUpgrade == none)
+		m_kLadderUpgrade = Spawn(class'UILadderUpgradeScreen', self);
+
+	ScreenStack.Push(m_kLadderUpgrade);
+}
+
+simulated function UICloseLadderUpgradeScreen()
+{
+	ScreenStack.Pop(m_kLadderUpgrade);
+	m_kLadderUpgrade.Destroy();
+
+	m_kLadderUpgrade = none;
+}
+
+simulated function UIRaiseLadderSoldierScreen()
+{
+	if (m_kLadderSoldier == none)
+		m_kLadderSoldier = Spawn(class'UILadderSoldierInfo', self);
+
+	ScreenStack.Push(m_kLadderSoldier);
+}
+
+simulated function UIRaiseLadderMedalScreen()
+{
+	local UITLELadderMedalScreen m_kLadderMedal;
+
+	m_kLadderMedal = Spawn(class'UITLELadderMedalScreen', self);
+	ScreenStack.Push(m_kLadderMedal);
+}
+
+simulated function UIRaiseLadderEndScreen()
+{
+	local UITLELadderEndScreen m_kLadderEndScreen;
+
+	m_kLadderEndScreen = Spawn(class'UITLELadderEndScreen', self);
+	ScreenStack.Push(m_kLadderEndScreen);
+}
+
+simulated function UICloseLadderSoldierScreen()
+{
+	ScreenStack.Pop(m_kLadderSoldier);
+	m_kLadderSoldier.Destroy();
+
+	m_kLadderSoldier = none;
+}
+
 //----------------------------------------------------
 
 simulated function UITimerMessage( string sTitle, string sSubtitle, string sCounter, int iUIState, bool bShow )
@@ -695,9 +749,15 @@ simulated function UIChallengeStartTimerMessage()
 	ScreenStack.Push( Spawn( class'UIChallengeModeScoringDialog', self ) );
 }
 
+simulated function UILadderStartTimerMessage()
+{
+	ScreenStack.Push( Spawn( class'UILadderModeScoringDialog', self ) );
+}
+
 simulated function bool WaitForChallengeAccept()
 {
-	return ScreenStack.GetScreen( class'UIChallengeModeScoringDialog' ) != none;
+	return (ScreenStack.GetScreen( class'UIChallengeModeScoringDialog' ) != none) ||
+		(ScreenStack.GetScreen( class'UILadderModeScoringDialog' ) != none);
 }
 
 simulated function UIAbilityHUD()
@@ -1345,6 +1405,15 @@ simulated function InitializeChallengeModeUI()
 		ScreenStack.Push( Spawn( class'UIChallengeModeHUD', self ) );
 	}
 	ScreenStack.GetScreen( class'UIChallengeModeHUD' ).AllowShowDuringCinematic( `XENGINE.IsMultiplayerGame( ) );
+}
+
+simulated function InitializeLadderModeUI()
+{
+	if (ScreenStack.GetScreen( class'UILadderModeHUD' ) == none && Get2DMovie( ).bIsInited)
+	{
+		ScreenStack.Push( Spawn( class'UILadderModeHUD', self ) );
+	}
+	ScreenStack.GetScreen( class'UILadderModeHUD' ).AllowShowDuringCinematic( `XENGINE.IsMultiplayerGame( ) );
 }
 
 simulated function OnPauseMenu(bool bOpened)

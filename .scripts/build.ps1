@@ -296,9 +296,9 @@ Robocopy.exe "$cookedpcconsoledir" "$modcookdir" *.tfc /NJH /XC /XN /XO
 Write-Host "Invoking CookPackages (this may take a while)"
 if ($final_release -eq $true)
 {
-    & "$sdkPath/binaries/Win64/XComGame.com" CookPackages -platform=pcconsole -final_release -unattended -quickanddirty -modcook -sha -multilanguagecook=INT+FRA+ITA+DEU+RUS+POL+KOR+ESN -singlethread -nopause >$null 2>&1
+    & "$sdkPath/binaries/Win64/XComGame.com" CookPackages -platform=pcconsole -final_release -quickanddirty -modcook -sha -multilanguagecook=INT+FRA+ITA+DEU+RUS+POL+KOR+ESN -singlethread -nopause #>$null 2>&1
 } else {
-    & "$sdkPath/binaries/Win64/XComGame.com" CookPackages -platform=pcconsole -unattended -quickanddirty -modcook -sha -multilanguagecook=INT+FRA+ITA+DEU+RUS+POL+KOR+ESN -singlethread -nopause >$null 2>&1
+    & "$sdkPath/binaries/Win64/XComGame.com" CookPackages -platform=pcconsole -quickanddirty -modcook -sha -multilanguagecook=INT+FRA+ITA+DEU+RUS+POL+KOR+ESN -singlethread -nopause #>$null 2>&1
 }
 
 if ($LASTEXITCODE -ne 0)

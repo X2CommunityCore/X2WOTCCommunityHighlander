@@ -193,6 +193,7 @@ var() bool bIsSpecial;							// unit is part of a special faction
 var() bool bIsFamous;							// unit is currently famous
 var() bool bSpawnedFromAvenger;					// unit was spawned from the avenger for a defense mission
 var() bool bMissionProvided;					// unit added to squad by mission.  Should be removed from squad on transition back to strategy.
+var() bool bNarrativeLadder;
 var() TDateTime m_RecruitDate;
 var() TDateTime m_KIADate; 
 var() string m_strCauseOfDeath;
@@ -2220,10 +2221,13 @@ function OnBeginTacticalPlay(XComGameState NewGameState)
 {
 	local X2EventManager EventManager;
 	local XComGameState_BattleData BattleDataState;
+	local XComGameStateHistory History;
+	local XComGameState_HeadquartersXCom XComHQ;
 
 	super.OnBeginTacticalPlay(NewGameState);
 
 	EventManager = `XEVENTMGR;
+	History = `XCOMHISTORY;
 
 	EventManager.TriggerEvent( 'OnUnitBeginPlay', self, self, NewGameState );
 
@@ -2249,10 +2253,18 @@ function OnBeginTacticalPlay(XComGameState NewGameState)
 	RegisterForEvents();
 
 	CleanupUnitValues(eCleanup_BeginTactical);
+	
+	// If the unit is in your squad (i.e. should be able to move at the start of tactical)
+	// remove any possible immobilization info
+	XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom', true));
+	if( XComHQ != none && XComHQ.IsUnitInSquad(GetReference()) )
+	{
+		ClearUnitValue(class'X2Ability_DefaultAbilitySet'.default.ImmobilizedValueName);
+	}
 
 	// Start Issue #44
 	// Store our starting will the first time we enter a mission sequence, for use in XComGameStateContext_WillRoll
-	BattleDataState = XComGameState_BattleData(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
+	BattleDataState = XComGameState_BattleData(History.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
 	// Don't store the will if we are in a multi-mission and we have already appeared in this mission
 	// This should catch cases like Lost&Abandoned, where units may appear first in the second part
 	if (
@@ -2271,7 +2283,7 @@ function OnBeginTacticalPlay(XComGameState NewGameState)
 	//So, if we're coming back into play, make sure to update the tile we now occupy.
 	if (bRemovedFromPlay && !GetMyTemplate().bDontClearRemovedFromPlay)
 	{
-		BattleDataState = XComGameState_BattleData(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
+		BattleDataState = XComGameState_BattleData(History.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
 		if(!BattleDataState.DirectTransferInfo.IsDirectMissionTransfer)
 		{
 			bRemovedFromPlay = false;
@@ -2859,10 +2871,28 @@ function GiveRandomPersonality()
 	local XComHumanPawn HumanPawn;
 	local int iChoice;
 
-	PersonalityTemplates = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager().GetAllTemplatesOfClass(class'X2SoldierPersonalityTemplate');
-	iChoice = `SYNC_RAND(PersonalityTemplates.Length);
+	local XComOnlineProfileSettings ProfileSettings;
+	local int BronzeScore, HighScore;
 
-	PersonalityTemplate = X2SoldierPersonalityTemplate(PersonalityTemplates[iChoice]);
+	PersonalityTemplates = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager().GetAllTemplatesOfClass(class'X2SoldierPersonalityTemplate');
+
+	ProfileSettings = `XPROFILESETTINGS;
+	BronzeScore = class'XComGameState_LadderProgress'.static.GetLadderMedalThreshold( 4, 0 );
+	HighScore = ProfileSettings.Data.GetLadderHighScore( 4 );
+
+	if (BronzeScore > HighScore)
+	{
+		do { // repick until we choose something not from TLE
+			iChoice = `SYNC_RAND(PersonalityTemplates.Length);
+			PersonalityTemplate = X2SoldierPersonalityTemplate(PersonalityTemplates[iChoice]);
+		} until (PersonalityTemplate.ClassThatCreatedUs.Name != 'X2StrategyElement_TLESoldierPersonalities');
+	}
+	else // anything will do
+	{
+		iChoice = `SYNC_RAND(PersonalityTemplates.Length);
+		PersonalityTemplate = X2SoldierPersonalityTemplate(PersonalityTemplates[iChoice]);
+	}
+
 	PersonalityTemplateName = PersonalityTemplate.DataName;
 	kAppearance.iAttitude = iChoice; // Attitude needs to be in sync
 
@@ -6135,10 +6165,6 @@ protected function OnUnitDied(XComGameState NewGameState, Object CauseOfDeath, c
 	}
 
 	Killer = XComGameState_Unit( History.GetGameStateForObjectID( SourceStateObjectRef.ObjectID ) );
-	if (Killer == None && LastDamagedByUnitID != 0)
-	{
-		Killer = XComGameState_Unit(History.GetGameStateForObjectID(LastDamagedByUnitID));
-	}
 
 	//	special handling for claymore kills - credit the reaper that placed the claymore, regardless of what blew it up
 	//	also special handling for remote start kills
@@ -6168,6 +6194,12 @@ protected function OnUnitDied(XComGameState NewGameState, Object CauseOfDeath, c
 			}
 		}
 	}
+
+	if (Killer == None && LastDamagedByUnitID != 0)
+	{
+		Killer = XComGameState_Unit(History.GetGameStateForObjectID(LastDamagedByUnitID));
+	}
+
 	//	special handling for templar ghosts - credit the creator of the ghost with any kills by the ghost
 	if (Killer != none && Killer.GhostSourceUnit.ObjectID > 0)
 	{
@@ -6213,7 +6245,7 @@ protected function OnUnitDied(XComGameState NewGameState, Object CauseOfDeath, c
 				CheckForFlankingEnemyKill(NewGameState, Killer);
 
 				//  Check for and trigger event to display rank up message if applicable
-				if (Killer.IsSoldier() && Killer.CanRankUpSoldier())
+				if (Killer.IsSoldier() && Killer.CanRankUpSoldier() && !class'X2TacticalGameRulesetDataStructures'.static.TacticalOnlyGameMode())
 				{
 					Killer.GetUnitValue('RankUpMessage', RankUpValue);
 					if (RankUpValue.fValue == 0)
@@ -6263,7 +6295,7 @@ protected function OnUnitDied(XComGameState NewGameState, Object CauseOfDeath, c
 			// This would really be done in the AI spawn manager, just don't roll loot for enemies,
 			// but that would require fixing up all the existing start states.  Doing it here at runtime is way easier.
 			// Also we do it before RollForSpecialLoot so that Templar Focus drops will still occur.
-			if (History.GetSingleGameStateObjectForClass( class'XComGameState_ChallengeData', true ) != none)
+			if (class'X2TacticalGameRulesetDataStructures'.static.TacticalOnlyGameMode( ))
 			{
 				PendingLoot.LootToBeCreated.Length = 0;
 			}
@@ -6274,13 +6306,14 @@ protected function OnUnitDied(XComGameState NewGameState, Object CauseOfDeath, c
 			{
 				MakeAvailableLoot(NewGameState);
 			}
-			else if( PendingLoot.LootToBeCreated.Length > 0 )
+			// do the tactical check again so that the 'Loot Destroyed' message isn't added for Psionic drops in Ladder and such
+			else if( (PendingLoot.LootToBeCreated.Length > 0) && !class'X2TacticalGameRulesetDataStructures'.static.TacticalOnlyGameMode( ) )
 			{
 				NewGameState.GetContext().PostBuildVisualizationFn.AddItem(VisualizeLootDestroyedByExplosives);
 			}
 
 			// no loot drops in Challenge Mode
-			if (History.GetSingleGameStateObjectForClass( class'XComGameState_ChallengeData', true ) == none)
+			if (!class'X2TacticalGameRulesetDataStructures'.static.TacticalOnlyGameMode( ))
 			{
 				RollForAutoLoot(NewGameState);
 			}
@@ -7836,7 +7869,7 @@ simulated native function XComGameState_Effect GetUnitAffectedByEffectState(name
 simulated native function bool IsUnitAffectedByDamageType(name DamageType) const;
 simulated native function bool IsUnitApplyingEffectName(name EffectName) const;
 simulated native function XComGameState_Effect GetUnitApplyingEffectState(name EffectName) const;
-simulated native function bool IsImpaired(optional bool bIgnoreStunned) const;
+simulated native function bool IsImpaired(optional bool bIgnoreStunned, optional bool bIgnoreImpairingMomentarily=false) const;
 simulated native function bool IsInCombat() const;
 simulated native function bool IsPanicked() const;
 simulated native function bool UsesWillSystem() const;
@@ -11749,6 +11782,12 @@ function UpdateTraversals()
 	}
 }
 
+function ClearAllTraversalChanges()
+{
+	TraversalChanges.Length = 0;
+	ResetTraversals();
+}
+
 function SetSoldierProgression(const out array<SCATProgression> Progression)
 {
 	m_SoldierProgressionAbilties = Progression;
@@ -12032,6 +12071,8 @@ function BuildAbilityTree(optional bool bRandomize = false)
 	local SoldierClassAbilitySlot AbilitySlot;
 	local SoldierClassAbilityType EmptyAbility;
 	local int RankIndex, SlotIndex, DeckIndex;
+	local XComGameState_BattleData BattleData;
+	local bool bIsBattleDataSkirmishMode;
 
 	ClassTemplate = GetSoldierClassTemplate();
 	AbilityTree.Length = 0;
@@ -12042,6 +12083,10 @@ function BuildAbilityTree(optional bool bRandomize = false)
 		
 		// Grab random ability decks
 		RandomAbilityDecks = ClassTemplate.RandomAbilityDecks;
+
+		// For new Skirmish Mode. This needs to be checked to avoid random abilities.
+		BattleData = XComGameState_BattleData(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_BattleData', true));
+		bIsBattleDataSkirmishMode = (BattleData != none) && (BattleData.m_strDesc == "Skirmish Mode");
 
 		// Go rank by rank, filling in our tree
 		for(RankIndex = 0; RankIndex < ClassTemplate.GetMaxConfiguredRank(); RankIndex++)
@@ -12055,7 +12100,8 @@ function BuildAbilityTree(optional bool bRandomize = false)
 				AbilitySlot = AllAbilitySlots[SlotIndex];
 
 				// First check for random ability from deck
-				if(AbilitySlot.RandomDeckName != '')
+				// Do not give random abilities to units in Skirmish Mode
+				if(!bIsBattleDataSkirmishMode && (AbilitySlot.RandomDeckName != ''))
 				{
 					DeckIndex = RandomAbilityDecks.Find('DeckName', AbilitySlot.RandomDeckName);
 
@@ -13701,6 +13747,7 @@ function array<Name> GetHackRewards(Name HackAbilityName)
 	local X2HackRewardTemplate HackTemplate;
 	local X2HackRewardTemplateManager HackTemplateManager;
 	local array<Name> ApprovedHackRewards;
+	local array<Name> RandomHackRewards;
 
 	MyTemplate = GetMyTemplate();
 	HackTemplateManager = class'X2HackRewardTemplateManager'.static.GetHackRewardTemplateManager();
@@ -13713,11 +13760,23 @@ function array<Name> GetHackRewards(Name HackAbilityName)
 		{
 			ApprovedHackRewards.AddItem(HackTemplateName);
 
+			if( class'X2TacticalGameRulesetDataStructures'.static.TacticalOnlyGameMode( ) && (HackAbilityName == 'FinalizeSKULLMINE') && (ApprovedHackRewards.Length == 1) )
+				break;
+
 			if( ApprovedHackRewards.Length == 3 )
 			{
 				break;
 			}
 		}
+	}
+
+	if( class'X2TacticalGameRulesetDataStructures'.static.TacticalOnlyGameMode( ) &&
+		(ApprovedHackRewards.Length < 3) && (ApprovedHackRewards.Length == 1) )
+	{
+		`TACTICALMISSIONMGR.RollRandomTacticalHackRewards( RandomHackRewards );
+
+		ApprovedHackRewards.AddItem( RandomHackRewards[1] );
+		ApprovedHackRewards.AddItem( RandomHackRewards[2] );
 	}
 
 	if (ApprovedHackRewards.Length != 3 && ApprovedHackRewards.Length != 0 )

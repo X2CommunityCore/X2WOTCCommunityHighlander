@@ -118,6 +118,8 @@ static function XComGameState CreateStrategyGameStart(
 	{
 		History = `XCOMHISTORY;
 
+		History.ResetHistory( ); // clear out anything else that may have been in the history (shell save, ladders, challenges, whatever)
+
 		StrategyStartContext = XComGameStateContext_StrategyGameRule(class'XComGameStateContext_StrategyGameRule'.static.CreateXComGameStateContext());
 		StrategyStartContext.GameRuleType = eStrategyGameRule_StrategyGameStart;
 		StartState = History.CreateNewGameState(false, StrategyStartContext);

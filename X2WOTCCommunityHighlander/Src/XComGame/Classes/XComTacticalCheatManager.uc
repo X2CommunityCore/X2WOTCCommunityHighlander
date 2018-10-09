@@ -6711,6 +6711,11 @@ exec function X2MPPrintRulesetWaitingLocations()
 	}
 }
 
+exec function X2ToggleLadderNarratives( )
+{
+	`XPROFILESETTINGS.Data.m_bLadderNarrativesOn = !`XPROFILESETTINGS.Data.m_bLadderNarrativesOn;
+}
+
 DefaultProperties
 {
 	bGoldenPathHacks=false
