@@ -3,6 +3,7 @@ class X2WOTCCH_UIScreenListener_ShellSplash extends UIScreenListener config(Game
 var config bool bEnableVersionDisplay;
 
 var localized string strCHLVersion;
+var string HelpLink;
 
 event OnInit(UIScreen Screen)
 {
@@ -34,11 +35,15 @@ event OnInit(UIScreen Screen)
 		iMinor = CHVersion.MinorVersion;
 		iPatch = CHVersion.PatchVersion;
 	}
+	else
+	{
+		`log("Companion script package loaded, but XComGame replacement is not! Please see" @ HelpLink @ "for help.", , 'X2WOTCCommunityHighlander');
+	}
 	VersionString = Repl(VersionString, "%MAJOR", iMajor);
 	VersionString = Repl(VersionString, "%MINOR", iMinor);
 	VersionString = Repl(VersionString, "%PATCH", iPatch);
 
-	`log("X2CH SCREEN LISTENER ON SPLASH" @ VersionString);
+	`log("Showing version" @ VersionString @ "on shell screen...", , 'X2WOTCCommunityHighlander');
 	VersionText = ShellScreen.Spawn(class'UIText', ShellScreen);
 	VersionText.InitText('theVersionText');
 	VersionText.SetText(VersionString, OnTextSizeRealized);
@@ -62,5 +67,6 @@ function OnTextSizeRealized()
 
 defaultProperties
 {
-    ScreenClass = none
+	ScreenClass = none
+	HelpLink = "https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/wiki/Troubleshooting"
 }

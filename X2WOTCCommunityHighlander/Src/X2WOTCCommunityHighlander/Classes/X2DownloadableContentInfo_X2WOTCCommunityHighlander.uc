@@ -14,7 +14,7 @@ class X2DownloadableContentInfo_X2WOTCCommunityHighlander extends X2Downloadable
 /// </summary>
 static event OnPostTemplatesCreated()
 {
-	`log("x2wotccommunityhighlander :: present and correct");
+	`log("Companion script package loaded", , 'X2WOTCCommunityHighlander');
 
 	// Begin Issue #123
 	class'CHHelpers'.static.RebuildPerkContentCache();
