@@ -120,6 +120,7 @@ SET "SDKLocation=.\steamapps\common\XCOM 2 War of the Chosen SDK"
 SET "GameLocation=.\steamapps\common\XCOM 2\XCom2-WarOfTheChosen"
 ```
 4. Run CookCommunityHighlander.bat by double-clicking it.
+5. If a message like "Scripts are outdated. Would you like to rebuild now?" pops up, click "No".
 
 ## Cooking a Final Release (Manual method)
 ### One-time preparation
@@ -149,6 +150,8 @@ Start by building the mod through ModBuddy, as you normally would. Then, enter t
 "%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\Binaries\Win64\XComGame.exe" CookPackages -platform=pcconsole -final_release -quickanddirty -modcook -sha -multilanguagecook=INT+FRA+ITA+DEU+RUS+POL+KOR+ESN -singlethread
 ```
 
+If a message like "Scripts are outdated. Would you like to rebuild now?" pops up, click "No".
+
 The commands above create cooked files for your `XComGame` and `Engine` package replacements in
 `%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\XComGame\Published\CookedPCConsole`: 
 ```
@@ -168,8 +171,6 @@ see any of your script logs.
 
 
 ### Using noseekfreeloading
-
-The -noseekfreeloading switch is currently non-functional, as of the current patch. **Do not run the game with this switch or it will crash!** If it is fixed in a future patch, continue reading the rest of this section.
 
 Before using noseekfreeloading, a few things need to be done to ensure the game
 actually runs without crashing.

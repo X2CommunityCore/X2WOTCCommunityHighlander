@@ -154,6 +154,7 @@ event OnCreation(optional X2DataTemplate Template)
 	local X2WeaponTemplate WeaponTemplate;
 	local StatBoost ItemStatBoost;
 	local int idx;
+	local bool bInSkirmish;
 
 	super.OnCreation(Template);
 
@@ -168,9 +169,11 @@ event OnCreation(optional X2DataTemplate Template)
 	{
 		ItemManager = GetMyTemplateManager();
 
+		bInSkirmish = `SCREENSTACK.GetFirstInstanceOf(class'UITLE_SkirmishModeMenu') != none;
+
 		for(idx = 0; idx < EquipmentTemplate.StatsToBoost.Length; idx++)
 		{
-			if(ItemManager.GetItemStatBoost(EquipmentTemplate.StatBoostPowerLevel, EquipmentTemplate.StatsToBoost[idx], ItemStatBoost))
+			if(ItemManager.GetItemStatBoost(EquipmentTemplate.StatBoostPowerLevel, EquipmentTemplate.StatsToBoost[idx], ItemStatBoost, bInSkirmish))
 			{
 				StatBoosts.AddItem(ItemStatBoost);
 			}
@@ -727,6 +730,7 @@ simulated function WipeUpgradeTemplates()
 
 simulated function bool HasBeenModified()
 {
+	local X2WeaponTemplate WeaponTemplate;
 	local XComLWTuple Tuple; //start of issue #183 - added mod event hook for mods wanting to have certain items not be stacked
 	local bool bOverrideItemModified, bItemModified; 
 
@@ -745,10 +749,20 @@ simulated function bool HasBeenModified()
 		return bItemModified; 
 	} //end issue #183
 
+	if (Nickname != "")
+		return true;
 
 	//start issue #104: added check for whether a item gamestate has any attached component object ids. If so, don't put it in a stack since a mod has attached something to it.
-	return Nickname != "" || GetMyWeaponUpgradeTemplateNames().Length > 0 || ComponentObjectIds.Length > 0;
+	if (ComponentObjectIDs.Length > 0)
+		return true;
 	//end issue #104
+		
+	WeaponTemplate = X2WeaponTemplate( m_ItemTemplate );
+
+	if ((WeaponTemplate != none) && (WeaponTemplate.NumUpgradeSlots > 0) && (GetMyWeaponUpgradeTemplateNames().Length > 0))
+		return true;
+
+	return false;
 }
 
 simulated function bool IsStartingItem()

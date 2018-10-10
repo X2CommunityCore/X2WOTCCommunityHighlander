@@ -1238,8 +1238,6 @@ Begin:
 		Sleep(0);
 	}
 
-	WorldInfo.MyLocalEnvMapManager.SetEnableCaptures(TRUE);
-
 	GetGeoscape().m_kBase.UpdateFacilityProps();	
 	GetGeoscape().m_kBase.m_kCrewMgr.PopulateBaseRoomsWithCrew();
 	Sleep(0.1); //We don't want to populate the base rooms while capturing the environment, as it is very demanding on the games resources
@@ -1248,6 +1246,8 @@ Begin:
 	{
 		Sleep(0);
 	}
+
+	WorldInfo.MyLocalEnvMapManager.SetEnableCaptures(TRUE);
 
 	if(ShowDropshipInterior())
 	{

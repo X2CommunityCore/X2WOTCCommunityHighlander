@@ -100,6 +100,10 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(AddChallengeHackAbility('ChallengeMode_Hack_Workstation', 'Hack_Workstation', false));
 	Templates.AddItem(AddChallengeHackAbility('ChallengeMode_Hack_ObjectiveChest', 'Hack_ObjectiveChest', false));
 
+	// Ladder mode ability
+	Templates.AddItem(AddObjectiveInteractAbility('Interact_SweaterTube'));
+	Templates.AddItem(AddObjectiveHackAbility('Hack_Scan'));
+
 	return Templates;
 }
 
@@ -3246,10 +3250,13 @@ simulated function Knockout_BuildVisualization(XComGameState VisualizeGameState)
 
 	local VisualizationActionMetadata        EmptyTrack;
 	local VisualizationActionMetadata        ActionMetadata;
+	local VisualizationActionMetadata		 TargetActionMetadata;
 
 	local X2Action_PlaySoundAndFlyOver SoundAndFlyOver;
 	local int EffectIndex;
 	local X2AbilityTemplate AbilityTemplate;
+	local name EffectApplyResult, UnconsciousEffectApplyResult;
+	local X2Effect_Persistent TestEffect;
 
 	History = `XCOMHISTORY;
 
@@ -3269,29 +3276,39 @@ simulated function Knockout_BuildVisualization(XComGameState VisualizeGameState)
 	SoundAndFlyOver = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded));
 	SoundAndFlyOver.SetSoundAndFlyOverParameters(None, Ability.GetMyTemplate().LocFlyOverText, '', eColor_Good);
 
-	class'X2Action_ExitCover'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded);
-	class'X2Action_Knockout'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded);
-	class'X2Action_EnterCover'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded);
-
 	for( EffectIndex = 0; EffectIndex < AbilityTemplate.AbilityShooterEffects.Length; ++EffectIndex )
 	{
 		AbilityTemplate.AbilityShooterEffects[EffectIndex].AddX2ActionsForVisualization(VisualizeGameState, ActionMetadata, Context.FindShooterEffectApplyResult(AbilityTemplate.AbilityShooterEffects[EffectIndex]));
 	}
 
-	
 	//Configure the visualization track for the target
 	//****************************************************************************************
-	ActionMetadata = EmptyTrack;
-	ActionMetadata.StateObject_OldState = History.GetGameStateForObjectID(TargetUnitRef.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1);
-	ActionMetadata.StateObject_NewState = VisualizeGameState.GetGameStateForObjectID(TargetUnitRef.ObjectID);
-	ActionMetadata.VisualizeActor = History.GetVisualizer(TargetUnitRef.ObjectID);
+	TargetActionMetadata = EmptyTrack;
+	TargetActionMetadata.StateObject_OldState = History.GetGameStateForObjectID(TargetUnitRef.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1);
+	TargetActionMetadata.StateObject_NewState = VisualizeGameState.GetGameStateForObjectID(TargetUnitRef.ObjectID);
+	TargetActionMetadata.VisualizeActor = History.GetVisualizer(TargetUnitRef.ObjectID);
 
 	for( EffectIndex = 0; EffectIndex < AbilityTemplate.AbilityTargetEffects.Length; ++EffectIndex )
 	{
-		AbilityTemplate.AbilityTargetEffects[EffectIndex].AddX2ActionsForVisualization(VisualizeGameState, ActionMetadata, Context.FindTargetEffectApplyResult(AbilityTemplate.AbilityTargetEffects[EffectIndex]));
+		EffectApplyResult = Context.FindTargetEffectApplyResult(AbilityTemplate.AbilityTargetEffects[EffectIndex]);
+		AbilityTemplate.AbilityTargetEffects[EffectIndex].AddX2ActionsForVisualization(VisualizeGameState, TargetActionMetadata, EffectApplyResult);
+		
+		TestEffect = X2Effect_Persistent(AbilityTemplate.AbilityTargetEffects[EffectIndex]);
+		if( (TestEffect != none) &&
+			(TestEffect.EffectName == class'X2StatusEffects'.default.UnconsciousName) &&
+			(UnconsciousEffectApplyResult != 'AA_Success') )
+		{
+			UnconsciousEffectApplyResult = EffectApplyResult;
+		}
 	}
 
+	if( UnconsciousEffectApplyResult == 'AA_Success' )
+	{
+		class'X2Action_ExitCover'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded);
+		class'X2Action_Knockout'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded);
+		class'X2Action_EnterCover'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded);
 	}
+}
 
 simulated function Knockout_BuildAffectedVisualizationSync(name EffectName, XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata)
 {
@@ -3304,8 +3321,10 @@ simulated function Knockout_BuildAffectedVisualizationSync(name EffectName, XCom
 static function X2DataTemplate AddKnockoutSelfAbility()
 {
 	local X2AbilityTemplate                 Template;
-	local X2AbilityTrigger_PlayerInput      InputTrigger;
+	local X2AbilityTrigger_Placeholder      InputTrigger;
 	local X2AbilityCost_ActionPoints        ActionPointCost;
+	local array<name> SkipExclusions;
+	local X2Effect_RemoveEffectsByDamageType RemoveEffects;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'KnockoutSelf');
 
@@ -3318,22 +3337,46 @@ static function X2DataTemplate AddKnockoutSelfAbility()
 	Template.AbilityTargetStyle = default.SelfTarget;
 	Template.AbilitySourceName = 'eAbilitySource_Standard';
 
-	InputTrigger = new class'X2AbilityTrigger_PlayerInput';
+	InputTrigger = new class'X2AbilityTrigger_Placeholder';
 	Template.AbilityTriggers.AddItem(InputTrigger);
 
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
-	Template.AddShooterEffectExclusions();
+
+	// disorient and burning shouldn't prevent a unit from being knocked out (this is triggered systemically)
+	SkipExclusions.AddItem(class'X2AbilityTemplateManager'.default.DisorientedName);
+	SkipExclusions.AddItem(class'X2StatusEffects'.default.BurningName);
+	SkipExclusions.AddItem(class'X2Ability_Viper'.default.BindSustainedEffectName);
+	SkipExclusions.AddItem(class'X2AbilityTemplateManager'.default.BoundName);
+	Template.AddShooterEffectExclusions( SkipExclusions );
 
 	Template.AbilitySourceName = 'eAbilitySource_Standard';
-	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_ShowIfAvailable;
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;
 	Template.Hostility = eHostility_Defensive;
 	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_coupdegrace";
+
 	Template.AddTargetEffect(class'X2StatusEffects'.static.CreateUnconsciousStatusEffect());
+
+	RemoveEffects = new class'X2Effect_RemoveEffectsByDamageType';
+	RemoveEffects.DamageTypesToRemove.AddItem('stun');
+	RemoveEffects.DamageTypesToRemove.AddItem('fire');
+	RemoveEffects.DamageTypesToRemove.AddItem('poison');
+	RemoveEffects.DamageTypesToRemove.AddItem(class'X2Effect_ParthenogenicPoison'.default.ParthenogenicPoisonType);
+	RemoveEffects.DamageTypesToRemove.AddItem('acid');
+
+	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.DisorientedName);
+	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.ConfusedName);
+	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.PanickedName);
+	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.StunnedName);
+	RemoveEffects.EffectNamesToRemove.AddItem(class'X2Effect_MindControl'.default.EffectName);
+	RemoveEffects.EffectNamesToRemove.AddItem(class'X2Ability_Viper'.default.BindSustainedEffectName);
+	Template.AddTargetEffect( RemoveEffects );
 
 	Template.bAllowedByDefault = false;
 
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState; // just adds the unconscious status effect
 	Template.BuildVisualizationFn = Knockout_BuildVisualization;
+
+	Template.PostActivationEvents.AddItem('KnockSelfoutUnconscious');
 
 	Template.bDontDisplayInAbilitySummary = true;
 

@@ -3449,14 +3449,17 @@ simulated event Tick( float fDeltaT )
 			DebugShowOrientation();
 		}
 
-		if (IsInCover() && GetALocalPlayerController().CheatManager != none  && XComTacticalCheatManager(GetALocalPlayerController().CheatManager).bShowFlankingMarkers)
+		if ( GetALocalPlayerController().CheatManager != none  && XComTacticalCheatManager(GetALocalPlayerController().CheatManager).bShowFlankingMarkers)
 		{
-			DrawFlankingMarkers(GetCoverPoint(), self);
-
-			// If we're on the other team, draw flanking lines to the cursor
-			if (`BATTLE.m_kActivePlayer != GetPlayer())
+			if( IsInCover() )
 			{
-				DrawFlankingCursor(self);
+				DrawFlankingMarkers(GetCoverPoint(), self);
+
+				// If we're on the other team, draw flanking lines to the cursor
+				if (`BATTLE.m_kActivePlayer != GetPlayer())
+				{
+					DrawFlankingCursor(self);
+				}
 			}
 		}
 `endif

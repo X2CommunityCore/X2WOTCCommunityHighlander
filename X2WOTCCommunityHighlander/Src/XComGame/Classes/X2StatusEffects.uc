@@ -270,9 +270,12 @@ static function BleedingOutEffectRemoved(X2Effect_Persistent PersistentEffect, c
 
 	UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', ApplyEffectParameters.TargetStateObjectRef.ObjectID));
 	if (!bCleansed)
-	{		
-		UnitState.SetCurrentStat(eStat_HP, 0);		
-		UnitState.OnUnitBledOut(NewGameState, PersistentEffect, ApplyEffectParameters.SourceStateObjectRef, ApplyEffectParameters);
+	{
+		if (UnitState.IsAlive())
+		{
+			UnitState.SetCurrentStat(eStat_HP, 0);
+			UnitState.OnUnitBledOut(NewGameState, PersistentEffect, ApplyEffectParameters.SourceStateObjectRef, ApplyEffectParameters);
+		}
 	}
 	else
 	{
@@ -1647,6 +1650,7 @@ static function UnconsciousEffectRemoved(X2Effect_Persistent PersistentEffect, c
 
 	UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', ApplyEffectParameters.TargetStateObjectRef.ObjectID));
 	UnitState.bUnconscious = false;
+	UnitState.ClearUnitValue('LadderKilledScored');
 
 	EventManager.TriggerEvent('UnitUnconsciousRemoved', UnitState, UnitState, NewGameState);
 }
@@ -1687,7 +1691,7 @@ static function BoundEffectAdded(X2Effect_Persistent PersistentEffect, const out
 		return;
 
 	// Immobilize to prevent scamper, panic, or movement from enabling this unit to move again.
-	BoundUnit.SetUnitFloatValue(class'X2Ability_DefaultAbilitySet'.default.ImmobilizedValueName, 1, eCleanup_Never);
+	BoundUnit.SetUnitFloatValue(class'X2Ability_DefaultAbilitySet'.default.ImmobilizedValueName, 1, eCleanup_BeginTactical);
 
 	`XEVENTMGR.TriggerEvent('UnitBound', BoundUnit, BindingUnit, NewGameState);
 }
@@ -1731,7 +1735,8 @@ static function BoundVisualizationTicked(XComGameState VisualizeGameState, out V
 
 	// We have to skip the viper for these visualizations because, although Vipers can never actually be bound through gameplay;,
 	// the Viper's Bind ability binds itself for animation visualization reasons.
-	if( UnitState.GetMyTemplateName() == 'Viper' )
+	if( (UnitState.GetMyTemplateName() == 'Viper') ||
+		(UnitState.GetMyTemplateName() == 'ViperMP') )
 	{
 		return;
 	}
@@ -1764,7 +1769,8 @@ static function BoundVisualizationRemoved(XComGameState VisualizeGameState, out 
 
 	// We have to skip the viper for these visualizations because, although Vipers can never actually be bound through gameplay;,
 	// the Viper's Bind ability binds itself for animation visualization reasons.
-	if( UnitState.GetMyTemplateName() == 'Viper' )
+	if( (UnitState.GetMyTemplateName() == 'Viper') ||
+		(UnitState.GetMyTemplateName() == 'ViperMP') )
 	{
 		return;
 	}

@@ -197,23 +197,23 @@ static function bool AcquireHackRewards(
 	// Achievement: Hack a Sectopod
 	if (`XENGINE.IsSinglePlayerGame() && !(`ONLINEEVENTMGR.bIsChallengeModeGame))
 	{
-	if (HackTarget != none)
-	{
-		HackTargetUnit = XComGameState_Unit(HackTarget);
-		if( HackTargetUnit != None && HackTargetUnit.GetMyTemplate().CharacterGroupName == 'Sectopod' )
+		if (HackTarget != none)
 		{
-			if (HackWasASuccess)
+			HackTargetUnit = XComGameState_Unit(HackTarget);
+			if (HackTargetUnit != None && HackTargetUnit.GetMyTemplate().CharacterGroupName == 'Sectopod')
 			{
-				`ONLINEEVENTMGR.UnlockAchievement(AT_Hacker);
+				if (HackWasASuccess)
+				{
+					`ONLINEEVENTMGR.UnlockAchievement(AT_Hacker);
+				}
 			}
 		}
-	}
 
-	// Achievement: Earning the best hack reward
-	if (HackWasASuccess && (UserSelectedReward != 0) && AttemptedBestHack)
-	{
-		`ONLINEEVENTMGR.UnlockAchievement(AT_HackGain3Rewards);
-	}
+		// Achievement: Earning the best hack reward
+		if (HackWasASuccess && (UserSelectedReward != 0) && AttemptedBestHack)
+		{
+			`ONLINEEVENTMGR.UnlockAchievement(AT_HackGain3Rewards);
+		}
 	}
 
 	return HackWasASuccess;

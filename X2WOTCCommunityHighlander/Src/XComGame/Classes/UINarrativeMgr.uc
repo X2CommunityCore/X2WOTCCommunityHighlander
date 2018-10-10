@@ -1167,6 +1167,14 @@ simulated function BeginConversation(optional bool bMuffleVOOnly = true)
 	local float fTimerDuration;
 	local int SoundID;	
 
+	// skip while ladder vo is still playing
+	if (`XENGINE.IsLoadingAudioPlaying())
+	{
+		SetTimer(0.01, false, 'BeginConversation', self);
+		return;
+	}
+
+
 	if (m_arrConversations[0].NarrativeMoment.bUseCinematicSoundClass)
 	{
 		StartCinematicSound();

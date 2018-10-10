@@ -657,6 +657,7 @@ static function EmptyCovertActionSlot(XComGameState NewGameState, StateObjectRef
 	NewActionState.UpdateNegatedRisks(NewGameState);
 	NewActionState.UpdateDurationForBondmates(NewGameState);
 }
+
 static function CheckToUpgradePrimaryWeapons(XComGameState NewGameState, XComGameState_Unit UnitState)
 {
 	local XComGameState_Item EquippedPrimaryWeapon, UpgradedItemState;
