@@ -100,7 +100,7 @@ related to that issue should also have the issue number marked in the same way.
 
 XComGame replacements, like this highlander, can only be loaded successfully into XCOM 2 in one of two ways:
 1. As a cooked package (a .upk file). This is how the unmodified vanilla game works.
-2. With the `-noseekfreeloading` switch, which is designed for debugging purposes. This method has been non-functional since the December patch, and should be avoided. The only way to test highlander changes is by cooking a release.
+2. With the `-noseekfreeloading` switch, which is designed for debugging purposes.
 
 Most of the information here about building the game comes from Abe Clancy's excellent post on the Nexus
 Forums:
