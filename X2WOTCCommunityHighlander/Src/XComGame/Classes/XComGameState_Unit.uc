@@ -7098,6 +7098,7 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 	local X2SimpleBodyPartFilter Filter;
 	local X2ItemTemplate ItemTemplate;
 	local array<name> DLCNames; //issue #155 addition
+	local XComLWTuple Tuple; //issue #299 addition
 
 	ItemTemplate = Item.GetMyTemplate();
 	
@@ -7140,8 +7141,18 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 				// End Issue #171
 			}
 
+			// Start Issue #299
+			Tuple = new class'XComLWTuple';
+			Tuple.Id = 'OverrideRandomizeAppearance';
+			Tuple.Data.Add(1);
+			Tuple.Data[0].kind = XComLWTVBool;
+			Tuple.Data[0].b = false;
+
+			`XEVENTMGR.TriggerEvent('OverrideRandomizeAppearance', Tuple, Item, none);
+
 			//  must ensure appearance matches 
-			if (GetMyTemplate().bAppearanceDefinesPawn && !GetMyTemplate().bForceAppearance)
+			if (!Tuple.Data[0].b && GetMyTemplate().bAppearanceDefinesPawn && !GetMyTemplate().bForceAppearance)
+			// End Issue #299
 			{
 				BodyPartMgr = class'X2BodyPartTemplateManager'.static.GetBodyPartTemplateManager();
 				ArmorPartTemplate = BodyPartMgr.FindUberTemplate("Torso", kAppearance.nmTorso);
