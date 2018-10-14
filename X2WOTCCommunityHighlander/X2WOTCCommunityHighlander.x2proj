@@ -414,6 +414,9 @@
     <Content Include="Src\XComGame\Classes\UITacticalQuickLaunch.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UITooltipInfoList.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XGAIPlayer_TeamTwoDefault.uc">
       <SubType>Content</SubType>
     </Content>
