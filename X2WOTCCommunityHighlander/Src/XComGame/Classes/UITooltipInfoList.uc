@@ -95,7 +95,7 @@ simulated function RefreshDisplay(array<UISummary_ItemStat> SummaryItems)
 	}
 
 	// Hide any excess list items if we didn't use them. 
-	for( i = SummaryItems.Length; i < LabelFields.Length; i++ )
+	for( i = SummaryItems.Length - 1; i < LabelFields.Length; i++ ) // Issue #303, fix off-by-one error
 	{
 		LabelFields[i].Hide();
 		DescriptionFields[i].Hide();
