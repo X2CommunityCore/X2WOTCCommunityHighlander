@@ -406,39 +406,54 @@ simulated function StartLadder(int LadderIndex, int DifficultySelection, bool Na
 	local XComGameStateHistory History;	
 	local XComGameState_CampaignSettings CurrentCampaign;
 	local XComGameState_LadderProgress LadderData;
-	local int SoldierIndex;
-	local XComGameState_Unit GameUnit;
-	local XComGameState_HeadquartersXCom XComHQ;
-	local StateObjectReference UnitStateRef;
+	// Issue #307 Commenting out now unused variables to remove warnings
+	//local int SoldierIndex;
+	//local XComGameState_Unit GameUnit;
+	//local XComGameState_HeadquartersXCom XComHQ;
+	//local StateObjectReference UnitStateRef;
 
 	History = class'XComGameStateHistory'.static.GetGameStateHistory();
 
+	// Start Issue #307
+	// Mr. Nice since we are bypassing XComCheatManager::StartLadder(), have to do house keeping on
+	// StartTime, GameIndex, and Difficulty ourselves.
+	History.ReadHistoryFromFile("Ladders/", "Ladder_" $ LadderIndex);
+	CurrentCampaign = XComGameState_CampaignSettings(History.GetSingleGameStateObjectForClass(class'XComGameState_CampaignSettings'));
+	CurrentCampaign.SetStartTime( class'XComCheatManager'.static.GetCampaignStartTime( ) );
+	CurrentCampaign.SetGameIndexFromProfile( );
+
 	if (LadderIndex >= 10) // replaying a procedural ladder, difficulty is locked to what was generated
 	{
-		History.ReadHistoryFromFile("Ladders/", "Ladder_" $ LadderIndex);
-
-		CurrentCampaign = XComGameState_CampaignSettings(History.GetSingleGameStateObjectForClass(class'XComGameState_CampaignSettings'));
 		DifficultySelection = CurrentCampaign.DifficultySetting;
 	}
-	
+	else
+	{
+		CurrentCampaign.SetDifficulty(DifficultySelection);
+	}
 	// starting an existing ladder from scratch
-	XComCheatManager(GetALocalPlayerController().CheatManager).StartLadder(LadderIndex, DifficultySelection);
+	//XComCheatManager(GetALocalPlayerController().CheatManager).StartLadder(LadderIndex, DifficultySelection);
 	
-	XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
+	//XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
 
 	LadderData = XComGameState_LadderProgress(History.GetSingleGameStateObjectForClass(class'XComGameState_LadderProgress'));
-
-	SoldierIndex = 0;
-	foreach XComHQ.Squad(UnitStateRef)
-	{
+	//Mr. Nice #307: As Hacky as this looks, it does the Right Thing. It combines StartLadder() above
+	// with the commented out code below, plus setting up the squad respecting config settings etc.
+	LadderData.LadderRung--;
+	LadderData.ProceedToNextRung();
+	LadderData = XComGameState_LadderProgress(History.GetSingleGameStateObjectForClass(class'XComGameState_LadderProgress'));
+	ConsoleCommand( LadderData.ProgressCommand );
+	//SoldierIndex = 0;
+	//foreach XComHQ.Squad(UnitStateRef)
+	//{
 		// pull the unit from the archives, and add it to the start state
-		GameUnit = XComGameState_Unit(History.GetGameStateForObjectID(UnitStateRef.ObjectID));
+		//GameUnit = XComGameState_Unit(History.GetGameStateForObjectID(UnitStateRef.ObjectID));
 
-		if(LadderIndex <= 4)
-			class'XComGameState_LadderProgress'.static.LocalizeUnitName(GameUnit, SoldierIndex, LadderIndex);
+		//if(LadderIndex <= 4)
+			//class'XComGameState_LadderProgress'.static.LocalizeUnitName(GameUnit, SoldierIndex, LadderIndex);
 
-		++SoldierIndex;
-	}
+		//++SoldierIndex;
+	//}
+	// End Issue #307
 
 	CurrentCampaign = XComGameState_CampaignSettings(History.GetSingleGameStateObjectForClass(class'XComGameState_CampaignSettings'));
 	CurrentCampaign.BizAnalyticsCampaignID = `FXSLIVE.GetGUID();

@@ -1010,11 +1010,14 @@ private static function UpdateUnitState( XComGameState StartState, XComGameState
 	local int index;
 	local array<XComGameState_Item> BackpackItems;
 
-	`assert( UnitState.GetSoldierClassTemplateName() == SoldierConfigData.SoldierClassTemplate );
-
+	// Single line change for Issue #307 - We are allowing SoldierClass to be changed, but not CharacterTemplate (yet)
+	`assert( UnitState.GetMyTemplateName() == SoldierConfigData.CharacterTemplate );
+	// Single line addition for Issue #307
+	UnitState.ResetRankToRookie();
 	while (UnitState.GetRank() < SoldierConfigData.SoldierRank)
 	{
-		UnitState.RankUpSoldier( StartState );
+		// Single line change for Issue #307
+		UnitState.RankUpSoldier( StartState, SoldierConfigData.SoldierClassTemplate);
 	}
 
 	for (Progression.iRank = 0; Progression.iRank < SoldierConfigData.SoldierRank; ++Progression.iRank)
