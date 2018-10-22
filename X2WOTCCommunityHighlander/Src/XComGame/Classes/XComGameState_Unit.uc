@@ -80,6 +80,17 @@ enum EIdleTurretState
 	eITS_XCom_ActiveAlerted,	// XCom-controlled active state, has no targets visible.
 };
 
+//Begin Issue #313
+struct StatModifier
+{
+	var XComGameState_Effect Mod;
+	var float StatAmount;
+	var EStatModOp ModOp;
+	var float fModValue;
+	var int iModValue;
+	var float fError;
+};
+//End Issue #313
 //*******************************************
 
 var() protected name                             m_TemplateName;
@@ -6512,6 +6523,130 @@ native function float GetCurrentStat( ECharStatType Stat ) const;
 native function ModifyCurrentStat(ECharStatType Stat, float Delta);
 native function SetCurrentStat( ECharStatType Stat, float NewValue );
 native function GetStatModifiers(ECharStatType Stat, out array<XComGameState_Effect> Mods, out array<float> ModValues, optional XComGameStateHistory GameStateHistoryObject);
+
+// Begin Issue #313
+function GetStatModifiersFixed(ECharStatType Stat, out array<XComGameState_Effect> Mods, out array<float> ModValues, optional XComGameStateHistory GameStateHistoryObject, optional bool RoundTotals=true)
+{
+	local array <StatModifier> MultMods;
+	local StatModifier Modifier;
+	local int i, idx, j, iTotal, iError, sign;
+	local float RunningTotal, fValue;
+
+	GetStatModifiers(Stat, Mods, ModValues, GameStateHistoryObject);
+	//Start at the top because we may be removing the array entry, and this way don't have to fiddle the loop parameter
+	for (i = Mods.Length-1; i >= 0; i--)
+	{
+		idx=Mods[i].StatChanges.Find('StatType', Stat);
+		assert( idx != INDEX_NONE); //This really shouldn't be possible, if so GetStatModifiers() has messed up big time!
+		if(Mods[i].StatChanges[idx].ModOp!=MODOP_Addition)
+		{
+			Modifier.Mod = Mods[i];
+			Modifier.ModOp = Modifier.Mod.StatChanges[idx].ModOp;
+			Modifier.StatAmount = Modifier.Mod.StatChanges[idx].StatAmount;
+			// Insert pre multipliers at the start of the array, add post multipliers to the end
+			if (Modifier.ModOp == MODOP_Multiplication)
+			{
+				MultMods.InsertItem(0, Modifier);
+			}
+			else
+			{
+				MultMods.AddItem(Modifier);
+			}
+			//Remove multiplers, so the arrays only contain additive entries
+			Mods.Remove(i, 1);
+			ModValues.Remove(i, 1);
+		}
+	}
+	// If there are no MultMods, then GetStatModifiers() won't have screwed up so early exit
+	if (MultMods.Length==0)
+	{
+		return;
+	}
+
+	RunningTotal = GetBaseStat(Stat);
+	//Seperate integer running total for tracking rounding errors
+	iTotal = RunningTotal;
+
+	for (i = 0; i < MultMods.Length; i++)
+	{
+		//When we hit the first post multiplier, break so we can do the additives
+		if (MultMods[i].ModOp==MODOP_PostMultiplication)
+		{
+			break;
+		}
+		MultMods[i].fModValue = RunningTotal * (MultMods[i].StatAmount-1);
+		//True round(), not truncate
+		MultMods[i].iModValue = Round(MultMods[i].fModValue);
+		MultMods[i].fError = (MultMods[i].iModValue-MultMods[i].fModValue)/MultMods[i].fModValue;
+		RunningTotal += MultMods[i].fModValue;
+		iTotal += MultMods[i].iModValue;
+	}
+	//Do Additives, we left them in the normal arrays
+	foreach ModValues(fValue)
+	{
+		RunningTotal += fValue;
+		iTotal += fValue;
+	}
+	//continue with the post multipliers
+	for (i=i; i < MultMods.Length; i++)
+	{
+		MultMods[i].fModValue = RunningTotal * (MultMods[i].StatAmount-1);
+		MultMods[i].iModValue = Round(MultMods[i].fModValue);
+		MultMods[i].fError = (MultMods[i].iModValue-MultMods[i].fModValue)/MultMods[i].fModValue;
+		RunningTotal += MultMods[i].fModValue;
+		iTotal += MultMods[i].iModValue;
+	}
+	
+	if (RunningTotal!=GetCurrentStat(Stat))
+	{
+		`Log("GetStatModifiers Mismatch! For " $Stat$ "the calculated total was " $RunningTotal$ ", but the Current Stat is " $GetCurrentStat(Stat));
+	}
+	if (RoundTotals)
+	{
+		// Not the statistically best forced total algorithm, but good enough and relatively quick, requiring just one sort and one pass
+		iError = iTotal-int(RunningTotal);
+		if (iError>0)
+		{
+			MultMods.Sort(ErrorAsc);
+			sign = -1;
+		}
+		else if (iError<0)
+		{
+			MultMods.Sort(ErrorDesc);
+			sign = +1;
+			iError = -iError;
+		}
+		//Start at the top because it makes comparing iError and how many entries left easier
+		for (i = MultMods.Length -1; i>=0; i--)
+		{
+			j = FCeil(float(iError)/float(i+1));
+			MultMods[i].iModValue += sign*j;
+			iError -= j;
+			Mods.AddItem(MultMods[i].Mod);
+			ModValues.AddItem(MultMods[i].iModValue);
+		}
+		assert(iError==0); //Shouldn't be mathematically possible following the loop.
+	}
+	else
+	{
+		foreach MultMods(Modifier)
+		{
+			Mods.AddItem(Modifier.Mod);
+			ModValues.AddItem(Modifier.fModValue);
+		}
+	}
+}
+
+static function int ErrorAsc(StatModifier Mod1, StatModifier Mod2)
+{
+	return Mod1.fError > Mod2.fError ? -1 : 0;;
+}
+
+static function int ErrorDesc(StatModifier Mod1, StatModifier Mod2)
+{
+	return Mod1.fError < Mod2.fError ? -1 : 0;;
+}
+//End Issue #313
 
 native function ApplyEffectToStats( const ref XComGameState_Effect SourceEffect, optional XComGameState NewGameState );
 native function UnApplyEffectFromStats( const ref XComGameState_Effect SourceEffect, optional XComGameState NewGameState );
