@@ -26,7 +26,35 @@ enum Photobooth_AnimationFilterType
 	ePAFT_Skirmisher,
 	ePAFT_Templar,
 	ePAFT_Reaper,
-	ePAFT_Memorial
+	ePAFT_Memorial,
+	// Start Issue #309
+	// Similar to X2TacticalGameRulesetDataStructures.EInventorySlot,
+	// we add our own things here.
+	// TODO: Open up discussion issue
+	ePAFT_END_VANILLA_FILTERS,
+
+	// Buffer slots in case Firaxis adds more in the future
+	ePAFT_Buffer16,
+	ePAFT_Buffer17,
+	ePAFT_Buffer18,
+	ePAFT_Buffer19,
+	ePAFT_Buffer20,
+	ePAFT_Buffer21,
+	ePAFT_Buffer22,
+
+	ePAFT_BEGIN_MOD_CLASS_FILTERS,
+	// Here, mod-defined filters exist
+	// We add a bunch of "unstable" filters modders can use
+	// to test their stuff first. We reserve the right to
+	// remove or rename them in the future.
+	ePAFT_Unstable24,
+	ePAFT_Unstable25,
+	ePAFT_Unstable26,
+	ePAFT_Unstable27,
+	// ...
+
+	ePAFT_END_MOD_CLASS_FILTERS,
+	// End Issue #309
 };
 
 enum Photobooth_ParticleEffectType
@@ -2060,7 +2088,7 @@ event int GetAnimations(int LocationIndex, out array<AnimationPoses> outAnimatio
 	local StateObjectReference Soldier;
 	local XComGameState_Unit UnitState;
 	local bool bAutoGenerating, bTemplarFilter;
-	local Photobooth_AnimationFilterType ClassFilter;
+	local array<Photobooth_AnimationFilterType> ClassFilters; // Issue #309, change to array
 
 	if (FullStop()) return -1;
 
@@ -2096,50 +2124,21 @@ event int GetAnimations(int LocationIndex, out array<AnimationPoses> outAnimatio
 		else
 		{
 			bAutoGenerating = AutoGenSettings.CampaignID > -1;
-			bTemplarFilter = UnitState.GetSoldierClassTemplateName() == 'Templar';
+			// Issue #309
+			bTemplarFilter = class'X2PhotoboothHelpers'.static.IsLikeTemplar(UnitState.GetSoldierClassTemplateName());
 			bExcludeDuoPoses = bExcludeDuoPoses || CurrentFormationIsSolo();
 			bExcludeNonGroupShotPoses = bExcludeNonGroupShotPoses && GetNumSoldierSlots() > 2;
-
-			ClassFilter = ePAFT_None;
-			switch (UnitState.GetSoldierClassTemplateName())
-			{
-			case 'Grenadier':
-				ClassFilter = ePAFT_Grenadier;
-				break;
-			case 'CentralOfficer':
-			case 'NestCentral':
-			case 'LadderCentral':
-			case 'Ranger':
-				ClassFilter = ePAFT_Ranger;
-				break;
-			case 'Sharpshooter':
-				ClassFilter = ePAFT_Sharpshooter;
-				break;
-			case 'PsiOperative':
-				ClassFilter = ePAFT_PsiOperative;
-				break;
-			case 'ChiefEngineer':
-			case 'TLE_ChiefEngineer':
-			case 'Specialist':
-				ClassFilter = ePAFT_Specialist;
-				break;
-			case 'Skirmisher':
-				ClassFilter = ePAFT_Skirmisher;
-				break;
-			case 'Templar':
-				ClassFilter = ePAFT_Templar;
-				break;
-			case 'Reaper':
-				ClassFilter = ePAFT_Reaper;
-				break;
-			}
+			
+			// Issue #309
+			ClassFilters = class'X2PhotoboothHelpers'.static.GetClassFiltersForClass(UnitState.GetSoldierClassTemplateName());
 
 			foreach m_arrAnimationPoses(AnimPose)
 			{
 				if (AnimPose.AnimType != ePAFT_Captured
 					&& (!bAutoGenerating || AnimPose.AnimType != ePAFT_TopGun) // Filter out top gun pose in generated photos
 					&& (!bTemplarFilter || (AnimPose.AnimType != ePAFT_SoldierRifle && !AnimPose.bExcludeFromTemplar)) // Filter out rifle poses for Templar in tactical, and new TLE duo poses.
-					&& (AnimPose.AnimType <= ePAFT_DuoPose2 || AnimPose.AnimType >= ePAFT_Memorial || AnimPose.AnimType == ClassFilter) // Filter out non class matching poses
+					// Issue #309, cap at ePAFT_END_VANILLA_FILTERS, make soldier class filters work
+					&& (AnimPose.AnimType <= ePAFT_DuoPose2 || (AnimPose.AnimType >= ePAFT_Memorial && AnimPose.AnimType < ePAFT_END_VANILLA_FILTERS) || ClassFilters.Find(AnimPose.AnimType) != INDEX_NONE) // Filter out non class matching poses
 					&& (!bExcludeDuoPoses || (AnimPose.AnimType != ePAFT_DuoPose1 && AnimPose.AnimType != ePAFT_DuoPose2)) // Filter out Duo Poses
 					&& (!bMemorialOnly || AnimPose.AnimType == ePAFT_Memorial) // Filter out all non-memorial poses
 					&& !RestrictedFromFormation(LocationIndex, AnimPose) // Always filter out specific poses from specific formation positions.

@@ -1050,6 +1050,7 @@ function int SetRandomAnimationPoseForSoldier(int LocationIndex, optional bool b
 	local array<AnimationPoses> arrAnimations, arrOrigAnimations;
 	local int AnimationIndex, i, Rolls;
 	local XComGameState_Unit Unit;
+	local array<Photobooth_AnimationFilterType> ClassFilters; // Issue #309
 	local Photobooth_AnimationFilterType ClassFilter;
 	local bool bUseClassPose, bPoseNotFound;
 
@@ -1067,33 +1068,10 @@ function int SetRandomAnimationPoseForSoldier(int LocationIndex, optional bool b
 			Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(`PHOTOBOOTH.m_arrUnits[locationIndex].UnitRef.ObjectID));
 			if (Unit != none)
 			{
-				switch (Unit.GetSoldierClassTemplateName())
-				{
-				case 'Grenadier':
-					ClassFilter = ePAFT_Grenadier;
-					break;
-				case 'Ranger':
-					ClassFilter = ePAFT_Ranger;
-					break;
-				case 'Sharpshooter':
-					ClassFilter = ePAFT_Sharpshooter;
-					break;
-				case 'PsiOperative':
-					ClassFilter = ePAFT_PsiOperative;
-					break;
-				case 'Specialist':
-					ClassFilter = ePAFT_Specialist;
-					break;
-				case 'Skirmisher':
-					ClassFilter = ePAFT_Skirmisher;
-					break;
-				case 'Templar':
-					ClassFilter = ePAFT_Templar;
-					break;
-				case 'Reaper':
-					ClassFilter = ePAFT_Reaper;
-					break;
-				}
+				// Start Issue #309
+				ClassFilters = class'X2PhotoboothHelpers'.static.GetClassFiltersForClass(Unit.GetSoldierClassTemplateName());
+				ClassFilter = ClassFilters[0];
+				// End Issue #309
 			}
 
 			if (ClassFilter != ePAFT_None && DefaultSetupSettings.TextLayoutState != ePBTLS_DeadSoldier)
