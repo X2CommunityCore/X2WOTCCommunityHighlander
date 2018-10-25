@@ -1045,7 +1045,7 @@ event CheckForSparkUnits(out array<int> outSparkPositions)
 		if (m_arrUnits[i].UnitRef.ObjectID > 0)
 		{
 			UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(m_arrUnits[i].UnitRef.ObjectID));
-			if (UnitState != none && UnitState.GetSoldierClassTemplateName() == 'Spark')
+			if (UnitState != none && class'X2PhotoboothHelpers'.static.IsLikeSpark(UnitState.GetMyTemplateName()))
 			{
 				outSparkPositions.AddItem(i);
 			}
@@ -2103,7 +2103,7 @@ event int GetAnimations(int LocationIndex, out array<AnimationPoses> outAnimatio
 			UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(Soldier.ObjectID));
 		}
 
-		if (UnitState != none && UnitState.GetSoldierClassTemplateName() == 'Spark')
+		if (UnitState != none && class'X2PhotoboothHelpers'.static.IsLikeSpark(UnitState.GetMyTemplateName()))
 		{
 			foreach m_arrAnimationSparkPoses(AnimPose)
 			{
@@ -2407,31 +2407,29 @@ function X2PropagandaPhotoTemplate AutoGenSelectFormation(PhotoboothAutoGenSetti
 	return arrValidFormations[RandInt];
 }
 
+// Start Issue #309
+// There is quite a big drawback in how dual poses are handled. While they *can* be handled like
+// normal poses in the standard code paths, it gets hairy when routing through ePBTLS_BondedSoldier.
+// On a fundamental level, it assumes that dual poses are always perfectly paired -- there is a "right"
+// pose for every "left" pose -- which is fine. However, it implicitly requires that all units
+// that go through the ePBTLS_BondedSoldier paths be able to play every single one of the ePBTLS_BondedSoldier
+// poses... which works in vanilla because the soldiers available for bonding are all humanoid and share their
+// animations. As soon as you add mods to the mix, it gets kind of bad. This is because most of the code chooses
+// the pose index first, and then draws poses for each soldier. Thus, we can't do some sort of backtracking to
+// find good poses.
+// For simplicity, we're making some assumptions here -- specifically, that a unit can either play all of the
+// dual animations -- or none! We can lift that in the future if we really want to.
+// arrAnimations here is filtered! We only need to handle the paths where no animation could be found.
+// End Issue #309
 function int GetDuoAnimIndex(int LocationIndex, int DuoAnimIndex, array<AnimationPoses> arrAnimations)
 {
-	local StateObjectReference Soldier;
-	local XComGameState_Unit UnitState;
+	local XComUnitPawn Unit; // Issue #309, use the unit pawn instead
 	local int i;
 	local array<int> DuoIndices;
 
 	if (FullStop()) return 0;
 
-	Soldier = m_arrUnits[LocationIndex].UnitRef;
-	if (Soldier.ObjectID > 0)
-	{
-		UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(Soldier.ObjectID));
-		if (UnitState != none)
-		{
-			if (UnitState.GetSoldierClassTemplateName() == 'Spark')
-			{
-				// This is a temp hack solution for Spark units as they don't currently have Duo Poses.
-				if (m_arrAnimationSparkPoses.Length > 0)
-				{
-					return 0;
-				}
-			}
-		}
-	}
+	Unit = m_arrUnits[LocationIndex].ActorPawn;
 
 	for (i = 0; i < arrAnimations.Length; ++i)
 	{
@@ -2446,39 +2444,26 @@ function int GetDuoAnimIndex(int LocationIndex, int DuoAnimIndex, array<Animatio
 		}
 	}
 
-	if (DuoIndices.Length > DuoAnimIndex)
+	// Issue #309: Check whether the animation can be played
+	if (DuoIndices.Length > DuoAnimIndex && Unit.GetAnimTreeController().CanPlayAnimation(arrAnimations[DuoIndices[DuoAnimIndex]].AnimationName))
 	{
 		return DuoIndices[DuoAnimIndex];
 	}
 
-	return 0;
+	// Poses are filtered -- just choose a random one.
+	return `SYNC_RAND(arrAnimations.Length);
 }
 
 function AnimationPoses GetDuoPose(int LocationIndex, int DuoAnimIndex, bool bFirstDuoSoldier)
 {
-	local StateObjectReference Soldier;
-	local XComGameState_Unit UnitState;
+	// Start Issue #309 -- wholesale replacement
+	local array<AnimationPoses> arrAnimations;
 
-	Soldier = m_arrUnits[LocationIndex].UnitRef;
-	if (Soldier.ObjectID > 0)
-	{
-		UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(Soldier.ObjectID));
-		if (UnitState != none && UnitState.GetSoldierClassTemplateName() == 'Spark')
-		{
-			// This is a temp hack solution for Spark units as they don't currently have Duo Poses.
-			if (m_arrAnimationSparkPoses.Length > 0)
-			{
-				return m_arrAnimationSparkPoses[0];
-			}
-		}		
-	}
+	GetAnimations(LocationIndex, arrAnimations, , false);
 
-	if (DuoPose1Indices.Length > 0 && DuoPose2Indices.Length > 0)
-	{
-		return bFirstDuoSoldier ? m_arrAnimationPoses[DuoPose1Indices[DuoAnimIndex]] : m_arrAnimationPoses[DuoPose2Indices[DuoAnimIndex]];
-	}
-
-	return m_arrAnimationPoses[0];
+	// Relies on `int(!bFirstDuoSoldier) != LocationIndex`. However, this makes bFirstDuoSoldier obsolete...
+	return arrAnimations[GetDuoAnimIndex(LocationIndex, DuoAnimIndex, arrAnimations)];
+	// End Issue #309
 }
 
 function AutoGenSetSoldiers()

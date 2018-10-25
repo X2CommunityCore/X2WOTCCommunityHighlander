@@ -16,6 +16,10 @@ var config array<SoldierClassEnums> PhotoboothSoldierClassFilters;
 // or poses marked bExcludeFromTemplar.
 var config array<name> TemplarLikeSoldierClasses;
 
+// Character templates mentioned here will use the spark poses and have some
+// extra space for themselves.
+var config array<name> SparkLikeCharacterTemplates;
+
 // Return the list of soldier class filters for this class, or, if there are none, return an array with a single
 // ePAFT_None entry. The first entry is considered the "primary" filter for purposes of random rolls.
 static function array<Photobooth_AnimationFilterType> GetClassFiltersForClass(name SoldierClassTemplateName)
@@ -42,4 +46,9 @@ static function array<Photobooth_AnimationFilterType> GetClassFiltersForClass(na
 static function bool IsLikeTemplar(name SoldierClassTemplateName)
 {
 	return default.TemplarLikeSoldierClasses.Find(SoldierClassTemplateName) != INDEX_NONE;
+}
+
+static function bool IsLikeSpark(name CharacterTemplateName)
+{
+	return default.SparkLikeCharacterTemplates.Find(CharacterTemplateName) != INDEX_NONE;
 }
