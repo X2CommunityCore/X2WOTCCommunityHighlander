@@ -198,6 +198,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Changes to "Legacy Operations" squad loadout and ability selections are now always applied for the first mission. Note any abilities added need to exist in the Soldier Classes ability tree (#307)
 - For "Legacy Operations" changes to squad members' Soldier Class, and changes to the Soldier Classes themselves, are taken into account for pre-existing operations.
 Particularly important for Central and Shen, whose custom Soldier Classes ability tree contain only the abilities granted by their squad progression (#307)
+- Better Photobooth support for custom Soldier Classes and Spark-like units,
+  no broken duo poses for units that can't play them (#309)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
