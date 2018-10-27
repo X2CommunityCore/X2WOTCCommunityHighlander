@@ -242,7 +242,10 @@ simulated function UpdateSlots()
 	// Get equipped upgrades
 	EquippedUpgrades = Weapon.GetMyWeaponUpgradeTemplates();
 	WeaponTemplate = X2WeaponTemplate(Weapon.GetMyTemplate());
-	NumUpgradeSlots = WeaponTemplate.NumUpgradeSlots;
+	// Start Issue #93
+	//NumUpgradeSlots = WeaponTemplate.NumUpgradeSlots;
+	NumUpgradeSlots = Weapon.GetNumUpgradeSlots();
+	// End Issue #93
 
 	if (XComHQ.bExtraWeaponUpgrade)
 		NumUpgradeSlots++;

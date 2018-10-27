@@ -2294,6 +2294,27 @@ function bool IsMissionObjectiveItem()
 	return false;
 }
 
+// Start Issue #93
+// This function fires an event that mods can listen for which will allow them to modify upgrade slots on a per-gamestate basis
+function int GetNumUpgradeSlots()
+{
+	local Object ThisObj;
+	local XComLWTuple Tuple;
+
+	ThisObj = self;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideNumUpgradeSlots';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVInt;
+	Tuple.Data[0].i = GetMyTemplate().GetNumUpgradeSlots();
+
+	`XEVENTMGR.TriggerEvent('OverrideNumUpgradeSlots', Tuple, ThisObj);
+
+	return Tuple.Data[0].i;
+}
+// End Issue #93
+
 // Issue #260 start
 // This function will be used to cycle through DLCInfos that will allow mods to check generally whether or not a weapon is compatible with an upgrade
 // X2WeaponUpgradeTemplate::CanApplyUpgradeToWeapon still exists as the "can this upgrade be applied to this weapon RIGHT NOW?"

@@ -4606,6 +4606,9 @@ static function UpgradeItems(XComGameState NewGameState, name CreatorTemplateNam
 			if (!XComHQ.HasItem(UpgradeItemTemplate))
 			{
 				UpgradedItemState = UpgradeItemTemplate.CreateInstanceFromTemplate(NewGameState);
+
+				class'X2EventManager'.static.GetEventManager().TriggerEvent('ItemUpgraded', UpgradedItemState, none, NewGameState); // Issue #289 - handle upgrades for infinite items
+
 				XComHQ.AddItemToHQInventory(UpgradedItemState);
 			}
 		}
@@ -4623,6 +4626,8 @@ static function UpgradeItems(XComGameState NewGameState, name CreatorTemplateNam
 					// Otherwise match the base items quantity
 					UpgradedItemState = UpgradeItemTemplate.CreateInstanceFromTemplate(NewGameState);
 					UpgradedItemState.Quantity = BaseItemState.Quantity;
+					
+					class'X2EventManager'.static.GetEventManager().TriggerEvent('ItemUpgraded', UpgradedItemState, BaseItemState, NewGameState); // Issue #289 - handle upgrades for utility items like grenades and medkits
 
 					// Then add the upgrade item and remove all of the base items from the inventory
 					XComHQ.PutItemInInventory(NewGameState, UpgradedItemState);
@@ -4651,6 +4656,8 @@ static function UpgradeItems(XComGameState NewGameState, name CreatorTemplateNam
 					{
 						UpgradedItemState.ApplyWeaponUpgradeTemplate(WeaponUpgradeTemplate);
 					}
+					
+					class'X2EventManager'.static.GetEventManager().TriggerEvent('ItemUpgraded', UpgradedItemState, InventoryItemState, NewGameState); // Issue #289 - handle upgrades for unequipped items with attachments
 
 					// Delete the old item, and add the new item to the inventory
 					NewGameState.RemoveStateObject(InventoryItemState.GetReference().ObjectID);
@@ -4688,6 +4695,8 @@ static function UpgradeItems(XComGameState NewGameState, name CreatorTemplateNam
 							{
 								UpgradedItemState.ApplyWeaponUpgradeTemplate(WeaponUpgradeTemplate);
 							}
+							
+							class'X2EventManager'.static.GetEventManager().TriggerEvent('ItemUpgraded', UpgradedItemState, InventoryItemState, NewGameState); // Issue #289 - handle upgrades for equipped items with attachments
 
 							// Delete the old item
 							NewGameState.RemoveStateObject(InventoryItemState.GetReference().ObjectID);

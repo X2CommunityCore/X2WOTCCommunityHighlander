@@ -1332,7 +1332,10 @@ simulated static function GetWeaponUpgradeAvailability(XComGameState_Unit Unit, 
 
 	WeaponTemplate = X2WeaponTemplate(PrimaryWeapon.GetMyTemplate());
 	EquippedUpgrades = PrimaryWeapon.GetMyWeaponUpgradeTemplateNames().Length;
-	AvailableSlots = WeaponTemplate.NumUpgradeSlots;
+	// Start Issue #93
+	//AvailableSlots = WeaponTemplate.NumUpgradeSlots;
+	AvailableSlots = PrimaryWeapon.GetNumUpgradeSlots();
+	// End Issue #93
 
 	// Only add extra slots if the weapon had some to begin with
 	if (AvailableSlots > 0)

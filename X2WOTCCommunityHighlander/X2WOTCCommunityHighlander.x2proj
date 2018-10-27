@@ -240,6 +240,9 @@
     <Content Include="Src\XComGame\Classes\X2Ability_GrenadierAbilitySet.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2AchievementTracker.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Effect_ApplyWeaponDamage.uc">
       <SubType>Content</SubType>
     </Content>
@@ -247,6 +250,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2HackRewardTemplateManager.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2ItemTemplate.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2SoldierClassTemplateManager.uc">
