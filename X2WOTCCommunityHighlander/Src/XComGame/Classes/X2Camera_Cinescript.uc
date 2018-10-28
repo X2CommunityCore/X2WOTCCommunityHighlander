@@ -494,6 +494,9 @@ function OnAnimNotify(string EventLabel)
 private function DoCameraCut(CinescriptCut CameraCut)
 {
 	local int Index;
+	local CinescriptCut PristineCut; // Issue #318, version of the cut before modifying it
+
+	PristineCut = CameraCut; // Issue #318
 
 	CheckForMatineeReplacements(CameraCut);
 
@@ -521,7 +524,8 @@ private function DoCameraCut(CinescriptCut CameraCut)
 		{
 			// this compare is slow (struct vs struct), but it happens so infrequently that it isn't worth making
 			// the rest of the class messier to avoid it
-			if(CameraDefinition.CameraCuts[Index].CutAfterPrevious && CameraDefinition.CameraCuts[Index - 1] == CameraCut)
+			// Issue #318, compare against PristineCut instead of CameraCut
+			if(CameraDefinition.CameraCuts[Index].CutAfterPrevious && CameraDefinition.CameraCuts[Index - 1] == PristineCut)
 			{
 				PendingCutIndex = Index;
 				break;
