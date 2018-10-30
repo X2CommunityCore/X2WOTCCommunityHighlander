@@ -30,7 +30,6 @@ enum Photobooth_AnimationFilterType
 	// Start Issue #309
 	// Similar to X2TacticalGameRulesetDataStructures.EInventorySlot,
 	// we add our own things here.
-	// TODO: Open up discussion issue
 	ePAFT_END_VANILLA_FILTERS,
 
 	// Buffer slots in case Firaxis adds more in the future
@@ -47,6 +46,7 @@ enum Photobooth_AnimationFilterType
 	// We add a bunch of "unstable" filters modders can use
 	// to test their stuff first. We reserve the right to
 	// remove or rename them in the future.
+	// Request and track entries in #320
 	ePAFT_Unstable24,
 	ePAFT_Unstable25,
 	ePAFT_Unstable26,
