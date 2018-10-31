@@ -41,6 +41,7 @@
     <Content Include="Config\XComEditor.ini" />
     <Content Include="Config\XComEngine.ini" />
     <Content Include="Config\XComGame.ini" />
+    <Content Include="Config\XComGameData.ini" />
     <Content Include="Localization\XComGame.int" />
     <Content Include="ModPreviewLinux.jpg">
       <SubType>Content</SubType>
