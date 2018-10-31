@@ -30,6 +30,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   `XComGameState_HeadquartersResistance`, as it can break if it collect custom
   factions and then assigns Chosen to them instead of the base game factions.
   (#82)
+- Allow specifying Second Wave options for Strategy Debug Start (#197)
 
 ### Improvements
 - Allow `UIStrategyMap` to display custom Faction HQ icons (#76)
