@@ -92,6 +92,15 @@ var config(Content) array<name> HeadSuppressesHelmet;
 var config(Content) array<name> HeadSuppressesBeard;
 // End Issue #219
 
+
+// Issue #153
+var config bool bDontUnequipCovertOps; // true skips unequipping soldiers on covert actions even if ambush risk is 0
+// End Issue #153
+
+// Start Issue #310
+var config bool bDontUnequipWhenWounded; // true skips unequipping soldiers after mission when being wounded
+// End Issue #310
+
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
 	local XComContentManager		Content;

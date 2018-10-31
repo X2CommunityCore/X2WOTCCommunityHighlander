@@ -646,7 +646,10 @@ static function EmptyCovertActionSlot(XComGameState NewGameState, StateObjectRef
 			// Issue #230 end
 
 			// Then try to equip the rest of the old items
-			NewUnitState.EquipOldItems(NewGameState);
+			if (!class'CHHelpers'.default.bDontUnequipCovertOps) // Issue #153
+			{
+				NewUnitState.EquipOldItems(NewGameState);
+			}
 
 			// Try to restart any psi training projects
 			class'XComGameStateContext_StrategyGameRule'.static.PostMissionUpdatePsiOperativeTraining(NewGameState, NewUnitState);

@@ -1481,7 +1481,13 @@ static function RemoveInvalidSoldiersFromSquad()
 						}
 					}
 
-					UnitState.MakeItemsAvailable(NewGameState, false, SlotsToClear);
+					// Start Issue #310
+					if (!class'CHHelpers'.default.bDontUnequipWhenWounded)
+					{
+						UnitState.MakeItemsAvailable(NewGameState, false, SlotsToClear);
+					}
+					// End Issue #310
+
 					UnitState.bIsShaken = false;
 				}
 			}

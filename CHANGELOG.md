@@ -31,6 +31,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   factions and then assigns Chosen to them instead of the base game factions.
   (#82)
 - Allow specifying Second Wave options for Strategy Debug Start (#197)
+- bDontUnequipCovertOps prevents soldiers gear gets stripped when sending on covert op with no ambush risk (#153)
+- bDontUnequipWhenWounded prevents soldiers gear gets stripped when getting wounded (#310)
 
 ### Improvements
 - Allow `UIStrategyMap` to display custom Faction HQ icons (#76)

@@ -27,9 +27,6 @@
     <Folder Include="Src\XComGame\Classes" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Config\XComGameBoard.ini">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Config\XComGameCore.ini">
       <SubType>Content</SubType>
     </Content>
