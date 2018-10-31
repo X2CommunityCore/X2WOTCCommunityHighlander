@@ -116,6 +116,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Fix non-Veteran units not having personality speech (#215)
 - Fix a display issue causing the weapon tooltip to show stale upgrades
   from earlier units (#303)
+- Fix Cinescript CutAfterPrevious in combination with MatineeReplacements (#318)
 
 
 ## Miscellaneous

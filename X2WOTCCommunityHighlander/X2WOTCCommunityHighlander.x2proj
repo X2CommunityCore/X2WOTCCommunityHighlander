@@ -261,6 +261,9 @@
     <Content Include="Src\XComGame\Classes\X2Ability_DefaultAbilitySet.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Camera_Cinescript.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2DownloadableContentInfo.uc">
       <SubType>Content</SubType>
     </Content>
