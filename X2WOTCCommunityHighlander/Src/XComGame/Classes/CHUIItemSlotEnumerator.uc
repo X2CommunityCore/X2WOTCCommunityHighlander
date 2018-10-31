@@ -152,6 +152,7 @@ function Next()
 	local int iMax;
 	local array<XComGameState_Item> Items;
 	local string strDummy;
+
 	if (IsMultiSlot && IndexInSlot + 1 < MaxShownSlots)
 	{
 		IndexInSlot++;
@@ -173,7 +174,10 @@ function Next()
 			// Only show items with a size here. Generally, items are supposed to have a size, which makes them occupy several slots
 			// But that functionality is not well supported in XComGame. The only item with size 0 is the XPAD, which we don't want
 			// And we will be consistent with that behavior here
-			MaxShownSlots = iMax == -1 ? UnitState.GetAllItemsInSlot(Slot, CheckGameState, , true /* bHasSize */).Length + 1 : iMax;
+			// Start Issue #302;
+			Items = UnitState.GetAllItemsInSlot(Slot, CheckGameState, , true /* bHasSize */);
+			MaxShownSlots = iMax == -1 ? Items.Length + 1 : iMax;
+			// End Issue #302
 		}
 	}
 	else

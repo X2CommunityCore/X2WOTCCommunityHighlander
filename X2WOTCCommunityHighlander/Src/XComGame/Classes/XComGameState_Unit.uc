@@ -7253,6 +7253,9 @@ simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate,
 	local string BlankString; //issue #114: blank string variable for the out variable
 	// Issue #171 Variables
 	local int NumHeavy;
+	// Issue #302 Variable
+	local array<XComGameState_Item> Items;
+
 	// Start Issue #50 and #114: inventory hook
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 	for(i = 0; i < DLCInfos.Length; ++i)
@@ -7330,7 +7333,10 @@ simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate,
 				return false;
 			if (WeaponTemplate ==  none)
 				return false;
-			return GetAllItemsInSlot(eInvSlot_HeavyWeapon, CheckGameState).Length < NumHeavy;
+			// Start Issue #302
+			Items = GetAllItemsInSlot(eInvSlot_HeavyWeapon, CheckGameState);
+			return Items.Length < NumHeavy;
+			// End Issue #302
 			// End Issue #171
 		case eInvSlot_CombatSim:
 			return (ItemTemplate.ItemCat == 'combatsim' && GetCurrentStat(eStat_CombatSims) > 0);
