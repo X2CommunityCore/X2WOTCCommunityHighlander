@@ -109,6 +109,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   of action points after scamper (#36)
 - Fix some edge cases regarding idle animations and targeting (#269)
 - Fix an issue causing Rapid Fire/Chain Shot/Banish/... entering cover early (#273)
+- Fix non-Veteran units not having personality speech (#215)
 
 
 
