@@ -52,6 +52,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Allow Mods/DLC to modify spawn locations for player units (#18)
 - Trigger an event for RetainConcealmentOnActivation (#2)
 - Allow Mods/DLC to modify encounters after creation (#136)
+- Allow Mods/DLC to modify encounters generated as reinforcements (#278)
 - Allow Mods/DLC to alter mission data after SitRep creation (#157)
 
 ### Event Hooks

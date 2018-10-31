@@ -366,6 +366,19 @@ static function PostEncounterCreation(out name EncounterName, out PodSpawnInfo E
 }
 // End Issue #136
 
+// Start Issue #278
+/// <summary>
+/// Called from XComGameState_AIReinforcementSpawner:OnReinforcementSpawnerCreated
+/// SourceObject is the calling function's BattleData, as opposed to the original hook, which passes MissionSiteState. BattleData contains MissionSiteState
+/// Added optional ReinforcementState to modify reinforcement conditions
+/// Encounter Data is modified immediately after being generated, before validation is performed on spawn visualization based on pod conditions
+/// </summary>
+static function PostReinforcementCreation(out name EncounterName, out PodSpawnInfo Encounter, int ForceLevel, int AlertLevel, optional XComGameState_BaseObject SourceObject, optional XComGameState_BaseObject ReinforcementState)
+{
+	PostEncounterCreation(EncounterName, Encounter, ForceLevel, AlertLevel, `XCOMHISTORY.GetGameStateForObjectID(XComGameState_BattleData(SourceObject).m_iMissionID));
+}
+// End Issue #278
+
 // Start Issue #157
 /// <summary>
 /// Called from XComGameState_Missionsite:SetMissionData
