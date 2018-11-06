@@ -117,6 +117,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Fix a display issue causing the weapon tooltip to show stale upgrades
   from earlier units (#303)
 - Fix Cinescript CutAfterPrevious in combination with MatineeReplacements (#318)
+- Allow abilities that deal damage without a source weapon to still display
+  their damage with psi flyovers (Psi Bomb, mod abilities) (#326)
 
 
 ## Miscellaneous

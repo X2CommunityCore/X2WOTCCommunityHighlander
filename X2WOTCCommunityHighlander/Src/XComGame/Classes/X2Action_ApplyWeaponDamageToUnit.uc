@@ -182,10 +182,22 @@ function Init()
 			}
 		}
 	}
-	else
+
+	// Start Issue #326: If we still don't have a damage type, try to pull from the manually configured
+	// Effect Damage from X2Effect_ApplyWeaponDamage (PsiBombStage2, mod abilities)
+	if (DamageTypeName == '')
 	{
-		DamageTypeName = class'X2Item_DefaultDamageTypes'.default.DefaultDamageType;
+		if (X2Effect_ApplyWeaponDamage(OriginatingEffect) != none)
+		{
+			DamageTypeName = X2Effect_ApplyWeaponDamage(OriginatingEffect).EffectDamageValue.DamageType;
+		}
+
+		if (DamageTypeName == '')
+		{
+			DamageTypeName = class'X2Item_DefaultDamageTypes'.default.DefaultDamageType;
+		}
 	}
+	// End Issue #326
 
 	bWasHit = false;
 	IsKnockback = false;
