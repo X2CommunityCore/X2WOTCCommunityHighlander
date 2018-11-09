@@ -63,7 +63,7 @@ var Name TargetEndAnim;
 
 //*************************************
 
-var protected UIMovie_3D HackMovie;
+var protected UIMovie HackMovie; // Issue #330, we allow 2D movies too
 var private bool HasFinishedUI;
 
 var UIHackingScreen HackScreen;
@@ -230,13 +230,27 @@ private function SetupHackingScreen()
 {
 	// spawn the hacking ui screen
 	HackScreen = Spawn(class'UIHackingScreen', self);
+	// Issue #330, we can't let input through when in 2D, as the UI *might* be visible
+	// It normally isn't, but a mod that gets rid of the cinematics will cause that
+	HackScreen.bConsumeMouseEvents = UIMovie_3D(HackMovie) == none;
 	HackScreen.OriginalContext = AbilityContext;
 
 	HackScreen.OnHackingComplete = OnHackingUIComplete;
 	HackScreen.OnHackingRewardUnlocked = OnHackingRewardUnlocked;
 	`Pres.ScreenStack.Push(HackScreen, HackMovie);
 
-	SetupScreenMaterial();
+	// Start Issue #330
+	if (UIMovie_3D(HackMovie) != none)
+	{
+	// End Issue #330
+		SetupScreenMaterial();
+	// Start Issue #330
+	}
+	else
+	{
+		HackScreen.AddTweenBetween("_alpha", 0, 100, class'UIUtilities'.const.INTRO_ANIMATION_TIME * 2, 0.0);
+	}
+	// End Issue #330
 }
 
 simulated function SetupScreenMaterial()
@@ -297,7 +311,13 @@ simulated state Executing
 
 		TacticalHUD = XComTacticalHUD(GetALocalPlayerController().myHUD);
 		
-		HackMovie.SetMouseLocation(class'Helpers'.static.GetUVCoords(GremlinLCD, TacticalHUD.CachedMouseWorldOrigin, TacticalHUD.CachedMouseWorldDirection));
+		// Start Issue #330
+		// Only update the mouse cursor on 3D movies
+		if (UIMovie_3D(HackMovie) != none)
+		{
+			UIMovie_3D(HackMovie).SetMouseLocation(class'Helpers'.static.GetUVCoords(GremlinLCD, TacticalHUD.CachedMouseWorldOrigin, TacticalHUD.CachedMouseWorldDirection));
+		}
+		// End Issue #330
 	}
 
 	simulated function Tick(float dt)
@@ -386,7 +406,18 @@ Begin:
 	}
 
 	// setup the UI movie container. We create this when we need it as it uses a fair bit of video memory
-	HackMovie = `PRES.Get3DMovie();
+	// Start Issue #330
+	if (class'CHHelpers'.default.bHackIn2D)
+	{
+		HackMovie = `PRES.Get2DMovie();
+	}
+	else
+	{
+	// End Issue #330
+		HackMovie = `PRES.Get3DMovie();
+	// Start Issue #330
+	}
+	// End Issue #330
 
 	while( !HackMovie.bIsInited )
 	{
@@ -529,6 +560,14 @@ Begin:
 		}
 
 	}
+
+	// Start Issue #330
+	if (UIMovie_3D(HackMovie) == none)
+	{
+		HackScreen.AddTweenBetween("_alpha", 100, 0, class'UIUtilities'.const.INTRO_ANIMATION_TIME * 2, 0.0);
+		Sleep(class'UIUtilities'.const.INTRO_ANIMATION_TIME);
+	}
+	// End Issue #330
 
 	//// remove the hacking movie
 	HackScreen.CloseScreen();
