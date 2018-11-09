@@ -449,6 +449,9 @@
     <Content Include="Src\XComGame\Classes\X2Action.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Action_Hack.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComPresentationLayer.uc">
       <SubType>Content</SubType>
     </Content>
