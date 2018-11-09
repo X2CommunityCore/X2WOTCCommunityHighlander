@@ -61,7 +61,8 @@ protected event InitTemplatesInternal()
 		case "Torso":
 		case "Arms":
 		case "Legs":
-			Template = new class'X2BodyPartTemplate';
+			// Single Line Change for issue '#328 Instad of giving up, decorate TemplateName to get unique Object Name
+			Template = new(None, string(PartInfo.TemplateName) $ "_" $ PartInfo.PartType) class'X2BodyPartTemplate';
 			break;
 		default:
 			// This is the "new", proper way of instantiating a template (requires unique TemplateName)
