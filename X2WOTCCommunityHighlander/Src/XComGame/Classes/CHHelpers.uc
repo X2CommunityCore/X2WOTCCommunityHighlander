@@ -101,10 +101,6 @@ var config bool bDontUnequipCovertOps; // true skips unequipping soldiers on cov
 var config bool bDontUnequipWhenWounded; // true skips unequipping soldiers after mission when being wounded
 // End Issue #310
 
-// Start Issue #330
-var config bool bHackIn2D;
-// End Issue #330
-
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
 	local XComContentManager		Content;

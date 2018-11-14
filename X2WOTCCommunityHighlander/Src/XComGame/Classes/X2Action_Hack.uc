@@ -366,6 +366,26 @@ simulated state Executing
 		UnitsHiddenByEffect.Length = 0;
 	}
 
+	// Start Issue #330
+	simulated function bool HackIn2D()
+	{
+		local XComLWTuple Tuple;
+		
+		Tuple = new class'XComLWTuple';
+		Tuple.Id = 'HackIn2D';
+		Tuple.Data.Add(2);
+
+		Tuple.Data[0].kind = XComLWTVObject;
+		Tuple.Data[0].o = StateChangeContext;
+		Tuple.Data[1].kind = XComLWTVBool;
+		Tuple.Data[1].b = false;
+
+		`XEVENTMGR.TriggerEvent('HackIn2D', Tuple, self, none);
+
+		return Tuple.Data[1].b;
+	}
+	// End Issue #330
+
 Begin:
 
 	bDoHackCaptainNarrative = ShouldPlayAdventCaptainNarrative();
@@ -407,7 +427,7 @@ Begin:
 
 	// setup the UI movie container. We create this when we need it as it uses a fair bit of video memory
 	// Start Issue #330
-	if (class'CHHelpers'.default.bHackIn2D)
+	if (HackIn2D())
 	{
 		HackMovie = `PRES.Get2DMovie();
 	}
