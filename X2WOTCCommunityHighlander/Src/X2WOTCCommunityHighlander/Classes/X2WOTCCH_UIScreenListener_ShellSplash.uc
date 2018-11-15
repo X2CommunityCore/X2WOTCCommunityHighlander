@@ -2,51 +2,55 @@ class X2WOTCCH_UIScreenListener_ShellSplash extends UIScreenListener config(Game
 
 var config bool bEnableVersionDisplay;
 
-var localized string strCHLVersion;
 var string HelpLink;
 
 event OnInit(UIScreen Screen)
 {
 	local UIShell ShellScreen;
-	local X2StrategyElementTemplateManager Manager;
-	local X2StrategyElementTemplate CHElem;
-	local CHXComGameVersionTemplate CHVersion;
+	local array<CHLComponent> Comps;
 	local string VersionString;
-
+	local int i;
+	local CHLComponentStatus WorstStatus;
 	local UIText VersionText;
-	local int iMajor, iMinor, iPatch;
 
 	if(UIShell(Screen) == none || !bEnableVersionDisplay)  // this captures UIShell and UIFinalShell
 		return;
 
 	ShellScreen = UIShell(Screen);
 
-	Manager = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
-
-	CHElem = Manager.FindStrategyElementTemplate('CHXComGameVersion');
-
-	VersionString = "";
+	Comps = class'X2WOTCCH_Components'.static.GetComponentInfo();
 	
-	if (CHElem != none)
+	// Find our worst error level
+	WorstStatus = eCHLCS_OK;
+	for (i = 0; i < Comps.Length; i++)
 	{
-		CHVersion = CHXComGameVersionTemplate(CHElem);
-		VersionString = strCHLVersion;
-		iMajor = CHVersion.MajorVersion;
-		iMinor = CHVersion.MinorVersion;
-		iPatch = CHVersion.PatchVersion;
+		if (Comps[i].CompStatus > WorstStatus)
+		{
+			WorstStatus = Comps[i].CompStatus;
+		}
 	}
-	else
-	{
-		`log("Companion script package loaded, but XComGame replacement is not! Please see" @ HelpLink @ "for help.", , 'X2WOTCCommunityHighlander');
-	}
-	VersionString = Repl(VersionString, "%MAJOR", iMajor);
-	VersionString = Repl(VersionString, "%MINOR", iMinor);
-	VersionString = Repl(VersionString, "%PATCH", iPatch);
 
-	`log("Showing version" @ VersionString @ "on shell screen...", , 'X2WOTCCommunityHighlander');
+	VersionString = "X2WOTCCommunityHighlander";
+
+	switch (WorstStatus)
+	{
+		case eCHLCS_OK:
+		case eCHLCS_NotExpectedNotFound:
+			VersionString = class'UIUtilities_Text'.static.GetColoredText(VersionString @ Comps[0].DisplayVersion, eUIState_Normal, 22);
+			break;
+		case eCHLCS_VersionMismatch:
+		case eCHLCS_ExpectedNotFound:
+			VersionString = class'UIUtilities_Text'.static.GetColoredText(VersionString @ class'X2WOTCCH_Components'.default.WarningsLabel, eUIState_Warning, 22);
+			break;
+		case eCHLCS_RequiredNotFound:
+			`log("Required packages were not loaded. Please consult" @ HelpLink @ "for further information");
+			VersionString = class'UIUtilities_Text'.static.GetColoredText(VersionString @ class'X2WOTCCH_Components'.default.ErrorsLabel, eUIState_Bad, 22);
+			break;
+	}
+
 	VersionText = ShellScreen.Spawn(class'UIText', ShellScreen);
 	VersionText.InitText('theVersionText');
-	VersionText.SetText(VersionString, OnTextSizeRealized);
+	VersionText.SetHTMLText(VersionString, OnTextSizeRealized);
 	// This code aligns the version text to the Main Menu Ticker
 	VersionText.AnchorBottomRight();
 	VersionText.SetY(-ShellScreen.TickerHeight + 10);
@@ -62,7 +66,6 @@ function OnTextSizeRealized()
 	VersionText.SetX(-10 - VersionText.Width);
 	// this makes the ticker shorter -- if the text gets long enough to interfere, it will automatically scroll
 	ShellScreen.TickerText.SetWidth(ShellScreen.Movie.m_v2ScaledFullscreenDimension.X - VersionText.Width - 20);
-	
 }
 
 defaultProperties

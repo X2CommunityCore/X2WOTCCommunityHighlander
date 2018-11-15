@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Default" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Guid>75128cbd-0b09-46f0-b431-e0325e54ee80</Guid>
+    <Name>DLC2CommunityHighlander</Name>
+    <Description>Description of My XCOM 2 Mod.</Description>
+    <SteamPublishID>0</SteamPublishID>
+    <AssemblyName>DLC2CommunityHighlander</AssemblyName>
+    <RootNamespace>DLC2CommunityHighlander</RootNamespace>
+    <ProjectGuid>{83C5EFD1-5DCE-4DE7-91AF-C3FB27383F16}</ProjectGuid>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Config\" />
+    <Folder Include="Src\" />
+    <Folder Include="Src\DLC_2\" />
+    <Folder Include="Src\DLC_2\Classes\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Config\XComCHLComponents.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="ModPreview.jpg" />
+    <Content Include="Src\DLC_2\Classes\X2DLC2CH_CHXComGameVersion.uc">
+      <SubType>Content</SubType>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildLocalExtensionPath)\XCOM2.targets" />
+</Project>
