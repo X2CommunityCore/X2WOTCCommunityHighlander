@@ -70,7 +70,9 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   "was killed by explosion" flag (#202)
 - `OverrideUnitFocusUI` to allow mods to show their own "focus"
   type using the Templar focus UI (#257)
-
+- Allow mods to have character templates to use custom base underlays instead of default 
+  clerk underlays on the Avenger (#251)
+  
 ### Configuration
 - Added ability to modify default spawn size (#18)
 - Added ability to modify number of tactical auto-saves kept (#53)
@@ -87,6 +89,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Remove protectedwrite on X2AbilityTemplate effects arrays: AbilityTarget,
   AbilityMultiTarget, and AbilityShooter Effects (#68)
 - Deprivatise/const config variables in XComTacticalMissionManager (#101)
+- Deprivatise XComAlienPawn.Voice to allow changes by mods (#275)
 
 ### Improvements
 - Make suppression work with weapons that don't have suppression specific
@@ -102,6 +105,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   subsequent shots (#20)
 - Fix Initiative-Interrupting abilities giving Reinforcements a full turn
   of action points after scamper (#36)
+- Fix some edge cases regarding idle animations and targeting (#269)
+- Fix an issue causing Rapid Fire/Chain Shot/Banish/... entering cover early (#273)
 
 
 
@@ -178,6 +183,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Improve performance by removing unnecessary calls to UpdateAllMeshMaterials (#186)
 - Adds ability to have weapon upgrades modify damage, and properly accounts for
   any damage upgrades in the UI. (#237)
+- Allow Human Pawns to freely switch between custom heads and base pawn heads,
+  eliminating the need for head mods to include invisible heads (#219)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
