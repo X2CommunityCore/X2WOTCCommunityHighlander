@@ -1395,6 +1395,16 @@ function PostCreateInit(XComGameState NewGameState, X2CharacterTemplate kTemplat
 		}
 	}
 
+	// Start Issue #343
+	// If we aren't a human pawn, our armor and weapon tint will get
+	// initialized to 0 (instead of -1 or 20). Recover from this here.
+	if (!kTemplate.bAppearanceDefinesPawn)
+	{
+		kAppearance.iWeaponTint = (kAppearance.iWeaponTint == 0) ? INDEX_NONE : kAppearance.iWeaponTint;
+		kAppearance.iArmorTint = (kAppearance.iArmorTint == 0) ? INDEX_NONE : kAppearance.iArmorTint;
+	}
+	// End Issue #343
+
 	if( CharGen != none )
 	{
 		CharGen.Destroy();
