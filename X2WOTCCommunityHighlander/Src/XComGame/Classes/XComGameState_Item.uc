@@ -1926,7 +1926,17 @@ simulated function array<UISummary_ItemStat> GetUISummary_WeaponStats(optional X
 			continue;
 		}
 
-		if (StatMarkup.StatModifier != 0 || StatMarkup.bForceShow)
+		if ((StatMarkup.StatModifier != 0 || StatMarkup.bForceShow)
+			// Start Issue #237: Employ a heuristic to filter out the new stats we 
+			// already got above in our patch. This isn't 100% accurate, but
+			// more of a compatibility fix for stats that people have a reasonable
+			// motivation to add manually due to the base game not handling them.
+			// (Also, we accidentally doubled the UI shred display for grenades. Whoops.)
+			&& StatMarkup.StatLabel != class'XLocalizedData'.default.ShredLabel
+    		&& StatMarkup.StatLabel != class'XLocalizedData'.default.PierceLabel
+			&& StatMarkup.StatLabel != class'XLocalizedData'.default.RuptureLabel
+			// End Issue #237
+			)
 		{
 			Item.Label = StatMarkup.StatLabel;
 			Item.Value = string(StatMarkup.StatModifier) $ StatMarkup.StatUnit;
