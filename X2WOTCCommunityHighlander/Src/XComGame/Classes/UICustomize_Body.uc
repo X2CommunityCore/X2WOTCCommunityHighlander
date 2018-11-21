@@ -1,5 +1,6 @@
 //---------------------------------------------------------------------------------------
-//  FILE:    UICustomize_Head.uc
+// Single Line for Issue #350
+//  FILE:    UICustomize_Body.uc
 //  PURPOSE: Soldier gear options list. 
 //---------------------------------------------------------------------------------------
 //  Copyright (c) 2016 Firaxis Games, Inc. All rights reserved.
@@ -60,6 +61,9 @@ simulated function UpdateData()
 	local bool bCanSelectArmDeco;
 	local bool bCanSelectForearmDeco;
 	local bool bCanSelectDualArms;
+	// Variable for Issue #350
+	local bool bCanSelectSeperateArms;
+	
 	currentSel = List.SelectedIndex;
 	
 	ResetMechaListItems();
@@ -86,22 +90,26 @@ simulated function UpdateData()
 	// ARMS
 	//-----------------------------------------------------------------------------------------
 	bCanSelectDualArms = CustomizeManager.HasPartsForPartType("Arms", `XCOMGAME.SharedBodyPartFilter.FilterByTorsoAndArmorMatch);
-	if (CustomizeManager.HasMultiplePartsForPartType("Arms", `XCOMGAME.SharedBodyPartFilter.FilterByTorsoAndArmorMatch))
+	// Start Issue #350
+	bCanSelectSeperateArms = CustomizeManager.HasPartsForPartType("LeftArm", `XCOMGAME.SharedBodyPartFilter.FilterByTorsoAndArmorMatch);
+	// #350 Arms and LeftArm/RightArm selections are linked, so need to be able to switch between them if both are available, even if there is only one selection.
+	if (bCanSelectSeperateArms || CustomizeManager.HasMultiplePartsForPartType("Arms", `XCOMGAME.SharedBodyPartFilter.FilterByTorsoAndArmorMatch))
 	{
 		GetListItem(i++, !bCanSelectDualArms, m_strIncompatibleStatus).UpdateDataValue(CustomizeManager.CheckForAttentionIcon(eUICustomizeCat_Arms) $ m_strArms,
 			CustomizeManager.FormatCategoryDisplay(eUICustomizeCat_Arms, bCanSelectDualArms ? eUIState_Normal : eUIState_Disabled, FontSize), CustomizeArms, true);
 	}
 
-	if (CustomizeManager.HasPartsForPartType("LeftArm", `XCOMGAME.SharedBodyPartFilter.FilterByTorsoAndArmorMatch))
+	if (bCanSelectSeperateArms)
 	{
 		//If they have parts for left arm, we assume that right arm parts are available too.
 		if (CustomizeManager.HasMultiplePartsForPartType("LeftArm", `XCOMGAME.SharedBodyPartFilter.FilterByTorsoAndArmorMatch))
 		{
 			GetListItem(i++).UpdateDataValue(CustomizeManager.CheckForAttentionIcon(eUICustomizeCat_LeftArm) $ m_strLeftArm,
 				CustomizeManager.FormatCategoryDisplay(eUICustomizeCat_LeftArm, , FontSize), CustomizeLeftArm, true);
+			bCanSelectDualArms = false;
 		}
 
-		if (CustomizeManager.HasMultiplePartsForPartType("RightArm", `XCOMGAME.SharedBodyPartFilter.FilterByTorsoAndArmorMatch))
+		if (bCanSelectDualArms || CustomizeManager.HasMultiplePartsForPartType("RightArm", `XCOMGAME.SharedBodyPartFilter.FilterByTorsoAndArmorMatch))
 		{
 			GetListItem(i++).UpdateDataValue(CustomizeManager.CheckForAttentionIcon(eUICustomizeCat_RightArm) $ m_strRightArm,
 				CustomizeManager.FormatCategoryDisplay(eUICustomizeCat_RightArm, , FontSize), CustomizeRightArm, true);
@@ -121,24 +129,26 @@ simulated function UpdateData()
 			GetListItem(i++, !bCanSelectArmDeco, m_strIncompatibleStatus).UpdateDataValue(CustomizeManager.CheckForAttentionIcon(eUICustomizeCat_RightArmDeco) $ m_strRightArmDeco,
 				CustomizeManager.FormatCategoryDisplay(eUICustomizeCat_RightArmDeco, bCanSelectArmDeco ? eUIState_Normal : eUIState_Disabled, FontSize), CustomizeRightArmDeco, true);
 		}
-
-		
-		bCanSelectForearmDeco = (Unit.kAppearance.nmArms == '' && CustomizeManager.HasPartsForPartType("LeftForearm", `XCOMGAME.SharedBodyPartFilter.FilterByTorsoAndArmorMatch) &&
-			!XComHumanPawn(CustomizeManager.ActorPawn).LeftArmContent.bHideForearms);
-		if (CustomizeManager.HasMultiplePartsForPartType("LeftForearm", `XCOMGAME.SharedBodyPartFilter.FilterByTorsoAndArmorMatch))
-		{
-			GetListItem(i++, !bCanSelectForearmDeco, m_strIncompatibleStatus).UpdateDataValue(CustomizeManager.CheckForAttentionIcon(eUICustomizeCat_LeftForearm) $ m_strLeftForearm,
-				CustomizeManager.FormatCategoryDisplay(eUICustomizeCat_LeftForearm, bCanSelectForearmDeco ? eUIState_Normal : eUIState_Disabled, FontSize), CustomizeLeftForearm, true);
-		}
-		
-		bCanSelectForearmDeco = (Unit.kAppearance.nmArms == '' && CustomizeManager.HasPartsForPartType("RightForearm", `XCOMGAME.SharedBodyPartFilter.FilterByTorsoAndArmorMatch) &&
-			!XComHumanPawn(CustomizeManager.ActorPawn).RightArmContent.bHideForearms);
-		if (CustomizeManager.HasMultiplePartsForPartType("RightForearm", `XCOMGAME.SharedBodyPartFilter.FilterByTorsoAndArmorMatch))
-		{
-			GetListItem(i++, !bCanSelectForearmDeco, m_strIncompatibleStatus).UpdateDataValue(CustomizeManager.CheckForAttentionIcon(eUICustomizeCat_RightForearm) $ m_strRightForearm,
-				CustomizeManager.FormatCategoryDisplay(eUICustomizeCat_RightForearm, bCanSelectForearmDeco ? eUIState_Normal : eUIState_Disabled, FontSize), CustomizeRightForearm, true);
-		}
 	}
+		
+	bCanSelectForearmDeco = (Unit.kAppearance.nmArms != '' && !XComHumanPawn(CustomizeManager.ActorPawn).ArmsContent.bHideForearms
+		|| Unit.kAppearance.nmLeftArm != '' && !XComHumanPawn(CustomizeManager.ActorPawn).LeftArmContent.bHideForearms)
+		&& CustomizeManager.HasPartsForPartType("LeftForearm", `XCOMGAME.SharedBodyPartFilter.FilterByTorsoAndArmorMatch);
+	if (CustomizeManager.HasMultiplePartsForPartType("LeftForearm", `XCOMGAME.SharedBodyPartFilter.FilterByTorsoAndArmorMatch))
+	{
+		GetListItem(i++, !bCanSelectForearmDeco, m_strIncompatibleStatus).UpdateDataValue(CustomizeManager.CheckForAttentionIcon(eUICustomizeCat_LeftForearm) $ m_strLeftForearm,
+			CustomizeManager.FormatCategoryDisplay(eUICustomizeCat_LeftForearm, bCanSelectForearmDeco ? eUIState_Normal : eUIState_Disabled, FontSize), CustomizeLeftForearm, true);
+	}
+		
+	bCanSelectForearmDeco = (Unit.kAppearance.nmArms != '' && !XComHumanPawn(CustomizeManager.ActorPawn).ArmsContent.bHideForearms
+		|| Unit.kAppearance.nmRightArm != '' && !XComHumanPawn(CustomizeManager.ActorPawn).RightArmContent.bHideForearms)
+		&& CustomizeManager.HasPartsForPartType("RightForearm", `XCOMGAME.SharedBodyPartFilter.FilterByTorsoAndArmorMatch);
+	if (CustomizeManager.HasMultiplePartsForPartType("RightForearm", `XCOMGAME.SharedBodyPartFilter.FilterByTorsoAndArmorMatch))
+	{
+		GetListItem(i++, !bCanSelectForearmDeco, m_strIncompatibleStatus).UpdateDataValue(CustomizeManager.CheckForAttentionIcon(eUICustomizeCat_RightForearm) $ m_strRightForearm,
+			CustomizeManager.FormatCategoryDisplay(eUICustomizeCat_RightForearm, bCanSelectForearmDeco ? eUIState_Normal : eUIState_Disabled, FontSize), CustomizeRightForearm, true);
+	}
+	// End Issue #350
 
 	// TORSO
 	//-----------------------------------------------------------------------------------------
