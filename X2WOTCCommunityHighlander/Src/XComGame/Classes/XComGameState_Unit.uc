@@ -7194,12 +7194,7 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 
 						BodyPartTemplate = BodyPartMgr.GetRandomUberTemplate("RightArmDeco", Filter, Filter.FilterByTorsoAndArmorMatch);
 						kAppearance.nmRightArmDeco = (BodyPartTemplate != none) ? BodyPartTemplate.DataName : DefaultGetRandomUberTemplate_WarnAboutFilter("RightArmDeco", Filter);
-
-						BodyPartTemplate = BodyPartMgr.GetRandomUberTemplate("LeftForearm", Filter, Filter.FilterByTorsoAndArmorMatch);
-						kAppearance.nmLeftForearm = (BodyPartTemplate != none) ? BodyPartTemplate.DataName : DefaultGetRandomUberTemplate_WarnAboutFilter("LeftForearm", Filter);
-
-						BodyPartTemplate = BodyPartMgr.GetRandomUberTemplate("RightForearm", Filter, Filter.FilterByTorsoAndArmorMatch);
-						kAppearance.nmRightForearm = (BodyPartTemplate != none) ? BodyPartTemplate.DataName : DefaultGetRandomUberTemplate_WarnAboutFilter("RightForearm", Filter);
+						//Begin Issue #350
 					}
 					else
 					{
@@ -7211,6 +7206,12 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 						kAppearance.nmLeftForearm = '';
 						kAppearance.nmRightForearm = '';
 					}
+					BodyPartTemplate = BodyPartMgr.GetRandomUberTemplate("LeftForearm", Filter, Filter.FilterByTorsoAndArmorMatch);
+					kAppearance.nmLeftForearm = (BodyPartTemplate != none) ? BodyPartTemplate.DataName : DefaultGetRandomUberTemplate_WarnAboutFilter("LeftForearm", Filter);
+
+					BodyPartTemplate = BodyPartMgr.GetRandomUberTemplate("RightForearm", Filter, Filter.FilterByTorsoAndArmorMatch);
+					kAppearance.nmRightForearm = (BodyPartTemplate != none) ? BodyPartTemplate.DataName : DefaultGetRandomUberTemplate_WarnAboutFilter("RightForearm", Filter);
+					// End Issue #350
 
 					BodyPartTemplate = BodyPartMgr.GetRandomUberTemplate("Legs", Filter, Filter.FilterByTorsoAndArmorMatch);
 					kAppearance.nmLegs = (BodyPartTemplate != none) ? BodyPartTemplate.DataName : DefaultGetRandomUberTemplate_WarnAboutFilter("Legs", Filter);
