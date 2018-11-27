@@ -1498,10 +1498,10 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 
 			UseMeshComponent = m_kLeftArm;
 
-			// Start Issue #350
+			// Start Issue #354
 			if(m_kLeftArm != none && m_kLeftArm.SkeletalMesh == UseSkeletalMesh && LeftArmContent != none &&
 			   (LeftArmContent.OverrideMaterial == UseArmsContent.OverrideMaterial))
-			// End Issue #350
+			// End Issue #354
 			{
 				return;
 			}
@@ -1523,10 +1523,10 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 
 			UseMeshComponent = m_kRightArm;
 
-			// Start Issue #350
+			// Start Issue #354
 			if(m_kRightArm != none && m_kRightArm.SkeletalMesh == UseSkeletalMesh && RightArmContent != none &&
 			   (RightArmContent.OverrideMaterial == UseArmsContent.OverrideMaterial))
-			// End Issue #350
+			// End Issue #354
 			{
 				return;
 			}
@@ -1547,10 +1547,11 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 				UseSkeletalMesh = none;
 				bSkipAttachment = true;
 			}
-
+			// End Issue #350
+			// Start Issue #354
 			if(m_kLeftArmDeco != none && m_kLeftArmDeco.SkeletalMesh == UseSkeletalMesh && LeftArmDecoContent != none &&
 			   (LeftArmDecoContent.OverrideMaterial == UseArmsContent.OverrideMaterial))
-			// End Issue #350
+			// End Issue #354
 			{
 				return;
 			}
@@ -1572,10 +1573,11 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 				UseSkeletalMesh = none;
 				bSkipAttachment = true;
 			}
-
+			// End Issue #350
+			// Start Issue #354
 			if(m_kRightArmDeco != none && m_kRightArmDeco.SkeletalMesh == UseSkeletalMesh && RightArmDecoContent != none &&
 			   (RightArmDecoContent.OverrideMaterial == UseArmsContent.OverrideMaterial))
-			// End Issue #350
+			// End Issue #354
 			{
 				return;
 			}
@@ -1597,10 +1599,10 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 				bSkipAttachment = true;
 			}
 
-			// Start Issue #350
+			// Start Issue #354
 			if(m_kLeftForearmMC != none && m_kLeftForearmMC.SkeletalMesh == UseSkeletalMesh && LeftForearmContent != none &&
 			   (LeftForearmContent.OverrideMaterial == UseArmsContent.OverrideMaterial))
-			// End Issue #350
+			// End Issue #354
 			{
 				return;
 			}
@@ -1622,10 +1624,10 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 				bSkipAttachment = true;
 			}
 
-			// Start Issue #350
+			// Start Issue #354
 			if(m_kRightForearmMC != none && m_kRightForearmMC.SkeletalMesh == UseSkeletalMesh && RightForearmContent != none &&
 			   (RightForearmContent.OverrideMaterial == UseArmsContent.OverrideMaterial))
-			// End Issue #350
+			// End Issue #354
 			{
 				return;
 			}
@@ -1927,8 +1929,10 @@ simulated function OnBodyPartLoaded(PawnContentRequest ContentRequest)
 			bSkipAttachment = true;
 		}
 		// End Issue #219 -- moved up
-
-		if(UseMeshComponent.SkeletalMesh == UseSkeletalMesh)
+		// Start Issue #354
+		if(UseMeshComponent.SkeletalMesh == UseSkeletalMesh && HelmetContent != none && 
+		   ((!BodyPartContent.ShouldUseOverrideMaterial() && !HelmetContent.ShouldUseOverrideMaterial()) || HelmetContent.OverrideMaterial == BodyPartContent.OverrideMaterial))
+		// End Issue #354
 		{
 			return;
 		}
