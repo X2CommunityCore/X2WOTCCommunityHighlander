@@ -1009,6 +1009,10 @@ private static function UpdateUnitState( XComGameState StartState, XComGameState
 	local array<name> WeaponUpgrades;
 	local int index;
 	local array<XComGameState_Item> BackpackItems;
+	// Variables for issue #307
+	local X2SoldierClassTemplate ClassTemplate;
+	local int i, j;
+	local array<name> AbilitiestoFind;
 
 	// Single line change for Issue #307 - We are allowing SoldierClass to be changed, but not CharacterTemplate (yet)
 	`assert( UnitState.GetMyTemplateName() == SoldierConfigData.CharacterTemplate );
@@ -1020,17 +1024,62 @@ private static function UpdateUnitState( XComGameState StartState, XComGameState
 		UnitState.RankUpSoldier( StartState, SoldierConfigData.SoldierClassTemplate);
 	}
 
-	for (Progression.iRank = 0; Progression.iRank < SoldierConfigData.SoldierRank; ++Progression.iRank)
+	// Start Issue #307 - No purpose in limiting progression abilities by rank, or even by class if AWC eligible abilities
+	AbilitiestoFind = SoldierConfigData.EarnedClassAbilities;
+	for (Progression.iRank = 0; Progression.iRank < UnitState.AbilityTree.Length; ++Progression.iRank)
 	{
 		AbilityTree = UnitState.GetRankAbilities( Progression.iRank );
 		for (Progression.iBranch = 0; Progression.iBranch < AbilityTree.Length; ++Progression.iBranch)
 		{
-			if (SoldierConfigData.EarnedClassAbilities.Find( AbilityTree[ Progression.iBranch ].AbilityName ) != INDEX_NONE)
+			if (AbilitiestoFind.Find( AbilityTree[ Progression.iBranch ].AbilityName ) != INDEX_NONE)
 			{
 				SoldierProgression.AddItem( Progression );
+				AbilitiestoFind.RemoveItem( AbilityTree[ Progression.iBranch ].AbilityName );
+				if (AbilitiestoFind.Length==0)
+				{
+					break;
+				}
 			}
 		}
 	}
+	if (AbilitiestoFind.Length!=0)
+	{
+		ClassTemplate = UnitState.GetSoldierClassTemplate();
+		Progression.iRank = 0;
+		Progression.iBranch = UnitState.GetRankAbilities(0).Length;
+		// Issue #307 check classes random ability decks, if any
+		for (j = 0; j < ClassTemplate.RandomAbilityDecks.Length; ++j)
+		{
+			AbilityTree = ClassTemplate.RandomAbilityDecks[j].Abilities;
+			for (i = AbilitiestoFind.Length - 1; i >= 0; i--)
+			{
+				Index = AbilityTree.Find ('AbilityName', AbilitiestoFind[i]);
+				if (Index != INDEX_NONE)
+				{
+					UnitState.AbilityTree[0].Abilities.AddItem(AbilityTree[Index]);
+					SoldierProgression.AddItem( Progression );
+					Progression.iBranch++;
+					AbilitiestoFind.RemoveItem( AbilitiestoFind[i] );
+				}
+			}
+		}
+		if (AbilitiestoFind.Length!=0)
+		{
+			//check AWC Abilities;
+			AbilityTree = class'X2SoldierClassTemplateManager'.static.GetSoldierClassTemplateManager().GetCrossClassAbilities_CH(UnitState.AbilityTree);
+			for (i = 0; i < AbilitiestoFind.Length; i++)
+			{
+				Index = AbilityTree.Find ('AbilityName', AbilitiestoFind[i]);
+				if (Index != INDEX_NONE)
+				{
+					UnitState.AbilityTree[0].Abilities.AddItem(AbilityTree[Index]);
+					SoldierProgression.AddItem( Progression );
+					Progression.iBranch++;
+				}
+			}
+		}
+	}
+	// Endi Issue #307
 	UnitState.SetSoldierProgression( SoldierProgression );
 
 	UnitState.AppearanceStore.Length = 0;
