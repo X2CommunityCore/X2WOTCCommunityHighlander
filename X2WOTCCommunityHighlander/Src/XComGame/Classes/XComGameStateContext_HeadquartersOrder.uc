@@ -1061,6 +1061,10 @@ static function CompleteRespecSoldier(XComGameState AddToGameState, StateObjectR
 			{
 				StaffSlotState.EmptySlot(AddToGameState);
 			}
+
+			// Start Issue #339
+			`XEVENTMGR.TriggerEvent('CompleteRespecSoldier', self, UnitState, none);
+			// End Issue #339
 		}
 	}
 }
