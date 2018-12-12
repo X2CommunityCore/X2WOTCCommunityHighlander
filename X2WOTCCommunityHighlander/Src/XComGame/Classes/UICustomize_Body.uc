@@ -70,6 +70,8 @@ simulated function UpdateData()
 
 	super.UpdateData();
 
+	//Single Line for Issue #350
+	List.ClearItems();
 	// ARMOR PRIMARY COLOR
 	//-----------------------------------------------------------------------------------------
 	GetListItem(i++).UpdateDataColorChip(CustomizeManager.CheckForAttentionIcon(eUICustomizeCat_PrimaryArmorColor)$ m_strMainColor,
