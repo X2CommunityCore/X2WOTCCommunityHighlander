@@ -61,9 +61,14 @@ protected event InitTemplatesInternal()
 		case "Torso":
 		case "Arms":
 		case "Legs":
-			// Single Line Change for issue '#328 Instad of giving up, decorate TemplateName to get unique Object Name
-			Template = new(None, string(PartInfo.TemplateName) $ "_" $ PartInfo.PartType) class'X2BodyPartTemplate';
-			break;
+			// Begin issue #328 - Check if the TemplateName indentifies the Part Type.
+			if(InStr(PartInfo.TemplateName, PartInfo.PartType,, true)==INDEX_NONE)
+			{
+				// Instead of giving up, decorate TemplateName to get unique Object Name
+				Template = new(None, string(PartInfo.TemplateName) $ "_" $ PartInfo.PartType) class'X2BodyPartTemplate';
+				break;
+			}
+			// End issue #328 - Fall through to default case if template name indenties the part type
 		default:
 			// This is the "new", proper way of instantiating a template (requires unique TemplateName)
 			Template = new(None, string(PartInfo.TemplateName)) class'X2BodyPartTemplate';
