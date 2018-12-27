@@ -179,15 +179,9 @@ simulated function UpdateData()
 	{
 		m_kChosenInfoButton.Hide();
 	}
-
-	if( ResHQ.NumMonths > 0 && ResHQ.HaveMetAnyFactions() && !UIStrategyMap(Owner).IsInFlightMode() )
-	{
-		m_kResistanceInfoButton.Show();
-	}
-	else
-	{
-		m_kResistanceInfoButton.Hide();
-	}
+	
+	// Issue #365
+	m_kResistanceInfoButton.SetVisible(ShouldShowResInfoButton(ResHQ));
 
 	//bsg-crobinson (5.23.17): Hide these buttons if using a controller
 	if (`ISCONTROLLERACTIVE)
@@ -278,6 +272,23 @@ simulated function UpdateData()
 		`HQPRES.ScreenStack.ForceStackOrder(`HQPRES.Get2DMovie());
 	}
 }
+
+// Start issue #365
+simulated protected function bool ShouldShowResInfoButton(XComGameState_HeadquartersResistance ResHQ)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+ 	Tuple.Id = 'Geoscape_ResInfoButtonVisiblie';
+ 	Tuple.Data.Add(1);
+ 	Tuple.Data[0].kind = XComLWTVBool;
+ 	Tuple.Data[0].b = ResHQ.NumMonths > 0 && ResHQ.HaveMetAnyFactions() && !UIStrategyMap(Owner).IsInFlightMode();
+ 
+ 	`XEVENTMGR.TriggerEvent('Geoscape_ResInfoButtonVisiblie', Tuple, self, none);
+
+	return Tuple.Data[0].b;
+}
+// End issue #365
 
 simulated function UpdateLoseTimer()
 {
