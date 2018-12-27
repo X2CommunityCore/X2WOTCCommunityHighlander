@@ -1039,6 +1039,8 @@ simulated function int GetItemEnvironmentDamage()
 simulated function int GetItemSoundRange()
 {
 	local int iSoundRange;
+	
+	local XComLWTuple Tuple; // Issue #363
 
 	iSoundRange = class'X2WeaponTemplate'.default.iSoundRange;
 	GetMyTemplate();
@@ -1047,6 +1049,18 @@ simulated function int GetItemSoundRange()
 	{
 		iSoundRange = X2WeaponTemplate(m_ItemTemplate).iSoundRange;
 	}
+
+	// Start Issue #363
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideItemSoundRange';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVInt;
+	Tuple.Data[0].i = iSoundRange;
+
+	`XEVENTMGR.TriggerEvent('OverrideItemSoundRange', Tuple, self, none);
+	
+	iSoundRange = Tuple.Data[0].i;
+	// End Issue #363
 
 	return iSoundRange;
 }
