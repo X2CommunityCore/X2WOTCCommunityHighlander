@@ -3,8 +3,8 @@ class X2WOTCCH_Components extends Object config(CHLComponents);
 enum CHLComponentStatus
 {
 	// OK
-	eCHLCS_OK,
 	eCHLCS_NotExpectedNotFound,
+	eCHLCS_OK,
 	// Warnings
 	eCHLCS_VersionMismatch,
 	eCHLCS_ExpectedNotFound,
@@ -20,6 +20,7 @@ struct CHLComponent
 };
 
 var config bool DLC2ReplacementEnabled;
+//var config bool DLC3ReplacementEnabled;
 
 var localized string VersionFormat;
 var localized string RequiredNotFound;
@@ -44,10 +45,18 @@ static function array<CHLComponent> GetComponentInfo()
 	Comps.AddItem(BuildComponent(SelfVersion, none, "X2WOTCCommunityHighlander", true, true));
 	Comps.AddItem(BuildComponent(Manager.FindStrategyElementTemplate('CHEngineVersion'), SelfVersion, "Engine", true, true));
 	Comps.AddItem(BuildComponent(Manager.FindStrategyElementTemplate('CHXComGameVersion'), SelfVersion, "XComGame", true, true));
+
 	if (DLCNames.Find("DLC_2") != INDEX_NONE)
 	{
 		Comps.AddItem(BuildComponent(Manager.FindStrategyElementTemplate('CHDLC2Version'), SelfVersion, "DLC_2", false, default.DLC2ReplacementEnabled));
 	}
+
+	/* FIXME: Uncomment when a DLC_3 Highlander is added
+	if (DLCNames.Find("DLC_3") != INDEX_NONE)
+	{
+		Comps.AddItem(BuildComponent(Manager.FindStrategyElementTemplate('CHDLC3Version'), SelfVersion, "DLC_3", false, default.DLC3ReplacementEnabled));
+	}
+	*/
 
 	return Comps;
 }
@@ -73,6 +82,10 @@ static function CHLComponent BuildComponent(X2StrategyElementTemplate Template, 
 				Comp.CompStatus = eCHLCS_VersionMismatch;
 			}
 		}
+		else
+		{
+			Comp.CompStatus = eCHLCS_OK;
+		}
 	}
 	else
 	{
@@ -89,7 +102,7 @@ static function CHLComponent BuildComponent(X2StrategyElementTemplate Template, 
 		else
 		{
 			Comp.DisplayVersion = default.NotExpectedNotFound;
-			Comp.CompStatus = eCHLCS_OK;
+			Comp.CompStatus = eCHLCS_NotExpectedNotFound;
 		}
 	}
 
