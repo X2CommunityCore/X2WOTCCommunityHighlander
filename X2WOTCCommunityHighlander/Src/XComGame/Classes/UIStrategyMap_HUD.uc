@@ -277,14 +277,19 @@ simulated function UpdateData()
 simulated protected function bool ShouldShowResInfoButton(XComGameState_HeadquartersResistance ResHQ)
 {
 	local XComLWTuple Tuple;
+	local bool bInFlight;
+
+	bInFlight = UIStrategyMap(Owner).IsInFlightMode();
 
 	Tuple = new class'XComLWTuple';
- 	Tuple.Id = 'Geoscape_ResInfoButtonVisiblie';
- 	Tuple.Data.Add(1);
+ 	Tuple.Id = 'Geoscape_ResInfoButtonVisible';
+ 	Tuple.Data.Add(2);
  	Tuple.Data[0].kind = XComLWTVBool;
- 	Tuple.Data[0].b = ResHQ.NumMonths > 0 && ResHQ.HaveMetAnyFactions() && !UIStrategyMap(Owner).IsInFlightMode();
- 
- 	`XEVENTMGR.TriggerEvent('Geoscape_ResInfoButtonVisiblie', Tuple, self, none);
+ 	Tuple.Data[0].b = ResHQ.NumMonths > 0 && ResHQ.HaveMetAnyFactions() && !bInFlight; 
+	Tuple.Data[1].kind = XComLWTVBool;
+ 	Tuple.Data[1].b = bInFlight;
+
+ 	`XEVENTMGR.TriggerEvent('Geoscape_ResInfoButtonVisible', Tuple, self, none);
 
 	return Tuple.Data[0].b;
 }
