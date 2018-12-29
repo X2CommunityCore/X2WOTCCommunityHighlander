@@ -1055,7 +1055,6 @@ reliable client function array<UIAvengerShortcutMessage> GetCommandersQuartersMe
 	local XComGameState_FacilityXCom FacilityState;
 	local array<UIAvengerShortcutMessage> Messages;
 	local UIAvengerShortcutMessage Msg;
-	local XComGameState_HeadquartersResistance ResHQ;
 	local bool bTutorial;
 
 	History = `XCOMHISTORY;
@@ -1113,8 +1112,8 @@ reliable client function array<UIAvengerShortcutMessage> GetCommandersQuartersMe
 		}
 	}
 
-	ResHQ = class'UIUtilities_Strategy'.static.GetResistanceHQ();
-	if (ResHQ.NumMonths > 0 && ResHQ.HaveMetAnyFactions())
+	// Issue #368
+	if (ShouldShowResistanceOrders())
 	{
 		Msg.Label = LabelCQ_ResistanceOrders;
 		Msg.Description = TooltipCQ_ResistanceOrders;
@@ -1126,6 +1125,26 @@ reliable client function array<UIAvengerShortcutMessage> GetCommandersQuartersMe
 
 	return Messages;
 }
+
+ // Start issue #368
+ simulated protected function bool ShouldShowResistanceOrders()
+ {
+	local XComGameState_HeadquartersResistance ResHQ;
+	local XComLWTuple Tuple;
+ 
+	ResHQ = class'UIUtilities_Strategy'.static.GetResistanceHQ();
+ 	
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'UIAvengerShortcuts_ShowCQResistanceOrders';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = ResHQ.NumMonths > 0 && ResHQ.HaveMetAnyFactions();
+
+	`XEVENTMGR.TriggerEvent('UIAvengerShortcuts_ShowCQResistanceOrders', Tuple, self, none);
+ 
+ 	return Tuple.Data[0].b;
+ }
+ // End issue #368
 
 
 reliable client function array<UIAvengerShortcutMessage> GetShadowChamberMessages()
