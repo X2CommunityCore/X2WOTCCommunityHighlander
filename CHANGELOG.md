@@ -37,6 +37,11 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Improvements
 - Allow `UIStrategyMap` to display custom Faction HQ icons (#76)
 - Allow customization of auto-equipment removal behavior in 'UISquadSelect' (#134)
+- Customization localizations now picked up for Torso/Legs/Arms. If the TemplateName already
+  contains the parttype name (ie Torso/Legs/Arms), then the object name in the localization file
+  matches as for other parts (in particular this means Anarchy's Children localizations which already exist in the files
+  are picked up automatically). Otherwise, "_Torso"/"_Legs"/"_Arms" is appended to the template name
+  to create the unique object name.
 
 ### Fixes
 - Fix an issue in base game where strategy X2EventListenerTemplates only
