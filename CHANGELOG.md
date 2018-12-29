@@ -201,6 +201,9 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 Particularly important for Central and Shen, whose custom Soldier Classes ability tree contain only the abilities granted by their squad progression (#307)
 - Better Photobooth support for custom Soldier Classes and Spark-like units,
   no broken duo poses for units that can't play them (#309)
+- "Arms" no longer always hide forearm decos, but obey the archetype flag as the left/right arms do. (#350)
+- Arms and left/right arm customization dropdowns remain selectable even if they only have one entry
+  iff both arms and seperate left/right arms are available. (#350)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
@@ -211,3 +214,5 @@ Particularly important for Central and Shen, whose custom Soldier Classes abilit
   an argument in the CreateCharacter function (#70)
 - Fixes game terminating SoundCue narrative moments after three seconds because
   it assumes they didn't play at all. (#66)
+- Appearances now update correctly when a part change differs only by material override (#354)
+- All relevant body parts are now correctly validated when the torso is changed. (#350)
