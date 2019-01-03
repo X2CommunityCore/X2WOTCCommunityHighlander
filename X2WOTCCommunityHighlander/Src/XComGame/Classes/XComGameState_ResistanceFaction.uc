@@ -707,9 +707,19 @@ function CreateGoldenPathActions(XComGameState NewGameState)
 //---------------------------------------------------------------------------------------
 function GenerateCovertActions(XComGameState NewGameState, out array<Name> ActionExclusionList)
 {	
+	CovertActions.Length = 0; // Reset the stored covert actions list
+	RefreshAvailableCovertActions(NewGameState, ActionExclusionList); // Refresh which covert actions are available for this Faction	
+	AddNewCovertActions(NewGameState, GetNumActionsToAdd(NewGameState) /* Issue #373 */, ActionExclusionList);
+}
+
+// Start issue #373
+function int GetNumActionsToAdd(XComGameState NewGameState)
+{
 	local XComGameState_HeadquartersXCom XComHQ;
 	local int NumActionsToAdd;
+	local XComLWTuple Tuple;
 
+	// Default logic:
 	XComHQ = XComGameState_HeadquartersXCom(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
 	NumActionsToAdd = 1; // Limit to 1 action per Faction if the Ring is not built
 	if (XComHQ.HasFacilityByName('ResistanceRing'))
@@ -717,10 +727,17 @@ function GenerateCovertActions(XComGameState NewGameState, out array<Name> Actio
 		NumActionsToAdd = default.CovertActionsPerInfluence[Influence];
 	}
 
-	CovertActions.Length = 0; // Reset the stored covert actions list
-	RefreshAvailableCovertActions(NewGameState, ActionExclusionList); // Refresh which covert actions are available for this Faction	
-	AddNewCovertActions(NewGameState, NumActionsToAdd, ActionExclusionList);
+	Tuple = new class'XComLWTuple';
+ 	Tuple.Id = 'NumCovertActionsToAdd';
+ 	Tuple.Data.Add(1);
+ 	Tuple.Data[0].kind = XComLWTVInt;
+ 	Tuple.Data[0].i = NumActionsToAdd;
+ 
+ 	`XEVENTMGR.TriggerEvent('NumCovertActionsToAdd', Tuple, self, NewGameState);
+ 
+  	return Tuple.Data[0].i;
 }
+// End issue #373
 
 //---------------------------------------------------------------------------------------
 private function RefreshAvailableCovertActions(XComGameState NewGameState, out array<Name> ExclusionList, optional bool bClearList = true)
