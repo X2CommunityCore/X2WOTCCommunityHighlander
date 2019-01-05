@@ -78,7 +78,9 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Allow mods to have character templates to use custom base underlays instead of default 
   clerk underlays on the Avenger (#251)
 - `OverrideVictoriousPlayer` to allow override whether a mission was successful or not (#266)
-  
+- `OverrideHackingScreenType` and `HackIn2D` to allow hacking using a 2D movie and using
+  the Skulljack / ADVENT screen arbitrarily (#330)
+
 ### Configuration
 - Added ability to modify default spawn size (#18)
 - Added ability to modify number of tactical auto-saves kept (#53)
