@@ -1047,7 +1047,9 @@ private static function UpdateUnitState( XComGameState StartState, XComGameState
 		ClassTemplate = UnitState.GetSoldierClassTemplate();
 		Progression.iRank = 0;
 		Progression.iBranch = UnitState.GetRankAbilities(0).Length;
-		// Issue #307 check classes random ability decks, if any
+		// #307 The SoldierProgression array contains references to entries in the units AbilityTree, not ability names directly.
+		// In order to create the missing AbilityTree entry, the abilityname isn't enough, due to possible weapon slot linking etc.
+		// First check the classes random ability decks, if any
 		for (j = 0; j < ClassTemplate.RandomAbilityDecks.Length; ++j)
 		{
 			AbilityTree = ClassTemplate.RandomAbilityDecks[j].Abilities;
@@ -1056,6 +1058,8 @@ private static function UpdateUnitState( XComGameState StartState, XComGameState
 				Index = AbilityTree.Find ('AbilityName', AbilitiestoFind[i]);
 				if (Index != INDEX_NONE)
 				{
+					// #307 The ability has to exist in the Units ability tree, where doesn't matter,
+					// So just add it to the end of the first Rank.
 					UnitState.AbilityTree[0].Abilities.AddItem(AbilityTree[Index]);
 					SoldierProgression.AddItem( Progression );
 					Progression.iBranch++;
@@ -1065,13 +1069,15 @@ private static function UpdateUnitState( XComGameState StartState, XComGameState
 		}
 		if (AbilitiestoFind.Length!=0)
 		{
-			//check AWC Abilities;
+			// #307 If we still can't find some abilities, check AWC Abilities.
 			AbilityTree = class'X2SoldierClassTemplateManager'.static.GetSoldierClassTemplateManager().GetCrossClassAbilities_CH(UnitState.AbilityTree);
 			for (i = 0; i < AbilitiestoFind.Length; i++)
 			{
 				Index = AbilityTree.Find ('AbilityName', AbilitiestoFind[i]);
 				if (Index != INDEX_NONE)
 				{
+					// #307 The ability has to exist in the Units ability tree, where doesn't matter,
+					// So just add it to the end of the first Rank.
 					UnitState.AbilityTree[0].Abilities.AddItem(AbilityTree[Index]);
 					SoldierProgression.AddItem( Progression );
 					Progression.iBranch++;
@@ -1079,7 +1085,7 @@ private static function UpdateUnitState( XComGameState StartState, XComGameState
 			}
 		}
 	}
-	// Endi Issue #307
+	// End Issue #307
 	UnitState.SetSoldierProgression( SoldierProgression );
 
 	UnitState.AppearanceStore.Length = 0;
