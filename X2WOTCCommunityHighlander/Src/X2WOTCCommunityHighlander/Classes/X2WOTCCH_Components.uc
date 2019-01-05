@@ -19,7 +19,7 @@ struct CHLComponent
 	var CHLComponentStatus CompStatus;
 };
 
-var config bool DLC2ReplacementEnabled;
+//var config bool DLC2ReplacementEnabled;
 //var config bool DLC3ReplacementEnabled;
 
 var localized string VersionFormat;
@@ -46,10 +46,12 @@ static function array<CHLComponent> GetComponentInfo()
 	Comps.AddItem(BuildComponent(Manager.FindStrategyElementTemplate('CHEngineVersion'), SelfVersion, "Engine", true, true));
 	Comps.AddItem(BuildComponent(Manager.FindStrategyElementTemplate('CHXComGameVersion'), SelfVersion, "XComGame", true, true));
 
+	/* FIXME: Uncomment when a DLC 2 Highlander is added
 	if (DLCNames.Find("DLC_2") != INDEX_NONE)
 	{
 		Comps.AddItem(BuildComponent(Manager.FindStrategyElementTemplate('CHDLC2Version'), SelfVersion, "DLC_2", false, default.DLC2ReplacementEnabled));
 	}
+	*/
 
 	/* FIXME: Uncomment when a DLC_3 Highlander is added
 	if (DLCNames.Find("DLC_3") != INDEX_NONE)
