@@ -211,3 +211,5 @@ Particularly important for Central and Shen, whose custom Soldier Classes abilit
   an argument in the CreateCharacter function (#70)
 - Fixes game terminating SoundCue narrative moments after three seconds because
   it assumes they didn't play at all. (#66)
+- Fixes UIPanels animating in with a huge delay when they are direct child panels of
+  UIScreen (#341)
