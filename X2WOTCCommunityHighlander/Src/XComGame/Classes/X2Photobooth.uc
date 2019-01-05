@@ -62,7 +62,39 @@ enum Photobooth_ParticleEffectType
 	ePPET_None,
 	ePPET_TemplarBladeRight,
 	ePPET_TemplarBladeLeft,
-	ePPET_TemplarShield
+	ePPET_TemplarShield,
+	// Start Issue #359
+	// Similar to above, but we don't need any sort of special marker
+	// enums here as these are never used in code (only config)
+	// Still going to use buffers though!
+	ePPET_Buffer04,
+	ePPET_Buffer05,
+	ePPET_Buffer06,
+	ePPET_Buffer07,
+	ePPET_Buffer08,
+	ePPET_Buffer09,
+	ePPET_Buffer10,
+	ePPET_Buffer11,
+
+	ePPET_Unstable12,
+	ePPET_Unstable13,
+	ePPET_Unstable14,
+	ePPET_Unstable15,
+	ePPET_Unstable16,
+	ePPET_Unstable17,
+	ePPET_Unstable18,
+	ePPET_Unstable19,
+	ePPET_Unstable20,
+	ePPET_Unstable21,
+	ePPET_Unstable22,
+	ePPET_Unstable23,
+	ePPET_Unstable24,
+	ePPET_Unstable25,
+	ePPET_Unstable26,
+	ePPET_Unstable27,
+	ePPET_Unstable28,
+	ePPET_Unstable29,
+	// End Issue #359
 };
 
 struct native AnimationPoses
