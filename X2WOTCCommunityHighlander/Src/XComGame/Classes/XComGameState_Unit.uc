@@ -11817,6 +11817,8 @@ function int AddXp(int Delta)
 
 	NewXp = m_iXp + Delta;
 
+	// Issue #1 -- leave `GET_MAX_RANK intact here. This allows units to accumulate XP
+	// beyond their max configured rank, but it doesn't really hurt.
 	if (m_SoldierRank + 2 < `GET_MAX_RANK)
 	{
 		//  a soldier cannot gain enough xp to gain 2 levels at the end of one mission, so restrict xp to just below that amount
@@ -11885,7 +11887,9 @@ function bool CanRankUpSoldier()
 {
 	local int NumKills;
 
-	if (m_SoldierRank + 1 < `GET_MAX_RANK && !bRankedUp)
+	// Issue #1 -- Use the Class Template's max configured rank, unless we are a Rookie -- Rookies
+	// don't have any Soldier ranks at all, and they cand definitely rank up!
+	if ((m_SoldierRank == 0 || m_SoldierRank < GetSoldierClassTemplate().GetMaxConfiguredRank()) && !bRankedUp)
 	{
 		NumKills = GetTotalNumKills();
 
