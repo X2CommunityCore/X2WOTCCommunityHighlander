@@ -52,7 +52,16 @@
     <Content Include="Src\Engine\Classes\AudioComponent.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\Engine\Classes\CHEngineVersion.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\Engine\Classes\SkeletalMeshSocket.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2WOTCCH_CHXComGameVersion.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2WOTCCH_Components.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2WOTCCH_UIScreenListener_ShellSplash.uc">

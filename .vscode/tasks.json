@@ -21,7 +21,17 @@
             "problemMatcher": []
         },
         {
-            "label": "debug",
+            "label": "build-dlc2",
+            "type": "shell",
+            "command": "powershell.exe -file '${workspaceRoot}\\.scripts\\build.ps1' -mod \"DLC2CommunityHighlander\" -srcDirectory '${workspaceRoot}\\Components\\DLC2CommunityHighlander' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}'",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "runGame",
             "type": "shell",
             "command": "powershell.exe -file '${workspaceRoot}\\.scripts\\run.ps1' -gamePath '${config:xcom.highlander.gameroot}'",
             "problemMatcher": []
