@@ -251,11 +251,11 @@ private static function RecalculateChancesForRollGroup(X2LootTable LootTable, in
 				}
 				else
 				{
-					NewChance = 100 / SumChances * OldChance;
+					NewChance = 100 * OldChance / SumChances;
 				}
 				NewSumChances += NewChance;
 
-				EntryRemainder.ChanceRemainder = (100 / SumChances * OldChance) - NewChance;
+				EntryRemainder.ChanceRemainder = (100 * OldChance / SumChances) - NewChance;
 				EntryRemainder.EntryIndex = TableEntryIndex;
 				Remainders.AddItem(EntryRemainder);
 
