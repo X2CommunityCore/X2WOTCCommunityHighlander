@@ -12,6 +12,7 @@ TNychka - development
 PixalVortex - development  
 Danice123 - development  
 LeaderEnemyBoss - development  
-RealityMachina - development
-Ginger - development
-Mr. Nice - development
+RealityMachina - development  
+Ginger - development  
+Mr. Nice - development  
+Xymanek - development

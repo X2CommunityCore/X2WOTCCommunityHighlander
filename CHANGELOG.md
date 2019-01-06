@@ -24,6 +24,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Triggers the event `GeoscapeFlightModeUpdate` to allow mods to respond to geoscape mode change (#358)
 - Triggers the event `UIAvengerShortcuts_ShowCQResistanceOrders` to allow to override the presence of Resistance Orders button in `UIAvengerShortcuts` (#368)
 - Triggers the event `Geoscape_ResInfoButtonVisible` to allow to override the visibility of resistance orders button in `UIStrategyMap_HUD` (#365)
+- Triggers the event `NumCovertActionsToAdd` to allow mods to modfiy number of Covert Actions (#373)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
