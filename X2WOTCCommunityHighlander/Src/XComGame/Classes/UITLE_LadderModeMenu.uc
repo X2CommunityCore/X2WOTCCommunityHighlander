@@ -385,6 +385,12 @@ simulated function OnDifficultySelectionCallback(name eAction, int selectedDiffi
 
 	if (eAction != 'eUIAction_Accept')
 	{
+		// Start Issue #307
+		if (ClickedList == List)
+		{
+			clickedIndex -= NarrativeList.GetItemCount() - 1;
+		}
+		// End Issue #307
 		return;
 	}
 
@@ -417,19 +423,17 @@ simulated function StartLadder(int LadderIndex, int DifficultySelection, bool Na
 	// Start Issue #307
 	// Mr. Nice since we are bypassing XComCheatManager::StartLadder(), have to do house keeping on
 	// StartTime, GameIndex, and Difficulty ourselves.
-	History.ReadHistoryFromFile("Ladders/", "Ladder_" $ LadderIndex);
+	History.ReadHistoryFromFile("Ladders/", "Mission_" $ LadderIndex $ "_1_" $ DifficultySelection);
 	CurrentCampaign = XComGameState_CampaignSettings(History.GetSingleGameStateObjectForClass(class'XComGameState_CampaignSettings'));
 	CurrentCampaign.SetStartTime( class'XComCheatManager'.static.GetCampaignStartTime( ) );
 	CurrentCampaign.SetGameIndexFromProfile( );
 
-	if (LadderIndex >= 10) // replaying a procedural ladder, difficulty is locked to what was generated
-	{
-		DifficultySelection = CurrentCampaign.DifficultySetting;
-	}
-	else
-	{
-		CurrentCampaign.SetDifficulty(DifficultySelection);
-	}
+	// Mr. Nice: DifficultySelection is now correctly carried through even if difficulty is locked
+	//if (LadderIndex >= 10) // replaying a procedural ladder, difficulty is locked to what was generated
+	//{
+		//DifficultySelection = CurrentCampaign.DifficultySetting;
+	//}
+	
 	// starting an existing ladder from scratch
 	//XComCheatManager(GetALocalPlayerController().CheatManager).StartLadder(LadderIndex, DifficultySelection);
 	
@@ -746,7 +750,8 @@ simulated function InitializeLadderList()
 		LadderData = XComGameState_LadderProgress(History.GetSingleGameStateObjectForClass(class'XComGameState_LadderProgress', true));
 		LadderIndex = int( m_LadderList[ i ] );
 
-		CampaignSettings = XComGameState_CampaignSettings(History.GetSingleGameStateObjectForClass(class'XComGameState_LadderProgress', false));
+		// Single Line Change for Issue #307, so so dumb, Firaxis...
+		CampaignSettings = XComGameState_CampaignSettings(History.GetSingleGameStateObjectForClass(class'XComGameState_CampaignSettings', false));
 		m_LadderDifficulties[i] = CampaignSettings.DifficultySetting;
 		
 		if (LadderIndex < 10)
