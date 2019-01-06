@@ -81,6 +81,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Allow mods to have character templates to use custom base underlays instead of default 
   clerk underlays on the Avenger (#251)
 - `OverrideVictoriousPlayer` to allow override whether a mission was successful or not (#266)
+- `OverrideItemSoundRange` to allow overriding an item's sound range (#363)
   
 ### Configuration
 - Added ability to modify default spawn size (#18)
