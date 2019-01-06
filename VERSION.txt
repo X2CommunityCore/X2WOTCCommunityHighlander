@@ -1,4 +1,4 @@
-1.16.0
+1.17.0
 
 Files to keep this in sync with:
 X2WOTCCommunityHighlander/Src/Engine/Classes/CHEngineVersion.uc

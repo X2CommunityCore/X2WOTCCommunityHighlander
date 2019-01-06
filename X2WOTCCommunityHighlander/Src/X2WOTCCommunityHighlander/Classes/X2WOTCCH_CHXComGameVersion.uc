@@ -9,7 +9,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	{
 		`CREATE_X2TEMPLATE(class'CHXComGameVersionTemplate', XComGameVersion, 'CHWOTCVersion');
 		CHXComGameVersionTemplate(XComGameVersion).MajorVersion = 1;
-		CHXComGameVersionTemplate(XComGameVersion).MinorVersion = 16;
+		CHXComGameVersionTemplate(XComGameVersion).MinorVersion = 17;
 		CHXComGameVersionTemplate(XComGameVersion).PatchVersion = 0;
 
 		Templates.AddItem(XComGameVersion);
