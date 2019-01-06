@@ -1629,12 +1629,15 @@ simulated function EUISummary_WeaponStats GetUpgradeModifiersForUI(X2WeaponUpgra
 					if (BonusDamage != none)
 					{
 						TotalUpgradeSummary.bIsDamageModified = true;
-						TotalUpgradeSummary.Damage += BonusDamage.BonusDmg;
+						// Single Line for #371
+						TotalUpgradeSummary.DamageValue.Damage += BonusDamage.BonusDmg;
 					}
 				}
 			}
 		}
 	}
+	// Single Line for #371 : Just for consistency!
+	TotalUpgradeSummary.Damage = TotalUpgradeSummary.DamageValue.Damage;
 
 	return TotalUpgradeSummary;
 }
