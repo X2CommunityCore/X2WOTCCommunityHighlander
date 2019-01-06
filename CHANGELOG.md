@@ -167,6 +167,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   filtering and behaviour on the various Trait Functions on `XComGameState_Unit`
   (#85)
 - Allow mods to register custom OnInput UI handlers (#198)
+- Able to specify new materials as counting as hair/skin/armour/weapons etc. for the purpose of
+  receiving tints, patterns, tattoos etc. (#356)
 
 ### Improvements
 - Create a mod friendly way to manipulate loot tables (#8)

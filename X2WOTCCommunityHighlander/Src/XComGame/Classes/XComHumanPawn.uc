@@ -927,53 +927,34 @@ simulated function UpdateMeshMaterials(MeshComponent MeshComp, optional bool bAt
 				}
 				ParentName = ParentMat.Name;
 
-				switch (ParentName)
+
+				//Start Issue #356
+				if (class'CHHelpers'.default.SkinMaterial.Find(ParentName) != INDEX_NONE)
 				{
-					case 'M_HairCustomizable':
-					case 'F_HairCustomizable':
-					case 'M_HairCustomizable_Trans':
-					case 'F_HairCustomizable_Trans':
-					case 'HairSimple_TC':
-						UpdateHairMaterial(MIC);
-						break;
-					case 'HeadCustomizable_TC':						
-					case 'SkinCustomizable_TC':
-					case 'HeadCustomizable_Scars_TC':
-					case 'Skin_M':
-						UpdateSkinMaterial(MIC, true, MeshComp == m_kHeadMeshComponent);
-						break;
-					case 'SoldierArmorCustomizable_TC':
-					case 'Diffuse_TC_Metalic':		
-					case 'M_Master_PwrdArm_TC':
-					case 'Diffuse_TC_Metalic':
-					case 'Props_OpcMask_TC':
-					case 'CivilianCustomizable_TC':					
-					case 'SoldierArmorCustomizable_Decals_TC':
-					case 'UnitArmor_M':
-					case 'UnitArmor_M_ClearCoat':
-					case 'UnitArmor_M_OpacityMasked':
-						UpdateArmorMaterial(MeshComp, MIC, m_kAppearance.iArmorTint, m_kAppearance.iArmorTintSecondary, PatternsContent.Length > 0 ? PatternsContent[0] : none);
-						break;
-					case 'UnitWeapon_M':
-					case 'UnitWeapon_M_OpacityMasked':
-					case 'WeaponCustomizable_TC':
-					case 'UnitWeapon_M_ClearCoat':
-						// Weapon customization data is now stored in XComGameState_Item.WeaponAppearance, and applied in XGWeapon.UpdateWeaponMaterial
-						if(!bAttachment) // If this is an armor mesh (not a weapon) that is using the weapon material, apply the armor materials so they match
-						{ 
-							UpdateArmorMaterial(MeshComp, MIC, m_kAppearance.iArmorTint, m_kAppearance.iArmorTintSecondary, PatternsContent.Length > 0 ? PatternsContent[0] : none);
-						}
-						break;
-					case 'EyesCustomizable_TC':
-						UpdateEyesMaterial(MIC);
-						break;
-					case 'TC_Flags':
-						UpdateFlagMaterial(MIC);
-						break;
-					default:
-						//`log("UpdateMeshMaterials: Unknown material" @ ParentName @ "found on" @ self @ MeshComp);
-						break;
+					UpdateSkinMaterial(MIC, true, MeshComp == m_kHeadMeshComponent);
 				}
+				else if (class'CHHelpers'.default.HairMaterial.Find(ParentName) != INDEX_NONE)
+				{
+					UpdateHairMaterial(MIC);
+				}
+
+				if (class'CHHelpers'.default.ArmorMaterial.Find(ParentName) != INDEX_NONE ||
+					// If this is an armor mesh (not a weapon) that is using the weapon material, apply the armor materials so they match
+					!bAttachment && class'CHHelpers'.default.WepAsArmorMaterial.Find(ParentName) != INDEX_NONE)
+				{
+					UpdateArmorMaterial(MeshComp, MIC, m_kAppearance.iArmorTint, m_kAppearance.iArmorTintSecondary, PatternsContent.Length > 0 ? PatternsContent[0] : none);
+				}
+
+				if (class'CHHelpers'.default.EyeMaterial.Find(ParentName) != INDEX_NONE)
+				{
+					UpdateEyesMaterial(MIC);
+				}
+
+				if (class'CHHelpers'.default.FlagMaterial.Find(ParentName) != INDEX_NONE)
+				{
+					UpdateFlagMaterial(MIC);
+				}
+				//End Issue #356
 			}
 		}
 
