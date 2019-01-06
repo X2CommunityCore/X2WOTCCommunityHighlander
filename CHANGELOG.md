@@ -22,6 +22,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Triggers the events `OverrideUIArmoryScale`, `OverrideUIVIPScale`, and `OverrideCharCustomizationScale` for strategy unit scaling (#229)
 - Triggers the event `RegionOutpostBuildStart` to add a strategy reward similar to the 'Resistance Network' resistance order, but for Radio Relays instead of Network Contacts. (#279)
 - Triggers the event `GeoscapeFlightModeUpdate` to allow mods to respond to geoscape mode change (#358)
+- Triggers the event `UIAvengerShortcuts_ShowCQResistanceOrders` to allow to override the presence of Resistance Orders button in `UIAvengerShortcuts` (#368)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
