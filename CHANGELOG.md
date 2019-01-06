@@ -201,6 +201,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 Particularly important for Central and Shen, whose custom Soldier Classes ability tree contain only the abilities granted by their squad progression (#307)
 - Better Photobooth support for custom Soldier Classes and Spark-like units,
   no broken duo poses for units that can't play them (#309)
+- Additional Photobooth particle system enums for mods (#359)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
