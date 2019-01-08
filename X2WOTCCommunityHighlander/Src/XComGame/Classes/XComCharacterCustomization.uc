@@ -778,6 +778,16 @@ simulated function OnCategoryValueChange(int categoryIndex, int direction, optio
 	case eUICustomizeCat_SecondaryArmorColor:
 		UpdatedUnitState.kAppearance.iArmorTintSecondary = WrapIndex(specificIndex, 0, XComHumanPawn(ActorPawn).NumPossibleArmorTints);
 		XComHumanPawn(ActorPawn).SetAppearance(UpdatedUnitState.kAppearance);
+		// Start Issue #380
+		CosmeticUnitPawn = XComPresentationLayerBase(Outer).GetUIPawnMgr().GetCosmeticPawn(eInvSlot_SecondaryWeapon, UpdatedUnitState.ObjectID);
+		if (CosmeticUnitPawn != none)
+		{
+			Appearance.nmPatterns = PrimaryWeapon.WeaponAppearance.nmWeaponPattern;
+			Appearance.iArmorTint = PrimaryWeapon.WeaponAppearance.iWeaponTint;
+			Appearance.iArmorTintSecondary = UpdatedUnitState.kAppearance.iArmorTintSecondary;
+			CosmeticUnitPawn.SetAppearance(Appearance, true);
+		}
+		// End Issue #380
 		UpdatedUnitState.StoreAppearance();
 		break; 
 	case eUICustomizeCat_WeaponColor:		
@@ -797,7 +807,8 @@ simulated function OnCategoryValueChange(int categoryIndex, int direction, optio
 		{
 			Appearance.nmPatterns = WeaponAppearance.nmWeaponPattern;
 			Appearance.iArmorTint = WeaponAppearance.iWeaponTint;
-			Appearance.iArmorTintSecondary = WeaponAppearance.iWeaponDeco;
+			// Single line for Issue #380
+			Appearance.iArmorTintSecondary = UpdatedUnitState.kAppearance.iArmorTintSecondary;
 			CosmeticUnitPawn.SetAppearance(Appearance, true);
 		}
 		UpdatedUnitState.StoreAppearance();
@@ -822,7 +833,8 @@ simulated function OnCategoryValueChange(int categoryIndex, int direction, optio
 		{
 			Appearance.nmPatterns = WeaponAppearance.nmWeaponPattern;
 			Appearance.iArmorTint = WeaponAppearance.iWeaponTint;
-			Appearance.iArmorTintSecondary = WeaponAppearance.iWeaponDeco;
+			// Single line for Issue #380
+			Appearance.iArmorTintSecondary = UpdatedUnitState.kAppearance.iArmorTintSecondary;
 			CosmeticUnitPawn.SetAppearance(Appearance, true);
 		}
 		UpdatedUnitState.StoreAppearance();

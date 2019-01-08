@@ -2010,9 +2010,20 @@ simulated function SpawnCosmeticUnitPawn(UIPawnMgr PawnMgr, EInventorySlot InvSl
 		return;
 	}
 
+	// Start Issue #380: Moved earlier because we want to SetAppearance() whether we create a new pawn or not
+	UseAppearance = OwningUnit.kAppearance;
+	UseAppearance.iArmorTint = UseAppearance.iWeaponTint;
+	UseAppearance.iArmorTintSecondary = UseAppearance.iArmorTintSecondary;	
+	UseAppearance.nmPatterns = UseAppearance.nmWeaponPattern;
+	// End Issue #380
 	CosmeticPawn = PawnMgr.GetCosmeticArchetypePawn(InvSlot, OwningUnit.ObjectID, bUsePhotoboothPawns);
 	if (CosmeticPawn != none && CosmeticPawn == ArchetypePawn)
+	// Start Issue #380
+	{
+		CosmeticPawn.SetAppearance(UseAppearance, true);
 		return;
+	}
+	//End Issue #380
 
 	PawnLoc = Location;
 	OwnersUnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(ObjectID));
@@ -2028,11 +2039,6 @@ simulated function SpawnCosmeticUnitPawn(UIPawnMgr PawnMgr, EInventorySlot InvSl
 	}
 	
 	CosmeticPawn = PawnMgr.AssociateCosmeticPawn(InvSlot, ArchetypePawn, OwningUnit.ObjectID, self, PawnLoc, Rotation, bUsePhotoboothPawns);
-
-	UseAppearance = OwningUnit.kAppearance;
-	UseAppearance.iArmorTint = UseAppearance.iWeaponTint;
-	UseAppearance.iArmorTintSecondary = UseAppearance.iArmorTintSecondary;	
-	UseAppearance.nmPatterns = UseAppearance.nmWeaponPattern;
 
 	CosmeticPawn.SetAppearance(UseAppearance, true);
 	CosmeticPawn.HQIdleAnim  = EquipCharacterTemplate.HQIdleAnim;
