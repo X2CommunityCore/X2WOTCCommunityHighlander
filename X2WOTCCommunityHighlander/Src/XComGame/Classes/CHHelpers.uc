@@ -351,3 +351,22 @@ static function XComLWTuple BuildDefaultTuple(XComGameState_Unit UnitState)
 	return Tup;
 }
 // End Issue #257
+
+// Start Issue #388
+static function UpdateTransitionMap(X2GameRuleset Ruleset)
+{
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local int i;
+	local string OverrideMapName;
+
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	for(i = 0; i < DLCInfos.Length; ++i)
+	{
+		DLCInfos[i].LoadingScreenOverrideTransitionMap(OverrideMapName, Ruleset);
+	}
+	if (Len(OverrideMapName) > 0)
+	{
+		`MAPS.SetTransitionMap(OverrideMapName);
+	}
+}
+// End Issue #388

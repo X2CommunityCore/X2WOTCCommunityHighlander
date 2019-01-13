@@ -499,3 +499,17 @@ static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets,
 	return;
 }
 /// End Issue #281
+
+// Start Issue #388
+/// <summary>
+/// Called from X2TacticalGameRuleset:state'CreateTacticalGame':UpdateTransitionMap / 
+/// XComPlayerController:SetupDropshipMatinee
+/// If `Ruleset != none`, fill out the `OverrideMapName` parameter to override the transition map.
+/// If `UnitState != none`, return whether this unit should have cosmetic attachments (gear) on the transition map.
+/// Note: Use `Ruleset`'s type to distinguish Pre- vs Post-Mission.
+/// </summary> 
+static function bool LoadingScreenOverrideTransitionMap(optional out string OverrideMapName, optional X2GameRuleset Ruleset, optional XComGameState_Unit UnitState)
+{
+	return false;
+}
+// End Issue #388

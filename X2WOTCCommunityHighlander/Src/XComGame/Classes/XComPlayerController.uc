@@ -1375,6 +1375,11 @@ simulated function SetupDropshipMatinee()
 	local float PercentLost;
 	local int SquadIndex;
 
+	// Start Issue #388
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local int i;
+	// End Issue #388
+
 	bProcessedTravelDestinationLoaded = false;
 
 	DropshipPawns.Length = 0;
@@ -1495,6 +1500,19 @@ simulated function SetupDropshipMatinee()
 		   Unit.IsAlive() && !Unit.bCaptured && !Unit.IsBleedingOut()) //No dead or MIA soldiers in the seats
 		{
 			UnitPawn = Unit.CreatePawn(self, ZeroVector, ZeroRotation);
+
+			// Start Issue #388
+			DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+			for(i = 0; i < DLCInfos.Length; ++i)
+			{
+				if (DLCInfos[i].LoadingScreenOverrideTransitionMap(,, Unit))
+				{
+					UnitPawn.CreateVisualInventoryAttachments(none, Unit); // spawn weapons and other visible equipment
+					break; // only needs to be done once
+				}
+			}
+			// End Issue #388
+
 			UnitPawn.Mesh.bUpdateSkelWhenNotRendered = true;
 			UnitPawn.SetBase(CineDummy);
 			UnitPawn.RestoreAnimSetsToDefault(); //Manually call this in advance of SetupForMatinee

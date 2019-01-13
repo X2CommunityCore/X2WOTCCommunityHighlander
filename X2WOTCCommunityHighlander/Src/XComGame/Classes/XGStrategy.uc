@@ -1194,6 +1194,8 @@ Begin:
 	//This is only true if the game is NOT using seamless travel and instead just puts the player into a streamed in drop ship while the rest of the levels stream in around them
 	if(ShowDropshipInterior()) 
 	{
+		class'CHHelpers'.static.UpdateTransitionMap(`STRATEGYRULES); // Issue #388
+
 		//DropshipLocation.Z -= 2000.0f; //Locate the drop ship below the map
 		`MAPS.AddStreamingMap(`MAPS.GetTransitionMap(), DropshipLocation, DropshipRotation, false);// .bForceNoDupe = true;
 		while(!`MAPS.IsStreamingComplete())
@@ -1279,6 +1281,7 @@ Begin:
 		Sleep(0.1f);
 
 		`MAPS.RemoveStreamingMapByName(`MAPS.GetTransitionMap(), false);
+		`MAPS.ResetTransitionMap(); // Issue #388 -- revert transition map changes
 	}
 	else
 	{
