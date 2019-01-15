@@ -891,6 +891,11 @@ simulated function int GetClipSize()
 	local XComGameState_Item SpecialAmmo;
 	local int i, ClipSize, AdjustedClipSize;
 
+	// Start Issue #393:
+	// Add Tuple Object to pass values through the event trigger
+	local XComLWTuple Tuple;
+	// End Issue #393
+
 	ClipSize = -1;
 	GetMyTemplate();
 	GetMyWeaponUpgradeTemplates();
@@ -920,6 +925,20 @@ simulated function int GetClipSize()
 	{
 		ClipSize = X2AmmoTemplate(m_ItemTemplate).ModClipSize;
 	}
+
+	// Start Issue #393:
+	// Set up a Tuple to pass out the current Clipsize (after being modified by attachments/ammo)
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideClipSize';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVInt;
+	Tuple.Data[0].i = ClipSize;
+
+	`XEVENTMGR.TriggerEvent('OverrideClipSize', Tuple, self);
+
+	// Read back in the new values for ClipSize
+	ClipSize = Tuple.Data[0].i;
+	// End Issue #393
 
 	return ClipSize;
 }

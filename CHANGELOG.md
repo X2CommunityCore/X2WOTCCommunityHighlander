@@ -87,6 +87,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `OverrideItemSoundRange` to allow overriding an item's sound range (#363)
 - `OverrideHackingScreenType` and `HackIn2D` to allow hacking using a 2D movie and using
   the Skulljack / ADVENT screen arbitrarily (#330)
+- `OverrideClipSize` to allow effects to modify weapon clip size (#393)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
