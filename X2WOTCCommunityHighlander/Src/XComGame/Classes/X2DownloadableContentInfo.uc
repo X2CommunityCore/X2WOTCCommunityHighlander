@@ -512,3 +512,17 @@ static function bool LoadingScreenOverrideTransitionMap(optional out string Over
 	return false;
 }
 // End Issue #388
+
+// Start Issue #395
+/// <summary>
+/// Called from XComTacticalMissionManager:GetActiveMissionIntroDefinition before it returns the Default.
+/// Notable changes from LW2: Called even if the mission/plot/plot type has an override.
+/// OverrideType is -1 for default, 0 for Mission override, 1 for Plot override, 2 for Plot Type override.
+/// OverrideTag contains the Mission name / Plot name / Plot type, respectively
+/// Return true to use.
+/// </summary>
+static function bool UseAlternateMissionIntroDefinition(MissionDefinition ActiveMission, int OverrideType, string OverrideTag, out MissionIntroDefinition MissionIntro)
+{
+	return false;
+}
+// End Issue #395
