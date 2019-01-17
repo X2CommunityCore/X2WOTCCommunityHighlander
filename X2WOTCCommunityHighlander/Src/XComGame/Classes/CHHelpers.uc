@@ -353,7 +353,7 @@ static function XComLWTuple BuildDefaultTuple(XComGameState_Unit UnitState)
 // End Issue #257
 
 // Start Issue #388
-static function UpdateTransitionMap(X2GameRuleset Ruleset)
+static function UpdateTransitionMap()
 {
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local int i;
@@ -362,7 +362,7 @@ static function UpdateTransitionMap(X2GameRuleset Ruleset)
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
-		DLCInfos[i].LoadingScreenOverrideTransitionMap(OverrideMapName, Ruleset);
+		DLCInfos[i].LoadingScreenOverrideTransitionMap(OverrideMapName);
 	}
 	if (Len(OverrideMapName) > 0)
 	{

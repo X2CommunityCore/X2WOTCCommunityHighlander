@@ -1505,7 +1505,7 @@ simulated function SetupDropshipMatinee()
 			DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 			for(i = 0; i < DLCInfos.Length; ++i)
 			{
-				if (DLCInfos[i].LoadingScreenOverrideTransitionMap(,, Unit))
+				if (DLCInfos[i].LoadingScreenOverrideTransitionMap(, Unit))
 				{
 					UnitPawn.CreateVisualInventoryAttachments(none, Unit); // spawn weapons and other visible equipment
 					break; // only needs to be done once

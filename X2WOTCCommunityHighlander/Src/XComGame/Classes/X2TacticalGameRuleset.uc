@@ -2744,7 +2744,7 @@ Begin:
 	bShowDropshipInteriorWhileGeneratingMap = ShowDropshipInterior();
 	if(bShowDropshipInteriorWhileGeneratingMap)
 	{
-		class'CHHelpers'.static.UpdateTransitionMap(self); // Issue #388
+		class'CHHelpers'.static.UpdateTransitionMap(); // Issue #388
 
 		`MAPS.AddStreamingMap(`MAPS.GetTransitionMap(), DropshipLocation, DropshipRotation, false);
 		while(!`MAPS.IsStreamingComplete())
