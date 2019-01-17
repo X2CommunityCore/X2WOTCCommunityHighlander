@@ -3170,6 +3170,11 @@ simulated function XComGameState HotLoadAmmo_BuildGameState(XComGameStateContext
 	NewWeaponState = XComGameState_Item(NewGameState.ModifyStateObject(class'XComGameState_Item', WeaponState.ObjectID));
 	WeaponTemplate = X2WeaponTemplate(WeaponState.GetMyTemplate());
 
+	// Start Issue #393
+	// Reset weapon's ammo before further modificiations
+	NewWeaponState.Ammo = NewWeaponState.GetClipSize();
+	// End Issue #393
+
 	// Start Issue #171
 	UtilityItems = UnitState.GetAllInventoryItems(, true);
 	foreach UtilityItems(AmmoState)

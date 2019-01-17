@@ -893,6 +893,7 @@ simulated function int GetClipSize()
 
 	// Start Issue #393:
 	// Add Tuple Object to pass values through the event trigger
+	// to pre-filter event triggers
 	local XComLWTuple Tuple;
 	// End Issue #393
 
