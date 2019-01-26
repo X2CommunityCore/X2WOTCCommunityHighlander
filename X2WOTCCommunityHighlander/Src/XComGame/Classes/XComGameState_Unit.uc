@@ -3643,6 +3643,11 @@ function array<SoldierClassAbilityType> GetEarnedSoldierAbilities()
 	local SoldierClassAbilityType Ability;
 	local int i;
 
+	// Variables for issue #409
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local X2DownloadableContentInfo DLCInfo;
+	// End issue #409
+
 	ClassTemplate = GetSoldierClassTemplate();
 	if (ClassTemplate != none)
 	{
@@ -3665,6 +3670,18 @@ function array<SoldierClassAbilityType> GetEarnedSoldierAbilities()
 			EarnedAbilities.AddItem(AWCAbilities[i].AbilityType);
 		}
 	}
+
+	// Start Issue #409
+	// Allow mods to add to or otherwise modify this unit's earned abilities.
+	// For example, the Officer Pack can use this to attach learned officer
+	// abilities to the unit and those abilities will automatically be reflected
+	// in various UI elements.
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	foreach DLCInfos(DLCInfo)
+	{
+		DLCInfo.ModifyEarnedSoldierAbilities(EarnedAbilities, self);
+	}
+	// End Issue #409
 
 	return EarnedAbilities;
 }

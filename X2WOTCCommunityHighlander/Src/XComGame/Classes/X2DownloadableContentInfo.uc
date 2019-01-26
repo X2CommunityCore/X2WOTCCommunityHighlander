@@ -499,3 +499,12 @@ static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets,
 	return;
 }
 /// End Issue #281
+
+/// Start Issue #409
+/// <summary>
+/// Called from XComGameState_Unit:GetEarnedSoldierAbilities
+/// Allows DLC/Mods to add to and modify a unit's EarnedSoldierAbilities
+/// Has no return value, just modify the EarnedAbilities out variable array
+static function ModifyEarnedSoldierAbilities(out array<SoldierClassAbilityType> EarnedAbilities, XComGameState_Unit UnitState)
+{}
+/// End Issue #409
