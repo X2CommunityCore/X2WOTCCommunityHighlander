@@ -6577,6 +6577,9 @@ function GetStatModifiersFixed(ECharStatType Stat, out array<XComGameState_Effec
 		MultMods[i].fModValue = RunningTotal * (MultMods[i].StatAmount-1);
 		//True round(), not truncate
 		MultMods[i].iModValue = Round(MultMods[i].fModValue);
+		//fError is the ratio between the fload and int modifier
+		//So 1 means no error, furhter away from 1 is a larger proportionate error.
+		//Used for forcing the into total to match later by reversing some of the roundings
 		MultMods[i].fError = (MultMods[i].iModValue-MultMods[i].fModValue)/MultMods[i].fModValue;
 		RunningTotal += MultMods[i].fModValue;
 		iTotal += MultMods[i].iModValue;
@@ -6604,6 +6607,11 @@ function GetStatModifiersFixed(ECharStatType Stat, out array<XComGameState_Effec
 	if (RoundTotals)
 	{
 		// Not the statistically best forced total algorithm, but good enough and relatively quick, requiring just one sort and one pass
+		// Sort by size of the error, then reverse the rounding direction from largest error downwards until the total matches.
+		// By doing this, the "error" is put where it has the least "noticable" difference.
+
+		// iError is the difference between what the iTotal is, and what we want it to be (int cast of RunningTotal).
+		// sign then used to indicate if we are over or under, avoids checking everytime in the loop.
 		iError = iTotal-int(RunningTotal);
 		if (iError>0)
 		{
@@ -6614,11 +6622,18 @@ function GetStatModifiersFixed(ECharStatType Stat, out array<XComGameState_Effec
 		{
 			MultMods.Sort(ErrorDesc);
 			sign = +1;
+			// make iError positive, easier for counting later
 			iError = -iError;
 		}
 		//Start at the top because it makes comparing iError and how many entries left easier
 		for (i = MultMods.Length -1; i>=0; i--)
 		{
+			// It's hard to see hwo with any real data set, that the total error could exceed the amount of multiplier entries,
+			// since the float and int for each entry shouldn't differ by more than 0.5!
+			// However, by doing this it means the algorithm can in principle adjust by any amount if required.
+			// SO, if the amount to adjust exceeds the amount of remaining entries, then the current entry is adjusted by
+			// More than 1 so it can "catch up".
+			// Once adjustments needed made, j will be 0.
 			j = FCeil(float(iError)/float(i+1));
 			MultMods[i].iModValue += sign*j;
 			iError -= j;
