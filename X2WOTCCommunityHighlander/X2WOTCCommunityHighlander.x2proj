@@ -371,6 +371,9 @@
     <Content Include="Src\XComGame\Classes\XComGroupSpawn.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComParcelManager.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComSoundManager.uc">
       <SubType>Content</SubType>
     </Content>
