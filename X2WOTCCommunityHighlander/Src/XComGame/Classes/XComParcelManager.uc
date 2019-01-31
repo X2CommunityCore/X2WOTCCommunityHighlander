@@ -236,15 +236,15 @@ private:
 
 }
 
-var config(Plots) const array<PlotDefinition> arrPlots;
-var config const array<ParcelDefinition> arrAllParcelDefinitions;
-var config(Plots) const array<EntranceDefinition> arrAllEntranceDefinitions;
-var config(Plots) const array<PlotTypeDefinition> arrPlotTypes;
-var config(Plots) const array<BiomeDefinition> arrBiomes;
-var config const array<string> arrParcelTypes;
-var config(Plots) const float MaxDegreesToSpawnExit;
-var config(Plots) const float MaxDistanceBetweenParcelToPlotPatrolLinks;
-var config(Plots) const float SoldierSpawnSlush;
+var config(Plots) array<PlotDefinition> arrPlots;
+var config array<ParcelDefinition> arrAllParcelDefinitions;
+var config(Plots) array<EntranceDefinition> arrAllEntranceDefinitions;
+var config(Plots) array<PlotTypeDefinition> arrPlotTypes;
+var config(Plots) array<BiomeDefinition> arrBiomes;
+var config array<string> arrParcelTypes;
+var config(Plots) float MaxDegreesToSpawnExit;
+var config(Plots) float MaxDistanceBetweenParcelToPlotPatrolLinks;
+var config(Plots) float SoldierSpawnSlush;
 
 var privatewrite array<EntranceDefinition> arrEntranceDefinitions;
 
@@ -1965,6 +1965,9 @@ function GenerateMapUpdatePhase4()
 			// Spawn the objectives on the map.
 			TacticalMissionManager.SpawnMissionObjectives();
 			TacticalMissionManager.CheckForLineOfPlayAnchorOverride();
+
+			`log("PostMissionObjectivesSpawned triggered");
+			`XEVENTMGR.TriggerEvent('PostMissionObjectivesSpawned');
 		}
 
 		// this needs to happen after the tile rebuild so we can verify there are valid locations at the

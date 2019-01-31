@@ -187,6 +187,10 @@ simulated function InitScreen(XComPlayerController InitController, UIMovie InitM
 	{
 		OnButtonStartChallengeClicked(None);
 	}
+
+	// allow templated event handlers to register themselves
+	class'X2EventListenerTemplateManager'.static.RegisterTacticalListeners();
+	`log("UITacticalQuickLaunch::InitScreen RegisterTacticalListeners");
 }
 
 simulated function OnReceiveFocus()
