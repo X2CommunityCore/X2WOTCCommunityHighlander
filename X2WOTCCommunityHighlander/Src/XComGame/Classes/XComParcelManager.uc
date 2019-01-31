@@ -236,6 +236,7 @@ private:
 
 }
 
+// Begin issue #404
 var config(Plots) array<PlotDefinition> arrPlots;
 var config array<ParcelDefinition> arrAllParcelDefinitions;
 var config(Plots) array<EntranceDefinition> arrAllEntranceDefinitions;
@@ -245,6 +246,7 @@ var config array<string> arrParcelTypes;
 var config(Plots) float MaxDegreesToSpawnExit;
 var config(Plots) float MaxDistanceBetweenParcelToPlotPatrolLinks;
 var config(Plots) float SoldierSpawnSlush;
+// End issue #404
 
 var privatewrite array<EntranceDefinition> arrEntranceDefinitions;
 
@@ -1966,7 +1968,7 @@ function GenerateMapUpdatePhase4()
 			TacticalMissionManager.SpawnMissionObjectives();
 			TacticalMissionManager.CheckForLineOfPlayAnchorOverride();
 
-			`log("PostMissionObjectivesSpawned triggered");
+			// Issue #405
 			`XEVENTMGR.TriggerEvent('PostMissionObjectivesSpawned');
 		}
 
