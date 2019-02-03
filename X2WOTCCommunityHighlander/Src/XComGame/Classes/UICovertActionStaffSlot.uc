@@ -150,7 +150,7 @@ function UpdateData()
 		}
 
 		Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitRef.ObjectID));
-		RankImage = Unit.IsSoldier() ? class'UIUtilities_Image'.static.GetRankIcon(Unit.GetRank(), Unit.GetSoldierClassTemplateName()) : "";
+		RankImage = Unit.IsSoldier() ? Unit.GetSoldierRankIcon() : ""; // Issue #408
 		// Start Issue #106
 		ClassImage = Unit.IsSoldier() ? Unit.GetSoldierClassIcon() : Unit.GetMPCharacterTemplate().IconImage;
 		// End Issue #106

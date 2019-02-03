@@ -162,6 +162,9 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `OverrideItemMinEquipped` added to allow mods to override the min number of equipped items in a slot (#171)
 - `AddConversation` added to allow mods to change narrative behavior before they are played (#204)
 - `OverrideRandomizeAppearance` added to allow mods to block updating appearance when switching armors (#299)
+- `XComGameState_Unit` triggers `SoldierRankName`, `SoldierShortRankName` and
+  `SoldierRankIcon` events that allow listeners to override the those particular
+  properties of a soldier's rank, i.e. rank name, short name and icon.
 
 ### Configuration
 - Able to list classes as excluded from AWC Skill Rolling, so they can still

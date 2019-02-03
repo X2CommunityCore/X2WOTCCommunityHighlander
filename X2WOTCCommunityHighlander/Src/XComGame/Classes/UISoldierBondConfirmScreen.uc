@@ -28,8 +28,7 @@ var UIButton ConfirmButton;
 simulated function OnInit()
 {
 	local string classIcon1, rankIcon1, classIcon2, rankIcon2;
-	local int iRank1, iRank2, i;
-	local X2SoldierClassTemplate SoldierClass1, SoldierClass2;
+	local int i;
 	local SoldierBond BondData;
 	local X2DataTemplate BondedAbilityTemplate;
 	local UISummary_Ability Data;
@@ -48,11 +47,7 @@ simulated function OnInit()
 
 	NavHelp = `HQPRES.m_kAvengerHUD.NavHelp;
 
-	iRank1 = Soldier1State.GetRank();
-
-	SoldierClass1 = Soldier1State.GetSoldierClassTemplate();
-
-	rankIcon1 = class'UIUtilities_Image'.static.GetRankIcon(iRank1, SoldierClass1.DataName);
+	rankIcon1 = Soldier1State.GetSoldierRankIcon(); // Issue #408
 	// Start Issue #106
 	classIcon1 = Soldier1State.GetSoldierClassIcon();
 	// End Issue #106
@@ -60,11 +55,7 @@ simulated function OnInit()
 	Soldier1State.HasSoldierBond(unitRef, BondData);
 
 
-	iRank2 = Soldier2State.GetRank();
-
-	SoldierClass2 = Soldier2State.GetSoldierClassTemplate();
-
-	rankIcon2 = class'UIUtilities_Image'.static.GetRankIcon(iRank2, SoldierClass2.DataName);
+	rankIcon2 = Soldier2State.GetSoldierRankIcon(); // Issue #408
 	// Start Issue #106
 	classIcon2 = Soldier2State.GetSoldierClassIcon();
 	
