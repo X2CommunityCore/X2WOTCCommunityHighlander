@@ -105,6 +105,12 @@ function DistributeTacticalGameEndXp(XComGameState NewGameState)
 	XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
 
 	`log("===" @ GetFuncName() @ "===",,'XComXpMan');
+	
+	// Start Issue #562
+	//
+	// Allow mods to add their own mission XP distribution mechanics.
+	`XEVENTMGR.TriggerEvent('OnDistributeTacticalGameEndXp', XComHQ, self, NewGameState);
+	// End Issue #562
 
 	//  If the full xp system is not enabled, just reset the RankedUp flag.
 	if (!class'X2ExperienceConfig'.default.bUseFullXpSystem)
