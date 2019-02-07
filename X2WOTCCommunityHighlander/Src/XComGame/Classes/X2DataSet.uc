@@ -2,7 +2,8 @@ class X2DataSet extends Object
 	native(Core) 
 	dependson(X2GameRuleset, XComGameStateVisualizationMgr);
 
-var protectedwrite bool bShouldCreateDifficultyVariants;
+// Issue #413 - unprotected the field
+var bool bShouldCreateDifficultyVariants;
 
 /// <summary>
 /// Native accessor for CreateTemplates. Used by the engine object and template manager
