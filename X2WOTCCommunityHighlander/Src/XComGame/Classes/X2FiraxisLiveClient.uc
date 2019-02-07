@@ -252,6 +252,11 @@ private:
 event Init()
 {
 	local OnlinePlayerInterface PlayerInterface;
+	
+	// Start variables for issue #412
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local X2DownloadableContentInfo DLCInfo;
+	// End variables for issue #412
 
 	`log(`location);
 	AddLoginStatusDelegate(InternalStateHandler_OnLoginStatus);
@@ -260,6 +265,14 @@ event Init()
 	PlayerInterface.AddRetrieveEncryptedAppTicketDelegate(OnRetrieveEncryptedAppTicketComplete);
 
 	LiveClient = `FXSLIVE;
+
+	// Start issue #412
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	foreach DLCInfos(DLCInfo)
+	{
+		DLCInfo.OnPreCreateTemplates();
+	}
+	// End issue #412
 }
 
 native function OnRetrieveEncryptedAppTicketComplete(bool bWasSuccessful, array<byte> EncryptedTicket);

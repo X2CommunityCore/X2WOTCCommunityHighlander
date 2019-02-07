@@ -499,3 +499,11 @@ static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets,
 	return;
 }
 /// End Issue #281
+
+/// Start issue #412
+/// Called before any X2DataSet is invoked, allowing to modify default properties
+/// Warning: this is called quite early in startup process and not all game systems are bootstrapped yet (but all DLCs/mods are guranteed to be loaded)
+static function OnPreCreateTemplates()
+{
+}
+/// End issue #412
