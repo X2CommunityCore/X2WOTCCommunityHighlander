@@ -157,6 +157,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `DLCAppendWeaponSockets` allows adding new sockets to weapons(#281)
 - `UpdateTransitionMap` allows overriding the transition map -- dropship interior by default (#388)
 - `UseAlternateMissionIntroDefinition` allows overriding the mission intro (#395)
+- `OnPreCreateTemplates` allows mods to modify properties of X2DataSet(s) before they are invoked (#412)
 
 ### Event Hooks
 - Triggers the events `SoldierClassIcon`, `SoldierClassDisplayName`,
