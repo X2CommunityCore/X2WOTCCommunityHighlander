@@ -275,6 +275,8 @@ simulated function UpdateSlots()
 		SetSlotsListTitle(`XEXPAND.ExpandString(m_strWeaponFullyUpgraded));
 	else
 		SetSlotsListTitle(`XEXPAND.ExpandString(m_strUpgradeWeapon));
+
+	`XEVENTMGR.TriggerEvent('UIArmory_WeaponUpgrade_SlotsUpdated', SlotsList, self, none);
 }
 
 simulated function UpdateUpgrades()
@@ -506,6 +508,8 @@ simulated function UpdateNavHelp()
 		}
 	}
 	NavHelp.Show();
+
+	`XEVENTMGR.TriggerEvent('UIArmory_WeaponUpgrade_NavHelpUpdated', NavHelp, self, none);
 }
 
 simulated function PreviewUpgrade(UIList ContainerList, int ItemIndex)
