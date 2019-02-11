@@ -568,9 +568,26 @@ private function AddChosenTacticalTags()
 {
 	local XComGameStateHistory History;
 	local XComGameState_HeadquartersAlien AlienHQ;
+	local XComGameState ParentGameState; // Variable for issue #421
 
-	History = `XCOMHISTORY;
-	AlienHQ = XComGameState_HeadquartersAlien(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersAlien'));
+	// Begin issue #421: respect AlienHQ changes in current gamestate
+	ParentGameState = GetParentGameState();
+
+	if (ParentGameState != none && ParentGameState.HistoryIndex != -1)
+	{
+		foreach ParentGameState.IterateByClassType(class'XComGameState_HeadquartersAlien', AlienHQ)
+		{
+			break;
+		}
+	}
+
+	if (AlienHQ == none)
+	{
+		History = `XCOMHISTORY;
+		AlienHQ = XComGameState_HeadquartersAlien(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersAlien'));
+	}
+	// End issue #421
+
 	AlienHQ.AddChosenTacticalTagsToMission(self);
 }
 
