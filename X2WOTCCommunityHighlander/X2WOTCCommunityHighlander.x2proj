@@ -416,6 +416,9 @@
     <Content Include="Src\XComGame\Classes\X2TacticalGameRulesetDataStructures.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2TargetingMethod_EvacZone.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2UnifiedProjectile.uc">
       <SubType>Content</SubType>
     </Content>
