@@ -499,3 +499,14 @@ static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets,
 	return;
 }
 /// End Issue #281
+
+/// Start Issue #419
+/// <summary>
+/// Called from X2AbilityTag.ExpandHandler
+/// Expands vanilla AbilityTagExpandHandler to allow reflection
+/// </summary>
+static function bool AbilityTagExpandHandler_CH(string InString, out string OutString, Object ParseObj, Object StrategyParseOb, XComGameState GameState)
+{
+	return false;
+}
+/// End Issue #419
