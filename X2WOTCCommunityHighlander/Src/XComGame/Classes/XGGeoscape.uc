@@ -214,6 +214,13 @@ event Tick( float fDeltaT )
 	{
 		fGameTime = 0;
 	}
+
+	// Start issue #425
+	if (fGameTime > 0 && ShouldPreventTick())
+	{
+		fGameTime = 0;
+	}
+	// End issue #425
 	
 	// IF( PAUSED )
 	if (fGameTime == 0)
@@ -252,6 +259,23 @@ event Tick( float fDeltaT )
 
 	UpdateUI( fDeltaT );
 }
+
+// Start issue #425
+protected function bool ShouldPreventTick()
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+ 	Tuple.Id = 'PreventGeoscapeTick';
+ 	Tuple.Data.Add(1);
+ 	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = false;
+
+	`XEVENTMGR.TriggerEvent('PreventGeoscapeTick', self, self);
+
+	return Tuple.Data[0].b;
+}
+// End issue #425
 
 function GameTick( float fGameTime )
 {
