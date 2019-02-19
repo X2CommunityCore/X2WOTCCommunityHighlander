@@ -271,7 +271,7 @@ protected function bool ShouldPreventTick()
  	Tuple.Data[0].kind = XComLWTVBool;
 	Tuple.Data[0].b = false;
 
-	`XEVENTMGR.TriggerEvent('PreventGeoscapeTick', self, self);
+	`XEVENTMGR.TriggerEvent('PreventGeoscapeTick', Tuple, self);
 
 	return Tuple.Data[0].b;
 }
