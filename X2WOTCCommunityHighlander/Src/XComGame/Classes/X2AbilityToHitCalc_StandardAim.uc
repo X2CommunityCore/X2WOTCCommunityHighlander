@@ -192,34 +192,8 @@ function InternalRollForAbilityHit(XComGameState_Ability kAbility, AvailableTarg
 	UnitState = XComGameState_Unit(History.GetGameStateForObjectID(kAbility.OwnerStateObject.ObjectID));
 	TargetState = XComGameState_Unit(History.GetGameStateForObjectID(kTarget.PrimaryTarget.ObjectID));
 	
-	if (UnitState != none && TargetState != none)
-	{
-		foreach UnitState.AffectedByEffects(EffectRef)
-		{
-			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
-			if (EffectState != none)
-			{
-				if (EffectState.GetX2Effect().ChangeHitResultForAttacker(UnitState, TargetState, kAbility, Result, ChangeResult))
-				{
-					`log("Effect" @ EffectState.GetX2Effect().FriendlyName @ "changing hit result for attacker:" @ ChangeResult,true,'XCom_HitRolls');
-					Result = ChangeResult;
-				}
-			}
-		}
-		foreach TargetState.AffectedByEffects(EffectRef)
-		{
-			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
-			if (EffectState != none)
-			{
-				if (EffectState.GetX2Effect().ChangeHitResultForTarget(EffectState, UnitState, TargetState, kAbility, bIsPrimaryTarget, Result, ChangeResult))
-				{
-					`log("Effect" @ EffectState.GetX2Effect().FriendlyName @ "changing hit result for target:" @ ChangeResult, true, 'XCom_HitRolls');
-					Result = ChangeResult;
-				}
-			}
-		}
-	}
-	
+	// Issue #426: ChangeHitResultForX() code block moved to later in method.
+
 	// Aim Assist (miss streak prevention)
 	bRolledResultIsAMiss = class'XComGameStateContext_Ability'.static.IsHitResultMiss(Result);
 	
@@ -268,6 +242,36 @@ function InternalRollForAbilityHit(XComGameState_Ability kAbility, AvailableTarg
 			`log("Lightning Reflexes triggered! Shot will miss.", true, 'XCom_HitRolls');
 		}
 	}	
+
+	// Start Issue #426: No actual code changes, block just moved from earlier
+	if (UnitState != none && TargetState != none)
+	{
+		foreach UnitState.AffectedByEffects(EffectRef)
+		{
+			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
+			if (EffectState != none)
+			{
+				if (EffectState.GetX2Effect().ChangeHitResultForAttacker(UnitState, TargetState, kAbility, Result, ChangeResult))
+				{
+					`log("Effect" @ EffectState.GetX2Effect().FriendlyName @ "changing hit result for attacker:" @ ChangeResult,true,'XCom_HitRolls');
+					Result = ChangeResult;
+				}
+			}
+		}
+		foreach TargetState.AffectedByEffects(EffectRef)
+		{
+			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
+			if (EffectState != none)
+			{
+				if (EffectState.GetX2Effect().ChangeHitResultForTarget(EffectState, UnitState, TargetState, kAbility, bIsPrimaryTarget, Result, ChangeResult))
+				{
+					`log("Effect" @ EffectState.GetX2Effect().FriendlyName @ "changing hit result for target:" @ ChangeResult, true, 'XCom_HitRolls');
+					Result = ChangeResult;
+				}
+			}
+		}
+	}
+	// End Issue #426
 
 	if (UnitState != none && TargetState != none)
 	{
