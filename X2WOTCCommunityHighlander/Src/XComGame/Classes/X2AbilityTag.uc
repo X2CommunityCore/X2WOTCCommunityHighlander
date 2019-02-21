@@ -722,6 +722,7 @@ event ExpandHandler(string InString, out string OutString)
 	foreach DLCInfos(DLCInfo)
 	{
 		if (DLCInfo.AbilityTagExpandHandler(InString, OutString))
+<<<<<<< HEAD
 		{
 			return;
 		}
@@ -731,6 +732,9 @@ event ExpandHandler(string InString, out string OutString)
 			return;
 		}
 // End Issue #419
+=======
+			return;
+>>>>>>> d49e0db... Added base X2AbilityTag.uc file
 	}
 
 	`RedScreenOnce("Unhandled localization tag: '"$Tag$":"$InString$"'");
