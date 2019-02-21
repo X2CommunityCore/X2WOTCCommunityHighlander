@@ -101,6 +101,11 @@ var config bool bDontUnequipCovertOps; // true skips unequipping soldiers on cov
 var config bool bDontUnequipWhenWounded; // true skips unequipping soldiers after mission when being wounded
 // End Issue #310
 
+// Start Issue #424
+var config bool GremlinsAnywhere; // Ignore adjacent requirement for staffing Gremlins
+// End Issue #424
+
+
 // Start Issue #356
 var config(Content) array<name> HairMaterial;
 var config(Content) array<name> SkinMaterial;
