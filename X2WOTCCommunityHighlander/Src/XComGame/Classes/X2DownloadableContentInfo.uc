@@ -236,3 +236,277 @@ static function bool DisplayQueuedDynamicPopup(DynamicPropertySet PropertySet)
 {
 
 }
+
+// -------------------------------------------------------------
+// ------------ X2WOTCCommunityHighlander Additions ------------
+// -------------------------------------------------------------
+
+/// Start Issue #21
+/// <summary>
+/// Called from XComUnitPawn.DLCAppendSockets
+/// Allows DLC/Mods to append sockets to units
+/// </summary>
+static function string DLCAppendSockets(XComUnitPawn Pawn)
+{
+	return "";
+}
+/// End Issue #21
+
+/// Start Issue #24
+/// <summary>
+/// Called from XComUnitPawn.UpdateAnimations
+/// CustomAnimSets will be added to the pawns animsets
+/// </summary>
+static function UpdateAnimations(out array<AnimSet> CustomAnimSets, XComGameState_Unit UnitState, XComUnitPawn Pawn)
+{
+
+}
+/// End Issue #24
+
+/// Start Issue #18
+/// <summary>
+/// Calls DLC specific handlers to override spawn location
+/// </summary>
+static function bool GetValidFloorSpawnLocations(out array<Vector> FloorPoints, float SpawnSizeOverride, XComGroupSpawn SpawnPoint)
+{
+	return false;
+}
+/// End Issue #18
+
+/// start Issue #114: added XComGameState_Item as something that can be passed down for disabled reason purposes
+/// basically the inventory hook wtih an added paramter to pass through
+/// we leave the old one alone for compatibility reasons, as we call it through here for those mods.
+///
+static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, optional XComGameState CheckGameState, optional out string DisabledReason, optional XComGameState_Item ItemState)
+{
+
+	return CanAddItemToInventory_CH(bCanAddItem, Slot, ItemTemplate, Quantity, UnitState, CheckGameState, DisabledReason); //for mods not using item state, we can just by default, go straight to here. Newer mods can handle implementaion using the item state.
+	
+}
+//end Issue #114
+
+/// start Issue #50
+/// <summary>
+/// Called from XComGameState_Unit:CanAddItemToInventory & UIArmory_Loadout:GetDisabledReason
+/// defaults to using the wrapper function below for calls from XCGS_U. Return false with a non-empty string in this function to show the disabled reason in UIArmory_Loadout
+/// Note: due to how UIArmory_Loadout does its check, expect only Slot, ItemTemplate, and UnitState to be filled when trying to fill out a disabled reason. Hence the check for CheckGameState == none
+/// </summary>
+static function bool CanAddItemToInventory_CH(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, optional XComGameState CheckGameState, optional out string DisabledReason)
+{
+	if(CheckGameState == none)
+		return true;
+
+	return CanAddItemToInventory(bCanAddItem, Slot, ItemTemplate, Quantity, UnitState, CheckGameState);
+}
+
+/// <summary>
+/// wrapper function: original function from base game LW/Community highlander
+//  Return true to the actual DLC hook
+/// </summary>
+static private function bool CanAddItemToInventory(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, XComGameState CheckGameState)
+{
+	return false;
+}
+
+//end Issue #50
+
+// Start Issue #171
+/// Calls to override item image shown in UIArmory_Loadout
+/// For example it allows you to show multiple grenades on grenade slot for someone with heavy ordnance
+/// Just change the value of imagePath
+static function OverrideItemImage(out array<string> imagePath, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, XComGameState_Unit UnitState)
+{
+}
+
+/// Also Issue #64
+/// Allows override number of utility slots
+static function GetNumUtilitySlotsOverride(out int NumUtilitySlots, XComGameState_Item EquippedArmor, XComGameState_Unit UnitState, XComGameState CheckGameState)
+{
+}
+
+/// Allows override number of heavy weapons slots
+/// These are the only base game slots that can be safely unrestricted since they are optional and not expected by class perks, if you want other multi slots use the CHItemSlot feature
+static function GetNumHeavyWeaponSlotsOverride(out int NumHeavySlots, XComGameState_Unit UnitState, XComGameState CheckGameState)
+{
+}
+// End Issue #171
+
+//start Issue #112
+/// <summary>
+/// Called from XComGameState_HeadquartersXCom
+/// lets mods add their own events to the event queue when the player is at the Avenger or the Geoscape
+/// </summary>
+
+static function bool GetDLCEventInfo(out array<HQEvent> arrEvents)
+{
+	return false; //returning true will tell the game to add the events have been added to the above array
+}
+//end issue #112
+
+//start Issue #148
+/// <summary>
+/// Called from UIShellDifficulty
+/// lets mods change the new game options when changing difficulty
+/// </summary>
+static function UpdateUIOnDifficultyChange(UIShellDifficulty UIShellDifficulty)
+{
+
+}
+//end Issue #148
+
+
+// Start Issue #136
+/// <summary>
+/// Called from XComGameState_MissionSite:CacheSelectedMissionData
+/// Encounter Data is modified immediately prior to being added to the SelectedMissionData, ported from LW2
+/// </summary>
+static function PostEncounterCreation(out name EncounterName, out PodSpawnInfo Encounter, int ForceLevel, int AlertLevel, optional XComGameState_BaseObject SourceObject)
+{
+
+}
+// End Issue #136
+
+// Start Issue #278
+/// <summary>
+/// Called from XComGameState_AIReinforcementSpawner:OnReinforcementSpawnerCreated
+/// SourceObject is the calling function's BattleData, as opposed to the original hook, which passes MissionSiteState. BattleData contains MissionSiteState
+/// Added optional ReinforcementState to modify reinforcement conditions
+/// Encounter Data is modified immediately after being generated, before validation is performed on spawn visualization based on pod conditions
+/// </summary>
+static function PostReinforcementCreation(out name EncounterName, out PodSpawnInfo Encounter, int ForceLevel, int AlertLevel, optional XComGameState_BaseObject SourceObject, optional XComGameState_BaseObject ReinforcementState)
+{
+	PostEncounterCreation(EncounterName, Encounter, ForceLevel, AlertLevel, `XCOMHISTORY.GetGameStateForObjectID(XComGameState_BattleData(SourceObject).m_iMissionID));
+}
+// End Issue #278
+
+// Start Issue #157
+/// <summary>
+/// Called from XComGameState_Missionsite:SetMissionData
+/// lets mods add SitReps with custom spawn rules to newly generated missions
+/// Advice: Check for present Strategy game if you dont want this to affect TQL/Multiplayer/Main Menu 
+/// Example: If (`HQGAME  != none && `HQPC != None && `HQPRES != none) ...
+/// </summary>
+static function PostSitRepCreation(out GeneratedMissionData GeneratedMission, optional XComGameState_BaseObject SourceObject)
+{
+	
+}
+// End Issue #157
+
+// Start Issue #169
+/// <summary>
+/// Called from XComHumanPawn:UpdateMeshMaterials; lets mods manipulate pawn materials.
+/// This hook is called for each standard attachment for each MaterialInstanceConstant.
+/// Superseded by UpdateHumanPawnMeshComponent, which provides a more universal hook.
+/// </summary>
+static function UpdateHumanPawnMeshMaterial(XComGameState_Unit UnitState, XComHumanPawn Pawn, MeshComponent MeshComp, name ParentMaterialName, MaterialInstanceConstant MIC)
+{
+
+}
+// End Issue #157
+
+/// Start Issue #216
+/// <summary>
+/// Called from XComHumanPawn:UpdateMeshMaterials. This function acts as a wrapper for
+/// UpdateHumanPawnMeshMaterial to still support that hook.
+/// This hook is called after the base game has updated the materials on this mesh component:
+/// - MaterialInstanceConstants will be "instancified" to make sure that pawns' materials don't conflict
+/// - Materials / MaterialInstanceTimeVaryings will not be touched
+/// </summary>
+static function UpdateHumanPawnMeshComponent(XComGameState_Unit UnitState, XComHumanPawn Pawn, MeshComponent MeshComp)
+{
+	local int Idx;
+	local MaterialInterface Mat, ParentMat;
+	local MaterialInstanceConstant MIC, ParentMIC;
+	local name ParentName;
+
+	for (Idx = 0; Idx < MeshComp.GetNumElements(); ++Idx)
+	{
+		Mat = MeshComp.GetMaterial(Idx);
+		MIC = MaterialInstanceConstant(Mat);
+
+		if (MIC != none)
+		{
+			// Calling code has already "instancified" the MIC -- just make sure we find the correct parent
+			ParentMat = MIC.Parent;
+			while (!ParentMat.IsA('Material'))
+			{
+				ParentMIC = MaterialInstanceConstant(ParentMat);
+				if (ParentMIC != none)
+					ParentMat = ParentMIC.Parent;
+				else
+					break;
+			}
+			ParentName = ParentMat.Name;
+
+			UpdateHumanPawnMeshMaterial(UnitState, Pawn, MeshComp, ParentName, MIC);
+		}
+	}
+}
+/// End Issue #216
+
+
+/// Start Issue #239
+/// <summary>
+/// Called from SeqAct_GetPawnFromSaveData.Activated
+/// It delegates the randomly chosen pawn, unitstate and gamestate from the shell screen matinee.
+/// 
+static function MatineeGetPawnFromSaveData(XComUnitPawn UnitPawn, XComGameState_Unit UnitState, XComGameState SearchState)
+{}
+/// End Issue #239
+
+/// Start Issue #240
+/// Called from XComGameState_Item:UpdateMeshMaterials:GetWeaponAttachments.
+/// This function gets called when the weapon attachemets are loaded for an item.
+static function UpdateWeaponAttachments(out array<WeaponAttachment> Attachments, XComGameState_Item ItemState)
+{}
+/// End Issue #240
+
+/// Start Issue #245
+/// Called from XGWeapon:Init.
+/// This function gets called when the weapon archetype is initialized.
+static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, optional XComGameState_Item ItemState=none)
+{}
+/// End Issue #245
+
+/// Start Issue #246
+/// Called from XGWeapon:UpdateWeaponMaterial.
+/// This function gets called when the weapon material is updated.
+static function UpdateWeaponMaterial(XGWeapon WeaponArchetype, MeshComponent MeshComp)
+{}
+/// End Issue #246
+
+/// Start Issue #260
+/// Called from XComGameState_Item:CanWeaponApplyUpgrade.
+/// Allows weapons to specify whether or not they will accept a given upgrade.
+/// Should be used to answer the question "is this upgrade compatible with this weapon in general?"
+/// For whether or not other upgrades conflict or other "right now" concerns, X2WeaponUpgradeTemplate:CanApplyUpgradeToWeapon already exists
+/// It is suggested you explicitly check for your weapon templates, so as not to accidentally catch someone else's templates.
+/// - e.g. Even if you have a unique weapon category now, someone else may add items to that category later.
+static function bool CanWeaponApplyUpgrade(XComGameState_Item WeaponState, X2WeaponUpgradeTemplate UpgradeTemplate)
+{
+	return true;
+}
+/// End Issue #260
+
+/// Start Issue #281
+/// <summary>
+/// Called from XGWeapon.CreateEntity
+/// Allows DLC/Mods to append sockets to weapons
+/// NOTE: To create new sockets from script you need to unconst SocketName and BoneName in SkeletalMeshSocket
+/// </summary>
+static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets, XComWeapon Weapon, XComGameState_Item ItemState)
+{
+	return;
+}
+/// End Issue #281
+
+/// Start Issue #419
+/// <summary>
+/// Called from X2AbilityTag.ExpandHandler
+/// Expands vanilla AbilityTagExpandHandler to allow reflection
+/// </summary>
+static function bool AbilityTagExpandHandler_CH(string InString, out string OutString, Object ParseObj, Object StrategyParseOb, XComGameState GameState)
+{
+	return false;
+}
+/// End Issue #419

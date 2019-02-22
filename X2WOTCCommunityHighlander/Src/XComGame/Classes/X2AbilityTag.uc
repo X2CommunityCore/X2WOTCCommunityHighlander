@@ -722,7 +722,15 @@ event ExpandHandler(string InString, out string OutString)
 	foreach DLCInfos(DLCInfo)
 	{
 		if (DLCInfo.AbilityTagExpandHandler(InString, OutString))
+		{
 			return;
+		}
+// Start Issue #419
+		if (DLCInfo.AbilityTagExpandHandler_CH(InString, OutString, ParseObj, StrategyParseObj, GameState))
+		{
+			return;
+		}
+// End Issue #419
 	}
 
 	`RedScreenOnce("Unhandled localization tag: '"$Tag$":"$InString$"'");
