@@ -1397,7 +1397,7 @@ function CompleteCovertAction(XComGameState NewGameState)
 
 	// Flag the completion popup and trigger appropriate events
 	bNeedsActionCompletePopup = true;
-	`XEVENTMGR.TriggerEvent('CovertActionCompleted', , , NewGameState);
+	`XEVENTMGR.TriggerEvent('CovertActionCompleted', , self, NewGameState);
 	class'XComGameState_HeadquartersResistance'.static.RecordResistanceActivity(NewGameState, 'ResAct_ActionsCompleted');
 }
 
