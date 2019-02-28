@@ -985,7 +985,7 @@ function EnableDarkEventRisk(name DarkEventRiskName)
 		// If the Risk is not a part of the default template, add it
 		if (RiskNames.Find(DarkEventRiskName) == INDEX_NONE)
 		{
-			AddRisk(X2CovertActionRiskTemplate(Tuple.Data[0].o), bChosenIncreaseRisks, true);
+			AddRisk(RiskTemplate, bChosenIncreaseRisks, true);
 		}
 		else // Otherwise search through the existing risks to modify the chance to occur
 		{
