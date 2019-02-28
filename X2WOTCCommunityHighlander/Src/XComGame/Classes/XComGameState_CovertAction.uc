@@ -919,6 +919,8 @@ private function int CalculateRiskChanceToOccurModifiers(CovertActionRisk Action
 
 	`XEVENTMGR.TriggerEvent('CovertActionRisk_AlterChanceModifier', Tuple, self);
 
+
+
 	return Tuple.Data[4].i;
 }
 
@@ -947,7 +949,7 @@ function RecalculateRiskChanceToOccurModifiers()
             }
 		}
 
-		CalculateRiskChanceToOccurModifiers(Risk, bChosenIncreaseRisks, bDarkEventRisk);
+		Risk.ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(Risk, bChosenIncreaseRisks, bDarkEventRisk);
 	}
 }
 
