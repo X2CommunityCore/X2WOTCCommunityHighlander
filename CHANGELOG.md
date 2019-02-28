@@ -26,6 +26,12 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Triggers the event `Geoscape_ResInfoButtonVisible` to allow to override the visibility of resistance orders button in `UIStrategyMap_HUD` (#365)
 - Triggers the event `NumCovertActionsToAdd` to allow mods to modfiy number of Covert Actions (#373)
 - Triggers the event `CompleteRespecSoldier` when a training center soldier respec was completed. (#339)
+- Triggers the event `CovertAction_ShouldBeVisible` on XComGameState_CovertAction::ShouldBeVisible call (#438)
+- Triggers the event `CovertAction_CanInteract` on XComGameState_CovertAction::CanInteract call (#438)
+- Triggers the event `CovertAction_ActionSelectedOverride` on XComGameState_CovertAction::DisplaySelectionPrompt call (#438)
+- Triggers the event `CovertAction_ShouldGiveRewards` on XComGameState_CovertAction::GiveRewards call (#438)
+- Triggers the event `CovertAction_RemoveEntity_ShouldEmptySlots` on XComGameState_CovertAction::RemoveEntity call (#438)
+- Triggers the event `CovertAction_ModifyNarrativeParamTag` on XComGameState_CovertAction::GetNarrative call (#438)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
