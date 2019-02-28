@@ -704,13 +704,31 @@ function CreateGoldenPathActions(XComGameState NewGameState)
 	}
 }
 
+// start CHL issue #435
+// CHL function modified: fixed bugged issue by adding a loop to check if covert actions
+// were in fact deleted before removing them from the list
 //---------------------------------------------------------------------------------------
 function GenerateCovertActions(XComGameState NewGameState, out array<Name> ActionExclusionList)
 {	
-	CovertActions.Length = 0; // Reset the stored covert actions list
+	local XComGameState_CovertAction ActionState;
+	local StateObjectReference ActionRef;
+	local XComGameStateHistory History;
+
+	History = `XCOMHISTORY;
+
+	foreach CovertActions(ActionRef)
+	{
+		ActionState = XComGameState_CovertAction(History.GetGameStateForObjectID(ActionRef.ObjectID));
+		if (ActionState == none || ActionState.bRemoved)
+		{
+			CovertActions.RemoveItem(ActionRef);
+		}
+	}
+	
 	RefreshAvailableCovertActions(NewGameState, ActionExclusionList); // Refresh which covert actions are available for this Faction	
 	AddNewCovertActions(NewGameState, GetNumActionsToAdd(NewGameState) /* Issue #373 */, ActionExclusionList);
 }
+// end CHL issue #435
 
 // Start issue #373
 function int GetNumActionsToAdd(XComGameState NewGameState)
@@ -920,25 +938,39 @@ function RemoveCovertAction(StateObjectReference ActionRef)
 	}
 }
 
+// start CHL issue #435
+// CHL function modified: added event 'ShouldCleanupCovertAction' to allow mod control over CA deletion
 //---------------------------------------------------------------------------------------
 function CleanUpFactionCovertActions(XComGameState NewGameState)
 {
-	local XComGameStateHistory History;
 	local XComGameState_CovertAction ActionState;
-	local int idx;
+	local StateObjectReference ActionRef;
+	local XComGameStateHistory History;
+	local XComLWTuple Tuple;
 
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'ShouldCleanupCovertAction';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVBool;
+	
 	History = `XCOMHISTORY;
-	for(idx = 0; idx < CovertActions.Length; idx++)
+
+	foreach CovertActions(ActionRef)
 	{
-		// Clean up any non-started actions created for the facility.
-		ActionState = XComGameState_CovertAction(History.GetGameStateForObjectID(CovertActions[idx].ObjectID));
-		if (ActionState != none && !ActionState.bStarted)
+		ActionState = XComGameState_CovertAction(History.GetGameStateForObjectID(ActionRef.ObjectID));
+
+		Tuple.Data[0].b = ActionState != none && !ActionState.bStarted;
+
+		`XEVENTMGR.TriggerEvent('ShouldCleanupCovertAction', Tuple, self, NewGameState);
+
+		if (Tuple.Data[0].b)
 		{
 			ActionState = XComGameState_CovertAction(NewGameState.ModifyStateObject(class'XComGameState_CovertAction', ActionState.ObjectID));
 			ActionState.RemoveEntity(NewGameState);
 		}
 	}
 }
+// end CHL issue #435
 
 //---------------------------------------------------------------------------------------
 function OnEndOfMonth(XComGameState NewGameState, out array<Name> ActionExclusionList)

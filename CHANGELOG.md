@@ -26,6 +26,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Triggers the event `Geoscape_ResInfoButtonVisible` to allow to override the visibility of resistance orders button in `UIStrategyMap_HUD` (#365)
 - Triggers the event `NumCovertActionsToAdd` to allow mods to modfiy number of Covert Actions (#373)
 - Triggers the event `CompleteRespecSoldier` when a training center soldier respec was completed. (#339)
+- Triggers the event `ShouldCleanupCovertAction` to allow mod control over Covert Action deletion. (#435)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
@@ -52,7 +53,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   particular Unit Class's skill tree (#30, #62)
 - Fix Loadout utility items when unit has an item equipped in the Ammo Pocket (#99)
 - Fix units unequipping items they shouldn't, resulting in duplicate Paired Weapons (#189)
-
+- Fix all Covert Actions from being removed when generating covert actions (#435)
 
 ## Tactical
 
