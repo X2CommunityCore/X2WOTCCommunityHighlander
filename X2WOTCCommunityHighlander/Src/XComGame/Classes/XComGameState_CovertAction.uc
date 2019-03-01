@@ -585,11 +585,11 @@ function GiveRewards(XComGameState NewGameState)
 	Tuple.Id = 'CovertAction_PreventGiveRewards';
 	Tuple.Data.Add(1);
 	Tuple.Data[0].kind = XComLWTVBool;
-	Tuple.Data[0].b = true;
+	Tuple.Data[0].b = false;
 
 	`XEVENTMGR.TriggerEvent('CovertAction_PreventGiveRewards', Tuple, self);
 
-	if (!Tuple.Data[0].b)
+	if (Tuple.Data[0].b)
 	{
 		return;
 	}
