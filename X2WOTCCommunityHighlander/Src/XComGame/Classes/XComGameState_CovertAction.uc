@@ -570,6 +570,8 @@ private function GenerateRewards(XComGameState NewGameState)
 	}
 }
 
+// start CHL issue #438
+// CHL function modified: added event 'CovertAction_ShouldGiveRewards'
 function GiveRewards(XComGameState NewGameState)
 {
 	local XComGameState_Reward RewardState;
@@ -636,6 +638,7 @@ function GiveRewards(XComGameState NewGameState)
 		}
 	}
 }
+// end CHL issue #438
 
 //---------------------------------------------------------------------------------------
 function string GetRewardDescriptionString()
@@ -1419,6 +1422,8 @@ function CompleteCovertAction(XComGameState NewGameState)
 //----------------   GEOSCAPE ENTITY IMPLEMENTATION   -----------------------------------------
 //#############################################################################################
 
+// start CHL issue #438
+// CHL function modified: added event 'CovertAction_CanInteract'
 protected function bool CanInteract()
 {
 	local XComLWTuple Tuple;
@@ -1433,6 +1438,7 @@ protected function bool CanInteract()
 	
 	return Tuple.Data[0].b;
 }
+// end CHL issue #438
 
 function string GetObjective()
 {
@@ -1464,6 +1470,8 @@ function string GetImage()
 	return GetMyNarrativeTemplate().ActionImage;
 }
 
+// start CHL issue #438
+// CHL function modified: added event 'CovertAction_ModifyNarrativeParamTag'
 function string GetNarrative()
 {
 	local XComGameState_ResistanceFaction FactionState;
@@ -1489,6 +1497,7 @@ function string GetNarrative()
 
 	return `XEXPAND.ExpandString(GetMyNarrativeTemplate().ActionPreNarrative);
 }
+// end CHL issue #438
 
 function string GetSummary()
 {
@@ -1665,6 +1674,8 @@ simulated function string GetUIButtonTooltipBody()
 	return toolTip;
 }
 
+// start CHL issue #438
+// CHL function modified: added event 'CovertAction_ShouldBeVisible'
 function bool ShouldBeVisible()
 {
 	local XComLWTuple Tuple;
@@ -1679,6 +1690,7 @@ function bool ShouldBeVisible()
 
 	return Tuple.Data[0].b;
 }
+// end CHL issue #438
 
 function bool ShouldStaffSlotBeDisplayed(int idx)
 {
@@ -2143,6 +2155,8 @@ simulated function TriggerNextCovertActionPopup()
 	`HQPRES.UINextCovertAction();
 }
 
+// start CHL issue #438
+// CHL function modified: added event 'CovertAction_RemoveEntity_ShouldEmptySlots'
 function RemoveEntity(XComGameState NewGameState)
 {
 	local XComGameState_ResistanceFaction FactionState;
@@ -2193,6 +2207,7 @@ function RemoveEntity(XComGameState NewGameState)
 		`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
 	}
 }
+// end CHL issue #438
 
 function AttemptSelectionCheckInterruption()
 {
@@ -2201,6 +2216,8 @@ function AttemptSelectionCheckInterruption()
 	AttemptSelection();
 }
 
+// start CHL issue #438
+// CHL function modified: added event 'CovertAction_ActionSelectedOverride'
 protected function bool DisplaySelectionPrompt()
 {
 	local XComLWTuple Tuple;
@@ -2217,6 +2234,7 @@ protected function bool DisplaySelectionPrompt()
 
 	return Tuple.Data[0].b;
 }
+// end CHL issue #438
 
 function ActionSelected()
 {
