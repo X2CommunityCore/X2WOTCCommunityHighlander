@@ -929,25 +929,25 @@ function RecalculateRiskChanceToOccurModifiers()
 	local X2StrategyElementTemplateManager StratMgr;
 	local bool bChosenIncreaseRisks, bDarkEventRisk;
 	local X2CovertActionRiskTemplate RiskTemplate;
-	local CovertActionRisk Risk;
+	local int idx;
 
 	ResHQ = XComGameState_HeadquartersResistance(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersResistance'));
 	StratMgr = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
 
-	foreach Risks(Risk)
+	for (idx = 0; idx < Risks.Length; idx++)
 	{
 		bChosenIncreaseRisks = GetFaction().GetRivalChosen().ShouldIncreaseCovertActionRisks();
-		RiskTemplate = X2CovertActionRiskTemplate(StratMgr.FindStrategyElementTemplate(Risk.RiskTemplateName));
+		RiskTemplate = X2CovertActionRiskTemplate(StratMgr.FindStrategyElementTemplate(Risks[idx].RiskTemplateName));
 		if (RiskTemplate.IsRiskAvailableFn == none || RiskTemplate.IsRiskAvailableFn(GetFaction()))
         {
             bDarkEventRisk = false;
-            if (ResHQ.CovertActionDarkEventRisks.Find(Risk.RiskTemplateName) != INDEX_NONE)
+            if (ResHQ.CovertActionDarkEventRisks.Find(Risks[idx].RiskTemplateName) != INDEX_NONE)
             {
                 bDarkEventRisk = true;
             }
 		}
 
-		Risk.ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(Risk, bChosenIncreaseRisks, bDarkEventRisk);
+		Risks[idx].ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(Risks[idx], bChosenIncreaseRisks, bDarkEventRisk);
 	}
 }
 
