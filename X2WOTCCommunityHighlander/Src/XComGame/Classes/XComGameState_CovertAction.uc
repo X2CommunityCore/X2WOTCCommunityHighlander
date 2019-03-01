@@ -587,7 +587,7 @@ function GiveRewards(XComGameState NewGameState)
 	Tuple.Data[0].kind = XComLWTVBool;
 	Tuple.Data[0].b = false;
 
-	`XEVENTMGR.TriggerEvent('CovertAction_ModifyNarrativeParamTag', Tuple, self);
+	`XEVENTMGR.TriggerEvent('CovertAction_ShouldGiveRewards', Tuple, self);
 
 	if (Tuple.Data[0].b)
 	{
@@ -1475,25 +1475,18 @@ function string GetImage()
 function string GetNarrative()
 {
 	local XComGameState_ResistanceFaction FactionState;
-	local XComLWTuple Tuple;
 	local XGParamTag kTag;
 
-	Tuple = new class'XComLWTuple';
-	Tuple.Id = 'CovertAction_ModifyNarrativeParamTag';
-	Tuple.Data.Add(1);
-	Tuple.Data[0].kind = XComLWTVString;
-	Tuple.Data[0].s = GetRewardSavedString();
-
 	FactionState = GetFaction();
-
-	`XEVENTMGR.TriggerEvent('CovertAction_ModifyNarrativeParamTag', Tuple, self);
 
 	kTag = XGParamTag(`XEXPANDCONTEXT.FindTag("XGParam"));
 	kTag.StrValue0 = FactionState.GetFactionName();
 	kTag.StrValue1 = FactionState.GetRivalChosen().GetChosenName();
 	kTag.StrValue2 = FactionState.GetRivalChosen().GetChosenClassName();
 	kTag.StrValue3 = GetContinent().GetMyTemplate().DisplayName;
-	kTag.StrValue4 = Tuple.Data[0].s;
+	kTag.StrValue4 = GetRewardSavedString();
+
+	`XEVENTMGR.TriggerEvent('CovertAction_ModifyNarrativeParamTag', kTag, self);
 
 	return `XEXPAND.ExpandString(GetMyNarrativeTemplate().ActionPreNarrative);
 }
@@ -2216,9 +2209,16 @@ function AttemptSelectionCheckInterruption()
 	AttemptSelection();
 }
 
+protected function bool DisplaySelectionPrompt()
+{
+	ActionSelected();
+
+	return true;
+}
+
 // start CHL issue #438
 // CHL function modified: added event 'CovertAction_ActionSelectedOverride'
-protected function bool DisplaySelectionPrompt()
+function ActionSelected()
 {
 	local XComLWTuple Tuple;
 
@@ -2226,20 +2226,16 @@ protected function bool DisplaySelectionPrompt()
 	Tuple.Id = 'CovertAction_ActionSelectedOverride';
 	Tuple.Data.Add(1);
 	Tuple.Data[0].kind = XComLWTVBool;
-	Tuple.Data[0].b = true;
-
-	ActionSelected();
+	Tuple.Data[0].b = false;
 
 	`XEVENTMGR.TriggerEvent('CovertAction_ActionSelectedOverride', Tuple, self);
 
-	return Tuple.Data[0].b;
+	if (!Tuple.Data[0].b)
+	{
+		`HQPRES.OnCovertActionSelected(self);
+	}
 }
 // end CHL issue #438
-
-function ActionSelected()
-{
-	`HQPRES.OnCovertActionSelected(self);
-}
 
 //#############################################################################################
 //----------------   HELPER FUNCTIONS   -------------------------------------------------------
