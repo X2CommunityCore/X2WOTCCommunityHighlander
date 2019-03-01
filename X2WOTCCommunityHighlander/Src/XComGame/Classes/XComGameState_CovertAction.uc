@@ -571,7 +571,7 @@ private function GenerateRewards(XComGameState NewGameState)
 }
 
 // start CHL issue #438
-// CHL function modified: added event 'CovertAction_ShouldGiveRewards'
+// CHL function modified: added event 'CovertAction_PreventGiveRewards'
 function GiveRewards(XComGameState NewGameState)
 {
 	local XComGameState_Reward RewardState;
@@ -582,14 +582,14 @@ function GiveRewards(XComGameState NewGameState)
 	local int idx;
 
 	Tuple = new class'XComLWTuple';
-	Tuple.Id = 'CovertAction_ShouldGiveRewards';
+	Tuple.Id = 'CovertAction_PreventGiveRewards';
 	Tuple.Data.Add(1);
 	Tuple.Data[0].kind = XComLWTVBool;
-	Tuple.Data[0].b = false;
+	Tuple.Data[0].b = true;
 
-	`XEVENTMGR.TriggerEvent('CovertAction_ShouldGiveRewards', Tuple, self);
+	`XEVENTMGR.TriggerEvent('CovertAction_PreventGiveRewards', Tuple, self);
 
-	if (Tuple.Data[0].b)
+	if (!Tuple.Data[0].b)
 	{
 		return;
 	}
