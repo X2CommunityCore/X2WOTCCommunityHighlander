@@ -951,7 +951,8 @@ function CleanUpFactionCovertActions(XComGameState NewGameState)
 	Tuple = new class'XComLWTuple';
 	Tuple.Id = 'ShouldCleanupCovertAction';
 	Tuple.Data.Add(1);
-	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].kind = XComLWTVObject;
+	Tuple.Data[1].kind = XComLWTVBool;
 	
 	History = `XCOMHISTORY;
 
@@ -959,7 +960,8 @@ function CleanUpFactionCovertActions(XComGameState NewGameState)
 	{
 		ActionState = XComGameState_CovertAction(History.GetGameStateForObjectID(ActionRef.ObjectID));
 
-		Tuple.Data[0].b = ActionState != none && !ActionState.bStarted;
+		Tuple.Data[0].o = ActionState;
+		Tuple.Data[1].b = ActionState != none && !ActionState.bStarted;
 
 		`XEVENTMGR.TriggerEvent('ShouldCleanupCovertAction', Tuple, self, NewGameState);
 
