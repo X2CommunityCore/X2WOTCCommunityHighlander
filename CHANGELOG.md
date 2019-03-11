@@ -29,7 +29,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Triggers the event `CovertAction_ShouldBeVisible` on XComGameState_CovertAction::ShouldBeVisible call (#438)
 - Triggers the event `CovertAction_CanInteract` on XComGameState_CovertAction::CanInteract call (#438)
 - Triggers the event `CovertAction_ActionSelectedOverride` on XComGameState_CovertAction::DisplaySelectionPrompt call (#438)
-- Triggers the event `CovertAction_ShouldGiveRewards` on XComGameState_CovertAction::GiveRewards call (#438)
+- Triggers the event `CovertAction_PreventGiveRewards` on XComGameState_CovertAction::GiveRewards call (#438)
 - Triggers the event `CovertAction_RemoveEntity_ShouldEmptySlots` on XComGameState_CovertAction::RemoveEntity call (#438)
 - Triggers the event `CovertAction_ModifyNarrativeParamTag` on XComGameState_CovertAction::GetNarrative call (#438)
 
