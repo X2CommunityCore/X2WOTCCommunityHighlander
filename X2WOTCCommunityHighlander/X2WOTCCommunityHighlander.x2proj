@@ -269,6 +269,9 @@
     <Content Include="Src\XComGame\Classes\X2HackRewardTemplateManager.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2SitRepEffect_GrantAbilities.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2SoldierClassTemplateManager.uc">
       <SubType>Content</SubType>
     </Content>

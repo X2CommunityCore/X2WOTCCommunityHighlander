@@ -112,6 +112,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Make suppression work with units that don't have a suppression specific
   idle animation animation set on them (#74)
 - Gremlins (and other Cosmetic Units) are now correctly tinted and patterned (#376)
+- Allow mods to decide which team(s) are granted an ability via X2SitRepEffect_GrantAbilities (#445)
 
 ### Fixes
 - Ensure Gremlins use the walk/run animation based on the alert status of their
