@@ -21,12 +21,11 @@ function GetAbilitiesToGrant(XComGameState_Unit UnitState, out array<name> Abili
 {
 	AbilityTemplates.Length = 0;
 	
-	if(CharacterTemplateNames.Length == 0 && GrantToSoldiers == false
-	|| CharacterTemplateNames.Find(UnitState.GetMyTemplateName()) != INDEX_NONE
-	|| Teams.Find(UnitState.GetTeam()) != INDEX_NONE
-	|| (GrantToSoldiers && UnitState.IsSoldier()))
+	if (CharacterTemplateNames.Find(UnitState.GetMyTemplateName()) != INDEX_NONE
+	|| (CharacterTemplateNames.Length == 0 && GrantToSoldiers == false)
+	|| (GrantToSoldiers && UnitState.IsSoldier())
+	|| Teams.Find(UnitState.GetTeam()) != INDEX_NONE)
 	{
 		AbilityTemplates = AbilityTemplateNames;
 	}
-	
 }
