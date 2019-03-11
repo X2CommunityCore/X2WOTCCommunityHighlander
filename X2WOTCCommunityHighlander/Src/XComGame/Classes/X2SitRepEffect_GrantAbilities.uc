@@ -12,7 +12,7 @@ class X2SitRepEffect_GrantAbilities extends X2SitRepEffectTemplate;
 var array<name> AbilityTemplateNames; // Abilities to grant
 
 var array<name> CharacterTemplateNames; // Characters to grant abilities to
-var array<ETeam> Teams; //CHL issue #445 allow mods to decide which team(s) receive this ability
+var array<ETeam> Teams; // Issue #445: allow mods to filter units by team
 var bool GrantToSoldiers; // If true, will grant the specified abilities to all soldier classes
 
 // If you need different/more precise control of which units get which abilities, you can override
@@ -21,11 +21,23 @@ function GetAbilitiesToGrant(XComGameState_Unit UnitState, out array<name> Abili
 {
 	AbilityTemplates.Length = 0;
 	
-	if (CharacterTemplateNames.Find(UnitState.GetMyTemplateName()) != INDEX_NONE
-	|| (CharacterTemplateNames.Length == 0 && GrantToSoldiers == false)
-	|| (GrantToSoldiers && UnitState.IsSoldier())
-	|| Teams.Find(UnitState.GetTeam()) != INDEX_NONE)
+	if (GrantToSoldiers && UnitState.IsSoldier())
 	{
+		// Skip all checks and grant the abilities
 		AbilityTemplates = AbilityTemplateNames;
+		return;
 	}
+
+	if (CharacterTemplateNames.Length > 0 && CharacterTemplateNames.Find(UnitState.GetMyTemplateName()) == INDEX_NONE)
+	{
+		return;
+	}
+
+	if (Teams.Length > 0 && Teams.Find(UnitState.GetTeam()) == INDEX_NONE)
+	{
+		return;
+	}
+
+	// All checks passed
+	AbilityTemplates = AbilityTemplateNames;
 }
