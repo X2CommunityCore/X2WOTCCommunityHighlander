@@ -5137,11 +5137,36 @@ function string GetStatusString()
 	return FormattedStatus;
 }
 
+// start CHL issue #322
+// CHL function modified: added event 'CustomizeStatusStringSeparate'
 function GetStatusStringsSeparate(out string Status, out string TimeLabel, out int TimeValue)
 {
 	local bool bProjectExists;
 	local int iHours, iDays;
-	
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'CustomizeStatusStringsSeparate';
+	Tuple.Data.Add(4);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = false;
+	Tuple.Data[1].kind = XComLWTVString;
+	Tuple.Data[1].s = Status;
+	Tuple.Data[2].kind = XComLWTVString;
+	Tuple.Data[2].s = TimeLabel;
+	Tuple.Data[3].kind = XComLWTVInt;
+	Tuple.Data[3].i = TimeValue;
+
+	`XEVENTMGR.TriggerEvent('CustomizeStatusStringsSeparate', Tuple, self);
+
+	if (Tuple.Data[0].b)
+	{
+		Status = Tuple.Data[1].s;
+		TimeLabel = Tuple.Data[2].s;
+		TimeValue = Tuple.Data[3].i;
+		return;
+	}
+
 	if( IsInjured() )
 	{
 		Status = GetWoundStatus(iHours);
@@ -5160,7 +5185,7 @@ function GetStatusStringsSeparate(out string Status, out string TimeLabel, out i
 		if (Status != "")
 			bProjectExists = true;
 	}
-	else if( IsDead() )
+	else if(IsDead())
 	{
 		Status = "KIA";
 	}
@@ -5182,6 +5207,7 @@ function GetStatusStringsSeparate(out string Status, out string TimeLabel, out i
 		TimeLabel = class'UIUtilities_Text'.static.GetDaysString(iDays);
 	}
 }
+// end CHL issue #322
 //-------------------------------------------------------------------------
 // Returns a UI state (color) that matches the soldier's status
 function int GetStatusUIState()
