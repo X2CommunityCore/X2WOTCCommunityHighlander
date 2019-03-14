@@ -22,6 +22,7 @@ var bool GrantToSoldiers;
 
 var array<name> CharacterTemplateNames; // List of characters templates that are allowed
 var array<ETeam> Teams; // Issue #445: List of teams that are allowed
+var bool RequireRobotic; // Issue #445
 
 // If you need different/more precise control of which units get which abilities, you can override
 // this function with a subclass
@@ -38,6 +39,11 @@ function GetAbilitiesToGrant(XComGameState_Unit UnitState, out array<name> Abili
 			AbilityTemplates = AbilityTemplateNames;
 		}
 
+		return;
+	}
+
+	if (RequireRobotic && !UnitState.IsRobotic())
+	{
 		return;
 	}
 
