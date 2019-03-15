@@ -87,6 +87,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `OverrideItemSoundRange` to allow overriding an item's sound range (#363)
 - `OverrideHackingScreenType` and `HackIn2D` to allow hacking using a 2D movie and using
   the Skulljack / ADVENT screen arbitrarily (#330)
+- `OverrideDisableReinforcementsFlare` allows mods to hide the reinforcements flare
+  so that players don't know exactly where reinforcements will be arriving (#448)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
