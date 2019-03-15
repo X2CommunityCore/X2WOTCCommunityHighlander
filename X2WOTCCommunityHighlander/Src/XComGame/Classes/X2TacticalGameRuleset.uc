@@ -2650,6 +2650,39 @@ simulated state CreateTacticalGame
 		}
 	}
 
+	// start CHL issue #450
+	// added function ApplySitRepEffectsToStartState
+	// to give SitReps access to the Tactical StartState
+	simulated function ApplySitRepEffectsToStartState()
+	{
+		local XComGameState StartState;
+		local int StartStateIndex;
+		local X2SitRepEffect_ModifyTacticalStartState SitRepEffect;
+		local XComGameState_BattleData BattleDataState;
+
+		StartState = CachedHistory.GetStartState();
+		BattleDataState = XComGameState_BattleData(CachedHistory.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
+		
+		if (StartState == none)
+		{
+			StartStateIndex = CachedHistory.FindStartStateIndex();
+
+			StartState = CachedHistory.GetGameStateFromHistory(StartStateIndex);
+
+			`assert(StartState != none);
+
+		}
+
+		foreach class'X2SitRepTemplateManager'.static.IterateEffects(class'X2SitRepEffect_ModifyTacticalStartState', SitRepEffect, BattleDataState.ActiveSitReps)
+		{
+			if (SitRepEffect.ModifyTacticalStartStateFn != none)
+			{
+				SitRepEffect.ModifyTacticalStartStateFn(StartState);
+			}
+		}
+	}
+	// end CHL issue #450
+
 	simulated function ApplyDarkEventsToStartState( )
 	{
 		local XComGameState StartState;
@@ -2890,8 +2923,9 @@ Begin:
 	WorldInfo.MyLocalEnvMapManager.SetEnableCaptures(TRUE);
 
 	ReleaseScriptLog("X2TacticalGameRuleset: Finished Generating Map");
-
+	
 	ApplyResistancePoliciesToStartState( );
+	ApplySitRepEffectsToStartState();  // CHL issue #450
 	ApplyDarkEventsToStartState( );
 
 	//Position units already in the start state
