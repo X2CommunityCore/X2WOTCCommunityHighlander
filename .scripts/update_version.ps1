@@ -17,9 +17,9 @@ $fileNames = Get-ChildItem -Path $srcDirectory -Recurse -Include "*Version*.uc"
 
 for ($i = 0; $i -lt $fileNames.Length; $i++) {
 	$target_file = $fileNames[$i]
-	$content = Get-Content $target_file
-	if ($content -contains '// AUTO-CODEGEN: Version-Info') {
+	$content = Get-Content $target_file | Out-String
+	if ($content -match '// AUTO-CODEGEN: Version-Info\s*defaultproperties\s*{[^}]*}') {
 		Write-Host $target_file
-		((($content | Out-String) -replace '// AUTO-CODEGEN: Version-Info\s*defaultproperties\s*{[^}]*}', $version_block) -replace "%COMMIT%", $version_commit) | Set-Content $target_file -NoNewline
+		((($content) -replace '// AUTO-CODEGEN: Version-Info\s*defaultproperties\s*{[^}]*}', $version_block) -replace "%COMMIT%", $version_commit) | Set-Content $target_file -NoNewline
 	}
 }
