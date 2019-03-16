@@ -234,6 +234,16 @@ Write-Host "Copying the mod's scripts to Src..."
 Copy-Item "$stagingPath\Src\*" "$sdkPath\Development\Src\" -Force -Recurse -WarningAction SilentlyContinue
 Write-Host "Copied."
 
+if ($final_release) {
+    Write-Host "Updating version..."
+    & "$srcDirectory\.scripts\update_version.ps1" -ps "$srcDirectory\VERSION.ps1" -srcDirectory "$sdkPath\Development\Src\"
+} else {
+    Write-Host "Updating version and commit..."
+    & "$srcDirectory\.scripts\update_version.ps1" -ps "$srcDirectory\VERSION.ps1" -srcDirectory "$sdkPath\Development\Src\" -use_commit
+}
+
+Write-Host "Updated."
+
 # build package lists we'll need later and delete as appropriate
 # all packages we are about to compile
 [System.String[]]$allpackages = Get-ChildItem "$sdkPath/Development/Src" -Directory
