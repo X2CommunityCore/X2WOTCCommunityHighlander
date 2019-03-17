@@ -193,6 +193,10 @@ function InternalRollForAbilityHit(XComGameState_Ability kAbility, AvailableTarg
 	TargetState = XComGameState_Unit(History.GetGameStateForObjectID(kTarget.PrimaryTarget.ObjectID));
 	
 	// Issue #426: ChangeHitResultForX() code block moved to later in method.
+	// Due to how GetModifiedHitChanceForCurrentDifficulty() is implemented, it reverts attempts to change
+	// XCom Hits to Misses, or enemy misses to hits.
+	// The LW2 graze band issues are related to this phenomenon, since the graze band has the effect
+	// of changing some what "should" be enemy misses to hits (specifically graze result)
 
 	// Aim Assist (miss streak prevention)
 	bRolledResultIsAMiss = class'XComGameStateContext_Ability'.static.IsHitResultMiss(Result);
@@ -233,17 +237,8 @@ function InternalRollForAbilityHit(XComGameState_Ability kAbility, AvailableTarg
 	`log("***HIT" @ Result, !bRolledResultIsAMiss, 'XCom_HitRolls');
 	`log("***MISS" @ Result, bRolledResultIsAMiss, 'XCom_HitRolls');
 
-	if (TargetState != none)
-	{
-		//  Check for Lightning Reflexes
-		if (bReactionFire && TargetState.bLightningReflexes && !bRolledResultIsAMiss)
-		{
-			Result = eHit_LightningReflexes;
-			`log("Lightning Reflexes triggered! Shot will miss.", true, 'XCom_HitRolls');
-		}
-	}	
-
-	// Start Issue #426: No actual code changes, block just moved from earlier
+	// Start Issue #426: Block moved from earlier. Only code change is for lightning reflexes,
+	// because bRolledResultIsAMiss was used for both aim assist and reflexes
 	if (UnitState != none && TargetState != none)
 	{
 		foreach UnitState.AffectedByEffects(EffectRef)
@@ -271,6 +266,16 @@ function InternalRollForAbilityHit(XComGameState_Ability kAbility, AvailableTarg
 			}
 		}
 	}
+
+	if (TargetState != none)
+	{
+		//  Check for Lightning Reflexes
+		if (bReactionFire && TargetState.bLightningReflexes && !class'XComGameStateContext_Ability'.static.IsHitResultMiss(Result))
+		{
+			Result = eHit_LightningReflexes;
+			`log("Lightning Reflexes triggered! Shot will miss.", true, 'XCom_HitRolls');
+		}
+	}	
 	// End Issue #426
 
 	if (UnitState != none && TargetState != none)
