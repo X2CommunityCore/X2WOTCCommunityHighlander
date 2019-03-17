@@ -923,6 +923,7 @@ private function int CalculateRiskChanceToOccurModifiers(CovertActionRisk Action
 }
 
 // CHL fuction added: to calculate risk chance on all risks for a given covert action
+// only useful when using 'CovertActionRisk_AlterChanceModifier' event
 function RecalculateRiskChanceToOccurModifiers()
 {
 	local XComGameState_HeadquartersResistance ResHQ;
