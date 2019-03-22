@@ -23,6 +23,9 @@
     <Content Include="Src\DLC_2\Classes\X2DLC2CH_CHXComGameVersion.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\DLC_2\Classes\XComGameState_AlienRulerManager.uc">
+      <SubType>Content</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildLocalExtensionPath)\XCOM2.targets" />
 </Project>
