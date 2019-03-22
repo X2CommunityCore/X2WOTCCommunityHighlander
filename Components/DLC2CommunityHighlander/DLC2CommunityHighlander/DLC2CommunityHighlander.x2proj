@@ -20,6 +20,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="ModPreview.jpg" />
+    <Content Include="Src\DLC_2\Classes\CHHelpers_DLC_Day60.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\DLC_2\Classes\X2DLC2CH_CHXComGameVersion.uc">
       <SubType>Content</SubType>
     </Content>

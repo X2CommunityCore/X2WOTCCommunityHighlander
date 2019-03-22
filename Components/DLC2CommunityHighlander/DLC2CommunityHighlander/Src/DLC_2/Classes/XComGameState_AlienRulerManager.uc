@@ -546,20 +546,12 @@ private function bool MissionSitrepsBanRulers(XComGameState_MissionSite MissionS
 		SitRepTemplate = SitRepMgr.FindSitRepTemplate(SitRepTemplateName);
 		TacTags = SitRepTemplate.ExcludeGameplayTags;
 
-		if(TacTags.Length == 0)
-		{
-			continue;
-		}
-
-		if(TacTags.Find('Ruler_ViperKingActive') != INDEX_NONE || TacTags.Find('Ruler_ViperKing_02') != INDEX_NONE ||
-		   TacTags.Find('Ruler_ViperKing_03') != INDEX_NONE || TacTags.Find('Ruler_ViperKing_04') != INDEX_NONE ||
-		   TacTags.Find('Ruler_BerserkerQueenActive') != INDEX_NONE || TacTags.Find('Ruler_BerserkerQueen_02') != INDEX_NONE ||
-		   TacTags.Find('Ruler_BerserkerQueen_03') != INDEX_NONE || TacTags.Find('Ruler_BerserkerQueen_04') != INDEX_NONE ||
-		   TacTags.Find('Ruler_ArchonKingActive') != INDEX_NONE || TacTags.Find('Ruler_ArchonKing_02') != INDEX_NONE ||
-		   TacTags.Find('Ruler_ArchonKing_03') != INDEX_NONE || TacTags.Find('Ruler_ArchonKing_04') != INDEX_NONE)
+		// Issue #335 Start, move to Helpers class
+		if (class'CHHelpers_DLC_Day60'.static.ContainsRulerActiveTag(TacTags))
 		{
 			return true;
 		}
+		// Issue #335 End
 	}
 
 	return false;
