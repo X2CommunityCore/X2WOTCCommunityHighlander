@@ -635,6 +635,7 @@ exec function InitAlienRulerManager()
 {
 	local XComGameState NewGameState;
 	local XComGameState_AlienRulerManager RulerMgr;
+	local int i; // Issue #335
 
 	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("CHEAT: InitAlienRulerManager");
 	RulerMgr = XComGameState_AlienRulerManager(NewGameState.CreateNewStateObject(class'XComGameState_AlienRulerManager'));
@@ -642,12 +643,42 @@ exec function InitAlienRulerManager()
 	RulerMgr.ActiveAlienRulers = RulerMgr.AllAlienRulers;
 	`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
 
-	SetRulerNumAppearances('ViperKing', 1);
-	SetRulerNumAppearances('BerserkerQueen', 1);
-	SetRulerNumAppearances('ArchonKing', 1);
+	// Issue #335 Start
+	for (i = 0; i < class'XComGameState_AlienRulerManager'.default.AlienRulerTemplates.Length; i++)
+	{
+		SetRulerNumAppearances(class'XComGameState_AlienRulerManager'.default.AlienRulerTemplates[i].AlienRulerTemplateName, 1);
+	}
+	// Issue #335 End
 
 	AddAchievementTriggers(RulerMgr);
 }
+
+// Issue #335 Start
+function LogInvalidRulerTemplateName(name TemplateName)
+{
+	local XComGameStateHistory History;
+	local XComGameState_AlienRulerManager RulerMgr;
+	local XComGameState_Unit UnitState;
+	local int idx;
+	local string RulerList;
+
+	History = `XCOMHISTORY;
+	RulerMgr = XComGameState_AlienRulerManager(History.GetSingleGameStateObjectForClass(class'XComGameState_AlienRulerManager'));
+	RulerList = "";
+
+	for (idx = 0; idx < RulerMgr.AllAlienRulers.Length; idx++)
+	{
+		UnitState = XComGameState_Unit(History.GetGameStateForObjectID(RulerMgr.AllAlienRulers[idx].ObjectID));
+		RulerList $= UnitState.GetMyTemplateName();
+
+		if (idx != RulerMgr.AllAlienRulers.Length - 1)
+		{
+			RulerList $= ", ";
+		}
+	}
+	`log("RulerTemplateName is invalid.\nValid Entries: " $ RulerList);
+}
+// Issue #335 End
 
 //---------------------------------------------------------------------------------------
 exec function ForceRulerOnNextMission(name RulerTemplateName)
@@ -670,7 +701,7 @@ exec function ForceRulerOnNextMission(name RulerTemplateName)
 	}
 	else
 	{
-		`log("RulerTemplateName is invalid.\nValid Entries: ViperKing, BerserkerQueen, ArchonKing");
+		LogInvalidRulerTemplateName(RulerTemplateName); // Issue #335
 	}
 }
 
@@ -696,7 +727,7 @@ exec function SetRulerNumAppearances(name RulerTemplateName, int Count)
 	}
 	else
 	{
-		`log("RulerTemplateName is invalid.\nValid Entries: ViperKing, BerserkerQueen, ArchonKing");
+		LogInvalidRulerTemplateName(RulerTemplateName); // Issue #335
 	}
 }
 
@@ -721,7 +752,7 @@ exec function PrintRulerNumAppearances(name RulerTemplateName)
 	}
 	else
 	{
-		`log("RulerTemplateName is invalid.\nValid Entries: ViperKing, BerserkerQueen, ArchonKing");
+		LogInvalidRulerTemplateName(RulerTemplateName); // Issue #335
 	}
 }
 
@@ -747,7 +778,7 @@ exec function SetRulerNumEscapes(name RulerTemplateName, int Count)
 	}
 	else
 	{
-		`log("RulerTemplateName is invalid.\nValid Entries: ViperKing, BerserkerQueen, ArchonKing");
+		LogInvalidRulerTemplateName(RulerTemplateName); // Issue #335
 	}
 }
 
@@ -772,7 +803,7 @@ exec function PrintRulerNumEscapes(name RulerTemplateName)
 	}
 	else
 	{
-		`log("RulerTemplateName is invalid.\nValid Entries: ViperKing, BerserkerQueen, ArchonKing");
+		LogInvalidRulerTemplateName(RulerTemplateName); // Issue #335
 	}
 }
 
@@ -798,7 +829,7 @@ exec function SetRulerEscapeHealth(name RulerTemplateName, int Health)
 	}
 	else
 	{
-		`log("RulerTemplateName is invalid.\nValid Entries: ViperKing, BerserkerQueen, ArchonKing");
+		LogInvalidRulerTemplateName(RulerTemplateName); // Issue #335
 	}
 }
 
@@ -823,7 +854,7 @@ exec function PrintRulerEscapeHealth(name RulerTemplateName)
 	}
 	else
 	{
-		`log("RulerTemplateName is invalid.\nValid Entries: ViperKing, BerserkerQueen, ArchonKing");
+		LogInvalidRulerTemplateName(RulerTemplateName); // Issue #335
 	}
 }
 
