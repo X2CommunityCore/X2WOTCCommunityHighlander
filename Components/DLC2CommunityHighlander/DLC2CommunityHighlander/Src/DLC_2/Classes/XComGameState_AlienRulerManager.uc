@@ -65,17 +65,41 @@ static function SetUpRulers(XComGameState StartState)
 }
 
 //---------------------------------------------------------------------------------------
+// Issue #335: This function is now safe to call multiple times. Mods that add custom
+// rulers are expected to call this function if they want their rulers to work
+// in existing campaigns.
 function CreateAlienRulers(XComGameState NewGameState)
 {
+	// Issue #335 Start
+	local XComGameStateHistory History;
+	local array<name> ExistingRulers;
+	// Issue #335 End
+
 	local XComGameState_Unit UnitState;
 	local X2CharacterTemplateManager CharMgr;
 	local X2CharacterTemplate CharTemplate;
 	local int idx;
 
+	// Issue #335 Start
+	History = `XCOMHISTORY;
+	for (idx = 0; idx < AllAlienRulers.Length; idx++)
+	{
+		UnitState = XComGameState_Unit(History.GetGameStateForObjectID(AllAlienRulers[idx].ObjectID));
+		ExistingRulers.AddItem(UnitState.GetMyTemplateName());
+	}
+	// Issue #335 End
+
 	CharMgr = class'X2CharacterTemplateManager'.static.GetCharacterTemplateManager();
 
 	for(idx = 0; idx < default.AlienRulerTemplates.Length; idx++)
 	{
+		// Issue #335 Start
+		if (ExistingRulers.Find(default.AlienRulerTemplates[idx].AlienRulerTemplateName) != INDEX_NONE)
+		{
+			continue;
+		}
+		// Issue #335 End
+
 		CharTemplate = CharMgr.FindCharacterTemplate(default.AlienRulerTemplates[idx].AlienRulerTemplateName);
 		UnitState = CharTemplate.CreateInstanceFromTemplate(NewGameState);
 		UnitState.SetUnitFloatValue('NumEscapes', 0.0f, eCleanup_Never);
