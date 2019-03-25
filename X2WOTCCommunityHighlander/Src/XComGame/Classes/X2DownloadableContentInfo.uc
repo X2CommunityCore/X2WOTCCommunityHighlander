@@ -499,3 +499,14 @@ static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets,
 	return;
 }
 /// End Issue #281
+
+/// Start Issue #455
+/// <summary>
+/// Called from XComUnitPawnNativeBase.PostInitAnimTree
+/// Allows patching the animtree template before its initialized.
+/// </summary>
+static function UnitPawnPostInitAnimTree(XComGameState_Unit UnitState, XComUnitPawnNativeBase Pawn, SkeletalMeshComponent SkelComp)
+{
+	return;
+}
+/// End Issue #455

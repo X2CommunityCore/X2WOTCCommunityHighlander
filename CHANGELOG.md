@@ -151,6 +151,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `WeaponInitialized` added to conditionally change the weapon archetype on initialization (#245)
 - `UpdateWeaponMaterial` added to conditionally change the weapon materials(#246)
 - `DLCAppendWeaponSockets` allows adding new sockets to weapons(#281)
+- `UnitPawnPostInitAnimTree` allows Allows patching the animtree template before its initialized.(#455)
 
 ### Event Hooks
 - Triggers the events `SoldierClassIcon`, `SoldierClassDisplayName`,
