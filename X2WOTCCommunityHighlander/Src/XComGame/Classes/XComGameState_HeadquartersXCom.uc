@@ -696,6 +696,11 @@ function AddToCrew(XComGameState NewGameState, XComGameState_Unit NewUnit )
 	OnCrewMemberAdded(NewGameState, NewUnit);
 }
 
+function AddToCrewNoStrategy( XComGameState_Unit NewUnit )
+{
+	Crew.AddItem( NewUnit.GetReference( ) );
+}
+
 function RemoveFromCrew( StateObjectReference CrewRef )
 {
 	Crew.RemoveItem(CrewRef);
@@ -4179,7 +4184,7 @@ function bool PutItemInInventory(XComGameState AddToGameState, XComGameState_Ite
 		}
 	}
 
-	if( !bLoot && ItemTemplate.OnAcquiredFn != None )
+	if( !bLoot && (ItemTemplate.OnAcquiredFn != None) && ItemTemplate.HideInInventory )
 	{
 		HQModified = ItemTemplate.OnAcquiredFn(AddToGameState, ItemState) || HQModified;
 	}
@@ -4645,11 +4650,16 @@ static function UpgradeItems(XComGameState NewGameState, name CreatorTemplateNam
 					UpgradedItemState.WeaponAppearance = InventoryItemState.WeaponAppearance;
 					UpgradedItemState.Nickname = InventoryItemState.Nickname;
 
-					// Transfer over all weapon upgrades to the new item
-					WeaponUpgrades = InventoryItemState.GetMyWeaponUpgradeTemplates();
-					foreach WeaponUpgrades(WeaponUpgradeTemplate)
+					// Some special weapons already have attachments. If so, do not put older
+					// attachments onto the upgraded weapon
+					if (UpgradedItemState.GetMyWeaponUpgradeTemplateNames().Length == 0)
 					{
-						UpgradedItemState.ApplyWeaponUpgradeTemplate(WeaponUpgradeTemplate);
+						// Transfer over all weapon upgrades to the new item
+						WeaponUpgrades = InventoryItemState.GetMyWeaponUpgradeTemplates();
+						foreach WeaponUpgrades(WeaponUpgradeTemplate)
+						{
+							UpgradedItemState.ApplyWeaponUpgradeTemplate(WeaponUpgradeTemplate);
+						}
 					}
 
 					// Delete the old item, and add the new item to the inventory
@@ -4683,10 +4693,16 @@ static function UpgradeItems(XComGameState NewGameState, name CreatorTemplateNam
 							// Remove the old item from the soldier and transfer over all weapon upgrades to the new item
 							SoldierState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', Soldiers[iSoldier].ObjectID));
 							SoldierState.RemoveItemFromInventory(InventoryItemState, NewGameState);
-							WeaponUpgrades = InventoryItemState.GetMyWeaponUpgradeTemplates();
-							foreach WeaponUpgrades(WeaponUpgradeTemplate)
+
+							// Some special weapons already have attachments. If so, do not put older
+							// attachments onto the upgraded weapon
+							if (UpgradedItemState.GetMyWeaponUpgradeTemplateNames().Length == 0)
 							{
-								UpgradedItemState.ApplyWeaponUpgradeTemplate(WeaponUpgradeTemplate);
+								WeaponUpgrades = InventoryItemState.GetMyWeaponUpgradeTemplates();
+								foreach WeaponUpgrades(WeaponUpgradeTemplate)
+								{
+									UpgradedItemState.ApplyWeaponUpgradeTemplate(WeaponUpgradeTemplate);
+								}
 							}
 
 							// Delete the old item

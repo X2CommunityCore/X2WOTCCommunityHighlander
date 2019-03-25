@@ -8,6 +8,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Mod/DLC Hooks
 - `GetDLCEventInfo` allows mods to add their own events for the Geoscape Event
   List (#112)
+- `CanWeaponApplyUpgrade` allows mods to restrict what upgrades can be applied
+  to a specific weapon (#260)
 
 ### Event Hooks
 - Triggers the event `OnArmoryMainMenuUpdate` that allows adding elements into
@@ -17,6 +19,13 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Triggers the event `OverridePsiOpTraining` that allows mods to override unit eligibility for Psi Op slots (#159)
 - Triggers the event `OverrideItemIsModified` to prevent items with custom modifications from being stacked / removed
 - Triggers the events `UnitRandomizedStats` and `RewardUnitGenerated` for unit initialization logic (#185)
+- Triggers the events `OverrideUIArmoryScale`, `OverrideUIVIPScale`, and `OverrideCharCustomizationScale` for strategy unit scaling (#229)
+- Triggers the event `RegionOutpostBuildStart` to add a strategy reward similar to the 'Resistance Network' resistance order, but for Radio Relays instead of Network Contacts. (#279)
+- Triggers the event `GeoscapeFlightModeUpdate` to allow mods to respond to geoscape mode change (#358)
+- Triggers the event `UIAvengerShortcuts_ShowCQResistanceOrders` to allow to override the presence of Resistance Orders button in `UIAvengerShortcuts` (#368)
+- Triggers the event `Geoscape_ResInfoButtonVisible` to allow to override the visibility of resistance orders button in `UIStrategyMap_HUD` (#365)
+- Triggers the event `NumCovertActionsToAdd` to allow mods to modfiy number of Covert Actions (#373)
+- Triggers the event `CompleteRespecSoldier` when a training center soldier respec was completed. (#339)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
@@ -26,10 +35,14 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   `XComGameState_HeadquartersResistance`, as it can break if it collect custom
   factions and then assigns Chosen to them instead of the base game factions.
   (#82)
+- Allow specifying Second Wave options for Strategy Debug Start (#197)
+- bDontUnequipCovertOps prevents soldiers gear gets stripped when sending on covert op with no ambush risk (#153)
+- bDontUnequipWhenWounded prevents soldiers gear gets stripped when getting wounded (#310)
 
 ### Improvements
 - Allow `UIStrategyMap` to display custom Faction HQ icons (#76)
 - Allow customization of auto-equipment removal behavior in 'UISquadSelect' (#134)
+- Class mods adding an eight rank will now interact better with classes with seven ranks (#1)
 
 ### Fixes
 - Fix an issue in base game where strategy X2EventListenerTemplates only
@@ -47,6 +60,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Allow Mods/DLC to modify spawn locations for player units (#18)
 - Trigger an event for RetainConcealmentOnActivation (#2)
 - Allow Mods/DLC to modify encounters after creation (#136)
+- Allow Mods/DLC to modify encounters generated as reinforcements (#278)
 - Allow Mods/DLC to alter mission data after SitRep creation (#157)
 
 ### Event Hooks
@@ -65,6 +79,14 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `ModifyEnvironmentDamage` to modify environment damage (#200)
 - `OverrideKilledByExplosion` to allow mods to override the
   "was killed by explosion" flag (#202)
+- `OverrideUnitFocusUI` to allow mods to show their own "focus"
+  type using the Templar focus UI (#257)
+- Allow mods to have character templates to use custom base underlays instead of default 
+  clerk underlays on the Avenger (#251)
+- `OverrideVictoriousPlayer` to allow override whether a mission was successful or not (#266)
+- `OverrideItemSoundRange` to allow overriding an item's sound range (#363)
+- `OverrideHackingScreenType` and `HackIn2D` to allow hacking using a 2D movie and using
+  the Skulljack / ADVENT screen arbitrarily (#330)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
@@ -82,12 +104,14 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Remove protectedwrite on X2AbilityTemplate effects arrays: AbilityTarget,
   AbilityMultiTarget, and AbilityShooter Effects (#68)
 - Deprivatise/const config variables in XComTacticalMissionManager (#101)
+- Deprivatise XComAlienPawn.Voice to allow changes by mods (#275)
 
 ### Improvements
 - Make suppression work with weapons that don't have suppression specific
   animations set on them (#45)
 - Make suppression work with units that don't have a suppression specific
   idle animation animation set on them (#74)
+- Gremlins (and other Cosmetic Units) are now correctly tinted and patterned (#376)
 
 ### Fixes
 - Ensure Gremlins use the walk/run animation based on the alert status of their
@@ -97,14 +121,21 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   subsequent shots (#20)
 - Fix Initiative-Interrupting abilities giving Reinforcements a full turn
   of action points after scamper (#36)
-
+- Fix some edge cases regarding idle animations and targeting (#269)
+- Fix an issue causing Rapid Fire/Chain Shot/Banish/... entering cover early (#273)
+- Fix non-Veteran units not having personality speech (#215)
+- Fix a display issue causing the weapon tooltip to show stale upgrades
+  from earlier units (#303)
+- Fix Cinescript CutAfterPrevious in combination with MatineeReplacements (#318)
+- Allow abilities that deal damage without a source weapon to still display
+  their damage with psi flyovers (Psi Bomb, mod abilities) (#326)
 
 
 ## Miscellaneous
 
 ### Mod/DLC Hooks
 - `UpdateAnimations` added to allow adding CustomAnimsets to UnitPawns (#24)
-- `UpdateMaterial`added to allow manipulate pawn materials (#169)
+- `UpdateMaterial` added to allow manipulate pawn materials (#169)
 - `DLCAppendSockets` added to allow appending sockets to UnitPawns (#21)
 - `CanAddItemToInventory` added to allow configuring whether or not a unit can
   equip a particular item as an extension to the standand rules (#50)
@@ -117,6 +148,9 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `OverrideItemImage` added to conditionally change the loadout image of an item (#171)
 - `MatineeGetPawnFromSaveData` added to allow manipulation of the shell screen matinee (#240)
 - `UpdateWeaponAttachments` added to allow manipulation weapon attachments at runtime (#239)
+- `WeaponInitialized` added to conditionally change the weapon archetype on initialization (#245)
+- `UpdateWeaponMaterial` added to conditionally change the weapon materials(#246)
+- `DLCAppendWeaponSockets` allows adding new sockets to weapons(#281)
 
 ### Event Hooks
 - Triggers the events `SoldierClassIcon`, `SoldierClassDisplayName`,
@@ -127,6 +161,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Triggers the event `OverrideHasHeavyWeapon` that allows to override the result of `XComGameState_Unit.HasHeavyWeapon` (#172)
 - `OverrideItemMinEquipped` added to allow mods to override the min number of equipped items in a slot (#171)
 - `AddConversation` added to allow mods to change narrative behavior before they are played (#204)
+- `OverrideRandomizeAppearance` added to allow mods to block updating appearance when switching armors (#299)
 
 ### Configuration
 - Able to list classes as excluded from AWC Skill Rolling, so they can still
@@ -140,6 +175,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   filtering and behaviour on the various Trait Functions on `XComGameState_Unit`
   (#85)
 - Allow mods to register custom OnInput UI handlers (#198)
+- Able to specify new materials as counting as hair/skin/armour/weapons etc. for the purpose of
+  receiving tints, patterns, tattoos etc. (#356)
 
 ### Improvements
 - Create a mod friendly way to manipulate loot tables (#8)
@@ -169,6 +206,18 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   random roll from specific part names (#155)
 - `eInvSlot_HeavyWeapon` is now a multi-item slot (#171)
 - Improve performance by removing unnecessary calls to UpdateAllMeshMaterials (#186)
+- Adds ability to have weapon upgrades modify damage, and properly accounts for
+  any damage upgrades in the UI. (#237)
+- Allow Human Pawns to freely switch between custom heads and base pawn heads,
+  eliminating the need for head mods to include invisible heads (#219)
+- Changes to "Legacy Operations" squad loadout and ability selections are now always applied for the first mission. Note any non-AWC-eligble abilities added need to exist in the Soldier Classes ability tree (#307)
+- For "Legacy Operations" changes to squad members' Soldier Class, and changes to the Soldier Classes themselves, are taken into account for pre-existing operations.
+  Particularly important for Central and Shen, whose custom Soldier Classes ability tree contain only the abilities granted by their squad progression (#307)
+- Better Photobooth support for custom Soldier Classes and Spark-like units,
+  no broken duo poses for units that can't play them (#309)
+- Additional Photobooth particle system enums for mods (#359)
+- Tweaks to "Resistance Archives" random Legacy Operations UI. Restarts show the correct locked difficulty, and a crash condition on backing out of a restart fixed. (#307)
+
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
@@ -179,3 +228,5 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   an argument in the CreateCharacter function (#70)
 - Fixes game terminating SoundCue narrative moments after three seconds because
   it assumes they didn't play at all. (#66)
+- Fixes UIPanels animating in with a huge delay when they are direct child panels of
+  UIScreen (#341)

@@ -47,7 +47,7 @@ simulated function SetBurnDamage(int Damage, int Spread, name DamageType)
 	BurnDamage.EffectDamageValue.Damage = Damage;
 	BurnDamage.EffectDamageValue.Spread = Spread;
 	BurnDamage.EffectDamageValue.DamageType = DamageType;
-	BurnDamage.bIgnoreBaseDamage = true; 
+	BurnDamage.bIgnoreBaseDamage = true;
 	BurnDamage.DamageTag = self.Name;
 
 	ApplyOnTick.AddItem(BurnDamage);

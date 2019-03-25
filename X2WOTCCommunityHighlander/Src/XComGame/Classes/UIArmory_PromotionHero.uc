@@ -191,9 +191,9 @@ simulated function PopulateData()
 	AS_SetCombatIntelData(Unit.GetCombatIntelligenceLabel());
 	AS_SetPathLabels(m_strBranchesLabel, ClassTemplate.AbilityTreeTitles[0], ClassTemplate.AbilityTreeTitles[1], ClassTemplate.AbilityTreeTitles[2], ClassTemplate.AbilityTreeTitles[3]);
 
-	maxRank = class'X2ExperienceConfig'.static.GetMaxRank();
+	maxRank = ClassTemplate.GetMaxConfiguredRank(); // Issue #1
 
-	for (iRank = 0; iRank < (maxRank - 1); ++iRank)
+	for (iRank = 0; iRank < maxRank; ++iRank) // Issue #1 -- new maxRank needs to be included
 	{
 		Column = Columns[iRank];
 		bHasColumnAbility = UpdateAbilityIcons(Column);

@@ -1,2 +1,10 @@
-[X2WOTCCH_UIScreenListener_ShellSplash]
-strCHLVersion="X2WOTCCommunityHighlander v%MAJOR.%MINOR.%PATCH"
+[X2WOTCCH_Components]
+VersionFormat="v%MAJOR.%MINOR.%PATCH"
+
+RequiredNotFound="NOT LOADED - REQUIRED"
+ExpectedNotFound="NOT LOADED - EXPECTED"
+NotExpectedNotFound="Optional"
+
+VersionMismatches="- Version Mismatches"
+WarningsLabel="- Warnings"
+ErrorsLabel="- ERRORS"

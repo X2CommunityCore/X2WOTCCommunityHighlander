@@ -8,15 +8,29 @@
 //  Copyright (c) 2016 Firaxis Games, Inc. All rights reserved.
 //---------------------------------------------------------------------------------------
 
-class X2DownloadableContentInfo_X2WOTCCommunityHighlander extends X2DownloadableContentInfo config(Game);
+class X2DownloadableContentInfo_X2WOTCCommunityHighlander extends X2DownloadableContentInfo config(Game) dependson(X2WOTCCH_Components);
 
 /// Called after the Templates have been created (but before they are validated) while this DLC / Mod is installed.
 /// </summary>
 static event OnPostTemplatesCreated()
 {
-	`log("x2wotccommunityhighlander :: present and correct");
+	local array<CHLComponent> Comps;
+	local int i;
+	`log("Companion script package loaded", , 'X2WOTCCommunityHighlander');
 
-	// Begin Issue #123
-	class'CHHelpers'.static.RebuildPerkContentCache();
-	// End Issue #123
+	Comps = class'X2WOTCCH_Components'.static.GetComponentInfo();
+
+	`log("Components:", , 'X2WOTCCommunityHighlander');
+	for (i = 0; i < Comps.Length; i++)
+	{
+		`log("  " $ Comps[i].DisplayName @ "--" @ Comps[i].DisplayVersion, , 'X2WOTCCommunityHighlander');
+	}
+
+	// We don't want to crash when not loaded.
+	if (class'CHHelpers' != none)
+	{
+		// Begin Issue #123
+		class'CHHelpers'.static.RebuildPerkContentCache();
+		// End Issue #123
+	}
 }

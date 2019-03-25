@@ -46,6 +46,7 @@ var config array<name>			DEBUG_StartingSoldierClasses;
 var config array<name>			DEBUG_StartingSoldierCharacters;
 var config array<name>			DEBUG_StartingFacilities;
 var config int					DEBUG_FacilityIndex;
+var config array<name>			DEBUG_SecondWaveOptions; // Issue #197
 var config float				RainPctChance;
 
 function Init()
@@ -734,6 +735,7 @@ state StartingDebugCheatGame
 		local XComGameState_HeadquartersXCom XComHQ;
 		local XComGameState_Skyranger SkyrangerState;
 		local XComGameState_CampaignSettings CampaignSettingsStateObject;
+		local name Option; // Issue #197
 
 		History = `XCOMHISTORY;
 		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("DEBUG Init HQ");
@@ -756,7 +758,11 @@ state StartingDebugCheatGame
 
 		CampaignSettingsStateObject = XComGameState_CampaignSettings(History.GetSingleGameStateObjectForClass(class'XComGameState_CampaignSettings'));
 		CampaignSettingsStateObject = XComGameState_CampaignSettings(NewGameState.ModifyStateObject(class'XComGameState_CampaignSettings', CampaignSettingsStateObject.ObjectID));
-		CampaignSettingsStateObject.AddSecondWaveOption('BetaStrike');
+		// Issue #197 -- replaced single 'BetaStrike' with configurable list
+		foreach default.DEBUG_SecondWaveOptions(Option)
+		{
+			CampaignSettingsStateObject.AddSecondWaveOption(Option);
+		}
 
 		`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
 	}
@@ -1238,8 +1244,6 @@ Begin:
 		Sleep(0);
 	}
 
-	WorldInfo.MyLocalEnvMapManager.SetEnableCaptures(TRUE);
-
 	GetGeoscape().m_kBase.UpdateFacilityProps();	
 	GetGeoscape().m_kBase.m_kCrewMgr.PopulateBaseRoomsWithCrew();
 	Sleep(0.1); //We don't want to populate the base rooms while capturing the environment, as it is very demanding on the games resources
@@ -1248,6 +1252,8 @@ Begin:
 	{
 		Sleep(0);
 	}
+
+	WorldInfo.MyLocalEnvMapManager.SetEnableCaptures(TRUE);
 
 	if(ShowDropshipInterior())
 	{

@@ -708,7 +708,11 @@ event bool SetTargetUnit()
 	local int CanSeeFromDefault;
 	local int RequiresLean;
 	local int UseHistoryIndex;
-	
+	// Variables for Issue #269
+	local bool AimLocSet;
+	local vector AimAtLocation;
+	local array<vector> TargetLocations;
+
 	History = `XCOMHISTORY;
 	UnitState = UnitNative.GetVisualizedGameState(UseHistoryIndex);
 
@@ -761,10 +765,18 @@ event bool SetTargetUnit()
 		}
 		else if ( (bActorFromTargetingMethod && TargetingMethod.GetCurrentTargetFocus(NewTargetLocation)) || (NewTargetActor != None) )
 		{
-			if( TargetActor != None )
+			if( NewTargetActor != None )
 			{
-				TargetLocation = TargetActor.Location;
+				NewTargetLocation = NewTargetActor.Location;
 			}
+			// Begin Issue #269
+			else
+			{
+				TargetingMethod.GetTargetLocations(TargetLocations);
+				AimAtLocation = TargetLocations[0];
+				AimLocSet = true;
+			}
+			// End Issue #269
 			bFoundTarget = true;
 		}
 	}
@@ -773,6 +785,8 @@ event bool SetTargetUnit()
 		`log("     Unit is performing a targeting action:", `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
 		ExitCoverAction = Unit.CurrentExitAction;
 			
+		// Single line for Issue #269
+		AimLocSet = true;
 		bFoundTarget = true;
 		NewTargetActor = ExitCoverAction.PrimaryTarget;
 		if( ExitCoverAction.PrimaryTarget != none )
@@ -781,17 +795,23 @@ event bool SetTargetUnit()
 			{
 				`log("          *ExitCover action has a target, it is ourselves. Do Nothing.", `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
 				bFoundTarget = false;
+				// Begin Issue #269
+				AimLocSet = false;
 			}
 			else
 			{
 				`log("          *ExitCover action has a target, aiming at"@NewTargetActor, `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
-				NewTargetLocation = ExitCoverAction.AimAtLocation;
+				// Issue #269 These two ExitCoverAction properties are the principle reason for introducing AimAtLocation
+				AimAtLocation = ExitCoverAction.AimAtLocation;
+				NewTargetLocation = ExitCoverAction.TargetLocation;
 			}
 		}
 		else
 		{
 			`log("          *ExitCover action has no primary target, aiming at"@ExitCoverAction.TargetLocation, `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
-			NewTargetLocation = ExitCoverAction.AimAtLocation;
+			AimAtLocation = ExitCoverAction.AimAtLocation;
+			NewTargetLocation = ExitCoverAction.TargetLocation;
+			// End Issue #269
 		}			
 	}
 	else if( bEnemiesVisible ) //If enemies are visible but we are not in a targeting action
@@ -912,8 +932,8 @@ event bool SetTargetUnit()
 		}
 	}
 //**********************************************************************************************
-
-	UnitPawn.TargetLoc = TargetLocation;
+	// Single line for Issue #269
+	UnitPawn.TargetLoc = AimLocSet ? AimAtLocation : TargetLocation;
 
 	`log("     SetTargetUnit returning:"@bFoundTarget, `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
 	`log("*** End Processing SetTargetUnit ***", `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
@@ -1036,7 +1056,13 @@ event GetDesiredCoverState(out int CoverIndex, out UnitPeekSide PeekSide)
 	local int HasEnemiesOnRightPeek;
 	local int VisualizationHistoryIndex;
 	local XComGameState_Unit TargetUnitState;
-	local GameRulesCache_VisibilityInfo OutVisibilityInfo;
+	// New variables, and one removed, for Issue #269
+	//local GameRulesCache_VisibilityInfo OutVisibilityInfo;
+	local bool bShouldStepOut, bActorFromTargetingMethod;
+	local actor TestActor;
+	local X2TargetingMethod TargetingMethod;
+	local UITacticalHUD TacticalHUD;
+	local vector DummyVector;
 
 	UnitState = UnitNative.GetVisualizedGameState(VisualizationHistoryIndex);
 
@@ -1057,13 +1083,45 @@ event GetDesiredCoverState(out int CoverIndex, out UnitPeekSide PeekSide)
 			{
 				TargetUnitState = TargetUnit.GetVisualizedGameState();
 			}
-			Unit.GetDirectionInfoForTarget(TargetUnitState, OutVisibilityInfo, CoverIndex, PeekSide, bCanSeeFromDefault, bRequiresLean, , VisualizationHistoryIndex);
+		// Start Issue #269
 		}
-		else
+		// Issue #269 GetSteoOutCoverInfo() calls GetDirectionInfoForTarget()/GetDirectionInfoForPosition() as appropriate
+		// and performs logic as to whether a stepout should occur for X2Action_ExitCover
+		bShouldStepOut=Unit.GetStepOutCoverInfo(TargetUnitState, TargetLocation, CoverIndex, PeekSide, bRequiresLean, bCanSeeFromDefault);
+		if(CoverIndex==0 && Unit.GetCoverType(0, VisualizationHistoryIndex)==CT_None)
 		{
-			Unit.GetDirectionInfoForPosition(TargetLocation, OutVisibilityInfo, CoverIndex, PeekSide, bCanSeeFromDefault, bRequiresLean, , VisualizationHistoryIndex);
+			//There's a bug in native code which means sometimes, CoverIndex 0 instead of -1 for "no cover direction"
+			CoverIndex=-1;
 		}
+		// Issue #269 if we should match the stepout (ie are either targeting or have an active X2Action_ExitCover), and bShouldStepOut,
+		// then no further manipulation of CoverIndex/PeekSide is wanted.
+		// To avoid adding properties to a native class, must repeat some SetTargetUnit() logic.
+		if (bShouldStepOut)
+		{
+			if (Unit.CurrentExitAction!=none && Unit.CurrentExitAction.PrimaryTarget!=Unit)
+			{
+				return;
+			}
 
+			TacticalHUD = `PRES.GetTacticalHUD();
+			if (TacticalHUD != none)
+			{
+				TargetingMethod = TacticalHUD.GetTargetingMethod();
+			}
+	
+			//If targeting is happening, and we are the shooter
+			// Can also happen if the source unit is doing a multi turn ability
+			bActorFromTargetingMethod = TargetingMethod != none && (TargetingMethod.Ability.OwnerStateObject.ObjectID == UnitState.ObjectID);
+			if ( bActorFromTargetingMethod || (UnitState.m_MultiTurnTargetRef.ObjectID > 0) )
+			{
+				TestActor = bActorFromTargetingMethod ? TargetingMethod.GetTargetedActor() : `XCOMHISTORY.GetVisualizer(UnitState.m_MultiTurnTargetRef.ObjectID);
+				if (TestActor != Unit && (TestActor!=none || (bActorFromTargetingMethod && TargetingMethod.GetCurrentTargetFocus(DummyVector))))
+				{
+					return;
+				}
+			}
+		}
+		// End Issue #269
 		CurrentCoverPeekData = UnitNative.GetCachedCoverAndPeekData(VisualizationHistoryIndex);
 
 		TestEnemyUnitsForPeekSides(CoverIndex, HasEnemiesOnLeftPeek, HasEnemiesOnRightPeek, VisualizationHistoryIndex);
@@ -1104,11 +1162,30 @@ event GetDesiredCoverState(out int CoverIndex, out UnitPeekSide PeekSide)
 					//Pick the cover side that is closest to facing the target
 					ToRight = TransformVectorByRotation(rot(0,16384,0), CurrentCoverPeekData.CoverDirectionInfo[CoverIndex].CoverDirection);
 					TempDot = NoZDot(ToRight, ToTarget);
-					if(TempDot > 0.0f && CurrentCoverPeekData.CoverDirectionInfo[CoverIndex].RightPeek.bHasPeekaround > 0)
+					// Begin Issue #269
+					// If the previous cover direction is not the same, then peekside should be reestablished from scratch, no reliance on  PreviousPeekSide
+					If (PreviousCoverIndex!=CoverIndex)
+					{
+						if(CurrentCoverPeekData.CoverDirectionInfo[CoverIndex].RightPeek.bHasPeekaround > 0)
+						{
+							PreviousPeekSide = ePeekRight;
+						}
+						else if(CurrentCoverPeekData.CoverDirectionInfo[CoverIndex].LeftPeek.bHasPeekaround > 0)
+						{
+							PreviousPeekSide = ePeekLeft;
+						}
+						else
+						{
+							PreviousPeekSide = eNoPeek;
+						}
+					}
+					if(TempDot > 0.0f && (PreviousPeekSide == eNoPeek
+						|| CurrentCoverPeekData.CoverDirectionInfo[CoverIndex].RightPeek.bHasPeekaround > 0))
 					{
 						PeekSide = ePeekRight;
 					}
-					else if(CurrentCoverPeekData.CoverDirectionInfo[CoverIndex].LeftPeek.bHasPeekaround > 0)
+					else if(PreviousPeekSide == eNoPeek || CurrentCoverPeekData.CoverDirectionInfo[CoverIndex].LeftPeek.bHasPeekaround > 0)
+					 //End Issue #269
 					{
 						PeekSide = ePeekLeft;
 					}
@@ -1903,14 +1980,17 @@ state EvaluateStance
 		if( DesiredCoverIndex > -1 && !bForceTurnTarget )
 		{
 			//Reverse facings since the animations are named after shoulders against cover and not facing
-			if( DesiredPeekSide == ePeekLeft && CurrentCoverPeekData.CoverDirectionInfo[DesiredCoverIndex].LeftPeek.bHasPeekaround != 0 )
+			// Begin Issue #269
+			// There may actually be no peekaround in the requested cover direction/peekside combination
+			if( DesiredPeekSide == ePeekLeft && Unit.GetCoverType(DesiredCoverIndex)!=CT_None)
 			{
-				DesiredFaceLocation = Unit.Location + (CurrentCoverPeekData.CoverDirectionInfo[DesiredCoverIndex].LeftPeek.PeekaroundDirectionFromCoverPt * 1000.0f);
+				DesiredFaceLocation = Unit.Location + `XWORLD.GetPeekLeftDirection(`IDX_TO_DIR(DesiredCoverIndex) , false) * 1000.0f;
 			}
-			else if( DesiredPeekSide == ePeekRight && CurrentCoverPeekData.CoverDirectionInfo[DesiredCoverIndex].RightPeek.bHasPeekaround != 0 )
+			else if( DesiredPeekSide == ePeekRight && Unit.GetCoverType(DesiredCoverIndex)!=CT_None)
 			{
-				DesiredFaceLocation = Unit.Location + (CurrentCoverPeekData.CoverDirectionInfo[DesiredCoverIndex].RightPeek.PeekaroundDirectionFromCoverPt * 1000.0f);
+				DesiredFaceLocation = Unit.Location + `XWORLD.GetPeekRightDirection(`IDX_TO_DIR(DesiredCoverIndex) , false) * 1000.0f;
 			}
+			// End Issue #269
 			else
 			{
 				DesiredFaceLocation = Unit.Location + (Vector(Unit.Rotation) * 1000.0f); // Keep your current facing
@@ -1918,7 +1998,8 @@ state EvaluateStance
 		}
 		else
 		{
-			DesiredFaceLocation = bForceTurnTarget ? TempFaceLocation : TargetLocation;
+			// Single line for Issue #269
+			DesiredFaceLocation = bForceTurnTarget ? TempFaceLocation : UnitPawn.TargetLoc;
 		}
 
 		return DesiredFaceLocation;
@@ -2015,9 +2096,11 @@ begin:
 		`log("Unit.CanUseCover()                :"@Unit.CanUseCover(), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
 		if( bForceDesiredCover || bForceTurnTarget )
 		{
-			`log("Starting TurnTowardsPosition towards TargetLocation"@TargetLocation@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
-			TurnTowardsPosition(bForceTurnTarget ? TempFaceLocation : TargetLocation);//Latent turning function on XGUnit
-			`log("Finished TurnTowardsPosition towards TargetLocation"@TargetLocation@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
+			// Begin Issue #269
+			`log("Starting TurnTowardsPosition towards UnitPawn.TargetLoc"@UnitPawn.TargetLoc@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
+			TurnTowardsPosition(bForceTurnTarget ? TempFaceLocation : UnitPawn.TargetLoc);//Latent turning function on XGUnit
+			`log("Finished TurnTowardsPosition towards UnitPawn.TargetLoc"@UnitPawn.TargetLoc@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
+			// End Issue #269
 		}
 	}
 	else
@@ -2152,9 +2235,11 @@ begin:
 			{			
 				if( Unit.m_eCoverState == eCS_None || bForceTurnTarget ) //The unit is not in cover, or is forcing a turn
 				{
-					`log("Starting TurnTowardsPosition towards TargetLocation"@(bForceTurnTarget ? TempFaceLocation : TargetLocation)@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
-					TurnTowardsPosition(bForceTurnTarget ? TempFaceLocation : TargetLocation, true);//Latent turning function on XGUnit
-					`log("Finished TurnTowardsPosition towards TargetLocation"@(bForceTurnTarget ? TempFaceLocation : TargetLocation)@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
+					// Begin Issue #269
+					`log("Starting TurnTowardsPosition towards UnitPawn.TargetLoc"@(bForceTurnTarget ? TempFaceLocation : UnitPawn.TargetLoc)@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
+					TurnTowardsPosition(bForceTurnTarget ? TempFaceLocation : UnitPawn.TargetLoc, true);//Latent turning function on XGUnit
+					`log("Finished TurnTowardsPosition towards UnitPawn.TargetLoc"@(bForceTurnTarget ? TempFaceLocation : UnitPawn.TargetLoc)@" Rotator: "@Unit.Rotation@" Vector:"@vector(Unit.Rotation), `CHEATMGR.MatchesXComAnimUnitName(Unit.Name), 'XCom_Anim');
+					// End Issue #269
 				}
 			}
 		}

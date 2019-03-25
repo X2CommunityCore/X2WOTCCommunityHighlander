@@ -442,7 +442,19 @@ function InitMission(XComGameState_BattleData BattleData)
 	BattleData.UniqueHackRewardsAcquired.Remove(0, BattleData.UniqueHackRewardsAcquired.Length);
 	BattleData.bTacticalHackCompleted = false;
 
-	if ((`XCOMHISTORY.GetSingleGameStateObjectForClass( class'XComGameState_ChallengeData', true ) == none) && BattleData.m_strDesc != "BenchmarkTest")
+	RefreshHackRewards( BattleData );
+}
+
+function RefreshHackRewards( XComGameState_BattleData BattleData )
+{
+	local bool TacticalOnlyGameMode;
+
+	BattleData.TacticalHackRewards.Length = 0;
+	BattleData.StrategyHackRewards.Length = 0;
+
+	TacticalOnlyGameMode = class'X2TacticalGameRulesetDataStructures'.static.TacticalOnlyGameMode( );
+
+	if ((TacticalOnlyGameMode == false) && BattleData.m_strDesc != "BenchmarkTest")
 	{
 		SelectHackRewards( 'TacticalHackRewards', 'NegativeTacticalHackRewards', BattleData.TacticalHackRewards );
 		SelectHackRewards( 'StrategyHackRewards', 'NegativeStrategyHackRewards', BattleData.StrategyHackRewards );
@@ -452,6 +464,26 @@ function InitMission(XComGameState_BattleData BattleData)
 		BuildingChallengeMission = true;
 		SelectHackRewards( 'TacticalHackRewards', 'NegativeTacticalHackRewards', BattleData.TacticalHackRewards );
 		SelectHackRewards( 'TacticalHackRewards', '', BattleData.StrategyHackRewards );
+		BuildingChallengeMission = false;
+	}
+}
+
+function RollRandomTacticalHackRewards( out array<name> HackNames )
+{
+	local bool TacticalOnlyGameMode;
+	local XComGameState_BattleData BattleData;
+
+	BattleData = XComGameState_BattleData(`XCOMHISTORY.GetSingleGameStateObjectForClass( class'XComGameState_BattleData' ));
+	TacticalOnlyGameMode = class'X2TacticalGameRulesetDataStructures'.static.TacticalOnlyGameMode( );
+
+	if ((TacticalOnlyGameMode == false) && BattleData.m_strDesc != "BenchmarkTest")
+	{
+		SelectHackRewards( 'TacticalHackRewards', 'NegativeTacticalHackRewards', HackNames );
+	}
+	else
+	{
+		BuildingChallengeMission = true;
+		SelectHackRewards( 'TacticalHackRewards', 'NegativeTacticalHackRewards', HackNames );
 		BuildingChallengeMission = false;
 	}
 }

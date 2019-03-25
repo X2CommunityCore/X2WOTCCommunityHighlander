@@ -51,13 +51,13 @@ function String GetVersionString()
 // Note: build number currently disabled and is always 0.
 function int GetVersionNumber()
 {
-    return (default.MajorVersion * 100000000) + (default.MinorVersion * 10000) + (default.PatchVersion);
+    return (MajorVersion * 100000000) + (MinorVersion * 10000) + (PatchVersion);
 }
 
 defaultproperties
 {
     MajorVersion = 1;
-    MinorVersion = 11;
-    PatchVersion = 1;
+    MinorVersion = 17;
+    PatchVersion = 0;
 }
 

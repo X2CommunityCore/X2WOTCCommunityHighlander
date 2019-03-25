@@ -50,7 +50,7 @@ delegate OnHoldDelegate(UIButton Button);
 delegate OnDoubleClickedDelegate(UIButton Button);
 delegate OnDisabledClickedDelegate(UIButton Button);
 
-simulated function UIButton InitButton(optional name InitName, optional string InitLabel, optional delegate<OnClickedDelegate> InitOnClicked, optional EUIButtonStyle InitStyle = -1)
+simulated function UIButton InitButton(optional name InitName, optional string InitLabel, optional delegate<OnClickedDelegate> InitOnClicked, optional EUIButtonStyle InitStyle = -1, optional name InitLibID = '')
 {
 	if( InitStyle == -1 )
 	{
@@ -60,7 +60,7 @@ simulated function UIButton InitButton(optional name InitName, optional string I
 			InitStyle = eUIButtonStyle_NONE;
 	}
 
-	InitPanel(InitName);
+	InitPanel(InitName, InitLibID);
 	SetStyle(InitStyle);
 	SetText(InitLabel);
 	NeedsAttention(bNeedsAttention);

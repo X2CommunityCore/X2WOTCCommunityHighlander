@@ -646,7 +646,10 @@ static function EmptyCovertActionSlot(XComGameState NewGameState, StateObjectRef
 			// Issue #230 end
 
 			// Then try to equip the rest of the old items
-			NewUnitState.EquipOldItems(NewGameState);
+			if (!class'CHHelpers'.default.bDontUnequipCovertOps) // Issue #153
+			{
+				NewUnitState.EquipOldItems(NewGameState);
+			}
 
 			// Try to restart any psi training projects
 			class'XComGameStateContext_StrategyGameRule'.static.PostMissionUpdatePsiOperativeTraining(NewGameState, NewUnitState);
@@ -657,6 +660,7 @@ static function EmptyCovertActionSlot(XComGameState NewGameState, StateObjectRef
 	NewActionState.UpdateNegatedRisks(NewGameState);
 	NewActionState.UpdateDurationForBondmates(NewGameState);
 }
+
 static function CheckToUpgradePrimaryWeapons(XComGameState NewGameState, XComGameState_Unit UnitState)
 {
 	local XComGameState_Item EquippedPrimaryWeapon, UpgradedItemState;
@@ -714,17 +718,15 @@ static function CheckToUpgradePrimaryWeapons(XComGameState NewGameState, XComGam
 static function CheckToUpgradeItems(XComGameState NewGameState, XComGameState_Unit UnitState)
 {
 	local XComGameState_HeadquartersXCom XComHQ;
-	local X2ItemTemplateManager ItemMgr;
 	local array<XComGameState_Item> AllEquippedItems;
 	local XComGameState_Item EquippedItemState;
-	local X2ItemTemplate UpgradedItemTemplate, FurtherUpgradedItemTemplate;
+	local X2ItemTemplate UpgradedItemTemplate;
 	local XComGameState_Item UpgradedItemState;
 	local array<X2WeaponUpgradeTemplate> WeaponUpgrades;
 	local X2WeaponUpgradeTemplate WeaponUpgradeTemplate;
 	local EInventorySlot InventorySlot;
 
 	XComHQ = `XCOMHQ;
-	ItemMgr = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
 	AllEquippedItems = UnitState.GetAllInventoryItems(NewGameState, true);
 
 	foreach AllEquippedItems(EquippedItemState)

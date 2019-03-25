@@ -70,10 +70,45 @@ var config bool UPDATE_MATERIALS_CONSTANTLY;
 var config array<name> CosmeticDLCNamesUnaffectedByRoll;
 // End Issue #155
 
+// start issue #251
+// in the base game, all units default to the clerk underlays if they can use underlays on the Avenger
+// we can have the game use custom underlay cosmetics instead, but the base game doesn't properly assign the starting
+// underlay cosmetics to normal soldiers. So we use a config array to whitelist character templates that should be using custom underlay cosmetics
+var config array<name> CustomUnderlayCharTemplates;
+//end issue #251
+
+
 // Start Issue #171
 var config bool GrenadeRespectUniqueRule;
 var config bool AmmoSlotBypassUniqueRule;
 // End Issue #171
+
+// Start Issue #219
+// Object names of head contents that don't allow Hair/Props/Helmets/Beards
+var config(Content) array<name> HeadSuppressesHair;
+var config(Content) array<name> HeadSuppressesLowerFaceProp;
+var config(Content) array<name> HeadSuppressesUpperFaceProp;
+var config(Content) array<name> HeadSuppressesHelmet;
+var config(Content) array<name> HeadSuppressesBeard;
+// End Issue #219
+
+
+// Issue #153
+var config bool bDontUnequipCovertOps; // true skips unequipping soldiers on covert actions even if ambush risk is 0
+// End Issue #153
+
+// Start Issue #310
+var config bool bDontUnequipWhenWounded; // true skips unequipping soldiers after mission when being wounded
+// End Issue #310
+
+// Start Issue #356
+var config(Content) array<name> HairMaterial;
+var config(Content) array<name> SkinMaterial;
+var config(Content) array<name> ArmorMaterial;
+var config(Content) array<name> WepAsArmorMaterial;
+var config(Content) array<name> EyeMaterial;
+var config(Content) array<name> FlagMaterial;
+// End Issue #356
 
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
@@ -202,3 +237,117 @@ static function array<name> GetAcceptablePartPacks()
 	return DLCNames;
 }
 //end issue #155
+
+// Issue #235 start
+static function GroupItemStatsByLabel(out array<UISummary_ItemStat> InArray)
+{
+	local int i, j, iValue, jValue;
+
+	for (i = 0; i < InArray.Length; i++)
+	{
+		for (j = i+1; j < InArray.Length; j++)
+		{
+			if (InArray[i].Label == InArray[j].Label)
+			{
+				iValue = int(InArray[i].Value);
+				jValue = int(InArray[j].Value);
+
+				if (string(iValue) != InArray[i].Value || string(jValue) != InArray[j].Value) // The values are not string representations of ints. Ignore this one.
+				{
+					continue;
+				}
+
+				InArray[i].Value = string(iValue + jValue);
+				InArray.Remove(j, 1);
+				j--; // Important! Removing an entry in the array shifts all other entries down one. Don't skip an entry by accident.
+			}
+		}
+
+		// We actually DO want to show any stats that total 0, so the player doesn't think their modifications got ignored
+		//if (InArray[i].Value == 0)
+		//{
+			//InArray.Remove(i, 1);
+			//i--; // Important! Removing an entry in the array shifts all other entries down one. Don't skip an entry by accident.
+		//}
+	}
+}
+// Issue #235 end
+
+// Start Issue #257
+// This focus change allows mods to change the focus UI that the vanilla game uses
+// to display Templar Focus. This effectively creates different types of Focus, even
+// though the game does not know about this. This imposes a few limitations on the system:
+// * A given unit only ever has a single "type" of focus. The rules for different focus
+//   types are expected to be so different from one another to make any conflicts
+//   a painful experience for modders and players.
+//   In particular, it means that this function should NOT be used to make any changes
+//   to the Templar Focus, as tempting as it may be.
+// * This also includes an Effect of the name TemplarFocus or an Effect Class of the type
+//   XComGameState_Effect_TemplarFocus.
+// In order to add your custom focus types, there are two changes in XComGame you can use:
+// * A new event hook for UIUnitFlag and UITacticalHUD_SoldierInfo: Documentation for that
+//   particular hook is directly below.
+// * A change in X2AbilityCost_Focus: You may subclass that particular class and override all
+//   functions declared there (CanAfford, ApplyCost, PreviewFocusCost). This can be used to
+//   preview a cost for custom skills that consume focus. Again, make sure to not mix and match
+//   custom subclasses with the base class for any abilities.
+/////////////////////////////////////////////////////////////////////////////////////////
+// Static helper function used from UIUnitFlag and UITacticalHUD_SoldierInfo
+// to build a tuple used for mod-communication.
+// The tuple has the following data:
+// 0: bool   - bVisible     - whether to show a focus meter.
+// 1: int    - currentFocus - current focus level.
+// 2: int    - maxFoxus     - max focus level.
+// 3: string - color        - focus bar HTML color ("0xABCDEF")
+// 4: string - iconPath     - focus icon path. Note that this must overlap the standard icon, as there is no way for us to hide it
+// 5: string - tooltipText  - tooltip text.
+// 6: string - focusLabel   - focus Label
+// Note that if bVisible == false, the rest will be ignored and will not have valid data in it.
+static function XComLWTuple GetFocusTuple(XComGameState_Unit UnitState)
+{
+	local XComLWTuple Tup;
+
+	Tup = BuildDefaultTuple(UnitState);
+
+	`XEVENTMGR.TriggerEvent('OverrideUnitFocusUI', Tup, UnitState, none);
+
+	return Tup;
+}
+
+static function XComLWTuple BuildDefaultTuple(XComGameState_Unit UnitState)
+{
+	local XComGameState_Effect_TemplarFocus FocusState;
+	local XComLWTuple Tup;
+
+	Tup = new class'XComLWTuple';
+	Tup.Id = 'OverrideUnitFocusUI';
+	Tup.Data.Add(7);
+	Tup.Data[0].kind = XComLWTVBool;
+	Tup.Data[1].kind = XComLWTVInt;
+	Tup.Data[2].kind = XComLWTVInt;
+	Tup.Data[3].kind = XComLWTVString;
+	Tup.Data[4].kind = XComLWTVString;
+	Tup.Data[5].kind = XComLWTVString;
+	Tup.Data[6].kind = XComLWTVString;
+
+	FocusState = UnitState.GetTemplarFocusEffectState();
+	if (FocusState == none || !UnitState.IsFriendlyToLocalPlayer())
+	{
+		Tup.Data[0].b = false;
+		return Tup;
+	}
+	else
+	{
+		Tup.Data[0].b = true;
+	}
+
+	Tup.Data[1].i = FocusState.FocusLevel;
+	Tup.Data[2].i = FocusState.GetMaxFocus(UnitState);
+	Tup.Data[3].s = "0x" $ class'UIUtilities_Colors'.const.PSIONIC_HTML_COLOR;
+	Tup.Data[4].s = "";
+	Tup.Data[5].s = `XEXPAND.ExpandString(class'UITacticalHUD_SoldierInfo'.default.FocusLevelDescriptions[FocusState.FocusLevel]);
+	Tup.Data[6].s = class'UITacticalHUD_SoldierInfo'.default.FocusLevelLabel;
+
+	return Tup;
+}
+// End Issue #257
