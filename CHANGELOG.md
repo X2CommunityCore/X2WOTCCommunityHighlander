@@ -89,6 +89,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   the Skulljack / ADVENT screen arbitrarily (#330)
 - `OverrideDisableReinforcementsFlare` allows mods to hide the reinforcements flare
   so that players don't know exactly where reinforcements will be arriving (#448)
+- `OverrideReinforcementsAlert` allows mods to force the display of the reinforcements
+  alert panel and also change its text and color (#449)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
