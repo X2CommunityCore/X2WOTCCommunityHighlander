@@ -217,6 +217,9 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   no broken duo poses for units that can't play them (#309)
 - Additional Photobooth particle system enums for mods (#359)
 - Tweaks to "Resistance Archives" random Legacy Operations UI. Restarts show the correct locked difficulty, and a crash condition on backing out of a restart fixed. (#307)
+- Allow mods to check whether VIP units left a mission successfully via the `bRemovedFromPlay`
+  flag on `XComGameState_Unit`. This behavior is gated behind the new `CHHelpers.PreserveProxyUnitData`
+  config variable. (#465)
 
 
 ### Fixes
