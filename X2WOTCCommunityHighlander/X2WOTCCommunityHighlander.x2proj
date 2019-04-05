@@ -278,6 +278,9 @@
     <Content Include="Src\XComGame\Classes\X2AbilityToHitCalc_StandardAim.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2AbilityToHitCalc_StatCheck.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Action_ApplyWeaponDamageToUnit.uc">
       <SubType>Content</SubType>
     </Content>
@@ -300,6 +303,9 @@
           <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2GameRuleset.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2Effect_ToHitModifier.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2HackRewardTemplateManager.uc">
