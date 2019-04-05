@@ -21,11 +21,11 @@ function int GetDefendValue(XComGameState_Ability kAbility, StateObjectReference
 protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTarget kTarget, optional out ShotBreakdown m_ShotBreakdown, optional bool bDebugLog = false)
 {
 	local XComGameState_Unit UnitState, TargetState;     /*  variables added  */
-	local XComGameState_Effect EffectState;             /*     #########     */
-	local XComGameStateHistory History;                /*      #######      */
-	local X2Effect_ToHitModifier ModifierEffect;      /*       #####       */
-	local StateObjectReference EffectRef;            /*        ###        */
-	local array<ShotModifierInfo> ShotModifiers;    /*         #         */
+	local XComGameState_Effect EffectState;             /*    ###########    */
+	local XComGameStateHistory History;                /*     #########     */
+	local X2Effect_Persistent PersistentEffect;       /*      #######      */
+	local StateObjectReference EffectRef;            /*       #####       */
+	local array<ShotModifierInfo> ShotModifiers;    /*        ###        */
 	local ShotModifierInfo ShotModifier;           /*     CHL #467      */
 	local int AttackVal, DefendVal, TargetRoll;
 	local ShotBreakdown EmptyShotBreakdown;
@@ -48,15 +48,15 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 
 		if (EffectState != None)
 		{// check this effect's sub-class by attempting to cast it to what we need
-			ModifierEffect = X2Effect_ToHitModifier(EffectState.GetX2Effect());
+			PersistentEffect = EffectState.GetX2Effect();
 
-			if (ModifierEffect == None)
+			if (PersistentEffect == None)
 			{
 				continue;
 			}
 		}
 		// everything checked out let's add it to the list
-		ModifierEffect.GetToHitModifiersForStatCheck(EffectState, UnitState, TargetState, kAbility, self.Class, ShotModifiers);
+		PersistentEffect.GetToHitModifiersForStatCheck(EffectState, UnitState, TargetState, kAbility, self.Class, ShotModifiers);
 	}
 	// repeat same process for the target's current effects
 	foreach TargetState.AffectedByEffects(EffectRef)
@@ -65,15 +65,15 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 
 		if (EffectState != None)
 		{
-			ModifierEffect = X2Effect_ToHitModifier(EffectState.GetX2Effect());
+			PersistentEffect = EffectState.GetX2Effect();
 
-			if (ModifierEffect == None)
+			if (PersistentEffect == None)
 			{
 				continue;
 			}
 		}
 
-		ModifierEffect.GetToHitAsTargetModifiersForStatCheck(EffectState, UnitState, TargetState, kAbility, self.Class, ShotModifiers);
+		PersistentEffect.GetToHitAsTargetModifiersForStatCheck(EffectState, UnitState, TargetState, kAbility, self.Class, ShotModifiers);
 	}
 
 	foreach ShotModifiers(ShotModifier)
