@@ -20,7 +20,7 @@ var bool	bBypassSustainEffects;
 var array<name> HideVisualizationOfResultsAdditional;
 
 // Issue #321
-var config bool ALWAYS_APPLY_MINIMUM_DAMAGE;
+var config bool NO_MINIMUM_DAMAGE;
 
 // These values are extra amount an ability may add or apply directly
 var WeaponDamageValue EffectDamageValue;
@@ -1040,7 +1040,7 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 				if (ArmorMitigation < 0)
 					ArmorMitigation = 0;
 				// Issue #321
-				if (ArmorMitigation >= WeaponDamage && default.ALWAYS_APPLY_MINIMUM_DAMAGE)
+				if (ArmorMitigation >= WeaponDamage && !default.NO_MINIMUM_DAMAGE)
 					ArmorMitigation = WeaponDamage - 1;
 				if (ArmorMitigation < 0)    //  WeaponDamage could have been 0
 					ArmorMitigation = 0;    
