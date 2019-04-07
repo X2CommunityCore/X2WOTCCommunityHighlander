@@ -86,6 +86,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `OverrideVictoriousPlayer` to allow override whether a mission was successful or not (#266)
 - `OverrideItemSoundRange` to allow overriding an item's sound range (#363)
 - `OverrideHackingScreenType` and `HackIn2D` to allow hacking using a 2D movie and using
+  the Skulljack / ADVENT screen arbitrarily (#330)
 - Allow mods to override the number of objectives spawned for a mission via the new event
   `OverrideObjectiveSpawnCount`, which is triggered as the objective spawns are being
   selected by `XComTacticalMissionManager`. (#463)
