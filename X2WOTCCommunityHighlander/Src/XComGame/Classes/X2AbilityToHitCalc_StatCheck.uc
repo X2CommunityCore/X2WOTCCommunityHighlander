@@ -27,7 +27,7 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 	local StateObjectReference EffectRef;            /*       #####       */
 	local array<ShotModifierInfo> ShotModifiers;    /*        ###        */
 	local ShotModifierInfo ShotModifier;           /*     CHL #467      */
-	local int AttackVal, DefendVal, TargetRoll;
+	local int AttackVal, DefendVal;
 	local ShotBreakdown EmptyShotBreakdown;
 
 	//reset shot breakdown
@@ -39,7 +39,6 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 
 	AttackVal = GetAttackValue(kAbility, kTarget.PrimaryTarget);
 	DefendVal = GetDefendValue(kAbility, kTarget.PrimaryTarget);
-	TargetRoll = BaseValue + AttackVal - DefendVal;
 
 	// now lets check attacker's current effects
 	foreach UnitState.AffectedByEffects(EffectRef)
@@ -85,9 +84,9 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 	AddModifier(AttackVal, GetAttackString(), m_ShotBreakdown, eHit_Success, bDebugLog);
 	AddModifier(-DefendVal, GetDefendString(), m_ShotBreakdown, eHit_Success, bDebugLog);
 
-	m_ShotBreakdown.FinalHitChance = TargetRoll;
+	FinalizeHitChance(m_ShotBreakdown, bDebugLog);
 
-	return TargetRoll;
+	return m_ShotBreakdown.FinalHitChance;
 }
 // end CHL issue #467
 
