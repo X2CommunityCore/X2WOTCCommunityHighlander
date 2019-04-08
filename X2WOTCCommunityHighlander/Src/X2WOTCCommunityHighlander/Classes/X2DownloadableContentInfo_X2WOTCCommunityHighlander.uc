@@ -16,14 +16,22 @@ static event OnPostTemplatesCreated()
 {
 	local array<CHLComponent> Comps;
 	local int i;
+	local CHLComponentStatus WorstStatus;
+
 	`log("Companion script package loaded", , 'X2WOTCCommunityHighlander');
 
 	Comps = class'X2WOTCCH_Components'.static.GetComponentInfo();
+	WorstStatus = class'X2WOTCCH_Components'.static.FindHighestErrorLevel(Comps);
 
 	`log("Components:", , 'X2WOTCCommunityHighlander');
 	for (i = 0; i < Comps.Length; i++)
 	{
 		`log("  " $ Comps[i].DisplayName @ "--" @ Comps[i].DisplayVersion, , 'X2WOTCCommunityHighlander');
+	}
+
+	if (WorstStatus == eCHLCS_RequiredNotFound)
+	{
+		`log("Required packages were not loaded. Please consult" @ class'X2WOTCCH_UIScreenListener_ShellSplash'.default.HelpLink @ "for further information", , 'X2WOTCCommunityHighlander');
 	}
 
 	// We don't want to crash when not loaded.
