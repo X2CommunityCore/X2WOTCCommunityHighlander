@@ -230,6 +230,9 @@
     <Content Include="Src\XComGame\Classes\UITacticalCharInfoScreen.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UITacticalHUD_AbilityContainer.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UITacticalHUD_SoldierInfo.uc">
       <SubType>Content</SubType>
     </Content>
