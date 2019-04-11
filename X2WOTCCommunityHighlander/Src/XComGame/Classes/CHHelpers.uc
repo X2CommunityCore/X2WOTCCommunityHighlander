@@ -110,6 +110,10 @@ var config(Content) array<name> EyeMaterial;
 var config(Content) array<name> FlagMaterial;
 // End Issue #356
 
+// Start Issue #476
+var config array<name> RequiresTargetingActivation;
+// End Issue #476
+
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
 	local XComContentManager		Content;
@@ -351,3 +355,20 @@ static function XComLWTuple BuildDefaultTuple(XComGameState_Unit UnitState)
 	return Tup;
 }
 // End Issue #257
+
+// Start Issue #476
+static function bool TargetingClassRequiresActivation(class<X2TargetingMethod> TargetingClass)
+{
+	local int i;
+
+	for (i = 0; i < default.RequiresTargetingActivation.Length; i++)
+	{
+		if (TargetingClass.IsA(default.RequiresTargetingActivation[i]))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+// End Issue #476
