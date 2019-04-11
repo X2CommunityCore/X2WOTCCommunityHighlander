@@ -119,6 +119,26 @@ function ForceCloseBlackMarket(XComGameState NewGameState)
 }
 
 //---------------------------------------------------------------------------------------
+// Start Issue #473
+//
+// This method now triggers a 'BlackMarketGoodsReset' event when it has
+// finished updating the black market goods. The event takes the form:
+//
+// {
+//   ID: BlackMarketGoodsReset,
+//   Data: self,
+//   Source: self
+// }
+//
+// Note that listeners will not receive the pending state of the black
+// market state object as the event data, but rather the most recent
+// version in the History. So listeners that want to view or even modify
+// the pending state should use code like this:
+//
+//     BlackMarket = XComGameState_BlackMarket(EventData);
+//     BlackMarket = XComGameState_BlackMarket(NewGameState.ModifyStateObject(
+//             class'XComGameState_BlackMarket', BlackMarket.ObjectID));
+//
 function ResetBlackMarketGoods(XComGameState NewGameState)
 {
 	NumTimesAppeared++;
@@ -128,6 +148,17 @@ function ResetBlackMarketGoods(XComGameState NewGameState)
 	SetUpForSaleItems(NewGameState);
 	UpdateBuyPrices();
 
+	// Start Issue #473
+	// 
+	// Let mods know that the goods in the black market have been reset
+	// so that they can make any necessary changes. We pass the reference
+	// to the black market game state object because the event manager
+	// will convert `self` (which refers to a pending game state object)
+	// to the most recent game state object for the black market in the
+	// history.
+	`XEVENTMGR.TriggerEvent('BlackMarketGoodsReset', self, self, NewGameState);
+	// End Issue #473
+	
 	bHasSeenNewGoods = false;
 }
 
