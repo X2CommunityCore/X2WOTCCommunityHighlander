@@ -164,7 +164,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `OverrideRandomizeAppearance` added to allow mods to block updating appearance when switching armors (#299)
 - `XComGameState_Unit` triggers `SoldierRankName`, `SoldierShortRankName` and
   `SoldierRankIcon` events that allow listeners to override the those particular
-  properties of a soldier's rank, i.e. rank name, short name and icon.
+  properties of a soldier's rank, i.e. rank name, short name and icon (#408)
 
 ### Configuration
 - Able to list classes as excluded from AWC Skill Rolling, so they can still
