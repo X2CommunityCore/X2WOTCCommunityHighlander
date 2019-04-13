@@ -12192,6 +12192,24 @@ function array<SoldierClassAbilityType> GetRankAbilities(int Rank)
 	return AbilityTree[Rank].Abilities;
 }
 
+// Start Issue #306
+function int GetRankAbilityCount(int Rank)
+{
+	if(AbilityTree.Length == 0)
+	{
+		return 0;
+	}
+
+	if(Rank < 0 || Rank >= AbilityTree.Length)
+	{
+		`RedScreen("Invalid rank given for GetRankAbilitieCount(). @gameplay @mnauta");
+		return  AbilityTree[0].Abilities.Length;
+	}
+
+	return AbilityTree[Rank].Abilities.Length;
+}
+//End Issue #306
+
 function name GetAbilityName(int iRank, int iBranch)
 {
 	if (iRank < 0 && iRank >= AbilityTree.Length)
