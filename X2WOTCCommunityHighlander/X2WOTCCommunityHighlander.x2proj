@@ -140,6 +140,9 @@
     <Content Include="Src\XComGame\Classes\UIAvengerHUD.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIBlackMarket.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIButton.uc">
       <SubType>Content</SubType>
     </Content>
@@ -174,6 +177,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIAvengerHud_SoldierStatusIndicatorContainer.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIPersonnel.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIPersonnel_SoldierListItem.uc">
