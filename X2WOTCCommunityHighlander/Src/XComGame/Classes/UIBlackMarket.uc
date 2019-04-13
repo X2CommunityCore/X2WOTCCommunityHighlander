@@ -246,7 +246,8 @@ simulated function bool OnUnrealCommand(int cmd, int arg)
 
 simulated function bool HasItemsForSale()
 {
-	return (class'UIUtilities_Strategy'.static.GetBlackMarket().GetForSaleList().Length > 0);
+	// Single Line for Issue #306 - ForSaleItems is not private or protected
+	return (class'UIUtilities_Strategy'.static.GetBlackMarket().ForSaleItems.Length > 0);
 }
 
 
