@@ -357,13 +357,13 @@ static function XComLWTuple BuildDefaultTuple(XComGameState_Unit UnitState)
 // End Issue #257
 
 // Start Issue #476
-static function bool TargetingClassRequiresActivation(class<X2TargetingMethod> TargetingClass)
+static function bool TargetingClassRequiresActivation(X2TargetingMethod TargetingMethod)
 {
 	local int i;
 
 	for (i = 0; i < default.RequiresTargetingActivation.Length; i++)
 	{
-		if (TargetingClass.IsA(default.RequiresTargetingActivation[i]))
+		if (TargetingMethod.IsA(default.RequiresTargetingActivation[i]))
 		{
 			return true;
 		}

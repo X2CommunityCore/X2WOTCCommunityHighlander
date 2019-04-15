@@ -168,7 +168,7 @@ simulated function bool AbilityRequiresTargetingActivation(int Index)
 	if (AbilityState != none)
 	{
 		// Start Issue #476
-		return class'CHHelpers'.static.TargetingClassRequiresActivation(AbilityState.GetMyTemplate().TargetingMethod);
+		return class'CHHelpers'.static.TargetingClassRequiresActivation(X2TargetingMethod(class'XComEngine'.static.GetClassDefaultObject(AbilityState.GetMyTemplate().TargetingMethod)));
 		// End Issue #476
 	}
 
@@ -180,7 +180,7 @@ simulated function bool IsTargetingMethodActivated()
 	// Start Issue #476
 	if (TargetingMethod != none)
 	{
-		return class'CHHelpers'.static.TargetingClassRequiresActivation(TargetingMethod.Class);
+		return class'CHHelpers'.static.TargetingClassRequiresActivation(TargetingMethod);
 		// End Issue #476
 	}
 
