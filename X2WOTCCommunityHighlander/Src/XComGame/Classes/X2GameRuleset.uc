@@ -85,7 +85,7 @@ struct native GameRulesCache_Unit
 };
 
 //******** Event Observers
-var protected array<class> EventObserverClasses; //Add to this array in default properties of the concrete ruleset class to add observers
+var /*protected*/ array<class> EventObserverClasses; //Add to this array in default properties of the concrete ruleset class to add observers. Issue #481: unprotected
 var protected array<X2GameRulesetEventObserverInterface> EventObservers; //The list of instantiated event observer. One per entry in EventObserverClasses
 
 //******** Cached systems variables
