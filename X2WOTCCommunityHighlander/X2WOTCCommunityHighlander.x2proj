@@ -185,6 +185,9 @@
     <Content Include="Src\XComGame\Classes\UIQueryInterfaceItem.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIScanButton.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIScreenStack.uc">
       <SubType>Content</SubType>
     </Content>
