@@ -282,6 +282,13 @@ simulated function OnMouseEvent(int cmd, array<string> args)
 		UIStrategyMapItem(Owner).OnMouseOut(); 
 		break;
 	}
+
+	// Start issue #483. Note: DO NOT call ProcessMouseEvents, just set the delegate directly
+	if (OnMouseEventDelegate != none)
+	{
+		OnMouseEventDelegate(self, cmd);
+	}
+	// End issue #483
 }
 
 simulated function OnCommand(string cmd, string arg)
