@@ -1260,11 +1260,14 @@ function bool HasAmbushRisk()
 {
 	local name RiskName;
 	local int idx;
+	local array<name> AmbushRiskTemplateNames; // Issue XXXX
+
+	AmbushRiskTemplateNames = class'CHHelpers'.static.GetAmbushRiskTemplateNames(); // Issue XXXX
 
 	for (idx = 0; idx < Risks.Length; idx++)
 	{
 		RiskName = Risks[idx].RiskTemplateName;
-		if (RiskName == 'CovertActionRisk_Ambush' && NegatedRisks.Find(RiskName) == INDEX_NONE)
+		if (AmbushRiskTemplateNames.Find(RiskName) != INDEX_NONE && NegatedRisks.Find(RiskName) == INDEX_NONE) // Issue XXXX
 		{
 			return true;
 		}
