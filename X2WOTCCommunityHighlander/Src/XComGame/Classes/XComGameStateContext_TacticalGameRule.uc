@@ -373,7 +373,7 @@ protected function ContextBuildVisualization()
 
 		// only run the mission intro in single player.
 		//	we'll probably want an MP mission intro at some point...
-		if( `XENGINE.IsSinglePlayerGame() && !(`ONLINEEVENTMGR.bIsChallengeModeGame) )
+		if( `XENGINE.IsSinglePlayerGame() && !class'X2TacticalGameRulesetDataStructures'.static.TacticalOnlyGameMode( ) )
 		{
 			//Only add the intro track(s) if this start state is current ( ie. we are not visualizing a saved game load )
 			if( AssociatedState == History.GetStartState() && 

@@ -24,9 +24,6 @@ var() bool									bNeedsAmbushPopup; // Does this Action need a popup to alert 
 var() bool									bNewAction; // Flag for VO and popup alerts to indicate that this Covert Action was newly made available in the facility
 var() bool									bBondmateDurationBonusApplied; // Are bondmates staffed on this Covert Action?
 
-// Issue #153 variable
-var() config bool							bDontUnequipCovertOps; // true skips unequipping soldiers on covert actions even if ambush risk is 0
-
 var() TDateTime								StartDateTime; // When did this Action begin
 var() TDateTime								EndDateTime; // When does this Action end
 var() float									HoursToComplete;
@@ -356,7 +353,7 @@ function RemoveStaffedUnitsFromSquad(XComGameState NewGameState)
 			}
 			
 			if (!HasAmbushRisk() && !UnitState.bIsSuperSoldier
-				&& !bDontUnequipCovertOps) // Issue #153
+				&& !class'CHHelpers'.default.bDontUnequipCovertOps) // Issue #153
 			{
 				// Drop all of the unit's unique items if there is no chance of an Ambush
 				UnitState.MakeItemsAvailable(NewGameState, true);

@@ -2809,23 +2809,23 @@ simulated function BuildClearRoomCompleteAlert()
 		UnitString = "";
 	class'X2StrategyGameRulesetDataStructures'.static.GetDynamicArrayProperty(DisplayPropertySet, 'StaffUnitArray', ArrayProperties);
 	for( Index = 0; Index < ArrayProperties.Length; ++Index )
+	{
+	InnerProperties.Length = 0;
+	class'X2StrategyGameRulesetDataStructures'.static.GetDynamicArrayPropertyFromArray(ArrayProperties[Index].ValueArray, 'StaffUnitArrayInner', InnerProperties);
+	class'X2StrategyGameRulesetDataStructures'.static.GetDynamicStaffUnitInfoProperties(InnerProperties, CurrentBuilderInfo);
+
+		UnitState = XComGameState_Unit(History.GetGameStateForObjectID(CurrentBuilderInfo.UnitRef.ObjectID));
+		if (Len(UnitString) > 0)
 		{
-		InnerProperties.Length = 0;
-		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicArrayPropertyFromArray(ArrayProperties[Index].ValueArray, 'StaffUnitArrayInner', InnerProperties);
-		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicStaffUnitInfoProperties(InnerProperties, CurrentBuilderInfo);
-
-			UnitState = XComGameState_Unit(History.GetGameStateForObjectID(CurrentBuilderInfo.UnitRef.ObjectID));
-			if (Len(UnitString) > 0)
-			{
-				UnitString $= ", ";
-			}
-			
-			UnitName = UnitState.GetName(eNameType_Full);
-			if (CurrentBuilderInfo.bGhostUnit) // If the builder was a ghost, the unit who created it will still be staffed and have its name
-				UnitName = Repl(UnitState.GetStaffSlot().GetMyTemplate().GhostName, "%UNITNAME", UnitName);
-
-			UnitString $= UnitName;
+			UnitString $= ", ";
 		}
+			
+		UnitName = UnitState.GetName(eNameType_Full);
+		if (CurrentBuilderInfo.bGhostUnit) // If the builder was a ghost, the unit who created it will still be staffed and have its name
+			UnitName = Repl(UnitState.GetStaffSlot().GetMyTemplate().GhostName, "%UNITNAME", UnitName);
+
+		UnitString $= UnitName;
+	}
 	UnitString = class'UIUtilities_Text'.static.FormatCommaSeparatedNouns(UnitString);
 
 	if( Len(UnitString) > 0 )

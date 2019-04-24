@@ -16,9 +16,22 @@ static function array<X2DataTemplate> CreateTemplates()
 {
 	local array<X2DataTemplate> Templates;
 	local CHXComGameVersionTemplate XComGameVersion;
-	`log("Creating CHXCOMGameVersionTemplate");
+	
+	class'X2TacticalGameRuleset'.static.ReleaseScriptLog("X2WOTCCommunityHighlander: Creating CHXCOMGameVersionTemplate...");
 	`CREATE_X2TEMPLATE(class'CHXComGameVersionTemplate', XComGameVersion, 'CHXComGameVersion');
+	class'X2TacticalGameRuleset'.static.ReleaseScriptLog("X2WOTCCommunityHighlander: Created CHXCOMGameVersionTemplate with version" @ XComGameVersion.MajorVersion $ "." $ XComGameVersion.MinorVersion $ "." $ XComGameVersion.PatchVersion);
 	Templates.AddItem(XComGameVersion);
+
+	if (class'Engine.CHEngineVersion' != none)
+	{
+		class'X2TacticalGameRuleset'.static.ReleaseScriptLog("X2WOTCCommunityHighlander: Creating Engine version template...");
+		`CREATE_X2TEMPLATE(class'CHXComGameVersionTemplate', XComGameVersion, 'CHEngineVersion');
+		XComGameVersion.MajorVersion = class'Engine.CHEngineVersion'.default.MajorVersion;
+		XComGameVersion.MinorVersion = class'Engine.CHEngineVersion'.default.MinorVersion;
+		XComGameVersion.PatchVersion = class'Engine.CHEngineVersion'.default.PatchVersion;
+		class'X2TacticalGameRuleset'.static.ReleaseScriptLog("X2WOTCCommunityHighlander: Created Engine version template with version" @ XComGameVersion.MajorVersion $ "." $ XComGameVersion.MinorVersion $ "." $ XComGameVersion.PatchVersion);
+		Templates.AddItem(XComGameVersion);
+	}
 
 	return Templates;
 }

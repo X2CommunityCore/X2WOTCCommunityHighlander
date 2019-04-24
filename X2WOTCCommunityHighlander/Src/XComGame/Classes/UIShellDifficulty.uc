@@ -140,6 +140,7 @@ var UIPanel			 m_BottomPanel;
 var UIMechaListItem  m_TutorialMechaItem;
 var UIMechaListItem  m_FirstTimeVOMechaItem;
 var UIMechaListItem  m_SubtitlesMechaItem;
+var UIMechaListItem  m_SoundtrackMechaItem;
 
 // navigation
 //var UIButton         m_CancelButton;
@@ -529,6 +530,16 @@ simulated function BuildMenu()
 	m_SubtitlesMechaItem.UpdateDataCheckbox(class'UIOptionsPCScreen'.default.m_strInterfaceLabel_ShowSubtitles, "", `XPROFILESETTINGS.Data.m_bSubtitles, UpdateSubtitles, OnClickSubtitles);
 	m_SubtitlesMechaItem.BG.SetTooltipText(class'UIOptionsPCScreen'.default.m_strInterfaceLabel_ShowSubtitles_Desc, , , 10, , , , 0.0f);
 
+	if( `ONLINEEVENTMGR.HasTLEEntitlement() )
+	{
+		m_SoundtrackMechaItem = Spawn(class'UIMechaListItem', LinkPanel);
+		m_SoundtrackMechaItem.bAnimateOnInit = false;
+		m_SoundtrackMechaItem.InitListItem('difficultySoundtrackButton');
+		m_SoundtrackMechaItem.UpdateDataValue(class'UIOptionsPCScreen'.default.m_strAudioLabel_Soundtrack, "", OnClickSoundtrack);
+		m_SoundtrackMechaItem.BG.SetTooltipText(class'UIOptionsPCScreen'.default.m_strAudioLabel_Soundtrack_Desc, , , 10, , , , 0.0f);
+		m_SoundtrackMechaItem.SetPosition(20, 164);
+	}
+
 	if(m_bIsPlayingGame)
 	{
 		// bsg-jrebar (4/26/17): Disable all nav and hide all buttons
@@ -538,6 +549,8 @@ simulated function BuildMenu()
 		m_TutorialMechaItem.DisableNavigation();
 		m_SubtitlesMechaItem.Hide();
 		m_SubtitlesMechaItem.DisableNavigation();
+		m_SoundtrackMechaItem.Hide();
+		m_SoundtrackMechaItem.DisableNavigation();
 		m_SecondWaveButton.DisableNavigation();
 		m_BottomPanel.DisableNavigation();
 		// bsg-jrebar (4/26/17): end
@@ -692,6 +705,11 @@ simulated function OnClickFirstTimeVO()
 simulated function OnClickSubtitles()
 {
 	m_SubtitlesMechaItem.Checkbox.SetChecked(!m_SubtitlesMechaItem.Checkbox.bChecked);
+}
+
+simulated function OnClickSoundtrack()
+{
+	Movie.Pres.UISoundtrackPicker();
 }
 
 // Lower pause screen

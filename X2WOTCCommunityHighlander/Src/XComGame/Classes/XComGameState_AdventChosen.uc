@@ -565,10 +565,10 @@ function GainNewStrengths(XComGameState NewGameState, int NumStrengths)
 				if(FallbackStrengths.Find(ChosenState.Strengths[idx]) == INDEX_NONE &&
 				   ExcludeStrengths.Find(ChosenState.Strengths[idx]) == INDEX_NONE)
 				{
-				FallbackStrengths.AddItem(ChosenState.Strengths[idx]);
+					FallbackStrengths.AddItem(ChosenState.Strengths[idx]);
+				}
 			}
 		}
-	}
 	}
 
 	// Grab all remaining strengths

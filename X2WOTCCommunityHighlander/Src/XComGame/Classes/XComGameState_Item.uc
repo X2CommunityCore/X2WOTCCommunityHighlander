@@ -154,6 +154,7 @@ event OnCreation(optional X2DataTemplate Template)
 	local X2WeaponTemplate WeaponTemplate;
 	local StatBoost ItemStatBoost;
 	local int idx;
+	local bool bInSkirmish;
 
 	super.OnCreation(Template);
 
@@ -168,9 +169,11 @@ event OnCreation(optional X2DataTemplate Template)
 	{
 		ItemManager = GetMyTemplateManager();
 
+		bInSkirmish = `SCREENSTACK.GetFirstInstanceOf(class'UITLE_SkirmishModeMenu') != none;
+
 		for(idx = 0; idx < EquipmentTemplate.StatsToBoost.Length; idx++)
 		{
-			if(ItemManager.GetItemStatBoost(EquipmentTemplate.StatBoostPowerLevel, EquipmentTemplate.StatsToBoost[idx], ItemStatBoost))
+			if(ItemManager.GetItemStatBoost(EquipmentTemplate.StatBoostPowerLevel, EquipmentTemplate.StatsToBoost[idx], ItemStatBoost, bInSkirmish))
 			{
 				StatBoosts.AddItem(ItemStatBoost);
 			}
@@ -727,6 +730,7 @@ simulated function WipeUpgradeTemplates()
 
 simulated function bool HasBeenModified()
 {
+	local X2WeaponTemplate WeaponTemplate;
 	local XComLWTuple Tuple; //start of issue #183 - added mod event hook for mods wanting to have certain items not be stacked
 	local bool bOverrideItemModified, bItemModified; 
 
@@ -745,10 +749,20 @@ simulated function bool HasBeenModified()
 		return bItemModified; 
 	} //end issue #183
 
+	if (Nickname != "")
+		return true;
 
 	//start issue #104: added check for whether a item gamestate has any attached component object ids. If so, don't put it in a stack since a mod has attached something to it.
-	return Nickname != "" || GetMyWeaponUpgradeTemplateNames().Length > 0 || ComponentObjectIds.Length > 0;
+	if (ComponentObjectIDs.Length > 0)
+		return true;
 	//end issue #104
+		
+	WeaponTemplate = X2WeaponTemplate( m_ItemTemplate );
+
+	if ((WeaponTemplate != none) && (WeaponTemplate.NumUpgradeSlots > 0) && (GetMyWeaponUpgradeTemplateNames().Length > 0))
+		return true;
+
+	return false;
 }
 
 simulated function bool IsStartingItem()
@@ -1025,6 +1039,8 @@ simulated function int GetItemEnvironmentDamage()
 simulated function int GetItemSoundRange()
 {
 	local int iSoundRange;
+	
+	local XComLWTuple Tuple; // Issue #363
 
 	iSoundRange = class'X2WeaponTemplate'.default.iSoundRange;
 	GetMyTemplate();
@@ -1033,6 +1049,18 @@ simulated function int GetItemSoundRange()
 	{
 		iSoundRange = X2WeaponTemplate(m_ItemTemplate).iSoundRange;
 	}
+
+	// Start Issue #363
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideItemSoundRange';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVInt;
+	Tuple.Data[0].i = iSoundRange;
+
+	`XEVENTMGR.TriggerEvent('OverrideItemSoundRange', Tuple, self, none);
+	
+	iSoundRange = Tuple.Data[0].i;
+	// End Issue #363
 
 	return iSoundRange;
 }
@@ -1601,12 +1629,15 @@ simulated function EUISummary_WeaponStats GetUpgradeModifiersForUI(X2WeaponUpgra
 					if (BonusDamage != none)
 					{
 						TotalUpgradeSummary.bIsDamageModified = true;
-						TotalUpgradeSummary.Damage += BonusDamage.BonusDmg;
+						// Single Line for #371
+						TotalUpgradeSummary.DamageValue.Damage += BonusDamage.BonusDmg;
 					}
 				}
 			}
 		}
 	}
+	// Single Line for #371 : Just for consistency!
+	TotalUpgradeSummary.Damage = TotalUpgradeSummary.DamageValue.Damage;
 
 	return TotalUpgradeSummary;
 }
@@ -1912,7 +1943,17 @@ simulated function array<UISummary_ItemStat> GetUISummary_WeaponStats(optional X
 			continue;
 		}
 
-		if (StatMarkup.StatModifier != 0 || StatMarkup.bForceShow)
+		if ((StatMarkup.StatModifier != 0 || StatMarkup.bForceShow)
+			// Start Issue #237: Employ a heuristic to filter out the new stats we 
+			// already got above in our patch. This isn't 100% accurate, but
+			// more of a compatibility fix for stats that people have a reasonable
+			// motivation to add manually due to the base game not handling them.
+			// (Also, we accidentally doubled the UI shred display for grenades. Whoops.)
+			&& StatMarkup.StatLabel != class'XLocalizedData'.default.ShredLabel
+    		&& StatMarkup.StatLabel != class'XLocalizedData'.default.PierceLabel
+			&& StatMarkup.StatLabel != class'XLocalizedData'.default.RuptureLabel
+			// End Issue #237
+			)
 		{
 			Item.Label = StatMarkup.StatLabel;
 			Item.Value = string(StatMarkup.StatModifier) $ StatMarkup.StatUnit;

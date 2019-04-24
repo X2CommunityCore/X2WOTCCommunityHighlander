@@ -117,19 +117,7 @@ function DoAutosave(delegate<XComOnlineEventMgr.WriteSaveGameComplete> AutoSaveC
 			{
 				//  IRONMAN save.
 				//  Only allowed to use the existing save file.
-				foreach arrGames(kGame)
-				{
-					foreach kGame.SaveGames(kData)
-					{
-						if( kData.SaveGameHeader.CampaignStartTime == CampaignSettingsStateObject.StartTime )
-						{
-							iSaveSlot = kData.SaveGameHeader.SaveID;
-							break;
-						}
-					}
-					if( iSaveSlot >= 0 )
-						break;
-				}
+				iSaveSlot = GetSaveIDForCampaign( CampaignSettingsStateObject );
 			}
 			else if( !bIsTactical )
 			{
@@ -236,6 +224,36 @@ private function int SortTacticalSaves(SaveGameHeader HeaderA, SaveGameHeader He
 private function int SortReverseSaveIDOrder(SaveGameHeader HeaderA, SaveGameHeader HeaderB)
 {
 	return (HeaderA.SaveID - HeaderB.SaveID);
+}
+
+function int GetSaveIDForCampaign( optional XComGameState_CampaignSettings Campaign )
+{
+	local array<OnlineSaveGame> arrGames;
+	local OnlineSaveGame kGame;
+	local OnlineSaveGameDataMapping kData;
+
+	if (Campaign == none)
+	{
+		Campaign = XComGameState_CampaignSettings(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_CampaignSettings', true));
+
+		if (Campaign == none) // still missing??
+			return -1;
+	}
+
+	`ONLINEEVENTMGR.GetSaveGames( arrGames );
+
+	foreach arrGames(kGame)
+	{
+		foreach kGame.SaveGames(kData)
+		{
+			if( kData.SaveGameHeader.CampaignStartTime == Campaign.StartTime )
+			{
+				return kData.SaveGameHeader.SaveID;
+			}
+		}
+	}
+
+	return -1;
 }
 
 function DoQuickload()

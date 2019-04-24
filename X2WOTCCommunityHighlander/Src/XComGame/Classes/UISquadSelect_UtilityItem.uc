@@ -177,8 +177,8 @@ simulated function OnReceiveFocus()
 		if( !`ISCONTROLLERACTIVE )
 		{
 			UISquadSelect_ListItem(Owner.Owner.Owner.Owner).OnReceiveFocus(); 
+		}
 	}
-}
 }
 
 simulated function OnLoseFocus()

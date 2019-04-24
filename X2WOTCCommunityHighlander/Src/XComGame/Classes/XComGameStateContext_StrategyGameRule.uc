@@ -118,6 +118,8 @@ static function XComGameState CreateStrategyGameStart(
 	{
 		History = `XCOMHISTORY;
 
+		History.ResetHistory( ); // clear out anything else that may have been in the history (shell save, ladders, challenges, whatever)
+
 		StrategyStartContext = XComGameStateContext_StrategyGameRule(class'XComGameStateContext_StrategyGameRule'.static.CreateXComGameStateContext());
 		StrategyStartContext.GameRuleType = eStrategyGameRule_StrategyGameStart;
 		StartState = History.CreateNewGameState(false, StrategyStartContext);
@@ -1479,7 +1481,13 @@ static function RemoveInvalidSoldiersFromSquad()
 						}
 					}
 
-					UnitState.MakeItemsAvailable(NewGameState, false, SlotsToClear);
+					// Start Issue #310
+					if (!class'CHHelpers'.default.bDontUnequipWhenWounded)
+					{
+						UnitState.MakeItemsAvailable(NewGameState, false, SlotsToClear);
+					}
+					// End Issue #310
+
 					UnitState.bIsShaken = false;
 				}
 			}

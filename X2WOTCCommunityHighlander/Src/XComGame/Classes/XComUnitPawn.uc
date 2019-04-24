@@ -902,7 +902,7 @@ simulated function EndRagDoll()
 	//If the ragdoll state is ending, then we are presumably about to do something / play an anim. In many cases, this is but one of several flags checked to see if a unit is dead.
 	bPlayedDeath = false;
 
-	if (!IsInState(''))
+	if( !IsInState('') )
 		GotoState('');
 
 	if( m_bHasFullAnimWeightBones )
@@ -1273,6 +1273,35 @@ simulated state NoTicking
 simulated function GoToNextState() // Added to prevent none function on timer set in RagDollBlend
 {
 }
+
+simulated function SyncCorpse()
+{
+	local XComGameStateHistory History;
+	local XComGameState_Unit UnitState;
+	local bool bIsSoldier;
+	local XComGameStateContext_TacticalGameRule SyncCorpseContext;
+
+	// if we're doing latent submission, defer the state submission until the next frame where we're clear --Ned
+	if( `XCOMGAME.GameRuleset.IsDoingLatentSubmission() )
+	{
+		SetTimer(0.1f, false, 'SyncCorpse');
+		return;
+	}
+
+	History = `XCOMHISTORY;
+	UnitState = XComGameState_Unit(History.GetGameStateForObjectID(m_kGameUnit.ObjectID));
+	bIsSoldier = UnitState.IsSoldier();
+
+	if( (bIsSoldier || UnitState.CanBeCarried()) && !bProcessingDeathOnLoad )
+	{
+		//Normally not allowed to push game states from visual sequences like this, but we make an exception for xcom soldier bodies
+		SyncCorpseContext = XComGameStateContext_TacticalGameRule(class'XComGameStateContext_TacticalGameRule'.static.CreateXComGameStateContext());
+		SyncCorpseContext.GameRuleType = eGameRule_SyncTileLocationToCorpse;
+		SyncCorpseContext.UnitRef = UnitState.GetReference();
+		`XCOMGAME.GameRuleset.SubmitGameStateContext(SyncCorpseContext);
+	}
+}
+
 simulated state RagDollBlend
 {
 	simulated event BeginState(name PreviousStateName)
@@ -1312,11 +1341,7 @@ simulated state RagDollBlend
 	{
 		local XComWorldData WorldData;
 		local TTile kTile;
-		local CustomAnimParams AnimParams;
-		local XComGameStateHistory History;
-		local bool bIsSoldier;
-		local XComGameStateContext_TacticalGameRule SyncCorpseContext;
-		local XComGameState_Unit UnitState;				
+		local CustomAnimParams AnimParams;					
 		
 		// Start Issue #41
 		// Guard clause, early return and finish ragdoll if ragdoll collision
@@ -1339,17 +1364,7 @@ simulated state RagDollBlend
 				
 		Mesh.PutRigidBodyToSleep();
 
-		History = `XCOMHISTORY;
-		UnitState = XComGameState_Unit(History.GetGameStateForObjectID(m_kGameUnit.ObjectID));
-		bIsSoldier = UnitState.IsSoldier();
-		if ((bIsSoldier || UnitState.CanBeCarried()) && !bProcessingDeathOnLoad)
-		{
-			//Normally not allowed to push game states from visual sequences like this, but we make an exception for xcom soldier bodies
-			SyncCorpseContext = XComGameStateContext_TacticalGameRule(class'XComGameStateContext_TacticalGameRule'.static.CreateXComGameStateContext());
-			SyncCorpseContext.GameRuleType = eGameRule_SyncTileLocationToCorpse;
-			SyncCorpseContext.UnitRef = UnitState.GetReference();
-			`XCOMGAME.GameRuleset.SubmitGameStateContext(SyncCorpseContext);
-		}
+		SyncCorpse();
 
 		//Must take place before we possible turn off the physics below
 		Mesh.bSyncActorLocationToRootRigidBody = true;

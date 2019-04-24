@@ -27,9 +27,6 @@
     <Folder Include="Src\XComGame\Classes" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Config\XComGameBoard.ini">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Config\XComGameCore.ini">
       <SubType>Content</SubType>
     </Content>
@@ -40,9 +37,11 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="ModPreview.jpg" />
+    <Content Include="Config\XComContent.ini" />
     <Content Include="Config\XComEditor.ini" />
     <Content Include="Config\XComEngine.ini" />
     <Content Include="Config\XComGame.ini" />
+    <Content Include="Config\XComGameData.ini" />
     <Content Include="Localization\XComGame.int" />
     <Content Include="ModPreviewLinux.jpg">
       <SubType>Content</SubType>
@@ -51,6 +50,18 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\Engine\Classes\AudioComponent.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\Engine\Classes\CHEngineVersion.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\Engine\Classes\SkeletalMeshSocket.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2WOTCCH_CHXComGameVersion.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2WOTCCH_Components.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2WOTCCH_UIScreenListener_ShellSplash.uc">
@@ -168,6 +179,9 @@
     <Content Include="Src\XComGame\Classes\UIPersonnel_SoldierListItem.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIPhotoboothBase.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIQueryInterfaceItem.uc">
       <SubType>Content</SubType>
     </Content>
@@ -210,10 +224,16 @@
     <Content Include="Src\XComGame\Classes\UIStrategyMap.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIStrategyMap_HUD.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UITacticalCharInfoScreen.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UITacticalHUD_SoldierInfo.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UITLE_LadderModeMenu.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIUnitFlag.uc">
@@ -232,6 +252,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2AbilityToHitCalc_StandardAim.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2Action_ApplyWeaponDamageToUnit.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2Ability_GrenadierAbilitySet.uc">
@@ -256,6 +279,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2Ability_DefaultAbilitySet.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2Camera_Cinescript.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2DownloadableContentInfo.uc">
@@ -291,6 +317,9 @@
     <Content Include="Src\XComGame\Classes\XComAutosaveMgr.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComGameStateContext_HeadquartersOrder.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComGameStateContext_StrategyGameRule.uc">
       <SubType>Content</SubType>
     </Content>
@@ -298,6 +327,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_AdventChosen.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_AIReinforcementSpawner.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_AIUnitData.uc">
@@ -318,7 +350,16 @@
     <Content Include="Src\XComGame\Classes\XComGameState_Item.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_LadderProgress.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_MissionSite.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_ResistanceFaction.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_WorldRegion.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComHeadquartersCamera.uc">
@@ -358,6 +399,12 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2LootTable.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2Photobooth.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2PhotoboothHelpers.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UITacticalHUD.uc">
@@ -408,6 +455,9 @@
     <Content Include="Src\XComGame\Classes\UITacticalQuickLaunch.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UITooltipInfoList.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XGAIPlayer_TeamTwoDefault.uc">
       <SubType>Content</SubType>
     </Content>
@@ -418,6 +468,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2Action.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2Action_Hack.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComPresentationLayer.uc">

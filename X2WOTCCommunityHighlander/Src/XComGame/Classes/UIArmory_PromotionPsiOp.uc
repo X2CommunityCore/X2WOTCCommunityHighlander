@@ -57,7 +57,7 @@ simulated function PopulateData()
 		`HQPRES.UIPsiOperativeIntro(Unit.GetReference());
 	}
 	
-	maxRank = class'X2ExperienceConfig'.static.GetMaxRank();
+	maxRank = ClassTemplate.GetMaxConfiguredRank(); // Issue #1
 	AbilityTemplateManager = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
 
 	if (ClassRowItem == none)
@@ -94,7 +94,7 @@ simulated function PopulateData()
 	ClassRowItem.SetClassData(Unit.GetSoldierClassIcon(), Caps(Unit.GetSoldierClassDisplayName()));
 	// End Issue #106
 
-	for (i = 2; i < maxRank; ++i)
+	for (i = 2; i <= maxRank; ++i) // Issue #1 -- new maxRank needs to be included
 	{
 		Item = UIArmory_PromotionItem(List.GetItem(i - 2));
 		if (Item == none)

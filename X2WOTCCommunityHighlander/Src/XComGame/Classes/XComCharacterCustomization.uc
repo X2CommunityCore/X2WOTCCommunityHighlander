@@ -1262,6 +1262,9 @@ reliable client function array<string> GetCategoryList( int categoryIndex )
 	local X2SoldierPersonalityTemplate PersonalityTemplate;
 	local X2CountryTemplate CountryTemplate;
 
+	local XComOnlineProfileSettings ProfileSettings;
+	local int BronzeScore, HighScore;
+
 	switch(categoryIndex)
 	{
 	case eUICustomizeCat_Face:
@@ -1345,11 +1348,20 @@ reliable client function array<string> GetCategoryList( int categoryIndex )
 	case eUICustomizeCat_FaceDecorationLower:
 		GetGenericCategoryList(Items, "FacePropsLower", BodyPartFilter.FilterByGenderAndNonSpecialized, class'UICustomize_Head'.default.m_strLowerFaceProps);
 		return Items;
-	case eUICustomizeCat_Personality:  
+	case eUICustomizeCat_Personality: 
+		ProfileSettings = `XPROFILESETTINGS;
+		BronzeScore = class'XComGameState_LadderProgress'.static.GetLadderMedalThreshold( 4, 0 );
+		HighScore = ProfileSettings.Data.GetLadderHighScore( 4 );
+
 		PersonalityTemplateList = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager().GetAllTemplatesOfClass(class'X2SoldierPersonalityTemplate');
 		for(i = 0; i < PersonalityTemplateList.Length; i++)
 		{
 			PersonalityTemplate = X2SoldierPersonalityTemplate(PersonalityTemplateList[i]);
+
+			// skip TLE attitudes unless ladder 4 has been completed to BronzeMedal
+			if ((PersonalityTemplate.ClassThatCreatedUs.Name == 'X2StrategyElement_TLESoldierPersonalities') && (BronzeScore > HighScore))
+				continue;
+
 			Items.AddItem(PersonalityTemplate.FriendlyName);
 		}
 		return Items;

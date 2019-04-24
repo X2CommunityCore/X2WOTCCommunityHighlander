@@ -366,6 +366,19 @@ static function PostEncounterCreation(out name EncounterName, out PodSpawnInfo E
 }
 // End Issue #136
 
+// Start Issue #278
+/// <summary>
+/// Called from XComGameState_AIReinforcementSpawner:OnReinforcementSpawnerCreated
+/// SourceObject is the calling function's BattleData, as opposed to the original hook, which passes MissionSiteState. BattleData contains MissionSiteState
+/// Added optional ReinforcementState to modify reinforcement conditions
+/// Encounter Data is modified immediately after being generated, before validation is performed on spawn visualization based on pod conditions
+/// </summary>
+static function PostReinforcementCreation(out name EncounterName, out PodSpawnInfo Encounter, int ForceLevel, int AlertLevel, optional XComGameState_BaseObject SourceObject, optional XComGameState_BaseObject ReinforcementState)
+{
+	PostEncounterCreation(EncounterName, Encounter, ForceLevel, AlertLevel, `XCOMHISTORY.GetGameStateForObjectID(XComGameState_BattleData(SourceObject).m_iMissionID));
+}
+// End Issue #278
+
 // Start Issue #157
 /// <summary>
 /// Called from XComGameState_Missionsite:SetMissionData
@@ -458,7 +471,7 @@ static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, o
 /// Start Issue #246
 /// Called from XGWeapon:UpdateWeaponMaterial.
 /// This function gets called when the weapon material is updated.
-static function UpdateWeaponMaterial(XGWeapon WeaponArchetype, MeshComponent MeshComp, MaterialInstanceConstant MIC)
+static function UpdateWeaponMaterial(XGWeapon WeaponArchetype, MeshComponent MeshComp)
 {}
 /// End Issue #246
 
@@ -475,3 +488,14 @@ static function bool CanWeaponApplyUpgrade(XComGameState_Item WeaponState, X2Wea
 }
 /// End Issue #260
 
+/// Start Issue #281
+/// <summary>
+/// Called from XGWeapon.CreateEntity
+/// Allows DLC/Mods to append sockets to weapons
+/// NOTE: To create new sockets from script you need to unconst SocketName and BoneName in SkeletalMeshSocket
+/// </summary>
+static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets, XComWeapon Weapon, XComGameState_Item ItemState)
+{
+	return;
+}
+/// End Issue #281

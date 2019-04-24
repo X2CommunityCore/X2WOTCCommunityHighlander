@@ -265,6 +265,9 @@ simulated function OnFlightModeToggled()
 		TargetCursorMeshOpacity = 0.0;
 		TargetCrosshairAlpha =  0.0;
 	}
+
+	// Issue #358
+	`XEVENTMGR.TriggerEvent('GeoscapeFlightModeUpdate', self, self, none);
 }
 
 simulated function UpdateObjectiveList()

@@ -1,0 +1,7 @@
+1.17.0
+
+Files to keep this in sync with:
+X2WOTCCommunityHighlander/Src/Engine/Classes/CHEngineVersion.uc
+X2WOTCCommunityHighlander/Src/XComGame/Classes/CHXComGameVersionTemplate.uc
+X2WOTCCommunityHighlander/Src/X2WOTCCommunityHighlander/Classes/X2WOTCCH_CHXComGameVersion.uc
+Components/DLC2CommunityHighlander/Src/DLC_2/Classes/CHEngineVersion.uc

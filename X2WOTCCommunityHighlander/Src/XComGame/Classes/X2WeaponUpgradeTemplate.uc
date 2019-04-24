@@ -11,6 +11,7 @@ var int FreeFireChance;		// chance out of 100 that the action will be free
 var int NumFreeReloads;		// setting to 0 or less will mean no limit
 var WeaponDamageValue BonusDamage;			// amount of bonus damage on shots that allow for it
 var WeaponDamageValue CHBonusDamage;		// Issue #237 - secondary amount of bonus damage, more general purpose than the miss-damage-only BonusDamage
+var array<name> UpgradeCats;		// Issue #260
 var int FreeKillChance;		// chance out of 100 that a damaging shot will become an automatic kill
 
 var array<name> MutuallyExclusiveUpgrades; // upgrades which cannot be equipped at the same time as any of the others
