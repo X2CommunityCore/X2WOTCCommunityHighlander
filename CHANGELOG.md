@@ -38,7 +38,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Allow specifying Second Wave options for Strategy Debug Start (#197)
 - bDontUnequipCovertOps prevents soldiers gear gets stripped when sending on covert op with no ambush risk (#153)
 - bDontUnequipWhenWounded prevents soldiers gear gets stripped when getting wounded (#310)
-- Allow additional Ambush missions to be added to the game (#XXXX)
+- Allow additional Ambush missions to be added to the game (#485)
 
 ### Improvements
 - Allow `UIStrategyMap` to display custom Faction HQ icons (#76)

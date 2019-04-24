@@ -110,9 +110,9 @@ var config(Content) array<name> EyeMaterial;
 var config(Content) array<name> FlagMaterial;
 // End Issue #356
 
-// Start Issue #XXXX
+// Start Issue #485
 var config array<name> AdditionalAmbushRiskTemplates;
-// End Issue #XXXX
+// End Issue #485
 
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
@@ -356,7 +356,7 @@ static function XComLWTuple BuildDefaultTuple(XComGameState_Unit UnitState)
 }
 // End Issue #257
 
-// Start Issue #XXXX
+// Start Issue #485
 static function array<name> GetAmbushRiskTemplateNames() {
 	local array<name> TemplateNames;
 
@@ -365,4 +365,4 @@ static function array<name> GetAmbushRiskTemplateNames() {
 
 	return TemplateNames;
 }
-// End Issue #XXXX
+// End Issue #485
