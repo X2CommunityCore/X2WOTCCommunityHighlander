@@ -44,9 +44,9 @@ var() config int							MinCovertActionKills; // The minimum number of kills each
 var() config int							MaxCovertActionKills; // The maximum number of kills each soldier who goes on the Action will receive
 var() config int							BondmateBonusHours; // The number of hours the duration will be reduced if bondmates are on the Covert Action
 
-// Start Issue #XXXX
+// Start Issue #485
 var name									AmbushMissionSource; // The MissionSource of the Ambush for this Covert Action
-// End Issue #XXXX
+// End Issue #485
 
 struct CovertActionStaffSlot
 {
@@ -1264,14 +1264,14 @@ function bool HasAmbushRisk()
 {
 	local name RiskName;
 	local int idx;
-	local array<name> AmbushRiskTemplateNames; // Issue XXXX
+	local array<name> AmbushRiskTemplateNames; // Issue 485
 
-	AmbushRiskTemplateNames = class'CHHelpers'.static.GetAmbushRiskTemplateNames(); // Issue XXXX
+	AmbushRiskTemplateNames = class'CHHelpers'.static.GetAmbushRiskTemplateNames(); // Issue 485
 
 	for (idx = 0; idx < Risks.Length; idx++)
 	{
 		RiskName = Risks[idx].RiskTemplateName;
-		if (AmbushRiskTemplateNames.Find(RiskName) != INDEX_NONE && NegatedRisks.Find(RiskName) == INDEX_NONE) // Issue XXXX
+		if (AmbushRiskTemplateNames.Find(RiskName) != INDEX_NONE && NegatedRisks.Find(RiskName) == INDEX_NONE) // Issue 485
 		{
 			return true;
 		}
@@ -2071,7 +2071,7 @@ simulated public function AmbushPopup()
 	ActionState.bNeedsAmbushPopup = false;
 	`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
 
-	MissionSite = GetMission(AmbushMissionSource); // Find the Ambush mission and display its popup
+	MissionSite = GetMission(AmbushMissionSource); // Find the Ambush mission and display its popup // Issue #485
 	if (MissionSite != none && MissionSite.GetMissionSource().MissionPopupFn != none)
 	{
 		MissionSite.GetMissionSource().MissionPopupFn(MissionSite);
@@ -2192,9 +2192,9 @@ function int GetMaxDaysToComplete()
 	return `ScaleStrategyArrayInt(GetMyTemplate().MaxActionHours);
 }
 
-// Start Issue #XXXX
+// Start Issue #485
 defaultproperties
 {
 	AmbushMissionSource="MissionSource_ChosenAmbush"
 }
-// End Issue #XXXX
+// End Issue #485
