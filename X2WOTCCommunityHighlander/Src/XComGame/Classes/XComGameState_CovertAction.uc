@@ -44,6 +44,10 @@ var() config int							MinCovertActionKills; // The minimum number of kills each
 var() config int							MaxCovertActionKills; // The maximum number of kills each soldier who goes on the Action will receive
 var() config int							BondmateBonusHours; // The number of hours the duration will be reduced if bondmates are on the Covert Action
 
+// Start Issue #XXXX
+var name									AmbushMissionSource; // The MissionSource of the Ambush for this Covert Action
+// End Issue #XXXX
+
 struct CovertActionStaffSlot
 {
 	var() StateObjectReference				StaffSlotRef;
@@ -2067,7 +2071,7 @@ simulated public function AmbushPopup()
 	ActionState.bNeedsAmbushPopup = false;
 	`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
 
-	MissionSite = GetMission('MissionSource_ChosenAmbush'); // Find the Ambush mission and display its popup
+	MissionSite = GetMission(AmbushMissionSource); // Find the Ambush mission and display its popup
 	if (MissionSite != none && MissionSite.GetMissionSource().MissionPopupFn != none)
 	{
 		MissionSite.GetMissionSource().MissionPopupFn(MissionSite);
@@ -2187,3 +2191,10 @@ function int GetMaxDaysToComplete()
 {
 	return `ScaleStrategyArrayInt(GetMyTemplate().MaxActionHours);
 }
+
+// Start Issue #XXXX
+defaultproperties
+{
+	AmbushMissionSource="MissionSource_ChosenAmbush"
+}
+// End Issue #XXXX
