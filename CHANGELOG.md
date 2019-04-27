@@ -217,7 +217,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   no broken duo poses for units that can't play them (#309)
 - Additional Photobooth particle system enums for mods (#359)
 - Tweaks to "Resistance Archives" random Legacy Operations UI. Restarts show the correct locked difficulty, and a crash condition on backing out of a restart fixed. (#307)
-
+- Adds CustomDeathAnimationName property to X2Action_Death that allows overriding the default death animations.
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the

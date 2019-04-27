@@ -24,6 +24,9 @@ var bool							bForceMeleeDeath;
 
 var protected bool                  bWaitUntilNotified; // Allows overriding death actions to wait for notifications
 
+// Issue #488
+var name							CustomDeathAnimationName;
+
 function Init()
 {
 	local XComGameStateHistory History;
@@ -117,6 +120,13 @@ simulated function Name ComputeAnimationToPlay()
 	local XComGameState_Ability AbilityState;
 	local bool ShouldUseMeleeDeath;
 	local X2Effect_Persistent PersistentEffect; 
+
+	// Start Issue #488
+	if (CustomDeathAnimationName != 'None' && UnitPawn.GetAnimTreeController().CanPlayAnimation(CustomDeathAnimationName))
+	{
+		return CustomDeathAnimationName;
+	}
+	// End Issue #488
 
 	WorldUp.X = 0.0f;
 	WorldUp.Y = 0.0f;
