@@ -133,6 +133,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   for will loss purposes (#44)
 - Added option to mitigate all weapon damage using armor instead of always taking at
   least 1 damage (#321)
+- Able to mark custom targeting methods as `RequiresTargetingActivation` for controller input (#476)
 
 ### Modding Exposures
 - Deprivatise variables to protected in XComIdleAnimationStateMachine to allow
@@ -218,7 +219,6 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   skills (#80)
 - Able to list classes to be excluded from being 'needed', which means they are
   rarely meant to be acquired via Rookie level up and instead trained (#113)
-- Able to mark custom taregtibg methods as `RequiresTargetingActivation` for controller input (#476)
 
 ### Modding Exposures
 - Renable the ability to add positive traits in codebase, as well as additional
