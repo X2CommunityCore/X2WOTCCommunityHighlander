@@ -114,6 +114,10 @@ var config(Content) array<name> FlagMaterial;
 var config bool PreserveProxyUnitData;
 // End Issue #465
 
+// Start Issue #476
+var config array<name> RequiresTargetingActivation;
+// End Issue #476
+
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
 	local XComContentManager		Content;
@@ -374,3 +378,20 @@ static function UpdateTransitionMap()
 	}
 }
 // End Issue #388
+
+// Start Issue #476
+static function bool TargetingClassRequiresActivation(X2TargetingMethod TargetingMethod)
+{
+	local int i;
+
+	for (i = 0; i < default.RequiresTargetingActivation.Length; i++)
+	{
+		if (TargetingMethod.IsA(default.RequiresTargetingActivation[i]))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+// End Issue #476
