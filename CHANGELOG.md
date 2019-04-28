@@ -119,6 +119,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   applied to targets (#89)
 - Added ability to prevent multi-part missions counting as separate missions
   for will loss purposes (#44)
+- Added option to mitigate all weapon damage using armor instead of always taking at
+  least 1 damage (#321)
 
 ### Modding Exposures
 - Deprivatise variables to protected in XComIdleAnimationStateMachine to allow
