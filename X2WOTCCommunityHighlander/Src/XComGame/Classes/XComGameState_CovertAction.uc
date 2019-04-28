@@ -570,17 +570,16 @@ private function GenerateRewards(XComGameState NewGameState)
 	}
 }
 
-// start CHL issue #438
-// CHL function modified: added event 'CovertAction_PreventGiveRewards'
 function GiveRewards(XComGameState NewGameState)
 {
 	local XComGameState_Reward RewardState;
 	local XComGameState_StaffSlot SlotState;
 	local XComGameState_Unit UnitState;
 	local array<XComGameState_Unit> BondedSoldiers;
-	local XComLWTuple Tuple;
+	local XComLWTuple Tuple; // Issue #438
 	local int idx;
 
+	// Issue #438 Start
 	Tuple = new class'XComLWTuple';
 	Tuple.Id = 'CovertAction_PreventGiveRewards';
 	Tuple.Data.Add(1);
@@ -593,6 +592,7 @@ function GiveRewards(XComGameState NewGameState)
 	{
 		return;
 	}
+	// Issue #438 End
 
 	// First give the general Covert Action reward
 	for (idx = 0; idx < RewardRefs.Length; idx++)
@@ -638,7 +638,6 @@ function GiveRewards(XComGameState NewGameState)
 		}
 	}
 }
-// end CHL issue #438
 
 //---------------------------------------------------------------------------------------
 function string GetRewardDescriptionString()
@@ -1422,10 +1421,9 @@ function CompleteCovertAction(XComGameState NewGameState)
 //----------------   GEOSCAPE ENTITY IMPLEMENTATION   -----------------------------------------
 //#############################################################################################
 
-// start CHL issue #438
-// CHL function modified: added event 'CovertAction_CanInteract'
 protected function bool CanInteract()
 {
+	// Issue #438 Start
 	local XComLWTuple Tuple;
 
 	Tuple = new class'XComLWTuple';
@@ -1437,8 +1435,8 @@ protected function bool CanInteract()
 	`XEVENTMGR.TriggerEvent('CovertAction_CanInteract', Tuple, self);
 	
 	return Tuple.Data[0].b;
+	// Issue #438 End
 }
-// end CHL issue #438
 
 function string GetObjective()
 {
@@ -1470,8 +1468,6 @@ function string GetImage()
 	return GetMyNarrativeTemplate().ActionImage;
 }
 
-// start CHL issue #438
-// CHL function modified: added event 'CovertAction_ModifyNarrativeParamTag'
 function string GetNarrative()
 {
 	local XComGameState_ResistanceFaction FactionState;
@@ -1486,11 +1482,11 @@ function string GetNarrative()
 	kTag.StrValue3 = GetContinent().GetMyTemplate().DisplayName;
 	kTag.StrValue4 = GetRewardSavedString();
 
+	// Issue #438
 	`XEVENTMGR.TriggerEvent('CovertAction_ModifyNarrativeParamTag', kTag, self);
 
 	return `XEXPAND.ExpandString(GetMyNarrativeTemplate().ActionPreNarrative);
 }
-// end CHL issue #438
 
 function string GetSummary()
 {
@@ -1667,10 +1663,9 @@ simulated function string GetUIButtonTooltipBody()
 	return toolTip;
 }
 
-// start CHL issue #438
-// CHL function modified: added event 'CovertAction_ShouldBeVisible'
 function bool ShouldBeVisible()
 {
+	// Issue #438 Start
 	local XComLWTuple Tuple;
 
 	Tuple = new class'XComLWTuple';
@@ -1682,8 +1677,8 @@ function bool ShouldBeVisible()
 	`XEVENTMGR.TriggerEvent('CovertAction_ShouldBeVisible', Tuple, self);
 
 	return Tuple.Data[0].b;
+	// Issue #438 End
 }
-// end CHL issue #438
 
 function bool ShouldStaffSlotBeDisplayed(int idx)
 {
@@ -2148,19 +2143,11 @@ simulated function TriggerNextCovertActionPopup()
 	`HQPRES.UINextCovertAction();
 }
 
-// start CHL issue #438
-// CHL function modified: added event 'CovertAction_RemoveEntity_ShouldEmptySlots'
 function RemoveEntity(XComGameState NewGameState)
 {
 	local XComGameState_ResistanceFaction FactionState;
 	local bool SubmitLocally;
-	local XComLWTuple Tuple;
-
-	Tuple = new class'XComLWTuple';
-	Tuple.Id = 'CovertAction_RemoveEntity_ShouldEmptySlots';
-	Tuple.Data.Add(1);
-	Tuple.Data[0].kind = XComLWTVBool;
-	Tuple.Data[0].b = true;
+	local XComLWTuple Tuple; // Issue #438
 
 	if (NewGameState == None)
 	{
@@ -2168,12 +2155,22 @@ function RemoveEntity(XComGameState NewGameState)
 		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Covert Action Despawned");
 	}
 
+	// Issue #438 Start
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'CovertAction_RemoveEntity_ShouldEmptySlots';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = true;
+
 	`XEVENTMGR.TriggerEvent('CovertAction_RemoveEntity_ShouldEmptySlots', Tuple, self, NewGameState);
 
 	if (Tuple.Data[0].b)
 	{
+	// Issue #438 End
 		EmptyAllStaffSlots(NewGameState);
+	// Issue #438 Start
 	}
+	// Issue #438 End
 
 	// clean up the rewards for this action if it wasn't started
 	if (!bStarted)
@@ -2200,7 +2197,6 @@ function RemoveEntity(XComGameState NewGameState)
 		`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
 	}
 }
-// end CHL issue #438
 
 function AttemptSelectionCheckInterruption()
 {
@@ -2216,10 +2212,9 @@ protected function bool DisplaySelectionPrompt()
 	return true;
 }
 
-// start CHL issue #438
-// CHL function modified: added event 'CovertAction_ActionSelectedOverride'
 function ActionSelected()
 {
+	// Issue #438 Start
 	local XComLWTuple Tuple;
 
 	Tuple = new class'XComLWTuple';
@@ -2232,10 +2227,12 @@ function ActionSelected()
 
 	if (!Tuple.Data[0].b)
 	{
+	// Issue #438 End
 		`HQPRES.OnCovertActionSelected(self);
+	// Issue #438 Start
 	}
+	// Issue #438 End
 }
-// end CHL issue #438
 
 //#############################################################################################
 //----------------   HELPER FUNCTIONS   -------------------------------------------------------
