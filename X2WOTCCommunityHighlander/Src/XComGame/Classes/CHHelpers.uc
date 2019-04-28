@@ -357,7 +357,8 @@ static function XComLWTuple BuildDefaultTuple(XComGameState_Unit UnitState)
 // End Issue #257
 
 // Start Issue #485
-static function array<name> GetAmbushRiskTemplateNames() {
+static function array<name> GetAmbushRiskTemplateNames()
+{
 	local array<name> TemplateNames;
 
 	TemplateNames = default.AdditionalAmbushRiskTemplates;
