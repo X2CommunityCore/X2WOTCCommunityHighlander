@@ -169,6 +169,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   skills (#80)
 - Able to list classes to be excluded from being 'needed', which means they are
   rarely meant to be acquired via Rookie level up and instead trained (#113)
+- Able to mark custom taregtibg methods as `RequiresTargetingActivation` for controller input (#476)
 
 ### Modding Exposures
 - Renable the ability to add positive traits in codebase, as well as additional
