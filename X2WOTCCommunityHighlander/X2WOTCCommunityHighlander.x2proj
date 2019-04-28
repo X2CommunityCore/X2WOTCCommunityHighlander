@@ -275,6 +275,9 @@
     <Content Include="Src\XComGame\Classes\UIUtilities_Colors.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2AIBTBehaviorTree.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2AbilityToHitCalc_StandardAim.uc">
       <SubType>Content</SubType>
     </Content>
