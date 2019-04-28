@@ -543,3 +543,14 @@ static function bool UseAlternateMissionIntroDefinition(MissionDefinition Active
 	return false;
 }
 // End Issue #395
+
+/// Start Issue #455
+/// <summary>
+/// Called from XComUnitPawnNativeBase.PostInitAnimTree
+/// Allows patching the animtree template before its initialized.
+/// </summary>
+static function UnitPawnPostInitAnimTree(XComGameState_Unit UnitState, XComUnitPawnNativeBase Pawn, SkeletalMeshComponent SkelComp)
+{
+	return;
+}
+/// End Issue #455
