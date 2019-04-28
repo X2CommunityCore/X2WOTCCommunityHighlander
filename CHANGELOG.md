@@ -138,6 +138,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Fix Cinescript CutAfterPrevious in combination with MatineeReplacements (#318)
 - Allow abilities that deal damage without a source weapon to still display
   their damage with psi flyovers (Psi Bomb, mod abilities) (#326)
+- Fix `X2AbilityToHitCalc_StandardAim` discarding unfavorable (for XCOM) changes
+  to hit results from effects (#426)
 
 
 ## Miscellaneous
