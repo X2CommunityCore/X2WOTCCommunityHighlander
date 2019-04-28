@@ -665,8 +665,14 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 function float GetReactionAdjust(XComGameState_Unit Shooter, XComGameState_Unit Target)
 {
 	local XComGameStateHistory History;
-	local XComGameState_Unit OldTarget;
+	// Issue #493: Variable no longer needed
+	//local XComGameState_Unit OldTarget;
 	local UnitValue ConcealedValue;
+	// New Variables for Issue #493
+	local int PathIndex;
+	local XComGameStateContext_Ability AbilityContext;
+	local bool FoundContext;
+	// End Issue #493 New vars
 
 	History = `XCOMHISTORY;
 
@@ -677,13 +683,21 @@ function float GetReactionAdjust(XComGameState_Unit Shooter, XComGameState_Unit 
 			return 0;
 	}
 
-	OldTarget = XComGameState_Unit(History.GetGameStateForObjectID(Target.ObjectID, eReturnType_Reference, History.GetCurrentHistoryIndex() - 1));
-
-	//  Add penalty if the target was dashing. Look for the target changing position and spending more than 1 action point as a simple check.
-	if (OldTarget != None && OldTarget.TileLocation != Target.TileLocation)
+	// Start Issue #493
+	foreach History.IterateContextsByClassType(class'XComGameStateContext_Ability', AbilityContext,,, History.GetEventChainStartIndex()) //EventChainStartIndex is the earliest what we are reacting to could be, often it *will* be at this index
 	{
-		if (OldTarget.NumAllActionPoints() > 1 && Target.NumAllActionPoints() == 0)
-		{		
+		if(AbilityContext.InputContext.SourceObject.ObjectID==Target.ObjectID)
+		{
+			FoundContext = true;
+			break;
+		}
+	}
+	if(FoundContext)
+	{
+		PathIndex = AbilityContext.GetMovePathIndex(Target.ObjectID);// Ok, did we move?
+		If (PathIndex!=INDEX_NONE && AbilityContext.InputContext.MovementPaths[PathIndex].CostIncreases.Length!=0)//Dash check
+	// End Issue #493
+		{
 			return default.REACTION_DASHING_FINALMOD;
 		}
 	}
