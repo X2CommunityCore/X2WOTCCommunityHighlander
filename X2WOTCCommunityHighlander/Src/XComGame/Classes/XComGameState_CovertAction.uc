@@ -2065,6 +2065,7 @@ simulated public function AmbushPopup()
 	local XComGameState NewGameState;
 	local XComGameState_CovertAction ActionState;
 	local XComGameState_MissionSite MissionSite;
+	local name MissionSource; // Issue #485
 
 	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Toggle Action Complete Popup");
 	ActionState = XComGameState_CovertAction(NewGameState.ModifyStateObject(class'XComGameState_CovertAction', self.ObjectID));
@@ -2073,9 +2074,11 @@ simulated public function AmbushPopup()
 
 	// Start Issue #485
 	if(AmbushMissionSource == '') { // backwards compatibility
-		AmbushMissionSource = 'MissionSource_ChosenAmbush';
+		MissionSource = 'MissionSource_ChosenAmbush';
+	} else {
+		MissionSource = AmbushMissionSource;
 	}
-	MissionSite = GetMission(AmbushMissionSource); // Find the Ambush mission and display its popup
+	MissionSite = GetMission(MissionSource); // Find the Ambush mission and display its popup
 	// End Issue #485
 
 	if (MissionSite != none && MissionSite.GetMissionSource().MissionPopupFn != none)
