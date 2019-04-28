@@ -889,13 +889,11 @@ private function AddRisk(X2CovertActionRiskTemplate RiskTemplate, bool bChosenIn
 	Risks.AddItem(NewRisk);
 }
 
-// start CHL issue #434
-// CHL function modified: first parameter changed from "int ChanceToOccur" to "CovertActionRisk ActionRisk"
-// also added event 'CovertActionRisk_AlterChanceModifier' to allow mod interation
+// Issue #436: CHL function modified: first parameter changed from "int ChanceToOccur" to "CovertActionRisk ActionRisk"
 private function int CalculateRiskChanceToOccurModifiers(CovertActionRisk ActionRisk, bool bChosenIncreaseRisks, bool bDarkEventRisk)
 {
 	local int ChanceToOccurModifier;
-	local XComLWTuple Tuple;
+	local XComLWTuple Tuple; // Issue #436
 
 	if (bChosenIncreaseRisks)
 	{
@@ -903,6 +901,7 @@ private function int CalculateRiskChanceToOccurModifiers(CovertActionRisk Action
 		ChanceToOccurModifier += class'XComGameState_AdventChosen'.default.CovertActionRiskIncrease;
 	}
 
+	// Issue #436 Start
 	Tuple = new class'XComLWTuple';
 	Tuple.Id = 'CovertActionRisk_AlterChanceModifier';
 	Tuple.Data.Add(5);
@@ -920,10 +919,13 @@ private function int CalculateRiskChanceToOccurModifiers(CovertActionRisk Action
 	`XEVENTMGR.TriggerEvent('CovertActionRisk_AlterChanceModifier', Tuple, self);
 
 	return Tuple.Data[4].i;
+	// Issue #436 End
 }
 
-// CHL fuction added: to calculate risk chance on all risks for a given covert action
-// only useful when using 'CovertActionRisk_AlterChanceModifier' event
+// Issue #436 Start: This function must be called if you are using CovertActionRisk_AlterChanceModifier:
+// This class internally caches the risks and will not be aware of anything that might change the behavior
+// of your listener function. Call this function whenever you observe a change that affects the output of
+// your CovertActionRisk_AlterChanceModifier listener.
 function RecalculateRiskChanceToOccurModifiers()
 {
 	local XComGameState_HeadquartersResistance ResHQ;
@@ -951,22 +953,22 @@ function RecalculateRiskChanceToOccurModifiers()
 		Risks[idx].ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(Risks[idx], bChosenIncreaseRisks, bDarkEventRisk);
 	}
 }
+// Issue #436 End
 
-// CHL function modified: added event 'AllowDarkEventRisk' to allow mods to modify the logic
-// that determines whether or not Risk is applied to covert action
 function EnableDarkEventRisk(name DarkEventRiskName)
 {
 	local X2StrategyElementTemplateManager StratMgr;
 	local X2CovertActionRiskTemplate RiskTemplate;
 	local CovertActionRisk ActionRisk;
-	local bool bChosenIncreaseRisks;
 	local array<name> RiskNames;
-	local XComLWTuple Tuple;
+	local bool bChosenIncreaseRisks;
+	local XComLWTuple Tuple; // Issue #436
 	local int idx;
 		
 	StratMgr = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
 	RiskTemplate = X2CovertActionRiskTemplate(StratMgr.FindStrategyElementTemplate(DarkEventRiskName));
 	
+	// Issue #436 Start
 	Tuple = new class'XComLWTuple';
 	Tuple.Id = 'AllowDarkEventRisk';
 	Tuple.Data.Add(2);
@@ -979,6 +981,7 @@ function EnableDarkEventRisk(name DarkEventRiskName)
 
 	// Only add or modify risks which are available
 	if (Tuple.Data[1].b)
+	// Issue #436 End
 	{
 		RiskNames = GetMyTemplate().Risks;
 		bChosenIncreaseRisks = GetFaction().GetRivalChosen().ShouldIncreaseCovertActionRisks();
@@ -996,6 +999,7 @@ function EnableDarkEventRisk(name DarkEventRiskName)
 				if (ActionRisk.RiskTemplateName == DarkEventRiskName)
 				{
 					// The Risk is part of the default template, so recalculate its chance to occur modifiers and level				
+					// Issue #436: Changed first parameter
 					ActionRisk.ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(ActionRisk, bChosenIncreaseRisks, true);
 					ActionRisk.Level = GetRiskLevel(ActionRisk);
 					Risks[idx] = ActionRisk; // Resave the risk with the updated data
@@ -1005,7 +1009,6 @@ function EnableDarkEventRisk(name DarkEventRiskName)
 		}
 	}
 }
-// end CHL issue #434
 
 function DisableDarkEventRisk(name DarkEventRiskName)
 {
@@ -1030,6 +1033,7 @@ function DisableDarkEventRisk(name DarkEventRiskName)
 			else
 			{
 				// The Risk is part of the default template, so recalculate its chance to occur and level
+				// Issue #436: Changed first parameter
 				ActionRisk.ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(ActionRisk, bChosenIncreaseRisks, false);
 				ActionRisk.Level = GetRiskLevel(ActionRisk);
 				Risks[idx] = ActionRisk; // Resave the risk with the updated data				
