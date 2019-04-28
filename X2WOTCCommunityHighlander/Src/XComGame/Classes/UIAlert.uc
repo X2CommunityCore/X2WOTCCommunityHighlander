@@ -3411,7 +3411,7 @@ simulated function BuildItemAvailableAlert()
 	kInfo.strName = ItemTemplate.GetItemFriendlyName(, false);
 	kInfo.strBody = ItemTemplate.GetItemBriefSummary();
 	kInfo.strConfirm = m_strAccept;
-	kInfo.strImage = GetImageForItemAvaliable(ItemTemplate);
+	kInfo.strImage = GetImageForItemAvaliable(ItemTemplate); // Issue #491
 	kInfo.eColor = eUIState_Good;
 	kInfo.clrAlert = MakeLinearColor(0.0, 0.75, 0.0, 1);
 
