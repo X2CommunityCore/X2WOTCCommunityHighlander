@@ -294,6 +294,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2FiraxisLiveClient.uc">
+          <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2GameRuleset.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2HackRewardTemplateManager.uc">
