@@ -1121,8 +1121,42 @@ private function array<ObjectiveSpawnPossibility> SelectObjectiveSpawns(Objectiv
 	local int NumToSelect;
 	local int AttemptCount;
 
-	NumToSelect = SpawnInfo.iMinObjectives + `SYNC_RAND_TYPED(SpawnInfo.iMaxObjectives - SpawnInfo.iMinObjectives);
+	// Start Issue #463
+	//	
+	// Vars
+	local XComGameState_BattleData BattleData;
+	local XComLWTuple OverrideTuple;
+	
+    BattleData = XComGameState_BattleData(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
 
+	// Fix the random range to correct an off-by-one error so that the max objective count is possible to spawn.
+	NumToSelect = SpawnInfo.iMinObjectives + `SYNC_RAND_TYPED(SpawnInfo.iMaxObjectives - SpawnInfo.iMinObjectives + 1);
+
+    // If we have battle info with a mission ID, see if any mods want
+	// to specify the number of objectives to use by passing this
+	// BattleData to them via an event.
+	//
+	// The event takes the form:
+	//   {
+	//       ID: OverrideObjectiveSpawnCount,
+	//       Data: [ in BattleData BattleData, out int SpawnCount ]
+	//   }
+    if (BattleData != none && BattleData.m_iMissionID > 0)
+    {
+		OverrideTuple = new class'XComLWTuple';
+		OverrideTuple.Id = 'OverrideObjectiveSpawnCount';
+		OverrideTuple.Data.Add(2);
+		OverrideTuple.Data[0].kind = XComLWTVObject;
+		OverrideTuple.Data[0].o = BattleData;
+		OverrideTuple.Data[1].kind = XComLWTVInt;
+		OverrideTuple.Data[1].i = NumToSelect;
+		
+		`XEVENTMGR.TriggerEvent('OverrideObjectiveSpawnCount', OverrideTuple, self);
+		
+		NumToSelect = OverrideTuple.Data[1].i;
+    }
+	// End Issue #463
+	
 	if(SpawnInfo.iMinTilesBetweenObjectives <= 0)
 	{
 		// simple case where we don't care about distance, so just select at random

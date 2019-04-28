@@ -109,6 +109,9 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `OverrideClipSize` to allow effects to modify weapon clip size (#393)
 - `PostMissionObjectivesSpawned` to allow for map manipulation before units are spawned  (#405)
 - 'PostAliensSpawned' to allow changes to StartState (#457)
+- Allow mods to override the number of objectives spawned for a mission via the new event
+  `OverrideObjectiveSpawnCount`, which is triggered as the objective spawns are being
+  selected by `XComTacticalMissionManager`. (#463)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
