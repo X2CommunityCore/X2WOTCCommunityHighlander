@@ -2873,7 +2873,7 @@ simulated function BuildTrainingCompleteAlert(string TitleLabel)
 	ClassName = Caps(UnitState.GetSoldierClassDisplayName());
 	ClassIcon = UnitState.GetSoldierClassIcon();
 	// End Issue #106
-	RankName = Caps(class'X2ExperienceConfig'.static.GetRankName(UnitState.GetRank(), ClassTemplate.DataName));
+	RankName = Caps(UnitState.GetSoldierRankName()); // Issue #408
 	
 	FactionState = UnitState.GetResistanceFaction();
 
@@ -2973,7 +2973,7 @@ simulated function BuildPsiTrainingCompleteAlert(string TitleLabel)
 	ClassName = Caps(UnitState.GetSoldierClassDisplayName());
 	ClassIcon = UnitState.GetSoldierClassIcon();
 	// End Issue #106
-	RankName = Caps(class'X2ExperienceConfig'.static.GetRankName(UnitState.GetRank(), ClassTemplate.DataName));
+	RankName = Caps(UnitState.GetSoldierRankName()); // Issue #408
 
 	kTag = XGParamTag(`XEXPANDCONTEXT.FindTag("XGParam"));
 	kTag.StrValue0 = "";
@@ -3029,7 +3029,7 @@ simulated function BuildSoldierPromotedAlert()
 	ClassName = Caps(UnitState.GetSoldierClassDisplayName());
 	ClassIcon = UnitState.GetSoldierClassIcon();
 	// End Issue #106
-	RankName = Caps(class'X2ExperienceConfig'.static.GetRankName(UnitState.GetRank(), ClassTemplate.DataName));
+	RankName = Caps(UnitState.GetSoldierRankName()); // Issue #408
 
 	kTag = XGParamTag(`XEXPANDCONTEXT.FindTag("XGParam"));
 	kTag.StrValue0 = UnitState.GetFullName();
@@ -4072,7 +4072,7 @@ simulated function BuildNegativeTraitAcquiredAlert()
 	// Start Issue #106
 	ClassIcon = UnitState.GetSoldierClassIcon();
 	// End Issue #106
-	RankName = Caps(class'X2ExperienceConfig'.static.GetRankName(UnitState.GetRank(), ClassTemplate.DataName));
+	RankName = Caps(UnitState.GetSoldierRankName()); // Issue #408
 
 	TraitDesc = NegativeTrait.TraitDescription;
 	if (NegativeTrait.TraitQuotes.Length > 0)
@@ -5285,7 +5285,7 @@ simulated function BuildConfirmCovertActionAlert()
 			StaffUnit = SlotState.GetAssignedStaff(); 
 			if (StaffUnit.IsSoldier())
 			{
-				RankImage = class'UIUtilities_Image'.static.GetRankIcon(StaffUnit.GetRank(), StaffUnit.GetSoldierClassTemplateName());
+				RankImage = StaffUnit.GetSoldierRankIcon(); // Issue #408
 				// Start Issue #106
 				ClassImage = StaffUnit.GetSoldierClassIcon();
 				// End Issue #106

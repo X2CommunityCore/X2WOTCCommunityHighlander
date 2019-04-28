@@ -101,7 +101,7 @@ simulated function PopulateCharacterData()
 	{
 		//compile the displayed character name
 		Nickname = kGameStateUnit.GetNickName(); //will not be used if returned empty
-		RankAbbrev = `GET_RANK_ABBRV(kGameStateUnit.GetSoldierRank(), kGameStateUnit.GetSoldierClassTemplateName());
+		RankAbbrev = kGameStateUnit.GetSoldierShortRankName(); // Issue #408
 		NameString = kGameStateUnit.SafeGetCharacterFirstName() @ (Nickname != "\"\"" ? Nickname : "") @ kGameStateUnit.SafeGetCharacterLastName();
 
 		SoldierClassTemplate = kGameStateUnit.GetSoldierClassTemplate();

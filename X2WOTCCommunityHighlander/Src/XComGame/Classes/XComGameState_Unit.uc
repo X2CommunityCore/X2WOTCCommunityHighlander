@@ -4710,9 +4710,9 @@ function string GetName( ENameType eType )
 				}
 				if( bFirstNameBlank )
 				{
-					return `GET_RANK_ABBRV( m_SoldierRank, m_SoldierClassTemplateName ) @ strLastName;
+					return GetSoldierShortRankName() @ strLastName; // Issue #408
 				}
-				return `GET_RANK_ABBRV( m_SoldierRank, m_SoldierClassTemplateName ) @ strFirstName @ strLastName;
+				return GetSoldierShortRankName() @ strFirstName @ strLastName; // Issue #408
 				break;
 			}
 			// civilians should fall through to full name with no rank
@@ -4723,11 +4723,11 @@ function string GetName( ENameType eType )
 			break;
 		case eNameType_Rank:
 			if (GhostSourceUnit.ObjectID > 0) return "";
-			return `GET_RANK_STR(m_SoldierRank, m_SoldierClassTemplateName);
+			return GetSoldierRankName(); // Issue #408
 			break;
 		case eNameType_RankLast:
 			if (GhostSourceUnit.ObjectID > 0) return strLastName;
-			return `GET_RANK_ABBRV(m_SoldierRank, m_SoldierClassTemplateName) @ strLastName;
+			return GetSoldierShortRankName() @ strLastName; // Issue #408
 			break;
 		case eNameType_FullNick:
 			if(strNickName != "")
@@ -4756,17 +4756,17 @@ function string GetName( ENameType eType )
 				{
 					if( bFirstNameBlank )
 					{
-						return `GET_RANK_ABBRV( m_SoldierRank, m_SoldierClassTemplateName ) @ OpenQuote $ SanitizeQuotes(strNickName)  $CloseQuote @ strLastName;
+						return GetSoldierShortRankName() @ OpenQuote $ SanitizeQuotes(strNickName)  $CloseQuote @ strLastName; // Issue #408
 					}
-					return `GET_RANK_ABBRV( m_SoldierRank, m_SoldierClassTemplateName ) @ strFirstName @ OpenQuote $ SanitizeQuotes(strNickName)  $CloseQuote @ strLastName;
+					return GetSoldierShortRankName() @ strFirstName @ OpenQuote $ SanitizeQuotes(strNickName)  $CloseQuote @ strLastName; // Issue #408
 				}
 				else
 				{
 					if( bFirstNameBlank )
 					{
-						return `GET_RANK_ABBRV( m_SoldierRank, m_SoldierClassTemplateName ) @ SanitizeQuotes(strNickName)  @ strLastName;
+						return GetSoldierShortRankName() @ SanitizeQuotes(strNickName)  @ strLastName; // Issue #408
 					}
-					return `GET_RANK_ABBRV( m_SoldierRank, m_SoldierClassTemplateName ) @ strFirstName @ SanitizeQuotes(strNickName)  @ strLastName;
+					return GetSoldierShortRankName() @ strFirstName @ SanitizeQuotes(strNickName)  @ strLastName; // Issue #408
 				}
 			}
 			else
@@ -4777,8 +4777,8 @@ function string GetName( ENameType eType )
 					return strFirstName @ strLastName;
 				}
 				if(bFirstNameBlank)
-					return `GET_RANK_ABBRV( m_SoldierRank, m_SoldierClassTemplateName ) @ strLastName;
-				return `GET_RANK_ABBRV( m_SoldierRank, m_SoldierClassTemplateName ) @ strFirstName @ strLastName;
+					return GetSoldierShortRankName() @ strLastName; // Issue #408
+				return GetSoldierShortRankName() @ strFirstName @ strLastName; // Issue #408
 			}
 				
 			break;
@@ -8156,13 +8156,13 @@ function BuildVisualizationForRankUp(XComGameState VisualizeGameState)
 
 	
 	LocTag = XGParamTag(`XEXPANDCONTEXT.FindTag("XGParam"));
-	LocTag.StrValue0 = class'X2ExperienceConfig'.static.GetRankName(UnitState.GetSoldierRank() + 1, Unitstate.GetSoldierClassTemplateName());
+	LocTag.StrValue0 = UnitState.GetSoldierRankName(UnitState.GetSoldierRank() + 1);
 
 	// show the event notices message
 	Title = class'UIEventNoticesTactical'.default.RankUpMessage;
 	Subtitle = `XEXPAND.ExpandString(class'UIEventNoticesTactical'.default.RankUpSubtitle);
 	SoldierName = UnitState.GetName(eNameType_RankFull);
-	RankIcon = class'UIUtilities_Image'.static.GetRankIcon(UnitState.GetSoldierRank() + 1, Unitstate.GetSoldierClassTemplateName());
+	RankIcon = UnitState.GetSoldierRankIcon(UnitState.GetSoldierRank() + 1); // Issue #408
 
 	MessageAction = X2Action_PlayMessageBanner(class'X2Action_PlayMessageBanner'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
 	MessageAction.AddMessageBanner(Title, RankIcon, SoldierName, Subtitle, eUIState_Good);
@@ -14032,6 +14032,102 @@ function String GetSoldierClassSummary()
 	return Tuple.Data[0].s;
 }
 // End Issue #106
+
+// Start Issue #408
+//
+// Function that returns the current unit's long-form rank name. It sends a
+// `SoldierRankName` event with a tuple that allows listeners to override the
+// default name of a given rank. The tuple data takes the form:
+//
+//   {ID: "SoldierRankName", Data: [in int Rank, out string RankName]}
+//
+// The rank may be -1 which means that the listener should return the unit's
+// current rank (if they want to override it).
+//
+// @params Rank An optional rank to retrieve the name of, rather than the
+//         unit's current rank. If this is -1, then the current rank is
+//         returned as usual.
+//
+function string GetSoldierRankName(optional int Rank = -1)
+{
+	local XComLWTuple OverrideTuple;
+		
+	OverrideTuple = TriggerSoldierRankEvent(
+		Rank,
+		'SoldierRankName',
+		class'X2ExperienceConfig'.static.GetRankName(GetRank(), GetSoldierClassTemplateName()));
+
+	return OverrideTuple.Data[1].s;
+}
+
+// Function that returns the current unit's short-form rank name. It sends a
+// `SoldierShortRankName` event with a tuple that allows listeners to override
+// the default name of a given rank. The tuple data takes the form:
+//
+//   {ID: "SoldierShortRankName", Data: [in int Rank, out string RankShortName]}
+//
+// The rank may be -1 which means that the listener should return the unit's
+// current rank (if they want to override it).
+//
+// @params Rank An optional rank to retrieve the name of, rather than the
+//         unit's current rank. If this is -1, then the current rank is
+//         returned as usual.
+//
+function string GetSoldierShortRankName(optional int Rank = -1)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = TriggerSoldierRankEvent(
+		Rank,
+		'SoldierShortRankName',
+		class'X2ExperienceConfig'.static.GetShortRankName(GetRank(), GetSoldierClassTemplateName()));
+
+	return OverrideTuple.Data[1].s;
+}
+
+// Function that returns the image path for the current unit's rank. It sends a
+// `SoldierRankIcon` event with a tuple that allows listeners to override the
+// default icon of a given rank. The tuple data takes the form:
+//
+//   {ID: "SoldierRankIcon", Data: [in int Rank, out string IconPath]}
+//
+// The rank may be -1 which means that the listener should return the unit's
+// current rank (if they want to override it).
+//
+// @params Rank An optional rank to retrieve the icon for, rather than the
+//         unit's current rank. If this is -1, then the icon for the current
+//         rank is returned as usual.
+//
+function string GetSoldierRankIcon(optional int Rank = -1)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = TriggerSoldierRankEvent(
+		Rank,
+		'SoldierRankIcon',
+		class'UIUtilities_Image'.static.GetRankIcon(GetRank(), GetSoldierClassTemplateName()));
+
+	return OverrideTuple.Data[1].s;
+}
+
+private function XComLWTuple TriggerSoldierRankEvent(const int Rank, const name EventID, const string DefaultValue)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = EventID;
+	OverrideTuple.Data.Add(2);
+	// The requested rank. May be -1 which means the soldier's current rank
+	OverrideTuple.Data[0].kind = XComLWTVInt;
+	OverrideTuple.Data[0].i = Rank;
+	OverrideTuple.Data[1].kind = XComLWTVString;
+	OverrideTuple.Data[1].s = DefaultValue;  // string to return
+
+	`XEVENTMGR.TriggerEvent(EventID, OverrideTuple, self, none);
+
+	return OverrideTuple;
+}
+// End Issue #408
 
 // Start Issue #171
 // Sets the eStat_UtilityItems of the unit and returns it.

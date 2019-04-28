@@ -21,7 +21,7 @@ simulated function InitListItem(StateObjectReference initUnitRef)
 {
 	local XComGameState_Unit Unit;
 	local string UnitLoc, status, statusTimeLabel, statusTimeValue, classIcon, rankIcon, flagIcon, mentalStatus;	
-	local int iRank, iTimeNum;
+	local int iTimeNum;
 	local X2SoldierClassTemplate SoldierClass;
 	local XComGameState_ResistanceFaction FactionState;
 	local SoldierBond BondData;
@@ -30,9 +30,7 @@ simulated function InitListItem(StateObjectReference initUnitRef)
 	local int BondLevel; 
 	
 	Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitRef.ObjectID));
-
-	iRank = Unit.GetRank();
-
+	
 	SoldierClass = Unit.GetSoldierClassTemplate();
 	FactionState = Unit.GetResistanceFaction();
 
@@ -59,7 +57,7 @@ simulated function InitListItem(StateObjectReference initUnitRef)
 		statusTimeValue = "---";
 
 	flagIcon = Unit.GetCountryTemplate().FlagImage;
-	rankIcon = class'UIUtilities_Image'.static.GetRankIcon(iRank, SoldierClass.DataName);
+	rankIcon = Unit.GetSoldierRankIcon(); // Issue #408
 	// Start Issue #106
 	classIcon = Unit.GetSoldierClassIcon();
 	// End Issue #106
@@ -111,10 +109,10 @@ simulated function InitListItem(StateObjectReference initUnitRef)
 		BondLevel = -1; 
 	}
 
-	// Start Issue #106
+	// Start Issue #106, #408
 	AS_UpdateDataSoldier(Caps(Unit.GetName(eNameType_Full)),
 					Caps(Unit.GetName(eNameType_Nick)),
-					Caps(`GET_RANK_ABBRV(Unit.GetRank(), SoldierClass.DataName)),
+					Caps(Unit.GetSoldierShortRankName()),
 					rankIcon,
 					Caps(SoldierClass != None ? Unit.GetSoldierClassDisplayName() : ""),
 					classIcon,
@@ -127,7 +125,7 @@ simulated function InitListItem(StateObjectReference initUnitRef)
 					false, // psi soldiers can't rank up via missions
 					mentalStatus,
 					BondLevel);
-	// End Issue #106
+	// End Issue #106, #408
 
 	AS_SetFactionIcon(FactionState.GetFactionIcon());
 }

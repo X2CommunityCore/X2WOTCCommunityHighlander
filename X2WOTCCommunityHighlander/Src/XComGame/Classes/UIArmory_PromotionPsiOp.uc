@@ -72,7 +72,9 @@ simulated function PopulateData()
 	}
 
 	ClassRowItem.ClassName = ClassTemplate.DataName;
-	ClassRowItem.SetRankData(class'UIUtilities_Image'.static.GetRankIcon(1, ClassTemplate.DataName), Caps(class'X2ExperienceConfig'.static.GetRankName(1, ClassTemplate.DataName)));
+	// Start Issue #408
+	ClassRowItem.SetRankData(Unit.GetSoldierRankIcon(1), Caps(Unit.GetSoldierRankName(1)));
+	// End Issue #408
 		
 	AbilityTemplate2 = AbilityTemplateManager.FindAbilityTemplate(AbilityTree[0].AbilityName);
 	if (AbilityTemplate2 != none)
@@ -102,7 +104,9 @@ simulated function PopulateData()
 
 		Item.Rank = i - 1;
 		Item.ClassName = ClassTemplate.DataName;
-		Item.SetRankData(class'UIUtilities_Image'.static.GetRankIcon(i, ClassTemplate.DataName), Caps(class'X2ExperienceConfig'.static.GetRankName(i, ClassTemplate.DataName)));
+		// Start Issue #408
+		Item.SetRankData(Unit.GetSoldierRankIcon(i), Caps(Unit.GetSoldierRankName(i)));
+		// End Issue #408
 
 		AbilityTree = Unit.GetRankAbilities(Item.Rank);
 		AbilityTemplate1 = AbilityTemplateManager.FindAbilityTemplate(AbilityTree[0].AbilityName);

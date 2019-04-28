@@ -45,7 +45,6 @@ simulated function UpdateData()
 	local XComGameState_Unit Unit, ScreenUnit;
 	local StateObjectReference BondmateRef;
 	local string classIcon, rankIcon, flagIcon;
-	local int iRank;
 	local X2SoldierClassTemplate SoldierClass;
 	local SoldierBond BondData;
 	local float CohesionPercent, CohesionMax;
@@ -56,12 +55,10 @@ simulated function UpdateData()
 
 	ScreenUnit.GetBondData(UnitRef, BondData);
 
-	iRank = Unit.GetRank();
-
 	SoldierClass = Unit.GetSoldierClassTemplate();
 
 	flagIcon = Unit.GetCountryTemplate().FlagImage;
-	rankIcon = class'UIUtilities_Image'.static.GetRankIcon(iRank, SoldierClass.DataName);
+	rankIcon = Unit.GetSoldierRankIcon(); // Issue #408
 	// Start Issue #106
 	classIcon = Unit.GetSoldierClassIcon();
 	// End Issue #106
@@ -108,10 +105,10 @@ simulated function UpdateData()
 		ActivateBondButton.Hide();
 		MC.FunctionBool("CanShowBondButton", false);
 	}
-	// Start Issue #106
+	// Start Issue #106, #408
 	AS_UpdateDataSoldier(Caps(Unit.GetName(eNameType_Full)),
 						 Caps(Unit.GetName(eNameType_Nick)),
-						 Caps(`GET_RANK_ABBRV(Unit.GetRank(), SoldierClass.DataName)),
+						 Caps(Unit.GetSoldierShortRankName()),
 						rankIcon,
 						Caps(SoldierClass != None ? Unit.GetSoldierClassDisplayName() : ""),
 						classIcon,
@@ -119,7 +116,7 @@ simulated function UpdateData()
 						class'X2StrategyGameRulesetDataStructures'.static.GetSoldierCompatibilityLabel(BondData.Compatibility),
 						CohesionPercent,
 						IsDisabled);
-	// End Issue #106
+	// End Issue #106, #408
 }
 
 simulated function AS_UpdateDataSoldier(string UnitName,
