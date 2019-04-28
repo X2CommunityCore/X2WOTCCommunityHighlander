@@ -707,7 +707,23 @@ function CreateGoldenPathActions(XComGameState NewGameState)
 //---------------------------------------------------------------------------------------
 function GenerateCovertActions(XComGameState NewGameState, out array<Name> ActionExclusionList)
 {	
-	CovertActions.Length = 0; // Reset the stored covert actions list
+	// Issue #435 Start: Don't unconditionally remove all CAs
+	local XComGameState_CovertAction ActionState;
+	local StateObjectReference ActionRef;
+	local XComGameStateHistory History;
+
+	History = `XCOMHISTORY;
+
+	foreach CovertActions(ActionRef)
+	{
+		ActionState = XComGameState_CovertAction(History.GetGameStateForObjectID(ActionRef.ObjectID));
+		if (ActionState == none || ActionState.bRemoved)
+		{
+			CovertActions.RemoveItem(ActionRef);
+		}
+	}
+	// Issue #435 End
+	
 	RefreshAvailableCovertActions(NewGameState, ActionExclusionList); // Refresh which covert actions are available for this Faction	
 	AddNewCovertActions(NewGameState, GetNumActionsToAdd(NewGameState) /* Issue #373 */, ActionExclusionList);
 }
@@ -920,19 +936,43 @@ function RemoveCovertAction(StateObjectReference ActionRef)
 	}
 }
 
+// start CHL issue #435
+// CHL function modified: added event 'ShouldCleanupCovertAction' to allow mod control over CA deletion
 //---------------------------------------------------------------------------------------
 function CleanUpFactionCovertActions(XComGameState NewGameState)
 {
 	local XComGameStateHistory History;
+	// Issue #435 Start
 	local XComGameState_CovertAction ActionState;
-	local int idx;
+	local StateObjectReference ActionRef;
+	local XComLWTuple Tuple;
 
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'ShouldCleanupCovertAction';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVObject;
+	Tuple.Data[1].kind = XComLWTVBool;
+	// Issue #435 End
+	
 	History = `XCOMHISTORY;
-	for(idx = 0; idx < CovertActions.Length; idx++)
+
+	foreach CovertActions(ActionRef) // Issue #435 Changed Loop type
 	{
-		// Clean up any non-started actions created for the facility.
-		ActionState = XComGameState_CovertAction(History.GetGameStateForObjectID(CovertActions[idx].ObjectID));
-		if (ActionState != none && !ActionState.bStarted)
+		// Issue #435 Start
+		ActionState = XComGameState_CovertAction(History.GetGameStateForObjectID(ActionRef.ObjectID));
+
+		if (ActionState == none)
+		{
+			continue;
+		}
+
+		Tuple.Data[0].o = ActionState;
+		Tuple.Data[1].b = !ActionState.bStarted;
+		
+		`XEVENTMGR.TriggerEvent('ShouldCleanupCovertAction', Tuple, self, NewGameState);
+
+		if (Tuple.Data[1].b)
+		// Issue #435 End
 		{
 			ActionState = XComGameState_CovertAction(NewGameState.ModifyStateObject(class'XComGameState_CovertAction', ActionState.ObjectID));
 			ActionState.RemoveEntity(NewGameState);
