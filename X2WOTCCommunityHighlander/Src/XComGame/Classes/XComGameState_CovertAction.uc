@@ -2071,7 +2071,13 @@ simulated public function AmbushPopup()
 	ActionState.bNeedsAmbushPopup = false;
 	`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
 
-	MissionSite = GetMission(AmbushMissionSource); // Find the Ambush mission and display its popup // Issue #485
+	// Start Issue #485
+	if(AmbushMissionSource == '') { // backwards compatibility
+		AmbushMissionSource = 'MissionSource_ChosenAmbush';
+	}
+	MissionSite = GetMission(AmbushMissionSource); // Find the Ambush mission and display its popup
+	// End Issue #485
+
 	if (MissionSite != none && MissionSite.GetMissionSource().MissionPopupFn != none)
 	{
 		MissionSite.GetMissionSource().MissionPopupFn(MissionSite);
