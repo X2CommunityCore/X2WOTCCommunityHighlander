@@ -5137,12 +5137,11 @@ function string GetStatusString()
 	return FormattedStatus;
 }
 
-// start CHL issue #322
-// CHL function modified: added event 'CustomizeStatusStringSeparate'
 function GetStatusStringsSeparate(out string Status, out string TimeLabel, out int TimeValue)
 {
 	local bool bProjectExists;
 	local int iHours, iDays;
+	// Issue #332 Start
 	local XComLWTuple Tuple;
 
 	Tuple = new class'XComLWTuple';
@@ -5166,6 +5165,7 @@ function GetStatusStringsSeparate(out string Status, out string TimeLabel, out i
 		TimeValue = Tuple.Data[3].i;
 		return;
 	}
+	// Issue #332 End
 
 	if( IsInjured() )
 	{
@@ -5207,7 +5207,7 @@ function GetStatusStringsSeparate(out string Status, out string TimeLabel, out i
 		TimeLabel = class'UIUtilities_Text'.static.GetDaysString(iDays);
 	}
 }
-// end CHL issue #322
+
 //-------------------------------------------------------------------------
 // Returns a UI state (color) that matches the soldier's status
 function int GetStatusUIState()
