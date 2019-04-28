@@ -266,7 +266,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Allow mods to check whether VIP units left a mission successfully via the `bRemovedFromPlay`
   flag on `XComGameState_Unit`. This behavior is gated behind the new `CHHelpers.PreserveProxyUnitData`
   config variable. (#465)
-
+- Adds CustomDeathAnimationName property to X2Action_Death that allows overriding the default death animations (#488)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
