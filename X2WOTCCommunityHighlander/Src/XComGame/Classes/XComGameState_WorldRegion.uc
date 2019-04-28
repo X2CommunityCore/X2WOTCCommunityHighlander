@@ -1337,16 +1337,12 @@ protected function bool DisplaySelectionPrompt()
 	return true;
 }
 
-
-// start CHL issue #443 
-// patching function: 'MissionState' replaced with 'EntityState'
-// 'XComGameState_MissionSite' replaced with 'XComGameState_GeoscapeEntity'
 //---------------------------------------------------------------------------------------
 function DestinationReached()
 {
 	local XComGameStateHistory History;
 	local XComGameState_HeadquartersXCom XComHQ;
-	local XComGameState_GeoscapeEntity EntityState;
+	local XComGameState_GeoscapeEntity EntityState; // Issue #443
 	local StateObjectReference EmptyRef;
 	local XComGameState NewGameState;
 
@@ -1355,19 +1351,18 @@ function DestinationReached()
 	// Do we need to fly to a mission right away
 	History = `XCOMHISTORY;
 	XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
-	EntityState = XComGameState_GeoscapeEntity(History.GetGameStateForObjectID(XComHQ.CrossContinentMission.ObjectID));
+	EntityState = XComGameState_GeoscapeEntity(History.GetGameStateForObjectID(XComHQ.CrossContinentMission.ObjectID)); // Issue #443
 
-	if(EntityState != none)
+	if(EntityState != none) // Issue #443
 	{
 		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Clear cross continent mission reference");
 		XComHQ = XComGameState_HeadquartersXCom(NewGameState.ModifyStateObject(class'XComGameState_HeadquartersXCom', XComHQ.ObjectID));
 		XComHQ.CrossContinentMission = EmptyRef;
 		`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
 		
-		EntityState.ConfirmSelection();
+		EntityState.ConfirmSelection(); // Issue #443
 	}
 }
-// end CHL issue #443
 
 //---------------------------------------------------------------------------------------
 simulated function UnlockedCallback(Name eAction, out DynamicPropertySet AlertData, optional bool bInstant = false)
