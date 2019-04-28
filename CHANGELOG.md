@@ -10,6 +10,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   List (#112)
 - `CanWeaponApplyUpgrade` allows mods to restrict what upgrades can be applied
   to a specific weapon (#260)
+- `ModifyEarnedSoldierAbilities` allows mods to add their own abilities to soldiers,
+  such as officer abilites (#409)
 
 ### Event Hooks
 - Triggers the event `OnArmoryMainMenuUpdate` that allows adding elements into
