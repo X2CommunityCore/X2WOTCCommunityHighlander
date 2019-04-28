@@ -3411,7 +3411,7 @@ simulated function BuildItemAvailableAlert()
 	kInfo.strName = ItemTemplate.GetItemFriendlyName(, false);
 	kInfo.strBody = ItemTemplate.GetItemBriefSummary();
 	kInfo.strConfirm = m_strAccept;
-	kInfo.strImage = ItemTemplate.strImage;
+	kInfo.strImage = GetImageForItemAvaliable(ItemTemplate); // Issue #491
 	kInfo.eColor = eUIState_Good;
 	kInfo.clrAlert = MakeLinearColor(0.0, 0.75, 0.0, 1);
 
@@ -3419,6 +3419,25 @@ simulated function BuildItemAvailableAlert()
 
 	BuildAvailableAlert(kInfo);
 }
+
+// Start issue #491
+simulated function string GetImageForItemAvaliable(X2ItemTemplate ItemTemplate)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideImageForItemAvaliable';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVString;
+	Tuple.Data[0].s = ItemTemplate.strImage; // Vanilla logic
+	Tuple.Data[1].kind = XComLWTVObject;
+	Tuple.Data[1].o = ItemTemplate;
+
+	`XEVENTMGR.TriggerEvent('OverrideImageForItemAvaliable', Tuple, self);
+
+	return Tuple.Data[0].s;
+}
+// End issue #491
 
 simulated function BuildItemReceivedAlert()
 {
