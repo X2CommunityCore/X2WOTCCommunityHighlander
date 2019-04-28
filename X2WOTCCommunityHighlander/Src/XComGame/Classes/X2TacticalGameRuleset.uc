@@ -2923,7 +2923,7 @@ Begin:
 	WorldInfo.MyLocalEnvMapManager.SetEnableCaptures(TRUE);
 
 	ReleaseScriptLog("X2TacticalGameRuleset: Finished Generating Map");
-	
+
 	ApplyResistancePoliciesToStartState( );
 	ApplySitRepEffectsToStartState();  // CHL issue #450
 	ApplyDarkEventsToStartState( );
