@@ -28,6 +28,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Triggers the event `CompleteRespecSoldier` when a training center soldier respec was completed. (#339)
 - Triggers the events `UIArmory_WeaponUpgrade_SlotsUpdated` and `UIArmory_WeaponUpgrade_NavHelpUpdated`
   in `UIArmory_WeaponUpgrade` (#417)
+- Triggers the event `OverrideImageForItemAvaliable` to allow mods to override the image shown in eAlert_ItemAvailable (#491)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
