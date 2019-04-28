@@ -92,6 +92,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `OverrideHackingScreenType` and `HackIn2D` to allow hacking using a 2D movie and using
   the Skulljack / ADVENT screen arbitrarily (#330)
 - `OverrideClipSize` to allow effects to modify weapon clip size (#393)
+- `PostMissionObjectivesSpawned` to allow for map manipulation before units are spawned  (#405)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
@@ -110,6 +111,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   AbilityMultiTarget, and AbilityShooter Effects (#68)
 - Deprivatise/const config variables in XComTacticalMissionManager (#101)
 - Deprivatise XComAlienPawn.Voice to allow changes by mods (#275)
+- Deprivatise/const config variables in XComParcelManager (#404)
 
 ### Improvements
 - Make suppression work with weapons that don't have suppression specific
@@ -117,6 +119,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Make suppression work with units that don't have a suppression specific
   idle animation animation set on them (#74)
 - Gremlins (and other Cosmetic Units) are now correctly tinted and patterned (#376)
+- Register tactical event listeners in TQL (#406)
 
 ### Fixes
 - Ensure Gremlins use the walk/run animation based on the alert status of their

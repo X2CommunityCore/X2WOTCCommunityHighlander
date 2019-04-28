@@ -187,6 +187,9 @@ simulated function InitScreen(XComPlayerController InitController, UIMovie InitM
 	{
 		OnButtonStartChallengeClicked(None);
 	}
+
+	// Issue 406: allow templated event handlers to register themselves in TQL for map generation
+	class'X2EventListenerTemplateManager'.static.RegisterTacticalListeners();
 }
 
 simulated function OnReceiveFocus()
