@@ -27,6 +27,8 @@ var int MajorVersion;
 var int MinorVersion;
 var int PatchVersion;
 
+var string Commit;
+
 // "Short" version number (minus the patch)
 function String GetShortVersionString()
 {
@@ -54,10 +56,12 @@ function int GetVersionNumber()
     return (MajorVersion * 100000000) + (MinorVersion * 10000) + (PatchVersion);
 }
 
+// AUTO-CODEGEN: Version-Info
 defaultproperties
 {
     MajorVersion = 1;
     MinorVersion = 17;
     PatchVersion = 0;
+    Commit = "";
 }
 

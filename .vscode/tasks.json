@@ -41,6 +41,12 @@
             "type": "shell",
             "command": "powershell.exe -file '${workspaceRoot}\\.scripts\\runUnrealEditor.ps1' -sdkPath '${config:xcom.highlander.sdkroot}'",
             "problemMatcher": []
-        }
+        },
+        {
+            "label": "updateVersions",
+            "type": "shell",
+            "command": "powershell.exe -file '${workspaceRoot}\\.scripts\\update_version.ps1' -ps '${workspaceRoot}\\VERSION.ps1' -srcDirectory '${workspaceRoot}'",
+            "problemMatcher": []
+        },
     ]
 }

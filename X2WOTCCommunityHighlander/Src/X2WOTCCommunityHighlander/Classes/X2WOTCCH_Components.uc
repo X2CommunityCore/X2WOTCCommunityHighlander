@@ -120,5 +120,10 @@ static function string FormatVersion(X2StrategyElementTemplate Version)
 	Ret = Repl(Ret, "%MINOR", CHXComGameVersionTemplate(Version).MinorVersion);
 	Ret = Repl(Ret, "%PATCH", CHXComGameVersionTemplate(Version).PatchVersion);
 
+	if (CHXComGameVersionTemplate(Version).Commit != "")
+	{
+		Ret @= "(" $ CHXComGameVersionTemplate(Version).Commit $ ")";
+	}
+
 	return Ret;
 }
