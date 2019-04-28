@@ -359,6 +359,9 @@
     <Content Include="Src\XComGame\Classes\XComGameState_AIUnitData.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_BlackMarket.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_CovertAction.uc">
       <SubType>Content</SubType>
     </Content>
