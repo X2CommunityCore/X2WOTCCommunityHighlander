@@ -883,24 +883,77 @@ private function AddRisk(X2CovertActionRiskTemplate RiskTemplate, bool bChosenIn
 		
 	NewRisk.RiskTemplateName = RiskTemplate.DataName;
 	NewRisk.ChanceToOccur = (RiskTemplate.MinChanceToOccur + `SYNC_RAND(RiskTemplate.MaxChanceToOccur - RiskTemplate.MinChanceToOccur + 1));
-	NewRisk.ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(NewRisk.ChanceToOccur, bChosenIncreaseRisks, bDarkEventRisk);
+	NewRisk.ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(NewRisk, bChosenIncreaseRisks, bDarkEventRisk);
 	NewRisk.Level = GetRiskLevel(NewRisk); // Get the risk level based on the chance to occur (not whether it actually does)
 
 	Risks.AddItem(NewRisk);
 }
 
-private function int CalculateRiskChanceToOccurModifiers(int ChanceToOccur, bool bChosenIncreaseRisks, bool bDarkEventRisk)
+// Issue #436: CHL function modified: first parameter changed from "int ChanceToOccur" to "CovertActionRisk ActionRisk"
+private function int CalculateRiskChanceToOccurModifiers(CovertActionRisk ActionRisk, bool bChosenIncreaseRisks, bool bDarkEventRisk)
 {
 	local int ChanceToOccurModifier;
-	
+	local XComLWTuple Tuple; // Issue #436
+
 	if (bChosenIncreaseRisks)
 	{
 		// Increase the chance to occur if the rival Chosen is increasing risks
 		ChanceToOccurModifier += class'XComGameState_AdventChosen'.default.CovertActionRiskIncrease;
 	}
 
-	return ChanceToOccurModifier;
+	// Issue #436 Start
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'CovertActionRisk_AlterChanceModifier';
+	Tuple.Data.Add(5);
+	Tuple.Data[0].kind = XComLWTVName;
+	Tuple.Data[0].n = ActionRisk.RiskTemplateName;
+	Tuple.Data[1].kind = XComLWTVInt;
+	Tuple.Data[1].i = ActionRisk.ChanceToOccur;
+	Tuple.Data[2].kind = XComLWTVBool;
+	Tuple.Data[2].b = bChosenIncreaseRisks;
+	Tuple.Data[3].kind = XComLWTVBool;
+	Tuple.Data[3].b = bDarkEventRisk;
+	Tuple.Data[4].kind = XComLWTVInt;
+	Tuple.Data[4].i = ChanceToOccurModifier;
+
+	`XEVENTMGR.TriggerEvent('CovertActionRisk_AlterChanceModifier', Tuple, self);
+
+	return Tuple.Data[4].i;
+	// Issue #436 End
 }
+
+// Issue #436 Start: This function must be called if you are using CovertActionRisk_AlterChanceModifier:
+// This class internally caches the risks and will not be aware of anything that might change the behavior
+// of your listener function. Call this function whenever you observe a change that affects the output of
+// your CovertActionRisk_AlterChanceModifier listener.
+function RecalculateRiskChanceToOccurModifiers()
+{
+	local XComGameState_HeadquartersResistance ResHQ;
+	local X2StrategyElementTemplateManager StratMgr;
+	local bool bChosenIncreaseRisks, bDarkEventRisk;
+	local X2CovertActionRiskTemplate RiskTemplate;
+	local int idx;
+
+	ResHQ = XComGameState_HeadquartersResistance(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersResistance'));
+	StratMgr = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
+
+	for (idx = 0; idx < Risks.Length; idx++)
+	{
+		bChosenIncreaseRisks = GetFaction().GetRivalChosen().ShouldIncreaseCovertActionRisks();
+		RiskTemplate = X2CovertActionRiskTemplate(StratMgr.FindStrategyElementTemplate(Risks[idx].RiskTemplateName));
+		if (RiskTemplate.IsRiskAvailableFn == none || RiskTemplate.IsRiskAvailableFn(GetFaction()))
+        {
+            bDarkEventRisk = false;
+            if (ResHQ.CovertActionDarkEventRisks.Find(Risks[idx].RiskTemplateName) != INDEX_NONE)
+            {
+                bDarkEventRisk = true;
+            }
+		}
+
+		Risks[idx].ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(Risks[idx], bChosenIncreaseRisks, bDarkEventRisk);
+	}
+}
+// Issue #436 End
 
 function EnableDarkEventRisk(name DarkEventRiskName)
 {
@@ -909,13 +962,26 @@ function EnableDarkEventRisk(name DarkEventRiskName)
 	local CovertActionRisk ActionRisk;
 	local array<name> RiskNames;
 	local bool bChosenIncreaseRisks;
+	local XComLWTuple Tuple; // Issue #436
 	local int idx;
 		
 	StratMgr = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
 	RiskTemplate = X2CovertActionRiskTemplate(StratMgr.FindStrategyElementTemplate(DarkEventRiskName));
+	
+	// Issue #436 Start
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'AllowDarkEventRisk';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVObject;
+	Tuple.Data[0].o = RiskTemplate;
+	Tuple.Data[1].kind = XComLWTVBool;
+	Tuple.Data[1].b = RiskTemplate.IsRiskAvailableFn == none || RiskTemplate.IsRiskAvailableFn(GetFaction());
+
+	`XEVENTMGR.TriggerEvent('AllowDarkEventRisk', Tuple, self);
 
 	// Only add or modify risks which are available
-	if (RiskTemplate.IsRiskAvailableFn == none || RiskTemplate.IsRiskAvailableFn(GetFaction()))
+	if (Tuple.Data[1].b)
+	// Issue #436 End
 	{
 		RiskNames = GetMyTemplate().Risks;
 		bChosenIncreaseRisks = GetFaction().GetRivalChosen().ShouldIncreaseCovertActionRisks();
@@ -933,7 +999,8 @@ function EnableDarkEventRisk(name DarkEventRiskName)
 				if (ActionRisk.RiskTemplateName == DarkEventRiskName)
 				{
 					// The Risk is part of the default template, so recalculate its chance to occur modifiers and level				
-					ActionRisk.ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(ActionRisk.ChanceToOccur, bChosenIncreaseRisks, true);
+					// Issue #436: Changed first parameter
+					ActionRisk.ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(ActionRisk, bChosenIncreaseRisks, true);
 					ActionRisk.Level = GetRiskLevel(ActionRisk);
 					Risks[idx] = ActionRisk; // Resave the risk with the updated data
 					break;
@@ -966,7 +1033,8 @@ function DisableDarkEventRisk(name DarkEventRiskName)
 			else
 			{
 				// The Risk is part of the default template, so recalculate its chance to occur and level
-				ActionRisk.ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(ActionRisk.ChanceToOccur, bChosenIncreaseRisks, false);
+				// Issue #436: Changed first parameter
+				ActionRisk.ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(ActionRisk, bChosenIncreaseRisks, false);
 				ActionRisk.Level = GetRiskLevel(ActionRisk);
 				Risks[idx] = ActionRisk; // Resave the risk with the updated data				
 			}
