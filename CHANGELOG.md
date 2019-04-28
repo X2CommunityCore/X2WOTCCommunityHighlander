@@ -154,6 +154,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - `WeaponInitialized` added to conditionally change the weapon archetype on initialization (#245)
 - `UpdateWeaponMaterial` added to conditionally change the weapon materials(#246)
 - `DLCAppendWeaponSockets` allows adding new sockets to weapons(#281)
+- `OnPreCreateTemplates` allows mods to modify properties of X2DataSet(s) before they are invoked (#412)
 
 ### Event Hooks
 - Triggers the events `SoldierClassIcon`, `SoldierClassDisplayName`,
