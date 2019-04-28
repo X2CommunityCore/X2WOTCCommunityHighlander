@@ -55,6 +55,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Allow specifying Second Wave options for Strategy Debug Start (#197)
 - bDontUnequipCovertOps prevents soldiers gear gets stripped when sending on covert op with no ambush risk (#153)
 - bDontUnequipWhenWounded prevents soldiers gear gets stripped when getting wounded (#310)
+- iDefaultWeaponTint allows to configure the default weappon tint for randomly generated soldiers (#397)
 
 ### Improvements
 - Allow `UIStrategyMap` to display custom Faction HQ icons (#76)
@@ -107,6 +108,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   the Skulljack / ADVENT screen arbitrarily (#330)
 - `OverrideClipSize` to allow effects to modify weapon clip size (#393)
 - `PostMissionObjectivesSpawned` to allow for map manipulation before units are spawned  (#405)
+- 'PostAliensSpawned' to allow changes to StartState (#457)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)

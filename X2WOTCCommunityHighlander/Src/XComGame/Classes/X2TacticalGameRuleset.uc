@@ -2309,6 +2309,9 @@ simulated state CreateTacticalGame
 		SpawnManager.ClearCachedFireTiles();
 		SpawnManager.SpawnAllAliens(ForceLevel, AlertLevel, StartState, MissionSiteState);
 
+		// Single line issue #457
+		`XEVENTMGR.TriggerEvent('PostAliensSpawned',,, StartState);
+
 		// After spawning, the AI player still needs to sync the data
 		foreach StartState.IterateByClassType(class'XComGameState_Player', IteratePlayerState)
 		{

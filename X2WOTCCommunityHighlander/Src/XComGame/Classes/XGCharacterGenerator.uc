@@ -134,6 +134,9 @@ var name BioCountryName;
 // Character groups that use soldier voices
 var const config array<name> SoldierVoiceCharacterGroups;
 
+// New variable for issue #397
+var config(Content) int iDefaultWeaponTint;
+
 function GenerateName( int iGender, name CountryName, out string strFirst, out string strLast, optional int iRace = -1 )
 {
 	local X2StrategyElementTemplateManager StratMgr;
@@ -840,9 +843,9 @@ function SetArmorTints(X2CharacterTemplate CharacterTemplate)
 		}
 	}
 
-	//For generated soldiers, weapon tint now defaults to no tint
-	kSoldier.kAppearance.iWeaponTint = 20;
-
+	// Begin issue #397
+	kSoldier.kAppearance.iWeaponTint = iDefaultWeaponTint;
+	// End issue #397
 	kSoldier.kAppearance.iTattooTint = `SYNC_RAND(ArmorPalette.Entries.length - SkipColors);
 }
 
