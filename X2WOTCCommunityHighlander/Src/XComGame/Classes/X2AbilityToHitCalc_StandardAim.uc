@@ -192,34 +192,12 @@ function InternalRollForAbilityHit(XComGameState_Ability kAbility, AvailableTarg
 	UnitState = XComGameState_Unit(History.GetGameStateForObjectID(kAbility.OwnerStateObject.ObjectID));
 	TargetState = XComGameState_Unit(History.GetGameStateForObjectID(kTarget.PrimaryTarget.ObjectID));
 	
-	if (UnitState != none && TargetState != none)
-	{
-		foreach UnitState.AffectedByEffects(EffectRef)
-		{
-			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
-			if (EffectState != none)
-			{
-				if (EffectState.GetX2Effect().ChangeHitResultForAttacker(UnitState, TargetState, kAbility, Result, ChangeResult))
-				{
-					`log("Effect" @ EffectState.GetX2Effect().FriendlyName @ "changing hit result for attacker:" @ ChangeResult,true,'XCom_HitRolls');
-					Result = ChangeResult;
-				}
-			}
-		}
-		foreach TargetState.AffectedByEffects(EffectRef)
-		{
-			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
-			if (EffectState != none)
-			{
-				if (EffectState.GetX2Effect().ChangeHitResultForTarget(EffectState, UnitState, TargetState, kAbility, bIsPrimaryTarget, Result, ChangeResult))
-				{
-					`log("Effect" @ EffectState.GetX2Effect().FriendlyName @ "changing hit result for target:" @ ChangeResult, true, 'XCom_HitRolls');
-					Result = ChangeResult;
-				}
-			}
-		}
-	}
-	
+	// Issue #426: ChangeHitResultForX() code block moved to later in method.
+	// Due to how GetModifiedHitChanceForCurrentDifficulty() is implemented, it reverts attempts to change
+	// XCom Hits to Misses, or enemy misses to hits.
+	// The LW2 graze band issues are related to this phenomenon, since the graze band has the effect
+	// of changing some what "should" be enemy misses to hits (specifically graze result)
+
 	// Aim Assist (miss streak prevention)
 	bRolledResultIsAMiss = class'XComGameStateContext_Ability'.static.IsHitResultMiss(Result);
 	
@@ -259,15 +237,46 @@ function InternalRollForAbilityHit(XComGameState_Ability kAbility, AvailableTarg
 	`log("***HIT" @ Result, !bRolledResultIsAMiss, 'XCom_HitRolls');
 	`log("***MISS" @ Result, bRolledResultIsAMiss, 'XCom_HitRolls');
 
+	// Start Issue #426: Block moved from earlier. Only code change is for lightning reflexes,
+	// because bRolledResultIsAMiss was used for both aim assist and reflexes
+	if (UnitState != none && TargetState != none)
+	{
+		foreach UnitState.AffectedByEffects(EffectRef)
+		{
+			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
+			if (EffectState != none)
+			{
+				if (EffectState.GetX2Effect().ChangeHitResultForAttacker(UnitState, TargetState, kAbility, Result, ChangeResult))
+				{
+					`log("Effect" @ EffectState.GetX2Effect().FriendlyName @ "changing hit result for attacker:" @ ChangeResult,true,'XCom_HitRolls');
+					Result = ChangeResult;
+				}
+			}
+		}
+		foreach TargetState.AffectedByEffects(EffectRef)
+		{
+			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
+			if (EffectState != none)
+			{
+				if (EffectState.GetX2Effect().ChangeHitResultForTarget(EffectState, UnitState, TargetState, kAbility, bIsPrimaryTarget, Result, ChangeResult))
+				{
+					`log("Effect" @ EffectState.GetX2Effect().FriendlyName @ "changing hit result for target:" @ ChangeResult, true, 'XCom_HitRolls');
+					Result = ChangeResult;
+				}
+			}
+		}
+	}
+
 	if (TargetState != none)
 	{
 		//  Check for Lightning Reflexes
-		if (bReactionFire && TargetState.bLightningReflexes && !bRolledResultIsAMiss)
+		if (bReactionFire && TargetState.bLightningReflexes && !class'XComGameStateContext_Ability'.static.IsHitResultMiss(Result))
 		{
 			Result = eHit_LightningReflexes;
 			`log("Lightning Reflexes triggered! Shot will miss.", true, 'XCom_HitRolls');
 		}
 	}	
+	// End Issue #426
 
 	if (UnitState != none && TargetState != none)
 	{
