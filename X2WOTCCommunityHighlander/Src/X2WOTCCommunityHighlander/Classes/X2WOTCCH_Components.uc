@@ -35,11 +35,11 @@ static function array<CHLComponent> GetComponentInfo()
 {
 	local X2StrategyElementTemplateManager Manager;
 	local X2StrategyElementTemplate SelfVersion;
-	local array<string> DLCNames;
+	// local array<string> DLCNames;
 	local array<CHLComponent> Comps;
 
 	Manager = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
-	DLCNames = class'Helpers'.static.GetInstalledDLCNames();
+	// DLCNames = class'Helpers'.static.GetInstalledDLCNames();
 
 	SelfVersion = Manager.FindStrategyElementTemplate('CHWOTCVersion');
 	Comps.AddItem(BuildComponent(SelfVersion, none, "X2WOTCCommunityHighlander", true, true));
@@ -109,6 +109,23 @@ static function CHLComponent BuildComponent(X2StrategyElementTemplate Template, 
 	}
 
 	return Comp;
+}
+
+static function CHLComponentStatus FindHighestErrorLevel(const out array<CHLComponent> Components)
+{
+	local CHLComponentStatus WorstStatus;
+	local int i;
+
+	WorstStatus = eCHLCS_OK;
+	for (i = 0; i < Components.Length; i++)
+	{
+		if (Components[i].CompStatus > WorstStatus)
+		{
+			WorstStatus = Components[i].CompStatus;
+		}
+	}
+
+	return WorstStatus;
 }
 
 static function string FormatVersion(X2StrategyElementTemplate Version)

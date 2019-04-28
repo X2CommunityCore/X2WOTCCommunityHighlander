@@ -135,6 +135,10 @@ private function int BySmallAndPriority(CHSlotPriority A, CHSlotPriority B)
 	{
 		return -1;
 	}
+	else if (!class'CHItemSlot'.static.SlotIsSmall(A.Slot) && class'CHItemSlot'.static.SlotIsSmall(B.Slot))
+	{
+		return 1;
+	}
 	return B.Priority - A.Priority;
 }
 

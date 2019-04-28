@@ -7,4 +7,4 @@ NotExpectedNotFound="Optional"
 
 VersionMismatches="- Version Mismatches"
 WarningsLabel="- Warnings"
-ErrorsLabel="- ERRORS"
+ErrorsLabel="- ERRORS - CHECK LOG"

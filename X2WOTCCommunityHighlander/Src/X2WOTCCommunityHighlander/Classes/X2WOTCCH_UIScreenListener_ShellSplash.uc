@@ -9,7 +9,14 @@ event OnInit(UIScreen Screen)
 	if(UIShell(Screen) == none || !bEnableVersionDisplay)  // this captures UIShell and UIFinalShell
 		return;
 
-	Screen.Movie.Stack.SubscribeToOnInput(OnInputHook);
+	// This is a circular problem: The main menu info accessible on controller
+	// using this input hook is most useful when the HL *isn't* working -- but then,
+	// this input hook doesn't exist. Not much we can do other than ensuring the
+	// user makes it to the main menu screen, sees the error message and checks the log.
+	if (Function'XComGame.UIScreenStack.SubscribeToOnInput' != none)
+	{
+		Screen.Movie.Stack.SubscribeToOnInput(OnInputHook);
+	}
 
 	RealizeVersionText(UIShell(Screen));
 }
@@ -20,6 +27,17 @@ event OnReceiveFocus(UIScreen Screen)
 		return;
 
 	RealizeVersionText(UIShell(Screen));
+}
+
+event OnRemoved(UIScreen Screen)
+{
+	if(UIShell(Screen) == none || !bEnableVersionDisplay)  // this captures UIShell and UIFinalShell
+		return;
+
+	if (Function'XComGame.UIScreenStack.UnsubscribeFromOnInput' != none)
+	{
+		Screen.Movie.Stack.UnsubscribeFromOnInput(OnInputHook);
+	}
 }
 
 function RealizeVersionText(UIShell ShellScreen)
@@ -36,16 +54,7 @@ function RealizeVersionText(UIShell ShellScreen)
 	local UIText TooltipText;
 
 	Comps = class'X2WOTCCH_Components'.static.GetComponentInfo();
-	
-	// Find our worst error level
-	WorstStatus = eCHLCS_OK;
-	for (i = 0; i < Comps.Length; i++)
-	{
-		if (Comps[i].CompStatus > WorstStatus)
-		{
-			WorstStatus = Comps[i].CompStatus;
-		}
-	}
+	WorstStatus = class'X2WOTCCH_Components'.static.FindHighestErrorLevel(Comps);
 
 	VersionString = "X2WOTCCommunityHighlander";
 
@@ -63,7 +72,7 @@ function RealizeVersionText(UIShell ShellScreen)
 			VersionString = class'UIUtilities_Text'.static.GetColoredText(VersionString @ class'X2WOTCCH_Components'.default.WarningsLabel, ColorStatus, 22);
 			break;
 		case eCHLCS_RequiredNotFound:
-			`log("Required packages were not loaded. Please consult" @ HelpLink @ "for further information");
+			`log("Required packages were not loaded. Please consult" @ HelpLink @ "for further information", , 'X2WOTCCommunityHighlander');
 			VersionString = class'UIUtilities_Text'.static.GetColoredText(VersionString @ class'X2WOTCCH_Components'.default.ErrorsLabel, ColorStatus, 22);
 			break;
 	}
