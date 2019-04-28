@@ -3431,7 +3431,7 @@ simulated function string GetImageForItemAvaliable(X2ItemTemplate ItemTemplate)
 	Tuple.Data[0].kind = XComLWTVString;
 	Tuple.Data[0].s = ItemTemplate.strImage; // Vanilla logic
 	Tuple.Data[1].kind = XComLWTVObject;
-	Tuple.Data[0].o = ItemTemplate;
+	Tuple.Data[1].o = ItemTemplate;
 
 	`XEVENTMGR.TriggerEvent('OverrideImageForItemAvaliable', Tuple, self);
 
