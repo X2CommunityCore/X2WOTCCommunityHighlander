@@ -246,6 +246,29 @@ private function bool MissionFamilyIsXPack(string MissionFamily)
 
 function MissionIntroDefinition GetActiveMissionIntroDefinition()
 {
+	// Start Issue #395 -- content moved to GetActiveMissionIntroDefinition_Default
+	
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local MissionIntroDefinition MissionIntro;
+	local int i, OverrideType;
+	local string OverrideTag;
+
+	MissionIntro = GetActiveMissionIntroDefinition_Default(OverrideType, OverrideTag);
+
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	for(i = 0; i < DLCInfos.Length; ++i)
+	{
+		if(DLCInfos[i].UseAlternateMissionIntroDefinition(ActiveMission, OverrideType, OverrideTag, MissionIntro))
+		{
+			return MissionIntro;
+		}
+	}
+	// End Issue #395
+
+}
+
+function MissionIntroDefinition GetActiveMissionIntroDefinition_Default(out int OverrideType, out string OverrideTag) // Issue #395 -- rename, parameters
+{
 	local XComGameStateHistory History;
 	local XComGameState_BattleData BattleData;
 	local XComParcelManager ParcelManager;
@@ -260,6 +283,8 @@ function MissionIntroDefinition GetActiveMissionIntroDefinition()
 	// mission specific intro?
 	if(ActiveMission.OverrideDefaultMissionIntro)
 	{
+		OverrideType = 0; // Issue #395
+		OverrideTag = ActiveMission.sType; // Issue #395
 		return ActiveMission.MissionIntroOverride;
 	}
 
@@ -267,6 +292,8 @@ function MissionIntroDefinition GetActiveMissionIntroDefinition()
 	PlotDef = ParcelManager.GetPlotDefinition(BattleData.MapData.PlotMapName);
 	if(PlotDef.OverrideDefaultMissionIntro)
 	{
+		OverrideType = 1; // Issue #395
+		OverrideTag = PlotDef.MapName; // Issue #395
 		return PlotDef.MissionIntroOverride;
 	}
 	
@@ -274,10 +301,14 @@ function MissionIntroDefinition GetActiveMissionIntroDefinition()
 	PlotTypeDef = ParcelManager.GetPlotTypeDefinition(PlotDef.strType);
 	if(PlotTypeDef.OverrideDefaultMissionIntro) 
 	{
+		OverrideType = 2; // Issue #395
+		OverrideTag = PlotTypeDef.strType; // Issue #395
 		return PlotTypeDef.MissionIntroOverride;
 	}
 
 	// just go with the default
+	OverrideType = -1; // Issue #395
+	OverrideTag = ""; // Issue #395
 	return DefaultMissionIntroDefinition;
 }
 

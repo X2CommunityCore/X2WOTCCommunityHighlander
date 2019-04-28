@@ -516,3 +516,30 @@ static function OnPreCreateTemplates()
 static function ModifyEarnedSoldierAbilities(out array<SoldierClassAbilityType> EarnedAbilities, XComGameState_Unit UnitState)
 {}
 /// End Issue #409
+
+// Start Issue #388
+/// <summary>
+/// Called from X2TacticalGameRuleset:state'CreateTacticalGame':UpdateTransitionMap / 
+/// XComPlayerController:SetupDropshipMatinee for both PreMission/PostMission.
+/// You may fill out the `OverrideMapName` parameter to override the transition map.
+/// If `UnitState != none`, return whether this unit should have cosmetic attachments (gear) on the transition map.
+/// </summary> 
+static function bool LoadingScreenOverrideTransitionMap(optional out string OverrideMapName, optional XComGameState_Unit UnitState)
+{
+	return false;
+}
+// End Issue #388
+
+// Start Issue #395
+/// <summary>
+/// Called from XComTacticalMissionManager:GetActiveMissionIntroDefinition before it returns the Default.
+/// Notable changes from LW2: Called even if the mission/plot/plot type has an override.
+/// OverrideType is -1 for default, 0 for Mission override, 1 for Plot override, 2 for Plot Type override.
+/// OverrideTag contains the Mission name / Plot name / Plot type, respectively
+/// Return true to use.
+/// </summary>
+static function bool UseAlternateMissionIntroDefinition(MissionDefinition ActiveMission, int OverrideType, string OverrideTag, out MissionIntroDefinition MissionIntro)
+{
+	return false;
+}
+// End Issue #395

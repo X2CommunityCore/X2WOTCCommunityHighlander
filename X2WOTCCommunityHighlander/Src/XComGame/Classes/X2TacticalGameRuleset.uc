@@ -2743,7 +2743,9 @@ Begin:
 	//Show the soldiers riding to the mission while the map generates
 	bShowDropshipInteriorWhileGeneratingMap = ShowDropshipInterior();
 	if(bShowDropshipInteriorWhileGeneratingMap)
-	{		
+	{
+		class'CHHelpers'.static.UpdateTransitionMap(); // Issue #388
+
 		`MAPS.AddStreamingMap(`MAPS.GetTransitionMap(), DropshipLocation, DropshipRotation, false);
 		while(!`MAPS.IsStreamingComplete())
 		{
@@ -2836,6 +2838,7 @@ Begin:
 
 		`MAPS.ClearPreloadedLevels();
 		`MAPS.RemoveStreamingMapByName(`MAPS.GetTransitionMap(), false);
+		`MAPS.ResetTransitionMap(); // Issue #388 -- revert transition map changes
 	}
 
 	TacticalStreamingMapsPostLoad();
