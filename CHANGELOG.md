@@ -33,6 +33,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Triggers the event `GetCovertActionEvents_Settings` to allow showing all covert actions in the correct order in the event queue (#391)
 - Triggers the event `CovertActionRisk_AlterChanceModifier` when calculated covert action risks. (#434)
 - Triggers the event `AllowDarkEventRisk` during XComGameState_CovertAction::EnableDarkEventRisk to allow alterations of standard logic (#434)
+- Triggers the event `UIStrategyPolicy_ScreenInit` at the end of UIStrategyPolicy::InitScreen (#440)
+- Triggers the event `UIStrategyPolicy_ShowCovertActionsOnClose` on UIStrategyPolicy::CloseScreen call (#440)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
