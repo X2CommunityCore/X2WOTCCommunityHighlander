@@ -7920,7 +7920,21 @@ function GetCovertActionEvents(out array<HQEvent> arrEvents)
 	local HQEvent kEvent;
 	local bool bActionFound, bRingBuilt;
 
+	local XComLWTuple Tuple; // Issue #391
+
 	History = `XCOMHISTORY;
+
+	// Start Issue #391
+	Tuple = new class'XComLWTuple';
+ 	Tuple.Id = 'GetCovertActionEvents_Settings';
+ 	Tuple.Data.Add(2);
+ 	Tuple.Data[0].kind = XComLWTVBool;
+ 	Tuple.Data[0].b = false; // AddAll
+	Tuple.Data[1].kind = XComLWTVBool;
+ 	Tuple.Data[1].b = false; // InsertSorted
+ 
+ 	`XEVENTMGR.TriggerEvent('GetCovertActionEvents_Settings', Tuple, self);
+	// End Issue #391
 	
 	foreach History.IterateByClassType(class'XComGameState_CovertAction', ActionState)
 	{
@@ -7931,10 +7945,31 @@ function GetCovertActionEvents(out array<HQEvent> arrEvents)
 			kEvent.ImagePath = class'UIUtilities_Image'.const.EventQueue_Resistance;
 			kEvent.ActionRef = ActionState.GetReference();
 			kEvent.bActionEvent = true;
-			//Add directly to the end of the events list, not sorted by hours. 
-			arrEvents.AddItem(kEvent);
+
+			// Start Issue #391
+			if (!Tuple.Data[1].b)
+			{
+			// End Issue #391
+				//Add directly to the end of the events list, not sorted by hours. 
+				arrEvents.AddItem(kEvent);
+			// Start Issue #391
+			}
+			else
+			{
+				AddEventToEventList(arrEvents, kEvent);
+			}
+			// End Issue #391
+
 			bActionFound = true;
-			break; // We only need to display one Action at a time
+
+			// Start Issue #391
+			if (!Tuple.Data[0].b)
+			{
+			// End Issue #391
+				break; // We only need to display one Action at a time
+			// Start Issue #391
+			}
+			// End Issue #391
 		}
 	}
 
