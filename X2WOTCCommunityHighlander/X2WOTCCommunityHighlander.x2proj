@@ -288,6 +288,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2SitRepEffect_GrantAbilities.uc">
+          <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2SitRepEffect_ModifyTacticalStartState.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2SoldierClassTemplateManager.uc">

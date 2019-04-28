@@ -124,6 +124,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Deprivatise/const config variables in XComTacticalMissionManager (#101)
 - Deprivatise XComAlienPawn.Voice to allow changes by mods (#275)
 - Deprivatise/const config variables in XComParcelManager (#404)
+- Gives SitReps access to the Tactical StartState in order to widen sitrep capabilities (#450)
 
 ### Improvements
 - Make suppression work with weapons that don't have suppression specific
