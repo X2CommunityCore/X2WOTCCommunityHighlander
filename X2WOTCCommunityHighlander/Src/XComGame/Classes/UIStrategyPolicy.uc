@@ -60,9 +60,6 @@ var bool m_bLoopHandSelection;
 //==============================================================================
 //==============================================================================
 
-// start CHL issue #440
-// CHL function modified: added event 'UIStrategyPolicy_ScreenInit'
-// UISL doesn't work as there is a frame of camera jump if instant transition is used
 simulated function InitScreen(XComPlayerController InitController, UIMovie InitMovie, optional name InitName)
 {
 	local float InterpTime;
@@ -85,9 +82,9 @@ simulated function InitScreen(XComPlayerController InitController, UIMovie InitM
 
 	UpdateNavHelp(); //bsg-crobinson (5.12.17): Update navhelp when screen is inited
 
+	// Issue #440
 	`XEVENTMGR.TriggerEvent('UIStrategyPolicy_ScreenInit', , self);
 }
-// end CHL issue #440
 
 simulated function OnInit()
 {
@@ -1837,32 +1834,31 @@ simulated function UpdateNavHelp()
 	//bsg-jneal (1.25.17): end
 }
 
-// start CHL issue #440
-// CHL function modified: added event 'UIStrategyPolicy_ShowCovertActionsOnClose'
 simulated function CloseScreen()
 {
 	local XComGameState_HeadquartersResistance ResHQ;
+	// Issue #440
 	local XComLWTuple Tuple;
-
-	Tuple = new class'XComLWTuple';
-	Tuple.Id = 'UIStrategyPolicy_ShowCovertActionsOnClose';
-	Tuple.Data.Add(1);
-	Tuple.Data[0].kind = XComLWTVBool;
 
 	`HQPRES.m_kAvengerHUD.NavHelp.ClearButtonHelp();
 	super.CloseScreen();
 
 	ResHQ = XComGameState_HeadquartersResistance(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersResistance'));
 
+	// Issue #440 Start
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'UIStrategyPolicy_ShowCovertActionsOnClose';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVBool;
 	Tuple.Data[0].b = bResistanceReport && !ResHQ.IsCovertActionInProgress();
 
 	`XEVENTMGR.TriggerEvent('UIStrategyPolicy_ShowCovertActionsOnClose', Tuple, self);
 	if(Tuple.Data[0].b)
+	// Issue #440 End
 	{
 		`HQPRES.UICovertActions();
 	}
 }
-// end CHL issue #440
 
 //==============================================================================
 
