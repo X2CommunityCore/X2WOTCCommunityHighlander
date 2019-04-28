@@ -44,6 +44,10 @@ var() config int							MinCovertActionKills; // The minimum number of kills each
 var() config int							MaxCovertActionKills; // The maximum number of kills each soldier who goes on the Action will receive
 var() config int							BondmateBonusHours; // The number of hours the duration will be reduced if bondmates are on the Covert Action
 
+// Start Issue #485
+var name									AmbushMissionSource; // The MissionSource of the Ambush for this Covert Action
+// End Issue #485
+
 struct CovertActionStaffSlot
 {
 	var() StateObjectReference				StaffSlotRef;
@@ -1344,11 +1348,14 @@ function bool HasAmbushRisk()
 {
 	local name RiskName;
 	local int idx;
+	local array<name> AmbushRiskTemplateNames; // Issue 485
+
+	AmbushRiskTemplateNames = class'CHHelpers'.static.GetAmbushRiskTemplateNames(); // Issue 485
 
 	for (idx = 0; idx < Risks.Length; idx++)
 	{
 		RiskName = Risks[idx].RiskTemplateName;
-		if (RiskName == 'CovertActionRisk_Ambush' && NegatedRisks.Find(RiskName) == INDEX_NONE)
+		if (AmbushRiskTemplateNames.Find(RiskName) != INDEX_NONE && NegatedRisks.Find(RiskName) == INDEX_NONE) // Issue 485
 		{
 			return true;
 		}
@@ -2169,13 +2176,25 @@ simulated public function AmbushPopup()
 	local XComGameState NewGameState;
 	local XComGameState_CovertAction ActionState;
 	local XComGameState_MissionSite MissionSite;
+	local name MissionSource; // Issue #485
 
 	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Toggle Action Complete Popup");
 	ActionState = XComGameState_CovertAction(NewGameState.ModifyStateObject(class'XComGameState_CovertAction', self.ObjectID));
 	ActionState.bNeedsAmbushPopup = false;
 	`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
 
-	MissionSite = GetMission('MissionSource_ChosenAmbush'); // Find the Ambush mission and display its popup
+	// Start Issue #485
+	if(AmbushMissionSource == '') // backwards compatibility
+	{
+		MissionSource = 'MissionSource_ChosenAmbush';
+	}
+	else
+	{
+		MissionSource = AmbushMissionSource;
+	}
+	MissionSite = GetMission(MissionSource); // Find the Ambush mission and display its popup
+	// End Issue #485
+
 	if (MissionSite != none && MissionSite.GetMissionSource().MissionPopupFn != none)
 	{
 		MissionSite.GetMissionSource().MissionPopupFn(MissionSite);
@@ -2328,3 +2347,10 @@ function int GetMaxDaysToComplete()
 {
 	return `ScaleStrategyArrayInt(GetMyTemplate().MaxActionHours);
 }
+
+// Start Issue #485
+defaultproperties
+{
+	AmbushMissionSource="MissionSource_ChosenAmbush"
+}
+// End Issue #485

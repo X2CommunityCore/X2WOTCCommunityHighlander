@@ -118,6 +118,10 @@ var config bool PreserveProxyUnitData;
 var config array<name> RequiresTargetingActivation;
 // End Issue #476
 
+// Start Issue #485
+var config array<name> AdditionalAmbushRiskTemplates;
+// End Issue #485
+
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
 	local XComContentManager		Content;
@@ -395,3 +399,15 @@ static function bool TargetingClassRequiresActivation(X2TargetingMethod Targetin
 	return false;
 }
 // End Issue #476
+
+// Start Issue #485
+static function array<name> GetAmbushRiskTemplateNames()
+{
+	local array<name> TemplateNames;
+
+	TemplateNames = default.AdditionalAmbushRiskTemplates;
+	TemplateNames.AddItem('CovertActionRisk_Ambush');
+
+	return TemplateNames;
+}
+// End Issue #485

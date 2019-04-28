@@ -57,12 +57,14 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - bDontUnequipCovertOps prevents soldiers gear gets stripped when sending on covert op with no ambush risk (#153)
 - bDontUnequipWhenWounded prevents soldiers gear gets stripped when getting wounded (#310)
 - iDefaultWeaponTint allows to configure the default weappon tint for randomly generated soldiers (#397)
+- AdditionalAmbushRiskTemplates array represents risk templates that the game will consider at risk to ambush (#485)
 
 ### Improvements
 - Allow `UIStrategyMap` to display custom Faction HQ icons (#76)
 - Allow customization of auto-equipment removal behavior in 'UISquadSelect' (#134)
 - Class mods adding an eight rank will now interact better with classes with seven ranks (#1)
 - Allow `XComGameState_WorldRegion::DestinationReached` to use any XCGS_GeoscapeEntity class (#443)
+- Add AmbushMissionSource name property to XComGameState_CovertAction; mods can now specify the ambush mission on creation of Action GameState (#485)
 
 ### Fixes
 - Fix an issue in base game where strategy X2EventListenerTemplates only
