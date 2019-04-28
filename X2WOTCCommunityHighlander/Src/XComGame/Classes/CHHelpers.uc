@@ -110,6 +110,10 @@ var config(Content) array<name> EyeMaterial;
 var config(Content) array<name> FlagMaterial;
 // End Issue #356
 
+// Start Issue #465
+var config bool PreserveProxyUnitData;
+// End Issue #465
+
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
 	local XComContentManager		Content;
