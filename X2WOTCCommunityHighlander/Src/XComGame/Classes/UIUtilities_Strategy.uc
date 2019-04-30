@@ -650,10 +650,47 @@ static function string GetPersonnelLocation( XComGameState_Unit Unit, optional i
 		return class'UIUtilities_Text'.static.GetSizedText(default.m_strUnassignedPersonnelLocation, FontSize);
 }
 
-static function string GetPersonnelStatus( XComGameState_Unit Unit, optional int FontSize = -1 )
+// Start Issue #322
+//
+// This is a massive refactoring of GetPersonnelStatus() and GetPersonnelStatusSeparate()
+// to ensure consistency and also provide mods the ability to override a unit's status
+// strings.
+//
+// See TriggerOverridePersonnelStatus() and TriggerOverridePersonnelStatusTime() below for
+// details of the events that mods can listen to.
+static function string GetPersonnelStatus(XComGameState_Unit Unit, optional int FontSize = -1)
 {
 	local string ShakenStr;
+	local string Status, TimeLabel, TimeValue;
+	local EUIState eState;
+	local int HideTime;
 
+	// By setting this to -1 we can easily tell whether it's been overridden
+	// by listeners, since it's an invalid enum value.
+	eState = -1;
+
+	// This condition and guard variable added as part of issue #322
+	if (class'CHHelpers'.default.UseNewPersonnelStatusBehavior)
+	{
+		// Issue #322
+		//
+		// New code path that goes through GetPersonnelStatusStringParts() for consistency and so 
+		// that this works with mods that override the personnel status.
+		GetPersonnelStatusStringParts(Unit, Status, eState, TimeLabel, TimeValue, HideTime, true);
+		if (eState == -1)
+		{
+			return class'UIUtilities_Text'.static.GetSizedText(FormatStatusString(Status, TimeLabel, TimeValue, HideTime != 0), FontSize);
+		}
+		else
+		{
+			return class'UIUtilities_Text'.static.GetColoredText(
+				FormatStatusString(Status, TimeLabel, TimeValue, HideTime != 0),
+				eState,
+				FontSize);
+		}
+	}
+	
+	// This branch of the condition is the old code that basically ignores GetPersonnelStatusSeparate()
 	if (Unit.IsScientist() || Unit.IsEngineer())
 	{
 		if (Unit.IsInjured())
@@ -692,32 +729,129 @@ static function string GetPersonnelStatus( XComGameState_Unit Unit, optional int
 	return "MISSING DATA";
 }
 
+// Issue #322
+//
+// New method for creating a simple formatted string from a status and time remaining.
+static function string FormatStatusString(string Status, string TimeLabel, string TimeValue, optional bool HideTime = false)
+{
+	local string FormattedStatus;
+	
+	FormattedStatus = Status;
+
+	if (!HideTime)
+	{
+		FormattedStatus = FormattedStatus @ "(" $ TimeValue @ TimeLabel $ ")";
+	}
+	return FormattedStatus;
+}
+
+// Issue #322
+//
+// This function is intended to work as before, but most of its implementation
+// has been moved to GetPersonnelStatusStringParts() below.
 static function GetPersonnelStatusSeparate(XComGameState_Unit Unit, out string Status, out string TimeLabel, out string TimeValue, optional int FontSize = -1, optional bool bIncludeMentalState = false)
 {
-	local EUIState eState; 
-	local int TimeNum;
-	local bool bHideZeroDays;
+	local EUIState eState;
+	local int bHideTimePart;
+
+	// By setting this to -1 we can easily tell whether it's been overridden
+	// by listeners, since it's an invalid enum value.
+	eState = -1;
+
+	GetPersonnelStatusStringParts(Unit, Status, eState, TimeLabel, TimeValue, bHideTimePart, bIncludeMentalState);
+
+	if (eState == -1)
+	{
+		// State was not set, so don't use colored text.
+		Status = class'UIUtilities_Text'.static.GetSizedText(Status, FontSize);
+		TimeLabel = class'UIUtilities_Text'.static.GetSizedText(TimeLabel, FontSize);
+	}
+	else
+	{
+		Status = class'UIUtilities_Text'.static.GetColoredText(Status, eState, FontSize);
+		TimeLabel = class'UIUtilities_Text'.static.GetColoredText(TimeLabel, eState, FontSize);
+	}
+
+	if (bHideTimePart != 0)
+	{
+		TimeValue = "";
+	}
+	else
+	{
+		TimeValue = class'UIUtilities_Text'.static.GetColoredText(TimeValue, eState, FontSize);
+	}
+}
+
+// Provides the details about a unit's status as a set of out parameters. It allows mods to
+// override each part via an event described with TriggerOverridePersonnelStatus() below.
+// There is also another event - TriggerOverridePersonnelStatusTime() - that allows mods to
+// override how the time remaining (if a status has such) is displayed. This is particularly
+// useful for mods that want to change the cutoff point at which hours are displayed versus
+// days.
+//
+//   Unit		The unit whose status you want.
+//   Status		The status type as a string, such as "Wounded".
+//   eState		An enum that indicates whether this status is bad, good, or some other state.
+//   			This may not be set, in which case it will return whatever value you passed in.
+//   			You can pass in -1 and check for that value to determine whether the state has
+//   			been set or not.
+//   TimeLabel	The unit of time as a label, e.g. "Days", "Day", "Hours", etc.
+//   TimeValue	The number of units of time left for the status. What the value represents
+//   			depends on what the label is (typically "Days" or "Hours").
+//   HideTime   Indicates whether you should display the time value and label or not. 0 means
+//   			don't hide it, i.e. display it. Any other value means the opposite.
+//   IncludeMentalState		Indicates whether you want any mental statuses or not. If false,
+//   						then you won't get will-related statuses like Tired. Note that
+//   						you will always get Shaken (if applicable) even if this is false.
+//
+static function GetPersonnelStatusStringParts(
+		XComGameState_Unit Unit,
+		out string Status,
+		out EUIState eState,
+		out string TimeLabel,
+		out string TimeValue,
+		out int HideTime,
+		optional bool IncludeMentalState = false)
+{
+	local int iTimeNum, iDays, iDoTimeConversion;
+	local bool bHideZeroDays, bIsMentalState;
 
 	bHideZeroDays = true;
+	HideTime = 0;
 
-	if(Unit.IsMPCharacter())
+	if (Unit.IsMPCharacter())
 	{
 		Status = default.m_strAvailableStatus;
 		eState = eUIState_Good;
-		TimeNum = 0;
-		Status = class'UIUtilities_Text'.static.GetColoredText(Status, eState, FontSize);
+		HideTime = 1;
 		return;
 	}
 
 	// template names are set in X2Character_DefaultCharacters.uc
 	if (Unit.IsScientist() || Unit.IsEngineer())
 	{
-		Status = class'UIUtilities_Text'.static.GetSizedText(Unit.GetLocation(), FontSize);
+		// CHL: The old GetPersonnelStatusSeparate() implementation just returned the
+		// location, but I think that's because it was never called for any unit other
+		// than soldiers. This seems more correct.
+		if (Unit.IsInjured())
+		{
+			Unit.GetStatusStringsSeparate(Status, TimeLabel, iTimeNum);
+			eState = eUIState_Bad;
+		}
+		else if (Unit.IsOnCovertAction())
+		{
+			Unit.GetStatusStringsSeparate(Status, TimeLabel, iTimeNum);
+			eState = eUIState_Warning;
+		}
+		else 
+		{
+			Status = Unit.GetLocation();
+		}
 	}
 	else if (Unit.IsSoldier())
 	{
 		// soldiers get put into the hangar to indicate they are getting ready to go on a mission
-		if(`HQPRES != none &&  `HQPRES.ScreenStack.IsInStack(class'UISquadSelect') && GetXComHQ().IsUnitInSquad(Unit.GetReference()) )
+		if (`HQPRES != none &&  `HQPRES.ScreenStack.IsInStack(class'UISquadSelect') && GetXComHQ().IsUnitInSquad(Unit.GetReference()))
 		{
 			Status = default.m_strOnMissionStatus;
 			eState = eUIState_Highlight;
@@ -727,51 +861,77 @@ static function GetPersonnelStatusSeparate(XComGameState_Unit Unit, out string S
 			Status = default.m_strBoostedStatus;
 			eState = eUIState_Warning;
 		}
-		else if( Unit.IsInjured() || Unit.IsDead() )
+		else if (Unit.IsInjured() || Unit.IsDead())
 		{
-			Unit.GetStatusStringsSeparate(Status, TimeLabel, TimeNum);
+			Unit.GetStatusStringsSeparate(Status, TimeLabel, iTimeNum);
 			eState = eUIState_Bad;
 		}
-		else if(Unit.GetMentalState() == eMentalState_Shaken)
+		else if (Unit.GetMentalState() == eMentalState_Shaken)
 		{
-			Unit.GetMentalStateStringsSeparate(Status, TimeLabel, TimeNum);
+			Unit.GetMentalStateStringsSeparate(Status, TimeLabel, iTimeNum);
 			eState = Unit.GetMentalStateUIState();
 		}
-		else if( Unit.IsPsiTraining() || Unit.IsPsiAbilityTraining() )
+		else if (Unit.IsPsiTraining() || Unit.IsPsiAbilityTraining())
 		{
-			Unit.GetStatusStringsSeparate(Status, TimeLabel, TimeNum);
+			Unit.GetStatusStringsSeparate(Status, TimeLabel, iTimeNum);
 			eState = eUIState_Psyonic;
 		}
-		else if( Unit.IsTraining() )
+		else if (Unit.IsTraining())
 		{
-			Unit.GetStatusStringsSeparate(Status, TimeLabel, TimeNum);
+			Unit.GetStatusStringsSeparate(Status, TimeLabel, iTimeNum);
 			eState = eUIState_Warning;
 		}
-		else if(  Unit.IsOnCovertAction() )
+		else if (Unit.IsOnCovertAction())
 		{
-			Unit.GetStatusStringsSeparate(Status, TimeLabel, TimeNum);
+			Unit.GetStatusStringsSeparate(Status, TimeLabel, iTimeNum);
 			eState = eUIState_Warning;
 			bHideZeroDays = false;
 		}
-		else if(bIncludeMentalState && Unit.BelowReadyWillState())
+		else if (IncludeMentalState && Unit.BelowReadyWillState())
 		{
-			Unit.GetMentalStateStringsSeparate(Status, TimeLabel, TimeNum);
+			Unit.GetMentalStateStringsSeparate(Status, TimeLabel, iTimeNum);
 			eState = Unit.GetMentalStateUIState();
 		}
 		else
 		{
 			Status = default.m_strAvailableStatus;
 			eState = eUIState_Good;
-			TimeNum = 0;
+			iTimeNum = 0;
 		}
 	}
 
-	Status = class'UIUtilities_Text'.static.GetColoredText(Status, eState, FontSize);
-	TimeLabel = class'UIUtilities_Text'.static.GetColoredText(TimeLabel, eState, FontSize);
-	if( TimeNum == 0 && bHideZeroDays )
-		TimeValue = "";
+	// If this is one of the base game statuses, then the duration is already
+	// set to the appropriate unit (hours/days). We only have to do the conversion
+	// if a listener wants us to (because they have overridden the duration,
+	// iTimeNum, with a new number of hours, but want to delegate the conversion).
+	TriggerOverridePersonnelStatus(Unit, Status, eState, TimeLabel, iTimeNum, HideTime, iDoTimeConversion);
+
+	if (iDoTimeConversion != 0 && HideTime == 0)
+	{
+		iDays = FCeil(float(iTimeNum) / 24.0);
+
+		// Let listeners override label and time value. If label is still empty,
+		// assume that the values aren't overridden. This is on the basis that
+		// any time should have a label.
+		TimeLabel = "";
+		TriggerOverridePersonnelStatusTime(Unit, bIsMentalState, TimeLabel, iTimeNum);
+
+		if (TimeLabel == "")
+		{
+			TimeLabel = class'UIUtilities_Text'.static.GetDaysString(iDays);
+			iTimeNum = iDays;
+		}
+		TimeValue = string(iTimeNum);
+	}
 	else
-		TimeValue = class'UIUtilities_Text'.static.GetColoredText(string(TimeNum), eState, FontSize);
+	{
+		TimeValue = string(iTimeNum);
+	}
+	
+	if (bHideZeroDays && iTimeNum == 0)
+	{
+		HideTime = 1;
+	}
 
 	//Do this after the initial status coloring, since Shaken is colored separately.  
 	//if( Unit.bIsShaken )
@@ -779,6 +939,100 @@ static function GetPersonnelStatusSeparate(XComGameState_Unit Unit, out string S
 	//	Status = class'UIUtilities_Text'.static.GetColoredText(default.m_strShakenStatus, eUIState_Bad, FontSize) @ Status; 
 	//}
 }
+
+// Triggers an 'OverridePersonnelStatus' event that allows listeners to override the
+// status of a unit. See GetPersonnelStatusStringParts() for a description of the
+// parameters, although note that it provides the integer TimeNum in place of the
+// string TimeValue. This is so that the time can be used for calculations easily.
+//
+// Listeners can either provide the amount of time plus a label to go with it, like
+// 3 + "Days", or it can set the provide the amount of time in hours and set the
+// DoTimeConversion value to true. In this latter case, the CHL will generate the
+// appropriate time label (which it may delegate to listeners of
+// 'OverridePersonnelStatusTime').
+//
+// The event itself takes the form:
+//
+//   {
+//      ID: OverridePersonnelStatus,
+//      Data: [inout string Status, inout string TimeLabel, inout int TimeNum,
+//             inout int State, inout bool HideTime, inout bool DoTimeConversion],
+//      Source: Unit
+//   }
+//
+static function TriggerOverridePersonnelStatus(
+	XComGameState_Unit Unit,
+	out string Status,
+	out EUIState eState,
+	out string TimeLabel,
+	out int TimeNum,
+	out int HideTime,
+	out int DoTimeConversion)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverridePersonnelStatus';
+	OverrideTuple.Data.Add(6);
+	OverrideTuple.Data[0].kind = XComLWTVString;
+	OverrideTuple.Data[0].s = Status;
+	OverrideTuple.Data[1].kind = XComLWTVString;
+	OverrideTuple.Data[1].s = TimeLabel;
+	OverrideTuple.Data[2].kind = XComLWTVInt;
+	OverrideTuple.Data[2].i = TimeNum;
+	OverrideTuple.Data[3].kind = XComLWTVInt;
+	OverrideTuple.Data[3].i = int(eState);
+	OverrideTuple.Data[4].kind = XComLWTVBool;
+	OverrideTuple.Data[4].b = HideTime != 0;
+	OverrideTuple.Data[5].kind = XComLWTVBool;
+	OverrideTuple.Data[5].b = DoTimeConversion != 0;
+
+	`XEVENTMGR.TriggerEvent('OverridePersonnelStatus', OverrideTuple, Unit);
+
+	Status = OverrideTuple.Data[0].s;
+	TimeLabel = OverrideTuple.Data[1].s;
+	TimeNum = OverrideTuple.Data[2].i;
+	eState = EUIState(OverrideTuple.Data[3].i);
+	HideTime = OverrideTuple.Data[4].b ? 1 : 0;
+	DoTimeConversion = OverrideTuple.Data[5].b ? 1 : 0;
+}
+
+// Triggers an 'OverridePersonnelStatusTime' event that allows listeners to override
+// the time label and value for a unit status. For example, it can be used to change
+// from hours to days or vice versa.
+//
+// The event itself takes the form:
+//
+//   {
+//      ID: OverridePersonnelStatusTime,
+//      Data: [in bool IsMentalState, out string TimeLabel, out int TimeNum],
+//      Source: Unit
+//   }
+//	
+static function TriggerOverridePersonnelStatusTime(
+	XComGameState_Unit Unit,
+	bool IsMentalState,
+	out string TimeLabel,
+	out int TimeNum)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverridePersonnelStatusTime';
+	OverrideTuple.Data.Add(4);
+	OverrideTuple.Data[0].kind = XComLWTVBool;
+	OverrideTuple.Data[0].b = IsMentalState;
+	OverrideTuple.Data[1].kind = XComLWTVString;
+	OverrideTuple.Data[1].s = TimeLabel;
+	OverrideTuple.Data[2].kind = XComLWTVInt;
+	OverrideTuple.Data[2].i = TimeNum;
+
+	`XEVENTMGR.TriggerEvent('OverridePersonnelStatusTime', OverrideTuple, Unit);
+
+	TimeLabel = OverrideTuple.Data[1].s;
+	TimeNum = OverrideTuple.Data[2].i;
+}
+// End Issue #322
 
 simulated static function array<XComGameState_Item> GetEquippedUtilityItems(XComGameState_Unit Unit, optional XComGameState CheckGameState)
 {

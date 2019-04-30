@@ -44,6 +44,12 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Triggers the event `ShouldCleanupCovertAction` to allow mod control over Covert Action deletion. (#435)
 - Triggers the event `BlackMarketGoodsReset` when the Black Market goods are reset (#473)
 - Triggers the event `OverrideImageForItemAvaliable` to allow mods to override the image shown in eAlert_ItemAvailable (#491)
+- Triggers the event `CustomizeStatusStringsSeparate` in XComGameState_Unit::GetStatusStringsSeparate (#322)
+- Triggers the event `OverridePersonnelStatus` in UIUtilities_Strategy::GetPersonnelStatusStringParts. This
+  allows listeners the opportunity to override the status, its time remaining and its colour. (#322)
+- Triggers the event `OverridePersonnelStatusTime` in a number of places to allow listeners to change the way
+  unit status times (like how long is left on a covert action) are displayed. For example, a listener could
+  display a time in hours rather than days, perhaps based on how many hours are left. (#322)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
