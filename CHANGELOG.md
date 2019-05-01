@@ -121,6 +121,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   so that players don't know exactly where reinforcements will be arriving (#448)
 - `OverrideReinforcementsAlert` allows mods to force the display of the reinforcements
   alert panel and also change its text and color (#449)
+- 'DrawDebugLabels' allows mods to draw their own debug information on the canvas used by
+  `XComTacticalController.DrawDebugLabels()` (#490)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
