@@ -1011,8 +1011,15 @@ function DrawDebugLabels(Canvas kCanvas)
 				}
 			}
 		}
+			
+		// Start Issue #490
+		//
+		// Allow mods to draw their own debug labels to the screen.
+		`XEVENTMGR.TriggerEvent('DrawDebugLabels', kCanvas, self);
+		// End Issue #490
 	}
 }
+
 function DrawDebugData( HUD H )
 {
 	local Vector vPos;
