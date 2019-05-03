@@ -77,6 +77,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Fix Loadout utility items when unit has an item equipped in the Ammo Pocket (#99)
 - Fix units unequipping items they shouldn't, resulting in duplicate Paired Weapons (#189)
 - Fix all Covert Actions from being removed when generating covert actions (#435)
+- Fix a pathing issue in base game with "flying" pod leaders where non-flat tiles on their
+  paths prevent them from patrolling (#503)
 
 ## Tactical
 
