@@ -16,37 +16,39 @@ var int BaseValue;
 function int GetAttackValue(XComGameState_Ability kAbility, StateObjectReference TargetRef) { return -1; }
 function int GetDefendValue(XComGameState_Ability kAbility, StateObjectReference TargetRef) { return -1; }
 
-// start CHL issue #467
-// CHL function modified: added conditions for X2Effect_ToHitModifier::GetHit(AsTarget)ModifiersForStatCheck
 protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTarget kTarget, optional out ShotBreakdown m_ShotBreakdown, optional bool bDebugLog = false)
 {
-	local XComGameState_Unit UnitState, TargetState;     /*  variables added  */
-	local XComGameState_Effect EffectState;             /*    ###########    */
-	local XComGameStateHistory History;                /*     #########     */
-	local X2Effect_Persistent PersistentEffect;       /*      #######      */
-	local StateObjectReference EffectRef;            /*       #####       */
-	local array<ShotModifierInfo> ShotModifiers;    /*        ###        */
-	local ShotModifierInfo ShotModifier;           /*     CHL #467      */
 	local int AttackVal, DefendVal;
 	local ShotBreakdown EmptyShotBreakdown;
+	// variables added for issue #467
+	local XComGameState_Unit UnitState, TargetState;
+	local XComGameState_Effect EffectState;
+	local XComGameStateHistory History;
+	local X2Effect_Persistent PersistentEffect;
+	local StateObjectReference EffectRef;
+	local array<ShotModifierInfo> ShotModifiers;
+	local ShotModifierInfo ShotModifier;
+	// end issue #467
 
 	//reset shot breakdown
 	m_ShotBreakdown = EmptyShotBreakdown;
 
+	AttackVal = GetAttackValue(kAbility, kTarget.PrimaryTarget);
+	DefendVal = GetDefendValue(kAbility, kTarget.PrimaryTarget);
+
+	// start issue #467: added conditions for X2Effect_ToHitModifier::GetHit(AsTarget)ModifiersForStatCheck
 	History = `XCOMHISTORY;
 	UnitState = XComGameState_Unit(History.GetGameStateForObjectID(kAbility.OwnerStateObject.ObjectID));
 	TargetState = XComGameState_Unit(History.GetGameStateForObjectID(kTarget.PrimaryTarget.ObjectID));
-
-	AttackVal = GetAttackValue(kAbility, kTarget.PrimaryTarget);
-	DefendVal = GetDefendValue(kAbility, kTarget.PrimaryTarget);
 
 	// now lets check attacker's current effects
 	foreach UnitState.AffectedByEffects(EffectRef)
 	{
 		EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
 
+		// check this effect's sub-class by attempting to cast it to what we need
 		if (EffectState != None)
-		{// check this effect's sub-class by attempting to cast it to what we need
+		{
 			PersistentEffect = EffectState.GetX2Effect();
 
 			if (PersistentEffect == None)
@@ -79,16 +81,17 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 	{
 		AddModifier(ShotModifier.Value, ShotModifier.Reason, m_ShotBreakdown, ShotModifier.ModType, bDebugLog);
 	}
+	// end issue #467
 
 	AddModifier(BaseValue, GetBaseString(), m_ShotBreakdown, eHit_Success, bDebugLog);
 	AddModifier(AttackVal, GetAttackString(), m_ShotBreakdown, eHit_Success, bDebugLog);
 	AddModifier(-DefendVal, GetDefendString(), m_ShotBreakdown, eHit_Success, bDebugLog);
-
+	// start issue #467: modified the method of getting a final result from vanilla
 	FinalizeHitChance(m_ShotBreakdown, bDebugLog);
 
 	return m_ShotBreakdown.FinalHitChance;
+	// end issue #467
 }
-// end CHL issue #467
 
 function string GetBaseString() { return class'XLocalizedData'.default.BaseChance; }
 function string GetAttackString() { return class'XLocalizedData'.default.OffenseStat; }
