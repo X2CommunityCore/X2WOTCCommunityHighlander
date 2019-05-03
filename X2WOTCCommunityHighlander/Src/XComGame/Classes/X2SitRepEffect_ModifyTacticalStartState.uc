@@ -5,7 +5,7 @@
 //  Class created to give SITREPs access to the Tactical XCGS StartState
 //
 //---------------------------------------------------------------------------------------
-// File added to the CHL (this is a non-base game class)
+// File added to the CHL (this is a non-base game class). Issue #450
 //---------------------------------------------------------------------------------------
 
 class X2SitRepEffect_ModifyTacticalStartState extends X2SitRepEffectTemplate;
