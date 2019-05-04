@@ -123,6 +123,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   alert panel and also change its text and color (#449)
 - `OverrideEncounterZoneAnchorPoint` allows mods to override the anchor point used by XCOM 2
   in determining patrol zones for pods (#500)
+- 'OverridePatrolBehavior' allows mods to disable the base game pod patrol logic if they
+  want to handle it themselves (#507)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)

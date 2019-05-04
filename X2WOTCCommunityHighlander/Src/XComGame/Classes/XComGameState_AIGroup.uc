@@ -366,6 +366,16 @@ function bool ShouldMoveToIntercept(out Vector TargetInterceptLocation, XComGame
 		return true;
 	}
 
+	// Start Issue #507
+	//
+	// Mod override for AI patrol behavior. If the event returns `true`, then
+	// leave the mod to handle it and just quit out of this metho.
+	if (TriggerOverridePatrolBehavior())
+	{
+		return false;
+	}
+	// End Issue #507
+	
 	// TODO: otherwise, try to patrol around within the current encounter zone
 	CurrentGroupLocation = GetGroupMidpoint();
 	Tile = World.GetTileCoordinatesFromPosition(CurrentTargetLocation);
@@ -469,6 +479,39 @@ function TriggerOverrideEncounterZoneAnchorPoint(out Vector Anchor)
        Anchor.Z = OverrideTuple.Data[2].f;
 }
 // End Issue #500
+
+// Start Issue #507
+//
+// Triggers an 'OverridePatrolBehavior' event that allows listeners to
+// say whether they are handling the pod patrol behavior themselves or
+// want the base game to do it.
+//
+// The event itself takes the form:
+//
+//   {
+//      ID: OverridePatrolBehavior,
+//      Data: [out bool OverridePatrolBehavior],
+//      Source: self
+//   }
+//
+// The method returns `true` if the mod *is* overriding the patrol
+// behavior and wants to bypass the default base game patrol logic.
+//
+function bool TriggerOverridePatrolBehavior()
+{
+	   local XComLWTuple OverrideTuple;
+
+	   OverrideTuple = new class'XComLWTuple';
+	   OverrideTuple.Id = 'OverridePatrolBehavior';
+       OverrideTuple.Data.Add(1);
+       OverrideTuple.Data[0].kind = XComLWTVBool;
+       OverrideTuple.Data[0].b = false;
+
+	   `XEVENTMGR.TriggerEvent('OverridePatrolBehavior', OverrideTuple, self);
+
+		return OverrideTuple.Data[0].b;
+}
+// End Issue #507
 
 // Return true if XCom units have passed our group location.
 function bool XComSquadMidpointPassedGroup()
