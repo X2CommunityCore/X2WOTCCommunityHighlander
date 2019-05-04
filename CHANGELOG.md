@@ -121,6 +121,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   so that players don't know exactly where reinforcements will be arriving (#448)
 - `OverrideReinforcementsAlert` allows mods to force the display of the reinforcements
   alert panel and also change its text and color (#449)
+- `OverrideEncounterZoneAnchorPoint` allows mods to override the anchor point used by XCOM 2
+  in determining patrol zones for pods (#500)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)

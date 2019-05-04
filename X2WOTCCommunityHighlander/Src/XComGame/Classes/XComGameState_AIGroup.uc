@@ -377,7 +377,18 @@ function bool ShouldMoveToIntercept(out Vector TargetInterceptLocation, XComGame
 		SpawnManager = `SPAWNMGR;
 		MissionManager = `TACTICALMISSIONMGR;
 		MissionManager.GetActiveMissionSchedule(ActiveMissionSchedule);
+		// Start Issue #500
+		//
+		// Allow mods to override the LoP anchor point for the encounter zone. By
+		// default, the encounter zone adjusts to the current location of the XCOM
+		// squad.
+		//
+		// As an example, a mod could use the XCOM's spawn location instead so that
+		// the encounter zones remain the same regardless of where the XCOM squad is
+		// currently.
 		CurrentXComLocation = SpawnManager.GetCurrentXComLocation();
+		TriggerOverrideEncounterZoneAnchorPoint(CurrentXComLocation);
+		// End Issue #500
 		MyEncounterZone = SpawnManager.BuildEncounterZone(
 			BattleData.MapData.ObjectiveLocation,
 			CurrentXComLocation,
@@ -421,6 +432,43 @@ function bool ShouldMoveToIntercept(out Vector TargetInterceptLocation, XComGame
 
 	return false;
 }
+
+// Start Issue #500
+//
+// Triggers an 'OverrideEncounterZoneAnchorPoint' event that allows listeners to
+// override the anchor point for determining encounter zones for patrolling pods.
+//
+// The event itself takes the form:
+//
+//   {
+//      ID: OverrideEncounterZoneAnchorPoint,
+//      Data: [inout float X, inout float Y, inout float Z],
+//      Source: self
+//   }
+//
+// X, Y and Z represent the elements of the anchor Vector.
+//
+function TriggerOverrideEncounterZoneAnchorPoint(out Vector Anchor)
+{
+	   local XComLWTuple OverrideTuple;
+
+	   OverrideTuple = new class'XComLWTuple';
+	   OverrideTuple.Id = 'OverrideEncounterZoneAnchorPoint';
+       OverrideTuple.Data.Add(3);
+       OverrideTuple.Data[0].kind = XComLWTVFloat;
+       OverrideTuple.Data[0].f = Anchor.X;
+       OverrideTuple.Data[1].kind = XComLWTVFloat;
+       OverrideTuple.Data[1].f = Anchor.Y;
+       OverrideTuple.Data[2].kind = XComLWTVFloat;
+       OverrideTuple.Data[2].f = Anchor.Z;
+
+	   `XEVENTMGR.TriggerEvent('OverrideEncounterZoneAnchorPoint', OverrideTuple, self);
+
+       Anchor.X = OverrideTuple.Data[0].f;
+       Anchor.Y = OverrideTuple.Data[1].f;
+       Anchor.Z = OverrideTuple.Data[2].f;
+}
+// End Issue #500
 
 // Return true if XCom units have passed our group location.
 function bool XComSquadMidpointPassedGroup()
