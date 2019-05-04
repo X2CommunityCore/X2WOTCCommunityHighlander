@@ -176,6 +176,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   their damage with psi flyovers (Psi Bomb, mod abilities) (#326)
 - Fix `X2AbilityToHitCalc_StandardAim` discarding unfavorable (for XCOM) changes
   to hit results from effects (#426)
+- Fix patrol logic when corners of a patrol zone lie outside of the map edges and
+  a pod tries to patrol to any of them (#508)
 
 
 ## Miscellaneous

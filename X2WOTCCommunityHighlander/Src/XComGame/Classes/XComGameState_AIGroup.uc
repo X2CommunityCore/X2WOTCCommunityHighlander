@@ -416,6 +416,11 @@ function bool ShouldMoveToIntercept(out Vector TargetInterceptLocation, XComGame
 
 		for( CornerIndex = EncounterCorners.Length - 1; CornerIndex >= 0; --CornerIndex )
 		{
+			// Start Issue #508
+			//
+			// Ensure the potential patrol locations are on-map, otherwise the alert will fail to set.
+			EncounterCorners[CornerIndex] = World.FindClosestValidLocation(EncounterCorners[CornerIndex], false, false);
+			// End Issue #508
 			if( VSizeSq(CurrentGroupLocation - EncounterCorners[CornerIndex]) < DESTINATION_REACHED_SIZE_SQ )
 			{
 				EncounterCorners.Remove(CornerIndex, 1);
