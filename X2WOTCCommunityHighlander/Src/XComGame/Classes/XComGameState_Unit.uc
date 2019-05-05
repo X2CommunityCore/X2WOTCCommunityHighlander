@@ -9007,6 +9007,12 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 			WeaponState = XComGameState_Item(GameState.GetGameStateForObjectID(ActivatedAbilityStateContext.InputContext.ItemObject.ObjectID));
 
 			SoundRange = WeaponState.GetItemSoundRange();
+			// Start Issue #510
+			//
+			// Allow mods to modify or replace the sound range based on the source unit,
+			// weapon and ability.
+			TriggerOverrideSoundRange(SourceUnitState, WeaponState, ActivatedAbilityState, SoundRange);
+			// End Issue #510
 			if( SoundRange > 0 )
 			{
 				if( !WeaponState.SoundOriginatesFromOwnerLocation() && ActivatedAbilityStateContext.InputContext.TargetLocations.Length > 0 )
@@ -9077,6 +9083,48 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 
 	return ELR_NoInterrupt;
 }
+
+// Start Issue #510
+//
+// Triggers an 'OverrideSoundRange' event that allows listeners to override
+// the sound range for a weapon/ability combo. For example, it could switch
+// to using the sound range of the weapon's ammo or modify the existing sound
+// range based on weapon attachments or the unit's abilities.
+//
+// The event itself takes the form:
+//
+//   {
+//      ID: OverrideSoundRange,
+//      Data: [in XCGS_Unit SourceUnit, in XCGS_Item Weapon,
+//             in XCGS_Ability Ability, inout int SoundRange],
+//      Source: self
+//   }
+//
+function TriggerOverrideSoundRange(
+	XComGameState_Unit SourceUnitState,
+	XComGameState_Item WeaponState,
+	XComGameState_Ability AbilityState,
+	out int SoundRange)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideSoundRange';
+	OverrideTuple.Data.Add(4);
+	OverrideTuple.Data[0].Kind = XComLWTVObject;
+	OverrideTuple.Data[0].o = SourceUnitState;
+	OverrideTuple.Data[1].Kind = XComLWTVObject;
+	OverrideTuple.Data[1].o = WeaponState;
+	OverrideTuple.Data[2].Kind = XComLWTVObject;
+	OverrideTuple.Data[2].o = AbilityState;
+	OverrideTuple.Data[3].Kind = XComLWTVInt;
+	OverrideTuple.Data[3].i = SoundRange;
+
+	`XEVENTMGR.TriggerEvent('OverrideSoundRange', OverrideTuple, self);
+
+	SoundRange = OverrideTuple.Data[3].i;
+}
+// End Issue #510
 
 function InterjectDirectAttackVisualization(XComGameStateContext_Ability AbilityContext, XComGameState_Ability AbilityState, XComGameState GameState)
 {
