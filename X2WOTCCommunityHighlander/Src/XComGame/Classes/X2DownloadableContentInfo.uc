@@ -554,3 +554,11 @@ static function UnitPawnPostInitAnimTree(XComGameState_Unit UnitState, XComUnitP
 	return;
 }
 /// End Issue #455
+
+/// Start Issue #511
+/// <summary>
+/// Can be overridden by mod classes to define load order dependencies
+/// </summary>
+function array<string> GetRunBeforeDLCIdentifiers();
+function array<string> GetRunAfterDLCIdentifiers();
+/// End Issue #511

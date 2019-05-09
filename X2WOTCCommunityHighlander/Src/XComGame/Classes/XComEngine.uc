@@ -465,7 +465,9 @@ static native function UnpauseGC();
 
 defaultproperties
 {
-	OnlineEventMgrClassName = "XComGame.XComOnlineEventMgr"
+	// Start Issue #511
+	OnlineEventMgrClassName = "XComGame.CHOnlineEventMgr"
+	// End Issue #511
 	m_iSeedOverride = 0
 
 	m_RedScreensTemporarilyDisabled = false;
