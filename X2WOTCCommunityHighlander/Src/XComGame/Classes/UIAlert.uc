@@ -2854,7 +2854,6 @@ simulated function BuildTrainingCompleteAlert(string TitleLabel)
 	local X2AbilityTemplate TrainedAbilityTemplate;
 	local array<SoldierClassAbilityType> AbilityTree;
 	local X2AbilityTemplateManager AbilityTemplateManager;
-	local X2SoldierClassTemplate ClassTemplate;
 	local XGParamTag kTag;
 	local XComGameState_ResistanceFaction FactionState;
 	local int i;
@@ -2868,7 +2867,6 @@ simulated function BuildTrainingCompleteAlert(string TitleLabel)
 
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(
 		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(DisplayPropertySet, 'UnitRef')));
-	ClassTemplate = UnitState.GetSoldierClassTemplate();
 	// Start Issue #106
 	ClassName = Caps(UnitState.GetSoldierClassDisplayName());
 	ClassIcon = UnitState.GetSoldierClassIcon();
@@ -2949,7 +2947,6 @@ simulated function OnTrainingButtonRealized()
 simulated function BuildPsiTrainingCompleteAlert(string TitleLabel)
 {
 	local XComGameState_Unit UnitState;
-	local X2SoldierClassTemplate ClassTemplate;
 	local XGParamTag kTag;
 	local string AbilityIcon, AbilityName, AbilityDescription, ClassIcon, ClassName, RankName;
 	local X2AbilityTemplate AbilityTemplate;
@@ -2968,7 +2965,6 @@ simulated function BuildPsiTrainingCompleteAlert(string TitleLabel)
 
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(
 		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(DisplayPropertySet, 'UnitRef')));
-	ClassTemplate = UnitState.GetSoldierClassTemplate();
 	// Start Issue #106
 	ClassName = Caps(UnitState.GetSoldierClassDisplayName());
 	ClassIcon = UnitState.GetSoldierClassIcon();
@@ -3012,7 +3008,6 @@ simulated function BuildPsiTrainingCompleteAlert(string TitleLabel)
 simulated function BuildSoldierPromotedAlert()
 {
 	local XComGameState_Unit UnitState;
-	local X2SoldierClassTemplate ClassTemplate;
 	local XGParamTag kTag;
 	local string ClassIcon, ClassName, RankName, PromotionString;
 	
@@ -3024,7 +3019,6 @@ simulated function BuildSoldierPromotedAlert()
 
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(
 		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(DisplayPropertySet, 'UnitRef')));
-	ClassTemplate = UnitState.GetSoldierClassTemplate();
 	// Start Issue #106
 	ClassName = Caps(UnitState.GetSoldierClassDisplayName());
 	ClassIcon = UnitState.GetSoldierClassIcon();
@@ -4058,7 +4052,6 @@ simulated function BuildNegativeTraitAcquiredAlert()
 	local Vector ForceLocation;
 	local Rotator ForceRotation;
 	local XComUnitPawn UnitPawn;
-	local X2SoldierClassTemplate ClassTemplate;
 	local X2EventListenerTemplateManager EventTemplateManager;
 	local string TraitDesc, ClassIcon, ClassName, RankName;
 	
@@ -4075,7 +4068,6 @@ simulated function BuildNegativeTraitAcquiredAlert()
 
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(
 		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(DisplayPropertySet, 'UnitRef')));
-	ClassTemplate = UnitState.GetSoldierClassTemplate();
 	
 	if (UnitState.GetRank() > 0)
 	{

@@ -340,10 +340,6 @@ simulated function float GetHackChance(int RewardIndex)
 
 simulated function PopulateSoldierInfo()
 {
-	local XGUnit Unit;
-
-	Unit = XGUnit(UnitState.GetVisualizer());
-	
 	// Start Issue #106, #408
 	AS_SetSoldierInfo(class'UIUtilities_Text'.static.GetColoredText(Caps(UnitState.GetSoldierRankName()), euiState_Faded, 17), 
 						class'UIUtilities_Text'.static.GetColoredText(Caps(UnitState.GetName(eNameType_Full)), eUIState_Normal, 22), 
