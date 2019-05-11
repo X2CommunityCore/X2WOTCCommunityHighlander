@@ -12,5 +12,5 @@ defaultproperties
     MajorVersion = 1;
     MinorVersion = 18;
     PatchVersion = 0;
-    Commit = "RC1";
+    Commit = "";
 }
