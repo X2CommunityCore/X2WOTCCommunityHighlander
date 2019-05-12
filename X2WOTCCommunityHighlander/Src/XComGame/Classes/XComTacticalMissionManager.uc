@@ -256,15 +256,16 @@ function MissionIntroDefinition GetActiveMissionIntroDefinition()
 	MissionIntro = GetActiveMissionIntroDefinition_Default(OverrideType, OverrideTag);
 
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
-	for(i = 0; i < DLCInfos.Length; ++i)
+	for (i = 0; i < DLCInfos.Length; ++i)
 	{
 		if(DLCInfos[i].UseAlternateMissionIntroDefinition(ActiveMission, OverrideType, OverrideTag, MissionIntro))
 		{
-			return MissionIntro;
+			break;
 		}
 	}
 	// End Issue #395
 
+	return MissionIntro;
 }
 
 function MissionIntroDefinition GetActiveMissionIntroDefinition_Default(out int OverrideType, out string OverrideTag) // Issue #395 -- rename, parameters
