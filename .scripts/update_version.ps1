@@ -9,7 +9,26 @@ Param(
 $version_commit = ""
 
 if ($use_commit) {
-	$version_commit = (git rev-parse HEAD).Substring(0,6)
+	# Force git to run inside the current directory.
+	# This is needed when CHL is used as git submodule
+	# otherwise the commit hash of outer git repo is used
+
+	# https://stackoverflow.com/a/5466355/2588539
+	$scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
+	
+	# https://stackoverflow.com/a/8762068/2588539
+	$pinfo = New-Object System.Diagnostics.ProcessStartInfo
+	$pinfo.FileName = "git"
+	$pinfo.RedirectStandardOutput = $true
+	$pinfo.UseShellExecute = $false
+	$pinfo.Arguments = "rev-parse HEAD"
+	$pinfo.WorkingDirectory = $scriptPath
+	$p = New-Object System.Diagnostics.Process
+	$p.StartInfo = $pinfo
+	$p.Start() | Out-Null
+	
+	$version_commit = ($p.StandardOutput.ReadToEnd()).Substring(0,6)
+	Write-Host "Using commit $version_commit"
 }
 
 # Optimization: Only consider .uc files with `Version` in their name
