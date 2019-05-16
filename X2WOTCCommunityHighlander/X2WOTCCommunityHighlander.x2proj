@@ -285,7 +285,7 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2DataSet.uc">
-          <SubType>Content</SubType>
+      <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2Action_Death.uc">
       <SubType>Content</SubType>
@@ -297,7 +297,7 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2FiraxisLiveClient.uc">
-          <SubType>Content</SubType>
+      <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2GameRuleset.uc">
       <SubType>Content</SubType>
@@ -305,8 +305,11 @@
     <Content Include="Src\XComGame\Classes\X2HackRewardTemplateManager.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2MeleePathingPawn.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2SitRepEffect_GrantAbilities.uc">
-          <SubType>Content</SubType>
+      <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2SitRepEffect_ModifyTacticalStartState.uc">
       <SubType>Content</SubType>
