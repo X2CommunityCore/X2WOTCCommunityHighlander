@@ -170,6 +170,8 @@ simulated function UpdateMeleeTarget(XComGameState_BaseObject Target)
 			// move the 3D cursor to the new target
 			if(`XWORLD.GetFloorPositionForTile(PossibleTiles[0], TileLocation))
 			{
+				// Single Line for #520
+				`CURSOR.m_iRequestedFloor = `CURSOR.WorldZToFloor(TargetVisualizer.Location);
 				`CURSOR.CursorSetLocation(TileLocation, true, true);
 			}
 		}
@@ -220,7 +222,8 @@ simulated event Tick(float DeltaTime)
 			CursorLocation = TargetVisualizer.Location + (Normal(Cursor.Location - TargetVisualizer.Location) * class'XComWorldData'.const.WORLD_StepSize);
 			foreach PossibleTiles(PossibleTile)
 			{
-				TileDistance = VSizeSq(WorldData.GetPositionFromTileCoordinates(PossibleTile) - CursorLocation);
+				// Single line for #520
+				TileDistance = VSizeSq2D(WorldData.GetPositionFromTileCoordinates(PossibleTile) - CursorLocation);
 				if(ClosestTileDistance < 0 || TileDistance < ClosestTileDistance)
 				{
 					ClosestTile = PossibleTile;
