@@ -9040,7 +9040,11 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 					// this unit just overheard the sound
 					else
 					{
-						UnitAGainsKnowledgeOfUnitB(EnemyInSoundRangeUnitState, SourceUnitState, GameState, eAC_DetectedSound, false);
+						// Start Issue #510
+						//
+						// Use the location where the sound is coming from rather than the unit's location.
+						UnitAGainsKnowledgeOfUnitBFromLocation(EnemyInSoundRangeUnitState, SourceUnitState, GameState, eAC_DetectedSound, false, SoundTileLocation);
+						// End Issue #510
 					}
 				}
 			}
@@ -9654,8 +9658,23 @@ static function UnitASeesUnitB(XComGameState_Unit UnitA, XComGameState_Unit Unit
 	}
 }
 
+// Start Issue #510
+//
+// Refactor `UnitAGainsKnowledgeOfUnitB` into two functions, one of which takes a tile
+// location as the source of the alert. The original function calls the new one, passing
+// in the Unit B's keystone visibility location, which matches the original behaviour of
+// the function.
 static function UnitAGainsKnowledgeOfUnitB(XComGameState_Unit UnitA, XComGameState_Unit UnitB, XComGameState AlertInstigatingGameState, EAlertCause AlertCause, bool bUnitAIsMidMove)
 {
+	local TTile AlertLocation;
+
+	UnitB.GetKeystoneVisibilityLocation(AlertLocation);
+	UnitAGainsKnowledgeOfUnitBFromLocation(UnitA, UnitB, AlertInstigatingGameState, AlertCause, bUnitAIsMidMove, AlertLocation);
+}
+
+static function UnitAGainsKnowledgeOfUnitBFromLocation(XComGameState_Unit UnitA, XComGameState_Unit UnitB, XComGameState AlertInstigatingGameState, EAlertCause AlertCause, bool bUnitAIsMidMove, out TTile AlertLocation)
+{
+// End Issue #510
 	local XComGameStateHistory History;
 	local AlertAbilityInfo AlertInfo;	
 	local X2TacticalGameRuleset Ruleset;
@@ -9675,7 +9694,7 @@ static function UnitAGainsKnowledgeOfUnitB(XComGameState_Unit UnitA, XComGameSta
 	{
 		OverrideAlertReq = false;
 		History = `XCOMHISTORY;
-		UnitB.GetKeystoneVisibilityLocation(AlertInfo.AlertTileLocation);
+		AlertInfo.AlertTileLocation = AlertLocation;  // Issue #510
 		AlertInfo.AlertUnitSourceID = UnitB.ObjectID;
 		AlertInfo.AnalyzingHistoryIndex = History.GetCurrentHistoryIndex();
 
