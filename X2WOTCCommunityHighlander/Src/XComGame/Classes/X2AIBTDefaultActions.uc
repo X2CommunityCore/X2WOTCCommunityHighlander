@@ -1132,23 +1132,61 @@ function bt_status DoNoiseAlert() // contents basically stolen from SeqAct_DropA
 	local XComGameState_Unit kUnitState;
 	local XComGameState_AIUnitData NewUnitAIState, kAIData;
 
+	// Variables for issue #510
+	local array<StateObjectReference> AliensInRange;
+	local bool CleanUpAIData;
+	// End #510 variables
+
 	History = `XCOMHISTORY;
 
 	// Kick off mass alert to location.
 	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState( "BehaviorTree - DoNoiseAlert" );
 
+	// Start Issue #510
+	//
+	// Create a new unit state for our civvy so that they can be visualized and configure
+	// a visualization function for it.
+	kUnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', m_kUnitState.ObjectID));
+	XComGameStateContext_ChangeContainer(NewGameState.GetContext()).BuildVisualizationFn = BuildVisualizationForNoiseAlert;
+	// End Issue #510
+	
 	AlertInfo.AlertTileLocation = m_kUnitState.TileLocation;
 	AlertInfo.AlertRadius = 1000;
 	AlertInfo.AlertUnitSourceID = m_kUnitState.ObjectID;
 	AlertInfo.AnalyzingHistoryIndex = History.GetCurrentHistoryIndex( ); //NewGameState.HistoryIndex; <- this value is -1.
+
+	// Start Issue #510
+	//
+	// Work out which enemy units are in sound range of this civilian.
+	kUnitState.GetUnitsInRangeOnTeam(eTeam_Alien, m_kUnitState.TileLocation, class'CHHelpers'.default.NoiseAlertSoundRange, AliensInRange);
+	// End Issue #510
 
 	foreach History.IterateByClassType( class'XComGameState_AIUnitData', kAIData )
 	{
 		kUnitState = XComGameState_Unit( History.GetGameStateForObjectID( kAIData.m_iUnitObjectID ) );
 		if (kUnitState != None && kUnitState.IsAlive( ))
 		{
-			NewUnitAIState = XComGameState_AIUnitData( NewGameState.ModifyStateObject( kAIData.Class, kAIData.ObjectID ) );
-			if( !NewUnitAIState.AddAlertData( kAIData.m_iUnitObjectID, eAC_AlertedByYell, AlertInfo, NewGameState ) )
+			// Start Issue #510
+			//
+			// Skip units outside of sound range
+			if (AliensInRange.Find('ObjectID', kUnitState.ObjectID) < 0)
+			{
+				continue;
+			}
+
+			// Check to see if we already have AI data for this unit in this game state
+			// (alert may already have been propagated to group members).
+			CleanUpAIData = false;
+			NewUnitAIState = XComGameState_AIUnitData(NewGameState.GetGameStateForObjectID(kAIData.ObjectID));
+			if (NewUnitAIState == None)
+			{
+				NewUnitAIState = XComGameState_AIUnitData( NewGameState.ModifyStateObject( kAIData.Class, kAIData.ObjectID ) );
+				CleanUpAIData = true;
+			}
+			// End Issue #510
+
+			if( !NewUnitAIState.AddAlertData( kAIData.m_iUnitObjectID, eAC_AlertedByYell, AlertInfo, NewGameState )
+					&& CleanUpAIData)  // Issue #510: Only purge the game state if we created it
 			{
 				NewGameState.PurgeGameStateForObjectID(NewUnitAIState.ObjectID);
 			}
@@ -1166,6 +1204,29 @@ function bt_status DoNoiseAlert() // contents basically stolen from SeqAct_DropA
 
 	return BTS_SUCCESS;
 }
+
+// Start Issue #510
+//
+// Pop up a flyover for fleeing civilians.
+function BuildVisualizationForNoiseAlert(XComGameState VisualizeGameState)
+{
+	local X2Action_PlaySoundAndFlyover SoundAndFlyover;
+	local VisualizationActionMetadata ActionMetadata;
+	local XComGameState_Unit UnitState;
+
+	UnitState = XComGameState_Unit(VisualizeGameState.GetGameStateForObjectID(m_kUnitState.ObjectID));
+	if (UnitState == none)
+	{
+		return;
+	}
+
+	`XCOMHISTORY.GetCurrentAndPreviousGameStatesForObjectID(UnitState.ObjectID, ActionMetadata.StateObject_OldState, ActionMetadata.StateObject_NewState, , VisualizeGameState.HistoryIndex);
+	ActionMetadata.StateObject_NewState = UnitState;
+	ActionMetadata.VisualizeActor = UnitState.GetVisualizer();
+	SoundAndFlyOver = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyover'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
+	SoundAndFlyOver.SetSoundAndFlyOverParameters(None, class'X2Action_Yell'.default.m_sYellMessage, '', eColor_Bad);
+}
+// End Issue #510
 
 function bt_status CivilianExitMap()
 {

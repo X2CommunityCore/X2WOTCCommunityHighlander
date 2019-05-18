@@ -10113,6 +10113,45 @@ function GetEnemiesInRange(TTile kLocation, int nMeters, out array<StateObjectRe
 	}
 }
 
+// Start Issue #510
+//
+// A copy of `GetEnemiesInRange()` except you can choose which team's units
+// you're interested in.
+function GetUnitsInRangeOnTeam(ETeam eTeam, TTile kLocation, int nMeters, out array<StateObjectReference> OutEnemies)
+{
+	local vector vCenter, vLoc;
+	local float fDistSq;
+	local XComGameState_Unit kUnit;
+	local XComGameStateHistory History;
+	local float AudioDistanceRadius, UnitHearingRadius, RadiiSumSquared;
+
+	History = `XCOMHISTORY;
+	vCenter = `XWORLD.GetPositionFromTileCoordinates(kLocation);
+	AudioDistanceRadius = `METERSTOUNITS(nMeters);
+	fDistSq = Square(AudioDistanceRadius);
+
+	foreach History.IterateByClassType(class'XComGameState_Unit', kUnit)
+	{
+		if( kUnit.GetTeam() == eTeam && kUnit.IsAlive() )
+		{
+			vLoc = `XWORLD.GetPositionFromTileCoordinates(kUnit.TileLocation);
+			UnitHearingRadius = kUnit.GetCurrentStat(eStat_HearingRadius);
+
+			RadiiSumSquared = fDistSq;
+			if( UnitHearingRadius != 0 )
+			{
+				RadiiSumSquared = Square(AudioDistanceRadius + UnitHearingRadius);
+			}
+
+			if( VSizeSq(vLoc - vCenter) < RadiiSumSquared )
+			{
+				OutEnemies.AddItem(kUnit.GetReference());
+			}
+		}
+	}
+}
+// End Issue #510
+
 native function float GetConcealmentDetectionDistance(const ref XComGameState_Unit DetectorUnit);
 
 simulated function bool CanFlank(bool bAllowMelee = false)
