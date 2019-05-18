@@ -9128,6 +9128,43 @@ function TriggerOverrideSoundRange(
 
 	SoundRange = OverrideTuple.Data[3].i;
 }
+
+// Triggers an 'OverrideSeesAlertedAllies' event that allows listeners to override
+// the behavior of the "SeesAlertedAllies" alert. For example, a mod could simply
+// disable it or ensure that it only applies if the two units aren't in the same
+// pod.
+//
+// To disable the alert, simply return eAC_None for the alert cause.
+//
+// The event itself takes the form:
+//
+//   {
+//      ID: OverrideSeesAlertedAllies,
+//      Data: [in XCGS_Unit UnitA, in XCGS_Unit UnitB, inout int AlertCause],
+//      Source: UnitA
+//   }
+//
+static function TriggerOverrideSeesAlertedAllies(
+	XComGameState_Unit UnitA,
+	XComGameState_Unit UnitB,
+	out EAlertCause AlertCause)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideSeesAlertedAllies';
+	OverrideTuple.Data.Add(3);
+	OverrideTuple.Data[0].Kind = XComLWTVObject;
+	OverrideTuple.Data[0].o = UnitA;
+	OverrideTuple.Data[1].Kind = XComLWTVObject;
+	OverrideTuple.Data[1].o = UnitB;
+	OverrideTuple.Data[2].Kind = XComLWTVInt;
+	OverrideTuple.Data[2].i = AlertCause;
+
+	`XEVENTMGR.TriggerEvent('OverrideSeesAlertedAllies', OverrideTuple, UnitA);
+
+	AlertCause = EAlertCause(OverrideTuple.Data[2].i);
+}
 // End Issue #510
 
 function InterjectDirectAttackVisualization(XComGameStateContext_Ability AbilityContext, XComGameState_Ability AbilityState, XComGameState GameState)
@@ -9652,6 +9689,13 @@ static function UnitASeesUnitB(XComGameState_Unit UnitA, XComGameState_Unit Unit
 			{
 				AlertCause = eAC_SeesAlertedAllies;
 			}
+
+			// Start Issue #510
+			//
+			// Allow mods to override whether the "SeesAlertedAllies" alert applies in
+			// this situation.
+			TriggerOverrideSeesAlertedAllies(UnitA, UnitB, AlertCause);
+			// End Issue #510
 		}
 
 		UnitAGainsKnowledgeOfUnitB(UnitA, UnitB, AlertInstigatingGameState, AlertCause, true);
