@@ -554,3 +554,12 @@ static function UnitPawnPostInitAnimTree(XComGameState_Unit UnitState, XComUnitP
 	return;
 }
 /// End Issue #455
+
+/// Start Issue #524
+/// <summary>
+/// Allow mods to specify array of incompatible and required mod.
+/// </summary>
+function array<string> GetIncompatibleDLCIdentifiers();
+function array<string> GetRequiredDLCIdentifiers();
+function string GetDisplayName();
+/// End Issue #524

@@ -8,3 +8,7 @@ NotExpectedNotFound="Optional"
 VersionMismatches="- Version Mismatches"
 WarningsLabel="- Warnings"
 ErrorsLabel="- ERRORS - CHECK LOG"
+
+[X2WOTCCH_ModDependencies]
+ModRequired="following required dependend mod(s) not found:"
+ModIncompatible="following loaded mod(s) are marked incompatible:"
