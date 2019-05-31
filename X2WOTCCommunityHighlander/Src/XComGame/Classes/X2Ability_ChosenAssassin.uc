@@ -561,7 +561,8 @@ static function X2AbilityTemplate CreateBendingReed(name TemplateName = 'Bending
 	Template.AddShooterEffect(ActionPointEffect);
 
 	MobilityIncrease = new class'X2Effect_PersistentStatChange';
-	MobilityIncrease.BuildPersistentEffect(1, false, true);
+	// Single line change for #531. eGameRule_PlayerTurnEnd used not eGameRule_PlayerTurnBegin so that the normal mobility is shown by mods which can show enemy stats. Because of this bIgnorePlayerCheckOnTick also set to gurantee never starts a turn with this active, somehow!
+	MobilityIncrease.BuildPersistentEffect(1, false, true, true, eGameRule_PlayerTurnEnd);
 	MobilityIncrease.AddPersistentStatChange(eStat_Mobility, default.BENDINGREED_MOBILITY_INCREASE, MODOP_Multiplication);
 	Template.AddShooterEffect(MobilityIncrease);
 
