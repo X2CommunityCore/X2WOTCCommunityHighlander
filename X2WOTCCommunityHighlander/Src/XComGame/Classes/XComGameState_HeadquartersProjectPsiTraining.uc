@@ -130,9 +130,39 @@ function OnProjectCompleted()
 
 	`HQPRES.UIPsiTrainingComplete(ProjectFocus, AbilityTemplate);
 	
-	// Start Issue 
-	`XEVENTMGR.TriggerEvent('PsiProjectCompleted', self, self);
+	// Start Issue #534
+	TriggerPsiProjectCompleted(Unit, AbilityName);
+	// End Issue #534
 }
+
+// Start Issue #534
+//
+// Triggers a 'PsiProjectCompleted' event that notifies listeners 
+// that a psi operative has finished training.
+//
+// The event itself takes the form:
+//
+//   {
+//      ID: PsiProjectCompleted,
+//      Data: [in XCGS_Unit Unit, in string AbilityName],
+//      Source: self (XCGS_HQProjectPsiTraining)
+//   }
+//
+function TriggerPsiProjectCompleted(XComGameState_Unit Unit, name AbilityName)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'PsiProjectCompleted';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVObject;
+	Tuple.Data[0].o = Unit;
+	Tuple.Data[1].kind = XComLWTVObject;
+	Tuple.Data[1].s = string(AbilityName);
+
+	`XEVENTMGR.TriggerEvent('PsiProjectCompleted', Tuple, self);
+}
+// End Issue #534
 
 //---------------------------------------------------------------------------------------
 DefaultProperties
