@@ -33,7 +33,7 @@ var protected X2AbilityTarget_Bondmate      BondmateTarget;
 var protected X2AbilityTarget_Single        SimpleSingleTarget;
 var protected X2AbilityTarget_Single        SimpleSingleMeleeTarget;
 var protected X2AbilityTarget_Single        SingleTargetWithSelf;
-var protected X2Condition_Visibility        GameplayVisibilityCondition;
+var X2Condition_Visibility        					GameplayVisibilityCondition;
 var protected X2Condition_Visibility        MeleeVisibilityCondition;
 var protected X2AbilityCost_ActionPoints    FreeActionCost, WeaponActionTurnEnding;
 var protected X2Effect_ApplyWeaponDamage    WeaponUpgradeMissDamage;
