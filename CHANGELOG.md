@@ -44,6 +44,18 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Triggers the event `ShouldCleanupCovertAction` to allow mod control over Covert Action deletion. (#435)
 - Triggers the event `BlackMarketGoodsReset` when the Black Market goods are reset (#473)
 - Triggers the event `OverrideImageForItemAvaliable` to allow mods to override the image shown in eAlert_ItemAvailable (#491)
+- Triggers the event `OverrideMissionSiteIconImage` to allow mods to override the image shown for mission site icons (#537)
+- Triggers the event `StrategyMapMissionSiteSelected` to allow mods to provide mission launch screens for
+  missions that have custom mission sources (#537)
+- Triggers the event `OverrideMissionSiteTooltip` to allow mods to override the tooltip displayed for a
+  mission site icon (#537)
+- Triggers the event `OverrideScanSiteTooltip` to allow mods to override the tooltip displayed for a
+  scan site icon (#537)
+- Triggers the event `MissionIconSetMissionSite` to allow mods to customize a mission site's icon in
+  other ways than just the tooltip and image (#537)
+- Triggers the event `MissionIconSetScanSite` to allow mods to customize a scan site's icon in other
+  ways than just the tooltip and image (#537)
+
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)

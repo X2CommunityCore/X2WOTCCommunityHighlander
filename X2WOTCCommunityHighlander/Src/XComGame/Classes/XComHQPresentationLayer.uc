@@ -2390,7 +2390,17 @@ simulated function OnMissionSelected(XComGameState_MissionSite MissionSite, opti
 	{
 		LostAndAbandonedAlertCB('eUIAction_Accept', PropertySet, bInstant);
 	}
+	// Start Issue #537
+	else
+	{
+		// Notify listeners that the given mission site has been selected by
+		// the player so that they can open the appropriate screen and/or
+		// perform any other appropriate actions.
+		`XEVENTMGR.TriggerEvent('StrategyMapMissionSiteSelected', MissionSite, MissionSite);
+	}
+	// End Issue #537
 }
+
 simulated function UIGOpsMission(optional bool bInstant = false)
 {
 	local DynamicPropertySet PropertySet;

@@ -96,6 +96,14 @@ simulated function SetScanSite(XComGameState_ScanningSite Scanner)
 	}
 
 	AS_SetGoldenPath(false);
+
+	// Start Issue #537
+	//
+	// Notify listeners that the mission site icon has been attached to a
+	// scan site gamestate. This passes both the scan site gamestate and
+	// its icon to the listeners.
+	`XEVENTMGR.TriggerEvent('MissionIconSetScanSite', Scanner, self);
+	// End Issue #537
 }
 
 simulated function SetMissionSite(XComGameState_MissionSite Mission)
@@ -125,12 +133,21 @@ simulated function SetMissionSite(XComGameState_MissionSite Mission)
 		AS_SetLock(bMissionLocked);
 
 	AS_SetGoldenPath(bIsGoldenPath);
+
+	// Start Issue #537
+	//
+	// Notify listeners that the mission site icon has been attached to a
+	// mission site gamestate. This passes both the mission site gamestate
+	// and its icon to the listeners.
+	`XEVENTMGR.TriggerEvent('MissionIconSetMissionSite', Mission, self);
+	// End Issue #537
 }
 
 simulated function OnMouseEvent(int cmd, array<string> args)
 {
 	local XComGameState_Haven HavenState;
 	local XComGameState_BlackMarket BlackMarket;
+	local XComLWTuple Tuple; // Issue #537
 
 	super.OnMouseEvent(cmd, args);
 
@@ -159,7 +176,12 @@ simulated function OnMouseEvent(int cmd, array<string> args)
 		else if(ScanSite != none)
 		{
 			ScanSite = XComGameState_ScanningSite(`XCOMHISTORY.GetGameStateForObjectID(ScanSite.ObjectID)); // Force an update of Scan Site game state
-			SetMissionIconTooltip(ScanSite.GetUIButtonTooltipTitle(), ScanSite.GetUIButtonTooltipBody());
+			// Start Issue #537
+			//
+			// Allow listeners to provide custom tooltip title and body for this scan site.
+			Tuple = TriggerOverrideStrategyMapIconTooltip('OverrideScanSiteTooltip', ScanSite.GetUIButtonTooltipTitle(), ScanSite.GetUIButtonTooltipBody());
+			SetMissionIconTooltip(Tuple.Data[0].s, Tuple.Data[1].s);
+			// End Issue #537
 			if (bMoveCamera || `ISCONTROLLERACTIVE == false)
 			{
 				XComHQPresentationLayer(Movie.Pres).CAMLookAtEarth(ScanSite.Get2DLocation(), ZoomLevel);
@@ -167,7 +189,12 @@ simulated function OnMouseEvent(int cmd, array<string> args)
 		}
 		else if( MissionSite != none )
 		{
-			SetMissionIconTooltip(MissionSite.GetUIButtonTooltipTitle(), MissionSite.GetUIButtonTooltipBody());
+			// Start Issue #537
+			//
+			// Allow listeners to provide custom tooltip title and body for this mission site.
+			Tuple = TriggerOverrideStrategyMapIconTooltip('OverrideMissionSiteTooltip', MissionSite.GetUIButtonTooltipTitle(), MissionSite.GetUIButtonTooltipBody());
+			SetMissionIconTooltip(Tuple.Data[0].s, Tuple.Data[1].s);
+			// END
 			if (bMoveCamera || `ISCONTROLLERACTIVE == false)
 			{
 				XComHQPresentationLayer(Movie.Pres).CAMLookAtEarth(MissionSite.Get2DLocation(), ZoomLevel);
@@ -225,6 +252,39 @@ simulated function SetMissionIconTooltip(string Title, string Body)
 		Tooltip.SetText(Title, Body);
 	}
 }
+
+// Start Issue #537
+//
+// Fires an event with the given ID that allows mods to override either scan
+// site or mission site icon tooltips. The default title and body (if there
+// are default values) are passed in with the event, so listeners can ignore
+// either or both properties if they want.
+//
+// The event itself takes the form:
+//
+//   {
+//      ID: <Given ID>,
+//      Data: [inout string Title, inout string Body],
+//      Source: self (UIStrategyMap_MissionIcon)
+//   }
+//
+simulated function XComLWTuple TriggerOverrideStrategyMapIconTooltip(name ID, optional string Title = "", optional string Body = "")
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = ID;
+	Tuple.Data.Add(2);
+	Tuple.Data[0].Kind = XComLWTVString;
+	Tuple.Data[0].s = Title;
+	Tuple.Data[1].Kind = XComLWTVString;
+	Tuple.Data[1].s = Body;
+
+	`XEVENTMGR.TriggerEvent(ID, Tuple, self);
+
+	return Tuple;
+}
+// End Issue #537
 
 simulated function bool OnUnrealCommand(int cmd, int arg)
 {
