@@ -81,6 +81,9 @@ simulated function UpdateCouncilReportCardRewards()
 {
 	local XComGameState_HeadquartersResistance ResistanceHQ;
 	local bool bIsPositiveMonthly; 
+	// Vars for Issue #539
+	local string SupplyLossReason, SupplyLossAmount;
+	// End vars
 
 	ResistanceHQ = RESHQ();
 	bIsPositiveMonthly = (ResistanceHQ.GetSuppliesReward(true) > 0);
@@ -102,20 +105,67 @@ simulated function UpdateCouncilReportCardRewards()
 		MC.QueueString("");
 	}
 
+	// Start Issue #539
+	//
+	// Allow mods to replace or extend the display string for supply losses at
+	// the end of the month. Rather than queue the display strings right away,
+	// we save them to two local variables that can be overridden by an event.
+	// Then we queue their values at the end.
+
 	// Rural Checkpoints Dark Event
 	if( ResistanceHQ.SavedSupplyDropPercentDecrease > 0 )
 	{
-		MC.QueueString(m_strDarkEventPenalty);
-		MC.QueueString("-" $ Round(ResistanceHQ.SavedSupplyDropPercentDecrease * 100.0) $ "%");
+		SupplyLossReason = m_strDarkEventPenalty;
+		SupplyLossAmount = Round(ResistanceHQ.SavedSupplyDropPercentDecrease * 100.0) $ "%";
 	}
 	else
 	{
-		MC.QueueString("");
-		MC.QueueString("");
+		SupplyLossReason = "";
+		SupplyLossAmount = "";
 	}
+
+	TriggerOverrideSupplyLossStrings(SupplyLossReason, SupplyLossAmount);
+
+	MC.QueueString(SupplyLossReason);
+	MC.QueueString(SupplyLossAmount != "" ? ("-" $ SupplyLossAmount ): "");
+	// End Issue #539
 
 	MC.EndOp();
 }
+
+// Start Issue #539
+//
+// Fires an 'OverrideSupplyLossStrings' event that allows listeners to override
+// the "supplies lost" text in the resistance report. They can either change the
+// source of or reason for the supply loss or they can change the amount lost, or
+// they can do both.
+//
+// The event takes the form:
+//
+//  {
+//     ID: OverrideSupplyLossStrings,
+//     Data: [inout string SupplyLossReason, inout string SupplyLossAmount],
+//     Source: self (UIResistanceReport)
+//  }
+//
+function TriggerOverrideSupplyLossStrings(out string SupplyLossReason, out string SupplyLossAmount)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideSupplyLossStrings';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].Kind = XComLWTVString;
+	OverrideTuple.Data[0].s = SupplyLossReason;
+	OverrideTuple.Data[1].Kind = XComLWTVString;
+	OverrideTuple.Data[1].s = SupplyLossAmount;
+
+	`XEVENTMGR.TriggerEvent('OverrideSupplyLossStrings', OverrideTuple, self);
+
+	SupplyLossReason = OverrideTuple.Data[0].s;
+	SupplyLossAmount = OverrideTuple.Data[1].s;
+}
+// End Issue #539
 
 simulated function UpdateCouncilReportCardStaff()
 {
@@ -241,6 +291,14 @@ simulated function CloseScreen()
 	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Reset Monthly Resistance Activities");
 	ResistanceHQ = XComGameState_HeadquartersResistance(NewGameState.ModifyStateObject(class'XComGameState_HeadquartersResistance', RESHQ().ObjectID));
 	ResistanceHQ.ResetActivities();
+
+	// Start Issue #539
+	//
+	// Allow mods to do extra end-of-month processing once the resistance
+	// report is closed.
+	`XEVENTMGR.TriggerEvent('PostEndOfMonth', , self, NewGameState);
+	// End Issue #539
+
 	`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
 
 	HQPRES().m_kAvengerHUD.NavHelp.ClearButtonHelp();
@@ -272,7 +330,15 @@ simulated function String GetSupplyRewardString()
 	
 	if(SuppliesReward < 0)
 	{
-		SuppliesReward = 0;
+		// Start Issue #539
+		//
+		// Check with listeners whether negative supplies should be displayed
+		// as is or displayed as 0.
+		if (!RESHQ().TriggerNegativeMonthlyIncome(SuppliesReward))
+		{
+			SuppliesReward = 0;
+		}
+		// End Issue #539
 	}
 
 	Prefix = (SuppliesReward < 0) ? "-" : "+";
