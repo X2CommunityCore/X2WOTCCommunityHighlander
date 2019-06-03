@@ -122,6 +122,10 @@ var config array<name> RequiresTargetingActivation;
 var config array<name> AdditionalAmbushRiskTemplates;
 // End Issue #485
 
+// Start Issue #543
+var config bool bSkipCampaignIntroMovies;
+// End Issue #543
+
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
 	local XComContentManager		Content;
