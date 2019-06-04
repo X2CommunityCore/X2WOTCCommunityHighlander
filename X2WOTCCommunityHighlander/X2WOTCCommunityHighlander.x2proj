@@ -64,6 +64,9 @@
     <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2WOTCCH_Components.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2WOTCCH_DialogCallbackData.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2WOTCCH_ModDependencies.uc">
       <SubType>Content</SubType>
     </Content>

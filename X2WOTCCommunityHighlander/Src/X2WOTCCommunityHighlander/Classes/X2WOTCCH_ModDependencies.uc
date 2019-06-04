@@ -7,82 +7,97 @@ class X2WOTCCH_ModDependencies extends Object;
 struct ModDependency
 {
 	var string ModName;
+	var name DLCIdentifier;
 	var array<String> Children;
 };
 
 var localized string ModRequired;
 var localized string ModIncompatible;
+var localized string ModRequiredPopupTitle;
+var localized string ModIncompatiblePopupTitle;
+var localized string DisablePopup;
 
-static function GetModDependencies(out array<ModDependency> IncompatibleMods, out array<ModDependency> RequiredMods)
+static function array<ModDependency> GetRequiredMods()
 {
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local X2DownloadableContentInfo DLCInfo;
 	local array<string> DependendDLCIdentifiers;
-	local ModDependency ModDependencyToAdd, EmptyModDependencyToAdd;
+	local array<ModDependency> RequiredMods;
+
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+
+	foreach DLCInfos(DLCInfo)
+	{
+		DependendDLCIdentifiers = DLCInfo.GetRequiredDLCIdentifiers();
+
+		AddModDependenies(DLCInfo, DependendDLCIdentifiers, true, RequiredMods);
+	}
+
+	return RequiredMods;
+}
+
+static function array<ModDependency> GetIncompatbleMods()
+{
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local X2DownloadableContentInfo DLCInfo;
+	local array<string> DependendDLCIdentifiers;
+	local array<ModDependency> IncompatibleMods;
 
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 
 	foreach DLCInfos(DLCInfo)
 	{
 		DependendDLCIdentifiers = DLCInfo.GetIncompatibleDLCIdentifiers();
+		AddModDependenies(DLCInfo, DependendDLCIdentifiers, false, IncompatibleMods);
+	}
 
-		ModDependencyToAdd = EmptyModDependencyToAdd;
-		if (GetModDependency(DLCInfos, DLCInfo, DependendDLCIdentifiers, false, ModDependencyToAdd))
+	return IncompatibleMods;
+}
+
+private static function AddModDependenies(
+	X2DownloadableContentInfo DLCInfo,
+	array<string> DependendDLCIdentifiers,
+	bool bRequired,
+	out array<ModDependency> IncompatibleMods
+)
+{
+	local ModDependency ModDependencyToAdd;
+
+	if (GetModDependency(DLCInfo, DependendDLCIdentifiers, bRequired, ModDependencyToAdd))
+	{
+		if (ModDependencyToAdd.Children.Length > 0)
 		{
-			if (ModDependencyToAdd.Children.Length > 0)
-			{
-				IncompatibleMods.AddItem(ModDependencyToAdd);
-			}
-		}
-
-		DependendDLCIdentifiers = DLCInfo.GetRequiredDLCIdentifiers();
-
-		ModDependencyToAdd = EmptyModDependencyToAdd;
-		if (GetModDependency(DLCInfos, DLCInfo, DependendDLCIdentifiers, true, ModDependencyToAdd))
-		{
-			if (ModDependencyToAdd.Children.Length > 0)
-			{
-				RequiredMods.AddItem(ModDependencyToAdd);
-			}
+			IncompatibleMods.AddItem(ModDependencyToAdd);
 		}
 	}
 }
 
-function static string Join(array<string> StringArray, optional string Delimiter = ",", optional bool bIgnoreBlanks = true)
-{
-	local string Result;
-
-	JoinArray(StringArray, Result, Delimiter, bIgnoreBlanks);
-
-	return Result;
-}
-
 private static function bool GetModDependency(
-	array<X2DownloadableContentInfo> DLCInfos,
 	X2DownloadableContentInfo DLCInfo,
 	array<string> DependendDLCIdentifiers,
-	bool bIsRequired,
+	bool bRequired,
 	out ModDependency ModDependencyToAdd
 	)
 {
 	local string DependendDLCIdentifier;
-	local X2DownloadableContentInfo Dependency;
+	local bool bIsInstalled;
 
 	if (DependendDLCIdentifiers.Length > 0)
 	{
 		ModDependencyToAdd.ModName = GetModDisplayName(DLCInfo);
+		ModDependencyToAdd.DLCIdentifier = name(DLCInfo.DLCIdentifier);
 		foreach DependendDLCIdentifiers(DependendDLCIdentifier)
 		{
-			Dependency = FindDLCInfo(DLCInfos, DependendDLCIdentifier);
-			if (bIsRequired && Dependency == none)
+			bIsInstalled = IsDLCInstalled(name(DependendDLCIdentifier));
+			if (!bIsInstalled && bRequired)
+			{
+				ModDependencyToAdd.Children.AddItem(DependendDLCIdentifier);
+				`LOG(GetFuncName() @ GetModDisplayName(DLCInfo) @ "Add required" @ DependendDLCIdentifier,, 'X2WOTCCommunityHighlander');
+			}
+			if (bIsInstalled && !bRequired)
 			{
 				ModDependencyToAdd.Children.AddItem(DependendDLCIdentifier);
 				`LOG(GetFuncName() @ GetModDisplayName(DLCInfo) @ "Add incompatible" @ DependendDLCIdentifier,, 'X2WOTCCommunityHighlander');
-			}
-			else if(!bIsRequired && Dependency != none)
-			{
-				ModDependencyToAdd.Children.AddItem(GetModDisplayName(Dependency));
-				`LOG(GetFuncName() @ GetModDisplayName(DLCInfo) @ "Add incompatible" @ GetModDisplayName(Dependency),, 'X2WOTCCommunityHighlander');
 			}
 		}
 		return true;
@@ -90,19 +105,22 @@ private static function bool GetModDependency(
 	return false;
 }
 
-private static function X2DownloadableContentInfo FindDLCInfo(array<X2DownloadableContentInfo> Haystack, string Needle)
+private static function bool IsDLCInstalled(name DLCName)
 {
-	local X2DownloadableContentInfo DLCInfo;
-
-	foreach Haystack(DLCInfo)
+	local XComOnlineEventMgr EventManager;
+	local int i;
+		
+	EventManager = `ONLINEEVENTMGR;
+	for(i = 0; i < EventManager.GetNumDLC(); ++i)
 	{
-		if (DLCInfo.DLCIdentifier == Needle)
+		if (DLCName == EventManager.GetDLCNames(i))
 		{
-			return DLCInfo;
+			return true;
 		}
 	}
-	return None;
+	return false;
 }
+
 
 private static function string GetModDisplayName(X2DownloadableContentInfo DLCInfo)
 {
@@ -119,3 +137,11 @@ private static function string GetModDisplayName(X2DownloadableContentInfo DLCIn
 	return DLCInfo.DLCIdentifier;
 }
 
+function static string Join(array<string> StringArray, optional string Delimiter = ",", optional bool bIgnoreBlanks = true)
+{
+	local string Result;
+
+	JoinArray(StringArray, Result, Delimiter, bIgnoreBlanks);
+
+	return Result;
+}

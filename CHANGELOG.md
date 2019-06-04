@@ -1,7 +1,12 @@
 # Change Log
 All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented in this file.
 
+## General
 
+### Mod/DLC Hooks
+- `GetIncompatibleDLCIdentifiers` allows mods to specify an array of incompatible mods. This will be used to show an warning popup if they are present.
+- `GetRequiredDLCIdentifiers` allows mods to specify an array of required mods. This will be used to show an warning popup if they are not present.
+- `GetDisplayName` allows mods to specify a display name which will be used in the warning popups for incompatible/required mod.
 
 ## Strategy
 
