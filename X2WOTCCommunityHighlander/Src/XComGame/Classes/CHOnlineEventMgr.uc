@@ -2,8 +2,15 @@
 // Create a DLCInfo loadorder system
 class CHOnlineEventMgr extends XComOnlineEventMgr;
 
-var array<CHDLCInfoTopologicalOrderNode> Nodes;
-var array<CHDLCInfoTopologicalOrderNode> Stack;
+var bool bWarmCache;
+var string strWarnings;
+
+enum ELoadPriority
+{
+	LOAD_STANDARD,
+	LOAD_FIRST,
+	LOAD_LAST
+};
 
 event Init()
 {
@@ -16,17 +23,24 @@ function array<X2DownloadableContentInfo> GetDLCInfos(bool bNewDLCOnly)
 	local array<X2DownloadableContentInfo> DLCInfoClasses;
 	local X2DownloadableContentInfo DLCInfoClass;
 	local CHDLCInfoTopologicalOrderNode Node;
+	local array<CHDLCInfoTopologicalOrderNode> NodesFirst;
+	local array<CHDLCInfoTopologicalOrderNode> NodesStandard;
+	local array<CHDLCInfoTopologicalOrderNode> NodesLast;
+	local array<CHDLCInfoTopologicalOrderNode> Stack;
 
 	DLCInfoClasses = super.GetDLCInfos(bNewDLCOnly);
 
-	// Maybe bypass ordering here if stack is filled and return cache
-	// if (Stack.Length > 0)
-	// {
-	// 	return m_cachedDLCInfos;
-	// }
-
-	Nodes.Length = 0;
-	Stack.Length = 0;
+	if (bNewDLCOnly)
+	{
+		return DLCInfoClasses;
+	}
+	
+	// Bypass ordering here if we have a warm cache
+	if (bWarmCache && m_cachedDLCInfos.Length > 0)
+	{
+		`LOG(default.class @ GetFuncName() @ "returning cached dlc infos" @ m_cachedDLCInfos.Length,, 'X2WOTCCommunityHighlander');
+		return m_cachedDLCInfos;
+	}
 
 	foreach DLCInfoClasses(DLCInfoClass)
 	{
@@ -36,15 +50,59 @@ function array<X2DownloadableContentInfo> GetDLCInfos(bool bNewDLCOnly)
 		Node.RunBefore = DLCInfoClass.GetRunBeforeDLCIdentifiers();
 		Node.RunAfter =  DLCInfoClass.GetRunAfterDLCIdentifiers();
 		Node.bVisited = false;
-		Nodes.AddItem(Node);
+
+		switch (DLCInfoClass.GetLoadPriority())
+		{
+			case LOAD_FIRST:
+				NodesFirst.AddItem(Node);
+				break;
+			case LOAD_LAST:
+				NodesLast.AddItem(Node);
+				break;
+			case LOAD_STANDARD: default:
+				NodesStandard.AddItem(Node);
+				break;
+		}
 	}
 
-	`LOG(default.class @ GetFuncName() @ "--- Before sort" @ DLCInfoClasses.Length @ "Nodes" @ Nodes.Length,, 'X2WOTCCommunityHighlander');
+	`LOG(default.class @ GetFuncName() @ "--- Before sort" @ DLCInfoClasses.Length,, 'X2WOTCCommunityHighlander');
 
-	ToplogicalSort();
-
+	strWarnings = "";
 	DLCInfoClasses.Length = 0;
 	m_cachedDLCInfos.Length = 0;
+
+	ToplogicalSort(NodesFirst, Stack);
+	AddStackAndReset(DLCInfoClasses, Stack);
+	strWarnings = Repl(strWarnings, "%s", "LOAD_FIRST");
+
+	ToplogicalSort(NodesStandard, Stack);
+	AddStackAndReset(DLCInfoClasses, Stack);
+	strWarnings = Repl(strWarnings, "%s", "LOAD_STANDARD");
+
+	ToplogicalSort(NodesLast, Stack);
+	AddStackAndReset(DLCInfoClasses, Stack);
+	strWarnings = Repl(strWarnings, "%s", "LOAD_LAST");
+
+	`LOG(default.class @ GetFuncName() @ "--- After sort" @ DLCInfoClasses.Length,, 'X2WOTCCommunityHighlander');
+
+	if (strWarnings != "")
+	{
+		`LOG(default.class @ GetFuncName() @ strWarnings,, 'X2WOTCCommunityHighlander');
+		strWarnings = "";
+	}
+
+	bWarmCache = true;
+
+	return DLCInfoClasses;
+}
+
+
+private function AddStackAndReset(
+	out array<X2DownloadableContentInfo> DLCInfoClasses,
+	out array<CHDLCInfoTopologicalOrderNode> Stack
+)
+{
+	local CHDLCInfoTopologicalOrderNode Node;
 
 	foreach Stack(Node)
 	{
@@ -52,22 +110,26 @@ function array<X2DownloadableContentInfo> GetDLCInfos(bool bNewDLCOnly)
 		m_cachedDLCInfos.AddItem(Node.DLCInfoClass);
 	}
 
-	`LOG(default.class @ GetFuncName() @ "--- After sort" @ DLCInfoClasses.Length @ "Stack" @ Stack.Length,, 'X2WOTCCommunityHighlander');
-
-	return DLCInfoClasses;
+	Stack.Length = 0;
 }
 
-private function ToplogicalSort()
+private function ToplogicalSort(array<CHDLCInfoTopologicalOrderNode> Nodes, out array<CHDLCInfoTopologicalOrderNode> Stack)
 {
 	local CHDLCInfoTopologicalOrderNode Node, RunBeforeNode;
 	local string RunBefore;
 	
-	// rewrite RunAfter to RunBefore
+	// rewrite RunBefore to RunAfter
 	foreach Nodes(Node)
 	{
 		foreach Node.RunBefore(RunBefore)
 		{
 			RunBeforeNode = FindNode(Nodes, RunBefore);
+
+			if (RunBeforeNode == none)
+			{
+				strWarnings $= default.class @ Node.DLCIdentifier @ "could not find RunBefore" @ RunBefore @ "in priority group %s\n";
+			}
+
 			if (RunBeforeNode != None)
 			{
 				RunBeforeNode.RunAfter.AddItem(Node.DLCIdentifier);
@@ -75,17 +137,21 @@ private function ToplogicalSort()
 		}
 	}
 
-	// Sort nodes based on RunAfter
+	// Sort NodesStandard based on RunAfter
 	foreach Nodes(Node)
 	{
 		if (!Node.bVisited)
 		{
-			ToplogicalSortUtil(Node);
+			ToplogicalSortUtil(Nodes, Stack, Node);
 		}
 	}
 }
 
-private function ToplogicalSortUtil(CHDLCInfoTopologicalOrderNode Node)
+private function ToplogicalSortUtil(
+	array<CHDLCInfoTopologicalOrderNode> Nodes,
+	out array<CHDLCInfoTopologicalOrderNode> Stack,
+	CHDLCInfoTopologicalOrderNode Node
+)
 {
 	local CHDLCInfoTopologicalOrderNode SubNode;
 	local string RunAfter;
@@ -95,20 +161,26 @@ private function ToplogicalSortUtil(CHDLCInfoTopologicalOrderNode Node)
 	foreach Node.RunAfter(RunAfter)
 	{
 		SubNode = FindNode(Nodes, RunAfter);
+
+		if (SubNode == none)
+		{
+			strWarnings $= default.class @ Node.DLCIdentifier @ "could not find RunAfter" @ RunAfter @ "in priority group %s\n";
+		}
+
 		if (SubNode != None && !SubNode.bVisited)
 		{
-			ToplogicalSortUtil(SubNode);
+			ToplogicalSortUtil(Nodes, Stack, SubNode);
 		}
 	}
 
 	Stack.AddItem(Node);
 }
 
-private function CHDLCInfoTopologicalOrderNode FindNode(array<CHDLCInfoTopologicalOrderNode> Haystack, string DLCIdentifier)
+private function CHDLCInfoTopologicalOrderNode FindNode(array<CHDLCInfoTopologicalOrderNode> HayStack, string DLCIdentifier)
 {
 	local CHDLCInfoTopologicalOrderNode Node;
 
-	foreach Haystack(Node)
+	foreach HayStack(Node)
 	{
 		if (Node.DLCIdentifier == DLCIdentifier)
 		{
@@ -118,46 +190,88 @@ private function CHDLCInfoTopologicalOrderNode FindNode(array<CHDLCInfoTopologic
 	return None;
 }
 
-
+// Unit tests
 private function TestTopologicalOrdering()
 {
+	local array<CHDLCInfoTopologicalOrderNode> NodesFst, NodesLst, NodesStd;
+	local array<CHDLCInfoTopologicalOrderNode> Buffer, MyStack;
 	local CHDLCInfoTopologicalOrderNode Node;
 	local array<string> ExpectedResult;
 	local int Index;
 
-	Nodes.Length = 0;
-	Stack.Length = 0;
+	NodesFst.AddItem(GetNode("Z"));
+	NodesFst.AddItem(GetNode("Y", "1", "Z"));
 
-	Node = new class'CHDLCInfoTopologicalOrderNode';
-	Node.DLCIdentifier = "A";
-	Node.RunAfter.AddItem("C");
-	//Node.RunBefore.AddItem("E");
-	Nodes.AddItem(Node);
+	NodesStd.AddItem(GetNode("A", "Z", "C"));
+	NodesStd.AddItem(GetNode("B",, "A"));
+	NodesStd.AddItem(GetNode("C"));
+	NodesStd.AddItem(GetNode("E", "A"));
 
-	Node = new class'CHDLCInfoTopologicalOrderNode';
-	Node.DLCIdentifier = "B";
-	Node.RunAfter.AddItem("A");
-	Nodes.AddItem(Node);
+	NodesLst.AddItem(GetNode("2", "B"));
+	NodesLst.AddItem(GetNode("1", "2"));
 
-	Node = new class'CHDLCInfoTopologicalOrderNode';
-	Node.DLCIdentifier = "C";
-	Nodes.AddItem(Node);
-
-	Node = new class'CHDLCInfoTopologicalOrderNode';
-	Node.DLCIdentifier = "E";
-	Node.RunBefore.AddItem("A");
-	Nodes.AddItem(Node);
-
+	ExpectedResult.AddItem("Z");
+	ExpectedResult.AddItem("Y");
 	ExpectedResult.AddItem("C");
 	ExpectedResult.AddItem("E");
 	ExpectedResult.AddItem("A");
 	ExpectedResult.AddItem("B");
+	ExpectedResult.AddItem("1");
+	ExpectedResult.AddItem("2");
 
-	ToplogicalSort();
+	ToplogicalSort(NodesFst, MyStack);
+	AddMyStackToBufferAndReset(Buffer, MyStack);
+	strWarnings = Repl(strWarnings, "%s", "LOAD_FIRST");
 
-	foreach Stack(Node)
+	ToplogicalSort(NodesStd, MyStack);
+	AddMyStackToBufferAndReset(Buffer, MyStack);
+	strWarnings = Repl(strWarnings, "%s", "LOAD_STANDARD");
+
+	ToplogicalSort(NodesLst, MyStack);
+	AddMyStackToBufferAndReset(Buffer, MyStack);
+	strWarnings = Repl(strWarnings, "%s", "LOAD_LAST");
+
+	`LOG(default.class @ GetFuncName() @ strWarnings,, 'X2WOTCCommunityHighlander');
+
+	foreach Buffer(Node)
 	{
 		`LOG(default.class @ GetFuncName() @ Node.DLCIdentifier @ Node.DLCIdentifier == ExpectedResult[Index],, 'X2WOTCCommunityHighlander');
 		Index++;
 	}
+}
+
+private function AddMyStackToBufferAndReset(
+	out array<CHDLCInfoTopologicalOrderNode> Buffer,
+	out array<CHDLCInfoTopologicalOrderNode> Stack
+)
+{
+	local CHDLCInfoTopologicalOrderNode Node;
+
+	foreach Stack(Node)
+	{
+		Buffer.AddItem(Node);
+	}
+
+	Stack.Length = 0;
+}
+
+static private function CHDLCInfoTopologicalOrderNode GetNode(
+	string DLCIdentifer,
+	optional string RunBefore,
+	optional string RunAfter
+)
+{	
+	local CHDLCInfoTopologicalOrderNode Node;
+
+	Node = new class'CHDLCInfoTopologicalOrderNode';
+	Node.DLCIdentifier = DLCIdentifer;
+	if (RunBefore != "")
+	{
+		Node.RunBefore.AddItem(RunBefore);
+	}
+	if (RunAfter != "")
+	{
+		Node.RunAfter.AddItem(RunAfter);
+	}
+	return Node;
 }

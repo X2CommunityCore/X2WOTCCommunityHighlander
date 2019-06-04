@@ -558,7 +558,14 @@ static function UnitPawnPostInitAnimTree(XComGameState_Unit UnitState, XComUnitP
 /// Start Issue #511
 /// <summary>
 /// Can be overridden by mod classes to define load order dependencies
+/// LoadPriority can be STANDARD = 0, FIRST = 1 or LAST = 2
+/// Only change load priority if you really sure that its needed for you mod.
+/// RunBefore and RunAfter only work within the defined LoadPriority group
 /// </summary>
 function array<string> GetRunBeforeDLCIdentifiers();
 function array<string> GetRunAfterDLCIdentifiers();
+function int GetLoadPriority()
+{
+	return 0;
+}
 /// End Issue #511
