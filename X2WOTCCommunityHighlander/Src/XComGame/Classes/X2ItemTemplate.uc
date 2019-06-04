@@ -11,14 +11,16 @@ class X2ItemTemplate extends X2DataTemplate
 	native(Core)
 	config(StrategyTuning);
 
-var protected localized string  FriendlyName;                   //  localized string for the player
-var protected localized string  FriendlyNamePlural;             //  localized string for the player
-var protected localized string  BriefSummary;
-var protected localized string  TacticalText;
-var protected localized string  AbilityDescName;				//  localized string for how this weapon is referenced in ability descriptions
-var protected localized string  UnknownUtilityCategory;
+// Start Issue #546
+var localized string  FriendlyName;                   //  localized string for the player
+var localized string  FriendlyNamePlural;             //  localized string for the player
+var localized string  BriefSummary;
+var localized string  TacticalText;
+var localized string  AbilityDescName;				//  localized string for how this weapon is referenced in ability descriptions
+var localized string  UnknownUtilityCategory;
 var localized array<string>  BlackMarketTexts;
-var protected localized string	LootTooltip;
+var localized string	LootTooltip;
+// End Issue #546
 
 var int				iItemSize;                      //  space item takes up in backpack
 var int				MaxQuantity;                    //  number of this item that can fit together in the backpack without taking up an additional slot
