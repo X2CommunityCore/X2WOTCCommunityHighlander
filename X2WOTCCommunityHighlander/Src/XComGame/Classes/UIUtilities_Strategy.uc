@@ -814,6 +814,7 @@ static function GetPersonnelStatusStringParts(
 		optional bool IncludeMentalState = false)
 {
 	local int iTimeNum, iDays, iDoTimeConversion;
+	local string sTimeValueString;
 	local bool bHideZeroDays, bIsMentalState;
 
 	bHideZeroDays = true;
@@ -904,9 +905,12 @@ static function GetPersonnelStatusStringParts(
 	// set to the appropriate unit (hours/days). We only have to do the conversion
 	// if a listener wants us to (because they have overridden the duration,
 	// iTimeNum, with a new number of hours, but want to delegate the conversion).
-	TriggerOverridePersonnelStatus(Unit, Status, eState, TimeLabel, iTimeNum, HideTime, iDoTimeConversion);
+	//
+	// Alternatively, listeners can provide a string time value, which overrides
+	// iTimeNum and iDoTimeConversion.
+	TriggerOverridePersonnelStatus(Unit, Status, eState, TimeLabel, sTimeValueString, iTimeNum, HideTime, iDoTimeConversion);
 
-	if (iDoTimeConversion != 0 && HideTime == 0)
+	if (sTimeValueString == "" && iDoTimeConversion != 0 && HideTime == 0)
 	{
 		iDays = FCeil(float(iTimeNum) / 24.0);
 
@@ -922,6 +926,10 @@ static function GetPersonnelStatusStringParts(
 			iTimeNum = iDays;
 		}
 		TimeValue = string(iTimeNum);
+	}
+	else if (sTimeValueString != "")
+	{
+		TimeValue = sTimeValueString;
 	}
 	else
 	{
@@ -941,30 +949,36 @@ static function GetPersonnelStatusStringParts(
 }
 
 // Triggers an 'OverridePersonnelStatus' event that allows listeners to override the
-// status of a unit. See GetPersonnelStatusStringParts() for a description of the
-// parameters, although note that it provides the integer TimeNum in place of the
-// string TimeValue. This is so that the time can be used for calculations easily.
+// status of a unit.
 //
-// Listeners can either provide the amount of time plus a label to go with it, like
-// 3 + "Days", or it can set the provide the amount of time in hours and set the
-// DoTimeConversion value to true. In this latter case, the CHL will generate the
-// appropriate time label (which it may delegate to listeners of
-// 'OverridePersonnelStatusTime').
+// Listeners can do one of the following:
+// 
+//   * Provide a string time value in TimeValueOverride, which takes precedence over
+//     TimeNum and DoTimeConversion.
+//   * Provide the amount of time in TimeNum plus a label to go with it, like 3 + "Days".
+//   * Provide the amount of time in _hours_ (TimeNum) and set the DoTimeConversion value
+//     to true.
+//
+// In this last case, the CHL will generate the appropriate time label (which it
+// may delegate to listeners of the 'OverridePersonnelStatusTime' event).
 //
 // The event itself takes the form:
 //
 //   {
 //      ID: OverridePersonnelStatus,
-//      Data: [inout string Status, inout string TimeLabel, inout int TimeNum,
-//             inout int State, inout bool HideTime, inout bool DoTimeConversion],
+//      Data: [inout string Status, inout string TimeLabel, inout string TimeValueOverride,
+//             inout int TimeNum, inout int State, inout bool HideTime, inout bool DoTimeConversion],
 //      Source: Unit
 //   }
+//
+// "State" is one of the EUIState enums representing Good, Warning, and Bad.
 //
 static function TriggerOverridePersonnelStatus(
 	XComGameState_Unit Unit,
 	out string Status,
 	out EUIState eState,
 	out string TimeLabel,
+	out string TimeValueOverride,
 	out int TimeNum,
 	out int HideTime,
 	out int DoTimeConversion)
@@ -973,28 +987,31 @@ static function TriggerOverridePersonnelStatus(
 
 	OverrideTuple = new class'XComLWTuple';
 	OverrideTuple.Id = 'OverridePersonnelStatus';
-	OverrideTuple.Data.Add(6);
+	OverrideTuple.Data.Add(7);
 	OverrideTuple.Data[0].kind = XComLWTVString;
 	OverrideTuple.Data[0].s = Status;
 	OverrideTuple.Data[1].kind = XComLWTVString;
 	OverrideTuple.Data[1].s = TimeLabel;
-	OverrideTuple.Data[2].kind = XComLWTVInt;
-	OverrideTuple.Data[2].i = TimeNum;
+	OverrideTuple.Data[2].kind = XComLWTVString;
+	OverrideTuple.Data[2].s = TimeValueOverride;
 	OverrideTuple.Data[3].kind = XComLWTVInt;
-	OverrideTuple.Data[3].i = int(eState);
-	OverrideTuple.Data[4].kind = XComLWTVBool;
-	OverrideTuple.Data[4].b = HideTime != 0;
+	OverrideTuple.Data[3].i = TimeNum;
+	OverrideTuple.Data[4].kind = XComLWTVInt;
+	OverrideTuple.Data[4].i = int(eState);
 	OverrideTuple.Data[5].kind = XComLWTVBool;
-	OverrideTuple.Data[5].b = DoTimeConversion != 0;
+	OverrideTuple.Data[5].b = HideTime != 0;
+	OverrideTuple.Data[6].kind = XComLWTVBool;
+	OverrideTuple.Data[6].b = DoTimeConversion != 0;
 
 	`XEVENTMGR.TriggerEvent('OverridePersonnelStatus', OverrideTuple, Unit);
 
 	Status = OverrideTuple.Data[0].s;
 	TimeLabel = OverrideTuple.Data[1].s;
-	TimeNum = OverrideTuple.Data[2].i;
-	eState = EUIState(OverrideTuple.Data[3].i);
-	HideTime = OverrideTuple.Data[4].b ? 1 : 0;
-	DoTimeConversion = OverrideTuple.Data[5].b ? 1 : 0;
+	TimeValueOverride = OverrideTuple.Data[2].s;
+	TimeNum = OverrideTuple.Data[3].i;
+	eState = EUIState(OverrideTuple.Data[4].i);
+	HideTime = OverrideTuple.Data[5].b ? 1 : 0;
+	DoTimeConversion = OverrideTuple.Data[6].b ? 1 : 0;
 }
 
 // Triggers an 'OverridePersonnelStatusTime' event that allows listeners to override
