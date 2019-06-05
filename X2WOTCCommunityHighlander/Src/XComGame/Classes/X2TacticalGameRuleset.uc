@@ -1267,6 +1267,20 @@ function ApplyStartOfMatchConditions()
 	}
 	else
 	{
+		// Start Issue #548
+		//
+		// Fire the "concealment broken" event immediately upon mission start if
+		// XCOM aren't starting concealed.
+		foreach History.IterateByClassType(class'XComGameState_Player', PlayerState)
+		{
+			if (PlayerState.GetTeam() == eTeam_XCom)
+			{
+				`XEVENTMGR.TriggerEvent('SquadConcealmentBroken', PlayerState, PlayerState, none);
+				break;
+			}
+		}
+		// End Issue
+
 		if(!BattleDataState.DirectTransferInfo.IsDirectMissionTransfer) // only apply phantom at the start of the first leg of a multi-part mission
 		{
 			foreach History.IterateByClassType(class'XComGameState_Unit', UnitState)
