@@ -128,12 +128,15 @@ simulated function UpdateMissingPersons()
 simulated function UpdateData()
 {
 	local int i;
+	local int CurrentDoom;
+	local int MaxDoom;
 	local XComGameState_HeadquartersAlien AlienHQ;
 	local XComGameState_HeadquartersResistance ResHQ;
 	local XComGameState NewGameState;
 	local bool bPlayedSound;
 	
 	bPlayedSound = false;
+	`log("UpdateData() Start");
 
 	if(Movie.Stack.GetCurrentClass() != class'UIStrategyMap') return;
 
@@ -214,10 +217,15 @@ simulated function UpdateData()
 		}
 
 		MC.BeginFunctionOp("UpdateDoomMeter");
+		//Issue 550
+		//Chaching doom values below as a change to GetCurrentDoom activates an event and if that function is called
+		//on each iteration of the loop it could cause unneded work to be done by the listener.
+		MaxDoom = AlienHQ.GetMaxDoom();	
+		CurrentDoom = AlienHQ.GetCurrentDoom();
 
-		for (i = 0; i < AlienHQ.GetMaxDoom(); ++i)
+		for (i = 0; i < MaxDoom; ++i)
 		{
-			if( i < AlienHQ.GetCurrentDoom() )
+			if(i < CurrentDoom)
 			{
 				if(i >= CachedDoom)
 				{
@@ -230,7 +238,6 @@ simulated function UpdateData()
 
 						bPlayedSound = true;
 					}
-					
 					MC.QueueNumber(2); //New blocks are 2
 				}
 				else
@@ -247,7 +254,6 @@ simulated function UpdateData()
 						`XSTRATEGYSOUNDMGR.PlaySoundEvent("Geoscape_DoomDecrease");
 						bPlayedSound = true;
 					}
-					
 					MC.QueueNumber(3); // Blocks to remove
 				}
 				else
