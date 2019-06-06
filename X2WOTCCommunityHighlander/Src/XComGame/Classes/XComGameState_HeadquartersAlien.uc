@@ -493,28 +493,11 @@ function int GetCurrentDoom(optional bool bIgnorePending = false)
 	local XComGameStateHistory History;
 	local XComGameState_MissionSite MissionState;
 	local int TotalDoom;
-	//Begin Isseu #550
-	//Issue #550 - Tuple to send to triggered event.
+	// Variable for Issue #550
 	local XComLWTuple Tuple;
 
 	TotalDoom = Doom;
 	History = `XCOMHISTORY;
-
-	//Issue #550 -  set up Tuple for event use.
-	Tuple = new class'XComLWTuple';
-	Tuple.Id = 'GetCurrentDoom';
-	Tuple.Data.Add(3);
-	Tuple.Data[0].kind = XComLWTVInt;
-	Tuple.Data[0].i = 0;
-	Tuple.Data[1].kind = XComLWTVObject;
-	Tuple.Data[1].o = self;
-	Tuple.Data[2].kind = XComLWTVBool;
-	Tuple.Data[2].b = bIgnorePending;
-
-	//Issue #550 - Trigger event that calcuilates current doom of unrevaled missions.
-	`XEVENTMGR.TriggerEvent('AddDoomModifier', Tuple);
-	TotalDoom += Tuple.Data[0].i;
-	//End Issue #550
 	
 	foreach History.IterateByClassType(class'XComGameState_MissionSite', MissionState)
 	{
@@ -528,8 +511,20 @@ function int GetCurrentDoom(optional bool bIgnorePending = false)
 	{
 		TotalDoom -= GetPendingDoom();
 	}
+	
+	// Start Issue #550
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideCurrentDoom';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVInt;
+	Tuple.Data[0].i = TotalDoom;
+	Tuple.Data[1].kind = XComLWTVBool;
+	Tuple.Data[1].b = bIgnorePending;
 
-	return TotalDoom;
+	`XEVENTMGR.TriggerEvent('OverrideCurrentDoom', Tuple, self);
+	
+	return Tuple.Data[0].i;
+	// End Issue #550
 }
 
 //---------------------------------------------------------------------------------------
