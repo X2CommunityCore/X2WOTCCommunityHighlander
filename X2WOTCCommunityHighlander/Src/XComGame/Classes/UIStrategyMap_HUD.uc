@@ -136,7 +136,6 @@ simulated function UpdateData()
 	local bool bPlayedSound;
 	
 	bPlayedSound = false;
-	`log("UpdateData() Start");
 
 	if(Movie.Stack.GetCurrentClass() != class'UIStrategyMap') return;
 
