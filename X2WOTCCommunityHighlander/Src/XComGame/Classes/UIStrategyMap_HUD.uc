@@ -217,12 +217,13 @@ simulated function UpdateData()
 		}
 
 		MC.BeginFunctionOp("UpdateDoomMeter");
-		//Issue 550
+		//Begin Issue #550
 		//Chaching doom values below as a change to GetCurrentDoom activates an event and if that function is called
 		//on each iteration of the loop it could cause unneded work to be done by the listener.
 		MaxDoom = AlienHQ.GetMaxDoom();	
 		CurrentDoom = AlienHQ.GetCurrentDoom();
-
+		//End Issue #550
+		
 		for (i = 0; i < MaxDoom; ++i)
 		{
 			if(i < CurrentDoom)
@@ -238,6 +239,7 @@ simulated function UpdateData()
 
 						bPlayedSound = true;
 					}
+					
 					MC.QueueNumber(2); //New blocks are 2
 				}
 				else
@@ -254,6 +256,7 @@ simulated function UpdateData()
 						`XSTRATEGYSOUNDMGR.PlaySoundEvent("Geoscape_DoomDecrease");
 						bPlayedSound = true;
 					}
+					
 					MC.QueueNumber(3); // Blocks to remove
 				}
 				else
