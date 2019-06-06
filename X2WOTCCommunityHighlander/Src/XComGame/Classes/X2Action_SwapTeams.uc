@@ -39,6 +39,18 @@ simulated state Executing
 		// remove any previously attached range indicators from the unit. These are usually put on
 		// non-xcom civilians and should be removed before they switch teams
 		VisUnit.GetPawn().DetachRangeIndicator();
+
+		// Start Issue #551
+		//
+		// Make sure the pawn's team changes too (used by X2UnitRadiusManager) and
+		// the XGUnit's squad (used by XGUnit.RemoveRanges()). This fixes the issue
+		// with disappearing rescue rings on units that haven't been rescued.
+		if (class'CHHelpers'.default.UseTeamSwapFix)
+		{
+			VisUnit.GetPawn().SetTeamType(Unit.GetTeam());
+			VisUnit.SetSquad(VisPlayer.GetSquad());
+		}
+		// End Issue #551
 		
 		VisUnit.m_kPlayer = VisPlayer;
 		VisUnit.m_kPlayerNativeBase = VisPlayer;
