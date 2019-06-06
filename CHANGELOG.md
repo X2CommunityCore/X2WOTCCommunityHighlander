@@ -44,6 +44,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Triggers the event `ShouldCleanupCovertAction` to allow mod control over Covert Action deletion. (#435)
 - Triggers the event `BlackMarketGoodsReset` when the Black Market goods are reset (#473)
 - Triggers the event `OverrideImageForItemAvaliable` to allow mods to override the image shown in eAlert_ItemAvailable (#491)
+- Triggers the event `OverrideCurrentDoom` to allow mods to override doom amount for doom updates (#550)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
