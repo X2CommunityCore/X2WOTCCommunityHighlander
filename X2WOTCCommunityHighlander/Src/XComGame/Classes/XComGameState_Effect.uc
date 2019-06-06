@@ -383,6 +383,7 @@ function OnRefresh(EffectAppliedData NewApplyEffectParameters, XComGameState New
 	local XComGameStateContext_Ability AbilityContext;
 	local X2AbilityTemplate AbilityTemplate;
 	local X2AbilityMultiTarget_BurstFire BurstFire;
+	local XComGameState_BaseObject Target;  // Issue #475
 
 	EffectTemplate = GetX2Effect();
 
@@ -406,6 +407,33 @@ function OnRefresh(EffectAppliedData NewApplyEffectParameters, XComGameState New
 			}
 		}
 	}
+
+	// Start Issue #475
+	//
+	// Reapply this effect if so configured. For example, it allows disorient
+	// to break the overwatch of already-disoriented units.
+	if (X2Effect_PersistentStatChange(EffectTemplate) != none &&
+		X2Effect_PersistentStatChange(EffectTemplate).bForceReapplyOnRefresh)
+	{
+		if (EffectTemplate.EffectAddedFn != none)
+		{
+			if (NewApplyEffectParameters.TargetStateObjectRef.ObjectID > 0)
+			{
+				Target = NewGameState.GetGameStateForObjectID(NewApplyEffectParameters.TargetStateObjectRef.ObjectID);
+				if (Target == none)
+				{
+					Target = XComGameState_Unit(NewGameState.ModifyStateObject(
+						class' XComGameState_Unit',
+						NewApplyEffectParameters.TargetStateObjectRef.ObjectID));
+				}
+				if (Target != none)
+				{
+					EffectTemplate.EffectAddedFn(EffectTemplate, NewApplyEffectParameters, Target, NewGameState);
+				}
+			}
+		}
+	}
+	// End Issue #475
 }
 
 // NewGameState is the game state this remove effect is happening in

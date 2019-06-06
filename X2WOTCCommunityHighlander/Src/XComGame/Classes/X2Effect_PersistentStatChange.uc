@@ -9,6 +9,13 @@ class X2Effect_PersistentStatChange extends X2Effect_ModifyStats;
 
 var array<StatChange>	m_aStatChanges;
 
+// Start Issue #475
+//
+// Controls whether an effect can be reapplied to a unit that is already
+// under the influence of that effect.
+var bool bForceReapplyOnRefresh;
+// End Issue #475
+
 simulated function AddPersistentStatChange(ECharStatType StatType, float StatAmount, optional EStatModOp InModOp=MODOP_Addition )
 {
 	local StatChange NewChange;

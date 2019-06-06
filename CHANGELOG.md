@@ -171,6 +171,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   their damage with psi flyovers (Psi Bomb, mod abilities) (#326)
 - Fix `X2AbilityToHitCalc_StandardAim` discarding unfavorable (for XCOM) changes
   to hit results from effects (#426)
+- Make disorient reapply to disoriented units so that things like flashbangs can
+  still remove overwatch from disoriented units (#475)
 
 
 ## Miscellaneous
