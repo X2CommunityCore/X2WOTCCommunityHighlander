@@ -64,6 +64,13 @@ protected function FinalizeHitChance(out ShotBreakdown m_ShotBreakdown, bool bDe
 	local float GrazeScale;
 	local int FinalGraze;
 
+	// Start Issue #555
+	if (TriggerOverrideFinalHitChance(m_ShotBreakdown))
+	{
+		return;
+	}
+	// End Issue #555
+
 	`log("==" $ GetFuncName() $ "==\n", bDebugLog, 'XCom_HitRolls');
 	`log("Starting values...", bDebugLog, 'XCom_HitRolls');
 	for (i = 0; i < eHit_MAX; ++i)
@@ -120,4 +127,44 @@ protected function FinalizeHitChance(out ShotBreakdown m_ShotBreakdown, bool bDe
 		`log("FinalHitChance was less than 0 (" $ m_ShotBreakdown.FinalHitChance $ ") and was clamped to avoid confusing the UI (@btopp).", bDebugLog, 'XCom_HitRolls');
 		m_ShotBreakdown.FinalHitChance = 0;
 	}
+}
+
+// Start Issue #555
+//
+// Fires an 'OverrideFinalHitChance' event that allows listeners to override
+// the final shot breakdown for an ability. LW2 uses this to implement its
+// graze band mechanic for example.
+//
+// The event takes the form:
+//
+//  {
+//     ID: OverrideFinalHitChance,
+//     Data: [out bool OverrideHitChance, inout CHShotBreakdown ShotBreakdown],
+//     Source: self (X2AbilityToHitCalc)
+//  }
+//
+function bool TriggerOverrideFinalHitChance(out ShotBreakdown ShotBreakdown)
+{
+	local XComLWTuple OverrideTuple;
+	local CHShotBreakdownWrapper Wrapper;
+
+	// As ShotBreakdown is a struct and its default behavior is to pass by value,
+	// wrap it in a pass-by-reference object so we can see the listeners' changes.
+	Wrapper = new class'CHShotBreakdownWrapper';
+	Wrapper.m_ShotBreakdown = ShotBreakdown;
+
+	//set up a Tuple for return value - true means the to-hit calcs were overridden, so you should simply exit
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideFinalHitChance';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].kind = XComLWTVBool;
+	OverrideTuple.Data[0].b = false;
+	OverrideTuple.Data[1].kind = XComLWTVObject;
+	OverrideTuple.Data[1].o = Wrapper;
+	`XEVENTMGR.TriggerEvent('OverrideFinalHitChance', OverrideTuple, self);
+
+	// Again, as structs are pass by value, ShotBreakdown itself hasn't been
+	// modified by the listeners, so we have to copy over the updated values.
+	ShotBreakdown = Wrapper.m_ShotBreakdown;
+	return OverrideTuple.Data[0].b;
 }
