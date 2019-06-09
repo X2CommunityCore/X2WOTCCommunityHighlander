@@ -171,6 +171,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   their damage with psi flyovers (Psi Bomb, mod abilities) (#326)
 - Fix `X2AbilityToHitCalc_StandardAim` discarding unfavorable (for XCOM) changes
   to hit results from effects (#426)
+- Allow soldiers to be carried out from multiple missions in a campaign (#557)
 
 
 ## Miscellaneous
