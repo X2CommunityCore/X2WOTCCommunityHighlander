@@ -314,6 +314,9 @@
     <Content Include="Src\XComGame\Classes\X2AbilityTemplate.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2AbilityToHitCalc.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIUtilities_Colors.uc">
       <SubType>Content</SubType>
     </Content>
