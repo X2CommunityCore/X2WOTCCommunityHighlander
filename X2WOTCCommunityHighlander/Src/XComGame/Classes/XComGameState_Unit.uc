@@ -13348,7 +13348,6 @@ function GetMentalStateStringsSeparate(out string Status, out string TimeLabel, 
 	local XComGameStateHistory History;
 	local XComGameState_HeadquartersProjectRecoverWill WillProject;
 	local int iDays;
-	local int iHours;  // Issue #322
 
 	History = `XCOMHISTORY;
 	Status = GetMentalStateLabel();

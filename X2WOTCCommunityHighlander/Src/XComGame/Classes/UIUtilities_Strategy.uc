@@ -817,6 +817,7 @@ static function GetPersonnelStatusStringParts(
 	local string sTimeValueString;
 	local bool bHideZeroDays, bIsMentalState;
 
+	bIsMentalState = false;
 	bHideZeroDays = true;
 	HideTime = 0;
 
@@ -871,6 +872,7 @@ static function GetPersonnelStatusStringParts(
 		{
 			Unit.GetMentalStateStringsSeparate(Status, TimeLabel, iTimeNum);
 			eState = Unit.GetMentalStateUIState();
+			bIsMentalState = true;
 		}
 		else if (Unit.IsPsiTraining() || Unit.IsPsiAbilityTraining())
 		{
@@ -892,6 +894,7 @@ static function GetPersonnelStatusStringParts(
 		{
 			Unit.GetMentalStateStringsSeparate(Status, TimeLabel, iTimeNum);
 			eState = Unit.GetMentalStateUIState();
+			bIsMentalState = true;
 		}
 		else
 		{
