@@ -120,6 +120,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   so that players don't know exactly where reinforcements will be arriving (#448)
 - `OverrideReinforcementsAlert` allows mods to force the display of the reinforcements
   alert panel and also change its text and color (#449)
+- `AllowInteractHack` allows mods to prevent units from being able to hack `InteractiveObject`s (#564)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)

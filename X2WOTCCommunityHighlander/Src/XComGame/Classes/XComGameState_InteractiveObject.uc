@@ -517,8 +517,28 @@ event bool CanInteractHack(XComGameState_Unit Unit)
 
 	CurrentHackRewards = GetHackRewards('');
 
-	return MustBeHacked() && !HasBeenHacked() && (Unit.GetCurrentStat(eStat_Hacking) > 0) && (CurrentHackRewards.Length > 0);
+	// Issue #564 (added "&& AllowInteractHack()")
+	return MustBeHacked() && !HasBeenHacked() && (Unit.GetCurrentStat(eStat_Hacking) > 0) && (CurrentHackRewards.Length > 0) && AllowInteractHack(Unit);
 }
+
+// Start issue #564
+function bool AllowInteractHack(XComGameState_Unit Unit)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'AllowInteractHack';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = true; 
+	Tuple.Data[1].kind = XComLWTVObject;
+	Tuple.Data[1].o = Unit;
+
+	`XEVENTMGR.TriggerEvent('AllowInteractHack', Tuple, self);
+
+	return Tuple.Data[0].b;
+}
+// End issue #564
 
 /// <summary>
 /// Returns true if this object is a "key" object that should be hacked
