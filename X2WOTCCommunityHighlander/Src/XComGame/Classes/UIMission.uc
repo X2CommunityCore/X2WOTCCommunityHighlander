@@ -628,7 +628,7 @@ simulated function UpdateSitreps()
 
 				SitrepPanel.MC.BeginFunctionOp("SitRepAlertAddItem");
 				SitrepPanel.MC.QueueString(class'UIUtilities_Text'.static.GetColoredText(SitRepTemplate.GetFriendlyName(), eState));
-				SitrepPanel.MC.QueueString(class'UIUtilities_Text'.static.GetColoredText(SitRepTemplate.Description, eState));
+				SitrepPanel.MC.QueueString(class'UIUtilities_Text'.static.GetColoredText(SitRepTemplate.GetDescriptionExpanded(), eState)); // Issue #566
 				SitrepPanel.MC.EndOp();
 			}
 		}	

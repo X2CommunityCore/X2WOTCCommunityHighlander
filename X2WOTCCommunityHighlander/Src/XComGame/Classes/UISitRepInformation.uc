@@ -86,7 +86,7 @@ function UpdateSitRepData()
 			MC.BeginFunctionOp("SetSitRepRow");
 			MC.QueueNumber(0);
 			MC.QueueString(SitRepTemplate.GetFriendlyName());
-			MC.QueueString(SitRepTemplate.Description);
+			MC.QueueString(SitRepTemplate.GetDescriptionExpanded()); // Issue #566
 			MC.QueueString("");
 			MC.EndOp();
 
@@ -97,7 +97,7 @@ function UpdateSitRepData()
 				MC.BeginFunctionOp("SetAdjustmentRow");
 				MC.QueueNumber(AdjustmentRow);
 				MC.QueueString(SitRepEffectTemplate.GetFriendlyName());
-				MC.QueueString(SitRepEffectTemplate.Description);
+				MC.QueueString(SitRepEffectTemplate.GetDescriptionExpanded()); // Issue #566
 				MC.QueueString(string(SitRepEffectTemplate.DifficultyModifier));
 				MC.EndOp();
 

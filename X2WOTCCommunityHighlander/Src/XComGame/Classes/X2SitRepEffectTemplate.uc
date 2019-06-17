@@ -26,6 +26,13 @@ function string GetFriendlyName()
 	}
 }
 
+// Start issue #566
+function string GetDescriptionExpanded()
+{
+	return `XEXPAND.ExpandString(Description);
+}
+// End issue #566
+
 // Override to allow the effect to modify whether or not the mission can be launched
 function bool CanLaunchMission(XComGameState_MissionSite Mission, out string FailReason)
 {

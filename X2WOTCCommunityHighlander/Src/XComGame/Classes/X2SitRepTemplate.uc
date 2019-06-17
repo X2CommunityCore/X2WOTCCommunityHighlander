@@ -47,6 +47,13 @@ function string GetFriendlyName()
 	}
 }
 
+// Start issue #566
+function string GetDescriptionExpanded()
+{
+	return `XEXPAND.ExpandString(Description);
+}
+// End issue #566
+
 // Returns true if this sitrep can be used
 function bool MeetsRequirements(XComGameState_MissionSite MissionState)
 {
