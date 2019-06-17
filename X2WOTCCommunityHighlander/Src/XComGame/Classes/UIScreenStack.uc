@@ -614,17 +614,39 @@ simulated function PopIncludingClass( class<UIScreen> ClassToRemove, optional bo
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
-// Returns the first instance of a Screen of the target class type.
+// Start Issue #290
+//
+// Lots of code in the base game and mods seems to use `GetScreen()` when
+// it should be using `GetFirstInstanceOf()`. This change means that
+// `GetScreen()` will also return any screen that's a subclass of the
+// specified one.
+//
+// If any code wants to ignore subclasses, then it can use the new
+// `GetScreen_CH()` method instead.
+
+// Returns the first instance of a Screen of the target class type (or a subclass).
 simulated function UIScreen GetScreen( class<UIScreen> ScreenClass )
+{
+	return GetScreen_CH(ScreenClass, true);
+}
+
+simulated function UIScreen GetScreen_CH( class<UIScreen> ScreenClass, bool IncludeSubTypes )
 {
 	local int Index;
 	for( Index = 0; Index < Screens.Length;  ++Index)
 	{
-		if( ScreenClass ==  Screens[Index].Class )
+		if( IncludeSubTypes && ClassIsChildOf(Screens[Index].Class, ScreenClass) )
+		{
 			return Screens[Index];
+		}
+		else if( ScreenClass ==  Screens[Index].Class )
+		{
+			return Screens[Index];
+		}
 	}
 	return none; 
 }
+// End Issue #290
 
 // Returns the first instance of a Screen of the target class type (or derived from the target class type).
 simulated function UIScreen GetFirstInstanceOf( class<UIScreen> ScreenClass )
@@ -675,10 +697,34 @@ simulated function bool HasInstanceOf( class<UIScreen> ScreenClass )
 	return GetFirstInstanceOf(ScreenClass) != none;
 }
 
+// Start Issue #290
+//
+// A lot of code seems to assume that certain screen classes will never have
+// subclasses, which is rubbish in the context of mods. So this method will
+// now return `true` if the current screen is also a subclass of the given
+// class. However, the reverse will not work, i.e. if the given screen class
+// is a subclass of the current screen class, then this method will return
+// `false`.
+//
+// If you want to exclude subclasses, then use the new `IsCurrentClass_CH()`
+// method.
 simulated function bool IsCurrentClass( class<UIScreen> ScreenClass )
 {
-	return GetCurrentClass() == ScreenClass;
+	return IsCurrentClass_CH(ScreenClass, true);
 }
+
+simulated function bool IsCurrentClass_CH( class<UIScreen> ScreenClass, bool IncludeSubTypes )
+{
+	if( IncludeSubTypes )
+	{
+		return ClassIsChildOf(GetCurrentClass(), ScreenClass);
+	}
+	else
+	{
+		return GetCurrentClass() == ScreenClass;
+	}
+}
+// End Issue #290
 
 simulated function bool IsCurrentScreen( name ScreenClass )
 {

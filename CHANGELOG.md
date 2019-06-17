@@ -353,6 +353,10 @@ RunPriorityGroup=RUN_STANDARD
   flag on `XComGameState_Unit`. This behavior is gated behind the new `CHHelpers.PreserveProxyUnitData`
   config variable. (#465)
 - Adds CustomDeathAnimationName property to X2Action_Death that allows overriding the default death animations (#488)
+- Change `GetScreen()` and `IsCurrentClass()` on `UIScreenStack` to take into account subclasses
+  by default. This is a breaking change but fixes a lot of problems with vanilla and mod code that
+  mistakenly ignores subclasses of screens, particularly those provided by mod. The original behavior
+  can still be accessed via new `GetScreen_CH()` and `IsCurrentClass_CH()`. (#290)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
