@@ -167,6 +167,9 @@
     <Content Include="Src\XComGame\Classes\UIListItemString.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIMission.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UINarrativeMgr.uc">
       <SubType>Content</SubType>
     </Content>
@@ -204,6 +207,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIShellDifficulty.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UISitRepInformation.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UISoldierBondAlert.uc">
@@ -305,10 +311,16 @@
     <Content Include="Src\XComGame\Classes\X2HackRewardTemplateManager.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2SitRepEffectTemplate.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2SitRepEffect_GrantAbilities.uc">
-          <SubType>Content</SubType>
+      <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2SitRepEffect_ModifyTacticalStartState.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2SitRepTemplate.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2SoldierClassTemplateManager.uc">
