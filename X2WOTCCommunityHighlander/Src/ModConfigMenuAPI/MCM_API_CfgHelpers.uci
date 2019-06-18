@@ -1,0 +1,46 @@
+/***************************************************************************************************
+If you're reading this for the first time, then you have just added the Mod Config Menu API
+to you're Mod. The Basics are setup for you, and it will compile, just not do much at the moment.
+Only last setup step:
+COPY THE FOLLOWING TO YOUR "XComEngine.ini" File:
+
+[UnrealEd.EditorEngine]
++EditPackages=ModConfigMenuAPI
+
+If you already have a [UnrealEd.EditorEngine] section, just add the +EditPackages underneath.
+Although if you already have a [UnrealEd.EditorEngine] section, you probably already knew that!
+***************************************************************************************************/
+
+// Mr. Nice Alternate version! Works by static calling the screen class for everything.
+
+// Contains helper functions for doing proper user-configurable save data. See documentation for patterns on how to do it.
+
+
+`define MCM_DEFAULT_CLASS class'X2WOTCCommunityHighlander_Defaults'
+`define MCM_SCREEN_CLASS class'X2WOTCCommunityHighlander_MCMScreen'
+
+
+//MCM_MAJOR_VERSION defined means were are in the Screen class, because this is defined in MCM_API_INCLUDES.uci
+`if(`isdefined(MCM_MAJOR_VERSION))
+	`define MCM_SCREEN_CLASS_STATIC
+
+	static function bool MCM_CH_IMPL_VersionChecker(optional int CutoffVersion=1)
+	{
+		return (default.VERSION_CFG<CutoffVersion);
+	} 
+
+	static function int MCM_CH_IMPL_VersionMax()
+	{
+		return Max(`MCM_DEFAULT_CLASS.default.VERSION_CFG, default.VERSION_CFG);
+	}
+
+	`define MCM_CH_GetValue(SrcVal, TrgVal, EARLIESTVERSION) ( MCM_CH_IMPL_VersionChecker(`EARLIESTVERSION) ? `SrcVal : `TrgVal )
+
+	`define CREATEGETTER(MCMVAR, TYPE, EARLIESTVERSION) static function `{TYPE} get`{MCMVAR} () { return `MCM_CH_GetValue(`MCM_DEFAULT_CLASS.default.`MCMVAR, default.`MCMVAR, `EARLIESTVERSION);  }
+
+`else
+	`define MCM_SCREEN_CLASS_STATIC `MCM_SCREEN_CLASS.static.
+`endif
+
+`define MCM_CH_GetCompositeVersion()  `{MCM_SCREEN_CLASS_STATIC}MCM_CH_IMPL_VersionMax()
+`define GETMCMVAR(MCMVAR)  `{MCM_SCREEN_CLASS_STATIC}get`{MCMVAR} ()

@@ -1,0 +1,83 @@
+`define MCM_MAJOR_VERSION 1
+`define MCM_MINOR_VERSION 0
+
+`define MCM_API_Register(screenInst, handler)\
+    if (MCM_API(`{screenInst}) != none){MCM_API(`{screenInst}).RegisterClientMod(`{MCM_MAJOR_VERSION}, `{MCM_MINOR_VERSION}, `{handler});}
+
+
+`define MCM_API_BasicButtonHandler(FuncName)\
+    simulated function `{FuncName} (MCM_API_Setting Setting)
+
+`define MCM_API_BasicCheckboxSaveHandler(FuncName,VarName)\
+    simulated function `{FuncName} (MCM_API_Setting _Setting, bool _SettingValue) { `{VarName} = _SettingValue; }
+
+`define MCM_API_BasicSliderSaveHandler(FuncName,VarName)\
+    simulated function `{FuncName} (MCM_API_Setting _Setting, float _SettingValue) { `{VarName} = _SettingValue; }
+
+`define MCM_API_BasicSpinnerSaveHandler(FuncName,VarName)\
+    simulated function `{FuncName} (MCM_API_Setting _Setting, string _SettingValue) { `{VarName} = _SettingValue; }
+
+`define MCM_API_BasicDropdownSaveHandler(FuncName,VarName)\
+    simulated function `{FuncName} (MCM_API_Setting _Setting, string _SettingValue) { `{VarName} = _SettingValue; }
+
+
+
+	//Mr. Nice Additions
+	
+//Extra Basic SaveHandlers, for the Index based "variants" of the Spinner/Dropdown
+`define MCM_API_BasicIndexSaveHandler(FuncName,VarName,ArrName)\
+    simulated function `{FuncName} (MCM_API_Setting _Setting, string _SettingValue) { `{VarName} = `ArrName.Find(_SettingValue); }
+
+`define MCM_API_BasicIndexSpinnerSaveHandler(FuncName,VarName,ArrName) `MCM_API_BasicIndexSaveHandler(`FuncName,`VarName,`ArrName)
+`define MCM_API_BasicIndexDropdownSaveHandler(FuncName,VarName,ArrName) `MCM_API_BasicIndexSaveHandler(`FuncName,`VarName,`ArrName)
+    
+`define MCM_API_AutoButtonHandler(VARNAME) `MCM_API_BasicButtonHandler(`{VARNAME}_ClickHandler)
+//Auto save handlers, which automatic create a sensible function name for the varname
+`define MCM_API_AutoCheckBoxSaveHandler(VARNAME) `MCM_API_BasicCheckBoxSaveHandler(`{VARNAME}_SaveHandler, `VARNAME)
+`define MCM_API_AutoSliderSaveHandler(VARNAME) `MCM_API_BasicSliderSaveHandler(`{VARNAME}_SaveHandler, `VARNAME)
+`define MCM_API_AutoSpinnerSaveHandler(VARNAME) `MCM_API_BasicSpinnerSaveHandler(`{VARNAME}_SaveHandler, `VARNAME)
+`define MCM_API_AutoDropdownSaveHandler(VARNAME) `MCM_API_BasicDropdownSaveHandler(`{VARNAME}_SaveHandler, `VARNAME)
+
+`define MCM_API_AutoIndexSaveHandler(VARNAME) `MCM_API_BasicIndexSaveHandler(`{VARNAME}_SaveHandler, `VARNAME, `{VARNAME}_Strings)
+`define MCM_API_AutoIndexSpinnerSaveHandler(VARNAME) `MCM_API_AutoIndexSaveHandler(`VARNAME)
+`define MCM_API_AutoIndexDropdownSaveHandler(VARNAME) `MCM_API_AutoIndexSaveHandler(`VARNAME)
+
+
+//Auto function creation, makes matching Getters and Save handlers
+`define MCM_API_AutoCheckBoxFns(VARNAME, EARLIESTVERSION) `MCM_API_AutoCheckBoxSaveHandler(`VARNAME) `CREATEGETTER(`VARNAME, bool, `EARLIESTVERSION) 
+//Vartype is optional , defaults to int
+`define MCM_API_AutoSliderFns(VARNAME, VARTYPE, EARLIESTVERSION)   `MCM_API_AutoSliderSaveHandler(`VARNAME) `CREATEGETTER(`VARNAME, `if(`VARTYPE) `VARTYPE `else int `endif, `EARLIESTVERSION) 
+`define MCM_API_AutoSpinnerFns(VARNAME, EARLIESTVERSION)	 `MCM_API_AutoSpinnerSaveHandler(`VARNAME) `CREATEGETTER(`VARNAME, string, `EARLIESTVERSION)
+`define MCM_API_AutoDropdownFns(VARNAME, EARLIESTVERSION) `MCM_API_AutoDropdownSaveHandler(`VARNAME) `CREATEGETTER(`VARNAME, string, `EARLIESTVERSION)
+
+`define MCM_API_AutoIndexFns(VARNAME, EARLIESTVERSION)	`MCM_API_AutoIndexSaveHandler(`VARNAME)  `CREATEGETTER(`VARNAME, int, `EARLIESTVERSION)
+`define MCM_API_AutoIndexSpinnerFns(VARNAME, EARLIESTVERSION) `MCM_API_AutoIndexFns(`VARNAME, `EARLIESTVERSION)
+`define MCM_API_AutoIndexDropdownFns(VARNAME, EARLIESTVERSION) `MCM_API_AutoIndexFns(`VARNAME, `EARLIESTVERSION)
+
+//Auto Variable creation, creates variables expected to exist by the other "Auto" Macros, including the config Variable itself
+`define MCM_API_AutoButtonVars(VARNAME) var localized string `{VARNAME}_ButtonLabel; var localized string `{VARNAME}_Label;var localized string `{VARNAME}_Tip; var MCM_API_Button `{VARNAME}_MCMUI
+`define MCM_API_AutoCheckBoxVars(VARNAME) var config bool `VARNAME; var localized string `{VARNAME}_Label;var localized string `{VARNAME}_Tip; var MCM_API_CheckBox `{VARNAME}_MCMUI
+//Vartype is optional , defaults to int
+`define MCM_API_AutoSliderVars(VARNAME, VARTYPE) var config `if(`VARTYPE) `VARTYPE `else int `endif  `VARNAME; var localized string `{VARNAME}_Label;var localized string `{VARNAME}_Tip; var MCM_API_Slider `{VARNAME}_MCMUI
+`define MCM_API_AutoSpinnerVars(VARNAME) var config string `VARNAME; var localized string `{VARNAME}_Label;var localized string `{VARNAME}_Tip; var MCM_API_Spinner `{VARNAME}_MCMUI
+`define MCM_API_AutoDropdownVars(VARNAME) var config string `VARNAME; var localized string `{VARNAME}_Label;var localized string `{VARNAME}_Tip; var MCM_API_Dropdown `{VARNAME}_MCMUI
+
+`define MCM_API_AutoIndexSpinnerVars(VARNAME) var config int `VARNAME; var localized string `{VARNAME}_Label;var localized string `{VARNAME}_Tip; var localized array <string> `{VARNAME}_Strings; var MCM_API_Spinner `{VARNAME}_MCMUI
+`define MCM_API_AutoIndexDropdownVars(VARNAME) var config int `VARNAME; var localized string `{VARNAME}_Label;var localized string `{VARNAME}_Tip; var localized array <string> `{VARNAME}_Strings; var MCM_API_Dropdown `{VARNAME}_MCMUI
+
+
+//Auto creation of the UI, taking advantage of the auto variables from above;
+
+`define MCM_API_AutoAddButton(GROUP, VARNAME) `{VARNAME}_MCMUI = `GROUP.AddButton('`VARNAME', `{VARNAME}_Label, `{VARNAME}_Tip, `{VARNAME}_ButtonLabel, `{VarName}_ClickHandler)
+`define MCM_API_AutoAddCheckBox(GROUP, VARNAME, CHANGEHANDLER) `{VARNAME}_MCMUI = `GROUP.AddCheckBox('`VARNAME', `{VARNAME}_Label, `{VARNAME}_Tip, `VARNAME, `{VarName}_SaveHandler, `CHANGEHANDLER)
+`define MCM_API_AutoAddSLider(GROUP, VARNAME, MIN, MAX, STEP, CHANGEHANDLER) `{VARNAME}_MCMUI = `GROUP.AddSlider('`VARNAME', `{VARNAME}_Label, `{VARNAME}_Tip, `MIN, `MAX, `STEP, `VARNAME, `{VarName}_SaveHandler, `CHANGEHANDLER)
+`define MCM_API_AutoAddSpinner(GROUP, VARNAME, ARRAY, CHANGEHANDLER) `{VARNAME}_MCMUI = `GROUP.AddSpinner('`VARNAME', `{VARNAME}_Label, `{VARNAME}_Tip,`ARRAY, `VARNAME, `{VarName}_SaveHandler, `CHANGEHANDLER)
+`define MCM_API_AutoAddDropdown(GROUP, VARNAME, ARRAY, CHANGEHANDLER) `{VARNAME}_MCMUI = `GROUP.AddDropdown('`VARNAME', `{VARNAME}_Label, `{VARNAME}_Tip,`ARRAY, `VARNAME, `{VarName}_SaveHandler, `CHANGEHANDLER)
+`define MCM_API_AutoAddIndexSpinner(GROUP, VARNAME, CHANGEHANDLER) `{VARNAME}_MCMUI = `GROUP.AddSpinner('`VARNAME', `{VARNAME}_Label, `{VARNAME}_Tip, `{VARNAME}_Strings, `{VARNAME}_Strings[`VARNAME], `{VarName}_SaveHandler, `CHANGEHANDLER)
+`define MCM_API_AutoAddIndexDropdown(GROUP, VARNAME, CHANGEHANDLER) `{VARNAME}_MCMUI = `GROUP.AddDropdown('`VARNAME', `{VARNAME}_Label, `{VARNAME}_Tip, `{VARNAME}_Strings, `{VARNAME}_Strings[`VARNAME], `{VarName}_SaveHandler, `CHANGEHANDLER)
+
+
+//Auto reset handlers. SUPPRESS is optional, and defaults to FALSE
+`define MCM_API_AutoReset(VARNAME, SUPPRESS) `{VARNAME}_MCMUI.SetValue(`MCM_DEFAULT_CLASS.default.`VARNAME, `if(`SUPPRESS) `SUPPRESS `else false `endif)
+`define MCM_API_AutoIndexReset(VARNAME, SUPPRESS) `{VARNAME}_MCMUI.SetValue(`{VARNAME}_Strings[`MCM_DEFAULT_CLASS.default.`VARNAME], `if(`SUPPRESS) `SUPPRESS `else false `endif)
+	

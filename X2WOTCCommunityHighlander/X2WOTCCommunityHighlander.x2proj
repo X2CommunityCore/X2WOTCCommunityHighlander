@@ -21,6 +21,8 @@
     <Folder Include="Src\" />
     <Folder Include="Src\Engine" />
     <Folder Include="Src\Engine\Classes" />
+    <Folder Include="Src\ModConfigMenuAPI\" />
+    <Folder Include="Src\ModConfigMenuAPI\Classes\" />
     <Folder Include="Src\XComGame" />
     <Folder Include="Src\X2WOTCCommunityHighlander\" />
     <Folder Include="Src\X2WOTCCommunityHighlander\Classes\" />
@@ -58,6 +60,48 @@
     <Content Include="Src\Engine\Classes\SkeletalMeshSocket.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API_Button.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API_Checkbox.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API_Dropdown.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API_Instance.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API_Label.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API_Setting.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API_SettingsGroup.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API_SettingsPage.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API_Slider.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API_Spinner.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_OptionsScreen.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\MCM_API_Includes.uci">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2WOTCCH_CHXComGameVersion.uc">
       <SubType>Content</SubType>
     </Content>
@@ -68,6 +112,15 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2DownloadableContentInfo_X2WOTCCommunityHighlander.uc" />
+    <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2WOTCCommunityHighlander_Defaults.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2WOTCCommunityHighlander_MCMScreen.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2WOTCCommunityHighlander_MCMScreenListener.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\CharacterPoolManager.uc">
       <SubType>Content</SubType>
     </Content>
@@ -96,6 +149,39 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\Helpers.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\JsonConfig.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\JsonConfig_Array.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\JsonConfig_Interface.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\JsonConfig_Manager.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\JsonConfig_MCM_Builder.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\JsonConfig_MCM_Element.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\JsonConfig_MCM_Group.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\JsonConfig_MCM_Page.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\JsonConfig_TaggedConfigProperty.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\JsonConfig_Vector.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\JsonConfig_WeaponDamageValue.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\SeqAct_GetPawnFromSaveData.uc">
@@ -285,7 +371,7 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2DataSet.uc">
-          <SubType>Content</SubType>
+      <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2Action_Death.uc">
       <SubType>Content</SubType>
@@ -297,7 +383,7 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2FiraxisLiveClient.uc">
-          <SubType>Content</SubType>
+      <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2GameRuleset.uc">
       <SubType>Content</SubType>
@@ -306,7 +392,7 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2SitRepEffect_GrantAbilities.uc">
-          <SubType>Content</SubType>
+      <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2SitRepEffect_ModifyTacticalStartState.uc">
       <SubType>Content</SubType>
