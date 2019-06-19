@@ -562,10 +562,36 @@ static function UnitPawnPostInitAnimTree(XComGameState_Unit UnitState, XComUnitP
 /// Only change load priority if you really sure that its needed for you mod.
 /// RunBefore and RunAfter only work within the defined LoadPriority group
 /// </summary>
-function array<string> GetRunBeforeDLCIdentifiers();
-function array<string> GetRunAfterDLCIdentifiers();
-function int GetLoadPriority()
+function array<string> GetRunBeforeDLCIdentifiers()
 {
-	return 0;
+	local CHDLCRunOrder RunOrder;
+
+	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
+	if (RunOrder != none && RunOrder.RunBefore.Length > 0)
+	{
+		return RunOrder.RunBefore;
+	}
+}
+
+function array<string> GetRunAfterDLCIdentifiers()
+{
+	local CHDLCRunOrder RunOrder;
+
+	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
+	if (RunOrder != none && RunOrder.RunAfter.Length > 0)
+	{
+		return RunOrder.RunAfter;
+	}
+}
+
+function int GetRunPriorityGroup()
+{
+	local CHDLCRunOrder RunOrder;
+
+	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
+	if (RunOrder != none)
+	{
+		return RunOrder.RunPriorityGroup;
+	}
 }
 /// End Issue #511

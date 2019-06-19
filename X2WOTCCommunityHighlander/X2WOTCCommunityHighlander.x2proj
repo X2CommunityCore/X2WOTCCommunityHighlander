@@ -71,6 +71,9 @@
     <Content Include="Src\XComGame\Classes\CharacterPoolManager.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\CHDLCRunOrder.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\CHEventListenerTemplate.uc">
       <SubType>Content</SubType>
     </Content>

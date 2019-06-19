@@ -1,16 +1,9 @@
 // Issue #511
 // Create a DLCInfo loadorder system
-class CHOnlineEventMgr extends XComOnlineEventMgr;
+class CHOnlineEventMgr extends XComOnlineEventMgr dependson(CHDLCRunOrder);
 
 var bool bWarmCache;
 var string strWarnings;
-
-enum ELoadPriority
-{
-	LOAD_STANDARD,
-	LOAD_FIRST,
-	LOAD_LAST
-};
 
 event Init()
 {
@@ -51,15 +44,15 @@ function array<X2DownloadableContentInfo> GetDLCInfos(bool bNewDLCOnly)
 		Node.RunAfter =  DLCInfoClass.GetRunAfterDLCIdentifiers();
 		Node.bVisited = false;
 
-		switch (DLCInfoClass.GetLoadPriority())
+		switch (DLCInfoClass.GetRunPriorityGroup())
 		{
-			case LOAD_FIRST:
+			case RUN_FIRST:
 				NodesFirst.AddItem(Node);
 				break;
-			case LOAD_LAST:
+			case RUN_LAST:
 				NodesLast.AddItem(Node);
 				break;
-			case LOAD_STANDARD: default:
+			case RUN_STANDARD: default:
 				NodesStandard.AddItem(Node);
 				break;
 		}
@@ -73,15 +66,15 @@ function array<X2DownloadableContentInfo> GetDLCInfos(bool bNewDLCOnly)
 
 	ToplogicalSort(NodesFirst, Stack);
 	AddStackAndReset(DLCInfoClasses, Stack);
-	strWarnings = Repl(strWarnings, "%s", "LOAD_FIRST");
+	strWarnings = Repl(strWarnings, "%s", "RUN_FIRST");
 
 	ToplogicalSort(NodesStandard, Stack);
 	AddStackAndReset(DLCInfoClasses, Stack);
-	strWarnings = Repl(strWarnings, "%s", "LOAD_STANDARD");
+	strWarnings = Repl(strWarnings, "%s", "RUN_STANDARD");
 
 	ToplogicalSort(NodesLast, Stack);
 	AddStackAndReset(DLCInfoClasses, Stack);
-	strWarnings = Repl(strWarnings, "%s", "LOAD_LAST");
+	strWarnings = Repl(strWarnings, "%s", "RUN_LAST");
 
 	`LOG(default.class @ GetFuncName() @ "--- After sort" @ DLCInfoClasses.Length,, 'X2WOTCCommunityHighlander');
 
@@ -221,15 +214,15 @@ private function TestTopologicalOrdering()
 
 	ToplogicalSort(NodesFst, MyStack);
 	AddMyStackToBufferAndReset(Buffer, MyStack);
-	strWarnings = Repl(strWarnings, "%s", "LOAD_FIRST");
+	strWarnings = Repl(strWarnings, "%s", "RUN_FIRST");
 
 	ToplogicalSort(NodesStd, MyStack);
 	AddMyStackToBufferAndReset(Buffer, MyStack);
-	strWarnings = Repl(strWarnings, "%s", "LOAD_STANDARD");
+	strWarnings = Repl(strWarnings, "%s", "RUN_STANDARD");
 
 	ToplogicalSort(NodesLst, MyStack);
 	AddMyStackToBufferAndReset(Buffer, MyStack);
-	strWarnings = Repl(strWarnings, "%s", "LOAD_LAST");
+	strWarnings = Repl(strWarnings, "%s", "RUN_LAST");
 
 	`LOG(default.class @ GetFuncName() @ strWarnings,, 'X2WOTCCommunityHighlander');
 
