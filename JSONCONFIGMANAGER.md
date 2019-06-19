@@ -9,6 +9,27 @@ these config values can be accessed like `class'MyModConfigManager'.static.GetCo
 
 The advantage over regular config properties is that they can be accessed by string identifiers which makes automatic localization tag generation and mapping in the MCMBuilder possible.
 
+### Current type support
+currently supported accessors/types are
+
+```
+string GetConfigStringValue
+int GetConfigIntValue
+float GetConfigFloatValue
+name GetConfigNameValue
+byte GetConfigByteValue
+bool GetConfigBoolValue
+array<int> GetConfigIntArray
+array<float> GetConfigFloatArray
+array<name> GetConfigNameArray
+array<string> GetConfigStringArray
+vector GetConfigVectorValue
+WeaponDamageValue GetConfigDamageValue
+string GetConfigTagValue
+```
+
+more support for common X2 structs is planned.
+
 ### Tag generation
 
 There are a whole bunch of meta attributes you can use for localization tag generation. Here are some example:
@@ -26,7 +47,7 @@ There are a whole bunch of meta attributes you can use for localization tag gene
 +ConfigProperties = {"ARCTHROWER_ABILITIES":{"ArrayValue":"ArcThrowerStun, EMPulser, ChainLightning"}}
 ```
 
-The mapping code in client mods DLCInfo class just looks like thus:
+The mapping code in client mods DLCInfo class just looks like this:
 
 ```
 static function bool AbilityTagExpandHandler(string InString, out string OutString)
