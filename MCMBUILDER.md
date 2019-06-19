@@ -94,13 +94,15 @@ A_LABEL_TOOLTIP="Just a tooltip"
 ## Client Side Integration
 You need to compile your mod against the Highlander.
 Minimum you need these files:
+(this example assumes you mod safe name is `YourMod`
 
-- `XComUI.ini`
-- `XComYourModMCMBuilder.ini`
-- `XComYourModDefaultSettings.ini`
-- `YourModDefaultSettingsConfigManager.uc`
-- `YourModUserSettingsConfigManager.uc`
-- `YourModMCM_Builder.uc`
+- `Config/XComUI.ini`
+- `Config/XComYourModMCMBuilder.ini`
+- `Config/XComYourModDefaultSettings.ini`
+- `Localization/YourMod.int`
+- `YourMod/Classes/YourModDefaultSettingsConfigManager.uc`
+- `YourMod/Classes/YourModUserSettingsConfigManager.uc`
+- `YourMod/Classes/YourModMCM_Builder.uc`
 
 Lets see there contents in detail:
 
@@ -136,11 +138,35 @@ Lets see there contents in detail:
 +ConfigProperties = {"A_FLOAT_PROPERTY":{"Value":"0.1"}}
 +ConfigProperties = {"A_STRING_PROPERTY":{"Value":"Foo"}}
 ```
+##### `YourMod.int`
+```
+[YourModMCM_Builder]
+
+TESTMOD_SETTINGS_PAGE_TITLE="Test Mod"
+TESTMOD_SETTINGS_PAGE_LABEL="MCMBuilder Test Mod"
+
+TESTMOD_SETTINGS_GROUP_1_LABEL="First settings group"
+TESTMOD_SETTINGS_GROUP_2_LABEL="Second setting group"
+
+A_BOOL_PROPERTY_LABEL="Checkbox"
+A_BOOL_PROPERTY_TOOLTIP="A bool property checkbox"
+
+A_INT_PROPERTY_LABEL="Spinner"
+A_INT_PROPERTY_TOOLTIP="A int property spinner"
+
+A_FLOAT_PROPERTY_LABEL="Slider"
+A_FLOAT_PROPERTY_TOOLTIP="A float property slider"
+
+A_STRING_PROPERTY_LABEL="Dropdown"
+A_STRING_PROPERTY_TOOLTIP="A string property dropdown"
+
+A_LABEL_LABEL="Label"
+A_LABEL_TOOLTIP="Just a tooltip"
+```
 ##### `YourModDefaultSettingsConfigManager.uc`
 ```
 class YourModDefaultSettingsConfigManager extends JsonConfig_Manager config(YourModDefaultSettings);
 ```
-
 ##### `YourModUserSettingsConfigManager.uc`
 ```
 class YourModUserSettingsConfigManager extends JsonConfig_Manager config(YourModUserSettings_NullConfig);
@@ -157,6 +183,13 @@ defaultproperties
 ```
 class YourModMCM_Builder extends JsonConfig_MCM_Builder config(YourModMCMBuilder);
 ```
+
+You can access the values in your mod like
+
+`class'YourModUserSettingsConfigManager'.static.GetConfigBoolValue("A_BOOL_PROPERTY");`
+
+It will return the values that the user made in the mcm page or the default settings in case the user hasnt made any changes yet.
+For more information about the config system see the [JsonConfigManager Documentation](JSONCONFIGMANAGER.md)
 
 ### Thats all!
 The MCMBuilder in the Highlander will take care of the rest.
