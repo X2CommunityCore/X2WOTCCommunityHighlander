@@ -141,6 +141,10 @@ var config array<name> AdditionalAmbushRiskTemplates;
 var config bool UseNewPersonnelStatusBehavior;
 // End Issue #322
 
+// Start Issue #543
+var config bool bSkipCampaignIntroMovies;
+// End Issue #543
+
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
 	local XComContentManager		Content;

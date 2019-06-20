@@ -103,6 +103,7 @@ RunPriorityGroup=RUN_STANDARD
 - bDontUnequipWhenWounded prevents soldiers gear gets stripped when getting wounded (#310)
 - iDefaultWeaponTint allows to configure the default weappon tint for randomly generated soldiers (#397)
 - AdditionalAmbushRiskTemplates array represents risk templates that the game will consider at risk to ambush (#485)
+- bSkipCampaignIntroMovies skips the intro movies on campaign start (#543)
 
 ### Improvements
 - Allow `UIStrategyMap` to display custom Faction HQ icons (#76)

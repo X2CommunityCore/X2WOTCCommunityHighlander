@@ -1052,17 +1052,26 @@ function AddSecondWaveOptionsToOnlineEventManager(XComOnlineEventMgr EventManage
 function StartIntroMovie()
 {
 	local XComEngine Engine;
+	// Variable Issue #543
+	local UIShellStrategy Shell;
 	
 	Engine = `XENGINE;
-	
-	// Play the pre-intro bink for the XPack
-	Engine.PlayMovie(false, "CIN_XP_PreIntro.bk2", "X2_XP_01_PreIntro");
-	Engine.WaitForMovie();
-	Engine.StopCurrentMovie();
 
-	// Then play the normal intro and load the game
-	Engine.PlaySpecificLoadingMovie("CIN_TP_Intro.bk2", "X2_001_Intro"); //Play the intro movie as a loading screen
-	Engine.PlayLoadMapMovie(-1);
+	// Start Issue #543
+	Shell = UIShellStrategy(Movie.Pres.ScreenStack.GetScreen(class'UIShellStrategy'));
+	if (!Shell.m_bSkipFirstTactical && !Shell.m_bCheatStart && !class'CHHelpers'.default.bSkipCampaignIntroMovies)
+	{
+	
+		// Play the pre-intro bink for the XPack
+		Engine.PlayMovie(false, "CIN_XP_PreIntro.bk2", "X2_XP_01_PreIntro");
+		Engine.WaitForMovie();
+		Engine.StopCurrentMovie();
+
+		// Then play the normal intro and load the game
+		Engine.PlaySpecificLoadingMovie("CIN_TP_Intro.bk2", "X2_001_Intro"); //Play the intro movie as a loading screen
+		Engine.PlayLoadMapMovie(-1);
+	}
+	// End Issue #543
 }
 
 function DeferredConsoleCommand()
