@@ -1788,7 +1788,7 @@ simulated function RefreshSitRep()
 				}
 
 				SitRepLines.AddItem( class'UIUtilities_Text'.static.GetColoredText(SitRepTemplate.GetFriendlyName(), eState));
-				SitRepTooltipLines.AddItem(SitRepTemplate.Description);
+				SitRepTooltipLines.AddItem(SitRepTemplate.GetDescriptionExpanded()); // Issue #566
 			}
 		}
 	}
