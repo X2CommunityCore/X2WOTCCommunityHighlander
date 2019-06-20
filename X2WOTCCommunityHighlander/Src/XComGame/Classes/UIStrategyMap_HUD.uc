@@ -128,6 +128,8 @@ simulated function UpdateMissingPersons()
 simulated function UpdateData()
 {
 	local int i;
+	local int CurrentDoom;
+	local int MaxDoom;
 	local XComGameState_HeadquartersAlien AlienHQ;
 	local XComGameState_HeadquartersResistance ResHQ;
 	local XComGameState NewGameState;
@@ -214,10 +216,16 @@ simulated function UpdateData()
 		}
 
 		MC.BeginFunctionOp("UpdateDoomMeter");
-
-		for (i = 0; i < AlienHQ.GetMaxDoom(); ++i)
+		//Begin Issue #550
+		//Chaching doom values below as a change to GetCurrentDoom activates an event and if that function is called
+		//on each iteration of the loop it could cause unneded work to be done by the listener.
+		MaxDoom = AlienHQ.GetMaxDoom();	
+		CurrentDoom = AlienHQ.GetCurrentDoom();
+		//End Issue #550
+		
+		for (i = 0; i < MaxDoom; ++i)
 		{
-			if( i < AlienHQ.GetCurrentDoom() )
+			if(i < CurrentDoom)
 			{
 				if(i >= CachedDoom)
 				{
