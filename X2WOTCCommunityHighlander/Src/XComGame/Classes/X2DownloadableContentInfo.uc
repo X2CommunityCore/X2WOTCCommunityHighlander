@@ -602,3 +602,72 @@ final function int GetRunPriorityGroup()
 	}
 }
 /// End Issue #511
+
+/// Start Issue #524
+/// <summary>
+/// Allow mods to specify array of incompatible and required mod.
+/// Should be specified in the mods XComGame.ini like
+/// [ModSafeName CHModDependency]
+/// +IncompatibleMods=...
+/// +IgnoreIncompatibleMods=...
+/// +RequiredMods=...
+/// +IgnoreRequiredMods=...
+/// DisplayName="..."
+/// </summary>
+final function array<string> GetIncompatibleDLCIdentifiers()
+{
+	local CHModDependency ModDependency;
+
+	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
+	if (ModDependency != none && ModDependency.IncompatibleMods.Length > 0)
+	{
+		return ModDependency.IncompatibleMods;
+	}
+}
+
+final function array<string> GetIgnoreIncompatibleDLCIdentifiers()
+{
+	local CHModDependency ModDependency;
+
+	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
+	if (ModDependency != none && ModDependency.IgnoreIncompatibleMods.Length > 0)
+	{
+		return ModDependency.IgnoreIncompatibleMods;
+	}
+}
+
+final function array<string> GetRequiredDLCIdentifiers()
+{
+	local CHModDependency ModDependency;
+
+	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
+	if (ModDependency != none && ModDependency.RequiredMods.Length > 0)
+	{
+		return ModDependency.RequiredMods;
+	}
+}
+
+final function array<string> GetIgnoreRequiredDLCIdentifiers()
+{
+	local CHModDependency ModDependency;
+
+	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
+	if (ModDependency != none && ModDependency.IgnoreRequiredMods.Length > 0)
+	{
+		return ModDependency.IgnoreRequiredMods;
+	}
+}
+
+final function string GetDisplayName()
+{
+	local CHModDependency ModDependency;
+
+	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
+	if (ModDependency != none && ModDependency.DisplayName != "")
+	{
+		return ModDependency.DisplayName;
+	}
+
+	return "";
+}
+/// End Issue #524
