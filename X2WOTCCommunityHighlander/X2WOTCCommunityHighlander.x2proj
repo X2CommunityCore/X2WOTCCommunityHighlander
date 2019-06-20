@@ -350,7 +350,7 @@
     <Content Include="Src\XComGame\Classes\X2HackRewardTemplateManager.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\XComGame\Classes\X2MeleePathingPawn.uc">
+    <Content Include="Src\XComGame\Classes\X2ItemTemplate.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2SitRepEffect_GrantAbilities.uc">

@@ -352,8 +352,9 @@ var transient bool bHandlingAsyncRequests;
 
 var private transient int CachedUnitDataStateObjectId;
 
-
-var private bool bEverAppliedFirstTimeStatModifiers;
+// Start Issue #546
+var bool bEverAppliedFirstTimeStatModifiers;
+// End Issue #546
 
 delegate OnUnitPawnCreated( XComGameState_Unit Unit);
 
