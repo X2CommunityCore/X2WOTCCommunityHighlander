@@ -2314,6 +2314,14 @@ function OnBeginTacticalPlay(XComGameState NewGameState)
 	}
 
 	bRequiresVisibilityUpdate = true;
+
+	// Start Issue #557
+	//
+	// Reset the body recovered flag. A unit that was previously carried to evac while KO'd/bleeding
+	// out will have this flag set, and this flag prevents units from being carried. If this unit
+	// gets KO'd again, they won't be able to be picked up if this flag is still set.
+	bBodyRecovered = false;
+	// End Issue #557
 }
 
 function ApplyFirstTimeStatModifiers()
