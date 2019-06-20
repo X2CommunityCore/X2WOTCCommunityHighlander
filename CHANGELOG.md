@@ -131,6 +131,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   so that players don't know exactly where reinforcements will be arriving (#448)
 - `OverrideReinforcementsAlert` allows mods to force the display of the reinforcements
   alert panel and also change its text and color (#449)
+- 'DrawDebugLabels' allows mods to draw their own debug information on the canvas used by
+  `XComTacticalController.DrawDebugLabels()` (#490)
 - `OverrideAbilityIconColor` provides a tuple with the same ID as the
   event and data of the form `[bool IsObjective, string Color]` that allows
   mods to override the color of soldier abilities in the tactical HUD (#400)
