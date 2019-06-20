@@ -113,6 +113,21 @@ var config(Content) array<name> FlagMaterial;
 // Start Issue #465
 var config bool PreserveProxyUnitData;
 // End Issue #465
+// Start Issue #317
+struct CharSpeachLookup
+{
+	var name CharSpeech;
+	var array <name> PersonalityVariant;
+};
+
+struct PersonalitySpeechLookup
+{
+	var name Personality;
+	var array <CharSpeachLookup> CharSpeeches;
+};
+
+var config array <PersonalitySpeechLookup> PersonalitySpeech;
+// End Issue #317
 
 // Start Issue #476
 var config array<name> RequiresTargetingActivation;
