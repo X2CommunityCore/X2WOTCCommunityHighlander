@@ -254,6 +254,9 @@
     <Content Include="Src\XComGame\Classes\UITacticalHUD_Countdown.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UITacticalHUD_Ability.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UITacticalHUD_AbilityContainer.uc">
       <SubType>Content</SubType>
     </Content>
