@@ -1,7 +1,13 @@
 # Change Log
 All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented in this file.
 
+## General
 
+### Mod/DLC Hooks
+
+- `GetRunBeforeDLCIdentifiers` allows mods to define an array of other mods which dlc hooks should run after the mods dlc hook (#511)
+- `GetRunAfterDLCIdentifiers` allows mods to define an array of other mods which dlc hooks should run before the mods dlc hook (#511)
+- `GetLoadPriority` LoadPriority can be STANDARD = 0, FIRST = 1 or LAST = 2. RunBefore and RunAfter only work within the defined LoadPriority group. Only change load priority if you really sure that its needed for you mod (#511)
 
 ## Strategy
 

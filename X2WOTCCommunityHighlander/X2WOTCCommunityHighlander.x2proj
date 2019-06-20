@@ -71,6 +71,9 @@
     <Content Include="Src\XComGame\Classes\CharacterPoolManager.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\CHDLCRunOrder.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\CHEventListenerTemplate.uc">
       <SubType>Content</SubType>
     </Content>
@@ -93,6 +96,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\CHXComGameVersionTemplate.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\CHDLCInfoTopologicalOrderNode.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\Helpers.uc">
@@ -303,7 +309,7 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2DataSet.uc">
-       <SubType>Content</SubType>
+      <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2BodyPartTemplateManager.uc">
       <SubType>Content</SubType>
@@ -318,7 +324,7 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2FiraxisLiveClient.uc">
-          <SubType>Content</SubType>
+      <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2GameRuleset.uc">
 	  <SubType>Content</SubType>
@@ -330,7 +336,7 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2SitRepEffect_GrantAbilities.uc">
-          <SubType>Content</SubType>
+      <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2SitRepEffect_ModifyTacticalStartState.uc">
       <SubType>Content</SubType>
@@ -377,10 +383,16 @@
     <Content Include="Src\XComGame\Classes\X2WeaponUpgradeTemplate.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\CHOnlineEventMgr.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComAlienPawn.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComAutosaveMgr.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComEngine.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameStateContext_HeadquartersOrder.uc">
