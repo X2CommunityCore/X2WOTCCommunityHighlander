@@ -133,6 +133,8 @@ var name BioCountryName;
 
 // Character groups that use soldier voices
 var const config array<name> SoldierVoiceCharacterGroups;
+// Variable for Issue #384
+var X2CharacterTemplate m_CharTemplate;
 
 // New variable for issue #397
 var config(Content) int iDefaultWeaponTint;
@@ -341,7 +343,9 @@ function TSoldier CreateTSoldier( optional name CharacterTemplateName, optional 
 	kSoldier.kAppearance = DefaultAppearance;	
 	
 	CharacterTemplate = SetCharacterTemplate(CharacterTemplateName, ArmorName);
-	
+	// Single Line for Issue #384
+	m_CharTemplate = CharacterTemplate;
+
 	if (nmCountry == '')
 		nmCountry = PickOriginCountry();
 	
@@ -661,16 +665,22 @@ function SetArmsLegsAndDeco(X2SimpleBodyPartFilter BodyPartFilter)
 		RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmRightArm, "RightArm", BodyPartFilter.FilterByTorsoAndArmorMatch);
 		RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmLeftArmDeco, "LeftArmDeco", BodyPartFilter.FilterByTorsoAndArmorMatch);
 		RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmRightArmDeco, "RightArmDeco", BodyPartFilter.FilterByTorsoAndArmorMatch);
-	//Begin Issue #350
+		// Start Issue #384
+		if (!m_CharTemplate.bForceAppearance)
+		{
+			RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmLeftForearm, "LeftForearm", BodyPartFilter.FilterByTorsoAndArmorMatch);
+			RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmRightForearm, "RightForearm", BodyPartFilter.FilterByTorsoAndArmorMatch);
+		}
 	}
-	RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmLeftForearm, "LeftForearm", BodyPartFilter.FilterByTorsoAndArmorMatch);
-	RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmRightForearm, "RightForearm", BodyPartFilter.FilterByTorsoAndArmorMatch);
-	//End Issue #350
 
 	// XPack Hero Deco
-	RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmThighs, "Thighs", BodyPartFilter.FilterByTorsoAndArmorMatch);
-	RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmShins, "Shins", BodyPartFilter.FilterByTorsoAndArmorMatch);
-	RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmTorsoDeco, "TorsoDeco", BodyPartFilter.FilterByTorsoAndArmorMatch);
+	if (!m_CharTemplate.bForceAppearance)
+	{
+		RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmThighs, "Thighs", BodyPartFilter.FilterByTorsoAndArmorMatch);
+		RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmShins, "Shins", BodyPartFilter.FilterByTorsoAndArmorMatch);
+		RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmTorsoDeco, "TorsoDeco", BodyPartFilter.FilterByTorsoAndArmorMatch);
+	}
+	// End Issue #384
 }
 
 function SetHead(X2SimpleBodyPartFilter BodyPartFilter, X2CharacterTemplate CharacterTemplate)

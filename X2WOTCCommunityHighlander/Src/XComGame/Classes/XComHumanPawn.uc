@@ -2297,6 +2297,10 @@ static simulated function UpdateAppearance( out TAppearance mAppearance, const o
 	if (kAppearance.nmArms != '')
 	{
 		mAppearance.nmArms = kAppearance.nmArms;
+		// Start Issue #384
+		mAppearance.nmLeftArm = '';
+		mAppearance.nmRightArm = '';
+		// End Issue #384
 	}
 	if (kAppearance.nmBeard != '')
 	{
@@ -2358,6 +2362,46 @@ static simulated function UpdateAppearance( out TAppearance mAppearance, const o
 	{
 		mAppearance.nmVoice = kAppearance.nmVoice;
 	}
+	// Start Issue #384
+	if (kAppearance.nmLeftArm != '')
+	{
+		mAppearance.nmLeftArm = kAppearance.nmLeftArm;
+		mAppearance.nmArms = '';
+	}
+	if (kAppearance.nmRightArm != '')
+	{
+		mAppearance.nmRightArm = kAppearance.nmRightArm;
+		mAppearance.nmArms = '';
+	}
+	if (kAppearance.nmLeftArmDeco != '')
+	{
+		mAppearance.nmLeftArmDeco = kAppearance.nmLeftArmDeco;
+	}
+	if (kAppearance.nmRightArmDeco != '')
+	{
+		mAppearance.nmRightArmDeco = kAppearance.nmRightArmDeco;
+	}
+	if (kAppearance.nmLeftForearm != '')
+	{
+		mAppearance.nmLeftForearm = kAppearance.nmLeftForearm;
+	}
+	if (kAppearance.nmRightForearm != '')
+	{
+		mAppearance.nmRightForearm = kAppearance.nmRightForearm;
+	}
+	if (kAppearance.nmThighs != '')
+	{
+		mAppearance.nmThighs = kAppearance.nmThighs;
+	}
+	if (kAppearance.nmShins != '')
+	{
+		mAppearance.nmShins = kAppearance.nmShins;
+	}
+	if (kAppearance.nmTorsoDeco != '')
+	{
+		mAppearance.nmTorsoDeco = kAppearance.nmTorsoDeco;
+	}
+	// End Issue #384
 }
 
 
