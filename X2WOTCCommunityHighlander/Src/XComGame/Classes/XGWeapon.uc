@@ -30,10 +30,6 @@ simulated event PostBeginPlay()
 simulated function Init(optional XComGameState_Item ItemState=none)
 {
 	CreateEntity(ItemState);
-
-	// Start Issue #245
-	DLCInfoInit(ItemState);
-	// End Issue #245
 }
 
 // Start Issue #245
@@ -199,6 +195,10 @@ simulated function Actor CreateEntity(optional XComGameState_Item ItemState=none
 
 			SetAppearance(WeaponAppearance);
 		}
+
+		// Start Issue #245
+		DLCInfoInit(InternalWeaponState);
+		// End Issue #245
 
 		InternalWeaponState = None;
 	}
