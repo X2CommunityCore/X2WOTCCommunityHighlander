@@ -7936,7 +7936,7 @@ function GetCovertActionEvents(out array<HQEvent> arrEvents)
 	Tuple1.Data[1].kind = XComLWTVBool;
 	Tuple1.Data[1].b = false; // InsertSorted
 
-	`XEVENTMGR.TriggerEvent('GetCovertActionEvents_Settings', Tuple, self);
+	`XEVENTMGR.TriggerEvent('GetCovertActionEvents_Settings', Tuple1, self);
 	// End Issue #391
 	
 	Tuple2 = new class'XComLWTuple';
@@ -7945,7 +7945,7 @@ function GetCovertActionEvents(out array<HQEvent> arrEvents)
 	Tuple2.Data[0].kind = XComLWTVInt;
 	Tuple2.Data[0].i = 1;
 
-	`XEVENTMGR.TriggerEvent('OverrideNoCaEventMinMonths', Tuple, self);
+	`XEVENTMGR.TriggerEvent('OverrideNoCaEventMinMonths', Tuple2, self);
 
 	foreach History.IterateByClassType(class'XComGameState_CovertAction', ActionState)
 	{
