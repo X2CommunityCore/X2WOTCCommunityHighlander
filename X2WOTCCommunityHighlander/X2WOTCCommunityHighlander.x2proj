@@ -311,7 +311,7 @@
     <Content Include="Src\XComGame\Classes\X2AbilityToHitCalc_StandardAim.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\XComGame\Classes\X2AbilityToHitCalc_StatCheck.uc">
+    <Content Include="Src\XComGame\Classes\X2Ability_ChosenAssassin.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2Action_ApplyWeaponDamageToUnit.uc">
