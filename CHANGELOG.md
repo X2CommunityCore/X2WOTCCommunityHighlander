@@ -168,6 +168,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   of action points after scamper (#36)
 - Fix some edge cases regarding idle animations and targeting (#269)
 - Fix an issue causing Rapid Fire/Chain Shot/Banish/... entering cover early (#273)
+- Fixed XCGS_Unit::GetStatModifiers() as XCGS_Unit::GetStatModifiersFixed(),
+  X2AbilityToHitCalc_StandardAim, the only vanilla user of this method, changed to match(#313)
 - Fix non-Veteran units not having personality speech (#215)
 - Fix a display issue causing the weapon tooltip to show stale upgrades
   from earlier units (#303)
