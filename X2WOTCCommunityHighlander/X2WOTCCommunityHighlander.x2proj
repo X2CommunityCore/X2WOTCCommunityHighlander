@@ -152,6 +152,9 @@
     <Content Include="Src\XComGame\Classes\UICovertActionStaffSlot.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UICustomize_Body.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIDebugItems.uc">
       <SubType>Content</SubType>
     </Content>

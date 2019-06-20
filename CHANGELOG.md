@@ -276,6 +276,9 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Additional Photobooth particle system enums for mods (#359)
 - Tweaks to "Resistance Archives" random Legacy Operations UI. Restarts show the correct locked difficulty, and a crash condition on backing out of a restart fixed. (#307)
 - Added CovertAction as its own EventSource on Event 'CovertActionCompleted' (#383)
+- "Arms" no longer always hide forearm decos, but obey the archetype flag as the left/right arms do. (#350)
+- Arms and left/right arm customization dropdowns remain selectable even if they only have one entry
+  iff both arms and seperate left/right arms are available. (#350)
 - Allow mods to check whether VIP units left a mission successfully via the `bRemovedFromPlay`
   flag on `XComGameState_Unit`. This behavior is gated behind the new `CHHelpers.PreserveProxyUnitData`
   config variable. (#465)
@@ -292,3 +295,5 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   it assumes they didn't play at all. (#66)
 - Fixes UIPanels animating in with a huge delay when they are direct child panels of
   UIScreen (#341)
+- Appearances now update correctly when a part change differs only by material override (#354)
+- All relevant body parts are now correctly validated when the torso is changed. (#350)
