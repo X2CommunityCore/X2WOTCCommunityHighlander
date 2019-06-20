@@ -4644,7 +4644,8 @@ static function UpgradeItems(XComGameState NewGameState, name CreatorTemplateNam
 			InventoryItemState = XComGameState_Item(History.GetGameStateForObjectID(InventoryItemRefs[iItems].ObjectID));
 			foreach ItemsToUpgrade(BaseItemTemplate)
 			{
-				if (InventoryItemState.GetMyTemplateName() == BaseItemTemplate.DataName && InventoryItemState.GetMyWeaponUpgradeTemplates().Length > 0)
+				// Single line for Issue #306
+				if (InventoryItemState.GetMyTemplateName() == BaseItemTemplate.DataName && InventoryItemState.GetMyWeaponUpgradeCount() > 0)
 				{
 					UpgradedItemState = UpgradeItemTemplate.CreateInstanceFromTemplate(NewGameState);
 					UpgradedItemState.WeaponAppearance = InventoryItemState.WeaponAppearance;
@@ -4652,7 +4653,8 @@ static function UpgradeItems(XComGameState NewGameState, name CreatorTemplateNam
 
 					// Some special weapons already have attachments. If so, do not put older
 					// attachments onto the upgraded weapon
-					if (UpgradedItemState.GetMyWeaponUpgradeTemplateNames().Length == 0)
+					// Single line for Issue #306
+					if (UpgradedItemState.GetMyWeaponUpgradeCount() == 0)
 					{
 						// Transfer over all weapon upgrades to the new item
 						WeaponUpgrades = InventoryItemState.GetMyWeaponUpgradeTemplates();
@@ -4696,7 +4698,8 @@ static function UpgradeItems(XComGameState NewGameState, name CreatorTemplateNam
 
 							// Some special weapons already have attachments. If so, do not put older
 							// attachments onto the upgraded weapon
-							if (UpgradedItemState.GetMyWeaponUpgradeTemplateNames().Length == 0)
+							// Single line for Issue #306
+							if (UpgradedItemState.GetMyWeaponUpgradeCount() == 0)
 							{
 								WeaponUpgrades = InventoryItemState.GetMyWeaponUpgradeTemplates();
 								foreach WeaponUpgrades(WeaponUpgradeTemplate)

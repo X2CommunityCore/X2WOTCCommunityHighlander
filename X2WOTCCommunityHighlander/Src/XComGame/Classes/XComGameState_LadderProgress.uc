@@ -1046,7 +1046,8 @@ private static function UpdateUnitState( XComGameState StartState, XComGameState
 	{
 		ClassTemplate = UnitState.GetSoldierClassTemplate();
 		Progression.iRank = 0;
-		Progression.iBranch = UnitState.GetRankAbilities(0).Length;
+		// Single line for Issue #306
+		Progression.iBranch = UnitState.GetRankAbilityCount(0);
 		// #307 The SoldierProgression array contains references to entries in the units AbilityTree, not ability names directly.
 		// In order to create the missing AbilityTree entry, the abilityname isn't enough, due to possible weapon slot linking etc.
 		// First check the classes random ability decks, if any

@@ -667,6 +667,13 @@ simulated function array<X2WeaponUpgradeTemplate> GetMyWeaponUpgradeTemplates()
 	return m_arrWeaponUpgradeTemplates;
 }
 
+//Start Issue #306
+simulated function int GetMyWeaponUpgradeCount()
+{
+	return m_arrWeaponUpgradeNames.Length;
+}
+// End Issue #306
+
 simulated function array<string> GetMyWeaponUpgradeTemplatesCategoryIcons()
 {
 	local array<X2WeaponUpgradeTemplate> Templates;
@@ -759,7 +766,8 @@ simulated function bool HasBeenModified()
 		
 	WeaponTemplate = X2WeaponTemplate( m_ItemTemplate );
 
-	if ((WeaponTemplate != none) && (WeaponTemplate.NumUpgradeSlots > 0) && (GetMyWeaponUpgradeTemplateNames().Length > 0))
+	// Single line for Issue #306
+	if ((WeaponTemplate != none) && (WeaponTemplate.NumUpgradeSlots > 0) && (GetMyWeaponUpgradeCount() > 0))
 		return true;
 
 	return false;
