@@ -92,6 +92,9 @@
     <Content Include="Src\XComGame\Classes\CHItemSlotStore.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\CHModDependency.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\CHUIItemSlotEnumerator.uc">
       <SubType>Content</SubType>
     </Content>

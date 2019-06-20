@@ -54,6 +54,33 @@ static function array<ModDependency> GetIncompatbleMods()
 	return IncompatibleMods;
 }
 
+static function GetIgnoreMods(out array<string> IgnoreRequired, array<string> IgnoreIncompatible)
+{
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local X2DownloadableContentInfo DLCInfo;
+	local array<string> IgnoreRequiredMods, IgnoreIncompatibleMods;
+	local string Mod;
+
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+
+	foreach DLCInfos(DLCInfo)
+	{
+		IgnoreRequiredMods = DLCInfo.GetIgnoreRequiredDLCIdentifiers();
+		foreach IgnoreRequiredMods(Mod)
+		{
+			IgnoreRequired.AddItem(Mod);
+		}
+
+		IgnoreIncompatibleMods = DLCInfo.GetIgnoreIncompatibleDLCIdentifiers();
+		foreach IgnoreIncompatibleMods(Mod)
+		{
+			IgnoreRequired.AddItem(Mod);
+		}
+	}
+}
+
+
+
 private static function AddModDependenies(
 	X2DownloadableContentInfo DLCInfo,
 	array<string> DependendDLCIdentifiers,
@@ -81,6 +108,9 @@ private static function bool GetModDependency(
 {
 	local string DependendDLCIdentifier;
 	local bool bIsInstalled;
+	local array<string> IgnoreRequiredMods, IgnoreIncompatibleMods;
+
+	GetIgnoreMods(IgnoreRequiredMods, IgnoreIncompatibleMods);
 
 	if (DependendDLCIdentifiers.Length > 0)
 	{
@@ -89,12 +119,12 @@ private static function bool GetModDependency(
 		foreach DependendDLCIdentifiers(DependendDLCIdentifier)
 		{
 			bIsInstalled = IsDLCInstalled(name(DependendDLCIdentifier));
-			if (!bIsInstalled && bRequired)
+			if (!bIsInstalled && bRequired && IgnoreRequiredMods.Find(DependendDLCIdentifier) == INDEX_NONE)
 			{
 				ModDependencyToAdd.Children.AddItem(DependendDLCIdentifier);
 				`LOG(GetFuncName() @ GetModDisplayName(DLCInfo) @ "Add required" @ DependendDLCIdentifier,, 'X2WOTCCommunityHighlander');
 			}
-			if (bIsInstalled && !bRequired)
+			if (bIsInstalled && !bRequired && IgnoreIncompatibleMods.Find(DependendDLCIdentifier) == INDEX_NONE)
 			{
 				ModDependencyToAdd.Children.AddItem(DependendDLCIdentifier);
 				`LOG(GetFuncName() @ GetModDisplayName(DLCInfo) @ "Add incompatible" @ DependendDLCIdentifier,, 'X2WOTCCommunityHighlander');
