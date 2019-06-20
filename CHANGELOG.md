@@ -53,6 +53,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 - Triggers the event `ShouldCleanupCovertAction` to allow mod control over Covert Action deletion. (#435)
 - Triggers the event `BlackMarketGoodsReset` when the Black Market goods are reset (#473)
 - Triggers the event `OverrideImageForItemAvaliable` to allow mods to override the image shown in eAlert_ItemAvailable (#491)
+- Triggers the event `PsiProjectCompleted` to notify mods when a soldier has finished training in the psi labs (#534)
 - Triggers the event `OverrideNoCaEventMinMonths` to allow mods to force the UI to display no CA nag during first month
 - Triggers the event `CustomizeStatusStringsSeparate` in XComGameState_Unit::GetStatusStringsSeparate (#322)
 - Triggers the event `OverridePersonnelStatus` in UIUtilities_Strategy::GetPersonnelStatusStringParts. This
