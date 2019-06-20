@@ -1045,13 +1045,22 @@ function string GetCategoryDisplayName( string BodyPart, name PartToMatch, deleg
 	local int PartIndex;
 	local name DefaultTemplateName;
 	local array<X2BodyPartTemplate> BodyParts;
+	//Variable for Issue #329
+	local string DisplayName;
 
 	PartManager.GetFilteredUberTemplates(BodyPart, self, FilterFn, BodyParts);
 	for( PartIndex = 0; PartIndex < BodyParts.Length; ++PartIndex )
 	{
 		if( PartToMatch == BodyParts[PartIndex].DataName )
 		{
-			return BodyParts[PartIndex].DisplayName;
+			//Begin Issue #328
+			DisplayName = BodyParts[PartIndex].DisplayName;
+			if (DisplayName == "")
+			{
+				return string(GetCategoryValue(BodyPart, PartToMatch, BodyPartFilter.FilterByTorsoAndArmorMatch));
+			}
+			return DisplayName;
+			//End Issue #328
 		}
 	}
 
@@ -1088,17 +1097,13 @@ simulated function string GetCategoryDisplay(int catType)
 		Result = UpdatedUnitState.GetItemInSlot(eInvSlot_PrimaryWeapon, CheckGameState).Nickname;
 		break;
 	case eUICustomizeCat_Torso:  
-		Result = string(GetCategoryValue("Torso", UpdatedUnitState.kAppearance.nmTorso, BodyPartFilter.FilterByTorsoAndArmorMatch));
+		//Singeline Change for Issue #328        
+		Result = GetCategoryDisplayName("Torso", UpdatedUnitState.kAppearance.nmTorso, BodyPartFilter.FilterByTorsoAndArmorMatch);
 		break;
 	case eUICustomizeCat_Arms:              
-		if(UpdatedUnitState.kAppearance.nmArms == '')
-		{
-			Result = "";
-		}
-		else
-		{
-			Result = string(GetCategoryValue("Arms", UpdatedUnitState.kAppearance.nmArms, BodyPartFilter.FilterByTorsoAndArmorMatch));
-		}
+		//Begin Issue #328        
+		Result = GetCategoryDisplayName("Arms", UpdatedUnitState.kAppearance.nmArms, BodyPartFilter.FilterByTorsoAndArmorMatch);
+		//End Issue #328        
 		break;
 	case eUICustomizeCat_LeftArm:
 		Result = GetCategoryDisplayName("LeftArm", UpdatedUnitState.kAppearance.nmLeftArm, BodyPartFilter.FilterByTorsoAndArmorMatch);
@@ -1118,14 +1123,16 @@ simulated function string GetCategoryDisplay(int catType)
 	case eUICustomizeCat_RightForearm:
 		Result = GetCategoryDisplayName("RightForearm", UpdatedUnitState.kAppearance.nmRightForearm, BodyPartFilter.FilterByTorsoAndArmorMatch);
 		break;
-	case eUICustomizeCat_Legs:              
-		Result = string(GetCategoryValue("Legs", UpdatedUnitState.kAppearance.nmLegs, BodyPartFilter.FilterByTorsoAndArmorMatch));
+	case eUICustomizeCat_Legs:      
+		//Singeline Change for Issue #328
+		Result = GetCategoryDisplayName("Legs", UpdatedUnitState.kAppearance.nmLegs, BodyPartFilter.FilterByTorsoAndArmorMatch);
 		break;
 	case eUICustomizeCat_Thighs:
 		Result = GetCategoryDisplayName("Thighs", UpdatedUnitState.kAppearance.nmThighs, BodyPartFilter.FilterByTorsoAndArmorMatch);
 		break;
 	case eUICustomizeCat_Shins:
-		Result = string(GetCategoryValue("Shins", UpdatedUnitState.kAppearance.nmShins, BodyPartFilter.FilterByTorsoAndArmorMatch));
+		//Singeline Change for Issue #328
+		Result = GetCategoryDisplayName("Shins", UpdatedUnitState.kAppearance.nmShins, BodyPartFilter.FilterByTorsoAndArmorMatch);
 		break;
 	case eUICustomizeCat_TorsoDeco:
 		Result = GetCategoryDisplayName("TorsoDeco", UpdatedUnitState.kAppearance.nmTorsoDeco, BodyPartFilter.FilterByTorsoAndArmorMatch);

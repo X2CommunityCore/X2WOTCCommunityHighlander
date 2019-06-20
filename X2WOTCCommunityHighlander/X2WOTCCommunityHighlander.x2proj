@@ -285,7 +285,10 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2DataSet.uc">
-          <SubType>Content</SubType>
+       <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2BodyPartTemplateManager.uc">
+      <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2Action_Death.uc">
       <SubType>Content</SubType>
