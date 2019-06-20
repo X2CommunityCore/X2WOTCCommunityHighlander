@@ -3,14 +3,31 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 
 ## General
 
-### Mod/DLC Hooks
+### Ini settings
 
-- `Get:RunBeforeDLCIdentifiers` allows mods to define an array of other mods which dlc hooks should run after the mods dlc hook (#511)
-- `GetRunAfterDLCIdentifiers` allows mods to define an array of other mods which dlc hooks should run before the mods dlc hook (#511)
-- `GetLoadPriority` LoadPriority can be STANDARD = 0, FIRST = 1 or LAST = 2. RunBefore and RunAfter only work within the defined LoadPriority group. Only change load priority if you really sure that its needed for you mod (#511)
-- `GetIncompatibleDLCIdentifiers` allows mods to specify an array of incompatible mods. This will be used to show an warning popup if they are present. (#524)
-- `GetRequiredDLCIdentifiers` allows mods to specify an array of required mods. This will be used to show an warning popup if they are not present. (#524)
-- `GetDisplayName` allows mods to specify a display name which will be used in the warning popups for incompatible/required mod. (#524)
+#### Mod compatibility
+
+In `XComGame.ini` mods can specify an array of incompatible and/or required mods. This will be used to show an warning popup if they are present. (#524)
+
+```
+[ModSafeName CHModDependency]
++IncompatibleMods=OtherModSafeName
++IgnoreIncompatibleMods=OtherModSafeName
++RequiredMods=OtherModSafeName
++IgnoreRequiredMods=OtherModSafeName
+DisplayName="Fancy Mod"
+```
+
+#### DLC Run Order
+
+In `XComGame.ini` mods can define an array of other mods which dlc hooks should run before and/or after the mods dlc hook.
+LoadPriority can be RUN_STANDARD, RUN_FIRST or RUN_LAST. RunBefore and RunAfter only work within the defined LoadPriority group. Only change load priority if you really sure that its needed for you mod (#511)
+```
+[ModSafeName CHDLCRunOrder]
++RunBefore=OtherModSafeName
++RunAfter=OtherModSafeName
+RunPriorityGroup=RUN_STANDARD
+```
 
 ## Strategy
 
