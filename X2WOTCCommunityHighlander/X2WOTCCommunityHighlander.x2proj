@@ -473,6 +473,9 @@
     <Content Include="Src\XComGame\Classes\XGCharacterGenerator.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XGGeoscape.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XGStrategy.uc">
       <SubType>Content</SubType>
     </Content>
