@@ -795,6 +795,10 @@ static function X2Effect_PersistentStatChange CreateDisorientedStatusEffect(opti
 	PersistentStatChangeEffect.bRemoveWhenTargetDies = true;
 	PersistentStatChangeEffect.bIsImpairingMomentarily = true;
 
+	// Start Issue #475
+	PersistentStatChangeEffect.bForceReapplyOnRefresh = true;
+	// End Issue #475
+
 	PersistentStatChangeEffect.DamageTypes.AddItem(class'X2Item_DefaultDamageTypes'.default.DisorientDamageType);
 	if( bIsMentalDamage )
 	{

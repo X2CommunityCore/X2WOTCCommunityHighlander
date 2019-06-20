@@ -219,6 +219,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   to hit results from effects (#426)
 - Fix patrol logic when corners of a patrol zone lie outside of the map edges and
   a pod tries to patrol to any of them (#508)
+- Make disorient reapply to disoriented units so that things like flashbangs can
+  still remove overwatch from disoriented units (#475)
 
 
 ## Miscellaneous
