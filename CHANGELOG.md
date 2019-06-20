@@ -267,6 +267,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   receiving tints, patterns, tattoos etc. (#356)
 - Unprotect `X2DataSet::bShouldCreateDifficultyVariants` to allow mods to force templates from other packages to use difficulty variants (#413)
 - Allow mods to manipulate X2GameRuleset::EventObserverClasses, eg. on CDOs (#481)
+- Uprivate `XComTacticalMissionManager::CacheMissionManagerCards` to allow mods to use manager's decks (#528)
 
 ### Improvements
 - Create a mod friendly way to manipulate loot tables (#8)

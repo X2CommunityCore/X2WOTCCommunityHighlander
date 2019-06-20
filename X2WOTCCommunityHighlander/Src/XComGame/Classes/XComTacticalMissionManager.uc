@@ -132,7 +132,8 @@ function ResetCachedCards()
 	HasCachedCards = false;
 }
 
-private function CacheMissionManagerCards()
+// Issue #528 - allow mods to call this function
+/*private*/ function CacheMissionManagerCards()
 {
 	local X2CardManager CardManager;
 	local MissionDefinition MissionDef;
