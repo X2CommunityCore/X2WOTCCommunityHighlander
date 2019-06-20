@@ -5179,7 +5179,8 @@ function GetStatusStringsSeparate(out string Status, out string TimeLabel, out i
 {
 	local bool bProjectExists;
 	local int iHours, iDays;
-	
+	local int iDoTimeConversion;  // Issue #322
+
 	if( IsInjured() )
 	{
 		Status = GetWoundStatus(iHours);
@@ -5207,7 +5208,16 @@ function GetStatusStringsSeparate(out string Status, out string TimeLabel, out i
 		Status = "";
 	}
 	
-	if (bProjectExists)
+	// Start Issue #322
+	//
+	// Allow mods to override the duration and label. If listeners want to
+	// delegate the hours/days handling to the highlander, i.e. iDoTimeConversion
+	// is true, then the TimeValue must be a value in hours.
+	iDoTimeConversion = bProjectExists ? 1 : 0;
+	TriggerCustomizeStatusStringsSeparate(Status, TimeLabel, TimeValue, iDoTimeConversion);
+	// End Issue #322
+	
+	if (iDoTimeConversion != 0)  // Issue #322: Add iDoTimeConversion check
 	{
 		iDays = iHours / 24;
 
@@ -5216,10 +5226,73 @@ function GetStatusStringsSeparate(out string Status, out string TimeLabel, out i
 			iDays += 1;
 		}
 
-		TimeValue = iDays;
-		TimeLabel = class'UIUtilities_Text'.static.GetDaysString(iDays);
+		// Issue #322
+		//
+		// Let listeners override label and time value. If label is still empty,
+		// assume that the values aren't overridden. This is on the basis that
+		// any time should have a label.
+		TimeLabel = "";
+		TimeValue = iHours;
+		class'UIUtilities_Strategy'.static.TriggerOverridePersonnelStatusTime(self, false, TimeLabel, TimeValue);
+
+		if (TimeLabel == "")
+		{
+			TimeValue = iDays;
+			TimeLabel = class'UIUtilities_Text'.static.GetDaysString(iDays);
+		}
+		// End Issue #322
 	}
 }
+
+// Start Issue #322
+//
+// Triggers a 'CustomizeStatusStringsSeparate' event that allows listeners to override
+// the status of a unit.
+//
+// Listeners can either provide the amount of time plus a label to go with it, like
+// 3 + "Days", in which case they should set DoTimeConversion to false. Otherwise,
+// they should set DoTimeConversion to true and provide the amount of time in hours.
+// In this latter case, the CHL will generate the appropriate time label (which it
+// may delegate to listeners of 'OverridePersonnelStatusTime').
+//
+// The event itself takes the form:
+//
+//   {
+//      ID: CustomizeStatusStringsSeparate,
+//      Data: [inout bool DoTimeConversion, inout string Status,
+//             inout string TimeLabel, inout int TimeValue],
+//      Source: self
+//   }
+//
+function TriggerCustomizeStatusStringsSeparate(
+	out string Status,
+	out string TimeLabel,
+	out int TimeValue,
+	out int DoTimeConversion)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'CustomizeStatusStringsSeparate';
+	Tuple.Data.Add(4);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = DoTimeConversion != 0;
+	Tuple.Data[1].kind = XComLWTVString;
+	Tuple.Data[1].s = Status;
+	Tuple.Data[2].kind = XComLWTVString;
+	Tuple.Data[2].s = TimeLabel;
+	Tuple.Data[3].kind = XComLWTVInt;
+	Tuple.Data[3].i = TimeValue;
+
+	`XEVENTMGR.TriggerEvent('CustomizeStatusStringsSeparate', Tuple, self);
+
+	DoTimeConversion = Tuple.Data[0].b ? 1 : 0;
+	Status = Tuple.Data[1].s;
+	TimeLabel = Tuple.Data[2].s;
+	TimeValue = Tuple.Data[3].i;
+}
+// End Issue #322
+
 //-------------------------------------------------------------------------
 // Returns a UI state (color) that matches the soldier's status
 function int GetStatusUIState()
@@ -13466,14 +13539,25 @@ function GetMentalStateStringsSeparate(out string Status, out string TimeLabel, 
 		{
 			if(WillProject.ProjectFocus.ObjectID == self.ObjectID)
 			{
-				iDays = WillProject.GetCurrentNumDaysRemaining();
-				TimeValue = iDays;
-				if (TimeValue == 0)
+				// Start Issue #322
+				//
+				// Get the project length in hours so that it can be easily overridden by mods
+				// that want to display the time in hours rather than days.
+				TimeValue = WillProject.GetCurrentNumHoursRemaining();
+				
+				class'UIUtilities_Strategy'.static.TriggerOverridePersonnelStatusTime(self, true, TimeLabel, TimeValue);
+				
+				// If no override has been provided, i.e. the time label is still an empty
+				// string, then default to the old behavior.
+				if (TimeLabel == "")
 				{
+					iDays = WillProject.GetCurrentNumDaysRemaining();
+
 					// Even if there isn't any time left, add a day to the string so it displays some time remaining in the UI
-					TimeValue = 1;
+					TimeLabel = class'UIUtilities_Text'.static.GetDaysString(iDays);
+					TimeValue = iDays > 0 ? iDays : 1;
 				}
-				TimeLabel = class'UIUtilities_Text'.static.GetDaysString(iDays);
+				// End Issue #322
 				break;
 			}
 		}

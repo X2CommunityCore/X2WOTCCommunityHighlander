@@ -137,6 +137,10 @@ var config array<name> RequiresTargetingActivation;
 var config array<name> AdditionalAmbushRiskTemplates;
 // End Issue #485
 
+// Start Issue #322
+var config bool UseNewPersonnelStatusBehavior;
+// End Issue #322
+
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
 	local XComContentManager		Content;
