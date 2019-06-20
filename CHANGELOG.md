@@ -54,6 +54,8 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
 - UIScanButton now calls OnMouseEventDelegate (#483). Note: DO NOT call ProcessMouseEvents, just set the delegate directly
+- Remove `private` from `X2AIBTBehaviorTree.Behaviors` so that mods can change the behavior trees without
+  overwriting all the necessary entries (#410)
 
 ### Configuration
 - Allow disabling of Factions being initialized on startup by
