@@ -508,6 +508,16 @@ static function OnPreCreateTemplates()
 }
 /// End issue #412
 
+/// Start Issue #419
+/// <summary>
+/// Called from X2AbilityTag.ExpandHandler
+/// Expands vanilla AbilityTagExpandHandler to allow reflection
+/// </summary>
+static function bool AbilityTagExpandHandler_CH(string InString, out string OutString, Object ParseObj, Object StrategyParseOb, XComGameState GameState)
+{
+	return false;
+}
+
 /// Start Issue #409
 /// <summary>
 /// Called from XComGameState_Unit:GetEarnedSoldierAbilities

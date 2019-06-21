@@ -267,6 +267,7 @@ RunPriorityGroup=RUN_STANDARD
 - `UpdateTransitionMap` allows overriding the transition map -- dropship interior by default (#388)
 - `UseAlternateMissionIntroDefinition` allows overriding the mission intro (#395)
 - `UnitPawnPostInitAnimTree` allows Allows patching the animtree template before its initialized.(#455)
+- `AbilityTagExpandHandler_CH` expands vanilla AbilityTagExpandHandler to allow reflection
 
 ### Event Hooks
 - Triggers the events `SoldierClassIcon`, `SoldierClassDisplayName`,
