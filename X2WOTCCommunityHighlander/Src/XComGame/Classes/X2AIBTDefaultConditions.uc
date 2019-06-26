@@ -1670,6 +1670,7 @@ function bt_status CheckStatCompare()
 	local int iStatOperandA, iStatOperandB;
 	local UnitValue UValue;
 	local bool bCountAllies, bAreaSearch;
+	local name ActionPointType;  // Issue #510
 	switch (m_eValType)
 	{
 		case eBTCV_Stat:
@@ -1888,6 +1889,15 @@ function bt_status CheckStatCompare()
 
 		case eBTCV_ActionPoints:
 			iStatOperandA = m_kUnitState.NumActionPoints();
+			// Start Issue #510
+			//
+			// Allow mods to include other action point types here, particularly if
+			// they are using custom action point types for reflex actions.
+			foreach class'CHHelpers'.default.AdditionalAIBTActionPointTypes(ActionPointType)
+			{
+				iStatOperandA += m_kUnitState.NumActionPoints(ActionPointType);
+			}
+			// End Issue #510
 			iStatOperandB = m_iVal;
 			break;
 

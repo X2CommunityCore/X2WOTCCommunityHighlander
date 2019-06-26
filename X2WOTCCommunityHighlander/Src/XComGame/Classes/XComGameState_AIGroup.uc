@@ -766,6 +766,13 @@ function ProcessReflexMoveActivate(optional name InSpecialRevealType)
 					AIPlayer.QueueScamperBehavior(UnitStateObject, TargetStateObject, bUnitIsSurprised, Index == 0);
 				}
 
+				// Start Issue #510
+				//
+				// Mods can't use the `OnScamperBegin` event to provide extra action points because it
+				// happens too late, so we fire this custom event here instead.
+				`XEVENTMGR.TriggerEvent('ProcessReflexMove', UnitStateObject, self, NewGameState);
+				// End Issue #510
+
 				Rules = `TACTICALRULES;
 				Rules.SubmitGameState(NewGameState);
 				`BEHAVIORTREEMGR.TryUpdateBTQueue();

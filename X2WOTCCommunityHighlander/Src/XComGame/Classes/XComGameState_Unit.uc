@@ -10117,7 +10117,7 @@ function GetEnemiesInRange(TTile kLocation, int nMeters, out array<StateObjectRe
 //
 // A copy of `GetEnemiesInRange()` except you can choose which team's units
 // you're interested in.
-function GetUnitsInRangeOnTeam(ETeam eTeam, TTile kLocation, int nMeters, out array<StateObjectReference> OutEnemies)
+function GetUnitsInRangeOnTeam(ETeam Team, TTile kLocation, int nMeters, out array<StateObjectReference> OutEnemies)
 {
 	local vector vCenter, vLoc;
 	local float fDistSq;
@@ -10132,7 +10132,7 @@ function GetUnitsInRangeOnTeam(ETeam eTeam, TTile kLocation, int nMeters, out ar
 
 	foreach History.IterateByClassType(class'XComGameState_Unit', kUnit)
 	{
-		if( kUnit.GetTeam() == eTeam && kUnit.IsAlive() )
+		if( kUnit.GetTeam() == Team && kUnit.IsAlive() )
 		{
 			vLoc = `XWORLD.GetPositionFromTileCoordinates(kUnit.TileLocation);
 			UnitHearingRadius = kUnit.GetCurrentStat(eStat_HearingRadius);
