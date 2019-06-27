@@ -79,6 +79,18 @@ RunPriorityGroup=RUN_STANDARD
 - Triggers the event `OverridePersonnelStatusTime` in a number of places to allow listeners to change the way
   unit status times (like how long is left on a covert action) are displayed. For example, a listener could
   display a time in hours rather than days, perhaps based on how many hours are left. (#322)
+- Triggers the event `OverrideMissionSiteIconImage` to allow mods to override the image shown for mission site icons (#537)
+- Triggers the event `StrategyMapMissionSiteSelected` to allow mods to provide mission launch screens for
+  missions that have custom mission sources (#537)
+- Triggers the event `OverrideMissionSiteTooltip` to allow mods to override the tooltip displayed for a
+  mission site icon (#537)
+- Triggers the event `OverrideScanSiteTooltip` to allow mods to override the tooltip displayed for a
+  scan site icon (#537)
+- Triggers the event `MissionIconSetMissionSite` to allow mods to customize a mission site's icon in
+  other ways than just the tooltip and image (#537)
+- Triggers the event `MissionIconSetScanSite` to allow mods to customize a scan site's icon in other
+  ways than just the tooltip and image (#537)
+
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
