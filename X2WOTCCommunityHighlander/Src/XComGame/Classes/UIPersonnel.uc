@@ -970,6 +970,7 @@ simulated function OnScientistSelected( UIList kList, int index )
 	if( !UIPersonnel_ListItem(kList.GetItem(index)).IsDisabled )
 	{
 		if( onSelectedDelegate != none )
+			// Single line change for #306
 			onSelectedDelegate(GetCurrentDataElement(index));
 
 		if(m_bRemoveWhenUnitSelected)
@@ -987,6 +988,7 @@ simulated function OnEngineerSelected( UIList kList, int index )
 	if( !UIPersonnel_ListItem(kList.GetItem(index)).IsDisabled )
 	{
 		if( onSelectedDelegate != none )
+			// Single line change for #306
 			onSelectedDelegate(GetCurrentDataElement(index));
 
 		if(m_bRemoveWhenUnitSelected)
@@ -1008,6 +1010,7 @@ simulated function OnSoldierSelected( UIList kList, int index )
 	if( (Item != none) && !Item.IsDisabled )
 	{
 		if( onSelectedDelegate != none )
+			// Single line change for #306
 			onSelectedDelegate(GetCurrentDataElement(index));
 
 		if(m_bRemoveWhenUnitSelected)
@@ -1025,6 +1028,7 @@ simulated function OnDeceasedSelected( UIList kList, int index )
 	if( !UIPersonnel_ListItem(kList.GetItem(index)).IsDisabled )
 	{
 		if( onSelectedDelegate != none )
+			// Single line change for #306
 			onSelectedDelegate(GetCurrentDataElement(index));
 
 		if(m_bRemoveWhenUnitSelected)
@@ -1097,6 +1101,8 @@ simulated function StateObjectReference GetCurrentDataElement(int i)
 		return m_arrDeceased[i];
 	}
 }
+// End Issue #306
+
 simulated function SortCurrentData(delegate<SortDelegate> SortFunction)
 {
 	switch(m_eCurrentTab)
