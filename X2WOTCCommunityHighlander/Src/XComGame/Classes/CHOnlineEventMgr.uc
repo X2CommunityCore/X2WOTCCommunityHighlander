@@ -31,7 +31,6 @@ function array<X2DownloadableContentInfo> GetDLCInfos(bool bNewDLCOnly)
 	// Bypass ordering here if we have a warm cache
 	if (bWarmCache && m_cachedDLCInfos.Length > 0)
 	{
-		`LOG(default.class @ GetFuncName() @ "returning cached dlc infos" @ m_cachedDLCInfos.Length,, 'X2WOTCCommunityHighlander');
 		return m_cachedDLCInfos;
 	}
 
