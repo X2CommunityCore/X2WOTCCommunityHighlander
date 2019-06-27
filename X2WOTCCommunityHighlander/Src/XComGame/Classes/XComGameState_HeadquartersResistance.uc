@@ -321,12 +321,6 @@ function OnEndOfMonth(XComGameState NewGameState)
 	XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
 	XComHQ = XComGameState_HeadquartersXCom(NewGameState.ModifyStateObject(class'XComGameState_HeadquartersXCom', XComHQ.ObjectID));
 
-	// Start Issue #539
-	//
-	// Notify listeners of the start of end-of-month processing.
-	`XEVENTMGR.TriggerEvent('PreEndOfMonth', self, self, NewGameState);
-	// End Issue #539
-
 	bEndOfMonthNotify = true;
 	GiveSuppliesReward(NewGameState);
 	SetProjectedMonthInterval(`STRATEGYRULES.GameTime);
@@ -411,82 +405,24 @@ function GiveSuppliesReward(XComGameState NewGameState)
 		CacheState = XComGameState_ResourceCache(NewGameState.ModifyStateObject(class'XComGameState_ResourceCache', CacheState.ObjectID));
 		CacheState.ShowResourceCache(NewGameState, TotalReward);
 	}
-	// Start Issue #539
-	else
-	{
-		// Let listeners know that we're in negative income territory. This
-		// also allows them to make adjustments to the game state.
-		TriggerNegativeMonthlyIncome(TotalReward, NewGameState);
-	}
-	// End Issue #539
-}
-
-// Start Issue #539
-//
-// Fires a 'NegativeMonthlyIncome' event that allows mods to determine whether
-// the negative income is allowed or not. They can also do any other processing
-// they deem fit.
-//
-// The method returns `true` if the negative supplies can be displayed.
-//
-// The event takes the form:
-//
-//   {
-//      ID: NegativeMonthlyIncome,
-//      Data: [inout bool DisplayNegativeIncome, in int SupplyAmount],
-//      Source: self (XCGS_HeadquartersResistance)
-//   }
-//
-// Note that the event includes a new game state if the game is processing
-// end of month supplies. If it's not included, then the event is only being
-// triggered because the game wants to know whether to display the negative
-// income or not.
-function bool TriggerNegativeMonthlyIncome(int SupplyValue, optional XComGameState NewGameState)
-{
-	local XComLWTuple Tuple;
-
-	Tuple = new class'XComLWTuple';
-	Tuple.Id = 'NegativeMonthlyIncome';
-	Tuple.Data.Add(2);
-	Tuple.Data[0].kind = XComLWTVBool;
-	Tuple.Data[0].b = false;  // Whether negative supply events are possible
-	Tuple.Data[1].kind = XComLWTVInt;
-	Tuple.Data[1].i = SupplyValue;  // The amount of negative supplies
-
-	`XEVENTMGR.TriggerEvent('NegativeMonthlyIncome', Tuple, self, NewGameState);
-
-	return Tuple.Data[0].b; // whether negative supply events are supported
 }
 
 //---------------------------------------------------------------------------------------
-// Issue #539: Added the optional NewGameState argument
-function int GetSuppliesReward(optional bool bUseSavedPercentDecrease, optional XComGameState NewGameState)
+function int GetSuppliesReward(optional bool bUseSavedPercentDecrease)
 {
 	local XComGameStateHistory History;
 	local XComGameState_HeadquartersXCom XComHQ;
 	local XComGameState_WorldRegion RegionState;
 	local int SupplyReward;
-	local bool SkipRegionSupplyRewards;  // Issue #539
 
 	History = `XCOMHISTORY;
 	XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
 	SupplyReward = 0;
 
-	// Start Issue #539
-	if (NewGameState != none)
+	foreach History.IterateByClassType(class'XComGameState_WorldRegion', RegionState)
 	{
-		SkipRegionSupplyRewards = TriggerOverrideSupplyDrop(SupplyReward, NewGameState);
+		SupplyReward += RegionState.GetSupplyDropReward();
 	}
-
-	// Issue #539: Only the condition is new.
-	if (!SkipRegionSupplyRewards)
-	{
-		foreach History.IterateByClassType(class'XComGameState_WorldRegion', RegionState)
-		{
-			SupplyReward += RegionState.GetSupplyDropReward();
-		}
-	}
-	// End Issue # 539
 
 	// Subtract the upkeep from the Avenger facilities
 	SupplyReward -= XComHQ.GetFacilityUpkeepCost();
@@ -502,44 +438,6 @@ function int GetSuppliesReward(optional bool bUseSavedPercentDecrease, optional 
 
 	return SupplyReward;
 }
-
-// Start Issue #539
-// 
-// Fires an 'OverrideSupplyDrop' event that allows mods to override the
-// amount of supplies awarded at the end of the month.
-//
-// The method returns `true` if the base game region-based income should
-// be skipped. `false` means that the region-based income should be added
-// to the total.
-//
-// The event takes the form:
-//
-//   {
-//      ID: OverrideSupplyDrop,
-//      Data: [inout bool SkipRegionSupplyRewards, inout int SupplyAmount],
-//      Source: self (XCGS_HeadquartersResistance)
-//   }
-//
-function bool TriggerOverrideSupplyDrop(out int SupplyAmount, XComGameState NewGameState)
-{
-	local XComLWTuple OverrideTuple;
-
-	// LWS - set up a Tuple for return value - return value is supplies generated this month
-	OverrideTuple = new class'XComLWTuple';
-	OverrideTuple.Id = 'OverrideSupplyDrop';
-	OverrideTuple.Data.Add(2);
-	OverrideTuple.Data[0].kind = XComLWTVBool;
-	OverrideTuple.Data[0].b = false;  // Whether the game should skip adding region income to the supply drop
-	OverrideTuple.Data[1].kind = XComLWTVInt;
-	OverrideTuple.Data[1].i = SupplyAmount;  // Return Value of supplies
-
-	`XEVENTMGR.TriggerEvent('OverrideSupplyDrop', OverrideTuple, self, NewGameState);
-
-	SupplyAmount = OverrideTuple.Data[1].i;
-
-	return OverrideTuple.Data[0].b;
-}
-// End Issue #539
 
 //---------------------------------------------------------------------------------------
 function SetProjectedMonthInterval(TDateTime Start, optional float TimeRemaining = -1.0)
