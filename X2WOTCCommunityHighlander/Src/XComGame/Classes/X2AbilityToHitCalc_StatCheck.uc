@@ -86,11 +86,9 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 	AddModifier(BaseValue, GetBaseString(), m_ShotBreakdown, eHit_Success, bDebugLog);
 	AddModifier(AttackVal, GetAttackString(), m_ShotBreakdown, eHit_Success, bDebugLog);
 	AddModifier(-DefendVal, GetDefendString(), m_ShotBreakdown, eHit_Success, bDebugLog);
-	// start issue #467: modified the method of getting a final result from vanilla
-	FinalizeHitChance(m_ShotBreakdown, bDebugLog);
 
+	// Issue #467: modified the method of getting a final result from vanilla
 	return m_ShotBreakdown.FinalHitChance;
-	// end issue #467
 }
 
 function string GetBaseString() { return class'XLocalizedData'.default.BaseChance; }

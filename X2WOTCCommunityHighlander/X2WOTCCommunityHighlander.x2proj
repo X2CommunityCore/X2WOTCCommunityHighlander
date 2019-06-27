@@ -323,6 +323,9 @@
     <Content Include="Src\XComGame\Classes\X2Ability_ChosenAssassin.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2AbilityToHitCalc_StatCheck.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Action_ApplyWeaponDamageToUnit.uc">
       <SubType>Content</SubType>
     </Content>
@@ -348,6 +351,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2GameRuleset.uc">
+	  <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2Effect_Persistent.uc">
 	  <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2Effect_Persistent.uc">
