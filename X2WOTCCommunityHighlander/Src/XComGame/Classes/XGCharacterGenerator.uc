@@ -665,17 +665,14 @@ function SetArmsLegsAndDeco(X2SimpleBodyPartFilter BodyPartFilter)
 		RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmRightArm, "RightArm", BodyPartFilter.FilterByTorsoAndArmorMatch);
 		RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmLeftArmDeco, "LeftArmDeco", BodyPartFilter.FilterByTorsoAndArmorMatch);
 		RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmRightArmDeco, "RightArmDeco", BodyPartFilter.FilterByTorsoAndArmorMatch);
-		// Start Issue #384
-		if (!m_CharTemplate.bForceAppearance)
-		{
-			RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmLeftForearm, "LeftForearm", BodyPartFilter.FilterByTorsoAndArmorMatch);
-			RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmRightForearm, "RightForearm", BodyPartFilter.FilterByTorsoAndArmorMatch);
-		}
 	}
 
+	// Start Issue #384
 	// XPack Hero Deco
 	if (!m_CharTemplate.bForceAppearance)
 	{
+		RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmLeftForearm, "LeftForearm", BodyPartFilter.FilterByTorsoAndArmorMatch);
+			RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmRightForearm, "RightForearm", BodyPartFilter.FilterByTorsoAndArmorMatch);
 		RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmThighs, "Thighs", BodyPartFilter.FilterByTorsoAndArmorMatch);
 		RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmShins, "Shins", BodyPartFilter.FilterByTorsoAndArmorMatch);
 		RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmTorsoDeco, "TorsoDeco", BodyPartFilter.FilterByTorsoAndArmorMatch);
