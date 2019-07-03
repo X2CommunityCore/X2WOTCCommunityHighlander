@@ -11,11 +11,13 @@ class X2TargetingMethod_EvacZone extends X2TargetingMethod native(Core) config(G
 
 var config float NeededValidTileCoverage;
 
-var private XCom3DCursor Cursor;
-var private X2Actor_EvacZoneTarget EvacZoneTarget;
-var private bool bRestrictToSquadsightRange;
-var private XComGameState_Player AssociatedPlayerState;
-var private bool EnoughTilesValid;
+// Start Issue #165 - deprivatize these variables so the class can be effectively subclassed
+var protected XCom3DCursor Cursor;
+var protected X2Actor_EvacZoneTarget EvacZoneTarget;
+var protected bool bRestrictToSquadsightRange;
+var protected XComGameState_Player AssociatedPlayerState;
+var protected bool EnoughTilesValid;
+// End Issue #165
 
 function Init(AvailableAction InAction, int NewTargetIndex)
 {
