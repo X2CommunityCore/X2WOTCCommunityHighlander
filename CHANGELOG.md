@@ -71,6 +71,15 @@ RunPriorityGroup=RUN_STANDARD
 - Triggers the event `BlackMarketGoodsReset` when the Black Market goods are reset (#473)
 - Triggers the event `OverrideImageForItemAvaliable` to allow mods to override the image shown in eAlert_ItemAvailable (#491)
 - Triggers the event `OverrideCurrentDoom` to allow mods to override doom amount for doom updates (#550)
+- Triggers the event `PreEndOfMonth` to notify mods that the game is about to start its end-of-month processing (#539)
+- Triggers the event `ProcessNegativeIncome` to allow mods to do their own processing when XCOM's income at the
+  end of the month is negative (#539)
+- Triggers the event `OverrideDisplayNegativeIncome` to allow mods to override whether negative monthly income is
+  displayed as a negative value or as zero (latter is default behavior) (#539)
+- Triggers the event `OverrideSupplyDrop` to allow mods to override the amount of supplies awarded at month end (#539)
+- Triggers the event `OverrideSupplyLossStrings` to allow mods to override the text that is displayed for supplies
+  lost in the monthly resistance report (#539)
+- Triggers the event `PostEndOfMonth` to notify mods that end-of-month processing has come to an end (#539)
 - Triggers the event `PsiProjectCompleted` to notify mods when a soldier has finished training in the psi labs (#534)
 - Triggers the event `OverrideNoCaEventMinMonths` to allow mods to force the UI to display no CA nag during first month
 - Triggers the event `CustomizeStatusStringsSeparate` in XComGameState_Unit::GetStatusStringsSeparate (#322)
