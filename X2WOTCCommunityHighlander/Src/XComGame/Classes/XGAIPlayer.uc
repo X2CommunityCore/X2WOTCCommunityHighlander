@@ -848,15 +848,17 @@ simulated function GatherUnitsToMove()
 	local array<GameRulesCache_Unit> Scampering;
 	local array<int> OrderPriorityList;
 	local XComTacticalCheatManager kCheatMgr;
-	local XGAIBehavior kBehavior;
-	local XComGameState_AIPlayerData kAIPlayerData;
+	// Start Issue #510 - variables no longer used
+	// local XGAIBehavior kBehavior;
+	// local XComGameState_AIPlayerData kAIPlayerData;
+	// End Issue #510
 	local bool bDead, bGroupUnitAdded;
 	local X2AIBTBehaviorTree BTMgr;
 	local XComGameState_AIGroup AIGroupState;
 	local StateObjectReference UnitStateObjRef;
 	local X2CharacterTemplate CharTemplate;
 
-	kAIPlayerData = XComGameState_AIPlayerData(`XCOMHISTORY.GetGameStateForObjectID(GetAIDataID()));
+	// kAIPlayerData = XComGameState_AIPlayerData(`XCOMHISTORY.GetGameStateForObjectID(GetAIDataID())); // Issue #510 - no longer used
 
 	kCheatMgr = `CHEATMGR;
 	BTMgr = `BEHAVIORTREEMGR;
@@ -888,11 +890,14 @@ simulated function GatherUnitsToMove()
 			kCheatMgr.AIStringsAddUnit(UnitState.ObjectID, bDead);
 		}
 
-		kBehavior = (XGUnit(UnitState.GetVisualizer())).m_kBehavior;
+		// kBehavior = (XGUnit(UnitState.GetVisualizer())).m_kBehavior; // Issue #510 - no longer used
 
 		// Check if this unit has already moved this turn.  (Compare init history index to last turn start) 
 		// Also skip units that have currently no action points available.   They shouldn't be added to any lists.
-		if(bDead || UnitState.bRemovedFromPlay || UnitState.NumAllActionPoints() == 0 || kBehavior == None || kBehavior.DecisionStartHistoryIndex > kAIPlayerData.m_iLastEndTurnHistoryIndex)
+		//
+		// Issue #510 - Removed the DecisionStartHistoryIndex check as it prevents pod leaders from using
+		// any reflex actions they may have been granted.
+		if(bDead || UnitState.bRemovedFromPlay || UnitState.NumAllActionPoints() == 0) // || kBehavior == None || kBehavior.DecisionStartHistoryIndex > kAIPlayerData.m_iLastEndTurnHistoryIndex)
 		{
 			continue;
 		}
