@@ -187,6 +187,8 @@ RunPriorityGroup=RUN_STANDARD
 - `OverrideAbilityIconColor` provides a tuple with the same ID as the
   event and data of the form `[bool IsObjective, string Color]` that allows
   mods to override the color of soldier abilities in the tactical HUD (#400)
+- `OverrideFinalHitChance` allows mods to override the shot breakdown (chance to hit,
+  crit, graze, miss) for abilities (#555)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
