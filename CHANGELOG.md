@@ -202,6 +202,12 @@ RunPriorityGroup=RUN_STANDARD
 - `OverrideTotalNumKills` allows mods to override the amount of kill XP that a unit has (#562)
 - `OnDistributeTacticalGameEndXp` notifies mods that they can distribute any extra XP at the end
   of the mission (#562)
+- `OverrideBodyRecovery` allows mods to determine whether incapacitated soldiers are recovered
+  at the end of a mission (which is only supported by full sweep missions with corpse retrieval
+  in the base game) (#571)
+- `OverrideLootRecovery` allows mods to determine whether loot is automatically recovered
+  at the end of a mission (which is only supported by full sweep missions with corpse retrieval
+  in the base game) (#571)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
