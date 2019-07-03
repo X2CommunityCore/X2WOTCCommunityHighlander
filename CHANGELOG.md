@@ -210,6 +210,7 @@ RunPriorityGroup=RUN_STANDARD
 - Deprivatise XComAlienPawn.Voice to allow changes by mods (#275)
 - Deprivatise/const config variables in XComParcelManager (#404)
 - Gives SitReps access to the Tactical StartState in order to widen sitrep capabilities (#450)
+- Deprivatise variables in X2TargetingMethod_EvacZone so that it can be effectively subclassed (#165)
 
 ### Improvements
 - Make suppression work with weapons that don't have suppression specific
