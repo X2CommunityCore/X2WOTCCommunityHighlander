@@ -6330,14 +6330,22 @@ protected function OnUnitDied(XComGameState NewGameState, Object CauseOfDeath, c
 	{
 		Killer = XComGameState_Unit(NewGameState.ModifyStateObject(Killer.Class, Killer.ObjectID));
 		Killer.KilledUnits.AddItem(GetReference());
-		Killer.KillCount += GetMyTemplate().KillContribution; // Allows specific units to contribute different amounts to the kill total
+		// Start Issue #562
+		//
+		// Allow mods to cap kill XP
+		if (Killer.CanEarnXp() && TriggerCanAwardKillXp(Killer))
+		{
+			// Allows specific units to contribute different amounts to the kill total
+			Killer.KillCount += GetMyTemplate().KillContribution;
+		}
+		// End Issue #562
 	}
 	//end issue #221
 	if( GetTeam() == eTeam_Alien || GetTeam() == eTeam_TheLost || GetTeam() == eTeam_One || GetTeam() == eTeam_Two) //issue #188 - let eTeam_One and eTeam_Two units count as enemies when they die
 	{
 		if( SourceStateObjectRef.ObjectID != 0 )
 		{	
-			if (Killer != none && Killer.CanEarnXp())
+			if (Killer != none && Killer.CanEarnXp() && TriggerCanAwardKillXp(Killer)) // Issue #562 - Allow mods to cap kill XP
 			{
 				/* issue #221 - move this section out of this check so all units track kill counts
 				Killer = XComGameState_Unit(NewGameState.ModifyStateObject(Killer.Class, Killer.ObjectID));
@@ -6527,6 +6535,37 @@ protected function OnUnitDied(XComGameState NewGameState, Object CauseOfDeath, c
 	}
 
 }
+
+// Start Issue #562
+//
+// Fire an event that allows listeners to prevent a unit from gaining kill
+// XP, for example if the kill XP is capped for the current mission.
+//
+// The event takes the form:
+//
+//  {
+//    ID: CanAwardKillXp,
+//    Data: [in XCGS_Unit Killer, out bool CanAwardXp],
+//    Source: self (XCGS_Unit that has died)
+//  }
+//
+function bool TriggerCanAwardKillXp(XComGameState_Unit Killer)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'CanAwardKillXp';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].Kind = XComLWTVObject;
+	Tuple.Data[0].o = Killer;
+	Tuple.Data[1].Kind = XComLWTVBool;
+	Tuple.Data[1].b = true;
+
+	`XEVENTMGR.TriggerEvent('CanAwardKillXp', Tuple, self);
+
+	return Tuple.Data[1].b;
+}
+// End Issue #562
 
 function UnitDeathVisualizationWorldMessage(XComGameState VisualizeGameState)
 {
@@ -12290,8 +12329,42 @@ function int GetTotalNumKills(optional bool bIncludeNonTacticalKills = true)
 		NumKills += NonTacticalKills;
 	}
 
-	return NumKills;
+	// Start Issue #562
+	return TriggerOverrideTotalNumKills(NumKills);
+	// End Issue #562
 }
+
+// Start Issue #562
+//
+// Fires an event that allows mods to override the total amount of kill XP
+// this unit has. The event data includes the kill XP calculated by vanilla
+// which can be left as it is, modified, or replaced.
+//
+// This method returns the total kill XP.
+//
+// The event takes the form:
+//
+//  {
+//    ID: OverrideTotalNumKills,
+//    Data: [inout int TotalNumKills],
+//    Source: self (XCGS_Unit)
+//  }
+//
+function int TriggerOverrideTotalNumKills(int TotalNumKills)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideTotalNumKills';
+	OverrideTuple.Data.Add(1);
+	OverrideTuple.Data[0].kind = XComLWTVInt;
+	OverrideTuple.Data[0].i = TotalNumKills;
+
+	`XEVENTMGR.TriggerEvent('OverrideTotalNumKills', OverrideTuple, self);
+
+	return OverrideTuple.Data[0].i;
+}
+// End Issue #562
 
 function bool CanRankUpSoldier()
 {

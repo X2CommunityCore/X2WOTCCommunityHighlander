@@ -189,6 +189,10 @@ RunPriorityGroup=RUN_STANDARD
   mods to override the color of soldier abilities in the tactical HUD (#400)
 - `OverrideFinalHitChance` allows mods to override the shot breakdown (chance to hit,
   crit, graze, miss) for abilities (#555)
+- `CanAwardKillXp` allows mods to control whether a kill awards XP or not (#562)
+- `OverrideTotalNumKills` allows mods to override the amount of kill XP that a unit has (#562)
+- `OnDistributeTacticalGameEndXp` notifies mods that they can distribute any extra XP at the end
+  of the mission (#562)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
