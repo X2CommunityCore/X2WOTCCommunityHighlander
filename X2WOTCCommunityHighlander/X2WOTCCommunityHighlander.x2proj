@@ -671,6 +671,15 @@
     <Content Include="Src\XComGame\Classes\UIInventory_VIPRecovered.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIInventory_Implants.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComSoldierHeader.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComSoldierHeaderElement.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XGWeapon.uc">
       <SubType>Content</SubType>
     </Content>
