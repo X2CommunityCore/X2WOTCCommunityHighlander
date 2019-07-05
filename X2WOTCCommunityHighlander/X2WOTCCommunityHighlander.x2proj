@@ -104,6 +104,9 @@
     <Content Include="Src\XComGame\Classes\CHItemSlot.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\CHShotBreakdownWrapper.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\CHXComGameVersion.uc">
       <SubType>Content</SubType>
     </Content>
@@ -227,6 +230,9 @@
     <Content Include="Src\XComGame\Classes\UIQueryInterfaceItem.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIResistanceReport.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIScanButton.uc">
       <SubType>Content</SubType>
     </Content>
@@ -314,6 +320,9 @@
     <Content Include="Src\XComGame\Classes\X2AbilityTemplate.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2AbilityToHitCalc.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIUtilities_Colors.uc">
       <SubType>Content</SubType>
     </Content>
@@ -383,6 +392,12 @@
     <Content Include="Src\XComGame\Classes\X2SoldierClassTemplateManager.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2AIBTDefaultActions.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2AIBTDefaultConditions.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Ability.uc">
       <SubType>Content</SubType>
     </Content>
@@ -414,6 +429,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2TacticalGameRulesetDataStructures.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2TargetingMethod_EvacZone.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2UnifiedProjectile.uc">
@@ -449,10 +467,10 @@
     <Content Include="Src\XComGame\Classes\XComGameState_AdventChosen.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\XComGame\Classes\XComGameState_AIReinforcementSpawner.uc">
+    <Content Include="Src\XComGame\Classes\XComGameState_AIGroup.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\XComGame\Classes\XComGameState_AIGroup.uc">
+    <Content Include="Src\XComGame\Classes\XComGameState_AIReinforcementSpawner.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_AIUnitData.uc">
@@ -498,6 +516,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_WorldRegion.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_XpManager.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComHeadquartersCamera.uc">
@@ -623,6 +644,9 @@
     <Content Include="Src\XComGame\Classes\X2Action_Hack.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Action_SwapTeams.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComPlayerController.uc">
       <SubType>Content</SubType>
     </Content>
@@ -645,6 +669,15 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIInventory_VIPRecovered.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIInventory_Implants.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComSoldierHeader.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComSoldierHeaderElement.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XGWeapon.uc">
