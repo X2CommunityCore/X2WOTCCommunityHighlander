@@ -90,6 +90,11 @@ RunPriorityGroup=RUN_STANDARD
   other ways than just the tooltip and image (#537)
 - Triggers the event `MissionIconSetScanSite` to allow mods to customize a scan site's icon in other
   ways than just the tooltip and image (#537)
+- Triggers the event `CovertActionStarted` to allow mods to react to it in a flexible manner
+  (instead of hooking into UI mess) (#584)
+- Triggers the event `CovertActionAllowEngineerPopup` to allow mods to forbid the popup (#584)
+- Triggers the event `CovertActionAllowCheckForProjectOverlap` to allow mods to forbid the "de-bunching" logic
+  on CA start (#584)
 
 
 ### Modding Exposures
