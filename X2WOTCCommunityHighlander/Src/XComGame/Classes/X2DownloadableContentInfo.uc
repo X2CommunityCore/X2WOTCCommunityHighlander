@@ -582,23 +582,32 @@ static function UnitPawnPostInitAnimTree(XComGameState_Unit UnitState, XComUnitP
 final function array<string> GetRunBeforeDLCIdentifiers()
 {
 	local CHDLCRunOrder RunOrder;
+	local array<string> EmptyArray;
 
 	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
 	if (RunOrder != none && RunOrder.RunBefore.Length > 0)
 	{
 		return RunOrder.RunBefore;
 	}
+
+	// Prevent unused compile warnings
+	EmptyArray.Length = 0;
+	Return EmptyArray;
 }
 
 final function array<string> GetRunAfterDLCIdentifiers()
 {
 	local CHDLCRunOrder RunOrder;
+	local array<string> EmptyArray;
 
 	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
 	if (RunOrder != none && RunOrder.RunAfter.Length > 0)
 	{
 		return RunOrder.RunAfter;
 	}
+	// Prevent unused compile warnings
+	EmptyArray.Length = 0;
+	Return EmptyArray;
 }
 
 final function int GetRunPriorityGroup()
@@ -610,6 +619,7 @@ final function int GetRunPriorityGroup()
 	{
 		return RunOrder.RunPriorityGroup;
 	}
+	return RUN_STANDARD;
 }
 /// End Issue #511
 
