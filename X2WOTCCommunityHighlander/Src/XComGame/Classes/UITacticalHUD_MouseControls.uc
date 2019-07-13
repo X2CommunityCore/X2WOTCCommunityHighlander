@@ -47,6 +47,8 @@ var array<AvailableAction> CommandAbilities;
 
 var UIPanel AttentionPulse; 
 
+var array<XComCHCommanderAction> CommanderActions;
+
 //----------------------------------------------------------------------------
 // METHODS
 //
