@@ -6,6 +6,7 @@ var name Id;
 var string sIcon;
 var string DisplayText;
 var string Tooltip;
+var bool bHighlight;
 
 var AvailableAction ActionInfo; // Automatically used if OnActivated is none
 var array<XComLWTuple> AdditionalData;
@@ -42,6 +43,7 @@ static function name GetActionNameForAbility (X2AbilityTemplate AbilityTemplate)
 
 static function XComCHCommanderAction CreateFromAvailableAction (AvailableAction InActionInfo)
 {
+	local XComGameState_BattleData BattleData;
 	local XComGameState_Ability AbilityState;
 	local X2AbilityTemplate AbilityTemplate;
 	local XComCHCommanderAction Action;
@@ -60,11 +62,13 @@ static function XComCHCommanderAction CreateFromAvailableAction (AvailableAction
 		return none;
 	}
 
+	BattleData = XComGameState_BattleData(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
 	Action = new class'XComCHCommanderAction';
 
 	Action.Id = GetActionNameForAbility(AbilityTemplate);
 	Action.sIcon = AbilityTemplate.IconImage;
 	Action.DisplayText = Caps(AbilityState.GetMyFriendlyName());
+	Action.bHighlight = BattleData.IsAbilityObjectiveHighlighted(AbilityTemplate);
 	Action.ActionInfo = InActionInfo;
 
 	return Action;
@@ -105,7 +109,7 @@ static function array<XComCHCommanderAction> ProcessCommanderAbilities (array<Av
 		CHAction = XComCHCommanderAction(TupleValue.o);
 		if (CHAction == none)
 		{
-			`Redscreen("ModifyCommanderActions listener supplied non-CHCommanderAction or none object - skipping");
+			`Redscreen("ModifyCommanderActions listener supplied non-XComCHCommanderAction or none object - skipping");
 			continue;
 		}
 
