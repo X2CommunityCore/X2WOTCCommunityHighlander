@@ -316,7 +316,7 @@ simulated function RefreshData()
 	UpdateList();
 
 	// Start Issue #402
-	`XEVENTMGR.TriggerEvent('OnSortFinished', , Self);
+	`XEVENTMGR.TriggerEvent('UIPersonnel_OnSortFinished', , Self);
 	// End Issue #402
 }
 
