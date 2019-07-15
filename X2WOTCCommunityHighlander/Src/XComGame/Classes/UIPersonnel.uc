@@ -81,17 +81,9 @@ var StateObjectReference SlotRef;
 var bool m_bRemoveWhenUnitSelected;
 var public delegate<OnPersonnelSelected> onSelectedDelegate;
 
-// Start Issue #402
-var public delegate<OnSortFinishedCallBack> OnSortFinished;
-// End Issue #402
-
 delegate OnPersonnelSelected(StateObjectReference selectedUnitRef);
 delegate OnButtonClickedDelegate(UIButton ButtonControl);
 delegate int SortDelegate(StateObjectReference A, StateObjectReference B);
-
-// Start Issue #402
-delegate OnSortFinishedCallBack();
-// End Issue #402
 
 //----------------------------------------------------------------------------
 // FUNCTIONS
@@ -324,10 +316,7 @@ simulated function RefreshData()
 	UpdateList();
 
 	// Start Issue #402
-	if (OnSortFinished != none)
-	{
-		OnSortFinished();
-	}
+	`XEVENTMGR.TriggerEvent('OnSortFinished', , Self);
 	// End Issue #402
 }
 
