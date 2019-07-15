@@ -249,7 +249,7 @@ function array<XComGameState_StaffSlot> GetAdjacentGhostCreatingStaffSlots()
 	
 	if (class'CHHelpers'.default.GremlinsAnywhere)
 	{
-		return class'Helper'.static.GetAllGhostCreators();
+		return GetAllGhostCreators();
 	}
 
 	AdjacentStaffSlots = GetAdjacentStaffSlots();
@@ -265,6 +265,88 @@ function array<XComGameState_StaffSlot> GetAdjacentGhostCreatingStaffSlots()
 
 	return AdjacentGhostCreatingStaffSlots;
 }
+// Start - Copy-pasted here to remove Helper class dependency
+static function array<XComGameState_StaffSlot> GetAllStaffSlots(optional bool FilledOnly = false)
+{
+	local XComGameStateHistory History;
+	local XComGameState_HeadquartersXCom XComHQ;
+	local XComGameState_FacilityXCom Facility;
+	local StateObjectReference FacilityRef;
+	local XComGameState_StaffSlot StaffSlot;
+	local array<XComGameState_StaffSlot> StaffSlots;
+	local int i;
+
+	History = `XCOMHISTORY;
+	XComHQ = class'UIUtilities_Strategy'.static.GetXComHQ();
+
+	foreach XComHQ.Facilities(FacilityRef)
+	{
+		Facility = XComGameState_FacilityXCom(History.GetGameStateForObjectID(FacilityRef.ObjectID));
+
+		for (i = 0; i < Facility.StaffSlots.Length; i++)
+		{
+			StaffSlot = Facility.GetStaffSlot(i);
+
+			if (FilledOnly)
+			{
+				if (Staffslot.IsSlotFilled())
+				{
+					StaffSlots.AddItem(StaffSlot);
+				}
+			}
+			else
+			{
+				StaffSlots.AddItem(StaffSlot);
+			}
+		}
+	}
+
+	return StaffSlots;
+}
+static function array<XComGameState_StaffSlot> GetAllGhosts()
+{
+	local XComGameStateHistory History;
+	local XComGameState_StaffSlot StaffSlot, GhostCreator;
+	local array<XComGameState_StaffSlot> GhostCreators, ActiveGhosts;
+    local StateObjectReference GhostRef;
+
+	History = `XCOMHISTORY;
+	GhostCreators = GetAllGhostCreators();
+
+	foreach GhostCreators(GhostCreator)
+	{
+		foreach GhostCreator.Ghosts(GhostRef)
+		{
+			StaffSlot = XComGameState_StaffSlot(History.GetGameStateForObjectID(GhostRef.ObjectID));
+
+			if (StaffSlot != none)
+			{
+				ActiveGhosts.AddItem(StaffSlot);
+			}
+		}
+	}
+
+	return ActiveGhosts;
+}
+static function array<XComGameState_StaffSlot> GetAllGhostCreators()
+{
+	local XComGameState_StaffSlot StaffSlot;
+	local array<XComGameState_StaffSlot> StaffSlots, GhostCreators;
+
+	// We only care about filled StaffSlots as empty slots do not produce ghosts by themselves
+	StaffSlots = GetAllStaffSlots(true);
+
+	foreach StaffSlots(StaffSlot)
+	{
+		if (StaffSlot.IsCreator())
+		{
+			GhostCreators.AddItem(StaffSlot);
+		}
+	}
+
+	return GhostCreators;
+}
+// End - Copy-pasted here to remove Helper class dependency
 // End Issue #424
 
 //---------------------------------------------------------------------------------------
