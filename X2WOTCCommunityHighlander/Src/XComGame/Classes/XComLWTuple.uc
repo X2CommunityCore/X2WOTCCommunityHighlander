@@ -3,12 +3,18 @@
 //  AUTHOR:  tracktwo / Pavonis Interactive
 //  PURPOSE: A general-purpose data structure for sharing information between mods.
 //
+// == IMPORTANT ==
+//
+// XComLWTuple is based on the original LWTuple that many other mods package themselves,
+// but it cannot be used interchangeably with that class. That means you *have* to use
+// XComLWTuple for community highlander hooks that rely on it.
+//
 // == DESCRIPTION ==
 //
 // LWTuple can be used to pass information between two mods without those mods needing to 
 // share any additional class types. Typically this information is passed using the XCOM2
 // event system: an event trigger passes an LWTuple as the EventData, and the listeners
-// can retreive this LWTuple. Data can be passed in both directions through this system,
+// can retrieve this LWTuple. Data can be passed in both directions through this system,
 // and the only type they both need to know about is LWTuple.
 //
 // LWTuples contain an id (a name) and an array of LWTValue values. The name is 
@@ -38,20 +44,6 @@
 // was not intended to receive data from more than one mod a conflict occurs and these mods
 // may be incompatible.
 //
-// == USAGE ==
-//
-// To make use of LWTuple in your mods, create a subfolder LW_Tuple under your mod's Src
-// folder, and a Classes folder under LW_Tuple. Copy this source file into that folder and
-// add it to your project. Then add the following lines to your XComEngine.ini config file:
-//
-// [UnrealEd.EditorEngine]
-// +ModEditPackages=LW_Tuple
-//
-// You can then refer to the LWTuple and LWTValue types in your code.
-//
-// DO NOT CHANGE THE CONTENTS OF THIS FILE IN YOUR MOD. In order for this system to work
-// all mods must agree on the definition of LWTuple. Different definitions of LWTuple in
-// different mods may lead to bugs or crashes.
 //---------------------------------------------------------------------------------------
 
 class XComLWTuple extends Object;
@@ -64,7 +56,18 @@ enum XComLWTValueKind
     XComLWTVFloat,
     XComLWTVString,
     XComLWTVName,
-    XComLWTVObject
+    XComLWTVObject,
+    XComLWTVVector,
+    XComLWTVRotator,
+    XComLWTVTile,
+    XComLWTVArrayObjects,
+    XComLWTVArrayInts,
+    XComLWTVArrayFloats,
+    XComLWTVArrayStrings,
+    XComLWTVArrayNames,
+    XComLWTVArrayVectors,
+    XComLWTVArrayRotators,
+    XComLWTVArrayTiles
 };
 
 // A single value stored in a tuple.
@@ -76,6 +79,17 @@ struct XComLWTValue
     var String s;
     var name n;
     var Object o;
+    var Vector v;
+    var Rotator r;
+    var TTile t;
+    var array<Object> ao;
+    var array<int> ai;
+    var array<float> af;
+    var array<string> as;
+    var array<name> an;
+    var array<Vector> av;
+    var array<Rotator> ar;
+    var array<TTile> at;
 
     var XComLWTValueKind kind;
 };
