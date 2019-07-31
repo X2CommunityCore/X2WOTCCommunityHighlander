@@ -141,9 +141,19 @@ static function array<XComCHCommanderAction> ProcessCommanderAbilities (array<Av
 			if (TupleValue.kind != XComLWTVObject) continue;
 
 			CHAction = XComCHCommanderAction(TupleValue.o);
+			
 			if (CHAction == none)
 			{
 				`Redscreen("ModifyCommanderActions listener supplied non-XComCHCommanderAction or none object - skipping");
+				continue;
+			}
+
+			if (CHAction.IsAbility() && !ValidateAbilityAction(CHAction, Abilities))
+			{
+				`Redscreen("ModifyCommanderActions listener modified AbilityInfo contents or created a new one. Ability Object ID -" @ CHAction.AbilityInfo.AbilityObjectRef.ObjectID);
+				`Redscreen("This is not allowed as it will ready to very inconsistent behaviour - you can only reorder or remove abilities");
+				`Redscreen("Please use the normal ability system to change any other values");
+				`Redscreen("");
 				continue;
 			}
 
@@ -152,4 +162,45 @@ static function array<XComCHCommanderAction> ProcessCommanderAbilities (array<Av
 	}
 
 	return CHActions;
+}
+
+static private function bool ValidateAbilityAction (XComCHCommanderAction CHAction, out array<AvailableAction> Abilities)
+{
+	local AvailableAction AbilityInfo;
+	local bool bFound;
+	local int i, j;
+
+	foreach Abilities(AbilityInfo, i)
+	{
+		if (CHAction.AbilityInfo.AbilityObjectRef.ObjectID == AbilityInfo.AbilityObjectRef.ObjectID)
+		{
+			bFound = true;
+			break;
+		}
+	}
+
+	if (!bFound) return false;
+
+	if (CHAction.AbilityInfo.AvailableTargetCurrIndex != AbilityInfo.AvailableTargetCurrIndex) return false;
+	if (CHAction.AbilityInfo.eAbilityIconBehaviorHUD != AbilityInfo.eAbilityIconBehaviorHUD) return false;
+	if (CHAction.AbilityInfo.AvailableTargets.Length != AbilityInfo.AvailableTargets.Length) return false;
+	if (CHAction.AbilityInfo.bInputTriggered != AbilityInfo.bInputTriggered) return false;
+	if (CHAction.AbilityInfo.AvailableCode != AbilityInfo.AvailableCode) return false;
+	if (CHAction.AbilityInfo.bFreeAim != AbilityInfo.bFreeAim) return false;
+
+	for (i = 0; i < AbilityInfo.AvailableTargets.Length; i++)
+	{
+		if (AbilityInfo.AvailableTargets[i].AdditionalTargets.Length != CHAction.AbilityInfo.AvailableTargets[i].AdditionalTargets.Length) return false;
+		if (AbilityInfo.AvailableTargets[i].PrimaryTarget != CHAction.AbilityInfo.AvailableTargets[i].PrimaryTarget) return false;
+
+		for (j = 0; j < AbilityInfo.AvailableTargets[i].AdditionalTargets.Length; j++)
+		{
+			if (AbilityInfo.AvailableTargets[i].AdditionalTargets[j] != CHAction.AbilityInfo.AvailableTargets[i].AdditionalTargets[j]) return false;
+		}
+	}
+
+	// All good
+
+	Abilities.Remove(i, 1);
+	return true;
 }
