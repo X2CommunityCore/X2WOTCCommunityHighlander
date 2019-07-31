@@ -8,7 +8,7 @@ var string DisplayText;
 var string Tooltip;
 var bool bHighlight;
 
-var AvailableAction ActionInfo; // Automatically used if OnActivated is none
+var AvailableAction AbilityInfo; // Automatically used if OnActivated is none
 var array<XComLWTuple> AdditionalData;
 
 delegate OnActivated (XComCHCommanderAction Action);
@@ -37,18 +37,48 @@ static function name GetActionNameForAbility (X2AbilityTemplate AbilityTemplate)
 	return name("Ability_" $ AbilityTemplate.DataName);
 }
 
+function bool IsPlaceEvac ()
+{
+	local X2AbilityTemplate AbilityTemplate;
+
+	AbilityTemplate = GetAbilityTemplate();
+	if (AbilityTemplate == none) return false;
+
+	return AbilityTemplate.DataName == 'PlaceEvacZone';
+}
+
+function bool IsAbility ()
+{
+	return OnActivated == none;
+}
+
+function XComGameState_Ability GetAbilityState ()
+{
+	return XComGameState_Ability(`XCOMHISTORY.GetGameStateForObjectID(AbilityInfo.AbilityObjectRef.ObjectID));
+}
+
+function X2AbilityTemplate GetAbilityTemplate ()
+{
+	local XComGameState_Ability AbilityState;
+
+	AbilityState = GetAbilityState();
+	if (AbilityState == none) return none;
+
+	return AbilityState.GetMyTemplate();
+}
+
 ////////////////
 /// Creation ///
 ////////////////
 
-static function XComCHCommanderAction CreateFromAvailableAction (AvailableAction InActionInfo)
+static function XComCHCommanderAction CreateFromAvailableAction (AvailableAction InAbilityInfo)
 {
 	local XComGameState_BattleData BattleData;
 	local XComGameState_Ability AbilityState;
 	local X2AbilityTemplate AbilityTemplate;
 	local XComCHCommanderAction Action;
 
-	AbilityState = XComGameState_Ability(`XCOMHISTORY.GetGameStateForObjectID(InActionInfo.AbilityObjectRef.ObjectID));
+	AbilityState = XComGameState_Ability(`XCOMHISTORY.GetGameStateForObjectID(InAbilityInfo.AbilityObjectRef.ObjectID));
 	if (AbilityState == none) 
 	{
 		`RedScreen("CHCommanderAction::CreateFromAvailableAction cannot find ability state");
@@ -69,7 +99,7 @@ static function XComCHCommanderAction CreateFromAvailableAction (AvailableAction
 	Action.sIcon = AbilityTemplate.IconImage;
 	Action.DisplayText = Caps(AbilityState.GetMyFriendlyName());
 	Action.bHighlight = BattleData.IsAbilityObjectiveHighlighted(AbilityTemplate);
-	Action.ActionInfo = InActionInfo;
+	Action.AbilityInfo = InAbilityInfo;
 
 	return Action;
 }
@@ -88,32 +118,37 @@ static function array<XComCHCommanderAction> ProcessCommanderAbilities (array<Av
 		CHActions.AddItem(CreateFromAvailableAction(Ability));
 	}
 
-	Tuple = new class'XComLWTuple';
-	Tuple.Id = 'ModifyCommanderActions';
-
-	foreach CHActions(CHAction)
+	// Skip the entire logic if we are in tutorial
+	// It can't be modifed by mods anyway, so preemptively avoid breaking it
+	if (!`REPLAY.bInTutorial)
 	{
-		TupleValue.kind = XComLWTVObject;
-		TupleValue.o = CHAction;
+		Tuple = new class'XComLWTuple';
+		Tuple.Id = 'ModifyCommanderActions';
 
-		Tuple.Data.AddItem(TupleValue);
-	}
-
-	`XEVENTMGR.TriggerEvent('ModifyCommanderActions', Tuple);
-	CHActions.Length = 0;
-
-	foreach Tuple.Data(TupleValue)
-	{
-		if (TupleValue.kind != XComLWTVObject) continue;
-
-		CHAction = XComCHCommanderAction(TupleValue.o);
-		if (CHAction == none)
+		foreach CHActions(CHAction)
 		{
-			`Redscreen("ModifyCommanderActions listener supplied non-XComCHCommanderAction or none object - skipping");
-			continue;
+			TupleValue.kind = XComLWTVObject;
+			TupleValue.o = CHAction;
+
+			Tuple.Data.AddItem(TupleValue);
 		}
 
-		CHActions.AddItem(CHAction);
+		`XEVENTMGR.TriggerEvent('ModifyCommanderActions', Tuple);
+		CHActions.Length = 0;
+
+		foreach Tuple.Data(TupleValue)
+		{
+			if (TupleValue.kind != XComLWTVObject) continue;
+
+			CHAction = XComCHCommanderAction(TupleValue.o);
+			if (CHAction == none)
+			{
+				`Redscreen("ModifyCommanderActions listener supplied non-XComCHCommanderAction or none object - skipping");
+				continue;
+			}
+
+			CHActions.AddItem(CHAction);
+		}
 	}
 
 	return CHActions;
