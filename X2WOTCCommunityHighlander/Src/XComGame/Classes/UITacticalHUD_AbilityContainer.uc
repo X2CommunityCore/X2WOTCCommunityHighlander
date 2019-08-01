@@ -1053,11 +1053,13 @@ simulated function UpdateAbilitiesArray()
 	
 	if (`ISCONTROLLERACTIVE)
 	{
+		// TODO
 		UITacticalHUD(screen).UpdateSkyrangerButton();
 	}
 	else
 	{
-		UITacticalHUD(screen).m_kMouseControls.SetCommandAbilities(arrCommandAbilities);
+		//UITacticalHUD(screen).m_kMouseControls.SetCommandAbilities(arrCommandAbilities);
+		UITacticalHUD(screen).m_kMouseControls.CommanderActions = class'XComCHCommanderAction'.static.ProcessCommanderAbilities(arrCommandAbilities);
 		UITacticalHUD(screen).m_kMouseControls.UpdateControls();
 	}
 
