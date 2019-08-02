@@ -780,7 +780,8 @@ private function RefreshAvailableCovertActions(XComGameState NewGameState, out a
 				ExclusionList.Find(ActionTemplate.DataName) == INDEX_NONE)
 			{
 				if (!ActionTemplate.bGoldenPath && (ActionTemplate.RequiredFactionInfluence <= Influence || ActionTemplate.bDisplayIgnoresInfluence) &&
-					(!ActionTemplate.bUnique || CompletedCovertActions.Find(ActionTemplate.DataName) == INDEX_NONE))
+					(!ActionTemplate.bUnique || CompletedCovertActions.Find(ActionTemplate.DataName) == INDEX_NONE) &&
+					 /* Issue #594 */ AllowActionToSpawnRandomly(ActionTemplate, NewGameState))
 				{
 					// Add to the list of possible covert actions
 					AvailableCovertActions.AddItem(ActionTemplate.DataName);
@@ -789,6 +790,25 @@ private function RefreshAvailableCovertActions(XComGameState NewGameState, out a
 		}
 	}
 }
+
+// Start issue #594
+protected function bool AllowActionToSpawnRandomly (X2CovertActionTemplate ActionTemplate, XComGameState NewGameState)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'AllowActionToSpawnRandomly';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = true;
+	Tuple.Data[1].kind = XComLWTVObject;
+	Tuple.Data[1].o = ActionTemplate;
+
+	`XEVENTMGR.TriggerEvent('AllowActionToSpawnRandomly', Tuple, self, NewGameState);
+ 
+	return Tuple.Data[0].b;
+}
+// End issue #373
 
 //---------------------------------------------------------------------------------------
 function AddNewCovertActions(XComGameState NewGameState, int NumActionsToCreate, out array<Name> ExclusionList)
