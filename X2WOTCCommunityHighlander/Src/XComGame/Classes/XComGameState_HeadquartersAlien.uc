@@ -1947,7 +1947,7 @@ function UpdateDarkEvents()
 	{
 		DarkEventState = XComGameState_DarkEvent(History.GetGameStateForObjectID(AlienHQ.ChosenDarkEvents[idx].ObjectID));
 
-		if(DarkEventState != none && class'X2StrategyGameRulesetDataStructures'.static.LessThan(DarkEventState.EndDateTime, `STRATEGYRULES.GameTime))
+		if(DarkEventState != none && /* Issue #596 */ !DarkEventState.bTemporaryPreventCompletion && class'X2StrategyGameRulesetDataStructures'.static.LessThan(DarkEventState.EndDateTime, `STRATEGYRULES.GameTime))
 		{
 			DarkEventState = XComGameState_DarkEvent(NewGameState.ModifyStateObject(class'XComGameState_DarkEvent', DarkEventState.ObjectID));
 

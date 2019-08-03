@@ -22,6 +22,7 @@ var TDateTime						   StartDateTime;
 var TDateTime						   EndDateTime;
 var float							   TimeRemaining;
 var StrategyCost					   RevealCost;
+var bool							   bTemporaryPreventCompletion; // Issue #596
 
 var localized string				   SecretTitle;
 var localized string				   SecretSummary;

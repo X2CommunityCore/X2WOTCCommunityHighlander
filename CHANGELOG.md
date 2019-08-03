@@ -125,6 +125,8 @@ RunPriorityGroup=RUN_STANDARD
   overwriting all the necessary entries (#410)
 - Removed `protectedwrite` from `AcquiredTraits`, `PendingTraits`, and `CuredTraits` in `XComGameState_Unit`, allowing Traits to be modified by external sources (#681)
 - Added `X2CovertActionTemplate::bCanNeverBeRookie` to allow mods to forbid a CA from being marked as a rookie one (#695)
+- Added `XComGameState_DarkEvent.bTemporaryPreventCompletion` to allow mods to temporary prevent DEs from completing
+  even if the time has come (#596)
 
 ### Configuration
 - Allow disabling of Factions being initialized on startup by
