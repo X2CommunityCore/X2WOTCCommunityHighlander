@@ -142,6 +142,9 @@ RunPriorityGroup=RUN_STANDARD
 - Allow Mods/DLC to modify encounters after creation (#136)
 - Allow Mods/DLC to modify encounters generated as reinforcements (#278)
 - Allow Mods/DLC to alter mission data after SitRep creation (#157)
+- Add an array of `OverrideFinalHitChance` function delegates to `X2AbilityToHitCalc`
+  that mods can add functions to in order to override the default logic for handling
+  hits, grazes and crits (#555)
 
 ### Event Hooks
 

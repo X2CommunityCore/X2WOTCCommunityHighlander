@@ -12,6 +12,19 @@ class X2AbilityToHitCalc extends Object
 
 var() array<ShotModifierInfo> HitModifiers;       // Configured in the ability template to provide always-on modifiers.
 
+// Start Issue #555
+//
+// Mods can add their own matching functions to this array within
+// OnPostTemplatesCreated() in order to modify or override the default
+// logic within FinalizeHitChance(). As an example, Long War of the Chosen
+// adds its own function to implement the graze band mechanic.
+//
+// Delegate functions should return `true` if they want to override the
+// default logic, or false if the logic should execute.
+var array< delegate<OverrideFinalHitChance> > OverrideFinalHitChanceFns;
+
+delegate bool OverrideFinalHitChance(X2AbilityToHitCalc AbilityToHitCalc, out ShotBreakdown ShotBreakdown);
+// End Issue #555
 
 function RollForAbilityHit(XComGameState_Ability kAbility, AvailableTarget kTarget, out AbilityResultContext ResultContext);
 protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTarget kTarget, optional out ShotBreakdown m_ShotBreakdown, optional bool bDebugLog=false);
@@ -63,6 +76,25 @@ protected function FinalizeHitChance(out ShotBreakdown m_ShotBreakdown, bool bDe
 	local EAbilityHitResult HitResult;
 	local float GrazeScale;
 	local int FinalGraze;
+	// Vars for Issue #555
+	local bool OverrideHitChanceCalc;
+	local delegate<OverrideFinalHitChance> OverrideFn;
+	// End Issue #555
+
+	// Start Issue #555
+	OverrideHitChanceCalc = false;
+	foreach OverrideFinalHitChanceFns(OverrideFn)
+	{
+		OverrideHitChanceCalc = OverrideHitChanceCalc || OverrideFn(self, m_ShotBreakdown);
+	}
+
+	// If any of the delegate functions returns true, then we skip the default
+	// processing of the hit chance.
+	if (OverrideHitChanceCalc)
+	{
+		return;
+	}
+	// End Issue #555
 
 	`log("==" $ GetFuncName() $ "==\n", bDebugLog, 'XCom_HitRolls');
 	`log("Starting values...", bDebugLog, 'XCom_HitRolls');
