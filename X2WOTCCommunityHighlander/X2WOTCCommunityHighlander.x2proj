@@ -122,6 +122,9 @@
     <Content Include="Src\XComGame\Classes\UIAbilityInfoScreen.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIAfterAction.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIAfterAction_ListItem.uc">
       <SubType>Content</SubType>
     </Content>
