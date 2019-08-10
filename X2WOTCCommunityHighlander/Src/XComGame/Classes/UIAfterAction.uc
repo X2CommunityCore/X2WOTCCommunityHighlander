@@ -713,25 +713,60 @@ simulated function string GetPromotionBlueprintTag(StateObjectReference UnitRef)
 		if(XComHQ.Squad[i].ObjectID == UnitRef.ObjectID)
 		{
 			UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(XComHQ.Squad[i].ObjectID));
+			// Start Issue #600
 			if (UnitState.GetResistanceFaction() != none)
 			{
 				if (UnitState.IsGravelyInjured())
-					return UIBlueprint_PrefixHero_Wounded $ i;
+					return TriggerOverridePromotionBlueprintTagPrefix(UnitState, UIBlueprint_PrefixHero_Wounded) $ i;
 				else
-					return UIBlueprint_PrefixHero $ i;
+					return TriggerOverridePromotionBlueprintTagPrefix(UnitState, UIBlueprint_PrefixHero) $ i;
 			}
 			else
 			{
 				if (UnitState.IsGravelyInjured())
-					return UIBlueprint_Prefix_Wounded $ i;
+					return TriggerOverridePromotionBlueprintTagPrefix(UnitState, UIBlueprint_Prefix_Wounded) $ i;
 				else
-					return UIBlueprint_Prefix $ i;
+					return TriggerOverridePromotionBlueprintTagPrefix(UnitState, UIBlueprint_Prefix) $ i;
 			}
+			// End Issue #600
 		}
 	}
 
 	return "";
 }
+
+// Start Issue #600
+//
+// Fires an 'OverridePromotionBlueprintTagPrefix' event that allows mods to override
+// the promotion blueprint tag prefix for the after action screen. This means that
+// mods can ensure the camera is positioned properly when displaying their custom
+// promotion screen during the post-mission cinematic.
+//
+// The event itself takes the form:
+//
+//   {
+//      ID: OverridePromotionBlueprintTagPrefix,
+//      Data: [in XComGameState_Unit UnitState, inout string TagPrefix],
+//      Source: self (UIAfterAction)
+//   }
+//
+simulated function string TriggerOverridePromotionBlueprintTagPrefix(XComGameState_Unit UnitState, string TagPrefix)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverridePromotionBlueprintTagPrefix';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].Kind = XComLWTVObject;
+	Tuple.Data[0].o = UnitState;
+	Tuple.Data[1].Kind = XComLWTVString;
+	Tuple.Data[1].s = TagPrefix;
+
+	`XEVENTMGR.TriggerEvent(Tuple.Id, Tuple, self);
+
+	return Tuple.Data[1].s;
+}
+// End Issue #600
 
 simulated function ClearPawns()
 {
