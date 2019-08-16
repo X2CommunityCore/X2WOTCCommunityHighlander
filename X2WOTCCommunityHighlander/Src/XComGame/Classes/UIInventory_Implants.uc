@@ -131,7 +131,7 @@ simulated function bool CanEquipImplant(StateObjectReference ImplantRef)
 			return false;
 	}
 
-	return class'UIUtilities_Strategy'.static.GetStatBoost(Implant).StatType != eStat_PsiOffense || Unit.IsPsiOperative();
+	return class'UIUtilities_Strategy'.static.GetStatBoost(Implant).StatType != eStat_PsiOffense || Unit.GetCurrentStat(eStat_PsiOffense) > 0; // # Issue 602
 }
 
 simulated function SelectedItemChanged(UIList ContainerList, int ItemIndex)
