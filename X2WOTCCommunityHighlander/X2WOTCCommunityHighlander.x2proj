@@ -113,6 +113,9 @@
     <Content Include="Src\XComGame\Classes\SeqAct_GetPawnFromSaveData.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\SeqAct_SpawnUnitFromAvenger.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIAbilityInfoScreen.uc">
       <SubType>Content</SubType>
     </Content>
