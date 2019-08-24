@@ -1633,9 +1633,30 @@ function CreateBodyPartAttachment(XComBodyPartContent BodyPartContent)
 {
 	local SkeletalMeshComponent SkelMeshComp;
 	local XComPawnPhysicsProp PhysicsProp;
+	local XComBodyPartContentAdvanced AdvancedContent;
+	local Actor Archetype, Instance;
+	local Vector SocketLocation;
+	local Rotator SocketRotation;
 
 	if (BodyPartContent == none)
 		return;
+
+	AdvancedContent = XComBodyPartContentAdvanced(BodyPartContent);
+	if (AdvancedContent != none)
+	{
+		foreach AdvancedContent.Archetypes(Archetype)
+		{
+		    Mesh.GetSocketWorldLocationAndRotation(BodyPartContent.SocketName, SocketLocation, SocketRotation);
+			Instance = Spawn(Archetype.Class,,, SocketLocation, SocketRotation, Archetype);
+
+			if (Instance != None)
+			{
+				Instance.SetBase(self,, Mesh, BodyPartContent.SocketName);
+			}
+		}
+
+		return;
+	}
 
 	if( BodyPartContent.SocketName != '' && Mesh.GetSocketByName(BodyPartContent.SocketName) != none )
 	{
@@ -1688,6 +1709,25 @@ function RemoveBodyPartAttachment(XComBodyPartContent BodyPartContent)
 {
 	local int AttachmentIndex;
 	local SkeletalMeshComponent AttachedMesh;
+	local XComBodyPartContentAdvanced AdvancedContent;
+	local Actor AttachedActor, Archetype;
+	
+	AdvancedContent = XComBodyPartContentAdvanced(BodyPartContent);
+	if (AdvancedContent != none)
+	{
+		foreach Attached(AttachedActor)
+		{
+			foreach AdvancedContent.Archetypes(Archetype)
+			{
+				if (AttachedActor.ObjectArchetype == Archetype)
+				{
+					AttachedActor.Destroy();
+				}
+			}
+		}
+
+		return;
+	}
 
 	if( BodyPartContent.SkeletalMesh != None )
 	{
@@ -1774,6 +1814,18 @@ simulated function ResetIKTranslations()
 simulated event Destroyed ()
 {
 	super.Destroyed();
+
+	DestroyAttachedActors();
+}
+
+simulated function DestroyAttachedActors()
+{
+	local Actor Actor;
+
+	foreach Attached(Actor)
+	{
+		Actor.Destroy();
+	}
 }
 
 simulated function int GetCurrentFloor()
