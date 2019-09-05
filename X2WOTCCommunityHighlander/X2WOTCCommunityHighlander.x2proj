@@ -308,6 +308,9 @@
     <Content Include="Src\XComGame\Classes\UIUtilities_Strategy.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIX2PanelHeader.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2AbilityTag.uc">
       <SubType>Content</SubType>
     </Content>
