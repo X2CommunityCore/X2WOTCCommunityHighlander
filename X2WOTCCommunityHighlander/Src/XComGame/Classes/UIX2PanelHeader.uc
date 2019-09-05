@@ -14,6 +14,8 @@ var string label;
 var int headerWidth;
 var bool flipped;
 
+var bool bRealizeOnSetText; // Issue #613
+
 simulated function UIX2PanelHeader InitPanelHeader( optional name InitName, optional string initTitle, optional string initLabel )
 {
 	InitPanel(InitName);
@@ -46,6 +48,13 @@ simulated function SetText( optional string theTitle, optional string theLabel )
 		mc.QueueString(title);
 		mc.QueueString(label);
 		mc.EndOp();
+
+		// Start issue #613
+		if (bRealizeOnSetText)
+		{
+			MC.FunctionVoid("realize");
+		}
+		// End issue #613
 	}
 }
 
