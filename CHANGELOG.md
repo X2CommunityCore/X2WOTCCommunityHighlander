@@ -246,6 +246,8 @@ RunPriorityGroup=RUN_STANDARD
   a pod tries to patrol to any of them (#508)
 - Make disorient reapply to disoriented units so that things like flashbangs can
   still remove overwatch from disoriented units (#475)
+- Fix rocket targeting so that it isn't always unobstructed when the shooter has
+  a valid step-out tile (#617)
 
 
 ## Miscellaneous
