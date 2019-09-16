@@ -473,6 +473,9 @@
     <Content Include="Src\XComGame\Classes\XComGameState_HeadquartersProjectPsiTraining.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_HeadquartersProjectRespecSoldier.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_HeadquartersResistance.uc">
       <SubType>Content</SubType>
     </Content>
