@@ -90,7 +90,8 @@ RunPriorityGroup=RUN_STANDARD
   other ways than just the tooltip and image (#537)
 - Triggers the event `MissionIconSetScanSite` to allow mods to customize a scan site's icon in other
   ways than just the tooltip and image (#537)
-
+- Triggers the event `OverrideScienceScore` to allow mods to override the XCOM HQ science score, for
+  example to add their own bonuses or to remove scientists that are engaged in other activities.
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)

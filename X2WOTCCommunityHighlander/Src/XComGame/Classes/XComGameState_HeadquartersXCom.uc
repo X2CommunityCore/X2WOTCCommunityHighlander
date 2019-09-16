@@ -2645,8 +2645,48 @@ function int GetScienceScore(optional bool bAddLabBonus = false)
 		}
 	}
 
-	return Score;
+	// Start Issue #626
+	return TriggerOverrideScienceScore(Score, bAddLabBonus);
+	// End Issue #626
 }
+
+// Start Issue #626
+//
+// Fires an 'OverrideScienceScore' event that allows listeners to override
+// the current science score, for example to apply bonuses or to remove scientists
+// that are on other jobs. If the `AddLabBonus` is true, then the game is
+// calculating the actual science score contributing to tech research progress.
+// If it's false, then the game is just checking whether a tech's or item's
+// science score requirement has been met.
+//
+// The event takes the form:
+//
+//  {
+//     ID: OverrideScienceScore,
+//     Data: [inout int ScienceScore, in bool AddLabBonus],
+//     Source: self (XCGS_HeadquartersXCom)
+//  }
+//
+// This function returns the new science score (or the original one if no listeners
+// modified it).
+//
+function int TriggerOverrideScienceScore(int BaseScienceScore, bool AddLabBonus)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideScienceScore';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].Kind = XComLWTVInt;
+	OverrideTuple.Data[0].i = BaseScienceScore;
+	OverrideTuple.Data[1].Kind = XComLWTVBool;
+	OverrideTuple.Data[1].b = AddLabBonus;
+
+	`XEVENTMGR.TriggerEvent('OverrideScienceScore', OverrideTuple, self);
+
+	return OverrideTuple.Data[0].i;
+}
+// End Issue #626
 
 //---------------------------------------------------------------------------------------
 native function bool IsUnitInSquad(StateObjectReference UnitRef);
