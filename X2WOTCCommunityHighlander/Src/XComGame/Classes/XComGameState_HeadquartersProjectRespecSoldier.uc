@@ -25,7 +25,9 @@ function SetProjectFocus(StateObjectReference FocusRef, optional XComGameState N
 	//UnitState.PsiTrainingRankReset();
 	UnitState.SetStatus(eStatus_Training);
 	
-	ProjectPointsRemaining = CalculatePointsToRespec();
+	// Start Issue #624
+	ProjectPointsRemaining = TriggerOverrideRespecSoldierProjectPoints(UnitState, CalculatePointsToRespec());
+	// End Issue #624
 	InitialProjectPoints = ProjectPointsRemaining;
 
 	UpdateWorkPerHour(NewGameState);
@@ -50,6 +52,43 @@ function SetProjectFocus(StateObjectReference FocusRef, optional XComGameState N
 		CompletionDateTime.m_iYear = 9999;
 	}
 }
+
+// Start Issue #624
+//
+// Triggers an 'OverrideRespecSoldierProjectPoints' event that allows listeners to
+// override the number of project points, i.e. time, required to respec a given
+// soldier.
+//
+// The listener is passed the soldier that is to be respecced and the current
+// project points required, either from the base game's config or from a listener
+// that has fired earlier. To override the project points, the listener simply
+// needs to provide a new value for the ProjectPoints element of the tuple.
+//
+// The event itself takes the form:
+//
+//   {
+//      ID: OverrideRespecSoldierProjectPoints,
+//      Data: [in XComGameState_Unit Unit, inout int ProjectPoints],
+//      Source: self (XComGameState_HeadquartersProjectRespecSoldier)
+//   }
+//
+function int TriggerOverrideRespecSoldierProjectPoints(XComGameState_Unit UnitState, int ProjectPoints)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideRespecSoldierProjectPoints';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].kind = XComLWTVObject;
+	OverrideTuple.Data[0].o = UnitState;
+	OverrideTuple.Data[1].kind = XComLWTVInt;
+	OverrideTuple.Data[1].i = ProjectPoints;
+
+	`XEVENTMGR.TriggerEvent('OverrideRespecSoldierProjectPoints', OverrideTuple, self);
+
+	return OverrideTuple.Data[1].i;
+}
+// End Issue #624
 
 //---------------------------------------------------------------------------------------
 function int CalculatePointsToRespec()
