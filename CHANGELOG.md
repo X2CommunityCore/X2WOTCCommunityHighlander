@@ -90,7 +90,8 @@ RunPriorityGroup=RUN_STANDARD
   other ways than just the tooltip and image (#537)
 - Triggers the event `MissionIconSetScanSite` to allow mods to customize a scan site's icon in other
   ways than just the tooltip and image (#537)
-
+- Triggers the event `OverrideShowPromoteIcon` to allow mods to override whether the promotion icon is
+  displayed for a given soldier or not (#631)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
