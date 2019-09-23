@@ -6879,6 +6879,15 @@ function CheckForInspiredTechs(XComGameState NewGameState)
 			if (!TechTemplate.bCheckForceInstant && AvailableTechState.TimeReductionScalar < 0.001f && !HasPausedProject(AvailableTechRefs[TechIndex]) &&
 				MeetsRequirmentsAndCanAffordCost(TechTemplate.Requirements, TechTemplate.Cost, default.ResearchCostScalars, , TechTemplate.AlternateRequirements))
 			{
+				// Start Issue #633
+				//
+				// Check with mods to determine whether this tech can be inspired or not.
+				if (!TriggerCanTechBeInspired(AvailableTechState))
+				{
+					continue;
+				}
+				// End Issue #633
+
 				AvailableTechState = XComGameState_Tech(NewGameState.ModifyStateObject(class'XComGameState_Tech', AvailableTechState.ObjectID));
 				AvailableTechState.bInspired = true;
 				AvailableTechState.TimeReductionScalar = ((default.MinInspiredTechTimeReduction + `SYNC_RAND(default.MaxInspiredTechTimeReduction - default.MinInspiredTechTimeReduction + 1)) / 100.0f);
@@ -6901,6 +6910,38 @@ function CheckForInspiredTechs(XComGameState NewGameState)
 		}
 	}
 }
+
+// Start Issue #633
+//
+// Fires a 'CanTechBeInspired' event that allows mods to determine whether a tech
+// can be inspired or not. If the bool property in the event data is `true`, then
+// the tech can be inspired, otherwise it's not eligible.
+//
+// The event takes the form:
+//
+//   {
+//      ID: CanTechBeInspired,
+//      Data: [in XCGS_Tech Tech, inout bool CanBeInspired],
+//      Source: self (XCGS_HeadquartersXCom)
+//   }
+//
+function bool TriggerCanTechBeInspired(XComGameState_Tech TechState)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'CanTechBeInspired';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].Kind = XComLWTVObject;
+	Tuple.Data[0].o = TechState;
+	Tuple.Data[1].Kind = XComLWTVBool;
+	Tuple.Data[1].b = true;
+
+	`XEVENTMGR.TriggerEvent('CanTechBeInspired', Tuple, self);
+
+	return Tuple.Data[1].b;
+}
+// End Issue #633
 
 private function bool CanActivateBreakthroughTech()
 {
