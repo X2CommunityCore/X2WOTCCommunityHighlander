@@ -1927,6 +1927,23 @@ simulated function TriggerOverrideMissionSiteIconImage(out string ImagePath)
 }
 // End Issue #537
 
+// Start issue #635
+function GetMissionImage ()
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideMissionImage';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].Kind = XComLWTVString;
+	Tuple.Data[0].s = GetMissionSource().MissionImage; // Vanilla logic
+
+	`XEVENTMGR.TriggerEvent('OverrideMissionImage', Tuple, self);
+
+	return Tuple.Data[0].s;
+}
+// End issue #635
+
 //---------------------------------------------------------------------------------------
 function UpdateSitrepTags()
 {

@@ -90,6 +90,7 @@ RunPriorityGroup=RUN_STANDARD
   other ways than just the tooltip and image (#537)
 - Triggers the event `MissionIconSetScanSite` to allow mods to customize a scan site's icon in other
   ways than just the tooltip and image (#537)
+- Triggers the event `OverrideMissionImage` to allow mods to customize mission's image (used in UIMission and subclasses) (#635)
 
 
 ### Modding Exposures
