@@ -1928,7 +1928,7 @@ simulated function TriggerOverrideMissionSiteIconImage(out string ImagePath)
 // End Issue #537
 
 // Start issue #635
-function GetMissionImage ()
+function string GetMissionImage ()
 {
 	local XComLWTuple Tuple;
 
