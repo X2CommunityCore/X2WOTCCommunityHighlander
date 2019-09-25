@@ -87,7 +87,10 @@ simulated function PopulateData()
 		`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);	
 	else
 		`XCOMHISTORY.CleanupPendingGameState(NewGameState);
-		
+	
+	// Issue #TODO
+	`XEVENTMGR.TriggerEvent('AfterActionModifyRecoveredLoot',, self);
+
 	XComHQ = class'UIUtilities_Strategy'.static.GetXComHQ(true); // Refresh XComHQ
 	LootList = XComHQ.LootRecovered;
 
