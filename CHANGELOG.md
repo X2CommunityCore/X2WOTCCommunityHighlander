@@ -97,6 +97,7 @@ RunPriorityGroup=RUN_STANDARD
 - UIScanButton now calls OnMouseEventDelegate (#483). Note: DO NOT call ProcessMouseEvents, just set the delegate directly
 - Remove `private` from `X2AIBTBehaviorTree.Behaviors` so that mods can change the behavior trees without
   overwriting all the necessary entries (#410)
+- UIScanButton can now work properly when it's a grandchild of UIStrategyMapItem, not only when direct child (#638)
 
 ### Configuration
 - Allow disabling of Factions being initialized on startup by
