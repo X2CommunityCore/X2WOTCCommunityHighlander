@@ -90,7 +90,8 @@ RunPriorityGroup=RUN_STANDARD
   other ways than just the tooltip and image (#537)
 - Triggers the event `MissionIconSetScanSite` to allow mods to customize a scan site's icon in other
   ways than just the tooltip and image (#537)
-
+- Triggers the event `CanTechBeInspired` to allow mods to block techs from being inspired, even if they
+  meet the vanilla game's conditions for it (#633)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
