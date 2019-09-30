@@ -104,6 +104,7 @@ enum EInventorySlot
 	eInvSlot_ExtraRocket3,
 	eInvSlot_ExtraRocket4,
 	eInvSlot_Pistol,
+	eInvSlot_Wings,
 
 	// Marker slot, don't use
 	eInvSlot_END_TEMPLATED_SLOTS,
