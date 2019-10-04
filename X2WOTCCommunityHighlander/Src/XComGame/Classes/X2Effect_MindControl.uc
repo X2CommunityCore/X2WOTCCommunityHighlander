@@ -126,6 +126,10 @@ simulated function OnEffectRemoved(const out EffectAppliedData ApplyEffectParame
 		}
 	}
 	UpdateAIData(NewGameState, UnitState, false);
+
+	// Start Issue #643
+	`XEVENTMGR.TriggerEvent('MindControlLost', UnitState, UnitState, NewGameState);
+	// End Issue #643
 }
 
 simulated function AddX2ActionsForVisualization(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata, name EffectApplyResult)
