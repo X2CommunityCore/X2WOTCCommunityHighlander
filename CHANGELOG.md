@@ -246,7 +246,8 @@ RunPriorityGroup=RUN_STANDARD
   a pod tries to patrol to any of them (#508)
 - Make disorient reapply to disoriented units so that things like flashbangs can
   still remove overwatch from disoriented units (#475)
-
+- Prevent patrolling enemy units from teleporting behind XCOM and revealing the
+  squad (#644)
 
 ## Miscellaneous
 

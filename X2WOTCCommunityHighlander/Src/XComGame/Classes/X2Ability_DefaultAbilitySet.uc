@@ -412,6 +412,23 @@ simulated static function XComGameState MoveAbility_BuildInterruptGameState( XCo
 				{
 					class'Helpers'.static.RemoveTileSubset(ValidTileList, ValidTileList, OccupiedTiles);
 				}
+
+				// Start Issue #644
+				//
+				// Borrowed this implementation from the original LW2, which fixed the bug with patrolling
+				// units teleporting behind XCOM here. See this Reddit comment for some more info:
+				//
+				//  https://www.reddit.com/r/Xcom/comments/5qnob0/lw2_particularly_deadly_teleport_bug_on_supply/dd0uhjk/
+				//
+				// Old LWS comment: handle use case where ValidTileList has been reduced to 0 elements.
+				// Allow units to occupy same tile in this case reset the ValidTilesList back to the default,
+				// so that a tile will be selected instead of allowing a (0,0,0) tiles to be entered by default
+				if (ValidTileList.Length == 0)
+				{
+					ValidTileList = AbilityContext.InputContext.MovementPaths[MovingUnitIndex].MovementTiles;
+				}
+				// End Issue #644
+
 				NumMovementTiles = ValidTileList.Length;
 				UseInterruptStep = Min(InterruptStep, NumMovementTiles - 1);
 
