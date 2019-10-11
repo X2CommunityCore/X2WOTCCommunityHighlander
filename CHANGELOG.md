@@ -246,7 +246,8 @@ RunPriorityGroup=RUN_STANDARD
   a pod tries to patrol to any of them (#508)
 - Make disorient reapply to disoriented units so that things like flashbangs can
   still remove overwatch from disoriented units (#475)
-
+- Fix issue where trying to break out of a hack that has already been started using the
+  Esc key or the right mouse button bypasses Haywire's cooldown (#648)
 
 ## Miscellaneous
 
