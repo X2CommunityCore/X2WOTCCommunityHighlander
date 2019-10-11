@@ -90,6 +90,7 @@ RunPriorityGroup=RUN_STANDARD
   other ways than just the tooltip and image (#537)
 - Triggers the event `MissionIconSetScanSite` to allow mods to customize a scan site's icon in other
   ways than just the tooltip and image (#537)
+- Triggers the event `WillRecoveryTimeModifier` to allow mods to add a modifier to will recovery time project (#650)
 
 
 ### Modding Exposures
