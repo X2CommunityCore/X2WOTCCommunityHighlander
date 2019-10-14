@@ -3506,6 +3506,10 @@ Begin:
 		Pres.UINarrative(TutorialIntro);		
 	}
 
+	//Start Issue #647
+	UpdateDLCLoadingTacticalGame();
+	//End Issue #647
+
 	//Movie handline - for both the tutorial and normal loading
 	while(class'XComEngine'.static.IsAnyMoviePlaying() && !class'XComEngine'.static.IsLoadingMoviePlaying())
 	{
@@ -5530,6 +5534,24 @@ simulated function name GetNextTurnPhase(name CurrentState, optional name Defaul
 	`assert(false);
 	return DefaultPhaseName;
 }
+
+
+//Start issue #647
+function UpdateDLCLoadingTacticalGame()
+{
+	local XComOnlineEventMgr EventManager;
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local int i;
+
+	EventManager = `ONLINEEVENTMGR;
+	DLCInfos = EventManager.GetDLCInfos(false);
+	for (i = 0; i < DLCInfos.Length; ++i)
+	{
+		DLCInfos[i].OnLoadedSavedGameToTactical();
+	}
+}
+//End issue #647
+
 
 function StateObjectReference GetCachedUnitActionPlayerRef()
 {
