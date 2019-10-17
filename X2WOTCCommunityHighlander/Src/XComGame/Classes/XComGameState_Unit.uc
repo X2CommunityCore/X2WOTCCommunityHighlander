@@ -80,6 +80,17 @@ enum EIdleTurretState
 	eITS_XCom_ActiveAlerted,	// XCom-controlled active state, has no targets visible.
 };
 
+//Begin Issue #313
+struct StatModifier
+{
+	var XComGameState_Effect Mod;
+	var float StatAmount;
+	var EStatModOp ModOp;
+	var float fModValue;
+	var int iModValue;
+	var float fError;
+};
+//End Issue #313
 //*******************************************
 
 var() protected name                             m_TemplateName;
@@ -341,8 +352,9 @@ var transient bool bHandlingAsyncRequests;
 
 var private transient int CachedUnitDataStateObjectId;
 
-
-var private bool bEverAppliedFirstTimeStatModifiers;
+// Start Issue #546
+var bool bEverAppliedFirstTimeStatModifiers;
+// End Issue #546
 
 delegate OnUnitPawnCreated( XComGameState_Unit Unit);
 
@@ -1395,6 +1407,16 @@ function PostCreateInit(XComGameState NewGameState, X2CharacterTemplate kTemplat
 		}
 	}
 
+	// Start Issue #343
+	// If we aren't a human pawn, our armor and weapon tint will get
+	// initialized to 0 (instead of -1 or 20). Recover from this here.
+	if (!kTemplate.bAppearanceDefinesPawn)
+	{
+		kAppearance.iWeaponTint = (kAppearance.iWeaponTint == 0) ? INDEX_NONE : kAppearance.iWeaponTint;
+		kAppearance.iArmorTint = (kAppearance.iArmorTint == 0) ? INDEX_NONE : kAppearance.iArmorTint;
+	}
+	// End Issue #343
+
 	if( CharGen != none )
 	{
 		CharGen.Destroy();
@@ -2292,6 +2314,14 @@ function OnBeginTacticalPlay(XComGameState NewGameState)
 	}
 
 	bRequiresVisibilityUpdate = true;
+
+	// Start Issue #557
+	//
+	// Reset the body recovered flag. A unit that was previously carried to evac while KO'd/bleeding
+	// out will have this flag set, and this flag prevents units from being carried. If this unit
+	// gets KO'd again, they won't be able to be picked up if this flag is still set.
+	bBodyRecovered = false;
+	// End Issue #557
 }
 
 function ApplyFirstTimeStatModifiers()
@@ -5158,7 +5188,8 @@ function GetStatusStringsSeparate(out string Status, out string TimeLabel, out i
 {
 	local bool bProjectExists;
 	local int iHours, iDays;
-	
+	local int iDoTimeConversion;  // Issue #322
+
 	if( IsInjured() )
 	{
 		Status = GetWoundStatus(iHours);
@@ -5186,7 +5217,16 @@ function GetStatusStringsSeparate(out string Status, out string TimeLabel, out i
 		Status = "";
 	}
 	
-	if (bProjectExists)
+	// Start Issue #322
+	//
+	// Allow mods to override the duration and label. If listeners want to
+	// delegate the hours/days handling to the highlander, i.e. iDoTimeConversion
+	// is true, then the TimeValue must be a value in hours.
+	iDoTimeConversion = bProjectExists ? 1 : 0;
+	TriggerCustomizeStatusStringsSeparate(Status, TimeLabel, TimeValue, iDoTimeConversion);
+	// End Issue #322
+	
+	if (iDoTimeConversion != 0)  // Issue #322: Add iDoTimeConversion check
 	{
 		iDays = iHours / 24;
 
@@ -5195,10 +5235,73 @@ function GetStatusStringsSeparate(out string Status, out string TimeLabel, out i
 			iDays += 1;
 		}
 
-		TimeValue = iDays;
-		TimeLabel = class'UIUtilities_Text'.static.GetDaysString(iDays);
+		// Issue #322
+		//
+		// Let listeners override label and time value. If label is still empty,
+		// assume that the values aren't overridden. This is on the basis that
+		// any time should have a label.
+		TimeLabel = "";
+		TimeValue = iHours;
+		class'UIUtilities_Strategy'.static.TriggerOverridePersonnelStatusTime(self, false, TimeLabel, TimeValue);
+
+		if (TimeLabel == "")
+		{
+			TimeValue = iDays;
+			TimeLabel = class'UIUtilities_Text'.static.GetDaysString(iDays);
+		}
+		// End Issue #322
 	}
 }
+
+// Start Issue #322
+//
+// Triggers a 'CustomizeStatusStringsSeparate' event that allows listeners to override
+// the status of a unit.
+//
+// Listeners can either provide the amount of time plus a label to go with it, like
+// 3 + "Days", in which case they should set DoTimeConversion to false. Otherwise,
+// they should set DoTimeConversion to true and provide the amount of time in hours.
+// In this latter case, the CHL will generate the appropriate time label (which it
+// may delegate to listeners of 'OverridePersonnelStatusTime').
+//
+// The event itself takes the form:
+//
+//   {
+//      ID: CustomizeStatusStringsSeparate,
+//      Data: [inout bool DoTimeConversion, inout string Status,
+//             inout string TimeLabel, inout int TimeValue],
+//      Source: self
+//   }
+//
+function TriggerCustomizeStatusStringsSeparate(
+	out string Status,
+	out string TimeLabel,
+	out int TimeValue,
+	out int DoTimeConversion)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'CustomizeStatusStringsSeparate';
+	Tuple.Data.Add(4);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = DoTimeConversion != 0;
+	Tuple.Data[1].kind = XComLWTVString;
+	Tuple.Data[1].s = Status;
+	Tuple.Data[2].kind = XComLWTVString;
+	Tuple.Data[2].s = TimeLabel;
+	Tuple.Data[3].kind = XComLWTVInt;
+	Tuple.Data[3].i = TimeValue;
+
+	`XEVENTMGR.TriggerEvent('CustomizeStatusStringsSeparate', Tuple, self);
+
+	DoTimeConversion = Tuple.Data[0].b ? 1 : 0;
+	Status = Tuple.Data[1].s;
+	TimeLabel = Tuple.Data[2].s;
+	TimeValue = Tuple.Data[3].i;
+}
+// End Issue #322
+
 //-------------------------------------------------------------------------
 // Returns a UI state (color) that matches the soldier's status
 function int GetStatusUIState()
@@ -6530,6 +6633,145 @@ native function ModifyCurrentStat(ECharStatType Stat, float Delta);
 native function SetCurrentStat( ECharStatType Stat, float NewValue );
 native function GetStatModifiers(ECharStatType Stat, out array<XComGameState_Effect> Mods, out array<float> ModValues, optional XComGameStateHistory GameStateHistoryObject);
 
+// Begin Issue #313
+function GetStatModifiersFixed(ECharStatType Stat, out array<XComGameState_Effect> Mods, out array<float> ModValues, optional XComGameStateHistory GameStateHistoryObject, optional bool RoundTotals=true)
+{
+	local array <StatModifier> MultMods;
+	local StatModifier Modifier;
+	local int i, idx, j, iTotal, iError, sign;
+	local float RunningTotal, fValue;
+
+	GetStatModifiers(Stat, Mods, ModValues, GameStateHistoryObject);
+	//Start at the top because we may be removing the array entry, and this way don't have to fiddle the loop parameter
+	for (i = Mods.Length-1; i >= 0; i--)
+	{
+		idx=Mods[i].StatChanges.Find('StatType', Stat);
+		assert( idx != INDEX_NONE); //This really shouldn't be possible, if so GetStatModifiers() has messed up big time!
+		if(Mods[i].StatChanges[idx].ModOp!=MODOP_Addition)
+		{
+			Modifier.Mod = Mods[i];
+			Modifier.ModOp = Modifier.Mod.StatChanges[idx].ModOp;
+			Modifier.StatAmount = Modifier.Mod.StatChanges[idx].StatAmount;
+			// Insert pre multipliers at the start of the array, add post multipliers to the end
+			if (Modifier.ModOp == MODOP_Multiplication)
+			{
+				MultMods.InsertItem(0, Modifier);
+			}
+			else
+			{
+				MultMods.AddItem(Modifier);
+			}
+			//Remove multiplers, so the arrays only contain additive entries
+			Mods.Remove(i, 1);
+			ModValues.Remove(i, 1);
+		}
+	}
+	// If there are no MultMods, then GetStatModifiers() won't have screwed up so early exit
+	if (MultMods.Length==0)
+	{
+		return;
+	}
+
+	RunningTotal = GetBaseStat(Stat);
+	//Seperate integer running total for tracking rounding errors
+	iTotal = RunningTotal;
+
+	for (i = 0; i < MultMods.Length; i++)
+	{
+		//When we hit the first post multiplier, break so we can do the additives
+		if (MultMods[i].ModOp==MODOP_PostMultiplication)
+		{
+			break;
+		}
+		MultMods[i].fModValue = RunningTotal * (MultMods[i].StatAmount-1);
+		//True round(), not truncate
+		MultMods[i].iModValue = Round(MultMods[i].fModValue);
+		//fError is the ratio between the fload and int modifier
+		//So 1 means no error, furhter away from 1 is a larger proportionate error.
+		//Used for forcing the into total to match later by reversing some of the roundings
+		MultMods[i].fError = (MultMods[i].iModValue-MultMods[i].fModValue)/MultMods[i].fModValue;
+		RunningTotal += MultMods[i].fModValue;
+		iTotal += MultMods[i].iModValue;
+	}
+	//Do Additives, we left them in the normal arrays
+	foreach ModValues(fValue)
+	{
+		RunningTotal += fValue;
+		iTotal += fValue;
+	}
+	//continue with the post multipliers
+	for (i=i; i < MultMods.Length; i++)
+	{
+		MultMods[i].fModValue = RunningTotal * (MultMods[i].StatAmount-1);
+		MultMods[i].iModValue = Round(MultMods[i].fModValue);
+		MultMods[i].fError = (MultMods[i].iModValue-MultMods[i].fModValue)/MultMods[i].fModValue;
+		RunningTotal += MultMods[i].fModValue;
+		iTotal += MultMods[i].iModValue;
+	}
+	
+	if (RunningTotal!=GetCurrentStat(Stat))
+	{
+		`Log("GetStatModifiers Mismatch! For " $Stat$ "the calculated total was " $RunningTotal$ ", but the Current Stat is " $GetCurrentStat(Stat));
+	}
+	if (RoundTotals)
+	{
+		// Not the statistically best forced total algorithm, but good enough and relatively quick, requiring just one sort and one pass
+		// Sort by size of the error, then reverse the rounding direction from largest error downwards until the total matches.
+		// By doing this, the "error" is put where it has the least "noticable" difference.
+
+		// iError is the difference between what the iTotal is, and what we want it to be (int cast of RunningTotal).
+		// sign then used to indicate if we are over or under, avoids checking everytime in the loop.
+		iError = iTotal-int(RunningTotal);
+		if (iError>0)
+		{
+			MultMods.Sort(ErrorAsc);
+			sign = -1;
+		}
+		else if (iError<0)
+		{
+			MultMods.Sort(ErrorDesc);
+			sign = +1;
+			// make iError positive, easier for counting later
+			iError = -iError;
+		}
+		//Start at the top because it makes comparing iError and how many entries left easier
+		for (i = MultMods.Length -1; i>=0; i--)
+		{
+			// It's hard to see hwo with any real data set, that the total error could exceed the amount of multiplier entries,
+			// since the float and int for each entry shouldn't differ by more than 0.5!
+			// However, by doing this it means the algorithm can in principle adjust by any amount if required.
+			// SO, if the amount to adjust exceeds the amount of remaining entries, then the current entry is adjusted by
+			// More than 1 so it can "catch up".
+			// Once adjustments needed made, j will be 0.
+			j = FCeil(float(iError)/float(i+1));
+			MultMods[i].iModValue += sign*j;
+			iError -= j;
+			Mods.AddItem(MultMods[i].Mod);
+			ModValues.AddItem(MultMods[i].iModValue);
+		}
+		assert(iError==0); //Shouldn't be mathematically possible following the loop.
+	}
+	else
+	{
+		foreach MultMods(Modifier)
+		{
+			Mods.AddItem(Modifier.Mod);
+			ModValues.AddItem(Modifier.fModValue);
+		}
+	}
+}
+
+static function int ErrorAsc(StatModifier Mod1, StatModifier Mod2)
+{
+	return Mod1.fError > Mod2.fError ? -1 : 0;;
+}
+
+static function int ErrorDesc(StatModifier Mod1, StatModifier Mod2)
+{
+	return Mod1.fError < Mod2.fError ? -1 : 0;;
+}
+//End Issue #313
+
 native function ApplyEffectToStats( const ref XComGameState_Effect SourceEffect, optional XComGameState NewGameState );
 native function UnApplyEffectFromStats( const ref XComGameState_Effect SourceEffect, optional XComGameState NewGameState );
 
@@ -7211,12 +7453,7 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 
 						BodyPartTemplate = BodyPartMgr.GetRandomUberTemplate("RightArmDeco", Filter, Filter.FilterByTorsoAndArmorMatch);
 						kAppearance.nmRightArmDeco = (BodyPartTemplate != none) ? BodyPartTemplate.DataName : DefaultGetRandomUberTemplate_WarnAboutFilter("RightArmDeco", Filter);
-
-						BodyPartTemplate = BodyPartMgr.GetRandomUberTemplate("LeftForearm", Filter, Filter.FilterByTorsoAndArmorMatch);
-						kAppearance.nmLeftForearm = (BodyPartTemplate != none) ? BodyPartTemplate.DataName : DefaultGetRandomUberTemplate_WarnAboutFilter("LeftForearm", Filter);
-
-						BodyPartTemplate = BodyPartMgr.GetRandomUberTemplate("RightForearm", Filter, Filter.FilterByTorsoAndArmorMatch);
-						kAppearance.nmRightForearm = (BodyPartTemplate != none) ? BodyPartTemplate.DataName : DefaultGetRandomUberTemplate_WarnAboutFilter("RightForearm", Filter);
+						//Begin Issue #350
 					}
 					else
 					{
@@ -7228,6 +7465,12 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 						kAppearance.nmLeftForearm = '';
 						kAppearance.nmRightForearm = '';
 					}
+					BodyPartTemplate = BodyPartMgr.GetRandomUberTemplate("LeftForearm", Filter, Filter.FilterByTorsoAndArmorMatch);
+					kAppearance.nmLeftForearm = (BodyPartTemplate != none) ? BodyPartTemplate.DataName : DefaultGetRandomUberTemplate_WarnAboutFilter("LeftForearm", Filter);
+
+					BodyPartTemplate = BodyPartMgr.GetRandomUberTemplate("RightForearm", Filter, Filter.FilterByTorsoAndArmorMatch);
+					kAppearance.nmRightForearm = (BodyPartTemplate != none) ? BodyPartTemplate.DataName : DefaultGetRandomUberTemplate_WarnAboutFilter("RightForearm", Filter);
+					// End Issue #350
 
 					BodyPartTemplate = BodyPartMgr.GetRandomUberTemplate("Legs", Filter, Filter.FilterByTorsoAndArmorMatch);
 					kAppearance.nmLegs = (BodyPartTemplate != none) ? BodyPartTemplate.DataName : DefaultGetRandomUberTemplate_WarnAboutFilter("Legs", Filter);
@@ -12209,6 +12452,24 @@ function array<SoldierClassAbilityType> GetRankAbilities(int Rank)
 	return AbilityTree[Rank].Abilities;
 }
 
+// Start Issue #306
+function int GetRankAbilityCount(int Rank)
+{
+	if(AbilityTree.Length == 0)
+	{
+		return 0;
+	}
+
+	if(Rank < 0 || Rank >= AbilityTree.Length)
+	{
+		`RedScreen("Invalid rank given for GetRankAbilitieCount(). @gameplay @mnauta");
+		return  AbilityTree[0].Abilities.Length;
+	}
+
+	return AbilityTree[Rank].Abilities.Length;
+}
+//End Issue #306
+
 function name GetAbilityName(int iRank, int iBranch)
 {
 	if (iRank < 0 && iRank >= AbilityTree.Length)
@@ -13287,14 +13548,25 @@ function GetMentalStateStringsSeparate(out string Status, out string TimeLabel, 
 		{
 			if(WillProject.ProjectFocus.ObjectID == self.ObjectID)
 			{
-				iDays = WillProject.GetCurrentNumDaysRemaining();
-				TimeValue = iDays;
-				if (TimeValue == 0)
+				// Start Issue #322
+				//
+				// Get the project length in hours so that it can be easily overridden by mods
+				// that want to display the time in hours rather than days.
+				TimeValue = WillProject.GetCurrentNumHoursRemaining();
+				
+				class'UIUtilities_Strategy'.static.TriggerOverridePersonnelStatusTime(self, true, TimeLabel, TimeValue);
+				
+				// If no override has been provided, i.e. the time label is still an empty
+				// string, then default to the old behavior.
+				if (TimeLabel == "")
 				{
+					iDays = WillProject.GetCurrentNumDaysRemaining();
+
 					// Even if there isn't any time left, add a day to the string so it displays some time remaining in the UI
-					TimeValue = 1;
+					TimeLabel = class'UIUtilities_Text'.static.GetDaysString(iDays);
+					TimeValue = iDays > 0 ? iDays : 1;
 				}
-				TimeLabel = class'UIUtilities_Text'.static.GetDaysString(iDays);
+				// End Issue #322
 				break;
 			}
 		}

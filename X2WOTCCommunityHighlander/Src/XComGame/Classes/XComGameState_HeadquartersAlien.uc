@@ -493,6 +493,8 @@ function int GetCurrentDoom(optional bool bIgnorePending = false)
 	local XComGameStateHistory History;
 	local XComGameState_MissionSite MissionState;
 	local int TotalDoom;
+	// Variable for Issue #550
+	local XComLWTuple Tuple;
 
 	TotalDoom = Doom;
 	History = `XCOMHISTORY;
@@ -509,8 +511,20 @@ function int GetCurrentDoom(optional bool bIgnorePending = false)
 	{
 		TotalDoom -= GetPendingDoom();
 	}
+	
+	// Start Issue #550
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideCurrentDoom';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVInt;
+	Tuple.Data[0].i = TotalDoom;
+	Tuple.Data[1].kind = XComLWTVBool;
+	Tuple.Data[1].b = bIgnorePending;
 
-	return TotalDoom;
+	`XEVENTMGR.TriggerEvent('OverrideCurrentDoom', Tuple, self);
+	
+	return Tuple.Data[0].i;
+	// End Issue #550
 }
 
 //---------------------------------------------------------------------------------------

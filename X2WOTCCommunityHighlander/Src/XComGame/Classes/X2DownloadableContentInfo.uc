@@ -508,6 +508,16 @@ static function OnPreCreateTemplates()
 }
 /// End issue #412
 
+/// Start Issue #419
+/// <summary>
+/// Called from X2AbilityTag.ExpandHandler
+/// Expands vanilla AbilityTagExpandHandler to allow reflection
+/// </summary>
+static function bool AbilityTagExpandHandler_CH(string InString, out string OutString, Object ParseObj, Object StrategyParseOb, XComGameState GameState)
+{
+	return false;
+}
+
 /// Start Issue #409
 /// <summary>
 /// Called from XComGameState_Unit:GetEarnedSoldierAbilities
@@ -554,3 +564,130 @@ static function UnitPawnPostInitAnimTree(XComGameState_Unit UnitState, XComUnitP
 	return;
 }
 /// End Issue #455
+
+/// Start Issue #511
+/// <summary>
+/// Allowes mod to define dlc run order dependencies
+/// RunPriorityGroup can be STANDARD = 0, FIRST = 1 or LAST = 2
+/// Only change load priority if you really sure that its needed for you mod.
+/// RunBefore and RunAfter only work within the defined LoadPriority group
+///
+/// Should be specified in the mods XComGame.ini like
+/// [ModSafeName CHDLCRunOrder]
+/// +RunBefore=...
+/// +RunAfter=...
+/// RunPriorityGroup=...
+///
+/// </summary>
+final function array<string> GetRunBeforeDLCIdentifiers()
+{
+	local CHDLCRunOrder RunOrder;
+	local array<string> EmptyArray;
+
+	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
+	if (RunOrder != none && RunOrder.RunBefore.Length > 0)
+	{
+		return RunOrder.RunBefore;
+	}
+
+	// Prevent unused compile warnings
+	EmptyArray.Length = 0;
+	Return EmptyArray;
+}
+
+final function array<string> GetRunAfterDLCIdentifiers()
+{
+	local CHDLCRunOrder RunOrder;
+	local array<string> EmptyArray;
+
+	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
+	if (RunOrder != none && RunOrder.RunAfter.Length > 0)
+	{
+		return RunOrder.RunAfter;
+	}
+	// Prevent unused compile warnings
+	EmptyArray.Length = 0;
+	Return EmptyArray;
+}
+
+final function int GetRunPriorityGroup()
+{
+	local CHDLCRunOrder RunOrder;
+
+	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
+	if (RunOrder != none)
+	{
+		return RunOrder.RunPriorityGroup;
+	}
+	return RUN_STANDARD;
+}
+/// End Issue #511
+
+/// Start Issue #524
+/// <summary>
+/// Allow mods to specify array of incompatible and required mod.
+/// Should be specified in the mods XComGame.ini like
+/// [ModSafeName CHModDependency]
+/// +IncompatibleMods=...
+/// +IgnoreIncompatibleMods=...
+/// +RequiredMods=...
+/// +IgnoreRequiredMods=...
+/// DisplayName="..."
+/// </summary>
+final function array<string> GetIncompatibleDLCIdentifiers()
+{
+	local CHModDependency ModDependency;
+
+	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
+	if (ModDependency != none && ModDependency.IncompatibleMods.Length > 0)
+	{
+		return ModDependency.IncompatibleMods;
+	}
+}
+
+final function array<string> GetIgnoreIncompatibleDLCIdentifiers()
+{
+	local CHModDependency ModDependency;
+
+	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
+	if (ModDependency != none && ModDependency.IgnoreIncompatibleMods.Length > 0)
+	{
+		return ModDependency.IgnoreIncompatibleMods;
+	}
+}
+
+final function array<string> GetRequiredDLCIdentifiers()
+{
+	local CHModDependency ModDependency;
+
+	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
+	if (ModDependency != none && ModDependency.RequiredMods.Length > 0)
+	{
+		return ModDependency.RequiredMods;
+	}
+}
+
+final function array<string> GetIgnoreRequiredDLCIdentifiers()
+{
+	local CHModDependency ModDependency;
+
+	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
+	if (ModDependency != none && ModDependency.IgnoreRequiredMods.Length > 0)
+	{
+		return ModDependency.IgnoreRequiredMods;
+	}
+}
+
+final function string GetDisplayName()
+{
+	local CHModDependency ModDependency;
+
+	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
+	if (ModDependency != none && ModDependency.DisplayName != "")
+	{
+		return ModDependency.DisplayName;
+	}
+
+	return "";
+}
+/// End Issue #524

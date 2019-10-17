@@ -540,6 +540,28 @@ function bool ValidatePartSelection(string PartType, name PartSelection)
 	return false;
 }
 
+// Start Issue #350, Enhanced version of above which also makes valid if possible. Less CopyPasta code then!
+// Return indicates if it managed to make the part valid.
+function bool MakePartValid(string PartType, out name PartSelection, optional bool BlankValid=true)
+{
+	local X2BodyPartTemplate BodyPart;
+
+	if (!(PartSelection == '' && BlankValid || ValidatePartSelection(PartType, PartSelection)))
+	{
+		BodyPart = class'X2BodyPartTemplateManager'.static.GetBodyPartTemplateManager().GetRandomUberTemplate(PartType, BodyPartFilter, BodyPartFilter.FilterByTorsoAndArmorMatch);
+		if(BodyPart != none)
+		{
+			PartSelection = BodyPart.DataName;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	return true;
+}
+// End Issue #350
+
 // direction will either be -1 (left arrow), or 1 (right arrow)xcom
 simulated function OnCategoryValueChange(int categoryIndex, int direction, optional int specificIndex = -1)
 {	
@@ -562,34 +584,43 @@ simulated function OnCategoryValueChange(int categoryIndex, int direction, optio
 	{
 	case eUICustomizeCat_Torso:       
 		UpdateCategory("Torso", direction, BodyPartFilter.FilterByTorsoAndArmorMatch, UpdatedUnitState.kAppearance.nmTorso, specificIndex);
-
-		if(UpdatedUnitState.kAppearance.nmArms != '' && !ValidatePartSelection("Arms", UpdatedUnitState.kAppearance.nmArms))
+		// Start Issue #350
+		MakePartValid("LeftArmDeco", UpdatedUnitState.kAppearance.nmLeftArmDeco); 
+		MakePartValid("RightArmDeco", UpdatedUnitState.kAppearance.nmRightArmDeco); 
+		MakePartValid("LeftForearm", UpdatedUnitState.kAppearance.nmLeftForearm); 
+		MakePartValid("RightForearm", UpdatedUnitState.kAppearance.nmRightForearm); 
+		MakePartValid("Legs", UpdatedUnitState.kAppearance.nmLegs, false); 
+		MakePartValid("Thighs", UpdatedUnitState.kAppearance.nmThighs); 
+		MakePartValid("Shins", UpdatedUnitState.kAppearance.nmShins); 
+		MakePartValid("TorsoDeco", UpdatedUnitState.kAppearance.nmTorsoDeco); 
+		if(UpdatedUnitState.kAppearance.nmArms != '')
 		{
-			UpdatedUnitState.kAppearance.nmArms = '';
-
-			//Dual arm selection was not valid, choose individual arms
-			BodyPart = class'X2BodyPartTemplateManager'.static.GetBodyPartTemplateManager().GetRandomUberTemplate("LeftArm", BodyPartFilter, BodyPartFilter.FilterByTorsoAndArmorMatch);
-			if(BodyPart != none)
+			if (!MakePartValid("Arms", UpdatedUnitState.kAppearance.nmArms, false))
 			{
-				UpdatedUnitState.kAppearance.nmLeftArm = BodyPart.DataName;
-			}
-
-			BodyPart = class'X2BodyPartTemplateManager'.static.GetBodyPartTemplateManager().GetRandomUberTemplate("RightArm", BodyPartFilter, BodyPartFilter.FilterByTorsoAndArmorMatch);
-			if(BodyPart != none)
-			{
-				UpdatedUnitState.kAppearance.nmRightArm = BodyPart.DataName;
+				if(MakePartValid("LeftArm", UpdatedUnitState.kAppearance.nmLeftArm, false) && MakePartValid("RightArm", UpdatedUnitState.kAppearance.nmRightArm, false))
+				{
+					UpdatedUnitState.kAppearance.nmArms = '';
+				}
+				else
+				{
+					// #350 It's possible it got a valid LeftArm but failed on the RightArm...
+					UpdatedUnitState.kAppearance.nmLeftArm = '';
+				}
 			}
 		}
-
-		if(!ValidatePartSelection("Legs", UpdatedUnitState.kAppearance.nmLegs))
-		{			
-			BodyPart = class'X2BodyPartTemplateManager'.static.GetBodyPartTemplateManager().GetRandomUberTemplate("Legs", BodyPartFilter, BodyPartFilter.FilterByTorsoAndArmorMatch);
-			if(BodyPart != none)
+		else
+		{
+			if (!(MakePartValid("LeftArm", UpdatedUnitState.kAppearance.nmLeftArm, false) && MakePartValid("RightArm", UpdatedUnitState.kAppearance.nmRightArm, false)))
 			{
-				UpdatedUnitState.kAppearance.nmLegs = BodyPart.DataName;
+				if(MakePartValid("Arms", UpdatedUnitState.kAppearance.nmArms, false))
+				{
+					UpdatedUnitState.kAppearance.nmLeftArm = '';
+					UpdatedUnitState.kAppearance.nmRightArm = '';
+				}
 			}
+			
 		}
-
+		// End Issue #350
 		XComHumanPawn(ActorPawn).SetAppearance(UpdatedUnitState.kAppearance);
 		UpdatedUnitState.StoreAppearance();
 		break;
@@ -599,10 +630,12 @@ simulated function OnCategoryValueChange(int categoryIndex, int direction, optio
 		//Set individual arm options to none when setting dual arms
 		UpdatedUnitState.kAppearance.nmLeftArm = '';
 		UpdatedUnitState.kAppearance.nmRightArm = '';
-		UpdatedUnitState.kAppearance.nmLeftArmDeco = '';
-		UpdatedUnitState.kAppearance.nmRightArmDeco = '';
-		UpdatedUnitState.kAppearance.nmLeftForearm = '';
-		UpdatedUnitState.kAppearance.nmRightForearm = '';
+		// Start Issue #350
+		//UpdatedUnitState.kAppearance.nmLeftArmDeco = '';
+		//UpdatedUnitState.kAppearance.nmRightArmDeco = '';
+		//UpdatedUnitState.kAppearance.nmLeftForearm = '';
+		//UpdatedUnitState.kAppearance.nmRightForearm = '';
+		// End Issue #350
 		XComHumanPawn(ActorPawn).SetAppearance(UpdatedUnitState.kAppearance);
 		break;
 	case eUICustomizeCat_LeftArm:
@@ -778,6 +811,16 @@ simulated function OnCategoryValueChange(int categoryIndex, int direction, optio
 	case eUICustomizeCat_SecondaryArmorColor:
 		UpdatedUnitState.kAppearance.iArmorTintSecondary = WrapIndex(specificIndex, 0, XComHumanPawn(ActorPawn).NumPossibleArmorTints);
 		XComHumanPawn(ActorPawn).SetAppearance(UpdatedUnitState.kAppearance);
+		// Start Issue #380
+		CosmeticUnitPawn = XComPresentationLayerBase(Outer).GetUIPawnMgr().GetCosmeticPawn(eInvSlot_SecondaryWeapon, UpdatedUnitState.ObjectID);
+		if (CosmeticUnitPawn != none)
+		{
+			Appearance.nmPatterns = PrimaryWeapon.WeaponAppearance.nmWeaponPattern;
+			Appearance.iArmorTint = PrimaryWeapon.WeaponAppearance.iWeaponTint;
+			Appearance.iArmorTintSecondary = UpdatedUnitState.kAppearance.iArmorTintSecondary;
+			CosmeticUnitPawn.SetAppearance(Appearance, true);
+		}
+		// End Issue #380
 		UpdatedUnitState.StoreAppearance();
 		break; 
 	case eUICustomizeCat_WeaponColor:		
@@ -797,7 +840,8 @@ simulated function OnCategoryValueChange(int categoryIndex, int direction, optio
 		{
 			Appearance.nmPatterns = WeaponAppearance.nmWeaponPattern;
 			Appearance.iArmorTint = WeaponAppearance.iWeaponTint;
-			Appearance.iArmorTintSecondary = WeaponAppearance.iWeaponDeco;
+			// Single line for Issue #380
+			Appearance.iArmorTintSecondary = UpdatedUnitState.kAppearance.iArmorTintSecondary;
 			CosmeticUnitPawn.SetAppearance(Appearance, true);
 		}
 		UpdatedUnitState.StoreAppearance();
@@ -822,7 +866,8 @@ simulated function OnCategoryValueChange(int categoryIndex, int direction, optio
 		{
 			Appearance.nmPatterns = WeaponAppearance.nmWeaponPattern;
 			Appearance.iArmorTint = WeaponAppearance.iWeaponTint;
-			Appearance.iArmorTintSecondary = WeaponAppearance.iWeaponDeco;
+			// Single line for Issue #380
+			Appearance.iArmorTintSecondary = UpdatedUnitState.kAppearance.iArmorTintSecondary;
 			CosmeticUnitPawn.SetAppearance(Appearance, true);
 		}
 		UpdatedUnitState.StoreAppearance();
@@ -1045,13 +1090,22 @@ function string GetCategoryDisplayName( string BodyPart, name PartToMatch, deleg
 	local int PartIndex;
 	local name DefaultTemplateName;
 	local array<X2BodyPartTemplate> BodyParts;
+	//Variable for Issue #329
+	local string DisplayName;
 
 	PartManager.GetFilteredUberTemplates(BodyPart, self, FilterFn, BodyParts);
 	for( PartIndex = 0; PartIndex < BodyParts.Length; ++PartIndex )
 	{
 		if( PartToMatch == BodyParts[PartIndex].DataName )
 		{
-			return BodyParts[PartIndex].DisplayName;
+			//Begin Issue #328
+			DisplayName = BodyParts[PartIndex].DisplayName;
+			if (DisplayName == "")
+			{
+				return string(GetCategoryValue(BodyPart, PartToMatch, BodyPartFilter.FilterByTorsoAndArmorMatch));
+			}
+			return DisplayName;
+			//End Issue #328
 		}
 	}
 
@@ -1088,17 +1142,13 @@ simulated function string GetCategoryDisplay(int catType)
 		Result = UpdatedUnitState.GetItemInSlot(eInvSlot_PrimaryWeapon, CheckGameState).Nickname;
 		break;
 	case eUICustomizeCat_Torso:  
-		Result = string(GetCategoryValue("Torso", UpdatedUnitState.kAppearance.nmTorso, BodyPartFilter.FilterByTorsoAndArmorMatch));
+		//Singeline Change for Issue #328        
+		Result = GetCategoryDisplayName("Torso", UpdatedUnitState.kAppearance.nmTorso, BodyPartFilter.FilterByTorsoAndArmorMatch);
 		break;
 	case eUICustomizeCat_Arms:              
-		if(UpdatedUnitState.kAppearance.nmArms == '')
-		{
-			Result = "";
-		}
-		else
-		{
-			Result = string(GetCategoryValue("Arms", UpdatedUnitState.kAppearance.nmArms, BodyPartFilter.FilterByTorsoAndArmorMatch));
-		}
+		//Begin Issue #328        
+		Result = GetCategoryDisplayName("Arms", UpdatedUnitState.kAppearance.nmArms, BodyPartFilter.FilterByTorsoAndArmorMatch);
+		//End Issue #328        
 		break;
 	case eUICustomizeCat_LeftArm:
 		Result = GetCategoryDisplayName("LeftArm", UpdatedUnitState.kAppearance.nmLeftArm, BodyPartFilter.FilterByTorsoAndArmorMatch);
@@ -1118,14 +1168,16 @@ simulated function string GetCategoryDisplay(int catType)
 	case eUICustomizeCat_RightForearm:
 		Result = GetCategoryDisplayName("RightForearm", UpdatedUnitState.kAppearance.nmRightForearm, BodyPartFilter.FilterByTorsoAndArmorMatch);
 		break;
-	case eUICustomizeCat_Legs:              
-		Result = string(GetCategoryValue("Legs", UpdatedUnitState.kAppearance.nmLegs, BodyPartFilter.FilterByTorsoAndArmorMatch));
+	case eUICustomizeCat_Legs:      
+		//Singeline Change for Issue #328
+		Result = GetCategoryDisplayName("Legs", UpdatedUnitState.kAppearance.nmLegs, BodyPartFilter.FilterByTorsoAndArmorMatch);
 		break;
 	case eUICustomizeCat_Thighs:
 		Result = GetCategoryDisplayName("Thighs", UpdatedUnitState.kAppearance.nmThighs, BodyPartFilter.FilterByTorsoAndArmorMatch);
 		break;
 	case eUICustomizeCat_Shins:
-		Result = string(GetCategoryValue("Shins", UpdatedUnitState.kAppearance.nmShins, BodyPartFilter.FilterByTorsoAndArmorMatch));
+		//Singeline Change for Issue #328
+		Result = GetCategoryDisplayName("Shins", UpdatedUnitState.kAppearance.nmShins, BodyPartFilter.FilterByTorsoAndArmorMatch);
 		break;
 	case eUICustomizeCat_TorsoDeco:
 		Result = GetCategoryDisplayName("TorsoDeco", UpdatedUnitState.kAppearance.nmTorsoDeco, BodyPartFilter.FilterByTorsoAndArmorMatch);

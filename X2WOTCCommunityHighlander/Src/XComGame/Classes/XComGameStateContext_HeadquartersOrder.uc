@@ -1044,7 +1044,8 @@ static function CompleteRespecSoldier(XComGameState AddToGameState, StateObjectR
 			// Set the soldier status back to active, and rank them up to their new class
 			UnitState = XComGameState_Unit(AddToGameState.ModifyStateObject(class'XComGameState_Unit', UnitState.ObjectID));
 			UnitState.ResetSoldierAbilities(); // First clear all of the current abilities
-			for (i = 0; i < UnitState.GetRankAbilities(0).Length; ++i) // Then give them their squaddie ability back
+			// Single line for Issue #306
+			for (i = 0; i < UnitState.GetRankAbilityCount(0); ++i) // Then give them their squaddie ability back
 			{
 				UnitState.BuySoldierProgressionAbility(AddToGameState, 0, i);
 			}
