@@ -116,6 +116,9 @@ function XComGameState_Item CreateInstanceFromTemplate(XComGameState NewGameStat
 
 	Item = XComGameState_Item(NewGameState.CreateNewStateObject(class'XComGameState_Item', self));
 
+	if (OnAcquiredFn != none && !HideInInventory)
+		OnAcquiredFn( NewGameState, Item );
+
 	return Item;
 }
 
