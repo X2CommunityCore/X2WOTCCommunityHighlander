@@ -616,6 +616,10 @@ simulated function OnCategoryValueChange(int categoryIndex, int direction, optio
 				{
 					UpdatedUnitState.kAppearance.nmLeftArm = '';
 					UpdatedUnitState.kAppearance.nmRightArm = '';
+					// Start Issue #659, need the UI to blank out the ArmDecos since not hidden in Pawn again
+					UpdatedUnitState.kAppearance.nmLeftArmDeco = '';
+					UpdatedUnitState.kAppearance.nmRightArmDeco = '';
+					// End Issue #659
 				}
 			}
 			
