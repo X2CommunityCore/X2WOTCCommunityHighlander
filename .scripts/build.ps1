@@ -394,11 +394,12 @@ for ($i=0; $i -lt $thismodpackages.length; $i++) {
         Copy-Item "$modcookdir\$name.upk.uncompressed_size" "$stagingPath\CookedPCConsole" -Force -WarningAction SilentlyContinue
         Write-Host "$modcookdir\$name.upk"
     }
-
-    # Even for cooked packages, include the non-cooked ones
-    # Or this is a non-native package
-    Copy-Item "$sdkPath\XComGame\Script\$name.u" "$stagingPath\Script" -Force -WarningAction SilentlyContinue
-    Write-Host "$sdkPath\XComGame\Script\$name.u"
+    else
+    {
+        # Or this is a non-native package
+        Copy-Item "$sdkPath\XComGame\Script\$name.u" "$stagingPath\Script" -Force -WarningAction SilentlyContinue
+        Write-Host "$sdkPath\XComGame\Script\$name.u"        
+    }
 }
 Write-Host "Copied compiled and cooked script packages."
 
