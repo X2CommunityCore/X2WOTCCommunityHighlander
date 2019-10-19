@@ -1523,11 +1523,13 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 		case 'LeftArmDeco':
 			UseMeshComponent = m_kLeftArmDeco;
 			// Start Issue #350
-			if (m_kArmsMC != none && m_kArmsMC.SkeletalMesh != none)
-			{
-				UseSkeletalMesh = none;
-				bSkipAttachment = true;
-			}
+			// Start Issue #369
+			//if (m_kArmsMC != none && m_kArmsMC.SkeletalMesh != none)
+			//{
+				//UseSkeletalMesh = none;
+				//bSkipAttachment = true;
+			//}
+			// End Issue #369
 			// End Issue #350
 			// Start Issue #354
 			if(m_kLeftArmDeco != none && m_kLeftArmDeco.SkeletalMesh == UseSkeletalMesh && LeftArmDecoContent != none &&
@@ -1548,12 +1550,14 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 		case 'RightArmDeco':		
 			UseMeshComponent = m_kRightArmDeco;
 			// Start Issue #350
-			if (m_kArmsMC != none && m_kArmsMC.SkeletalMesh != none)
-			if (ArmsContent != none)
-			{
-				UseSkeletalMesh = none;
-				bSkipAttachment = true;
-			}
+			// Start Issue #369
+			//if (m_kArmsMC != none && m_kArmsMC.SkeletalMesh != none)
+			//if (ArmsContent != none)
+			//{
+				//UseSkeletalMesh = none;
+				//bSkipAttachment = true;
+			//}
+			// End Issue #369
 			// End Issue #350
 			// Start Issue #354
 			if(m_kRightArmDeco != none && m_kRightArmDeco.SkeletalMesh == UseSkeletalMesh && RightArmDecoContent != none &&
