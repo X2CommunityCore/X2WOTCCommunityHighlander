@@ -42,3 +42,48 @@ static event OnPostTemplatesCreated()
 		// End Issue #123
 	}
 }
+
+// Because 1.19.0 broke TLP weapons/Chosen weapons attachments without a retroactive way to fix it,
+// we offer a console command to be used in strategy that calls OnAcquiredFn on all weapons in XCOM HQ.
+// User instructions: In strategy, remove the nickname from all TLP/Chosen weapons and unequip them to
+// XCom HQ (replace their weapons with generic infinite weapons). Then, run the console command
+// `CHLSimulateReacquireHQWeapons` to give those weapons their missing upgrades.
+// This console command may not affect: Weapons in soldiers' inventories, weapons with nicknames.
+exec function CHLSimulateReacquireHQWeapons()
+{
+	local XComGameStateHistory History;
+	local XComGameState_HeadquartersXCom XComHQ;
+	local XComGameState NewGameState;
+	local StateObjectReference ItemRef;
+	local XComGameState_Item ItemState;
+	local X2ItemTemplate ItemTemplate;
+
+	History = `XCOMHISTORY;
+	XComHQ = `XCOMHQ;
+
+	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("CHL: Simulate re-acquiring of weapons upon user request");
+
+	foreach XComHQ.Inventory(ItemRef)
+	{
+		ItemState = XComGameState_Item(`XCOMHISTORY.GetGameStateForObjectID(ItemRef.ObjectID));
+		ItemTemplate = ItemState.GetMyTemplate();
+		// Relevant functions for TLP weapons require no installed upgrades, while Chosen weapons require no
+		// modifications -- but weapons with 0 upgrade slots are not considered modified even with installed upgrades
+		// As a result, we explicitly check for number of upgrades, but still want to tell the user to revert name changes
+		// to the weapon.
+		if (X2WeaponTemplate(ItemTemplate) != none && ItemState.GetMyWeaponUpgradeCount() == 0 && ItemTemplate.OnAcquiredFn != none && !ItemTemplate.HideInInventory)
+		{
+			ItemState = XComGameState_Item(NewGameState.ModifyStateObject(class'XComGameState_Item', ItemRef.ObjectID));
+			ItemTemplate.OnAcquiredFn(NewGameState, ItemState);
+		}
+	}
+
+	if (NewGameState.GetNumGameStateObjects() > 0)
+	{
+		`GAMERULES.SubmitGameState(NewGameState);
+	}
+	else
+	{
+		History.CleanupPendingGameState(NewGameState);
+	}
+}
