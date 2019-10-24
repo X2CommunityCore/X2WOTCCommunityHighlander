@@ -90,6 +90,8 @@ RunPriorityGroup=RUN_STANDARD
   other ways than just the tooltip and image (#537)
 - Triggers the event `MissionIconSetScanSite` to allow mods to customize a scan site's icon in other
   ways than just the tooltip and image (#537)
+- Triggers the event `UIResistanceReport_ShowCouncil` to allow mods to override whether the council guy (and his remarks)
+  is shown on the end-of-month report or not (#663)
 
 
 ### Modding Exposures
