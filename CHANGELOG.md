@@ -133,6 +133,8 @@ RunPriorityGroup=RUN_STANDARD
 - Fix all Covert Actions from being removed when generating covert actions (#435)
 - Fix a pathing issue in base game with "flying" pod leaders where non-flat tiles on their
   paths prevent them from patrolling (#503)
+- Make units with a status of `eStatus_CovertAction` unavailable for missions
+  in `XComGameState_Unit.CanGoOnMission()` (#665)
 
 ## Tactical
 
