@@ -142,6 +142,10 @@ simulated function BuildTitlePanel()
 	local string WeeksDisplay, RetaliationDisplay;
 	local bool bHaveRetaliation;
 
+	// Variables for issue #667
+	local string RetaliationHeader, RetaliationFooter;
+	local int bShowRetaliation;
+
 	History = `XCOMHISTORY;
 	AlienHQ = XComGameState_HeadquartersAlien(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersAlien'));
 	CalendarState = XComGameState_MissionCalendar(History.GetSingleGameStateObjectForClass(class'XComGameState_MissionCalendar'));
@@ -222,11 +226,17 @@ simulated function BuildTitlePanel()
 	}
 
 	// Retaliation Mission countdown
-	if (AlienHQ.bHasSeenRetaliation && bHaveRetaliation)
+	// Start issue #667
+	RetaliationHeader = m_strRetaliation;
+	RetaliationFooter = m_strEstimated;
+	bShowRetaliation = int(AlienHQ.bHasSeenRetaliation && bHaveRetaliation);
+	TriggerOverrideRetaliationDisplay(bShowRetaliation, RetaliationHeader, RetaliationDisplay, RetaliationFooter);
+	if (bool(bShowRetaliation))
 	{
-		MC.QueueString(m_strRetaliation);
+		MC.QueueString(RetaliationHeader);
 		MC.QueueString(RetaliationDisplay);
-		MC.QueueString(m_strEstimated);
+		MC.QueueString(RetaliationFooter);
+	// End issue #667
 	}
 	else
 	{
@@ -237,6 +247,31 @@ simulated function BuildTitlePanel()
 	
 	MC.EndOp();
 }
+
+// Start issue #667
+simulated private function TriggerOverrideRetaliationDisplay (out int bShow, out string strHeader, out string strValue, out string strFooter)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Data.Add(4);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = bool(bShow);
+	Tuple.Data[1].kind = XComLWTVString;
+	Tuple.Data[1].s = strHeader;
+	Tuple.Data[2].kind = XComLWTVString;
+	Tuple.Data[2].s = strValue;
+	Tuple.Data[3].kind = XComLWTVString;
+	Tuple.Data[3].s = strFooter;
+
+	`XEVENTMGR.TriggerEvent('OverrideNextRetaliationDisplay', Tuple, self);
+
+	bShow = int(Tuple.Data[0].b);
+	strHeader = Tuple.Data[1].s;
+	strValue = Tuple.Data[2].s;
+	strFooter = Tuple.Data[3].s;
+}
+// End issue #667
 
 simulated function BuildDarkEventPanel(int Index, bool bActiveDarkEvent)
 {

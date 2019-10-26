@@ -90,6 +90,8 @@ RunPriorityGroup=RUN_STANDARD
   other ways than just the tooltip and image (#537)
 - Triggers the event `MissionIconSetScanSite` to allow mods to customize a scan site's icon in other
   ways than just the tooltip and image (#537)
+- Triggers the event `OverrideNextRetaliationDisplay` to allow mods to customize and/or enable/disable "next retaliation"
+  display in `UIAdventOperations` (#667)
 
 
 ### Modding Exposures
