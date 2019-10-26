@@ -6882,7 +6882,7 @@ function CheckForInspiredTechs(XComGameState NewGameState)
 				// Start Issue #633
 				//
 				// Check with mods to determine whether this tech can be inspired or not.
-				if (!TriggerCanTechBeInspired(AvailableTechState))
+				if (!TriggerCanTechBeInspired(AvailableTechState, NewGameState))
 				{
 					continue;
 				}
@@ -6921,25 +6921,23 @@ function CheckForInspiredTechs(XComGameState NewGameState)
 //
 //   {
 //      ID: CanTechBeInspired,
-//      Data: [in XCGS_Tech Tech, inout bool CanBeInspired],
-//      Source: self (XCGS_HeadquartersXCom)
+//      Data: [inout bool CanBeInspired],
+//      Source: TechState (XCGS_Tech)
 //   }
 //
-function bool TriggerCanTechBeInspired(XComGameState_Tech TechState)
+private function bool TriggerCanTechBeInspired(XComGameState_Tech TechState, XComGameState NewGameState)
 {
 	local XComLWTuple Tuple;
 
 	Tuple = new class'XComLWTuple';
 	Tuple.Id = 'CanTechBeInspired';
-	Tuple.Data.Add(2);
-	Tuple.Data[0].Kind = XComLWTVObject;
-	Tuple.Data[0].o = TechState;
-	Tuple.Data[1].Kind = XComLWTVBool;
-	Tuple.Data[1].b = true;
+	Tuple.Data.Add(1);
+	Tuple.Data[0].Kind = XComLWTVBool;
+	Tuple.Data[0].b = true;
 
-	`XEVENTMGR.TriggerEvent('CanTechBeInspired', Tuple, self);
+	`XEVENTMGR.TriggerEvent('CanTechBeInspired', Tuple, TechState, NewGameState);
 
-	return Tuple.Data[1].b;
+	return Tuple.Data[0].b;
 }
 // End Issue #633
 
