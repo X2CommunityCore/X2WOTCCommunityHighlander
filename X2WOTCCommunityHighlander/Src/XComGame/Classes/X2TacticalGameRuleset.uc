@@ -2003,7 +2003,7 @@ static function CleanupTacticalMission(optional bool bSimCombat = false)
 	//
 	// Let mods determine whether to recover incapacitated/dead soldiers or not
 	// if they choose.
-	if (TriggerOverrideBodyRecovery(BattleData, BattleData.AllTacticalObjectivesCompleted()))
+	if (TriggerOverrideBodyRecovery(BattleData, BattleData.AllTacticalObjectivesCompleted(), NewGameState))
 	{
 	// End Issue #571
 		// recover all dead soldiers, remove all other soldiers from play/clear deathly ailments
@@ -2027,7 +2027,7 @@ static function CleanupTacticalMission(optional bool bSimCombat = false)
 	// Start Issue #571
 	//
 	// Let mods determine whether to recover loot or not if they choose.
-	if (TriggerOverrideLootRecovery(BattleData, BattleData.AllTacticalObjectivesCompleted()))
+	if (TriggerOverrideLootRecovery(BattleData, BattleData.AllTacticalObjectivesCompleted(), NewGameState))
 	{
 	// End Issue #571
 		foreach History.IterateByClassType(class'XComGameState_LootDrop', LootDropState)
@@ -2060,7 +2060,7 @@ static function CleanupTacticalMission(optional bool bSimCombat = false)
 		//
 		// Only handle capture of mind-controlled soldiers if we're *not* recovering
 		// soldiers.
-		if (!TriggerOverrideBodyRecovery(BattleData, false))
+		if (!TriggerOverrideBodyRecovery(BattleData, false, NewGameState))
 		{
 		// End Issue #571
 			//It may be the case that the user lost as a result of their remaining units being mind-controlled. Consider them captured (before the mind-control effect gets wiped).
@@ -2173,7 +2173,10 @@ static function CleanupTacticalMission(optional bool bSimCombat = false)
 //     Source: XComGameState_BattleData
 //   }
 //
-static function bool TriggerOverrideBodyRecovery(XComGameState_BattleData BattleData, bool DoBodyRecovery)
+private static function bool TriggerOverrideBodyRecovery(
+	XComGameState_BattleData BattleData,
+	bool DoBodyRecovery,
+	XComGameState NewGameState)
 {
 	local XComLWTuple OverrideTuple;
 
@@ -2183,7 +2186,7 @@ static function bool TriggerOverrideBodyRecovery(XComGameState_BattleData Battle
 	OverrideTuple.Data[0].kind = XComLWTVBool;
 	OverrideTuple.Data[0].b = DoBodyRecovery;
 
-	`XEVENTMGR.TriggerEvent('OverrideBodyRecovery', OverrideTuple, BattleData, none);
+	`XEVENTMGR.TriggerEvent('OverrideBodyRecovery', OverrideTuple, BattleData, NewGameState);
 
 	return OverrideTuple.Data[0].b;
 }
@@ -2200,7 +2203,10 @@ static function bool TriggerOverrideBodyRecovery(XComGameState_BattleData Battle
 //     Source: XComGameState_BattleData
 //   }
 //
-static function bool TriggerOverrideLootRecovery(XComGameState_BattleData BattleData, bool DoLootRecovery)
+private static function bool TriggerOverrideLootRecovery(
+	XComGameState_BattleData BattleData,
+	bool DoLootRecovery,
+	XComGameState NewGameState)
 {
 	local XComLWTuple OverrideTuple;
 
@@ -2210,7 +2216,7 @@ static function bool TriggerOverrideLootRecovery(XComGameState_BattleData Battle
 	OverrideTuple.Data[0].kind = XComLWTVBool;
 	OverrideTuple.Data[0].b = DoLootRecovery;
 
-	`XEVENTMGR.TriggerEvent('OverrideLootRecovery', OverrideTuple, BattleData, none);
+	`XEVENTMGR.TriggerEvent('OverrideLootRecovery', OverrideTuple, BattleData, NewGameState);
 
 	return OverrideTuple.Data[0].b;
 }
