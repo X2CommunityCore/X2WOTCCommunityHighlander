@@ -438,19 +438,3 @@ static function array<name> GetAmbushRiskTemplateNames()
 	return TemplateNames;
 }
 // End Issue #485
-
-// Start issue #602
-simulated static function bool IsAssimilatedPsiClass(Name SoldierClass)
-{
-	local Name ClassName;
-
-	foreach default.CLASS_AS_PSI_CLASS(ClassName)
-	{
-		if(SoldierClass == ClassName)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-// End issue #602
