@@ -199,6 +199,12 @@ RunPriorityGroup=RUN_STANDARD
 - `OverrideAbilityIconColor` provides a tuple with the same ID as the
   event and data of the form `[bool IsObjective, string Color]` that allows
   mods to override the color of soldier abilities in the tactical HUD (#400)
+- `OverrideBodyRecovery` allows mods to determine whether incapacitated soldiers are recovered
+  at the end of a mission (which is only supported by full sweep missions with corpse retrieval
+  in the base game) (#571)
+- `OverrideLootRecovery` allows mods to determine whether loot is automatically recovered
+  at the end of a mission (which is only supported by full sweep missions with corpse retrieval
+  in the base game) (#571)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
