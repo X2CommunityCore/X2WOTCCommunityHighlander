@@ -6877,17 +6877,9 @@ function CheckForInspiredTechs(XComGameState NewGameState)
 			// Prevent any techs which could be made instant (autopsies), or which have already been reduced by purchasing tech reductions from the black market
 			// and only inspire techs which the player can afford
 			if (!TechTemplate.bCheckForceInstant && AvailableTechState.TimeReductionScalar < 0.001f && !HasPausedProject(AvailableTechRefs[TechIndex]) &&
-				MeetsRequirmentsAndCanAffordCost(TechTemplate.Requirements, TechTemplate.Cost, default.ResearchCostScalars, , TechTemplate.AlternateRequirements))
+				MeetsRequirmentsAndCanAffordCost(TechTemplate.Requirements, TechTemplate.Cost, default.ResearchCostScalars, , TechTemplate.AlternateRequirements) &&
+				/* Issue #633 */ TriggerCanTechBeInspired(AvailableTechState, NewGameState))
 			{
-				// Start Issue #633
-				//
-				// Check with mods to determine whether this tech can be inspired or not.
-				if (!TriggerCanTechBeInspired(AvailableTechState, NewGameState))
-				{
-					continue;
-				}
-				// End Issue #633
-
 				AvailableTechState = XComGameState_Tech(NewGameState.ModifyStateObject(class'XComGameState_Tech', AvailableTechState.ObjectID));
 				AvailableTechState.bInspired = true;
 				AvailableTechState.TimeReductionScalar = ((default.MinInspiredTechTimeReduction + `SYNC_RAND(default.MaxInspiredTechTimeReduction - default.MinInspiredTechTimeReduction + 1)) / 100.0f);
