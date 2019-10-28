@@ -626,6 +626,9 @@
     <Content Include="Src\XComGame\Classes\X2Action_Hack.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Action_SwapTeams.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComPlayerController.uc">
       <SubType>Content</SubType>
     </Content>
