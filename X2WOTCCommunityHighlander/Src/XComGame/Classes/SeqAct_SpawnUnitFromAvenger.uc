@@ -197,16 +197,6 @@ private static function XComGameState_Unit AddStrategyUnitToBoard(XComGameState_
 	// Must happen after unit is submitted, or it gets confused about when the unit is in play or not 
 	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Adding Reserve Unit Abilities");
 
-	// Start Issue #608
-	//
-	// The MergeAmmoAsNeeded() function that is called during unit ability initialization requires
-	// the unit's items to be included in the new game state. So add them again.
-	foreach Unit.InventoryItems(ItemReference)
-	{
-		NewGameState.ModifyStateObject(class'XComGameState_Item', ItemReference.ObjectID);
-	}
-	// End Issue #608
-
 	Rules.InitializeUnitAbilities(NewGameState, Unit);
 
 	// make the unit concealed, if they have Phantom
