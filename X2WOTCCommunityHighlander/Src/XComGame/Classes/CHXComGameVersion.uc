@@ -29,6 +29,7 @@ static function array<X2DataTemplate> CreateTemplates()
 		XComGameVersion.MajorVersion = class'Engine.CHEngineVersion'.default.MajorVersion;
 		XComGameVersion.MinorVersion = class'Engine.CHEngineVersion'.default.MinorVersion;
 		XComGameVersion.PatchVersion = class'Engine.CHEngineVersion'.default.PatchVersion;
+		XComGameVersion.Commit = class'Engine.CHEngineVersion'.default.Commit;
 		class'X2TacticalGameRuleset'.static.ReleaseScriptLog("X2WOTCCommunityHighlander: Created Engine version template with version" @ XComGameVersion.MajorVersion $ "." $ XComGameVersion.MinorVersion $ "." $ XComGameVersion.PatchVersion);
 		Templates.AddItem(XComGameVersion);
 	}

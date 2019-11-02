@@ -2309,6 +2309,9 @@ simulated state CreateTacticalGame
 		SpawnManager.ClearCachedFireTiles();
 		SpawnManager.SpawnAllAliens(ForceLevel, AlertLevel, StartState, MissionSiteState);
 
+		// Single line issue #457
+		`XEVENTMGR.TriggerEvent('PostAliensSpawned',,, StartState);
+
 		// After spawning, the AI player still needs to sync the data
 		foreach StartState.IterateByClassType(class'XComGameState_Player', IteratePlayerState)
 		{
@@ -2650,6 +2653,39 @@ simulated state CreateTacticalGame
 		}
 	}
 
+	// start CHL issue #450
+	// added function ApplySitRepEffectsToStartState
+	// to give SitReps access to the Tactical StartState
+	simulated function ApplySitRepEffectsToStartState()
+	{
+		local XComGameState StartState;
+		local int StartStateIndex;
+		local X2SitRepEffect_ModifyTacticalStartState SitRepEffect;
+		local XComGameState_BattleData BattleDataState;
+
+		StartState = CachedHistory.GetStartState();
+		BattleDataState = XComGameState_BattleData(CachedHistory.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
+		
+		if (StartState == none)
+		{
+			StartStateIndex = CachedHistory.FindStartStateIndex();
+
+			StartState = CachedHistory.GetGameStateFromHistory(StartStateIndex);
+
+			`assert(StartState != none);
+
+		}
+
+		foreach class'X2SitRepTemplateManager'.static.IterateEffects(class'X2SitRepEffect_ModifyTacticalStartState', SitRepEffect, BattleDataState.ActiveSitReps)
+		{
+			if (SitRepEffect.ModifyTacticalStartStateFn != none)
+			{
+				SitRepEffect.ModifyTacticalStartStateFn(StartState);
+			}
+		}
+	}
+	// end CHL issue #450
+
 	simulated function ApplyDarkEventsToStartState( )
 	{
 		local XComGameState StartState;
@@ -2743,7 +2779,9 @@ Begin:
 	//Show the soldiers riding to the mission while the map generates
 	bShowDropshipInteriorWhileGeneratingMap = ShowDropshipInterior();
 	if(bShowDropshipInteriorWhileGeneratingMap)
-	{		
+	{
+		class'CHHelpers'.static.UpdateTransitionMap(); // Issue #388
+
 		`MAPS.AddStreamingMap(`MAPS.GetTransitionMap(), DropshipLocation, DropshipRotation, false);
 		while(!`MAPS.IsStreamingComplete())
 		{
@@ -2836,6 +2874,7 @@ Begin:
 
 		`MAPS.ClearPreloadedLevels();
 		`MAPS.RemoveStreamingMapByName(`MAPS.GetTransitionMap(), false);
+		`MAPS.ResetTransitionMap(); // Issue #388 -- revert transition map changes
 	}
 
 	TacticalStreamingMapsPostLoad();
@@ -2892,6 +2931,7 @@ Begin:
 	ReleaseScriptLog("X2TacticalGameRuleset: Finished Generating Map");
 
 	ApplyResistancePoliciesToStartState( );
+	ApplySitRepEffectsToStartState();  // CHL issue #450
 	ApplyDarkEventsToStartState( );
 
 	//Position units already in the start state

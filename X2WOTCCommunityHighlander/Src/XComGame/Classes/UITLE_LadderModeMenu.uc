@@ -964,7 +964,7 @@ simulated function UpdateData(int LadderIndex)
 		}
 
 		MC.QueueString(SoldierClass.IconImage); //Class Icon Image
-		MC.QueueString(class'UIUtilities_Image'.static.GetRankIcon(UnitState.GetRank(), UnitState.GetSoldierClassTemplateName())); //Rank image
+		MC.QueueString(UnitState.GetSoldierRankIcon()); //Rank image, Issue #408
 		if (LadderData.LadderIndex < 10)
 		{
 			MC.QueueString(class'XComGameState_LadderProgress'.static.GetUnitName(m_HeadshotsRecieved - 1, LadderData.LadderIndex)); //Unit Name
@@ -973,7 +973,9 @@ simulated function UpdateData(int LadderIndex)
 		{
 			MC.QueueString(UnitState.GetFullName());
 		}
-		MC.QueueString(SoldierClass.DisplayName); //Class Name
+		// Start Issue #106
+		MC.QueueString(UnitState.GetSoldierClassDisplayName()); //Class Name
+		// End Issue #106
 		MC.EndOp();
 
 	}

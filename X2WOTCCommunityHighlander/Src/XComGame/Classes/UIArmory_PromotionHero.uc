@@ -137,7 +137,7 @@ simulated function PopulateData()
 
 	FactionState = Unit.GetResistanceFaction();
 	
-	rankIcon = class'UIUtilities_Image'.static.GetRankIcon(Unit.GetRank(), ClassTemplate.DataName);
+	rankIcon = Unit.GetSoldierRankIcon();// Issue #408
 	// Start Issue #106
 	classIcon = Unit.GetSoldierClassIcon();
 	// End Issue #106
@@ -199,7 +199,9 @@ simulated function PopulateData()
 		bHasColumnAbility = UpdateAbilityIcons(Column);
 		bHighlightColumn = (!bHasColumnAbility && (iRank+1) == Unit.GetRank());
 
-		Column.AS_SetData(bHighlightColumn, m_strNewRank, class'UIUtilities_Image'.static.GetRankIcon(iRank+1, ClassTemplate.DataName), Caps(class'X2ExperienceConfig'.static.GetRankName(iRank+1, ClassTemplate.DataName)));
+		// Start Issue #408
+		Column.AS_SetData(bHighlightColumn, m_strNewRank, Unit.GetSoldierRankIcon(iRank+1), Caps(Unit.GetSoldierRankName(iRank+1)));
+		// End Issue #408
 	}
 
 	HidePreview();

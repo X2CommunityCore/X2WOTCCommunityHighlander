@@ -9638,6 +9638,16 @@ function bool GetTileWithinOneActionPointMove( TTile kTileIn, out TTile kTileOut
 			{
 				continue;
 			}
+
+			// Start Issue #503
+			//
+			// Bugfix for flying units - the path will often have above-ground tiles on
+			// each point along the path except the start and end, so we need to reset
+			// each potential stopping point to the floor level before testing if it's
+			// in movement range, otherwise it will always return "-1" for an invalid end
+			// point tile that's above ground.
+			kCurrTile.Z = XWorld.GetFloorTileZ(kCurrTile, true);
+			// End Issue #503
 			if( IsWithinMovementRange(kCurrTile, bAllowDashMovement) )
 			{
 				kTileOut = kCurrTile;

@@ -655,6 +655,10 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 {
 	if (SkelComp == Mesh && Mesh.Animations != none)
 	{
+		// Start Issue #455
+		DLCInfoPostInitAnimTree(SkelComp);
+		// End Issue #455
+
 		if (AnimTreeController == none)
 		{
 			AnimTreeController = new class'XComAnimTreecontroller';
@@ -689,6 +693,28 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 	
 	Super.PostInitAnimTree(SkelComp);
 }
+
+// Start Issue #455
+simulated function DLCInfoPostInitAnimTree(SkeletalMeshComponent SkelComp)
+{
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local X2DownloadableContentInfo DLCInfo;
+	local XGUnit Unit;
+	local XComGameState_Unit UnitState;
+
+	Unit = XGUnit(GetGameUnit());
+	if (Unit != none)
+	{
+		UnitState = Unit.GetVisualizedGameState();
+	}
+
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	foreach DLCInfos(DLCInfo)
+	{
+		DLCInfo.UnitPawnPostInitAnimTree(UnitState, self, SkelComp);
+	}
+}
+// End Issue #455
 
 native function HideAllAttachments(bool ShouldHide = true);
 

@@ -1293,6 +1293,13 @@ static function CleanupProxyVips()
 			OriginalUnit.SetCurrentStat(eStat_HP, ProxyUnit.GetCurrentStat(eStat_HP));
 		}
 
+		// Start Issue #465
+		if (class'CHHelpers'.default.PreserveProxyUnitData && ProxyUnit.bRemovedFromPlay)
+		{
+			OriginalUnit.RemoveStateFromPlay();
+		}
+		// End Issue #465
+		
 		// remove the proxy from the game. We don't need it anymore
 		NewGameState.RemoveStateObject(ProxyUnit.ObjectID);
 	}

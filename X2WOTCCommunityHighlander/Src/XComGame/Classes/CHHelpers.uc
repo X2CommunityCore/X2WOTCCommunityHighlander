@@ -110,6 +110,41 @@ var config(Content) array<name> EyeMaterial;
 var config(Content) array<name> FlagMaterial;
 // End Issue #356
 
+// Start Issue #465
+var config bool PreserveProxyUnitData;
+// End Issue #465
+// Start Issue #317
+struct CharSpeachLookup
+{
+	var name CharSpeech;
+	var array <name> PersonalityVariant;
+};
+
+struct PersonalitySpeechLookup
+{
+	var name Personality;
+	var array <CharSpeachLookup> CharSpeeches;
+};
+
+var config array <PersonalitySpeechLookup> PersonalitySpeech;
+// End Issue #317
+
+// Start Issue #476
+var config array<name> RequiresTargetingActivation;
+// End Issue #476
+
+// Start Issue #485
+var config array<name> AdditionalAmbushRiskTemplates;
+// End Issue #485
+
+// Start Issue #322
+var config bool UseNewPersonnelStatusBehavior;
+// End Issue #322
+
+// Start Issue #543
+var config bool bSkipCampaignIntroMovies;
+// End Issue #543
+
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
 	local XComContentManager		Content;
@@ -351,3 +386,51 @@ static function XComLWTuple BuildDefaultTuple(XComGameState_Unit UnitState)
 	return Tup;
 }
 // End Issue #257
+
+// Start Issue #388
+static function UpdateTransitionMap()
+{
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local int i;
+	local string OverrideMapName;
+
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	for(i = 0; i < DLCInfos.Length; ++i)
+	{
+		DLCInfos[i].LoadingScreenOverrideTransitionMap(OverrideMapName);
+	}
+	if (Len(OverrideMapName) > 0)
+	{
+		`MAPS.SetTransitionMap(OverrideMapName);
+	}
+}
+// End Issue #388
+
+// Start Issue #476
+static function bool TargetingClassRequiresActivation(X2TargetingMethod TargetingMethod)
+{
+	local int i;
+
+	for (i = 0; i < default.RequiresTargetingActivation.Length; i++)
+	{
+		if (TargetingMethod.IsA(default.RequiresTargetingActivation[i]))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+// End Issue #476
+
+// Start Issue #485
+static function array<name> GetAmbushRiskTemplateNames()
+{
+	local array<name> TemplateNames;
+
+	TemplateNames = default.AdditionalAmbushRiskTemplates;
+	TemplateNames.AddItem('CovertActionRisk_Ambush');
+
+	return TemplateNames;
+}
+// End Issue #485

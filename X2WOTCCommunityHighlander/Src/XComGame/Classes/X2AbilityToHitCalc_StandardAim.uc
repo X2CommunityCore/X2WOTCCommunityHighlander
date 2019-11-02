@@ -192,34 +192,12 @@ function InternalRollForAbilityHit(XComGameState_Ability kAbility, AvailableTarg
 	UnitState = XComGameState_Unit(History.GetGameStateForObjectID(kAbility.OwnerStateObject.ObjectID));
 	TargetState = XComGameState_Unit(History.GetGameStateForObjectID(kTarget.PrimaryTarget.ObjectID));
 	
-	if (UnitState != none && TargetState != none)
-	{
-		foreach UnitState.AffectedByEffects(EffectRef)
-		{
-			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
-			if (EffectState != none)
-			{
-				if (EffectState.GetX2Effect().ChangeHitResultForAttacker(UnitState, TargetState, kAbility, Result, ChangeResult))
-				{
-					`log("Effect" @ EffectState.GetX2Effect().FriendlyName @ "changing hit result for attacker:" @ ChangeResult,true,'XCom_HitRolls');
-					Result = ChangeResult;
-				}
-			}
-		}
-		foreach TargetState.AffectedByEffects(EffectRef)
-		{
-			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
-			if (EffectState != none)
-			{
-				if (EffectState.GetX2Effect().ChangeHitResultForTarget(EffectState, UnitState, TargetState, kAbility, bIsPrimaryTarget, Result, ChangeResult))
-				{
-					`log("Effect" @ EffectState.GetX2Effect().FriendlyName @ "changing hit result for target:" @ ChangeResult, true, 'XCom_HitRolls');
-					Result = ChangeResult;
-				}
-			}
-		}
-	}
-	
+	// Issue #426: ChangeHitResultForX() code block moved to later in method.
+	// Due to how GetModifiedHitChanceForCurrentDifficulty() is implemented, it reverts attempts to change
+	// XCom Hits to Misses, or enemy misses to hits.
+	// The LW2 graze band issues are related to this phenomenon, since the graze band has the effect
+	// of changing some what "should" be enemy misses to hits (specifically graze result)
+
 	// Aim Assist (miss streak prevention)
 	bRolledResultIsAMiss = class'XComGameStateContext_Ability'.static.IsHitResultMiss(Result);
 	
@@ -259,15 +237,46 @@ function InternalRollForAbilityHit(XComGameState_Ability kAbility, AvailableTarg
 	`log("***HIT" @ Result, !bRolledResultIsAMiss, 'XCom_HitRolls');
 	`log("***MISS" @ Result, bRolledResultIsAMiss, 'XCom_HitRolls');
 
+	// Start Issue #426: Block moved from earlier. Only code change is for lightning reflexes,
+	// because bRolledResultIsAMiss was used for both aim assist and reflexes
+	if (UnitState != none && TargetState != none)
+	{
+		foreach UnitState.AffectedByEffects(EffectRef)
+		{
+			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
+			if (EffectState != none)
+			{
+				if (EffectState.GetX2Effect().ChangeHitResultForAttacker(UnitState, TargetState, kAbility, Result, ChangeResult))
+				{
+					`log("Effect" @ EffectState.GetX2Effect().FriendlyName @ "changing hit result for attacker:" @ ChangeResult,true,'XCom_HitRolls');
+					Result = ChangeResult;
+				}
+			}
+		}
+		foreach TargetState.AffectedByEffects(EffectRef)
+		{
+			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
+			if (EffectState != none)
+			{
+				if (EffectState.GetX2Effect().ChangeHitResultForTarget(EffectState, UnitState, TargetState, kAbility, bIsPrimaryTarget, Result, ChangeResult))
+				{
+					`log("Effect" @ EffectState.GetX2Effect().FriendlyName @ "changing hit result for target:" @ ChangeResult, true, 'XCom_HitRolls');
+					Result = ChangeResult;
+				}
+			}
+		}
+	}
+
 	if (TargetState != none)
 	{
 		//  Check for Lightning Reflexes
-		if (bReactionFire && TargetState.bLightningReflexes && !bRolledResultIsAMiss)
+		if (bReactionFire && TargetState.bLightningReflexes && !class'XComGameStateContext_Ability'.static.IsHitResultMiss(Result))
 		{
 			Result = eHit_LightningReflexes;
 			`log("Lightning Reflexes triggered! Shot will miss.", true, 'XCom_HitRolls');
 		}
 	}	
+	// End Issue #426
 
 	if (UnitState != none && TargetState != none)
 	{
@@ -362,7 +371,8 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 
 				//  Add basic offense and defense values
 				AddModifier(UnitState.GetBaseStat(eStat_Offense), class'XLocalizedData'.default.OffenseStat, m_ShotBreakdown, eHit_Success, bDebugLog);
-				UnitState.GetStatModifiers(eStat_Offense, StatMods, StatModValues);
+				// Single Line Change for Issue #313
+				UnitState.GetStatModifiersFixed(eStat_Offense, StatMods, StatModValues);
 				for (i = 0; i < StatMods.Length; ++i)
 				{
 					AddModifier(int(StatModValues[i]), StatMods[i].GetX2Effect().FriendlyName, m_ShotBreakdown, eHit_Success, bDebugLog);
@@ -521,7 +531,8 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 		if (bAllowCrit)
 		{
 			AddModifier(UnitState.GetBaseStat(eStat_CritChance), class'XLocalizedData'.default.CharCritChance, m_ShotBreakdown, eHit_Crit, bDebugLog);
-			UnitState.GetStatModifiers(eStat_CritChance, StatMods, StatModValues);
+			// Single Line Change for Issue #313
+			UnitState.GetStatModifiersFixed(eStat_CritChance, StatMods, StatModValues);
 			for (i = 0; i < StatMods.Length; ++i)
 			{
 				AddModifier(int(StatModValues[i]), StatMods[i].GetX2Effect().FriendlyName, m_ShotBreakdown, eHit_Crit, bDebugLog);
@@ -665,8 +676,14 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 function float GetReactionAdjust(XComGameState_Unit Shooter, XComGameState_Unit Target)
 {
 	local XComGameStateHistory History;
-	local XComGameState_Unit OldTarget;
+	// Issue #493: Variable no longer needed
+	//local XComGameState_Unit OldTarget;
 	local UnitValue ConcealedValue;
+	// New Variables for Issue #493
+	local int PathIndex;
+	local XComGameStateContext_Ability AbilityContext;
+	local bool FoundContext;
+	// End Issue #493 New vars
 
 	History = `XCOMHISTORY;
 
@@ -677,13 +694,21 @@ function float GetReactionAdjust(XComGameState_Unit Shooter, XComGameState_Unit 
 			return 0;
 	}
 
-	OldTarget = XComGameState_Unit(History.GetGameStateForObjectID(Target.ObjectID, eReturnType_Reference, History.GetCurrentHistoryIndex() - 1));
-
-	//  Add penalty if the target was dashing. Look for the target changing position and spending more than 1 action point as a simple check.
-	if (OldTarget != None && OldTarget.TileLocation != Target.TileLocation)
+	// Start Issue #493
+	foreach History.IterateContextsByClassType(class'XComGameStateContext_Ability', AbilityContext,,, History.GetEventChainStartIndex()) //EventChainStartIndex is the earliest what we are reacting to could be, often it *will* be at this index
 	{
-		if (OldTarget.NumAllActionPoints() > 1 && Target.NumAllActionPoints() == 0)
-		{		
+		if(AbilityContext.InputContext.SourceObject.ObjectID==Target.ObjectID)
+		{
+			FoundContext = true;
+			break;
+		}
+	}
+	if(FoundContext)
+	{
+		PathIndex = AbilityContext.GetMovePathIndex(Target.ObjectID);// Ok, did we move?
+		If (PathIndex!=INDEX_NONE && AbilityContext.InputContext.MovementPaths[PathIndex].CostIncreases.Length!=0)//Dash check
+	// End Issue #493
+		{
 			return default.REACTION_DASHING_FINALMOD;
 		}
 	}

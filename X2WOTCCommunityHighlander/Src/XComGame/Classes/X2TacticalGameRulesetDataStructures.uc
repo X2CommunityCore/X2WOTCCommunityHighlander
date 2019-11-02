@@ -99,6 +99,11 @@ enum EInventorySlot
 	eInvSlot_ExtraSecondary,
 	eInvSlot_PrimaryPayload,
 	eInvSlot_SecondaryPayload,
+	eInvSlot_ExtraRocket1,
+	eInvSlot_ExtraRocket2,
+	eInvSlot_ExtraRocket3,
+	eInvSlot_ExtraRocket4,
+	eInvSlot_Pistol,
 
 	// Marker slot, don't use
 	eInvSlot_END_TEMPLATED_SLOTS,

@@ -37,7 +37,6 @@ function UpdateData()
 {
 	local XComGameState_Unit Unit1, Unit2;
 	local string ClassIcon1, ClassIcon2, RankIcon1, RankIcon2;
-	local X2SoldierClassTemplate SoldierClass1, SoldierClass2;
 	local SoldierBond BondData;
 	local XGParamTag kTag;
 	local UIButton OKButton, CancelButton;
@@ -46,14 +45,12 @@ function UpdateData()
 	Unit1 = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitRef1.ObjectID));
 	Unit2 = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitRef2.ObjectID));
 
-	SoldierClass1 = Unit1.GetSoldierClassTemplate();
-	RankIcon1 = class'UIUtilities_Image'.static.GetRankIcon(Unit1.GetRank(), SoldierClass1.DataName);
+	RankIcon1 = Unit1.GetSoldierRankIcon(); // Issue #408
 	// Start Issue #106
 	ClassIcon1 = Unit1.GetSoldierClassIcon();
 	// End Issue #106
 
-	SoldierClass2 = Unit2.GetSoldierClassTemplate();
-	RankIcon2 = class'UIUtilities_Image'.static.GetRankIcon(Unit2.GetRank(), SoldierClass2.DataName);
+	RankIcon2 = Unit2.GetSoldierRankIcon(); // Issue #408
 	// Start Issue #106
 	ClassIcon2 = Unit2.GetSoldierClassIcon();
 	// End Issue #106

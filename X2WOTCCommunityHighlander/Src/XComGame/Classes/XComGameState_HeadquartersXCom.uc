@@ -4644,7 +4644,8 @@ static function UpgradeItems(XComGameState NewGameState, name CreatorTemplateNam
 			InventoryItemState = XComGameState_Item(History.GetGameStateForObjectID(InventoryItemRefs[iItems].ObjectID));
 			foreach ItemsToUpgrade(BaseItemTemplate)
 			{
-				if (InventoryItemState.GetMyTemplateName() == BaseItemTemplate.DataName && InventoryItemState.GetMyWeaponUpgradeTemplates().Length > 0)
+				// Single line for Issue #306
+				if (InventoryItemState.GetMyTemplateName() == BaseItemTemplate.DataName && InventoryItemState.GetMyWeaponUpgradeCount() > 0)
 				{
 					UpgradedItemState = UpgradeItemTemplate.CreateInstanceFromTemplate(NewGameState);
 					UpgradedItemState.WeaponAppearance = InventoryItemState.WeaponAppearance;
@@ -4652,7 +4653,8 @@ static function UpgradeItems(XComGameState NewGameState, name CreatorTemplateNam
 
 					// Some special weapons already have attachments. If so, do not put older
 					// attachments onto the upgraded weapon
-					if (UpgradedItemState.GetMyWeaponUpgradeTemplateNames().Length == 0)
+					// Single line for Issue #306
+					if (UpgradedItemState.GetMyWeaponUpgradeCount() == 0)
 					{
 						// Transfer over all weapon upgrades to the new item
 						WeaponUpgrades = InventoryItemState.GetMyWeaponUpgradeTemplates();
@@ -4696,7 +4698,8 @@ static function UpgradeItems(XComGameState NewGameState, name CreatorTemplateNam
 
 							// Some special weapons already have attachments. If so, do not put older
 							// attachments onto the upgraded weapon
-							if (UpgradedItemState.GetMyWeaponUpgradeTemplateNames().Length == 0)
+							// Single line for Issue #306
+							if (UpgradedItemState.GetMyWeaponUpgradeCount() == 0)
 							{
 								WeaponUpgrades = InventoryItemState.GetMyWeaponUpgradeTemplates();
 								foreach WeaponUpgrades(WeaponUpgradeTemplate)
@@ -7912,6 +7915,7 @@ function GetResistanceEvents(out array<HQEvent> arrEvents)
 }
 
 //---------------------------------------------------------------------------------------
+// chl issue #518 start: added tuple & event 'ForceNoCovertActionNagFirstMonth'
 function GetCovertActionEvents(out array<HQEvent> arrEvents)
 {
 	local XComGameStateHistory History;
@@ -7919,9 +7923,30 @@ function GetCovertActionEvents(out array<HQEvent> arrEvents)
 	local XComGameState_HeadquartersResistance ResHQ;
 	local HQEvent kEvent;
 	local bool bActionFound, bRingBuilt;
+	local XComLWTuple Tuple1, Tuple2; // chl issue #391, #518
 
 	History = `XCOMHISTORY;
+
+	// Start Issue #391
+	Tuple1 = new class'XComLWTuple';
+	Tuple1.Id = 'GetCovertActionEvents_Settings';
+	Tuple1.Data.Add(2);
+	Tuple1.Data[0].kind = XComLWTVBool;
+	Tuple1.Data[0].b = false; // AddAll
+	Tuple1.Data[1].kind = XComLWTVBool;
+	Tuple1.Data[1].b = false; // InsertSorted
+
+	`XEVENTMGR.TriggerEvent('GetCovertActionEvents_Settings', Tuple1, self);
+	// End Issue #391
 	
+	Tuple2 = new class'XComLWTuple';
+	Tuple2.Id = 'OverrideNoCaEventMinMonths';
+	Tuple2.Data.Add(1);
+	Tuple2.Data[0].kind = XComLWTVInt;
+	Tuple2.Data[0].i = 1;
+
+	`XEVENTMGR.TriggerEvent('OverrideNoCaEventMinMonths', Tuple2, self);
+
 	foreach History.IterateByClassType(class'XComGameState_CovertAction', ActionState)
 	{
 		if (ActionState.bStarted)
@@ -7931,16 +7956,38 @@ function GetCovertActionEvents(out array<HQEvent> arrEvents)
 			kEvent.ImagePath = class'UIUtilities_Image'.const.EventQueue_Resistance;
 			kEvent.ActionRef = ActionState.GetReference();
 			kEvent.bActionEvent = true;
-			//Add directly to the end of the events list, not sorted by hours. 
-			arrEvents.AddItem(kEvent);
+
+			// Start Issue #391
+			if (!Tuple1.Data[1].b)
+			{
+			// End Issue #391
+				//Add directly to the end of the events list, not sorted by hours. 
+				arrEvents.AddItem(kEvent);
+			// Start Issue #391
+			}
+			else
+			{
+				AddEventToEventList(arrEvents, kEvent);
+			}
+			// End Issue #391
+
 			bActionFound = true;
-			break; // We only need to display one Action at a time
+
+			// Start Issue #391
+			if (!Tuple1.Data[0].b)
+			{
+			// End Issue #391
+				break; // We only need to display one Action at a time
+			// Start Issue #391
+			}
+			// End Issue #391
 		}
 	}
 
 	ResHQ = XComGameState_HeadquartersResistance(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersResistance'));
 	bRingBuilt = HasFacilityByName('ResistanceRing');
-	if (!bActionFound && (ResHQ.NumMonths >= 1 || bRingBuilt))
+
+	if (!bActionFound && (ResHQ.NumMonths >= Tuple2.Data[0].i /* chl issue #518 */ || bRingBuilt))
 	{
 		if (bRingBuilt)
 			kEvent.Data = CovertActionsGoToRing;

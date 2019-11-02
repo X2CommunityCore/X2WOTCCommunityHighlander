@@ -2735,7 +2735,7 @@ function SetAutoTextStrings(Photobooth_AutoTextUsage Usage, optional Photobooth_
 				opLineChance = 0; // no nickname most likely no kills so this looks bad
 			}
 
-			LocTag.RankName0 = `GET_RANK_STR(Unit1.GetRank(), Unit1.GetSoldierClassTemplateName());
+			LocTag.RankName0 = Unit1.GetSoldierRankName(); // Issue #408
 			//LocTag.Flag = ;
 
 			if (LocTag.RankName0 == LocTag.Class0)
@@ -2850,8 +2850,10 @@ function SetAutoTextStrings(Photobooth_AutoTextUsage Usage, optional Photobooth_
 				}
 			}
 
-			LocTag.RankName0 = `GET_RANK_STR(Unit1.GetRank(), Unit1.GetSoldierClassTemplateName());
-			LocTag.RankName1 = `GET_RANK_STR(Unit2.GetRank(), Unit2.GetSoldierClassTemplateName());
+			// Start Issue #408
+			LocTag.RankName0 = Unit1.GetSoldierRankName();
+			LocTag.RankName1 = Unit2.GetSoldierRankName();
+			// End Issue #408
 			//LocTag.Flag = ;
 
 			if (Unit1.kAppearance.iGender == Unit2.kAppearance.iGender)

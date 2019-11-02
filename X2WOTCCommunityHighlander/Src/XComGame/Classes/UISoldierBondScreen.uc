@@ -113,7 +113,6 @@ function RefreshHeader()
 {
 	local XComGameState_Unit Unit, Bondmate;
 	local string classIcon, rankIcon, flagIcon;
-	local int iRank;
 	local X2SoldierClassTemplate SoldierClass;
 	local SoldierBond BondData;
 	local float CohesionPercent, CohesionMax;
@@ -121,33 +120,31 @@ function RefreshHeader()
 
 	Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitRef.ObjectID));
 	
-	iRank = Unit.GetRank();
-
 	SoldierClass = Unit.GetSoldierClassTemplate();
 
 	flagIcon = Unit.GetCountryTemplate().FlagImage;
-	rankIcon = class'UIUtilities_Image'.static.GetRankIcon(iRank, SoldierClass.DataName);
+	rankIcon = Unit.GetSoldierRankIcon(); // Issue #408
 	// Start Issue #106
 	classIcon = Unit.GetSoldierClassIcon();
 	// End Issue #106
 
-	SetPlayerInfo(Caps(`GET_RANK_STR(Unit.GetRank(), SoldierClass.DataName)), 
+	// Start Issue 408
+	SetPlayerInfo(Caps(Unit.GetSoldierRankName()), 
 					Caps(Unit.GetName(eNameType_FullNick)),
 					classIcon,
 					rankIcon, 
 					"", 
 					0);
+	// End Issue #408
 
 	if( Unit.HasSoldierBond(BondmateRef, BondData) )
 	{
 		Bondmate = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(BondmateRef.ObjectID));
 
-		iRank = Bondmate.GetRank();
-
 		SoldierClass = Bondmate.GetSoldierClassTemplate();
 
 		flagIcon = Bondmate.GetCountryTemplate().FlagImage;
-		rankIcon = class'UIUtilities_Image'.static.GetRankIcon(iRank, SoldierClass.DataName);
+		rankIcon = Unit.GetSoldierRankIcon(); // Issue #408
 		// Start Issue #106
 		classIcon = Bondmate.GetSoldierClassIcon();
 		// End Issue #106
@@ -156,12 +153,12 @@ function RefreshHeader()
 		CohesionMax = float(CohesionThresholds[Clamp(BondData.BondLevel + 1, 0, CohesionThresholds.Length - 1)]);
 		CohesionPercent = float(BondData.Cohesion) / CohesionMax;
 
-		// Start Issue #106
+		// Start Issue #106, #408
 		SetBondMateInfo(BondMateTitle, 
 						BondData.BondLevel,
 						Caps(Bondmate.GetName(eNameType_Full)),
 						Caps(Bondmate.GetName(eNameType_Nick)),
-						Caps(`GET_RANK_ABBRV(Bondmate.GetRank(), SoldierClass.DataName)),
+						Caps(Unit.GetSoldierShortRankName()),
 						rankIcon,
 						Caps(SoldierClass != None ? Bondmate.GetSoldierClassDisplayName() : ""),
 						classIcon,
@@ -169,7 +166,7 @@ function RefreshHeader()
 						class'X2StrategyGameRulesetDataStructures'.static.GetSoldierCompatibilityLabel(BondData.Compatibility),
 						CohesionPercent,
 						false /*todo: is disabled*/ );
-		// End Issue #106
+		// End Issue #106, #408
 	}
 	else
 	{

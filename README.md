@@ -26,6 +26,10 @@ The X2WOTCCommunityHighlander provides a Highlander for the XCOM 2 expansion *Wa
 
 # Contributing
 
+## Discussion channel
+
+For the most part, discussion happens in a [Discord channel](https://discordapp.com/invite/vvsXvs3). It's our platform of choice for lengthy discussions that don't fit GitHub issues.
+
 ## When contributing, please
 
 * use the code style that is generally used in the XCOM 2 codebase:

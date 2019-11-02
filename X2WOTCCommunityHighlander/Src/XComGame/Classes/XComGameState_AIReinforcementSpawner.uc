@@ -604,38 +604,51 @@ function BuildVisualizationForSpawnerCreation(XComGameState VisualizeGameState)
 	local XGUnit TempXGUnit;
 	local bool bUnitHasSpokenVeryRecently;
 	local X2Action_PlaySoundAndFlyOver SoundAndFlyOver;
+	local XComLWTuple OverrideDisableFlareTuple;  // Issue #448
 
 	ContentManager = `CONTENT;
 	History = `XCOMHISTORY;
 	AISpawnerState = XComGameState_AIReinforcementSpawner(History.GetGameStateForObjectID(ObjectID));
-
-	RevealAreaAction = X2Action_RevealArea(class'X2Action_RevealArea'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
-	RevealAreaAction.TargetLocation = AISpawnerState.SpawnInfo.SpawnLocation;
-	RevealAreaAction.AssociatedObjectID = ObjectID;
-	RevealAreaAction.bDestroyViewer = false;
-
-	ReinforcementSpawnerEffectAction = X2Action_PlayEffect(class'X2Action_PlayEffect'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
-
-	if( SpawnVisualizationType == 'PsiGate' )
-	{
-		ReinforcementSpawnerEffectAction.EffectName = ContentManager.PsiGateEffectPathName;
-	}
-	else if( SpawnVisualizationType == 'ATT' )
-	{
-		ReinforcementSpawnerEffectAction.EffectName = ContentManager.ATTFlareEffectPathName;
-	}
-	else if( SpawnVisualizationType == 'Dropdown' )
-	{
-		ReinforcementSpawnerEffectAction.EffectName = ContentManager.ReinforcementDropdownWarningEffectPathName;
-	}
-
-	ReinforcementSpawnerEffectAction.EffectLocation = AISpawnerState.SpawnInfo.SpawnLocation;
-	ReinforcementSpawnerEffectAction.CenterCameraOnEffectDuration = ContentManager.LookAtCamDuration;
-	ReinforcementSpawnerEffectAction.bStopEffect = false;
-
-	ActionMetadata.StateObject_OldState = AISpawnerState;
-	ActionMetadata.StateObject_NewState = AISpawnerState;
 	
+	// Start Issue #448
+	OverrideDisableFlareTuple = new class'XComLWTuple';
+	OverrideDisableFlareTuple.Id = 'OverrideDisableReinforcementsFlare';
+	OverrideDisableFlareTuple.Data.Add(1);
+	OverrideDisableFlareTuple.Data[0].kind = XComLWTVBool;
+	OverrideDisableFlareTuple.Data[0].b = false;  // Default to *not* disabling the flare (vanilla WOTC behavior)
+
+	`XEVENTMGR.TriggerEvent('OverrideDisableReinforcementsFlare', OverrideDisableFlareTuple, AISpawnerState);
+
+	if (!OverrideDisableFlareTuple.Data[0].b)
+	{
+		RevealAreaAction = X2Action_RevealArea(class'X2Action_RevealArea'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
+		RevealAreaAction.TargetLocation = AISpawnerState.SpawnInfo.SpawnLocation;
+		RevealAreaAction.AssociatedObjectID = ObjectID;
+		RevealAreaAction.bDestroyViewer = false;
+
+		ReinforcementSpawnerEffectAction = X2Action_PlayEffect(class'X2Action_PlayEffect'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
+
+		if( SpawnVisualizationType == 'PsiGate' )
+		{
+			ReinforcementSpawnerEffectAction.EffectName = ContentManager.PsiGateEffectPathName;
+		}
+		else if( SpawnVisualizationType == 'ATT' )
+		{
+			ReinforcementSpawnerEffectAction.EffectName = ContentManager.ATTFlareEffectPathName;
+		}
+		else if( SpawnVisualizationType == 'Dropdown' )
+		{
+			ReinforcementSpawnerEffectAction.EffectName = ContentManager.ReinforcementDropdownWarningEffectPathName;
+		}
+
+		ReinforcementSpawnerEffectAction.EffectLocation = AISpawnerState.SpawnInfo.SpawnLocation;
+		ReinforcementSpawnerEffectAction.CenterCameraOnEffectDuration = ContentManager.LookAtCamDuration;
+		ReinforcementSpawnerEffectAction.bStopEffect = false;
+
+		ActionMetadata.StateObject_OldState = AISpawnerState;
+		ActionMetadata.StateObject_NewState = AISpawnerState;
+	}
+	// End Issue #448
 
 	// Add a track to one of the x-com soldiers, to say a line of VO (e.g. "Alien reinforcements inbound!").
 	foreach History.IterateByClassType( class'XComGameState_Unit', UnitIterator )

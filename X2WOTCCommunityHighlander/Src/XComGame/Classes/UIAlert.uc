@@ -2854,7 +2854,6 @@ simulated function BuildTrainingCompleteAlert(string TitleLabel)
 	local X2AbilityTemplate TrainedAbilityTemplate;
 	local array<SoldierClassAbilityType> AbilityTree;
 	local X2AbilityTemplateManager AbilityTemplateManager;
-	local X2SoldierClassTemplate ClassTemplate;
 	local XGParamTag kTag;
 	local XComGameState_ResistanceFaction FactionState;
 	local int i;
@@ -2868,12 +2867,11 @@ simulated function BuildTrainingCompleteAlert(string TitleLabel)
 
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(
 		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(DisplayPropertySet, 'UnitRef')));
-	ClassTemplate = UnitState.GetSoldierClassTemplate();
 	// Start Issue #106
 	ClassName = Caps(UnitState.GetSoldierClassDisplayName());
 	ClassIcon = UnitState.GetSoldierClassIcon();
 	// End Issue #106
-	RankName = Caps(class'X2ExperienceConfig'.static.GetRankName(UnitState.GetRank(), ClassTemplate.DataName));
+	RankName = Caps(UnitState.GetSoldierRankName()); // Issue #408
 	
 	FactionState = UnitState.GetResistanceFaction();
 
@@ -2949,7 +2947,6 @@ simulated function OnTrainingButtonRealized()
 simulated function BuildPsiTrainingCompleteAlert(string TitleLabel)
 {
 	local XComGameState_Unit UnitState;
-	local X2SoldierClassTemplate ClassTemplate;
 	local XGParamTag kTag;
 	local string AbilityIcon, AbilityName, AbilityDescription, ClassIcon, ClassName, RankName;
 	local X2AbilityTemplate AbilityTemplate;
@@ -2968,12 +2965,11 @@ simulated function BuildPsiTrainingCompleteAlert(string TitleLabel)
 
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(
 		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(DisplayPropertySet, 'UnitRef')));
-	ClassTemplate = UnitState.GetSoldierClassTemplate();
 	// Start Issue #106
 	ClassName = Caps(UnitState.GetSoldierClassDisplayName());
 	ClassIcon = UnitState.GetSoldierClassIcon();
 	// End Issue #106
-	RankName = Caps(class'X2ExperienceConfig'.static.GetRankName(UnitState.GetRank(), ClassTemplate.DataName));
+	RankName = Caps(UnitState.GetSoldierRankName()); // Issue #408
 
 	kTag = XGParamTag(`XEXPANDCONTEXT.FindTag("XGParam"));
 	kTag.StrValue0 = "";
@@ -3012,7 +3008,6 @@ simulated function BuildPsiTrainingCompleteAlert(string TitleLabel)
 simulated function BuildSoldierPromotedAlert()
 {
 	local XComGameState_Unit UnitState;
-	local X2SoldierClassTemplate ClassTemplate;
 	local XGParamTag kTag;
 	local string ClassIcon, ClassName, RankName, PromotionString;
 	
@@ -3024,12 +3019,11 @@ simulated function BuildSoldierPromotedAlert()
 
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(
 		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(DisplayPropertySet, 'UnitRef')));
-	ClassTemplate = UnitState.GetSoldierClassTemplate();
 	// Start Issue #106
 	ClassName = Caps(UnitState.GetSoldierClassDisplayName());
 	ClassIcon = UnitState.GetSoldierClassIcon();
 	// End Issue #106
-	RankName = Caps(class'X2ExperienceConfig'.static.GetRankName(UnitState.GetRank(), ClassTemplate.DataName));
+	RankName = Caps(UnitState.GetSoldierRankName()); // Issue #408
 
 	kTag = XGParamTag(`XEXPANDCONTEXT.FindTag("XGParam"));
 	kTag.StrValue0 = UnitState.GetFullName();
@@ -3411,7 +3405,7 @@ simulated function BuildItemAvailableAlert()
 	kInfo.strName = ItemTemplate.GetItemFriendlyName(, false);
 	kInfo.strBody = ItemTemplate.GetItemBriefSummary();
 	kInfo.strConfirm = m_strAccept;
-	kInfo.strImage = ItemTemplate.strImage;
+	kInfo.strImage = GetImageForItemAvaliable(ItemTemplate); // Issue #491
 	kInfo.eColor = eUIState_Good;
 	kInfo.clrAlert = MakeLinearColor(0.0, 0.75, 0.0, 1);
 
@@ -3419,6 +3413,25 @@ simulated function BuildItemAvailableAlert()
 
 	BuildAvailableAlert(kInfo);
 }
+
+// Start issue #491
+simulated function string GetImageForItemAvaliable(X2ItemTemplate ItemTemplate)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideImageForItemAvaliable';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVString;
+	Tuple.Data[0].s = ItemTemplate.strImage; // Vanilla logic
+	Tuple.Data[1].kind = XComLWTVObject;
+	Tuple.Data[1].o = ItemTemplate;
+
+	`XEVENTMGR.TriggerEvent('OverrideImageForItemAvaliable', Tuple, self);
+
+	return Tuple.Data[0].s;
+}
+// End issue #491
 
 simulated function BuildItemReceivedAlert()
 {
@@ -4039,7 +4052,6 @@ simulated function BuildNegativeTraitAcquiredAlert()
 	local Vector ForceLocation;
 	local Rotator ForceRotation;
 	local XComUnitPawn UnitPawn;
-	local X2SoldierClassTemplate ClassTemplate;
 	local X2EventListenerTemplateManager EventTemplateManager;
 	local string TraitDesc, ClassIcon, ClassName, RankName;
 	
@@ -4056,7 +4068,6 @@ simulated function BuildNegativeTraitAcquiredAlert()
 
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(
 		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(DisplayPropertySet, 'UnitRef')));
-	ClassTemplate = UnitState.GetSoldierClassTemplate();
 	
 	if (UnitState.GetRank() > 0)
 	{
@@ -4072,7 +4083,7 @@ simulated function BuildNegativeTraitAcquiredAlert()
 	// Start Issue #106
 	ClassIcon = UnitState.GetSoldierClassIcon();
 	// End Issue #106
-	RankName = Caps(class'X2ExperienceConfig'.static.GetRankName(UnitState.GetRank(), ClassTemplate.DataName));
+	RankName = Caps(UnitState.GetSoldierRankName()); // Issue #408
 
 	TraitDesc = NegativeTrait.TraitDescription;
 	if (NegativeTrait.TraitQuotes.Length > 0)
@@ -5285,7 +5296,7 @@ simulated function BuildConfirmCovertActionAlert()
 			StaffUnit = SlotState.GetAssignedStaff(); 
 			if (StaffUnit.IsSoldier())
 			{
-				RankImage = class'UIUtilities_Image'.static.GetRankIcon(StaffUnit.GetRank(), StaffUnit.GetSoldierClassTemplateName());
+				RankImage = StaffUnit.GetSoldierRankIcon(); // Issue #408
 				// Start Issue #106
 				ClassImage = StaffUnit.GetSoldierClassIcon();
 				// End Issue #106

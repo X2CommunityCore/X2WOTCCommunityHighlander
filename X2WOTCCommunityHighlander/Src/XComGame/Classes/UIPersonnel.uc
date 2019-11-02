@@ -315,9 +315,9 @@ simulated function RefreshData()
 	SortData();
 	UpdateList();
 
-	// Start Issue #402
+  // Start Issue #591
 	`XEVENTMGR.TriggerEvent('UIPersonnel_OnSortFinished', , Self);
-	// End Issue #402
+	// End Issue #591
 }
 
 simulated function UpdateData()
@@ -975,7 +975,8 @@ simulated function OnScientistSelected( UIList kList, int index )
 	if( !UIPersonnel_ListItem(kList.GetItem(index)).IsDisabled )
 	{
 		if( onSelectedDelegate != none )
-			onSelectedDelegate(GetCurrentData()[index]);
+			// Single line change for #306
+			onSelectedDelegate(GetCurrentDataElement(index));
 
 		if(m_bRemoveWhenUnitSelected)
 			CloseScreen();
@@ -992,7 +993,8 @@ simulated function OnEngineerSelected( UIList kList, int index )
 	if( !UIPersonnel_ListItem(kList.GetItem(index)).IsDisabled )
 	{
 		if( onSelectedDelegate != none )
-			onSelectedDelegate(GetCurrentData()[index]);
+			// Single line change for #306
+			onSelectedDelegate(GetCurrentDataElement(index));
 
 		if(m_bRemoveWhenUnitSelected)
 			CloseScreen();
@@ -1013,7 +1015,8 @@ simulated function OnSoldierSelected( UIList kList, int index )
 	if( (Item != none) && !Item.IsDisabled )
 	{
 		if( onSelectedDelegate != none )
-			onSelectedDelegate(GetCurrentData()[index]);
+			// Single line change for #306
+			onSelectedDelegate(GetCurrentDataElement(index));
 
 		if(m_bRemoveWhenUnitSelected)
 			CloseScreen();
@@ -1030,7 +1033,8 @@ simulated function OnDeceasedSelected( UIList kList, int index )
 	if( !UIPersonnel_ListItem(kList.GetItem(index)).IsDisabled )
 	{
 		if( onSelectedDelegate != none )
-			onSelectedDelegate(GetCurrentData()[index]);
+			// Single line change for #306
+			onSelectedDelegate(GetCurrentDataElement(index));
 
 		if(m_bRemoveWhenUnitSelected)
 			CloseScreen();
@@ -1086,6 +1090,23 @@ simulated function array<StateObjectReference> GetCurrentData()
 		return m_arrDeceased;
 	}
 }
+
+// Start Issue #306
+simulated function StateObjectReference GetCurrentDataElement(int i)
+{
+	switch(m_eCurrentTab)
+	{
+	case eUIPersonnel_Soldiers: 
+		return m_arrSoldiers[i];
+	case eUIPersonnel_Scientists: 
+		return m_arrScientists[i];
+	case eUIPersonnel_Engineers: 
+		return m_arrEngineers[i];
+	case eUIPersonnel_Deceased: 
+		return m_arrDeceased[i];
+	}
+}
+// End Issue #306
 
 simulated function SortCurrentData(delegate<SortDelegate> SortFunction)
 {

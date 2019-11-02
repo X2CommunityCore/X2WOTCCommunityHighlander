@@ -499,3 +499,167 @@ static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets,
 	return;
 }
 /// End Issue #281
+
+/// Start issue #412
+/// Called before any X2DataSet is invoked, allowing to modify default properties
+/// Warning: this is called quite early in startup process and not all game systems are bootstrapped yet (but all DLCs/mods are guranteed to be loaded)
+static function OnPreCreateTemplates()
+{
+}
+/// End issue #412
+
+/// Start Issue #419
+/// <summary>
+/// Called from X2AbilityTag.ExpandHandler
+/// Expands vanilla AbilityTagExpandHandler to allow reflection
+/// </summary>
+static function bool AbilityTagExpandHandler_CH(string InString, out string OutString, Object ParseObj, Object StrategyParseOb, XComGameState GameState)
+{
+	return false;
+}
+
+/// Start Issue #409
+/// <summary>
+/// Called from XComGameState_Unit:GetEarnedSoldierAbilities
+/// Allows DLC/Mods to add to and modify a unit's EarnedSoldierAbilities
+/// Has no return value, just modify the EarnedAbilities out variable array
+static function ModifyEarnedSoldierAbilities(out array<SoldierClassAbilityType> EarnedAbilities, XComGameState_Unit UnitState)
+{}
+/// End Issue #409
+
+// Start Issue #388
+/// <summary>
+/// Called from X2TacticalGameRuleset:state'CreateTacticalGame':UpdateTransitionMap / 
+/// XComPlayerController:SetupDropshipMatinee for both PreMission/PostMission.
+/// You may fill out the `OverrideMapName` parameter to override the transition map.
+/// If `UnitState != none`, return whether this unit should have cosmetic attachments (gear) on the transition map.
+/// </summary> 
+static function bool LoadingScreenOverrideTransitionMap(optional out string OverrideMapName, optional XComGameState_Unit UnitState)
+{
+	return false;
+}
+// End Issue #388
+
+// Start Issue #395
+/// <summary>
+/// Called from XComTacticalMissionManager:GetActiveMissionIntroDefinition before it returns the Default.
+/// Notable changes from LW2: Called even if the mission/plot/plot type has an override.
+/// OverrideType is -1 for default, 0 for Mission override, 1 for Plot override, 2 for Plot Type override.
+/// OverrideTag contains the Mission name / Plot name / Plot type, respectively
+/// Return true to use.
+/// </summary>
+static function bool UseAlternateMissionIntroDefinition(MissionDefinition ActiveMission, int OverrideType, string OverrideTag, out MissionIntroDefinition MissionIntro)
+{
+	return false;
+}
+// End Issue #395
+
+/// Start Issue #455
+/// <summary>
+/// Called from XComUnitPawnNativeBase.PostInitAnimTree
+/// Allows patching the animtree template before its initialized.
+/// </summary>
+static function UnitPawnPostInitAnimTree(XComGameState_Unit UnitState, XComUnitPawnNativeBase Pawn, SkeletalMeshComponent SkelComp)
+{
+	return;
+}
+/// End Issue #455
+
+/// Start Issue #511
+/// <summary>
+/// Allowes mod to define dlc run order dependencies
+/// RunPriorityGroup can be STANDARD = 0, FIRST = 1 or LAST = 2
+/// Only change load priority if you really sure that its needed for you mod.
+/// RunBefore and RunAfter only work within the defined LoadPriority group
+///
+/// Should be specified in the mods XComGame.ini like
+/// [ModSafeName CHDLCRunOrder]
+/// +RunBefore=...
+/// +RunAfter=...
+/// RunPriorityGroup=...
+///
+/// </summary>
+final function array<string> GetRunBeforeDLCIdentifiers()
+{
+	local CHDLCRunOrder RunOrder;
+
+	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
+	// Equivalent to empty array if not specified in config
+	return RunOrder.RunBefore;
+}
+
+final function array<string> GetRunAfterDLCIdentifiers()
+{
+	local CHDLCRunOrder RunOrder;
+
+	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
+	// Equivalent to empty array if not specified in config
+	return RunOrder.RunAfter;
+}
+
+final function int GetRunPriorityGroup()
+{
+	local CHDLCRunOrder RunOrder;
+
+	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
+	// Equivalent to RUN_STANDARD if not specified in config
+	return RunOrder.RunPriorityGroup;
+}
+/// End Issue #511
+
+/// Start Issue #524
+/// <summary>
+/// Allow mods to specify array of incompatible and required mod.
+/// Should be specified in the mods XComGame.ini like
+/// [ModSafeName CHModDependency]
+/// +IncompatibleMods=...
+/// +IgnoreIncompatibleMods=...
+/// +RequiredMods=...
+/// +IgnoreRequiredMods=...
+/// DisplayName="..."
+/// </summary>
+final function array<string> GetIncompatibleDLCIdentifiers()
+{
+	local CHModDependency ModDependency;
+
+	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
+	// Equivalent to empty array if not specified in config
+	return ModDependency.IncompatibleMods;
+}
+
+final function array<string> GetIgnoreIncompatibleDLCIdentifiers()
+{
+	local CHModDependency ModDependency;
+
+	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
+	// Equivalent to empty array if not specified in config
+	return ModDependency.IgnoreIncompatibleMods;
+}
+
+final function array<string> GetRequiredDLCIdentifiers()
+{
+	local CHModDependency ModDependency;
+
+	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
+	// Equivalent to empty array if not specified in config
+	return ModDependency.RequiredMods;
+}
+
+final function array<string> GetIgnoreRequiredDLCIdentifiers()
+{
+	local CHModDependency ModDependency;
+
+	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
+	// Equivalent to empty array if not specified in config
+	return ModDependency.IgnoreRequiredMods;
+}
+
+final function string GetDisplayName()
+{
+	local CHModDependency ModDependency;
+
+	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
+	// Equivalent to empty string if not specified in localization
+	return ModDependency.DisplayName;
+}
+/// End Issue #524

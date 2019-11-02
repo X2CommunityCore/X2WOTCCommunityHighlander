@@ -44,6 +44,10 @@ var() config int							MinCovertActionKills; // The minimum number of kills each
 var() config int							MaxCovertActionKills; // The maximum number of kills each soldier who goes on the Action will receive
 var() config int							BondmateBonusHours; // The number of hours the duration will be reduced if bondmates are on the Covert Action
 
+// Start Issue #485
+var name									AmbushMissionSource; // The MissionSource of the Ambush for this Covert Action
+// End Issue #485
+
 struct CovertActionStaffSlot
 {
 	var() StateObjectReference				StaffSlotRef;
@@ -576,7 +580,23 @@ function GiveRewards(XComGameState NewGameState)
 	local XComGameState_StaffSlot SlotState;
 	local XComGameState_Unit UnitState;
 	local array<XComGameState_Unit> BondedSoldiers;
+	local XComLWTuple Tuple; // Issue #438
 	local int idx;
+
+	// Issue #438 Start
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'CovertAction_PreventGiveRewards';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = false;
+
+	`XEVENTMGR.TriggerEvent('CovertAction_PreventGiveRewards', Tuple, self);
+
+	if (Tuple.Data[0].b)
+	{
+		return;
+	}
+	// Issue #438 End
 
 	// First give the general Covert Action reward
 	for (idx = 0; idx < RewardRefs.Length; idx++)
@@ -883,24 +903,77 @@ private function AddRisk(X2CovertActionRiskTemplate RiskTemplate, bool bChosenIn
 		
 	NewRisk.RiskTemplateName = RiskTemplate.DataName;
 	NewRisk.ChanceToOccur = (RiskTemplate.MinChanceToOccur + `SYNC_RAND(RiskTemplate.MaxChanceToOccur - RiskTemplate.MinChanceToOccur + 1));
-	NewRisk.ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(NewRisk.ChanceToOccur, bChosenIncreaseRisks, bDarkEventRisk);
+	NewRisk.ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(NewRisk, bChosenIncreaseRisks, bDarkEventRisk);
 	NewRisk.Level = GetRiskLevel(NewRisk); // Get the risk level based on the chance to occur (not whether it actually does)
 
 	Risks.AddItem(NewRisk);
 }
 
-private function int CalculateRiskChanceToOccurModifiers(int ChanceToOccur, bool bChosenIncreaseRisks, bool bDarkEventRisk)
+// Issue #436: CHL function modified: first parameter changed from "int ChanceToOccur" to "CovertActionRisk ActionRisk"
+private function int CalculateRiskChanceToOccurModifiers(CovertActionRisk ActionRisk, bool bChosenIncreaseRisks, bool bDarkEventRisk)
 {
 	local int ChanceToOccurModifier;
-	
+	local XComLWTuple Tuple; // Issue #436
+
 	if (bChosenIncreaseRisks)
 	{
 		// Increase the chance to occur if the rival Chosen is increasing risks
 		ChanceToOccurModifier += class'XComGameState_AdventChosen'.default.CovertActionRiskIncrease;
 	}
 
-	return ChanceToOccurModifier;
+	// Issue #436 Start
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'CovertActionRisk_AlterChanceModifier';
+	Tuple.Data.Add(5);
+	Tuple.Data[0].kind = XComLWTVName;
+	Tuple.Data[0].n = ActionRisk.RiskTemplateName;
+	Tuple.Data[1].kind = XComLWTVInt;
+	Tuple.Data[1].i = ActionRisk.ChanceToOccur;
+	Tuple.Data[2].kind = XComLWTVBool;
+	Tuple.Data[2].b = bChosenIncreaseRisks;
+	Tuple.Data[3].kind = XComLWTVBool;
+	Tuple.Data[3].b = bDarkEventRisk;
+	Tuple.Data[4].kind = XComLWTVInt;
+	Tuple.Data[4].i = ChanceToOccurModifier;
+
+	`XEVENTMGR.TriggerEvent('CovertActionRisk_AlterChanceModifier', Tuple, self);
+
+	return Tuple.Data[4].i;
+	// Issue #436 End
 }
+
+// Issue #436 Start: This function must be called if you are using CovertActionRisk_AlterChanceModifier:
+// This class internally caches the risks and will not be aware of anything that might change the behavior
+// of your listener function. Call this function whenever you observe a change that affects the output of
+// your CovertActionRisk_AlterChanceModifier listener.
+function RecalculateRiskChanceToOccurModifiers()
+{
+	local XComGameState_HeadquartersResistance ResHQ;
+	local X2StrategyElementTemplateManager StratMgr;
+	local bool bChosenIncreaseRisks, bDarkEventRisk;
+	local X2CovertActionRiskTemplate RiskTemplate;
+	local int idx;
+
+	ResHQ = XComGameState_HeadquartersResistance(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersResistance'));
+	StratMgr = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
+
+	for (idx = 0; idx < Risks.Length; idx++)
+	{
+		bChosenIncreaseRisks = GetFaction().GetRivalChosen().ShouldIncreaseCovertActionRisks();
+		RiskTemplate = X2CovertActionRiskTemplate(StratMgr.FindStrategyElementTemplate(Risks[idx].RiskTemplateName));
+		if (RiskTemplate.IsRiskAvailableFn == none || RiskTemplate.IsRiskAvailableFn(GetFaction()))
+        {
+            bDarkEventRisk = false;
+            if (ResHQ.CovertActionDarkEventRisks.Find(Risks[idx].RiskTemplateName) != INDEX_NONE)
+            {
+                bDarkEventRisk = true;
+            }
+		}
+
+		Risks[idx].ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(Risks[idx], bChosenIncreaseRisks, bDarkEventRisk);
+	}
+}
+// Issue #436 End
 
 function EnableDarkEventRisk(name DarkEventRiskName)
 {
@@ -909,13 +982,26 @@ function EnableDarkEventRisk(name DarkEventRiskName)
 	local CovertActionRisk ActionRisk;
 	local array<name> RiskNames;
 	local bool bChosenIncreaseRisks;
+	local XComLWTuple Tuple; // Issue #436
 	local int idx;
 		
 	StratMgr = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
 	RiskTemplate = X2CovertActionRiskTemplate(StratMgr.FindStrategyElementTemplate(DarkEventRiskName));
+	
+	// Issue #436 Start
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'AllowDarkEventRisk';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVObject;
+	Tuple.Data[0].o = RiskTemplate;
+	Tuple.Data[1].kind = XComLWTVBool;
+	Tuple.Data[1].b = RiskTemplate.IsRiskAvailableFn == none || RiskTemplate.IsRiskAvailableFn(GetFaction());
+
+	`XEVENTMGR.TriggerEvent('AllowDarkEventRisk', Tuple, self);
 
 	// Only add or modify risks which are available
-	if (RiskTemplate.IsRiskAvailableFn == none || RiskTemplate.IsRiskAvailableFn(GetFaction()))
+	if (Tuple.Data[1].b)
+	// Issue #436 End
 	{
 		RiskNames = GetMyTemplate().Risks;
 		bChosenIncreaseRisks = GetFaction().GetRivalChosen().ShouldIncreaseCovertActionRisks();
@@ -933,7 +1019,8 @@ function EnableDarkEventRisk(name DarkEventRiskName)
 				if (ActionRisk.RiskTemplateName == DarkEventRiskName)
 				{
 					// The Risk is part of the default template, so recalculate its chance to occur modifiers and level				
-					ActionRisk.ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(ActionRisk.ChanceToOccur, bChosenIncreaseRisks, true);
+					// Issue #436: Changed first parameter
+					ActionRisk.ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(ActionRisk, bChosenIncreaseRisks, true);
 					ActionRisk.Level = GetRiskLevel(ActionRisk);
 					Risks[idx] = ActionRisk; // Resave the risk with the updated data
 					break;
@@ -966,7 +1053,8 @@ function DisableDarkEventRisk(name DarkEventRiskName)
 			else
 			{
 				// The Risk is part of the default template, so recalculate its chance to occur and level
-				ActionRisk.ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(ActionRisk.ChanceToOccur, bChosenIncreaseRisks, false);
+				// Issue #436: Changed first parameter
+				ActionRisk.ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(ActionRisk, bChosenIncreaseRisks, false);
 				ActionRisk.Level = GetRiskLevel(ActionRisk);
 				Risks[idx] = ActionRisk; // Resave the risk with the updated data				
 			}
@@ -1260,11 +1348,14 @@ function bool HasAmbushRisk()
 {
 	local name RiskName;
 	local int idx;
+	local array<name> AmbushRiskTemplateNames; // Issue 485
+
+	AmbushRiskTemplateNames = class'CHHelpers'.static.GetAmbushRiskTemplateNames(); // Issue 485
 
 	for (idx = 0; idx < Risks.Length; idx++)
 	{
 		RiskName = Risks[idx].RiskTemplateName;
-		if (RiskName == 'CovertActionRisk_Ambush' && NegatedRisks.Find(RiskName) == INDEX_NONE)
+		if (AmbushRiskTemplateNames.Find(RiskName) != INDEX_NONE && NegatedRisks.Find(RiskName) == INDEX_NONE) // Issue 485
 		{
 			return true;
 		}
@@ -1397,7 +1488,7 @@ function CompleteCovertAction(XComGameState NewGameState)
 
 	// Flag the completion popup and trigger appropriate events
 	bNeedsActionCompletePopup = true;
-	`XEVENTMGR.TriggerEvent('CovertActionCompleted', , , NewGameState);
+	`XEVENTMGR.TriggerEvent('CovertActionCompleted', , self, NewGameState);
 	class'XComGameState_HeadquartersResistance'.static.RecordResistanceActivity(NewGameState, 'ResAct_ActionsCompleted');
 }
 
@@ -1407,7 +1498,19 @@ function CompleteCovertAction(XComGameState NewGameState)
 
 protected function bool CanInteract()
 {
-	return false;
+	// Issue #438 Start
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'CovertAction_CanInteract';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = false;
+
+	`XEVENTMGR.TriggerEvent('CovertAction_CanInteract', Tuple, self);
+	
+	return Tuple.Data[0].b;
+	// Issue #438 End
 }
 
 function string GetObjective()
@@ -1453,6 +1556,9 @@ function string GetNarrative()
 	kTag.StrValue2 = FactionState.GetRivalChosen().GetChosenClassName();
 	kTag.StrValue3 = GetContinent().GetMyTemplate().DisplayName;
 	kTag.StrValue4 = GetRewardSavedString();
+
+	// Issue #438
+	`XEVENTMGR.TriggerEvent('CovertAction_ModifyNarrativeParamTag', kTag, self);
 
 	return `XEXPAND.ExpandString(GetMyNarrativeTemplate().ActionPreNarrative);
 }
@@ -1634,7 +1740,19 @@ simulated function string GetUIButtonTooltipBody()
 
 function bool ShouldBeVisible()
 {
-	return bStarted;
+	// Issue #438 Start
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'CovertAction_ShouldBeVisible';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = bStarted;
+
+	`XEVENTMGR.TriggerEvent('CovertAction_ShouldBeVisible', Tuple, self);
+
+	return Tuple.Data[0].b;
+	// Issue #438 End
 }
 
 function bool ShouldStaffSlotBeDisplayed(int idx)
@@ -2058,13 +2176,25 @@ simulated public function AmbushPopup()
 	local XComGameState NewGameState;
 	local XComGameState_CovertAction ActionState;
 	local XComGameState_MissionSite MissionSite;
+	local name MissionSource; // Issue #485
 
 	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Toggle Action Complete Popup");
 	ActionState = XComGameState_CovertAction(NewGameState.ModifyStateObject(class'XComGameState_CovertAction', self.ObjectID));
 	ActionState.bNeedsAmbushPopup = false;
 	`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
 
-	MissionSite = GetMission('MissionSource_ChosenAmbush'); // Find the Ambush mission and display its popup
+	// Start Issue #485
+	if(AmbushMissionSource == '') // backwards compatibility
+	{
+		MissionSource = 'MissionSource_ChosenAmbush';
+	}
+	else
+	{
+		MissionSource = AmbushMissionSource;
+	}
+	MissionSite = GetMission(MissionSource); // Find the Ambush mission and display its popup
+	// End Issue #485
+
 	if (MissionSite != none && MissionSite.GetMissionSource().MissionPopupFn != none)
 	{
 		MissionSite.GetMissionSource().MissionPopupFn(MissionSite);
@@ -2104,6 +2234,7 @@ function RemoveEntity(XComGameState NewGameState)
 {
 	local XComGameState_ResistanceFaction FactionState;
 	local bool SubmitLocally;
+	local XComLWTuple Tuple; // Issue #438
 
 	if (NewGameState == None)
 	{
@@ -2111,8 +2242,23 @@ function RemoveEntity(XComGameState NewGameState)
 		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Covert Action Despawned");
 	}
 
-	EmptyAllStaffSlots(NewGameState);
-	
+	// Issue #438 Start
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'CovertAction_RemoveEntity_ShouldEmptySlots';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = true;
+
+	`XEVENTMGR.TriggerEvent('CovertAction_RemoveEntity_ShouldEmptySlots', Tuple, self, NewGameState);
+
+	if (Tuple.Data[0].b)
+	{
+	// Issue #438 End
+		EmptyAllStaffSlots(NewGameState);
+	// Issue #438 Start
+	}
+	// Issue #438 End
+
 	// clean up the rewards for this action if it wasn't started
 	if (!bStarted)
 	{
@@ -2155,7 +2301,24 @@ protected function bool DisplaySelectionPrompt()
 
 function ActionSelected()
 {
-	`HQPRES.OnCovertActionSelected(self);
+	// Issue #438 Start
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'CovertAction_ActionSelectedOverride';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = false;
+
+	`XEVENTMGR.TriggerEvent('CovertAction_ActionSelectedOverride', Tuple, self);
+
+	if (!Tuple.Data[0].b)
+	{
+	// Issue #438 End
+		`HQPRES.OnCovertActionSelected(self);
+	// Issue #438 Start
+	}
+	// Issue #438 End
 }
 
 //#############################################################################################
@@ -2184,3 +2347,10 @@ function int GetMaxDaysToComplete()
 {
 	return `ScaleStrategyArrayInt(GetMyTemplate().MaxActionHours);
 }
+
+// Start Issue #485
+defaultproperties
+{
+	AmbushMissionSource="MissionSource_ChosenAmbush"
+}
+// End Issue #485
