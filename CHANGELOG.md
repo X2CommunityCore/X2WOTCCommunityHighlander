@@ -273,6 +273,7 @@ All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented 
   flag on `XComGameState_Unit`. This behavior is gated behind the new `CHHelpers.PreserveProxyUnitData`
   config variable. (#465)
 - Adds CustomDeathAnimationName property to X2Action_Death that allows overriding the default death animations (#488)
+- Added eInvSlot_Wings inventory slot, to be used by CX's The Hive mod (#640)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
