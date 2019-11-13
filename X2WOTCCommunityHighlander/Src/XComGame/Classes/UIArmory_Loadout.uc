@@ -890,8 +890,10 @@ simulated function int SortLockerListByUpgrades(TUILockerItem A, TUILockerItem B
 {
 	local int UpgradesA, UpgradesB;
 
-	UpgradesA = A.Item.GetMyWeaponUpgradeTemplates().Length;
-	UpgradesB = B.Item.GetMyWeaponUpgradeTemplates().Length;
+	// Start Issue #306
+	UpgradesA = A.Item.GetMyWeaponUpgradeCount();
+	UpgradesB = B.Item.GetMyWeaponUpgradeCount();
+	// End Issue #306
 
 	if (UpgradesA > UpgradesB)
 	{

@@ -1442,6 +1442,8 @@ function name MaybeAddPersonalityToSpeech(Name nCharSpeech)
 {
 	local XComGameState_Unit GameStateUnit;
 	local name nPersonality;
+	// Variables for Issue #317
+	local int Pidx, Sidx, Variant;
 
 	GameStateUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(ObjectID));
 
@@ -1451,7 +1453,18 @@ function name MaybeAddPersonalityToSpeech(Name nCharSpeech)
 	}
 
 	nPersonality = GameStateUnit.GetPersonalityTemplate().DataName;
-
+	// Start Issue #317
+	Pidx=class'CHHelpers'.default.PersonalitySpeech.Find('Personality', nPersonality);
+	if (Pidx != INDEX_NONE)
+	{
+		Sidx=class'CHHelpers'.default.PersonalitySpeech[Pidx].CharSpeeches.Find('CharSpeech', nCharSpeech);
+		if (Sidx != INDEX_NONE)
+		{
+			Variant=Rand(class'CHHelpers'.default.PersonalitySpeech[Pidx].CharSpeeches[Sidx].PersonalityVariant.Length);
+			return class'CHHelpers'.default.PersonalitySpeech[Pidx].CharSpeeches[Sidx].PersonalityVariant[Variant];
+		}
+	}
+	/*
 	switch ( nPersonality )
 	{
 		case 'Personality_ByTheBook':
@@ -1557,6 +1570,8 @@ function name MaybeAddPersonalityToSpeech(Name nCharSpeech)
 			}
 			break;
 	}
+	*/
+	// End Issue #317
 
 	return '';
 }

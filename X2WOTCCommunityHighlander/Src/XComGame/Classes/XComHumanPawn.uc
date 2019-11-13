@@ -1455,8 +1455,10 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 
 			UseMeshComponent = m_kArmsMC;
 
-			if(m_kArmsMC != none && m_kArmsMC.SkeletalMesh == UseSkeletalMesh && LeftArmContent != none && ArmsContent != none &&
-			   (LeftArmContent.OverrideMaterial == ArmsContent.OverrideMaterial))
+			// Start Issue #350
+			if(m_kArmsMC != none && m_kArmsMC.SkeletalMesh == UseSkeletalMesh && ArmsContent != none &&
+			   (ArmsContent.OverrideMaterial == UseArmsContent.OverrideMaterial))
+			// End Issue #350
 			{
 				return;
 			}
@@ -1477,8 +1479,10 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 
 			UseMeshComponent = m_kLeftArm;
 
-			if(m_kLeftArm != none && m_kLeftArm.SkeletalMesh == UseSkeletalMesh && LeftArmContent != none && ArmsContent != none &&
-			   (LeftArmContent.OverrideMaterial == ArmsContent.OverrideMaterial))
+			// Start Issue #354
+			if(m_kLeftArm != none && m_kLeftArm.SkeletalMesh == UseSkeletalMesh && LeftArmContent != none &&
+			   (LeftArmContent.OverrideMaterial == UseArmsContent.OverrideMaterial))
+			// End Issue #354
 			{
 				return;
 			}
@@ -1500,8 +1504,10 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 
 			UseMeshComponent = m_kRightArm;
 
-			if(m_kRightArm != none && m_kRightArm.SkeletalMesh == UseSkeletalMesh && RightArmContent != none && ArmsContent != none &&
-			   (RightArmContent.OverrideMaterial == ArmsContent.OverrideMaterial))
+			// Start Issue #354
+			if(m_kRightArm != none && m_kRightArm.SkeletalMesh == UseSkeletalMesh && RightArmContent != none &&
+			   (RightArmContent.OverrideMaterial == UseArmsContent.OverrideMaterial))
+			// End Issue #354
 			{
 				return;
 			}
@@ -1516,9 +1522,19 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 
 		case 'LeftArmDeco':
 			UseMeshComponent = m_kLeftArmDeco;
-
-			if(m_kLeftArmDeco != none && m_kLeftArmDeco.SkeletalMesh == UseSkeletalMesh && LeftArmDecoContent != none && ArmsContent != none &&
-			   (LeftArmDecoContent.OverrideMaterial == ArmsContent.OverrideMaterial))
+			// Start Issue #350
+			// Start Issue #369
+			//if (m_kArmsMC != none && m_kArmsMC.SkeletalMesh != none)
+			//{
+				//UseSkeletalMesh = none;
+				//bSkipAttachment = true;
+			//}
+			// End Issue #369
+			// End Issue #350
+			// Start Issue #354
+			if(m_kLeftArmDeco != none && m_kLeftArmDeco.SkeletalMesh == UseSkeletalMesh && LeftArmDecoContent != none &&
+			   (LeftArmDecoContent.OverrideMaterial == UseArmsContent.OverrideMaterial))
+			// End Issue #354
 			{
 				return;
 			}
@@ -1533,9 +1549,20 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 
 		case 'RightArmDeco':		
 			UseMeshComponent = m_kRightArmDeco;
-
-			if(m_kRightArmDeco != none && m_kRightArmDeco.SkeletalMesh == UseSkeletalMesh && RightArmDecoContent != none && ArmsContent != none &&
-			   (RightArmDecoContent.OverrideMaterial == ArmsContent.OverrideMaterial))
+			// Start Issue #350
+			// Start Issue #369
+			//if (m_kArmsMC != none && m_kArmsMC.SkeletalMesh != none)
+			//if (ArmsContent != none)
+			//{
+				//UseSkeletalMesh = none;
+				//bSkipAttachment = true;
+			//}
+			// End Issue #369
+			// End Issue #350
+			// Start Issue #354
+			if(m_kRightArmDeco != none && m_kRightArmDeco.SkeletalMesh == UseSkeletalMesh && RightArmDecoContent != none &&
+			   (RightArmDecoContent.OverrideMaterial == UseArmsContent.OverrideMaterial))
+			// End Issue #354
 			{
 				return;
 			}
@@ -1550,14 +1577,17 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 
 		case 'LeftForearm':
 			UseMeshComponent = m_kLeftForearmMC;
-			if (LeftArmContent != none && LeftArmContent.bHideForearms)
+			// Single line Change for Issue #350
+			if (m_kLeftArm != none && m_kLeftArm.SkeletalMesh != none && LeftArmContent != none && LeftArmContent.bHideForearms || m_kArmsMC != none && m_kArmsMC.SkeletalMesh != none && ArmsContent != none && ArmsContent.bHideForearms)
 			{
 				UseSkeletalMesh = none;
 				bSkipAttachment = true;
 			}
 
-			if (m_kLeftForearmMC != none && m_kLeftForearmMC.SkeletalMesh == UseSkeletalMesh && LeftForearmContent != none && ArmsContent != none &&
-				(LeftForearmContent.OverrideMaterial == ArmsContent.OverrideMaterial))
+			// Start Issue #354
+			if(m_kLeftForearmMC != none && m_kLeftForearmMC.SkeletalMesh == UseSkeletalMesh && LeftForearmContent != none &&
+			   (LeftForearmContent.OverrideMaterial == UseArmsContent.OverrideMaterial))
+			// End Issue #354
 			{
 				return;
 			}
@@ -1572,14 +1602,17 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 
 		case 'RightForearm':
 			UseMeshComponent = m_kRightForearmMC;
-			if (RightArmContent != none && RightArmContent.bHideForearms)
+			// Single line Change for Issue #350
+			if (m_kRightArm != none && m_kRightArm.SkeletalMesh != none && RightArmContent != none && RightArmContent.bHideForearms || m_kArmsMC != none && m_kArmsMC.SkeletalMesh != none && ArmsContent != none && ArmsContent.bHideForearms)
 			{
 				UseSkeletalMesh = none;
 				bSkipAttachment = true;
 			}
 
-			if (m_kRightForearmMC != none && m_kRightForearmMC.SkeletalMesh == UseSkeletalMesh && RightForearmContent != none && ArmsContent != none &&
-				(RightForearmContent.OverrideMaterial == ArmsContent.OverrideMaterial))
+			// Start Issue #354
+			if(m_kRightForearmMC != none && m_kRightForearmMC.SkeletalMesh == UseSkeletalMesh && RightForearmContent != none &&
+			   (RightForearmContent.OverrideMaterial == UseArmsContent.OverrideMaterial))
+			// End Issue #354
 			{
 				return;
 			}
@@ -1596,36 +1629,38 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 	if (!bSkipAttachment || UseSkeletalMesh == none)
 	{
 		//Make a new one and set it up
-		if (m_kArmsMC != UseMeshComponent)
+		// Start Issue #350
+		if (UseMeshComponent == none)
 		{
-			DetachComponent(UseMeshComponent);
+			//DetachComponent(UseMeshComponent);
 			UseMeshComponent = new(self) class'SkeletalMeshComponent';
-		}
 
-		switch (ContentRequest.ContentCategory)
-		{
-		case 'Arms':
-			m_kArmsMC = UseMeshComponent;
-			break;
-		case 'LeftArm':
-			m_kLeftArm = UseMeshComponent;
-			break;
-		case 'RightArm':
-			m_kRightArm = UseMeshComponent;
-			break;
-		case 'LeftArmDeco':
-			m_kLeftArmDeco = UseMeshComponent;
-			break;
-		case 'RightArmDeco':
-			m_kRightArmDeco = UseMeshComponent;
-			break;
-		case 'LeftForearm':
-			m_kLeftForearmMC = UseMeshComponent;
-			break;
-		case 'RightForearm':
-			m_kRightForearmMC = UseMeshComponent;
-			break;
+			switch (ContentRequest.ContentCategory)
+			{
+			case 'Arms':
+				m_kArmsMC = UseMeshComponent;
+				break;
+			case 'LeftArm':
+				m_kLeftArm = UseMeshComponent;
+				break;
+			case 'RightArm':
+				m_kRightArm = UseMeshComponent;
+				break;
+			case 'LeftArmDeco':
+				m_kLeftArmDeco = UseMeshComponent;
+				break;
+			case 'RightArmDeco':
+				m_kRightArmDeco = UseMeshComponent;
+				break;
+			case 'LeftForearm':
+				m_kLeftForearmMC = UseMeshComponent;
+				break;
+			case 'RightForearm':
+				m_kRightForearmMC = UseMeshComponent;
+				break;
+			}
 		}
+		// End Issue #350
 
 		UseMeshComponent.LastRenderTime = WorldInfo.TimeSeconds;
 		UseMeshComponent.SetSkeletalMesh(UseSkeletalMesh);
@@ -1879,8 +1914,10 @@ simulated function OnBodyPartLoaded(PawnContentRequest ContentRequest)
 			bSkipAttachment = true;
 		}
 		// End Issue #219 -- moved up
-
-		if(UseMeshComponent.SkeletalMesh == UseSkeletalMesh)
+		// Start Issue #354
+		if(UseMeshComponent.SkeletalMesh == UseSkeletalMesh && HelmetContent != none && 
+		   ((!BodyPartContent.ShouldUseOverrideMaterial() && !HelmetContent.ShouldUseOverrideMaterial()) || HelmetContent.OverrideMaterial == BodyPartContent.OverrideMaterial))
+		// End Issue #354
 		{
 			return;
 		}
@@ -2264,6 +2301,10 @@ static simulated function UpdateAppearance( out TAppearance mAppearance, const o
 	if (kAppearance.nmArms != '')
 	{
 		mAppearance.nmArms = kAppearance.nmArms;
+		// Start Issue #384
+		mAppearance.nmLeftArm = '';
+		mAppearance.nmRightArm = '';
+		// End Issue #384
 	}
 	if (kAppearance.nmBeard != '')
 	{
@@ -2325,6 +2366,46 @@ static simulated function UpdateAppearance( out TAppearance mAppearance, const o
 	{
 		mAppearance.nmVoice = kAppearance.nmVoice;
 	}
+	// Start Issue #384
+	if (kAppearance.nmLeftArm != '')
+	{
+		mAppearance.nmLeftArm = kAppearance.nmLeftArm;
+		mAppearance.nmArms = '';
+	}
+	if (kAppearance.nmRightArm != '')
+	{
+		mAppearance.nmRightArm = kAppearance.nmRightArm;
+		mAppearance.nmArms = '';
+	}
+	if (kAppearance.nmLeftArmDeco != '')
+	{
+		mAppearance.nmLeftArmDeco = kAppearance.nmLeftArmDeco;
+	}
+	if (kAppearance.nmRightArmDeco != '')
+	{
+		mAppearance.nmRightArmDeco = kAppearance.nmRightArmDeco;
+	}
+	if (kAppearance.nmLeftForearm != '')
+	{
+		mAppearance.nmLeftForearm = kAppearance.nmLeftForearm;
+	}
+	if (kAppearance.nmRightForearm != '')
+	{
+		mAppearance.nmRightForearm = kAppearance.nmRightForearm;
+	}
+	if (kAppearance.nmThighs != '')
+	{
+		mAppearance.nmThighs = kAppearance.nmThighs;
+	}
+	if (kAppearance.nmShins != '')
+	{
+		mAppearance.nmShins = kAppearance.nmShins;
+	}
+	if (kAppearance.nmTorsoDeco != '')
+	{
+		mAppearance.nmTorsoDeco = kAppearance.nmTorsoDeco;
+	}
+	// End Issue #384
 }
 
 

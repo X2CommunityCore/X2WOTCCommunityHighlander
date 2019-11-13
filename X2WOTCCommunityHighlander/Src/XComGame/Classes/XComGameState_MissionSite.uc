@@ -1890,8 +1890,42 @@ function string GetUIButtonIcon()
 		StrButtonIcon = "img:///UILibrary_StrategyImages.X2StrategyMap.MissionIcon_GoldenPath";
 	};
 
+	// Start Issue #537
+	TriggerOverrideMissionSiteIconImage(StrButtonIcon);
+	// End Issue #537
+
 	return StrButtonIcon;
 }
+
+// Start Issue #537
+//
+// Fires an 'OverrideMissionSiteIconImage' event that allows mods to override
+// the image path used for the mission site icon in the Geoscape HUD's bottom
+// bar.
+//
+// The event itself takes the form:
+//
+//   {
+//      ID: OverrideMissionSiteIconImage,
+//      Data: [inout string ImagePath],
+//      Source: self (XCGS_MissionSite)
+//   }
+//
+simulated function TriggerOverrideMissionSiteIconImage(out string ImagePath)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideMissionSiteIconImage';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].Kind = XComLWTVString;
+	Tuple.Data[0].s = ImagePath;
+
+	`XEVENTMGR.TriggerEvent('OverrideMissionSiteIconImage', Tuple, self);
+
+	ImagePath = Tuple.Data[0].s;
+}
+// End Issue #537
 
 //---------------------------------------------------------------------------------------
 function UpdateSitrepTags()

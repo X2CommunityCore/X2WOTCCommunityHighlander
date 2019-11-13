@@ -508,6 +508,16 @@ static function OnPreCreateTemplates()
 }
 /// End issue #412
 
+/// Start Issue #419
+/// <summary>
+/// Called from X2AbilityTag.ExpandHandler
+/// Expands vanilla AbilityTagExpandHandler to allow reflection
+/// </summary>
+static function bool AbilityTagExpandHandler_CH(string InString, out string OutString, Object ParseObj, Object StrategyParseOb, XComGameState GameState)
+{
+	return false;
+}
+
 /// Start Issue #409
 /// <summary>
 /// Called from XComGameState_Unit:GetEarnedSoldierAbilities
@@ -554,3 +564,102 @@ static function UnitPawnPostInitAnimTree(XComGameState_Unit UnitState, XComUnitP
 	return;
 }
 /// End Issue #455
+
+/// Start Issue #511
+/// <summary>
+/// Allowes mod to define dlc run order dependencies
+/// RunPriorityGroup can be STANDARD = 0, FIRST = 1 or LAST = 2
+/// Only change load priority if you really sure that its needed for you mod.
+/// RunBefore and RunAfter only work within the defined LoadPriority group
+///
+/// Should be specified in the mods XComGame.ini like
+/// [ModSafeName CHDLCRunOrder]
+/// +RunBefore=...
+/// +RunAfter=...
+/// RunPriorityGroup=...
+///
+/// </summary>
+final function array<string> GetRunBeforeDLCIdentifiers()
+{
+	local CHDLCRunOrder RunOrder;
+
+	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
+	// Equivalent to empty array if not specified in config
+	return RunOrder.RunBefore;
+}
+
+final function array<string> GetRunAfterDLCIdentifiers()
+{
+	local CHDLCRunOrder RunOrder;
+
+	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
+	// Equivalent to empty array if not specified in config
+	return RunOrder.RunAfter;
+}
+
+final function int GetRunPriorityGroup()
+{
+	local CHDLCRunOrder RunOrder;
+
+	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
+	// Equivalent to RUN_STANDARD if not specified in config
+	return RunOrder.RunPriorityGroup;
+}
+/// End Issue #511
+
+/// Start Issue #524
+/// <summary>
+/// Allow mods to specify array of incompatible and required mod.
+/// Should be specified in the mods XComGame.ini like
+/// [ModSafeName CHModDependency]
+/// +IncompatibleMods=...
+/// +IgnoreIncompatibleMods=...
+/// +RequiredMods=...
+/// +IgnoreRequiredMods=...
+/// DisplayName="..."
+/// </summary>
+final function array<string> GetIncompatibleDLCIdentifiers()
+{
+	local CHModDependency ModDependency;
+
+	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
+	// Equivalent to empty array if not specified in config
+	return ModDependency.IncompatibleMods;
+}
+
+final function array<string> GetIgnoreIncompatibleDLCIdentifiers()
+{
+	local CHModDependency ModDependency;
+
+	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
+	// Equivalent to empty array if not specified in config
+	return ModDependency.IgnoreIncompatibleMods;
+}
+
+final function array<string> GetRequiredDLCIdentifiers()
+{
+	local CHModDependency ModDependency;
+
+	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
+	// Equivalent to empty array if not specified in config
+	return ModDependency.RequiredMods;
+}
+
+final function array<string> GetIgnoreRequiredDLCIdentifiers()
+{
+	local CHModDependency ModDependency;
+
+	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
+	// Equivalent to empty array if not specified in config
+	return ModDependency.IgnoreRequiredMods;
+}
+
+final function string GetDisplayName()
+{
+	local CHModDependency ModDependency;
+
+	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
+	// Equivalent to empty string if not specified in localization
+	return ModDependency.DisplayName;
+}
+/// End Issue #524
