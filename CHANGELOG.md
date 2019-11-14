@@ -101,6 +101,7 @@ RunPriorityGroup=RUN_STANDARD
   ways than just the tooltip and image (#537)
 - Triggers the event `OverrideShowPromoteIcon` to allow mods to override whether the promotion icon is
   displayed for a given soldier or not (#631)
+- Triggers the event `OnBestGearLoadoutApplied` to allow mods to override Unit's loadout after it has been changed by `XComGameState_Unit::ApplyBestGearLoadout()` (#676)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
