@@ -10744,6 +10744,10 @@ function ApplyBestGearLoadout(XComGameState NewGameState)
 
 	// Always validate the loadout after upgrading everything
 	ValidateLoadout(NewGameState);
+	
+	// Issue #676 Start
+	`XEVENTMGR.TriggerEvent('OnBestGearLoadoutApplied', self, self, none);
+	// Issue #676 End
 }
 
 //------------------------------------------------------
