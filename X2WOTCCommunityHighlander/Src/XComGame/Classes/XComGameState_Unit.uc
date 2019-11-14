@@ -12508,7 +12508,19 @@ function SCATProgression GetSCATProgressionForAbility(name AbilityName)
 // Show the promotion icon (in strategy)
 function bool ShowPromoteIcon()
 {
-	return (IsAlive() && !bCaptured && (CanRankUpSoldier() || HasAvailablePerksToAssign()));
+	// Start Issue #631
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideShowPromoteIcon';
+	OverrideTuple.Data.Add(1);
+	OverrideTuple.Data[0].kind = XComLWTVBool;
+	OverrideTuple.Data[0].b = (IsAlive() && !bCaptured && (CanRankUpSoldier() || HasAvailablePerksToAssign()));
+
+	`XEVENTMGR.TriggerEvent('OverrideShowPromoteIcon', OverrideTuple, self);
+
+	return OverrideTuple.Data[0].b;
+	// End Issue #631
 }
 
 function bool ShowBondAvailableIcon(out StateObjectReference BondmateRef, out SoldierBond BondData)

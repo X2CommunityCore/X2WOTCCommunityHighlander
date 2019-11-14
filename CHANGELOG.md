@@ -71,6 +71,15 @@ RunPriorityGroup=RUN_STANDARD
 - Triggers the event `BlackMarketGoodsReset` when the Black Market goods are reset (#473)
 - Triggers the event `OverrideImageForItemAvaliable` to allow mods to override the image shown in eAlert_ItemAvailable (#491)
 - Triggers the event `OverrideCurrentDoom` to allow mods to override doom amount for doom updates (#550)
+- Triggers the event `PreEndOfMonth` to notify mods that the game is about to start its end-of-month processing (#539)
+- Triggers the event `ProcessNegativeIncome` to allow mods to do their own processing when XCOM's income at the
+  end of the month is negative (#539)
+- Triggers the event `OverrideDisplayNegativeIncome` to allow mods to override whether negative monthly income is
+  displayed as a negative value or as zero (latter is default behavior) (#539)
+- Triggers the event `OverrideSupplyDrop` to allow mods to override the amount of supplies awarded at month end (#539)
+- Triggers the event `OverrideSupplyLossStrings` to allow mods to override the text that is displayed for supplies
+  lost in the monthly resistance report (#539)
+- Triggers the event `PostEndOfMonth` to notify mods that end-of-month processing has come to an end (#539)
 - Triggers the event `PsiProjectCompleted` to notify mods when a soldier has finished training in the psi labs (#534)
 - Triggers the event `OverrideNoCaEventMinMonths` to allow mods to force the UI to display no CA nag during first month
 - Triggers the event `CustomizeStatusStringsSeparate` in XComGameState_Unit::GetStatusStringsSeparate (#322)
@@ -90,7 +99,8 @@ RunPriorityGroup=RUN_STANDARD
   other ways than just the tooltip and image (#537)
 - Triggers the event `MissionIconSetScanSite` to allow mods to customize a scan site's icon in other
   ways than just the tooltip and image (#537)
-
+- Triggers the event `OverrideShowPromoteIcon` to allow mods to override whether the promotion icon is
+  displayed for a given soldier or not (#631)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
@@ -142,6 +152,9 @@ RunPriorityGroup=RUN_STANDARD
 - Allow Mods/DLC to modify encounters after creation (#136)
 - Allow Mods/DLC to modify encounters generated as reinforcements (#278)
 - Allow Mods/DLC to alter mission data after SitRep creation (#157)
+- Add an array of `OverrideFinalHitChance` function delegates to `X2AbilityToHitCalc`
+  that mods can add functions to in order to override the default logic for handling
+  hits, grazes and crits (#555)
 
 ### Event Hooks
 
@@ -187,6 +200,12 @@ RunPriorityGroup=RUN_STANDARD
 - `OverrideAbilityIconColor` provides a tuple with the same ID as the
   event and data of the form `[bool IsObjective, string Color]` that allows
   mods to override the color of soldier abilities in the tactical HUD (#400)
+- `OverrideBodyRecovery` allows mods to determine whether incapacitated soldiers are recovered
+  at the end of a mission (which is only supported by full sweep missions with corpse retrieval
+  in the base game) (#571)
+- `OverrideLootRecovery` allows mods to determine whether loot is automatically recovered
+  at the end of a mission (which is only supported by full sweep missions with corpse retrieval
+  in the base game) (#571)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
@@ -210,6 +229,7 @@ RunPriorityGroup=RUN_STANDARD
 - Deprivatise XComAlienPawn.Voice to allow changes by mods (#275)
 - Deprivatise/const config variables in XComParcelManager (#404)
 - Gives SitReps access to the Tactical StartState in order to widen sitrep capabilities (#450)
+- Deprivatise variables in X2TargetingMethod_EvacZone so that it can be effectively subclassed (#165)
 
 ### Improvements
 - Make suppression work with weapons that don't have suppression specific
@@ -246,7 +266,8 @@ RunPriorityGroup=RUN_STANDARD
   a pod tries to patrol to any of them (#508)
 - Make disorient reapply to disoriented units so that things like flashbangs can
   still remove overwatch from disoriented units (#475)
-
+- Make sure that rescue rings do not disappear on other rescuable units after a
+  neutral unit swaps to team XCom (#551)
 
 ## Miscellaneous
 
@@ -353,7 +374,10 @@ RunPriorityGroup=RUN_STANDARD
   flag on `XComGameState_Unit`. This behavior is gated behind the new `CHHelpers.PreserveProxyUnitData`
   config variable. (#465)
 - Adds CustomDeathAnimationName property to X2Action_Death that allows overriding the default death animations (#488)
-- Added eInvSlot_Wings inventory slot, to be used by CX's The Hive mod (#640)
+- Change `GetScreen()` and `IsCurrentClass()` on `UIScreenStack` to take into account subclasses
+  by default. This is a breaking change but fixes a lot of problems with vanilla and mod code that
+  mistakenly ignores subclasses of screens, particularly those provided by mod. The original behavior
+  can still be accessed via new `GetScreen_CH()` and `IsCurrentClass_CH()`. (#290)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
