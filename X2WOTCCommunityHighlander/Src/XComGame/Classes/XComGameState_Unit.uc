@@ -10746,7 +10746,7 @@ function ApplyBestGearLoadout(XComGameState NewGameState)
 	ValidateLoadout(NewGameState);
 	
 	// Issue #676 Start
-	`XEVENTMGR.TriggerEvent('OnBestGearLoadoutApplied', self, self, none);
+	`XEVENTMGR.TriggerEvent('OnBestGearLoadoutApplied', self, self, NewGameState);
 	// Issue #676 End
 }
 
