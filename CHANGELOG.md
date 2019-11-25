@@ -392,3 +392,6 @@ RunPriorityGroup=RUN_STANDARD
   UIScreen (#341)
 - Appearances now update correctly when a part change differs only by material override (#354)
 - All relevant body parts are now correctly validated when the torso is changed. (#350)
+- The will recovery project and soldier mental state are now consistent with each other
+  on borderline will values, whereas a rounding error previously could cause will recovery
+  to take a day for Shaken or Tired (#637)
