@@ -2,7 +2,7 @@ class CHDLCRunOrder extends Object perobjectconfig config(Game);
 
 enum EDLCRunPriority
 {
-	RUN_STANDARD,
+	RUN_STANDARD, // Must be 0 for default value
 	RUN_FIRST,
 	RUN_LAST
 };

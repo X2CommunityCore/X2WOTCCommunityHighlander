@@ -616,6 +616,10 @@ simulated function OnCategoryValueChange(int categoryIndex, int direction, optio
 				{
 					UpdatedUnitState.kAppearance.nmLeftArm = '';
 					UpdatedUnitState.kAppearance.nmRightArm = '';
+					// Start Issue #659, need the UI to blank out the ArmDecos since not hidden in Pawn again
+					UpdatedUnitState.kAppearance.nmLeftArmDeco = '';
+					UpdatedUnitState.kAppearance.nmRightArmDeco = '';
+					// End Issue #659
 				}
 			}
 			
@@ -631,8 +635,10 @@ simulated function OnCategoryValueChange(int categoryIndex, int direction, optio
 		UpdatedUnitState.kAppearance.nmLeftArm = '';
 		UpdatedUnitState.kAppearance.nmRightArm = '';
 		// Start Issue #350
-		//UpdatedUnitState.kAppearance.nmLeftArmDeco = '';
-		//UpdatedUnitState.kAppearance.nmRightArmDeco = '';
+		// Start Issue #659, need the UI to blank out the ArmDecos again
+		UpdatedUnitState.kAppearance.nmLeftArmDeco = '';
+		UpdatedUnitState.kAppearance.nmRightArmDeco = '';
+		// End Issue #659
 		//UpdatedUnitState.kAppearance.nmLeftForearm = '';
 		//UpdatedUnitState.kAppearance.nmRightForearm = '';
 		// End Issue #350

@@ -582,32 +582,19 @@ static function UnitPawnPostInitAnimTree(XComGameState_Unit UnitState, XComUnitP
 final function array<string> GetRunBeforeDLCIdentifiers()
 {
 	local CHDLCRunOrder RunOrder;
-	local array<string> EmptyArray;
 
 	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
-	if (RunOrder != none && RunOrder.RunBefore.Length > 0)
-	{
-		return RunOrder.RunBefore;
-	}
-
-	// Prevent unused compile warnings
-	EmptyArray.Length = 0;
-	Return EmptyArray;
+	// Equivalent to empty array if not specified in config
+	return RunOrder.RunBefore;
 }
 
 final function array<string> GetRunAfterDLCIdentifiers()
 {
 	local CHDLCRunOrder RunOrder;
-	local array<string> EmptyArray;
 
 	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
-	if (RunOrder != none && RunOrder.RunAfter.Length > 0)
-	{
-		return RunOrder.RunAfter;
-	}
-	// Prevent unused compile warnings
-	EmptyArray.Length = 0;
-	Return EmptyArray;
+	// Equivalent to empty array if not specified in config
+	return RunOrder.RunAfter;
 }
 
 final function int GetRunPriorityGroup()
@@ -615,11 +602,8 @@ final function int GetRunPriorityGroup()
 	local CHDLCRunOrder RunOrder;
 
 	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
-	if (RunOrder != none)
-	{
-		return RunOrder.RunPriorityGroup;
-	}
-	return RUN_STANDARD;
+	// Equivalent to RUN_STANDARD if not specified in config
+	return RunOrder.RunPriorityGroup;
 }
 /// End Issue #511
 
@@ -639,10 +623,8 @@ final function array<string> GetIncompatibleDLCIdentifiers()
 	local CHModDependency ModDependency;
 
 	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
-	if (ModDependency != none && ModDependency.IncompatibleMods.Length > 0)
-	{
-		return ModDependency.IncompatibleMods;
-	}
+	// Equivalent to empty array if not specified in config
+	return ModDependency.IncompatibleMods;
 }
 
 final function array<string> GetIgnoreIncompatibleDLCIdentifiers()
@@ -650,10 +632,8 @@ final function array<string> GetIgnoreIncompatibleDLCIdentifiers()
 	local CHModDependency ModDependency;
 
 	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
-	if (ModDependency != none && ModDependency.IgnoreIncompatibleMods.Length > 0)
-	{
-		return ModDependency.IgnoreIncompatibleMods;
-	}
+	// Equivalent to empty array if not specified in config
+	return ModDependency.IgnoreIncompatibleMods;
 }
 
 final function array<string> GetRequiredDLCIdentifiers()
@@ -661,10 +641,8 @@ final function array<string> GetRequiredDLCIdentifiers()
 	local CHModDependency ModDependency;
 
 	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
-	if (ModDependency != none && ModDependency.RequiredMods.Length > 0)
-	{
-		return ModDependency.RequiredMods;
-	}
+	// Equivalent to empty array if not specified in config
+	return ModDependency.RequiredMods;
 }
 
 final function array<string> GetIgnoreRequiredDLCIdentifiers()
@@ -672,10 +650,8 @@ final function array<string> GetIgnoreRequiredDLCIdentifiers()
 	local CHModDependency ModDependency;
 
 	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
-	if (ModDependency != none && ModDependency.IgnoreRequiredMods.Length > 0)
-	{
-		return ModDependency.IgnoreRequiredMods;
-	}
+	// Equivalent to empty array if not specified in config
+	return ModDependency.IgnoreRequiredMods;
 }
 
 final function string GetDisplayName()
@@ -683,11 +659,7 @@ final function string GetDisplayName()
 	local CHModDependency ModDependency;
 
 	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
-	if (ModDependency != none && ModDependency.DisplayName != "")
-	{
-		return ModDependency.DisplayName;
-	}
-
-	return "";
+	// Equivalent to empty string if not specified in localization
+	return ModDependency.DisplayName;
 }
 /// End Issue #524

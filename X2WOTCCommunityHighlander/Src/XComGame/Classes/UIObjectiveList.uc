@@ -97,7 +97,7 @@ event OnVisualizationBlockComplete(XComGameState AssociatedGameState)
 	}
 
 	// Start Issue #449
-	ForceShowReinforcementsAlert = IsReinforcementsAlertForced();
+	ForceShowReinforcementsAlert = IsReinforcementsAlertForced(AssociatedGameState);
 
 	// if this state has nothing for us to update, then just return
 	if (ObjectiveList == none && AISpawnerState == none && !ForceShowReinforcementsAlert)
@@ -586,7 +586,7 @@ simulated function ShowCompletedObjectivesDialogue(XComGameState NewGameState)
 }
 
 // Start Issue #449
-function bool IsReinforcementsAlertForced()
+function bool IsReinforcementsAlertForced(XComGameState AssociatedGameState)
 {
 	local UITacticalHUD TacticalHUD;
 	local UITacticalHUD_Countdown Countdown;
@@ -601,7 +601,7 @@ function bool IsReinforcementsAlertForced()
 	// If the reinforcements alert is already visible, then don't bother checking
 	// for the reinforcements override. It should save a bit of time, particularly
 	// if there are a lot of listeners or slow listeners.
-	return Countdown != none && (Countdown.bIsVisible || Countdown.CheckForReinforcementsOverride(sTitle, sBody, sColor));
+	return Countdown != none && (Countdown.bIsVisible || Countdown.CheckForReinforcementsOverride(sTitle, sBody, sColor, AssociatedGameState));
 }
 // End Issue #449
 

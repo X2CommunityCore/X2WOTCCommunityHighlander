@@ -3,7 +3,9 @@ Param(
     [string]$srcDirectory, # the path that contains your mod's .XCOM_sln
     [string]$sdkPath, # the path to your SDK installation ending in "XCOM 2 War of the Chosen SDK"
     [string]$gamePath, # the path to your XCOM 2 installation ending in "XCOM2-WaroftheChosen"
-    [switch]$final_release
+    [switch]$final_release,
+    [switch]$debug,
+    [switch]$stableModId
 )
 
 function WriteModMetadata([string]$mod, [string]$sdkPath, [int]$publishedId, [string]$title, [string]$description) {
@@ -156,6 +158,11 @@ function SuccessMessage($message)
     Write-Host "$modNameCanonical ready to run."
 }
 
+if ($debug -eq $true -and $final_release -eq $true)
+{
+    FailureMessage "-debug and -final_release cannot be used together";
+}
+
 # This doesn't work yet, but it might at some point
 Clear-Host
 
@@ -219,6 +226,20 @@ $modTitle = $modProperties.Name
 $modDescription = $modProperties.Description
 Write-Host "Read."
 
+if (Test-Path "$srcDirectory\WorkshopID")
+{
+    if ($stableModId -eq $true)
+    {
+        Write-Host "Setting workshop ID for stable mod"
+        $modPublishedId = Get-Content -Path "$srcDirectory\WorkshopID\stable\PublishedFileId.ID"
+    }
+    else 
+    {
+        Write-Host "Setting workshop ID for beta mod"
+        $modPublishedId = Get-Content -Path "$srcDirectory\WorkshopID\beta\PublishedFileId.ID"
+    }
+}
+
 # write mod metadata - used by Firaxis' "make" tooling
 Write-Host "Writing mod metadata..."
 WriteModMetadata -mod $modNameCanonical -sdkPath $sdkPath -publishedId $modPublishedId -title $modTitle -description $modDescription
@@ -252,12 +273,16 @@ Write-Host "Updated."
 
 # build the base game scripts
 Write-Host "Compiling base game scripts..."
+$scriptsMakeArguments = "make -nopause -unattended"
 if ($final_release -eq $true)
 {
-    Invoke-Make "$sdkPath/binaries/Win64/XComGame.com" "make -nopause -unattended -final_release" $sdkPath $modSrcRoot
-} else {
-    Invoke-Make "$sdkPath/binaries/Win64/XComGame.com" "make -nopause -unattended" $sdkPath $modSrcRoot
+    $scriptsMakeArguments = "$scriptsMakeArguments -final_release"
 }
+if ($debug -eq $true)
+{
+    $scriptsMakeArguments = "$scriptsMakeArguments -debug"
+}
+Invoke-Make "$sdkPath/binaries/Win64/XComGame.com" $scriptsMakeArguments $sdkPath $modSrcRoot
 if ($LASTEXITCODE -ne 0)
 {
     FailureMessage "Failed to compile base game scripts!"
@@ -277,7 +302,12 @@ if ($final_release -eq $true)
 
 # build the mod's scripts
 Write-Host "Compiling mod scripts..."
-Invoke-Make "$sdkPath/binaries/Win64/XComGame.com" "make -nopause -mods $modNameCanonical $stagingPath" $sdkPath $modSrcRoot
+$scriptsMakeArguments = "make -nopause -mods $modNameCanonical $stagingPath"
+if ($debug -eq $true)
+{
+    $scriptsMakeArguments = "$scriptsMakeArguments -debug"
+}
+Invoke-Make "$sdkPath/binaries/Win64/XComGame.com" $scriptsMakeArguments $sdkPath $modSrcRoot
 if ($LASTEXITCODE -ne 0)
 {
     FailureMessage "Failed to compile mod scripts!"
@@ -286,14 +316,20 @@ Write-Host "Compiled mod scripts."
 
 # Check if this is a Highlander and we need to cook things
 $needscooking = $false
-for ($i=0; $i -lt $thismodpackages.length; $i++)
+if ($debug -eq $false)
 {
-    $name = $thismodpackages[$i]
-    if ($nativescriptpackages.Contains($name))
+    for ($i = 0; $i -lt $thismodpackages.length; $i++) 
     {
-        $needscooking = $true
-        break;
+        $name = $thismodpackages[$i]
+        if ($nativescriptpackages.Contains($name)) {
+            $needscooking = $true
+            break;
+        }
     }
+}
+else
+{
+    Write-Host "Skipping cooking as debug build"
 }
 
 if ($needscooking)
@@ -351,16 +387,18 @@ if ($needscooking)
 Write-Host "Copying the compiled or cooked packages to staging"
 for ($i=0; $i -lt $thismodpackages.length; $i++) {
     $name = $thismodpackages[$i]
-    if ($nativescriptpackages.Contains($name))
+    if ($debug -eq $false -and $nativescriptpackages.Contains($name))
     {
         # This is a native (cooked) script package -- copy important upks
-        Copy-Item "$modcookdir/$name.upk" "$stagingPath/CookedPCConsole" -Force -WarningAction SilentlyContinue
-        Copy-Item "$modcookdir/$name.upk.uncompressed_size" "$stagingPath/CookedPCConsole" -Force -WarningAction SilentlyContinue
-        Write-Host "$modcookdir/$name.upk"
-    } else {
-        # This is a normal script package
-        Copy-Item "$sdkPath/XComGame/Script/$name.u" "$stagingPath/Script" -Force -WarningAction SilentlyContinue
-        Write-Host "$sdkPath/XComGame/Script/$name.u"
+        Copy-Item "$modcookdir\$name.upk" "$stagingPath\CookedPCConsole" -Force -WarningAction SilentlyContinue
+        Copy-Item "$modcookdir\$name.upk.uncompressed_size" "$stagingPath\CookedPCConsole" -Force -WarningAction SilentlyContinue
+        Write-Host "$modcookdir\$name.upk"
+    }
+    else
+    {
+        # Or this is a non-native package
+        Copy-Item "$sdkPath\XComGame\Script\$name.u" "$stagingPath\Script" -Force -WarningAction SilentlyContinue
+        Write-Host "$sdkPath\XComGame\Script\$name.u"        
     }
 }
 Write-Host "Copied compiled and cooked script packages."
