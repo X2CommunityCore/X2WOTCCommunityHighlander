@@ -20,8 +20,9 @@ var config array<name>      BuildItemArmorCategories;
 var config array<name>      BuildItemMiscCategories;
 
 var config int				MaxTechDistanceForValidDrop;  // number of techs "away" from being useable an item can be for it to be eligible to drop (schematics)
-
-var protectedwrite config array<InventoryLoadout>  Loadouts;
+// Start Issue #698
+var config array<InventoryLoadout>  Loadouts;
+// End Issue #698
 var protectedwrite config array<StatBoostDefinition> StatBoostTable;
 var protectedwrite config array<TX2MPSoldierItemDefinition> MPAvailableSoldierItems; // the list of items that are available for MP soldier to equip. -tsmith
 
