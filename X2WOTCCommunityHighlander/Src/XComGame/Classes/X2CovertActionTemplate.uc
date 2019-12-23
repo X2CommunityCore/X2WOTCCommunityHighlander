@@ -25,6 +25,7 @@ var bool							bMultiplesAllowed; // If true, this Covert Action can appear be p
 var bool							bDisplayIgnoresInfluence; // Will create and display this covert action even if the influence requirements are not met
 var bool							bDisplayRequiresAvailable; // For non-golden path actions, displaying the Action always requires a check of its availability
 var bool							bUseRewardImage; // Ignore any image set by the narrative, and instead use the reward image
+var bool							bCanNeverBeRookie; // Issue #695. Not a delegate/event as "is rookie" classification is done once (during campaign setup), not before the action is created
 
 // Config Data
 var config array<int>				MinActionHours;

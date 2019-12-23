@@ -109,6 +109,7 @@ RunPriorityGroup=RUN_STANDARD
 - UIScanButton now calls OnMouseEventDelegate (#483). Note: DO NOT call ProcessMouseEvents, just set the delegate directly
 - Remove `private` from `X2AIBTBehaviorTree.Behaviors` so that mods can change the behavior trees without
   overwriting all the necessary entries (#410)
+- Added `X2CovertActionTemplate::bCanNeverBeRookie` to allow mods to forbid a CA from being marked as a rookie one (#695)
 
 ### Configuration
 - Allow disabling of Factions being initialized on startup by
