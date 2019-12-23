@@ -120,6 +120,17 @@
 // `define	ShowAddr(addr)	"   Addr:'"$IpAddrToString(`addr)$"'"
 
 
+// Start Issue #705 
+//********************************************************
+// Community Highlander Additions
+//********************************************************
+`define ALIENHQ class'UIUtilities_Strategy'.static.GetAlienHQ()
+`define RESISTANCEHQ class'UIUtilities_Strategy'.static.GetResistanceHQ()
+
+//********************************************************
+// End Issue #705 
+
+
 `define LogFatal(cat,msg)	`log("FATAL:" @ `msg,,`cat)
 `define LogError(cat,msg)	`log("ERROR:" @ `msg,,`cat)
 `define LogWarn(cat,msg)	`log("WARN:" @ `msg,,`cat)
