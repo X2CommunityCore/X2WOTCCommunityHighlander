@@ -123,6 +123,10 @@ function AddItemToSlot(XComGameState_Unit Unit, XComGameState_Item Item, XComGam
 	if (AddItemToSlotFn != none)
 	{
 		AddItemToSlotFn(self, Unit, Item, NewGameState);
+		
+		// Start Issue #694
+		`XEVENTMGR.TriggerEvent('ItemAddedToSlot', Item, self, NewGameState);
+		// End Issue #694
 	}
 }
 
@@ -142,6 +146,10 @@ function RemoveItemFromSlot(XComGameState_Unit Unit, XComGameState_Item ItemStat
 	if (RemoveItemFromSlotFn != none)
 	{
 		RemoveItemFromSlotFn(self, Unit, ItemState, NewGameState);
+		
+		// Start Issue #694
+		`XEVENTMGR.TriggerEvent('ItemRemovedFromSlot', Item, self, NewGameState);
+		// End Issue #694
 	}
 }
 
