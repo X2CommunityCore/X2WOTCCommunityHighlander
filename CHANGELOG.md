@@ -305,6 +305,7 @@ RunPriorityGroup=RUN_STANDARD
 - Unprotect `X2DataSet::bShouldCreateDifficultyVariants` to allow mods to force templates from other packages to use difficulty variants (#413)
 - Allow mods to manipulate X2GameRuleset::EventObserverClasses, eg. on CDOs (#481)
 - Uprivate `XComTacticalMissionManager::CacheMissionManagerCards` to allow mods to use manager's decks (#528)
+- Unprotect `XComGameState_EvacZone::CenterLocation` & `XComGameState_EvacZone::Team` (#702)
 
 ### Improvements
 - Create a mod friendly way to manipulate loot tables (#8)
