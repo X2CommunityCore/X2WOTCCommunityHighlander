@@ -70,7 +70,8 @@ simulated function UIArmory_LoadoutItem InitLoadoutItem(XComGameState_Item Item,
 		SetDisabled(true, class'UIUtilities_Text'.static.GetColoredText(InitDisabledReason, eUIState_Bad));
 	}
 
-	if (ItemTemplate != none && ItemTemplate.DataName == 'Medikit' && class'XComGameState_HeadquartersXCom'.static.NeedsToEquipMedikitTutorial())
+	if (ItemTemplate != none && ItemTemplate.DataName == class'UIInventory_BuildItems'.default.TutorialBuildItem // Issue #701 from 'Medikit'
+		&& class'XComGameState_HeadquartersXCom'.static.NeedsToEquipMedikitTutorial())
 	{
 		// spawn the attention icon externally so it draws on top of the button and image 
 		Spawn(class'UIPanel', self).InitPanel('attentionIconMC', class'UIUtilities_Controls'.const.MC_AttentionIcon)
