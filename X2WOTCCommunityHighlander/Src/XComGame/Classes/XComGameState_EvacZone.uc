@@ -19,8 +19,10 @@ var() const config int PositiveYDimension;
 var() const config int NegativeXDimension;
 var() const config int NegativeYDimension;
 
-var() protectedwrite TTile CenterLocation;
-var() protectedwrite ETeam Team;
+// Start Issue #702
+var() TTile CenterLocation;
+var() ETeam Team;
+// End Issue #702
 
 // if specified, will use this map instead of the default evac zone map
 var() string BlueprintMapOverride;
