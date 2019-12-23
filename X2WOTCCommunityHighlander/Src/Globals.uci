@@ -1,0 +1,454 @@
+/**
+ * Copyright 1998-2011 Epic Games, Inc. All Rights Reserved.
+ */
+/**
+ * Globals.uci - Unreal Engine global include file for UnrealScript.
+ * Never include this file before the class definition.
+ */
+
+//`define AI_EXTRA_LOGGING ""
+ 
+/**
+ * Macro for including the current function name in a string.
+ */
+`define	Location	"("$Name$") `{ClassName}::"$GetStateName()$":"$GetFuncName()
+`define StaticLocation "`{ClassName}::"$GetFuncName()
+
+// A slick little macro to output the class and function you are in with very littly typing.
+`define LogFn `log("XXX " @ `Location,,'DebugHQCamera');
+
+
+/**
+ * Expands to an in-line if statement with a log if debug is defined;
+ * it expands to nothing if debug is not defined. The debug macro takes
+ * its value from the -debug flag on the script compilation command line.
+ *
+ * Also demonstrates how to use backslashes to declare a multi-line macro.
+ *
+ * @param	msg		the string that should be logged
+ * @param	cond	[opt] the condition that is used to evaluate whether the message should be written
+ * @param	tag		[opt] the tag for the log statement
+ */
+
+/*
+  this macro is now added to the hardcoded symbol table, so don't try adding it again
+`if(`isdefined(debug))
+`define Logd(msg,cond,tag)\
+  `if(`cond)\
+	if (`cond)\
+  `{endif}\
+	log(`msg`if(`tag),`tag`endif)
+`else
+`define Logd
+`endif
+*/
+
+/**
+ * Expands to an in-line if statement with a log unless FINAL_RELEASE is defined;
+ *
+ *
+ * @param	msg		the string that should be logged
+ * @param	cond	[opt] the condition that is used to evaluate whether the message should be written
+ * @param	tag		[opt] the tag for the log statement
+ */
+/*
+  this macro is now added to the hardcoded symbol table, so don't try adding it again
+`if( `isdefined(FINAL_RELEASE) )
+	`if(`isdefined(FINAL_RELEASE_DEBUGCONSOLE))
+	`define	Log(msg,cond,tag)	`if(`cond)if(`cond)`{endif}log(`msg`if(`tag),`tag`endif)	
+	`else
+	`define	Log(msg,cond,tag)
+	`endif
+`else
+`define	Log(msg,cond,tag)	`if(`cond)if(`cond)`{endif}log(`msg`if(`tag),`tag`endif)
+`endif
+*/
+
+/**
+ * Macro for easily logging a property or function return value.  Expands into a string
+ * containing the name of the expression and value of the expression.
+ * Useful for writing self-documenting log statements.
+ *
+ * @param	expr	the expression that you want to log
+ * @param	name	[opt] the text that will immediately preceed the expression's value
+ *					in the log statement. if not specified, uses expr.
+ */
+`define	ShowVar(expr,name)	"`if(`name)`name`else`expr`endif:'"$`expr$"'"
+
+/**
+ * Macro for easily logging a property or function return value.  Expands into a string
+ * containing the name of the expression and value of the expression.
+ * Useful for writing self-documenting log statements.
+ *
+ * @param	expr	the expression that you want to log
+ * @param	name	[opt] the text that will immediately preceed the expression's value
+ *					in the log statement. if not specified, uses expr.
+ */
+`define	ShowEnum(enum,expr,name)	"`if(`name)`name`else`expr`endif:'"$GetEnum(Enum'`enum',`expr)$"'"
+
+/**
+ * Macro for easily logging the name of an object.  Useful for logging objects without extraneous
+ * checks against None.
+ *
+ * @param	obj		the object that you want to log
+ * @param	name	[opt] the text that will immediately preceed the object's name
+ *					in the log statement. if not specified, uses obj.
+ */
+`define	ShowObj(Obj,name)		"`if(`name)`name`else`Obj`endif:"$(`Obj != None ? string(`Obj.Name) : "None")
+
+/**
+ * Macro for logging the entry into a function.
+ *
+ * @param	msg		[opt] any additional text you'd like included in the log message
+ * @param	cond	[opt] the condition that is used to evaluate whether the message should be written
+ */
+`define	Entry(msg,cond,tag)	`log(">> "$ `Location `if(`msg)@`msg`endif, `if(`cond), `cond`{endif}`if(`tag), `tag`{endif})
+
+/**
+ * Macro for logging the exit from a function.
+ *
+ * @param	msg		[opt] any additional text you'd like included in the log message
+ * @param	cond	[opt] the condition that is used to evaluate whether the message should be written
+ */
+`define	Exit(msg,cond,tag)	`log("<< "$ `Location `if(`msg)@`msg`endif, `if(`cond), `cond`{endif}`if(`tag), `tag`{endif})
+
+/**
+ * Macro for logging an IP address
+ *
+ * @param	addr	the IP address you want to log
+ */
+// `define	ShowAddr(addr)	"   Addr:'"$IpAddrToString(`addr)$"'"
+
+
+`define LogFatal(cat,msg)	`log("FATAL:" @ `msg,,`cat)
+`define LogError(cat,msg)	`log("ERROR:" @ `msg,,`cat)
+`define LogWarn(cat,msg)	`log("WARN:" @ `msg,,`cat)
+`define LogInfo(cat,msg)	`log("INFO:" @ `msg,,`cat)
+`define LogDebug(cat,msg)	`log("DEBUG:" @ `msg,,`cat)
+`define LogTrace(cat,msg)	`log("TRACE:" @ `msg,,`cat)
+
+/** Convenience macro for inventory debugging */
+`define LogInv(msg)		`log(WorldInfo.TimeSeconds @ "Self:" @ Self @ "Instigator:" @ Instigator @ GetStateName() $ "::" $ GetFuncName() @ `msg,,'Inventory')
+`define DLog(msg)		`Log(WorldInfo.TimeSeconds @ Self @ GetStateName() $ "::" $ GetFuncName() @ `msg)
+
+/** This is a slick way to to do thing like:  TimeSince(LastFoo) < Delta  where the macro makes it a lot easier to read what the code is doing **/
+`define TimeSince(Time)	 (WorldInfo.TimeSeconds - `Time)
+/** This is used for classes which are object derived and do not have access to WorldInfo so we need to pass in the Actor to get a worldinfo **/
+`define TimeSinceEx(Actor,Time)	 (`Actor.WorldInfo.TimeSeconds - `Time)
+
+`define AddUniqueItemToArray(Array,Item) if (`Array.Find(`Item) == INDEX_NONE) { `Array.AddItem(`Item);	}
+`define MAX_NUM_PLAYERS 24
+`define MAX_NUM_CONTROLLERS 24
+// XCom Game
+// Global Macros!
+`define MAX_INVENTORY_ITEMS_PER_SLOT 5
+`define MAX_LOADOUT_SLOTS 29
+// Hack to get around unreal script compiler listing consts after cpptext and therefore the cpptext not having access to the const
+`define DEFINED_ACTION_INVALID_ID -1
+`define DEFINED_CLIENT_PROXY_ACTION_INVALID_ID -1
+
+`define MESH_CUE_MAX_ENTRIES 4
+
+`define ALERT_LEVEL_RED 2
+`define ALERT_LEVEL_YELLOW 1
+`define ALERT_LEVEL_GREEN 0
+
+`define GET_RANK_STR(iRank, ClassName) class'X2ExperienceConfig'.static.GetRankName(`iRank, `ClassName)
+`define GET_RANK_ABBRV(iRank, ClassName) class'X2ExperienceConfig'.static.GetShortRankName(`iRank, `ClassName)
+`define GET_MAX_RANK class'X2ExperienceConfig'.static.GetMaxRank()
+
+// difficulty macros
+`define MIN_DIFFICULTY_INDEX 0
+`define MAX_DIFFICULTY_INDEX 4
+`define CampaignDifficultySetting class'XComGameState_CampaignSettings'.static.GetCampaignDifficultyFromSettings()
+`define TacticalDifficultySetting class'XComGameState_CampaignSettings'.static.GetTacticalDifficultyIndexFromSettings()
+`define StrategyDifficultySetting class'XComGameState_CampaignSettings'.static.GetStrategyDifficultyIndexFromSettings()
+`define GameLengthSetting class'XComGameState_CampaignSettings'.static.GetGameLengthIndexFromSettings()
+`define SecondWaveEnabled(x) class'XComGameState_CampaignSettings'.static.IsSecondWaveOptionEnabledForSettings(`x)
+`define ScaleTacticalArrayInt(x) class'XComGameState_CampaignSettings'.static.ScaleArrayIntValueForTacticalDifficulty(`x)
+`define ScaleStrategyArrayInt(x) class'XComGameState_CampaignSettings'.static.ScaleArrayIntValueForStrategyDifficulty(`x)
+`define ScaleGameLengthArrayInt(x) class'XComGameState_CampaignSettings'.static.ScaleArrayIntValueForGameLength(`x)
+`define ScaleTacticalArrayFloat(x) class'XComGameState_CampaignSettings'.static.ScaleArrayFloatValueForTacticalDifficulty(`x)
+`define ScaleStrategyArrayFloat(x) class'XComGameState_CampaignSettings'.static.ScaleArrayFloatValueForStrategyDifficulty(`x)
+`define ScaleGameLengthArrayFloat(x) class'XComGameState_CampaignSettings'.static.ScaleArrayFloatValueForGameLength(`x)
+
+
+// Strategy Game Macros
+// TODO: Move to strategy game globals.uci
+`define GAME 	XComHeadquartersGame(class'Engine'.static.GetCurrentWorldInfo().Game).GetGamecore()
+`define HQGAME  XComHeadquartersGame(class'Engine'.static.GetCurrentWorldInfo().Game)
+`define AI 	    XComHeadquartersGame(class'Engine'.static.GetCurrentWorldInfo().Game).GetGamecore().GetAI()
+`define MC 		XComHeadquartersGame(class'Engine'.static.GetCurrentWorldInfo().Game).GetGamecore().GetMC()
+`define HQ 		XComHeadquartersGame(class'Engine'.static.GetCurrentWorldInfo().Game).GetGamecore().GetHQ()
+`define EARTH   XComHeadquartersGame(class'Engine'.static.GetCurrentWorldInfo().Game).m_kEarth
+`define HQPC    XComHeadquartersController(XComHeadquartersGame(class'Engine'.static.GetCurrentWorldInfo().Game).PlayerController)
+`define HQINPUT XComHeadquartersInput(XComHeadquartersGame(class'Engine'.static.GetCurrentWorldInfo().Game).PlayerController.PlayerInput)
+`define HQPRES	class'XComEngine'.static.GetHQPres()
+
+// A way to get the HQPres, without spamming the log if we are not in Strategy mode.
+// Returns HQPres, if it exists; returns None otherwise;
+`define XWORLDINFO class'Engine'.static.GetCurrentWorldInfo()
+`define XCOMGAME XComGameInfo(class'Engine'.static.GetCurrentWorldInfo().Game)
+`define REPLAY XComTacticalGRI(class'WorldInfo'.static.GetWorldInfo().GRI).ReplayMgr
+`define TUTORIAL XComTutorialMgr(XComTacticalGRI(class'WorldInfo'.static.GetWorldInfo().GRI).ReplayMgr)
+`define XCOMHISTORY class'XComGameStateHistory'.static.GetGameStateHistory()
+`define XCOMHQ class'UIUtilities_Strategy'.static.GetXComHQ()
+`define XCOMNETMANAGER class'XComGameStateNetworkManager'.static.GetGameStateNetworkManager()
+`define XCOMVISUALIZATIONMGR XComGameReplicationInfo(class'Engine'.static.GetCurrentWorldInfo().GRI).VisualizationMgr
+`define XENGINE XComEngine(class'Engine'.static.GetEngine())
+`define XCOMGRI XComGameReplicationInfo(class'Engine'.static.GetCurrentWorldInfo().GRI)
+`define TACTICALGRI XComTacticalGRI(`XCOMGRI)
+`define SOUNDMGR XComGameReplicationInfo(class'Engine'.static.GetCurrentWorldInfo().GRI).GetSoundManager()
+`define XTACTICALSOUNDMGR XComTacticalSoundManager(`SOUNDMGR)
+`define XSTRATEGYSOUNDMGR XComStrategySoundManager(`SOUNDMGR)
+`define XWORLD class'XComWorldData'.static.GetWorldData()
+`define PRES XComPresentationLayer(XComPlayerController(class'WorldInfo'.static.GetWorldInfo().GetALocalPlayerController()).Pres)
+`define PRESBASE (XComPlayerController(class'WorldInfo'.static.GetWorldInfo().GetALocalPlayerController()).Pres)
+`define ISCONTROLLERACTIVE (class'WorldInfo'.static.GetWorldInfo().GetALocalPlayerController() != none && `PRESBASE != none && `PRESBASE.Get2DMovie() != none && `PRESBASE.Get2DMovie().IsMouseActive() == false)
+`define TOOLTIPMGR XComPlayerController(class'WorldInfo'.static.GetWorldInfo().GetALocalPlayerController()).Pres.m_kTooltipMgr
+`define SCREENSTACK XComPlayerController(class'WorldInfo'.static.GetWorldInfo().GetALocalPlayerController()).Pres.ScreenStack
+`define CONTENT XComContentManager(class'Engine'.static.GetEngine().GetContentManager())
+`define MAPS XComMapManager(class'Engine'.static.GetEngine().GetMapManager())
+`define XPROFILESETTINGS XComOnlineProfileSettings(class'Engine'.static.GetEngine().GetProfileSettings())
+`define ONLINEEVENTMGR XComOnlineEventMgr(class'Engine'.static.GetEngine().OnlineEventManager)
+`define AUTOSAVEMGR XComGameReplicationInfo(class'Engine'.static.GetCurrentWorldInfo().GRI).GetAutosaveMgr()
+`define XEXPAND class'XComLocalizer'.static
+`define XMCP class'XComMCP'.static
+`define XEXPANDCONTEXT XComEngine(class'Engine'.static.GetEngine()).LocalizeContext
+`define XANIMNAME(a) XComGameReplicationInfo(class'Engine'.static.GetCurrentWorldInfo().GRI).AnimMapping[`a]
+`define XEVENTMGR class'X2EventManager'.static.GetEventManager()
+`define SPAWNMGR class'XComAISpawnManager'.static.GetSpawnManager()
+`define TRIGGERXP(EventName,XpEarn,XpGrant,GameState) class'X2EventManager'.static.GetEventManager().TriggerEvent(`EventName,class'XpEventData'.static.NewXpEventData(`XpEarn,`XpGrant),,`GameState)
+`define PHOTOBOOTH class'X2Photobooth'.static.GetPhotobooth()
+`define LOCALPLAYERCONTROLLER class'WorldInfo'.static.GetWorldInfo().GetALocalPlayerController()
+
+// Combat Game Macros
+`define GAMERULES XComGameInfo(class'Engine'.static.GetCurrentWorldInfo().Game).GameRuleset
+`define TACTICALRULES X2TacticalGameRuleset(XComGameInfo(class'Engine'.static.GetCurrentWorldInfo().Game).GameRuleset)
+`define STRATEGYRULES X2StrategyGameRuleset(XComGameInfo(class'Engine'.static.GetCurrentWorldInfo().Game).GameRuleset)
+`define GAMECORE XComGameReplicationInfo(class'Engine'.static.GetCurrentWorldInfo().GRI).m_kGameCore
+`define TACTICAL XComTacticalGame(class'Engine'.static.GetCurrentWorldInfo().Game)
+`define BATTLE XComTacticalGRI( class'Engine'.static.GetCurrentWorldInfo().GRI ).m_kBattle
+`define LEVEL XComTacticalGRI( class'Engine'.static.GetCurrentWorldInfo().GRI ).m_kBattle.m_kLevel
+`define ISDEBUG XComTacticalGRI( class'Engine'.static.GetCurrentWorldInfo().GRI ).m_kBattle.IsA( 'XGBattle_SPDebug' )
+`define ISSINGLEPLAYER XComTacticalGRI( class'Engine'.static.GetCurrentWorldInfo().GRI ).m_kBattle.IsA( 'XGBattle_SP' )
+`define XTRACEMGR XComTacticalGRI( class'Engine'.static.GetCurrentWorldInfo().GRI ).m_kTraceMgr
+`define SHAPEMGR XComTacticalGRI( class'Engine'.static.GetCurrentWorldInfo().GRI ).mSimpleShapeManager
+`define CHEATMGR XComTacticalCheatManager(class'WorldInfo'.static.GetWorldInfo().GetALocalPlayerController().CheatManager)
+`define CURSOR XComTacticalController(class'WorldInfo'.static.GetWorldInfo().GetALocalPlayerController()).GetCursor()
+`define CAMERASTACK XComCamera(XComTacticalController(class'WorldInfo'.static.GetWorldInfo().GetALocalPlayerController()).PlayerCamera).CameraStack
+
+`define PRECOMPUTEDPATH XComTacticalGRI( class'Engine'.static.GetCurrentWorldInfo().GRI ).GetPrecomputedPath()
+`define PRECOMPUTEDPATH_SINGLEPROJECTILE XComTacticalGRI( class'Engine'.static.GetCurrentWorldInfo().GRI ).PrecomputedPathSingleProjectileUse()
+//this will suffice for now, if we needed dynamic allocation in future, we will need a new method to determine when path has been finished using, and add a boolean to check if paths are in use
+`define PRECOMPUTEDPATH_PROJECTILEPOOLSIZE 16
+`define MAINMENU XComMainMenuGame(class'Engine'.static.GetCurrentWorldInfo().Game)
+
+`define PARCELMGR XComParcelManager(class'Engine'.static.GetEngine().GetParcelManager())
+`define TACTICALMISSIONMGR XComTacticalMissionManager(class'Engine'.static.GetEngine().GetTacticalMissionManager())
+`define ENVLIGHTINGMGR XComEnvLightingManager(class'Engine'.static.GetEngine().GetEnvLightingManager())
+`define CHARACTERPOOLMGR CharacterPoolManager(class'Engine'.static.GetEngine().GetCharacterPoolManager())
+`define AIJOBMGR class'X2AIJobManager'.static.GetAIJobManager()
+`define BEHAVIORTREEMGR class'X2AIBTBehaviorTree'.static.GetBehaviorTreeManager()
+`define AUTOPLAYMGR	class'X2AutoPlayManager'.static.GetAutoPlayManager()
+
+`if(`isdefined(FINAL_RELEASE))
+`define LOCAL_PLAYER_TEAM ETeam(XComPlayerController(class'WorldInfo'.static.GetWorldInfo().GetALocalPlayerController()).m_eTeam)
+`else
+`define LOCAL_PLAYER_TEAM ETeam(XComPlayerController(class'WorldInfo'.static.GetWorldInfo().GetALocalPlayerController()).GetTeam())
+`endif
+
+// removed bit-shift optimization which truncates decimal values
+`define METERSTOUNITS(x) ((`x)*64)
+`define UNITSTOMETERS(x) ((`x)/64)
+`define METERSTOUNITS_SQ(x) ((`x)*(`x)*4096 )
+`define UNITSTOMETERS_SQ(x) ((`x)*(`x)/4096)
+`define UNITSTOTILES(x) ((`x)/96)
+`define TILESTOUNITS(x) ((`x)*96)
+`define METERSTOTILES(x) ((`x)/1.5f)
+`define TILESTOMETERS(x) ((`x)*1.5f)
+
+`define HQINTERPTIME (0.75f)
+`define HQINTERPTIME_CONSOLE (0.55555f)
+
+`define ACTIONDIST (52)
+`define ACTIONDIST_EDGE (44)
+`define DIST_CLOSEENOUGH (2)
+
+`define CLIMBOVER_HEIGHTMIN     (56)
+`define CLIMBOVER_HEIGHTMAX     (72)
+`define CLIMBOVERLENGTH (103)
+`define CLIMBONTOLENGTH (67)
+`define NUMCOVERCHECKS (16)
+
+//bsg-jneal (2.1.17): console defines for script changes
+// console specific
+`define ISCONSOLE (class'WorldInfo'.static.IsConsoleBuild())
+`define ISORBIS   (class'WorldInfo'.static.IsConsoleBuild(CONSOLE_Orbis))
+`define ISDURANGO (class'WorldInfo'.static.IsConsoleBuild(CONSOLE_Durango))
+//bsg-jneal (2.1.17): end
+
+// either through FINAL_RELEASE or NO_SCRIPT_LOG, convert these to log calls, which should be completely emptied out
+
+`if(`isdefined(FINAL_RELEASE))
+
+`define LOGAI(msg)          `log(`msg, 'AI')
+`define LOGAIBT(msg)        `log(`msg)
+`define LOGAIActions(msg)   `log(`msg,, 'AIActions')
+`define LogConcealment(msg) `log(`msg, 'AIConcealment')
+
+`else
+
+`define LOGAI(msg)          class'XGAIPlayer'.static.LogAI(`msg, 'AI')
+`define LOGAIBT(msg)        class'XGAIPlayer'.static.LogAIBT(`msg)
+`define LOGAIActions(msg)   `LOG(`msg,, 'AIActions')
+`define LogConcealment(msg) class'XGAIPlayer'.static.LogAI(`msg, 'AIConcealment')
+
+`endif
+
+
+`define SYNC_RAND(x) (class'Engine'.static.GetEngine().SyncRand(`x,string(Name)@string(GetStateName())@string(GetFuncName())))
+`define SYNC_FRAND() (class'Engine'.static.GetEngine().SyncFRand(string(Name)@string(GetStateName())@string(GetFuncName())))
+`define SYNC_VRAND() (class'Engine'.static.GetEngine().SyncVRand(string(Name)@string(GetStateName())@string(GetFuncName())))
+
+`define SYNC_RAND_TYPED(x,y) (class'Engine'.static.GetEngine().SyncRand(`x,string(Name)@string(GetStateName())@string(GetFuncName())))
+`define SYNC_RAND_STATIC(x) (class'Engine'.static.GetEngine().SyncRand(`x,"`{ClassName}::"$GetFuncName()))
+`define SYNC_FRAND_STATIC() (class'Engine'.static.GetEngine().SyncFRand("`{ClassName}::"$GetFuncName()))
+`define SYNC_VRAND_STATIC() (class'Engine'.static.GetEngine().SyncVRand("`{ClassName}::"$GetFuncName()))
+
+
+//`define SYNC_RAND(x) (XComTacticalGRI( class'Engine'.static.GetCurrentWorldInfo().GRI ).ScriptDebugSyncRand(`x))
+//`define SYNC_FRAND() (XComTacticalGRI( class'Engine'.static.GetCurrentWorldInfo().GRI ).ScriptDebugSyncFRand())
+
+// Cover related things
+// Dir + 4  = Low
+// Dir + 8  = Peek Left
+// Dir + 12 = Peek Right
+// These macros are duplicated in Native XComCover.h so be sure to change both places.
+`define HAS_COVER_IN_DIR(c,d) ((`c.Flags & `d) != 0)
+`define HAS_LPEEK_IN_DIR(c,d) (`HAS_COVER_IN_DIR(`c,`d) && (`c.Flags & (`d << 8)) != 0)
+`define HAS_RPEEK_IN_DIR(c,d) (`HAS_COVER_IN_DIR(`c,`d) && (`c.Flags & (`d << 12)) != 0)
+// If there is cover in 1 or more directions and at least 1 isn't low cover
+`define HAS_HIGH_COVER(c)     ((`c.Flags & class'XComWorldData'.const.COVER_DIR_ANY) != ((`c.Flags & class'XComWorldData'.const.COVER_LOW_ANY) >> 4))
+`define IS_HIGH_COVER(c,d)    (`HAS_COVER_IN_DIR(`c,`d) && (`c.Flags & (`d << 4)) == 0)
+`define HAS_LOW_COVER(c)      ((`c.Flags & class'XComWorldData'.const.COVER_LOW_ANY) != 0)
+`define IS_LOW_COVER(c,d)     (`HAS_COVER_IN_DIR(`c,`d) && (`c.Flags & (`d << 4)) != 0)
+`define IS_VALID_COVER(c)     ((`c.Flags & class'XComWorldData'.const.COVER_DIR_ANY) != 0)
+`define IS_DIAGONAL_COVER(c)  ((`c.Flags & class'XComWorldData'.const.COVER_Diagonal) != 0)
+`define IDX_TO_DIR(idx)       (1 << `idx)
+`define COVER_DIR_COUNT       (4)
+
+`define FOOTIK_IDLETIMER (0.5f)
+
+`define DEBUG_NET_LOAD_HANG false 
+`if(`DEBUG_NET_LOAD_HANG )
+	`define LogNetLoadHang(msg) `log(`msg, true, 'XCom_Net_LoadHang');
+`else
+	`define LogNetLoadHang(msg) 
+`endif
+
+`define DEBUG_SKIP_TURN true
+`if(`DEBUG_SKIP_TURN)
+	`define LogSkipTurn(msg) if(WorldInfo.NetMode != NM_Standalone) { `log(`msg, true, 'XCom_SkipTurn'); ScriptTrace(); }
+`else
+	`define LogSkipTurn(msg) 
+`endif
+
+`if(`isdefined(FINAL_RELEASE))
+`define FXS_ASSERT(b)
+`else
+`define FXS_ASSERT(b) \
+	{ \
+		if(!`b) \
+			if(`HQPRES != none) `HQPRES.PopupAssertDialog("`b", GetFuncName(), GetScriptTrace()); \
+			else if(`PRES != none) `PRES.PopupAssertDialog("`b", GetFuncName(), GetScriptTrace()); \
+	}
+`endif
+
+`define FETCH_MP_DATA true
+
+//  
+//  The template macros are on ONE LINE so as to keep the script debugger from getting confused.
+`define CREATE_X2TEMPLATE(Class, TemplateObject, TemplateName) \
+	`TemplateObject = new(None, string(`TemplateName)) `Class; `TemplateObject.SetTemplateName(`TemplateName);
+
+`define CREATE_X2CHARACTER_TEMPLATE(Template, TemplateName) \
+	`CREATE_X2TEMPLATE(class'X2CharacterTemplate', `Template, `TemplateName);
+
+`define CREATE_X2ABILITY_TEMPLATE(Template, TemplateName) \
+	`CREATE_X2TEMPLATE(class'X2AbilityTemplate', `Template, `TemplateName);
+
+`define CREATE_X2MISSIONNARRATIVE_TEMPLATE(Template, TemplateName) \
+	`CREATE_X2TEMPLATE(class'X2MissionNarrativeTemplate', `Template, `TemplateName);
+
+`define CREATE_X2POINTOFINTEREST_TEMPLATE(Template, TemplateName) \
+	`CREATE_X2TEMPLATE(class'X2PointOfInterestTemplate', `Template, `TemplateName);
+
+`define CREATE_X2REWARD_TEMPLATE(Template, TemplateName) \
+	`CREATE_X2TEMPLATE(class'X2RewardTemplate', `Template, `TemplateName);
+
+`define RedScreen(Error)                \
+	`XENGINE.RedScreen(`Error)
+
+`define RedScreenOnce(Error)                \
+	`XENGINE.RedScreenOnce(`Error)
+
+`define COMBATLOG(Message)          \
+	if (`CHEATMGR != None && `CHEATMGR.bCombatLog) { `PRES.GetDebugInfo().AddText(`Message); } `log(`Message,true,'XCom_CombatLog');
+		
+`define CHALLENGEMODE_MGR XComEngine(class'Engine'.static.GetEngine()).ChallengeModeManager
+`define CHALLENGEMODE_INTERFACE XComEngine(class'Engine'.static.GetEngine()).ChallengeModeManager.GetSystemInterface()
+`define FXSLIVE X2FiraxisLiveClient(`XENGINE.GetFiraxisLiveClient())
+
+// Use "make -intermediate" to see the expansion of this function for debugging. Open corresponding .uc within the "XCOM2\XComGame\PreProcessedFiles\XComGame" directory.
+`define DeclareAddClearDelegatesArray(DelegateName) \
+	var array<delegate<On`{DelegateName}> > `{DelegateName}Delegates;
+
+`define ClearDelegatesArray(DelegateName) \
+	`{DelegateName}Delegates.Length = 0;
+
+`define AddDelegates(DelegateName)  													\n \
+	function Add`{DelegateName}Delegate(delegate<On`{DelegateName}> AddDelegate) { 		\n \
+		local int AddIndex;																\n \
+		if (`{DelegateName}Delegates.Find(AddDelegate) == INDEX_NONE)	{				\n \
+			AddIndex = `{DelegateName}Delegates.Length;									\n \
+			`{DelegateName}Delegates.Length = `{DelegateName}Delegates.Length + 1;		\n \
+			`{DelegateName}Delegates[AddIndex] = AddDelegate;							\n \
+		}																				\n \
+	}
+
+`define ClearDelegates(DelegateName)  													\n \
+	function Clear`{DelegateName}Delegate(delegate<On`{DelegateName}> RemoveDelegate) {	\n \
+		local int RemoveIndex;															\n \
+		RemoveIndex = `{DelegateName}Delegates.Find(RemoveDelegate);					\n \
+		if (RemoveIndex != INDEX_NONE) {												\n \
+			`{DelegateName}Delegates.Remove(RemoveIndex,1);								\n \
+		}																				\n \
+	}
+
+// Requires that the "DelegateName" have an array already defined of the delegate type and be named: "{DelegateName}Delegates"
+`define AddClearDelegates(DelegateName) \
+	`AddDelegates(`DelegateName)        \
+	`ClearDelegates(`DelegateName)
+
+`define AddDelegatesPrototype(DelegateName)  											\n \
+	function Add`{DelegateName}Delegate(delegate<On`{DelegateName}> AddDelegate);
+
+`define ClearDelegatesPrototype(DelegateName)  											\n \
+	function Clear`{DelegateName}Delegate(delegate<On`{DelegateName}> RemoveDelegate);
+
+`define AddClearDelegatesPrototype(DelegateName) \
+	`AddDelegatesPrototype(`DelegateName)        \
+	`ClearDelegatesPrototype(`DelegateName)
+
+
+`define TruncFloatString(f, x) Left(`f, Len(`f)-`x)
+
+// Analytics macros
+`define XANALYTICS					AnalyticsManager(`XENGINE.GetAnalyticsManager())
+`define ANALYTICSLOG(Message)		`log(`Message,true, 'XCom_Analytics');
+
+`define XACHIEVEMENT_TRACKER		X2AchievementTracker(`XENGINE.GetAchievementTracker())
+
+`define DEFAULTFLYOVERLOOKATTIME (1.0f)
+
