@@ -90,7 +90,7 @@ RunPriorityGroup=RUN_STANDARD
   other ways than just the tooltip and image (#537)
 - Triggers the event `MissionIconSetScanSite` to allow mods to customize a scan site's icon in other
   ways than just the tooltip and image (#537)
-
+- Triggers the event `ItemAddedToSlot` & `ItemRemovedFromSlot` to allow mods to change Items that have been Equipped/Unequipped during runtime(#694)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
