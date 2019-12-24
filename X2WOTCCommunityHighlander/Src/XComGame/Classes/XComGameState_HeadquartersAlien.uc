@@ -1773,6 +1773,9 @@ function int GetNumDarkEventsToPlay(XComGameState NewGameState)
 	local XComGameStateHistory History;
 	local XComGameState_HeadquartersResistance ResistanceHQ;
 	local int NumEvents;
+	// Start Issue #711
+	local XComLWTuple Tuple;
+	// End Issue #711
 
 	History = `XCOMHISTORY;
 	ResistanceHQ = XComGameState_HeadquartersResistance(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersResistance'));
@@ -1785,6 +1788,20 @@ function int GetNumDarkEventsToPlay(XComGameState NewGameState)
 	{
 		NumEvents = default.NumDarkEvents;
 	}
+	
+	// Start Issue #711
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideDarkEventCount';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVInt;
+	Tuple.Data[0].i = ResistanceHQ.NumMonths;
+	Tuple.Data[1].kind = XComLWTVInt;
+	Tuple.Data[1].i = NumEvents;
+
+	`XEVENTMGR.TriggerEvent('OverrideDarkEventCount', Tuple, self, NewGameState);
+
+	NumEvents = Tuple.Data[1].i;
+	// End Issue #711
 
 	if(bAddChosenActionDarkEvent)
 	{

@@ -103,6 +103,7 @@ RunPriorityGroup=RUN_STANDARD
   displayed for a given soldier or not (#631)
 - Triggers the event `SoldierListItem_ShouldDisplayMentalStatus` to allow mods to enable/disable display of mental status
   based on additional logic (#651)
+- Triggers the event `OverrideDarkEventCount` to allow mods to change the number of dark events in the monthly report (#711)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
