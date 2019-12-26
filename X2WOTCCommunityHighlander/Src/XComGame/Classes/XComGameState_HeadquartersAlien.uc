@@ -1774,7 +1774,7 @@ function int GetNumDarkEventsToPlay(XComGameState NewGameState)
 	local XComGameState_HeadquartersResistance ResistanceHQ;
 	local int NumEvents;
 	// Start Issue #711
-	local XComLWTuple Tuple;
+	local bool bChosenAddedEvent;
 	// End Issue #711
 
 	History = `XCOMHISTORY;
@@ -1789,29 +1789,40 @@ function int GetNumDarkEventsToPlay(XComGameState NewGameState)
 		NumEvents = default.NumDarkEvents;
 	}
 	
-	// Start Issue #711
-	Tuple = new class'XComLWTuple';
-	Tuple.Id = 'OverrideDarkEventCount';
-	Tuple.Data.Add(2);
-	Tuple.Data[0].kind = XComLWTVInt;
-	Tuple.Data[0].i = ResistanceHQ.NumMonths;
-	Tuple.Data[1].kind = XComLWTVInt;
-	Tuple.Data[1].i = NumEvents;
-
-	`XEVENTMGR.TriggerEvent('OverrideDarkEventCount', Tuple, self, NewGameState);
-
-	NumEvents = Tuple.Data[1].i;
-	// End Issue #711
-
 	if(bAddChosenActionDarkEvent)
 	{
 		NumEvents++;
+		// Start Issue #711
+		bChosenAddedEvent = true;
 	}
+
+	NumEvents = GetDarkEventOverride(NewGameState, NumEvents, bChosenAddedEvent);
+	// End Issue #711
 
 	NumEvents -= ChosenDarkEvents.Length;
 
 	return NumEvents;
 }
+
+//---------------------------------------------------------------------------------------
+// Start Issue #711
+private function int GetDarkEventOverride(XComGameState NewGameState, int NumEvents, bool bChosenAddedEvent)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideDarkEventCount';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVInt;
+	Tuple.Data[0].i = NumEvents;
+	Tuple.Data[1].kind = XComLWTVBool;
+	Tuple.Data[1].b = bChosenAddedEvent;
+
+	`XEVENTMGR.TriggerEvent('OverrideDarkEventCount', Tuple, self, NewGameState);
+
+	return Tuple.Data[0].i;
+}
+// End Issue #711
 
 //---------------------------------------------------------------------------------------
 function array<XComGameState_DarkEvent> BuildDarkEventDeck()
