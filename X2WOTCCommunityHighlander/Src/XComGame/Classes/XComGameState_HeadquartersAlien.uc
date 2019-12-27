@@ -1773,9 +1773,6 @@ function int GetNumDarkEventsToPlay(XComGameState NewGameState)
 	local XComGameStateHistory History;
 	local XComGameState_HeadquartersResistance ResistanceHQ;
 	local int NumEvents;
-	// Start Issue #711
-	local bool bChosenAddedEvent;
-	// End Issue #711
 
 	History = `XCOMHISTORY;
 	ResistanceHQ = XComGameState_HeadquartersResistance(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersResistance'));
@@ -1792,13 +1789,13 @@ function int GetNumDarkEventsToPlay(XComGameState NewGameState)
 	if(bAddChosenActionDarkEvent)
 	{
 		NumEvents++;
-		// Start Issue #711
-		bChosenAddedEvent = true;
 	}
-
-	NumEvents = GetDarkEventOverride(NewGameState, NumEvents, bChosenAddedEvent);
+	
+	// Start Issue #711
+	NumEvents = GetDarkEventOverride(NewGameState, NumEvents, bAddChosenActionDarkEvent);
 	// End Issue #711
 
+	// If there are still pending dark events from last month somehow, lower the number of new events
 	NumEvents -= ChosenDarkEvents.Length;
 
 	return NumEvents;
