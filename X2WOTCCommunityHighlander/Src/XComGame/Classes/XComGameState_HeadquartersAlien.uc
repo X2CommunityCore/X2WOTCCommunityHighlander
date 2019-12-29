@@ -1785,17 +1785,15 @@ function int GetNumDarkEventsToPlay(XComGameState NewGameState)
 	{
 		NumEvents = default.NumDarkEvents;
 	}
-	
+
 	if(bAddChosenActionDarkEvent)
 	{
 		NumEvents++;
 	}
 	
-	// Start Issue #711
-	NumEvents = GetDarkEventOverride(NewGameState, NumEvents, bAddChosenActionDarkEvent);
-	// End Issue #711
+	NumEvents = GetDarkEventOverride(NewGameState, NumEvents, bAddChosenActionDarkEvent); // Issue #711
 
-	// If there are still pending dark events from last month somehow, lower the number of new events
+	// (Highlander comment on vanilla code) If there are still pending dark events from last month somehow, lower the number of new events
 	NumEvents -= ChosenDarkEvents.Length;
 
 	return NumEvents;
