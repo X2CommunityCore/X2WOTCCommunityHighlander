@@ -6583,17 +6583,22 @@ function GetAllKnownEnemyStates(optional out array<XComGameState_Unit> UnitList,
 
 function bool HasKnowledgeOfXCom()
 {
-	local array<XComGameState_Unit> KnownEnemies;
-	local XComGameState_Unit EnemyState;
-	GetAllKnownEnemyStates(KnownEnemies);
-	foreach KnownEnemies(EnemyState)
-	{
-		if (EnemyState.GetTeam() == eTeam_XCom)
-		{
-			return true;
-		}
-	}
-	return false;
+    local array<XComGameState_Unit> KnownEnemies;
+    local XComGameState_Unit EnemyState;
+    GetAllKnownEnemyStates(KnownEnemies);
+    foreach KnownEnemies(EnemyState)
+    {
+		// issue #619 - this is a bit of a fun workaround: this function is only used when an enemy is checking their flanked status 
+		// OR if a unit should priortize the lost
+		// so by changing this behaviour, we automatically get the MP teams to properly consider their flank status,
+        // AND have the aliens properly consider the MP teams if they're being flanked
+        if (EnemyState.GetTeam() != eTeam_TheLost || EnemyState.GetTeam() != eTeam_Neutral)
+        {
+            return true;
+        }
+		// end issue #619
+    }
+    return false;
 }
 
 function bool GetUnfilteredAoETargetList(out array<XComGameState_Unit> UnitList, AoETargetingInfo Profile, optional out XComGameState_Unit RequiredTarget, optional array<Name> DeprioritizedEffects)
@@ -7173,25 +7178,29 @@ function bool GetNearestEnemy(out XComGameState_Unit kClosest, vector vLocation,
 
 function UpdateSightRange()
 {
-	local array<XComGameState_Unit> XComList;
-	local XComGameState_Unit EnemyState;
-	local float VisRadius;
-	VisRadius = UnitState.GetVisibilityRadius();
-	m_fSightRangeSq = Square(`METERSTOUNITS(VisRadius+3));// Added 3m sight range buffer.
-
-	bSameVisibilityRangeAsEnemies = true;
-	if ( UnitState.GetTeam() == eTeam_Alien )
-	{
-		GetAllKnownEnemyStates(XComList);
-		foreach XComList(EnemyState)
-		{
-			if( (EnemyState.GetTeam() == eTeam_XCom || EnemyState.GetTeam() == eTeam_Resistance) && VisRadius != EnemyState.GetVisibilityRadius() )
-			{
-				bSameVisibilityRangeAsEnemies = false;
-				break;
-			}
-		}
-	}
+    local array<XComGameState_Unit> XComList;
+    local XComGameState_Unit EnemyState;
+    local float VisRadius;
+    VisRadius = UnitState.GetVisibilityRadius();
+    m_fSightRangeSq = Square(`METERSTOUNITS(VisRadius+3));// Added 3m sight range buffer.
+ 
+    bSameVisibilityRangeAsEnemies = true;
+    if ( UnitState.GetTeam() == eTeam_Alien )
+    {
+        GetAllKnownEnemyStates(XComList);
+        foreach XComList(EnemyState)
+        {
+			// start issue #619 - add our MP teams to this check
+            if( (EnemyState.GetTeam() == eTeam_XCom || EnemyState.GetTeam() == eTeam_Resistance ||
+            EnemyState.GetTeam() == eTeam_One || EnemyState.GetTeam() == eTeam_Two) &&
+            VisRadius != EnemyState.GetVisibilityRadius() )
+            {
+                bSameVisibilityRangeAsEnemies = false;
+                break;
+            }
+			// end issue #619
+        }
+    }
 }
 
 function AvailableTarget FindAvailableTarget( int ObjectID, AvailableAction kAbility, optional out int TargetIndex )
