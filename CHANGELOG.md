@@ -142,6 +142,7 @@ RunPriorityGroup=RUN_STANDARD
 - Allow Mods/DLC to modify encounters after creation (#136)
 - Allow Mods/DLC to modify encounters generated as reinforcements (#278)
 - Allow Mods/DLC to alter mission data after SitRep creation (#157)
+- Allow Mods/DLC to utilize multiplayer teams in singleplayer (#188)
 
 ### Event Hooks
 
@@ -220,6 +221,7 @@ RunPriorityGroup=RUN_STANDARD
 - Register tactical event listeners in TQL (#406)
 - Allow mods to decide which team(s) are granted an ability via X2SitRepEffect_GrantAbilities and better document that class (#445)
 - Allow X2AbilityToHitCalc_StatCheck to check for hit chance modifiers (#467)
+- Allow aliens and other teams to properly register non-XCOM unit locations to adjust their positions accordingly (#619)
 
 ### Fixes
 - Ensure Gremlins use the walk/run animation based on the alert status of their
