@@ -10236,7 +10236,7 @@ simulated function bool IsPsiOperative()
 {
 	local X2SoldierClassTemplate SoldierClassTemplate;
 	SoldierClassTemplate = GetSoldierClassTemplate();
-	return SoldierClassTemplate != none && SoldierClassTemplate.DataName == 'PsiOperative';
+	return SoldierClassTemplate != none && SoldierClassTemplate.DataName == 'PsiOperative' || class'CHHelpers'.default.CLASS_AS_PSI_CLASS.Find(SoldierClassTemplate.DataName) != INDEX_NONE;
 }
 
 simulated native function bool HasSquadsight() const;
