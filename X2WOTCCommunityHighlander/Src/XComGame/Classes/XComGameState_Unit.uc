@@ -3735,9 +3735,10 @@ function bool MeetsAbilityPrerequisites(name AbilityName)
 			AbilityName = AbilityTemplate.PrerequisiteAbilities[iName];
 
 			// Start Issue #128
-			if (InStr(AbilityName, "NOT_") == 0)
+			if (InStr(AbilityName, class'UIArmory_PromotionHero'.default.MutuallyExclusivePrefix, , true) == 0)
 			{
-				if (HasSoldierAbility(name(Repl(AbilityName, "NOT_", ""))))
+				if (HasSoldierAbility(name(
+					Mid(AbilityName, Len(class'UIArmory_PromotionHero'.default.MutuallyExclusivePrefix)))))
 				{
 					return false;
 				}

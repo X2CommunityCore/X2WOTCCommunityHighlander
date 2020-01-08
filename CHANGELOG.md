@@ -109,6 +109,8 @@ RunPriorityGroup=RUN_STANDARD
 - Triggers the event `CovertActionAllowCheckForProjectOverlap` to allow mods to forbid the "de-bunching" logic
   on CA start (#584)
 - Triggers the event `AllowActionToSpawnRandomly` to allow mods to prevent certain CAs from being randomly spawned (#594)
+- Triggers the event `OverridePromotionUIClasses` to allow mods to override the UI classes used for the
+  three different promotion screens (#600)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)

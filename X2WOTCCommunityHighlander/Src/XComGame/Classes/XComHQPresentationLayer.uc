@@ -1,5 +1,14 @@
 class XComHQPresentationLayer extends XComPresentationLayerBase;
 
+// Start Issue #600
+enum CHLPromotionScreenType
+{
+	eCHLPST_Standard,
+	eCHLPST_Hero,
+	eCHLPST_PsiOp
+};
+// End Issue #600
+
 var XGHQCamera						m_kCamera;
 var XComStrategyMap                 m_kXComStrategyMap;
 
@@ -1485,15 +1494,66 @@ function ShowPromotionUI(StateObjectReference UnitRef, optional bool bInstantTra
 
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitRef.ObjectID));
 
+	// Start Issue #600: Replaced class literals with the local variables
 	if (UnitState.IsResistanceHero() || ScreenStack.IsInStack(class'UIFacility_TrainingCenter'))
-		PromotionUI = UIArmory_PromotionHero(ScreenStack.Push(Spawn(class'UIArmory_PromotionHero', self), Get3DMovie()));
+		PromotionUI = UIArmory_PromotionHero(ScreenStack.Push(
+			Spawn(TriggerOverridePromotionUIClass(eCHLPST_Hero), self), Get3DMovie()));
 	else if (UnitState.GetSoldierClassTemplateName() == 'PsiOperative')
-		PromotionUI = UIArmory_PromotionPsiOp(ScreenStack.Push(Spawn(class'UIArmory_PromotionPsiOp', self), Get3DMovie()));
+		PromotionUI = UIArmory_PromotionPsiOp(ScreenStack.Push(
+			Spawn(TriggerOverridePromotionUIClass(eCHLPST_PsiOp), self), Get3DMovie()));
 	else
-		PromotionUI = UIArmory_Promotion(ScreenStack.Push(Spawn(class'UIArmory_Promotion', self), Get3DMovie()));
+		PromotionUI = UIArmory_Promotion(ScreenStack.Push(
+			Spawn(TriggerOverridePromotionUIClass(eCHLPST_Standard), self), Get3DMovie()));
+	// End Issue #600
 	
 	PromotionUI.InitPromotion(UnitRef, bInstantTransition);
 }
+
+// Start Issue #600
+//
+// Fires an 'OverridePromotionUIClass' event that allows mods to override
+// the UI class used for a given promotion screen. Note that any class
+// provided by a mod must be UIArmory_Promotion or a subclass of it.
+//
+// The event itself takes the form:
+//
+//   {
+//      ID: OverridePromotionUIClass,
+//      Data: [in int PromotionScreenType, inout class PromotionUIClass],
+//      Source: self (XComHQPresentationLayer)
+//   }
+//
+function class<UIArmory_Promotion> TriggerOverridePromotionUIClass(CHLPromotionScreenType ScreenType)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverridePromotionUIClass';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].Kind = XComLWTVInt;
+	Tuple.Data[0].i = ScreenType;
+	Tuple.Data[1].Kind = XComLWTVObject;
+	
+	switch (ScreenType)
+	{
+		case eCHLPST_Standard:
+			Tuple.Data[1].o = class'UIArmory_Promotion';
+			break;
+
+		case eCHLPST_Hero:
+			Tuple.Data[1].o = class'UIArmory_PromotionHero';
+			break;
+
+		case eCHLPST_PsiOp:
+			Tuple.Data[1].o = class'UIArmory_PromotionPsiOp';
+			break;
+	}
+
+	`XEVENTMGR.TriggerEvent(Tuple.Id, Tuple, self);
+
+	return class<UIArmory_Promotion>(Tuple.Data[1].o);
+}
+// End Issue #600
 
 function UIAbilityPopup(X2AbilityTemplate AbilityTemplate, StateObjectReference UnitRef)
 {
