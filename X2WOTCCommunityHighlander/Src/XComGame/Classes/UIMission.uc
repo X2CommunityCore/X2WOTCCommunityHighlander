@@ -723,7 +723,7 @@ simulated function String GetMissionTitle()
 }
 simulated function String GetMissionImage()
 {
-	return GetMission().GetMissionSource().MissionImage;
+	return GetMission().GetMissionImage(); // Issue #635
 }
 simulated function String GetOpName()
 {
