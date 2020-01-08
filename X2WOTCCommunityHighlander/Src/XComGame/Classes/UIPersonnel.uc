@@ -80,6 +80,7 @@ var StateObjectReference SlotRef;
 // Delegates
 var bool m_bRemoveWhenUnitSelected;
 var public delegate<OnPersonnelSelected> onSelectedDelegate;
+
 delegate OnPersonnelSelected(StateObjectReference selectedUnitRef);
 delegate OnButtonClickedDelegate(UIButton ButtonControl);
 delegate int SortDelegate(StateObjectReference A, StateObjectReference B);
@@ -313,6 +314,10 @@ simulated function RefreshData()
 	UpdateData();
 	SortData();
 	UpdateList();
+
+  // Start Issue #591
+	`XEVENTMGR.TriggerEvent('UIPersonnel_OnSortFinished', , Self);
+	// End Issue #591
 }
 
 simulated function UpdateData()
