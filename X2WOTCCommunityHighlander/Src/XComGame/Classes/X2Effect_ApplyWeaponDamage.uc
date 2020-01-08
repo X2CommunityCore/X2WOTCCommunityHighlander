@@ -1040,8 +1040,18 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 				if (ArmorMitigation < 0)
 					ArmorMitigation = 0;
 				// Issue #321
-				if (ArmorMitigation >= WeaponDamage && !default.NO_MINIMUM_DAMAGE)
-					ArmorMitigation = WeaponDamage - 1;
+				if (ArmorMitigation >= WeaponDamage)
+				{ 
+					if (class'X2Effect_ApplyWeaponDamage'.default.NO_MINIMUM_DAMAGE)
+					{
+						ArmorMitigation = WeaponDamage;
+					}
+					else
+					{
+						ArmorMitigation = WeaponDamage - 1;
+					}
+				}
+				// End Issue #321
 				if (ArmorMitigation < 0)    //  WeaponDamage could have been 0
 					ArmorMitigation = 0;    
 				`log("  Final mitigation value:" @ ArmorMitigation, true, 'XCom_HitRolls');
