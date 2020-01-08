@@ -111,6 +111,8 @@ RunPriorityGroup=RUN_STANDARD
 - Triggers the event `AllowActionToSpawnRandomly` to allow mods to prevent certain CAs from being randomly spawned (#594)
 - Triggers the event `OverridePromotionUIClasses` to allow mods to override the UI classes used for the
   three different promotion screens (#600)
+- Triggers the event `OverrideRespecSoldierProjectPoints` to allow mods to customize how long it should
+  take to respec a given soldier (#624)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
