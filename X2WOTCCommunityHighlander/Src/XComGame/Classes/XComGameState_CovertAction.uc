@@ -1951,6 +1951,7 @@ function StartAction()
 		ResHQ.bCovertActionStartedThisMonth = true;
 	}
 
+	`XEVENTMGR.TriggerEvent('CovertActionStarted',, self, NewGameState); // Issue #584
 	`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
 
 	// Update XComHQ staffing, power, and resource numbers
@@ -1959,6 +1960,8 @@ function StartAction()
 	XComHQ.HandlePowerOrStaffingChange();
 
 	`HQPRES.m_kAvengerHUD.UpdateResources();
+
+	if (!TriggerAllowEngineerPopup()) return; // Issue #584
 
 	// Throw up a popup alerting the player that there is an idle engineer
 	FacilityState = XComHQ.GetFacilityByName('ResistanceRing');
@@ -1973,6 +1976,23 @@ function StartAction()
 	}
 }
 
+// Start issue #584
+protected function bool TriggerAllowEngineerPopup ()
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'CovertActionAllowEngineerPopup';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].Kind = XComLWTVBool;
+	Tuple.Data[0].b = true;
+
+	`XEVENTMGR.TriggerEvent('CovertActionAllowEngineerPopup', Tuple, self);
+
+	return Tuple.Data[0].b;
+}
+// End issue #584
+
 private function CheckForProjectOverlap()
 {
 	local XComGameStateHistory History;
@@ -1981,6 +2001,8 @@ private function CheckForProjectOverlap()
 	local XComGameState_HeadquartersProjectHealSoldier HealProject;
 	local StateObjectReference ProjectRef;
 	local bool bModified;
+
+	if (!TriggerAllowCheckForProjectOverlap()) return; // Issue #584
 
 	History = `XCOMHISTORY;
 	XComHQ = class'UIUtilities_Strategy'.static.GetXComHQ();
@@ -2011,6 +2033,23 @@ private function CheckForProjectOverlap()
 		CheckForProjectOverlap(); // Recursive to check if the new offset time overlaps with anything
 	}
 }
+
+// Start issue #584
+protected function bool TriggerAllowCheckForProjectOverlap ()
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'CovertActionAllowCheckForProjectOverlap';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].Kind = XComLWTVBool;
+	Tuple.Data[0].b = true;
+
+	`XEVENTMGR.TriggerEvent('CovertActionAllowCheckForProjectOverlap', Tuple, self);
+
+	return Tuple.Data[0].b;
+}
+// End issue #584
 
 function UpdateGameBoard()
 {

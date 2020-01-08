@@ -103,6 +103,12 @@ RunPriorityGroup=RUN_STANDARD
   displayed for a given soldier or not (#631)
 - Triggers the event `SoldierListItem_ShouldDisplayMentalStatus` to allow mods to enable/disable display of mental status
   based on additional logic (#651)
+- Triggers the event `CovertActionStarted` to allow mods to react to it in a flexible manner
+  (instead of hooking into UI mess) (#584)
+- Triggers the event `CovertActionAllowEngineerPopup` to allow mods to forbid the popup (#584)
+- Triggers the event `CovertActionAllowCheckForProjectOverlap` to allow mods to forbid the "de-bunching" logic
+  on CA start (#584)
+
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
