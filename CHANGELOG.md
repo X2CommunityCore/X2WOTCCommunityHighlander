@@ -388,6 +388,7 @@ RunPriorityGroup=RUN_STANDARD
   by default. This is a breaking change but fixes a lot of problems with vanilla and mod code that
   mistakenly ignores subclasses of screens, particularly those provided by mod. The original behavior
   can still be accessed via new `GetScreen_CH()` and `IsCurrentClass_CH()`. (#290)
+- Allow PCS granting PsiOffense to be equiped by other classes than PsiOperative (#602)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
