@@ -278,6 +278,8 @@ RunPriorityGroup=RUN_STANDARD
   still remove overwatch from disoriented units (#475)
 - Make sure that rescue rings do not disappear on other rescuable units after a
   neutral unit swaps to team XCom (#551)
+- Fix rocket targeting so that it isn't always unobstructed when the shooter has
+  a valid step-out tile (#617)
 
 ## Miscellaneous
 
