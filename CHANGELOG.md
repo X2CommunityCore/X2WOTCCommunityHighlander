@@ -288,6 +288,8 @@ RunPriorityGroup=RUN_STANDARD
   neutral unit swaps to team XCom (#551)
 - Fix rocket targeting so that it isn't always unobstructed when the shooter has
   a valid step-out tile (#617)
+- Prevent patrolling enemy units from teleporting behind XCOM and revealing the
+  squad (#644)
 
 ## Miscellaneous
 
