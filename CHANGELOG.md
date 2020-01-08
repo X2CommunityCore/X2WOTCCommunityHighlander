@@ -290,6 +290,8 @@ RunPriorityGroup=RUN_STANDARD
   a valid step-out tile (#617)
 - Prevent patrolling enemy units from teleporting behind XCOM and revealing the
   squad (#644)
+- `MindControlLost` fires whenever a unit stops being mind controlled or hacked. The event
+  passes the affected unit state as both event data and event source (#643)
 
 ## Miscellaneous
 
