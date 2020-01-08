@@ -410,6 +410,7 @@ RunPriorityGroup=RUN_STANDARD
   mistakenly ignores subclasses of screens, particularly those provided by mod. The original behavior
   can still be accessed via new `GetScreen_CH()` and `IsCurrentClass_CH()`. (#290)
 - Allow PCS granting PsiOffense to be equiped by other classes than PsiOperative (#602)
+- Added Inventory Slots `eInvSlot_Wings` and `eInvSlot_ExtraBackpack`. (#678)
 
 ### Fixes
 - Fix Chosen Assassin receiving weaknesses that are exclusive to the
