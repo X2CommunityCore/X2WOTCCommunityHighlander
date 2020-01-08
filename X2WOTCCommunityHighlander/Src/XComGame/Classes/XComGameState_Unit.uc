@@ -156,9 +156,11 @@ var() int StunnedActionPoints, StunnedThisTurn;                     //Number of 
 var() int Ruptured;                                                 //Ruptured amount is permanent extra damage this unit suffers from each attack.
 var() int Shredded;                                                 //Shredded amount is always subtracted from any armor mitigation amount.
 var() int Untouchable;                                              //Number of times this unit can freely dodge attacks.
-var() protectedwrite array<name> AcquiredTraits;                    //X2TraitTemplates that this unit currently possesses
-var() protectedwrite array<name> PendingTraits;                     //X2TraitTemplates whose criteria have been met, and will be applied at the end of the mission
-var() protectedwrite array<name> CuredTraits;						//X2TraitTemplates who were previously acquired and are thus unavailable to be re-acquired
+//start issue #681: Allows Traits to be Modified by External Sources
+var() array<name> AcquiredTraits;                    								//X2TraitTemplates that this unit currently possesses
+var() array<name> PendingTraits;                     								//X2TraitTemplates whose criteria have been met, and will be applied at the end of the mission
+var() array<name> CuredTraits;											 								//X2TraitTemplates who were previously acquired and are thus unavailable to be re-acquired
+//end issue #681
 var() array<name> WorldMessageTraits;								//Cleared after seeing world message on the Avenger
 var() array<name> AlertTraits;										//Cleared after seeing the trait alert (floating icon displays until cleared)
 var() XComGameStateContext_Ability ReflectedAbilityContext;			//Original context of last reflected ability

@@ -130,6 +130,7 @@ RunPriorityGroup=RUN_STANDARD
 - Remove `private` from `X2AIBTBehaviorTree.Behaviors` so that mods can change the behavior trees without
   overwriting all the necessary entries (#410)
 - UIScanButton can now work properly when it's a grandchild of UIStrategyMapItem, not only when direct child (#638)
+- Removed `protectedwrite` from `AcquiredTraits`, `PendingTraits`, and `CuredTraits` in `XComGameState_Unit`, allowing Traits to be modified by external sources (#681)
 
 ### Configuration
 - Allow disabling of Factions being initialized on startup by
