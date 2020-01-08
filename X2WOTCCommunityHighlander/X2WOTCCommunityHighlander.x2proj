@@ -455,6 +455,9 @@
     <Content Include="Src\XComGame\Classes\XComAutosaveMgr.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComBodyPartContentAdvanced.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComEngine.uc">
       <SubType>Content</SubType>
     </Content>
