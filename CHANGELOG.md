@@ -403,3 +403,4 @@ RunPriorityGroup=RUN_STANDARD
   UIScreen (#341)
 - Appearances now update correctly when a part change differs only by material override (#354)
 - All relevant body parts are now correctly validated when the torso is changed. (#350)
+- Fix `MergeAmmoAsNeeded()` does not work for units spawned from the Avenger (#608)

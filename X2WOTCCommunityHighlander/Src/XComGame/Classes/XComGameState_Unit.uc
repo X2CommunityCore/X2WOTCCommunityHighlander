@@ -4053,15 +4053,27 @@ function int GetUnitPointValue()
 
 function protected MergeAmmoAsNeeded(XComGameState StartState)
 {
+	local XComGameStateHistory History;  // Issue #608
 	local XComGameState_Item ItemIter, ItemInnerIter;
 	local X2WeaponTemplate MergeTemplate;
 	local int Idx, InnerIdx, BonusAmmo;
 
+	History = `XCOMHISTORY;  //Issue #608
+
 	for (Idx = 0; Idx < InventoryItems.Length; ++Idx)
 	{
-		ItemIter = XComGameState_Item(StartState.GetGameStateForObjectID(InventoryItems[Idx].ObjectID));
+		// Start Issue #608
+		//
+		// Get the item from history, including the pending game state if there is one.
+		// This ensures that inventory items don't need to be added to the new game state
+		// just to make this function work properly.
+		ItemIter = XComGameState_Item(History.GetGameStateForObjectID(InventoryItems[Idx].ObjectID));
+		// End Issue #608
 		if (ItemIter != none && !ItemIter.bMergedOut)
 		{
+			// Start Issue #608: Make sure we can modify the item
+			ItemIter = XComGameState_Item(StartState.ModifyStateObject(ItemIter.Class, ItemIter.ObjectID));
+			// End Issue #608
 			MergeTemplate = X2WeaponTemplate(ItemIter.GetMyTemplate());
 			if (MergeTemplate != none && MergeTemplate.bMergeAmmo)
 			{
@@ -4069,9 +4081,14 @@ function protected MergeAmmoAsNeeded(XComGameState StartState)
 				ItemIter.MergedItemCount = 1;
 				for (InnerIdx = Idx + 1; InnerIdx < InventoryItems.Length; ++InnerIdx)
 				{
-					ItemInnerIter = XComGameState_Item(StartState.GetGameStateForObjectID(InventoryItems[InnerIdx].ObjectID));
+					// Start Issue #608: Getting inner item from history, as above
+					ItemInnerIter = XComGameState_Item(History.GetGameStateForObjectID(InventoryItems[InnerIdx].ObjectID));
+					// End Issue #608
 					if (ItemInnerIter != none && ItemInnerIter.GetMyTemplate() == MergeTemplate)
 					{
+						// Start Issue #608: Make sure we can modify the inner item
+						ItemInnerIter = XComGameState_Item(StartState.ModifyStateObject(ItemInnerIter.Class, ItemInnerIter.ObjectID));
+						// End Issue #608
 						BonusAmmo += GetBonusWeaponAmmoFromAbilities(ItemInnerIter, StartState);
 						ItemInnerIter.bMergedOut = true;
 						ItemInnerIter.Ammo = 0;
