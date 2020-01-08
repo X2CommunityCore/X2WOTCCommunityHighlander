@@ -6917,7 +6917,8 @@ function CheckForInspiredTechs(XComGameState NewGameState)
 			// Prevent any techs which could be made instant (autopsies), or which have already been reduced by purchasing tech reductions from the black market
 			// and only inspire techs which the player can afford
 			if (!TechTemplate.bCheckForceInstant && AvailableTechState.TimeReductionScalar < 0.001f && !HasPausedProject(AvailableTechRefs[TechIndex]) &&
-				MeetsRequirmentsAndCanAffordCost(TechTemplate.Requirements, TechTemplate.Cost, default.ResearchCostScalars, , TechTemplate.AlternateRequirements))
+				MeetsRequirmentsAndCanAffordCost(TechTemplate.Requirements, TechTemplate.Cost, default.ResearchCostScalars, , TechTemplate.AlternateRequirements) &&
+				/* Issue #633 */ TriggerCanTechBeInspired(AvailableTechState, NewGameState))
 			{
 				AvailableTechState = XComGameState_Tech(NewGameState.ModifyStateObject(class'XComGameState_Tech', AvailableTechState.ObjectID));
 				AvailableTechState.bInspired = true;
@@ -6941,6 +6942,36 @@ function CheckForInspiredTechs(XComGameState NewGameState)
 		}
 	}
 }
+
+// Start Issue #633
+//
+// Fires a 'CanTechBeInspired' event that allows mods to determine whether a tech
+// can be inspired or not. If the bool property in the event data is `true`, then
+// the tech can be inspired, otherwise it's not eligible.
+//
+// The event takes the form:
+//
+//   {
+//      ID: CanTechBeInspired,
+//      Data: [inout bool CanBeInspired],
+//      Source: TechState (XCGS_Tech)
+//   }
+//
+private function bool TriggerCanTechBeInspired(XComGameState_Tech TechState, XComGameState NewGameState)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'CanTechBeInspired';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].Kind = XComLWTVBool;
+	Tuple.Data[0].b = true;
+
+	`XEVENTMGR.TriggerEvent('CanTechBeInspired', Tuple, TechState, NewGameState);
+
+	return Tuple.Data[0].b;
+}
+// End Issue #633
 
 private function bool CanActivateBreakthroughTech()
 {
