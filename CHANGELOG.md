@@ -332,7 +332,7 @@ RunPriorityGroup=RUN_STANDARD
 - Renable the ability to add positive traits in codebase, as well as additional
   filtering and behaviour on the various Trait Functions on `XComGameState_Unit`
   (#85)
-- Allow mods to register custom OnInput UI handlers (#198)
+- Allow mods to register custom OnInput UI handlers (#198, #501)
 - Able to specify new materials as counting as hair/skin/armour/weapons etc. for the purpose of
   receiving tints, patterns, tattoos etc. (#356)
 - Unprotect `X2DataSet::bShouldCreateDifficultyVariants` to allow mods to force templates from other packages to use difficulty variants (#413)

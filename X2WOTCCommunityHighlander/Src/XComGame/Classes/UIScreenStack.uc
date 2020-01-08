@@ -9,6 +9,14 @@
 
 class UIScreenStack extends Object;
 
+// Start issue #501
+struct InputDelegateForScreen
+{
+	var UIScreen Screen;
+	var delegate<CHOnInputDelegateImproved> Callback;
+};
+// End issue #501
+
 var bool IsInputBlocked; // Block UI system from handling input.
 var XComPresentationLayerBase Pres;
 
@@ -20,8 +28,10 @@ var bool bPauseMenuInput; //Named to the pause menu as this is not for general u
 var array<UIScreen> Screens;
 var array<UIScreen> ScreensHiddenForCinematic;
 var array< delegate<CHOnInputDelegate> > OnInputSubscribers;		// issue #198
+var protected array<InputDelegateForScreen> OnInputForScreenSubscribers; // Issue #501
 
 delegate bool CHOnInputDelegate(int iInput, int ActionMask);		// issue #198
+delegate bool CHOnInputDelegateImproved(UIScreen Screen, int iInput, int ActionMask); // Issue #501
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
@@ -96,6 +106,13 @@ simulated function bool OnInput( int iInput,  optional int ActionMask = class'UI
 		// If this Screen is not yet initialized, or is marked for removal stop the input chain right here - sbatista
 		if( !Screen.bIsInited )
 			return true;
+
+		// Start issue #501
+		if (ModOnInputForScreen(Screen, iInput, ActionMask))
+		{
+			return true;
+		}
+		// End issue #501
 
 		// Stop if a screen has handled the input or consumes it regardless.
 		if( (Screen.EvaluatesInput() && Screen.OnUnrealCommand( iInput, ActionMask )) || Screen.ConsumesInput() )
@@ -494,6 +511,7 @@ simulated function UIScreen Pop(UIScreen Screen, optional bool MustExist = true)
 	{
 		// We must remove the screen the array before triggering its OnRemove call, because OnRemove could manipulate the state stack.
 		Screens.RemoveItem(Screen);
+		RemoveOnInputSubscribersForScreen(Screen); // Issue #501
 
 		if( !Screen.bIsPermanent )
 			Screen.Movie.RemoveScreen(Screen);
@@ -803,6 +821,77 @@ simulated function bool ModOnInput(int iInput, int ActionMask)
 	return false;
 }
 // end issue #198
+
+// Start issue #501
+function SubscribeToOnInputForScreen (UIScreen Screen, delegate<CHOnInputDelegateImproved> Callback)
+{
+	local InputDelegateForScreen CallbackScreenPair;
+
+	// Do not allow duplicate entries
+	foreach OnInputForScreenSubscribers(CallbackScreenPair)
+	{
+		if (CallbackScreenPair.Screen == Screen && CallbackScreenPair.Callback == Callback)
+		{
+			return;
+		}
+	}
+
+	CallbackScreenPair.Screen = Screen;
+	CallbackScreenPair.Callback = Callback;
+
+	OnInputForScreenSubscribers.AddItem(CallbackScreenPair);
+}
+
+function UnsubscribeFromOnInputForScreen (UIScreen Screen, delegate<CHOnInputDelegateImproved> Callback)
+{
+	local InputDelegateForScreen CallbackScreenPair;
+	local int i;
+
+	foreach OnInputForScreenSubscribers(CallbackScreenPair, i)
+	{
+		if (CallbackScreenPair.Screen == Screen && CallbackScreenPair.Callback == Callback)
+		{
+			OnInputForScreenSubscribers.Remove(i, 1);
+			return; // Since duplicates aren't allowed, we are done
+		}
+	}
+}
+
+function RemoveOnInputSubscribersForScreen (UIScreen Screen)
+{
+	local int i;
+
+	for (i = 0; i < OnInputForScreenSubscribers.Length; i++)
+	{
+		if (OnInputForScreenSubscribers[i].Screen == Screen)
+		{
+			OnInputForScreenSubscribers.Remove(i, 1);
+			i--;
+		}
+	}
+}
+
+simulated function bool ModOnInputForScreen (UIScreen Screen, int iInput, int ActionMask)
+{
+	local delegate<CHOnInputDelegateImproved> Callback;
+	local InputDelegateForScreen CallbackScreenPair;
+
+	foreach OnInputForScreenSubscribers(CallbackScreenPair)
+	{
+		if (CallbackScreenPair.Screen == Screen)
+		{
+			Callback = CallbackScreenPair.Callback;
+			
+			if (Callback(Screen, iInput, ActionMask))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+// End issue #501
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
