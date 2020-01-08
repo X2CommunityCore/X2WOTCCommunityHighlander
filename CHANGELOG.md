@@ -173,6 +173,7 @@ RunPriorityGroup=RUN_STANDARD
 - Add an array of `OverrideFinalHitChance` function delegates to `X2AbilityToHitCalc`
   that mods can add functions to in order to override the default logic for handling
   hits, grazes and crits (#555)
+- Adds `OnLoadedSavedGameToTactical` to DLCInfo that serves like the strategy counterpart `OnLoadedSavedGameToStrategy`
 
 ### Event Hooks
 
