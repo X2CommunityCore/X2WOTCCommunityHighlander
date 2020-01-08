@@ -292,6 +292,8 @@ RunPriorityGroup=RUN_STANDARD
   squad (#644)
 - `MindControlLost` fires whenever a unit stops being mind controlled or hacked. The event
   passes the affected unit state as both event data and event source (#643)
+- Fix issue where trying to break out of a hack that has already been started using the
+  Esc key or the right mouse button bypasses Haywire's cooldown (#648)
 
 ## Miscellaneous
 

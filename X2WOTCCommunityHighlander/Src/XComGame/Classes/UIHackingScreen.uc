@@ -24,6 +24,7 @@ var bool m_UsingSkulljackScreen; // Issue #330, centralize logic a bit
 var bool m_SkullJacking;
 var bool m_SkullMining;
 var bool m_hackStarted;
+var bool m_hackCanceled;  // Issue #648
 var bool bWaitingForInput;
 var int m_rewardsTaken;
 
@@ -391,11 +392,28 @@ simulated function bool OnCancel(optional string arg = "")
 {
 	local XComGameStateContext_Ability CancelContext;
 
-	`assert(!m_hackStarted);
+	// Start Issue #648
+	//
+	// (Fix from vanilla community highlander)
+	//
+	// The input handler code only prevents cancellation with the mouse on the cancel button after
+	// a hack is started, it doesn't prevent the ESC key from triggering OnCancel, so this assertion may often
+	// fire. Just turn off the assert and guard the cancellation context in a check for hackStarted so we don't
+	// block impatient players.
+	// `assert(!m_hackStarted);
 	`assert(CancelHackAbility != none);
 
-	CancelContext = class'XComGameStateContext_Ability'.static.BuildContextFromAbility(CancelHackAbility, OriginalContext.InputContext.PrimaryTarget.ObjectID);
-	`GAMERULES.SubmitGameStateContext(CancelContext);
+	// Don't submit a cancel context if the hack has already been started because doing so refunds the cooldown
+	// so players can bypass cooldowns by quickly hitting ESC after starting a hack. Also, don't re-cancel if it
+	// has already been canceled (e.g. by players spamming the ESC key) to avoid multiple cancel states 
+	// from being submitted and potentially restoring multiple charges.
+	if (!m_hackStarted && !m_hackCanceled)
+	{
+		CancelContext = class'XComGameStateContext_Ability'.static.BuildContextFromAbility(CancelHackAbility, OriginalContext.InputContext.PrimaryTarget.ObjectID);
+		`GAMERULES.SubmitGameStateContext(CancelContext);
+		m_hackCanceled = true;
+	}
+	// End Issue #648
 
 	ClearTimer('StartScaryComputerLoopAkEvent');
 
