@@ -108,7 +108,7 @@ RunPriorityGroup=RUN_STANDARD
 - Triggers the event `CovertActionAllowEngineerPopup` to allow mods to forbid the popup (#584)
 - Triggers the event `CovertActionAllowCheckForProjectOverlap` to allow mods to forbid the "de-bunching" logic
   on CA start (#584)
-
+- Triggers the event `AllowActionToSpawnRandomly` to allow mods to prevent certain CAs from being randomly spawned (#594)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
