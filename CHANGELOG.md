@@ -113,6 +113,8 @@ RunPriorityGroup=RUN_STANDARD
   three different promotion screens (#600)
 - Triggers the event `OverrideRespecSoldierProjectPoints` to allow mods to customize how long it should
   take to respec a given soldier (#624)
+- Triggers the event `OverrideScienceScore` to allow mods to override the XCOM HQ science score, for
+  example to add their own bonuses or to remove scientists that are engaged in other activities.
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
