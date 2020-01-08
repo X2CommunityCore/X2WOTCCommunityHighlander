@@ -118,6 +118,8 @@ RunPriorityGroup=RUN_STANDARD
 - Triggers the event `CanTechBeInspired` to allow mods to block techs from being inspired, even if they
   meet the vanilla game's conditions for it (#633)
 - Triggers the event `OverrideMissionImage` to allow mods to customize mission's image (used in UIMission and subclasses) (#635)
+- Triggers the event `UIResistanceReport_ShowCouncil` to allow mods to override whether the council guy (and his remarks)
+  is shown on the end-of-month report or not (#663)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)

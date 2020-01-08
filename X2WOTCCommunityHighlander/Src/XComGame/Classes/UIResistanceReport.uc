@@ -40,7 +40,7 @@ simulated function InitScreen(XComPlayerController InitController, UIMovie InitM
 
 	class'UIUtilities'.static.DisplayUI3D(DisplayTag, name(CameraTag), `SCREENSTACK.IsInStack(class'UIStrategyMap') ? 0.0 : `HQINTERPTIME);
 	
-	if (class'UIUtilities_Strategy'.static.GetXComHQ().GetObjectiveStatus('T5_M1_AutopsyTheAvatar') != eObjectiveState_Completed)
+	if (TriggerShouldShowCouncil()) // Issue #663
 	{
 		`XCOMGRI.DoRemoteEvent('CIN_ShowCouncil');
 		TriggerResistanceMoraleVO(); // Trigger the council spokesman's remarks
@@ -52,6 +52,22 @@ simulated function InitScreen(XComPlayerController InitController, UIMovie InitM
 
 	`HQPRES.m_kAvengerHUD.FacilityHeader.Hide();
 }
+
+// Start issue #663
+protected simulated function bool TriggerShouldShowCouncil ()
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].Kind = XComLWTVBool;
+	Tuple.Data[0].b = class'UIUtilities_Strategy'.static.GetXComHQ().GetObjectiveStatus('T5_M1_AutopsyTheAvatar') != eObjectiveState_Completed; // Vanilla logic
+
+	`XEVENTMGR.TriggerEvent('UIResistanceReport_ShowCouncil', Tuple, self);
+
+	return Tuple.Data[0].b;
+}
+// End issue #663
 
 function TriggerResistanceMoraleVO()
 {
