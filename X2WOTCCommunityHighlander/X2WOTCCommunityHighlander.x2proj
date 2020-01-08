@@ -386,6 +386,12 @@
     <Content Include="Src\XComGame\Classes\X2SoldierClassTemplateManager.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2AIBTDefaultActions.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2AIBTDefaultConditions.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Ability.uc">
       <SubType>Content</SubType>
     </Content>
@@ -455,10 +461,10 @@
     <Content Include="Src\XComGame\Classes\XComGameState_AdventChosen.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\XComGame\Classes\XComGameState_AIReinforcementSpawner.uc">
+    <Content Include="Src\XComGame\Classes\XComGameState_AIGroup.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\XComGame\Classes\XComGameState_AIGroup.uc">
+    <Content Include="Src\XComGame\Classes\XComGameState_AIReinforcementSpawner.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_AIUnitData.uc">

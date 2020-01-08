@@ -9007,6 +9007,12 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 			WeaponState = XComGameState_Item(GameState.GetGameStateForObjectID(ActivatedAbilityStateContext.InputContext.ItemObject.ObjectID));
 
 			SoundRange = WeaponState.GetItemSoundRange();
+			// Start Issue #510
+			//
+			// Allow mods to modify or replace the sound range based on the source unit,
+			// weapon and ability.
+			TriggerOverrideSoundRange(SourceUnitState, WeaponState, ActivatedAbilityState, SoundRange);
+			// End Issue #510
 			if( SoundRange > 0 )
 			{
 				if( !WeaponState.SoundOriginatesFromOwnerLocation() && ActivatedAbilityStateContext.InputContext.TargetLocations.Length > 0 )
@@ -9034,7 +9040,11 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 					// this unit just overheard the sound
 					else
 					{
-						UnitAGainsKnowledgeOfUnitB(EnemyInSoundRangeUnitState, SourceUnitState, GameState, eAC_DetectedSound, false);
+						// Start Issue #510
+						//
+						// Use the location where the sound is coming from rather than the unit's location.
+						UnitAGainsKnowledgeOfUnitBFromLocation(EnemyInSoundRangeUnitState, SourceUnitState, GameState, eAC_DetectedSound, false, SoundTileLocation);
+						// End Issue #510
 					}
 				}
 			}
@@ -9077,6 +9087,85 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 
 	return ELR_NoInterrupt;
 }
+
+// Start Issue #510
+//
+// Triggers an 'OverrideSoundRange' event that allows listeners to override
+// the sound range for a weapon/ability combo. For example, it could switch
+// to using the sound range of the weapon's ammo or modify the existing sound
+// range based on weapon attachments or the unit's abilities.
+//
+// The event itself takes the form:
+//
+//   {
+//      ID: OverrideSoundRange,
+//      Data: [in XCGS_Unit SourceUnit, in XCGS_Item Weapon,
+//             in XCGS_Ability Ability, inout int SoundRange],
+//      Source: self
+//   }
+//
+function TriggerOverrideSoundRange(
+	XComGameState_Unit SourceUnitState,
+	XComGameState_Item WeaponState,
+	XComGameState_Ability AbilityState,
+	out int SoundRange)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideSoundRange';
+	OverrideTuple.Data.Add(4);
+	OverrideTuple.Data[0].Kind = XComLWTVObject;
+	OverrideTuple.Data[0].o = SourceUnitState;
+	OverrideTuple.Data[1].Kind = XComLWTVObject;
+	OverrideTuple.Data[1].o = WeaponState;
+	OverrideTuple.Data[2].Kind = XComLWTVObject;
+	OverrideTuple.Data[2].o = AbilityState;
+	OverrideTuple.Data[3].Kind = XComLWTVInt;
+	OverrideTuple.Data[3].i = SoundRange;
+
+	`XEVENTMGR.TriggerEvent('OverrideSoundRange', OverrideTuple, self);
+
+	SoundRange = OverrideTuple.Data[3].i;
+}
+
+// Triggers an 'OverrideSeesAlertedAllies' event that allows listeners to override
+// the behavior of the "SeesAlertedAllies" alert. For example, a mod could simply
+// disable it or ensure that it only applies if the two units aren't in the same
+// pod.
+//
+// To disable the alert, simply return eAC_None for the alert cause.
+//
+// The event itself takes the form:
+//
+//   {
+//      ID: OverrideSeesAlertedAllies,
+//      Data: [in XCGS_Unit UnitA, in XCGS_Unit UnitB, inout int AlertCause],
+//      Source: UnitA
+//   }
+//
+static function TriggerOverrideSeesAlertedAllies(
+	XComGameState_Unit UnitA,
+	XComGameState_Unit UnitB,
+	out EAlertCause AlertCause)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideSeesAlertedAllies';
+	OverrideTuple.Data.Add(3);
+	OverrideTuple.Data[0].Kind = XComLWTVObject;
+	OverrideTuple.Data[0].o = UnitA;
+	OverrideTuple.Data[1].Kind = XComLWTVObject;
+	OverrideTuple.Data[1].o = UnitB;
+	OverrideTuple.Data[2].Kind = XComLWTVInt;
+	OverrideTuple.Data[2].i = AlertCause;
+
+	`XEVENTMGR.TriggerEvent('OverrideSeesAlertedAllies', OverrideTuple, UnitA);
+
+	AlertCause = EAlertCause(OverrideTuple.Data[2].i);
+}
+// End Issue #510
 
 function InterjectDirectAttackVisualization(XComGameStateContext_Ability AbilityContext, XComGameState_Ability AbilityState, XComGameState GameState)
 {
@@ -9600,14 +9689,36 @@ static function UnitASeesUnitB(XComGameState_Unit UnitA, XComGameState_Unit Unit
 			{
 				AlertCause = eAC_SeesAlertedAllies;
 			}
+
+			// Start Issue #510
+			//
+			// Allow mods to override whether the "SeesAlertedAllies" alert applies in
+			// this situation.
+			TriggerOverrideSeesAlertedAllies(UnitA, UnitB, AlertCause);
+			// End Issue #510
 		}
 
 		UnitAGainsKnowledgeOfUnitB(UnitA, UnitB, AlertInstigatingGameState, AlertCause, true);
 	}
 }
 
+// Start Issue #510
+//
+// Refactor `UnitAGainsKnowledgeOfUnitB` into two functions, one of which takes a tile
+// location as the source of the alert. The original function calls the new one, passing
+// in the Unit B's keystone visibility location, which matches the original behaviour of
+// the function.
 static function UnitAGainsKnowledgeOfUnitB(XComGameState_Unit UnitA, XComGameState_Unit UnitB, XComGameState AlertInstigatingGameState, EAlertCause AlertCause, bool bUnitAIsMidMove)
 {
+	local TTile AlertLocation;
+
+	UnitB.GetKeystoneVisibilityLocation(AlertLocation);
+	UnitAGainsKnowledgeOfUnitBFromLocation(UnitA, UnitB, AlertInstigatingGameState, AlertCause, bUnitAIsMidMove, AlertLocation);
+}
+
+static function UnitAGainsKnowledgeOfUnitBFromLocation(XComGameState_Unit UnitA, XComGameState_Unit UnitB, XComGameState AlertInstigatingGameState, EAlertCause AlertCause, bool bUnitAIsMidMove, out TTile AlertLocation)
+{
+// End Issue #510
 	local XComGameStateHistory History;
 	local AlertAbilityInfo AlertInfo;	
 	local X2TacticalGameRuleset Ruleset;
@@ -9627,7 +9738,7 @@ static function UnitAGainsKnowledgeOfUnitB(XComGameState_Unit UnitA, XComGameSta
 	{
 		OverrideAlertReq = false;
 		History = `XCOMHISTORY;
-		UnitB.GetKeystoneVisibilityLocation(AlertInfo.AlertTileLocation);
+		AlertInfo.AlertTileLocation = AlertLocation;  // Issue #510
 		AlertInfo.AlertUnitSourceID = UnitB.ObjectID;
 		AlertInfo.AnalyzingHistoryIndex = History.GetCurrentHistoryIndex();
 
@@ -10001,6 +10112,45 @@ function GetEnemiesInRange(TTile kLocation, int nMeters, out array<StateObjectRe
 		}
 	}
 }
+
+// Start Issue #510
+//
+// A copy of `GetEnemiesInRange()` except you can choose which team's units
+// you're interested in.
+function GetUnitsInRangeOnTeam(ETeam Team, TTile kLocation, int nMeters, out array<StateObjectReference> OutEnemies)
+{
+	local vector vCenter, vLoc;
+	local float fDistSq;
+	local XComGameState_Unit kUnit;
+	local XComGameStateHistory History;
+	local float AudioDistanceRadius, UnitHearingRadius, RadiiSumSquared;
+
+	History = `XCOMHISTORY;
+	vCenter = `XWORLD.GetPositionFromTileCoordinates(kLocation);
+	AudioDistanceRadius = `METERSTOUNITS(nMeters);
+	fDistSq = Square(AudioDistanceRadius);
+
+	foreach History.IterateByClassType(class'XComGameState_Unit', kUnit)
+	{
+		if( kUnit.GetTeam() == Team && kUnit.IsAlive() )
+		{
+			vLoc = `XWORLD.GetPositionFromTileCoordinates(kUnit.TileLocation);
+			UnitHearingRadius = kUnit.GetCurrentStat(eStat_HearingRadius);
+
+			RadiiSumSquared = fDistSq;
+			if( UnitHearingRadius != 0 )
+			{
+				RadiiSumSquared = Square(AudioDistanceRadius + UnitHearingRadius);
+			}
+
+			if( VSizeSq(vLoc - vCenter) < RadiiSumSquared )
+			{
+				OutEnemies.AddItem(kUnit.GetReference());
+			}
+		}
+	}
+}
+// End Issue #510
 
 native function float GetConcealmentDetectionDistance(const ref XComGameState_Unit DetectorUnit);
 

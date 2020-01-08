@@ -145,6 +145,18 @@ var config bool UseNewPersonnelStatusBehavior;
 var config bool bSkipCampaignIntroMovies;
 // End Issue #543
 
+// Start Issue #510
+//
+// Sound range for "yelling" to alert enemy units.
+var config int NoiseAlertSoundRange;
+
+// Additional action point types supported by the `eBTCV_ActionPoints`
+// stat in AI behavior tree conditions. This is required to allow mods
+// to utilize custom action point types for reflex actions and actually
+// have units use those action points after scampering.
+var config array<name> AdditionalAIBTActionPointTypes;
+// End Issue #510
+
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
 	local XComContentManager		Content;

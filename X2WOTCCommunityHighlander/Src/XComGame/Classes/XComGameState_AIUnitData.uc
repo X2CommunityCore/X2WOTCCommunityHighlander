@@ -1010,7 +1010,34 @@ static function bool ShouldEnemyFactionsTriggerAlertsOutsidePlayerVision(EAlertC
 
 static function bool IsCauseAllowedForNonvisibleUnits(EAlertCause AlertCause)
 {
-	return AlertCause < eAC_Allow_Nonvisible_Cutoff_DO_NOT_SET_TO_THIS;
+	// Start Issue #510
+	//
+	// Allow mods to override whether the given cause is allowed for
+	// units outside of XCOM's vision. This allows them to enable
+	// sound-based and other yellow alert activations.
+	//
+	// This event takes the form:
+	//
+	// {
+	//    ID: OverrideAllowedAlertCause,
+	//    Data: [in int AlertCause, inout bool AllowThisCause]
+	// }
+	//
+	// Note that there is no event source in this case.
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideAllowedAlertCause';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].Kind = XComLWTVInt;
+	OverrideTuple.Data[0].i = AlertCause;
+	OverrideTuple.Data[1].Kind = XComLWTVBool;
+	OverrideTuple.Data[1].b = AlertCause < eAC_Allow_Nonvisible_Cutoff_DO_NOT_SET_TO_THIS;
+
+	`XEVENTMGR.TriggerEvent('OverrideAllowedAlertCause', OverrideTuple);
+
+	return OverrideTuple.Data[1].b;
+	// End Issue #510
 }
 
 // These alert causes trigger an alert level upgrade to Red Alert
