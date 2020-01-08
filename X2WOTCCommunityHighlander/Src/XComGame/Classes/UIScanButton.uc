@@ -275,11 +275,11 @@ simulated function OnMouseEvent(int cmd, array<string> args)
 		}
 		break;
 	case class'UIUtilities_Input'.const.FXS_L_MOUSE_IN:
-		UIStrategyMapItem(Owner).OnMouseIn(); 
+		UIStrategyMapItem(GetParent(class'UIStrategyMapItem', true)).OnMouseIn(); // Issue #638
 		break;
 
 	case class'UIUtilities_Input'.const.FXS_L_MOUSE_OUT:
-		UIStrategyMapItem(Owner).OnMouseOut(); 
+		UIStrategyMapItem(GetParent(class'UIStrategyMapItem', true)).OnMouseOut(); // Issue #638 
 		break;
 	}
 
