@@ -122,6 +122,7 @@ RunPriorityGroup=RUN_STANDARD
   is shown on the end-of-month report or not (#663)
 - Triggers the event `OverrideNextRetaliationDisplay` to allow mods to customize and/or enable/disable "next retaliation"
   display in `UIAdventOperations` (#667)
+- Triggers the event `OnBestGearLoadoutApplied` at the end of `XCGS_Unit::ApplyBestGearLoadout()` to allow mods to make changes to the Unit State. (#676)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
