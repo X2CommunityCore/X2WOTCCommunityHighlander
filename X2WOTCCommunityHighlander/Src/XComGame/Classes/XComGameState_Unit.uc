@@ -5493,7 +5493,7 @@ simulated function bool CanGoOnMission(optional bool bAllowWoundedSoldiers = fal
 	{
 		return true;
 	}
-	else
+	else if (GetStatus() != eStatus_CovertAction)  // Issue #665: Units on covert actions can't go on missions
 	{
 		bShaken = (GetMentalState() == eMentalState_Shaken);
 		bHasInjuries = (IsInjured() || bShaken);
@@ -5508,6 +5508,12 @@ simulated function bool CanGoOnMission(optional bool bAllowWoundedSoldiers = fal
 
 		return (bHasInjuries && bIgnoreInjuries);
 	}
+
+	// Start Issue #665
+	//
+	// Unit is on covert action, so can't go on mission.
+	return false;
+	// End Issue #665
 }
 
 function name GetCountry()
