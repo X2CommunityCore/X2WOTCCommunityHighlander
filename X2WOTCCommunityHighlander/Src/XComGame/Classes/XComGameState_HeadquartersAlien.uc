@@ -1790,11 +1790,34 @@ function int GetNumDarkEventsToPlay(XComGameState NewGameState)
 	{
 		NumEvents++;
 	}
+	
+	NumEvents = GetDarkEventOverride(NewGameState, NumEvents, bAddChosenActionDarkEvent); // Issue #711
 
+	// (Highlander comment on vanilla code) If there are still pending dark events from last month somehow, lower the number of new events
 	NumEvents -= ChosenDarkEvents.Length;
 
 	return NumEvents;
 }
+
+//---------------------------------------------------------------------------------------
+// Start Issue #711
+private function int GetDarkEventOverride(XComGameState NewGameState, int NumEvents, bool bChosenAddedEvent)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideDarkEventCount';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVInt;
+	Tuple.Data[0].i = NumEvents;
+	Tuple.Data[1].kind = XComLWTVBool;
+	Tuple.Data[1].b = bChosenAddedEvent;
+
+	`XEVENTMGR.TriggerEvent('OverrideDarkEventCount', Tuple, self, NewGameState);
+
+	return Tuple.Data[0].i;
+}
+// End Issue #711
 
 //---------------------------------------------------------------------------------------
 function array<XComGameState_DarkEvent> BuildDarkEventDeck()
