@@ -191,6 +191,9 @@
     <Content Include="Src\XComGame\Classes\UIHackingScreen.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIInventory_Implants.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIListItemString.uc">
       <SubType>Content</SubType>
     </Content>
@@ -380,6 +383,9 @@
     <Content Include="Src\XComGame\Classes\X2ItemTemplate.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2ItemTemplateManager.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2MeleePathingPawn.uc">
       <SubType>Content</SubType>
     </Content>
@@ -442,7 +448,7 @@
     </Content>
     <Content Include="Src\XComGame\Classes\X2TargetingMethod_RocketLauncher.uc">
       <SubType>Content</SubType>
-    </Content>    
+    </Content>
     <Content Include="Src\XComGame\Classes\X2UnifiedProjectile.uc">
       <SubType>Content</SubType>
     </Content>
@@ -495,6 +501,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_Effect.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_EvacZone.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_HeadquartersAlien.uc">
