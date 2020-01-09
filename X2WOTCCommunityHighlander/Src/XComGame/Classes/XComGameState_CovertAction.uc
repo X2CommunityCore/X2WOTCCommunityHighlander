@@ -1489,8 +1489,27 @@ function CompleteCovertAction(XComGameState NewGameState)
 	// Flag the completion popup and trigger appropriate events
 	bNeedsActionCompletePopup = true;
 	`XEVENTMGR.TriggerEvent('CovertActionCompleted', , self, NewGameState);
-	class'XComGameState_HeadquartersResistance'.static.RecordResistanceActivity(NewGameState, 'ResAct_ActionsCompleted');
+	
+	if (TriggerAllowResActivityRecord(NewGameState)) { // Issue #696
+		class'XComGameState_HeadquartersResistance'.static.RecordResistanceActivity(NewGameState, 'ResAct_ActionsCompleted');
+	} // Issue #696
 }
+
+// Start Issue #696
+private function bool TriggerAllowResActivityRecord (XComGameState NewGameState)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = true;
+
+	`XEVENTMGR.TriggerEvent('CovertAction_AllowResActivityRecord', Tuple, self, NewGameState);
+	
+	return Tuple.Data[0].b;
+}
+// End Issue #696
 
 //#############################################################################################
 //----------------   GEOSCAPE ENTITY IMPLEMENTATION   -----------------------------------------
