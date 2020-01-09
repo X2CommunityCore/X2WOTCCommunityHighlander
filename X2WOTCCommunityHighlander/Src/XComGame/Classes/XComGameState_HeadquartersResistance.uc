@@ -1641,7 +1641,11 @@ function FindRookieCovertActions()
 	{
 		ActionTemplate = X2CovertActionTemplate(Actions[idx]);
 
-		if (!ActionTemplate.bGoldenPath && ActionTemplate.RequiredFactionInfluence == eFactionInfluence_Minimal)
+		if (
+			!ActionTemplate.bGoldenPath
+			&& ActionTemplate.RequiredFactionInfluence == eFactionInfluence_Minimal
+			&& !ActionTemplate.bCanNeverBeRookie // Issue #695
+		)
 		{
 			bRankRequired = false;
 			foreach ActionTemplate.Slots(ActionSlot)

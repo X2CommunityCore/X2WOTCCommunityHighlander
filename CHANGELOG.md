@@ -135,6 +135,7 @@ RunPriorityGroup=RUN_STANDARD
   overwriting all the necessary entries (#410)
 - UIScanButton can now work properly when it's a grandchild of UIStrategyMapItem, not only when direct child (#638)
 - Removed `protectedwrite` from `AcquiredTraits`, `PendingTraits`, and `CuredTraits` in `XComGameState_Unit`, allowing Traits to be modified by external sources (#681)
+- Added `X2CovertActionTemplate::bCanNeverBeRookie` to allow mods to forbid a CA from being marked as a rookie one (#695)
 
 ### Configuration
 - Allow disabling of Factions being initialized on startup by
