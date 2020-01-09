@@ -362,6 +362,7 @@ RunPriorityGroup=RUN_STANDARD
 - Allow mods to manipulate X2GameRuleset::EventObserverClasses, eg. on CDOs (#481)
 - Uprivate `XComTacticalMissionManager::CacheMissionManagerCards` to allow mods to use manager's decks (#528)
 - Unprotect `X2ItemTemplateManager::Loadouts` so they can be changed Programmatically (#698)
+- Unprotect `XComGameState_EvacZone::CenterLocation` & `XComGameState_EvacZone::Team` (#702)
 
 ### Improvements
 - Create a mod friendly way to manipulate loot tables (#8)
