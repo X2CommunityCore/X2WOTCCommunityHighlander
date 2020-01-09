@@ -889,7 +889,7 @@ private function CreateRisks()
 		{
 			// The Risk is not part of the Action by default, so add it
 			RiskTemplate = X2CovertActionRiskTemplate(StratMgr.FindStrategyElementTemplate(DarkEventRiskName));
-			if (RiskTemplate.IsRiskAvailableFn == none || RiskTemplate.IsRiskAvailableFn(GetFaction()))
+			if (TriggerAllowDarkEventRisk(RiskTemplate, true)) // Issue #692
 			{
 				AddRisk(RiskTemplate, bChosenIncreaseRisks, bDarkEventRisk);
 			}
@@ -982,26 +982,13 @@ function EnableDarkEventRisk(name DarkEventRiskName)
 	local CovertActionRisk ActionRisk;
 	local array<name> RiskNames;
 	local bool bChosenIncreaseRisks;
-	local XComLWTuple Tuple; // Issue #436
 	local int idx;
 		
 	StratMgr = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
 	RiskTemplate = X2CovertActionRiskTemplate(StratMgr.FindStrategyElementTemplate(DarkEventRiskName));
 	
-	// Issue #436 Start
-	Tuple = new class'XComLWTuple';
-	Tuple.Id = 'AllowDarkEventRisk';
-	Tuple.Data.Add(2);
-	Tuple.Data[0].kind = XComLWTVObject;
-	Tuple.Data[0].o = RiskTemplate;
-	Tuple.Data[1].kind = XComLWTVBool;
-	Tuple.Data[1].b = RiskTemplate.IsRiskAvailableFn == none || RiskTemplate.IsRiskAvailableFn(GetFaction());
-
-	`XEVENTMGR.TriggerEvent('AllowDarkEventRisk', Tuple, self);
-
 	// Only add or modify risks which are available
-	if (Tuple.Data[1].b)
-	// Issue #436 End
+	if (TriggerAllowDarkEventRisk(RiskTemplate, false)) // Issue #436
 	{
 		RiskNames = GetMyTemplate().Risks;
 		bChosenIncreaseRisks = GetFaction().GetRivalChosen().ShouldIncreaseCovertActionRisks();
@@ -1029,6 +1016,27 @@ function EnableDarkEventRisk(name DarkEventRiskName)
 		}
 	}
 }
+
+// Start issues #436, #692
+private function bool TriggerAllowDarkEventRisk (X2CovertActionRiskTemplate RiskTemplate, bool bSetup)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'AllowDarkEventRisk';
+	Tuple.Data.Add(3);
+	Tuple.Data[0].kind = XComLWTVObject;
+	Tuple.Data[0].o = RiskTemplate;
+	Tuple.Data[1].kind = XComLWTVBool;
+	Tuple.Data[1].b = RiskTemplate.IsRiskAvailableFn == none || RiskTemplate.IsRiskAvailableFn(GetFaction()); // Vanilla logic
+	Tuple.Data[2].kind = XComLWTVBool;
+	Tuple.Data[2].b = bSetup;
+
+	`XEVENTMGR.TriggerEvent('AllowDarkEventRisk', Tuple, self);
+
+	return Tuple.Data[1].b;
+}
+// End issues #436, #692
 
 function DisableDarkEventRisk(name DarkEventRiskName)
 {
