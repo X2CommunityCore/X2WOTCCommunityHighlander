@@ -450,3 +450,33 @@ static function array<name> GetAmbushRiskTemplateNames()
 	return TemplateNames;
 }
 // End Issue #485
+
+// start issue #619
+static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
+{
+    local array<XComGameState_Player> EnemyPlayers;
+    local XComGameState_Player PlayerStateObject, EnemyStateObject, StateObject;
+ 
+    if (AIPlayer == none)
+        return EnemyPlayers;
+ 
+    PlayerStateObject = XComGameState_Player(`XCOMHISTORY.GetGameStateForObjectID(AIPlayer.ObjectID));
+ 
+    foreach `XCOMHISTORY.IterateByClassType(class'XComGameState_Player', StateObject)
+    {
+        if (StateObject.ObjectID == PlayerStateObject.ObjectID)
+            continue;
+        //Ignore civilians, this check is for checking actual enemies to the unit
+        if (StateObject.GetTeam() == ETeam_Neutral)
+            continue;
+        EnemyStateObject = StateObject;
+        if (PlayerStateObject.IsEnemyPlayer(EnemyStateObject))
+ 
+        if (EnemyStateObject != none)
+        {
+            EnemyPlayers.AddItem(EnemyStateObject);
+        }  
+    }
+    return EnemyPlayers;
+}
+// end issue #619

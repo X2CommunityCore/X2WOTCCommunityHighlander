@@ -188,6 +188,7 @@ RunPriorityGroup=RUN_STANDARD
   that mods can add functions to in order to override the default logic for handling
   hits, grazes and crits (#555)
 - Adds `OnLoadedSavedGameToTactical` to DLCInfo that serves like the strategy counterpart `OnLoadedSavedGameToStrategy`
+- Allow Mods/DLC to utilize multiplayer teams in singleplayer (#188)
 
 ### Event Hooks
 
@@ -273,6 +274,7 @@ RunPriorityGroup=RUN_STANDARD
 - Register tactical event listeners in TQL (#406)
 - Allow mods to decide which team(s) are granted an ability via X2SitRepEffect_GrantAbilities and better document that class (#445)
 - Allow X2AbilityToHitCalc_StatCheck to check for hit chance modifiers (#467)
+- Allow aliens and other teams to properly register non-XCOM unit locations to adjust their positions accordingly (#619)
 
 ### Fixes
 - Ensure Gremlins use the walk/run animation based on the alert status of their
