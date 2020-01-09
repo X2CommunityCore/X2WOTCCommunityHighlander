@@ -13673,17 +13673,24 @@ function EMentalState GetMentalState(optional bool bIgnoreBoost = false)
 function UpdateMentalState()
 {
 	local int WillPercent, idx;
+	local int MentalStateMaxWill; // Issue #637
 
-	WillPercent = int((GetCurrentStat(eStat_Will) / GetMaxStat(eStat_Will)) * 100.0f);
-
+	// Start Issue #637
+	//
+	// Rather than calculating the current will as a percentage of the unit's
+	// max, the will is now directly compared to the max will for each mental
+	// state. This ensures consistency with the will recovery project, which
+	// also uses the GetMaxWillForMentalState() function.
 	for(idx = 0; idx < eMentalState_Max; idx++)
 	{
-		if(WillPercent <= class'X2StrategyGameRulesetDataStructures'.default.MentalStatePercents[idx])
+		MentalStateMaxWill = GetMaxWillForMentalState(EMentalState(idx));
+		if(GetCurrentStat(eStat_Will) <= MentalStateMaxWill)
 		{
 			MentalState = EMentalState(idx);
 			return;
 		}
 	}
+	// End Issue #637
 }
 
 function int GetMaxWillForMentalState(EMentalState eState)

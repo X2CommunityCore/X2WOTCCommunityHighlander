@@ -428,3 +428,6 @@ RunPriorityGroup=RUN_STANDARD
 - Appearances now update correctly when a part change differs only by material override (#354)
 - All relevant body parts are now correctly validated when the torso is changed. (#350)
 - Fix `MergeAmmoAsNeeded()` does not work for units spawned from the Avenger (#608)
+- The will recovery project and soldier mental state are now consistent with each other
+  on borderline will values, whereas a rounding error previously could cause will recovery
+  to take a day for Shaken or Tired (#637)
