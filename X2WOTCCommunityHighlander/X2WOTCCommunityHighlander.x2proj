@@ -726,7 +726,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Final release' ">
     <OutputPath>.</OutputPath>
-    <PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -mod "X2WOTCCommunityHighlander" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath) -final_release"</PowershellBuildCommand>
+    <PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -mod "X2WOTCCommunityHighlander" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)" -final_release</PowershellBuildCommand>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <OutputPath>.</OutputPath>
