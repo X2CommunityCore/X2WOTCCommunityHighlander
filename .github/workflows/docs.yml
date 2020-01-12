@@ -1,0 +1,32 @@
+name: docs
+
+on:
+  push:	
+    branches:	
+      - make_docs
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Build Docs
+      run: |
+        mkdir target
+        python ./.scripts/make_docs.py ./X2WOTCCommunityHighlander/Src/ ./X2WOTCCommunityHighlander/Config/ --outfile target/DOC.md
+        if [ -f "target/DOC.md" ]
+        then
+          echo "Docs built."
+        else
+          exit 1
+        fi
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        BRANCH: docs # The branch the action should deploy to.
+        FOLDER: target # The folder the action should deploy.

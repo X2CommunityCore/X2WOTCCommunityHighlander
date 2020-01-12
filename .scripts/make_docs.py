@@ -77,8 +77,8 @@ def process_file(file) -> List[dict]:
     lines = []
     doc_items = []
     startline = -1
-
-    with open(file) as infile:
+    print(file)
+    with open(file, errors='replace') as infile:
         for num, line in enumerate(infile):
             line = line.strip()
             if len(line) >=3 and line[0:3] == '///' or line[0:3] == ";;;":

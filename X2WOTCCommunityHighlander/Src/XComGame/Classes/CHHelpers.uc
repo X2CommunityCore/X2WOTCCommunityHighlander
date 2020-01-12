@@ -324,7 +324,9 @@ static function GroupItemStatsByLabel(out array<UISummary_ItemStat> InArray)
 /// HL-Docs: feature:OverrideUnitFocusUI; issue:257; tags:tactical,compat
 /// This focus change allows mods to change the focus UI that the vanilla game uses
 /// to display Templar Focus. This effectively creates different types of Focus, even
-/// though the game does not know about this. This imposes a few limitations on the system:
+/// though the game does not know about this. For example, you can create a custom
+/// soldier class with its own type of focus, tracked with a `UnitValue`.
+/// This imposes a few limitations on the system:
 ///
 /// * A given unit only ever has a single "type" of focus. The rules for different focus
 ///   types are expected to be so different from one another to make any conflicts
