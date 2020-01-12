@@ -62,5 +62,11 @@
             "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\update_version.ps1' -ps '${workspaceRoot}\\VERSION.ps1' -srcDirectory '${workspaceRoot}'",
             "problemMatcher": []
         },
+        {
+            "label": "makeDocs",
+            "type": "shell",
+            "command": "python .\\.scripts\\make_docs.py .\\X2WOTCCommunityHighlander\\Src\\ .\\X2WOTCCommunityHighlander\\Config\\ --outfile DOC.md",
+            "problemMatcher": []
+        },
     ]
 }
