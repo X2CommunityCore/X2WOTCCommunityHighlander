@@ -34,7 +34,11 @@ struct native ArmorMitigationResults
 	var init array<StateObjectReference> BonusArmorEffects;         //  refs to the XComGameState_Effects which are granting an X2Effect_BonusArmor to the unit
 	var int TotalMitigation;            //  total of all bonus armor effects plus eStat_ArmorMitigation
 };
-
+// Issue #118 Begin
+/// HL-Docs: feature:CustomInventorySlots; issue:118; tags:tactical,strategy
+/// This feature defines additional inventory slots in the Highlander for mods to use.
+/// Configuration is done via `CHItemSlot`. More docs to follow.
+/// HL-Include:
 enum EInventorySlot
 {
 	eInvSlot_Unknown,
@@ -54,13 +58,12 @@ enum EInventorySlot
 	eInvSlot_QuinaryWeapon,
 	eInvSlot_SenaryWeapon,
 	eInvSlot_SeptenaryWeapon,
-	// Start Issue #118
-	// Add a marker slot, and buffer in case
-	// Firaxis adds more in the future
+
+	// Add a marker slot, and buffer in case Firaxis adds more in the future
 	// ALL MARKER SLOTS SHOULD NOT BE USED IN CODE OTHER THAN XCOMGAME
-	// CHItemSlotTemplate has static helper functions for this
-	// purpose! Since enums are compile-time constants,
-	// mods may have old values that dont apply anymore for markers
+	// CHItemSlotTemplate has static helper functions for this purpose!
+	// Since enums are compile-time constants, mods may have old values
+	// that don't apply anymore for markers.
 	eInvSlot_END_VANILLA_SLOTS,
 	eInvSlot_Buffer018,
 	eInvSlot_Buffer019,
@@ -78,14 +81,9 @@ enum EInventorySlot
 	eInvSlot_Buffer031,
 	// again, don't use in mod code
 	eInvSlot_BEGIN_TEMPLATED_SLOTS,
-	// here, we can insert as many slots as we like.
-	// We just need to be minimally considerate about what slots we add
-	// But we have space for ~220 slots, should be enough
-	// These slots can be used in Mod code and config values!
-
-	// The slots list is mirrored in the discussion thread #137.
-	// Mod authors who USE or ADD another slot should read that one first,
-	// and leave a note so other mod authors can be aware of that.
+	
+	// Custom slots begin here. We have space for ~220 slots, should be enough!
+	// These slots can be used in Mod code and config values
 	eInvSlot_Vest,
 	eInvSlot_AugmentationHead,
 	eInvSlot_AugmentationTorso,
@@ -109,8 +107,9 @@ enum EInventorySlot
 
 	// Marker slot, don't use
 	eInvSlot_END_TEMPLATED_SLOTS,
-	// End Issue #118
 };
+/// If you need additional enum entries, request them in the tracking issue.
+// End Issue #118
 
 enum EffectTemplateLookupType
 {

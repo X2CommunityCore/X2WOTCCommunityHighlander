@@ -230,6 +230,7 @@ simulated function BuildTitlePanel()
 	RetaliationHeader = m_strRetaliation;
 	RetaliationFooter = m_strEstimated;
 	bShowRetaliation = int(AlienHQ.bHasSeenRetaliation && bHaveRetaliation);
+
 	TriggerOverrideRetaliationDisplay(bShowRetaliation, RetaliationHeader, RetaliationDisplay, RetaliationFooter);
 	if (bool(bShowRetaliation))
 	{
@@ -249,6 +250,22 @@ simulated function BuildTitlePanel()
 }
 
 // Start issue #667
+/// HL-Docs: feature:OverrideNextRetaliationDisplay; issue:667; tags:strategy
+/// The Dark Events Screen (`UIAdventOperations`) by default shows a string like:
+/// "Next Retaliation: 6 Weeks (Estimated)". This event allows mods to override
+/// whether to show that text, and customize the actual displayed text.
+///
+/// ```unrealscript
+/// EventID: OverrideNextRetaliationDisplay
+/// EventData: XComLWTuple {
+/// 	Data: [
+/// 	  inout bool bShow,
+/// 	  inout string strHeader,
+/// 	  inout string strValue,
+/// 	  inout string strFooter
+///     ]
+/// }
+/// ```
 simulated private function TriggerOverrideRetaliationDisplay (out int bShow, out string strHeader, out string strValue, out string strFooter)
 {
 	local XComLWTuple Tuple;
