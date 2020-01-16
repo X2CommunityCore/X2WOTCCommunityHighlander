@@ -3311,7 +3311,7 @@ private function bool OverrideAddChosenTacticalTagsToMission (XComGameState_Miss
 	Tuple.Data[1].b = bGuaranteedOnly;
 
 	NewGameState = MissionState.GetParentGameState();
-	if (NewGameState.HistoryIndex > -1)
+	if (NewGameState.HistoryIndex > -1 && NewGameState != `XCOMHISTORY.GetStartState())
 	{
 		`Redscreen("CHL Warning: XCGS_HeadquartersAlien::AddChosenTacticalTagsToMission was passed MissionState that came from history, THIS WILL CAUSE BUGS");
 		`Redscreen("Make sure that the mission state comes from a pending gamestate before calling this function");
