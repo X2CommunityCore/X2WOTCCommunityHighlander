@@ -129,6 +129,7 @@ RunPriorityGroup=RUN_STANDARD
   record for the monthly resistance report (#696)
 - Triggers the event `OverrideDarkEventCount` to allow mods to change the number of dark events in the monthly report (#711)
 - Triggers the event `SitRepCheckAdditionalRequirements` to allow mods to perform additional checks for sitrep eligibility for a mission (#561)
+- Triggers the event `OverrideAddChosenTacticalTagsToMission` to allow mods to override chosen spawning (#722)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
