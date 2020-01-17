@@ -9,7 +9,7 @@
 //--------------------------------------------------------------------------------------- 
 
 class UIUnitFlag extends UIPanel
-	dependson(XComGameState_Unit);
+	dependson(XComGameState_Unit) config(UI);
 
 enum EUnitFlagTargetingState
 {
@@ -88,6 +88,9 @@ var localized string m_strReinforcementsTitle;
 var localized string m_strReinforcementsBody;
 
 var int VisualizedHistoryIndex;
+
+//	Variable for Issue #724
+var config(UI) array<name> ValidReserveAPForUnitFlag;
 
 // kUnit, the unit this flag is associated with.
 simulated function InitFlag(StateObjectReference ObjectRef)
@@ -1684,7 +1687,10 @@ simulated function Remove()
 
 //This function will be spammed, so please only send changes to flash.
 simulated function RealizeOverwatch(optional XComGameState_Unit NewUnitState = none)
-{
+{	
+	//	Variable for Issue #724
+	local name OverwatchActionPointName;
+
 	if( NewUnitState == none )
 	{
 		NewUnitState = XComGameState_Unit(History.GetGameStateForObjectID(StoredObjectID));
@@ -1692,8 +1698,17 @@ simulated function RealizeOverwatch(optional XComGameState_Unit NewUnitState = n
 
 	if( NewUnitState != none )
 	{
-
-		AS_SetOverwatchIcon(NewUnitState.ReserveActionPoints.Find('Overwatch') > -1);
+		//	Start Issue #724
+		foreach ValidReserveAPForUnitFlag(OverwatchActionPointName)
+		{	
+			if (NewUnitState.ReserveActionPoints.Find(OverwatchActionPointName) > -1)
+			{
+				AS_SetOverwatchIcon(true);
+				return;
+			}
+		}
+		AS_SetOverwatchIcon(false);
+		//	End Issue #724
 	}
 }
 

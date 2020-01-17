@@ -161,6 +161,7 @@ RunPriorityGroup=RUN_STANDARD
   matches as for other parts (in particular this means Anarchy's Children localizations which already exist in the files
   are picked up automatically). Otherwise, "_Torso"/"_Legs"/"_Arms" is appended to the template name
   to create the unique object name. (#328)
+- The list of Reserve Action Points that make the soldier display the Overwatch "Eye" icon under the Unit Flag is configurable in XComUI.ini. Now includes Pistol Overwatch by default.
 
 ### Fixes
 - Fix an issue in base game where strategy X2EventListenerTemplates only
