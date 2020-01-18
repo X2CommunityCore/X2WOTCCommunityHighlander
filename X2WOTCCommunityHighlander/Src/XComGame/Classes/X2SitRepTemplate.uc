@@ -107,8 +107,34 @@ function bool MeetsRequirements(XComGameState_MissionSite MissionState)
 		return false;
 	}
 
+	// Start issue #561
+	if (!TriggerAdditionalChecks(MissionState))
+	{
+		return false;
+	}
+	// End issue #561
+
 	return true;
 }
+
+// Start issue #561
+function bool TriggerAdditionalChecks(XComGameState_MissionSite MissionState)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'SitRepCheckAdditionalRequirements';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = true;
+	Tuple.Data[1].kind = XComLWTVObject;
+	Tuple.Data[1].o = MissionState;
+
+	`XEVENTMGR.TriggerEvent('SitRepCheckAdditionalRequirements', Tuple, self);
+
+	return Tuple.Data[0].b;
+}
+// End issue #561
 
 static function bool CanLaunchMission(XComGameState_MissionSite Mission, out string FailReason)
 {
