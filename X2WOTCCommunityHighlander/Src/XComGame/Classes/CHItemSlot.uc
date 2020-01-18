@@ -10,6 +10,7 @@
 // using this in multiplayer at all, but it's better to use a single approach
 // Mod code is encouraged to make use of this, by not relying on the history alone
 // (i.e. use Unit.GetItemInSlot, it can search an existing game state)
+/// HL-Docs: ref:CustomInventorySlots
 class CHItemSlot extends X2DataTemplate;
 
 // These are Slot Categories! In vanilla:
