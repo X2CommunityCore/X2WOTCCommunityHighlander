@@ -2,15 +2,20 @@
 
 Welcome to the X2WOTCCommunityHighlander Github project. This is where the work happens.
 
-# What version are we at?
+[Download the latest release](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/releases)
 
-[Check out the latest release here.](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/releases)
+[View Highlander documentation](https://x2communitycore.github.io/X2WOTCCommunityHighlander/)
 
-# The Job List
+## What version are we at?
 
-* Complete issues.
+There are two published Steam versions: One infrequently updated
+[stable](https://steamcommunity.com/workshop/filedetails/?id=1134256495) version that matches the
+[latest GitHub release](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/releases)
+has been tested a fair amount, and a [beta](https://steamcommunity.com/sharedfiles/filedetails/?id=1796402257)
+version that is updated more frequently with changes from the master branch. The main menu text
+tells you which commit the beta version is based on.
 
-# What IS the X2WOTCCommunityHighlander?
+## What IS the X2WOTCCommunityHighlander?
 
 A **Highlander** replaces the XComGame package. That means it replaces the code of the Vanilla
 game, without requiring any ModClassOverrides to do so. As implied by the name,
@@ -24,42 +29,45 @@ Interactive team.
 The X2WOTCCommunityHighlander provides a Highlander for the XCOM 2 expansion *War of the Chosen*.
 
 
-# Contributing
+## Development
 
-## Discussion channel
+### Discussion channel
 
 For the most part, discussion happens in a [Discord channel](https://discordapp.com/invite/vvsXvs3). It's our platform of choice for lengthy discussions that don't fit GitHub issues.
 
-## When contributing, please
+### Code style
 
-* use the code style that is generally used in the XCOM 2 codebase:
-  * use tabs
-  * use new lines for braces
-  * use appropriate spacing
-  * use braces even for one-line if/else bodies
+The code style is what is generally in use for the XCOM 2 codebase:
+
+* Tabs (width: 4 spaces)
+* Braces always on a new line
+* Liberal use of space between blocks
+* Braces even for one-line if/else bodies
   
 The following code should illustrate all of this:
 
-    static function CompleteStrategyFromTacticalTransfer()
-    {
-    	local XComOnlineEventMgr EventManager;
-    	local array<X2DownloadableContentInfo> DLCInfos;
-    	local int i;
+```unrealscript
+static function CompleteStrategyFromTacticalTransfer()
+{
+	local XComOnlineEventMgr EventManager;
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local int i;
 
-    	UpdateSkyranger();
-    	CleanupProxyVips();
-    	ProcessMissionResults();
-    	SquadTacticalToStrategyTransfer();
+	UpdateSkyranger();
+	CleanupProxyVips();
+	ProcessMissionResults();
+	SquadTacticalToStrategyTransfer();
 
-    	EventManager = `ONLINEEVENTMGR;
-    	DLCInfos = EventManager.GetDLCInfos(false);
-    	for (i = 0; i < DLCInfos.Length; ++i)
-    	{
-    		DLCInfos[i].OnPostMission();
-    	}
-    }
+	EventManager = `ONLINEEVENTMGR;
+	DLCInfos = EventManager.GetDLCInfos(false);
+	for (i = 0; i < DLCInfos.Length; ++i)
+	{
+		DLCInfos[i].OnPostMission();
+	}
+}
+```
 
-## Documenting your Contributions
+### Documenting your Contributions
 
 Generally, Highlander changes will be weaved into vanilla code in ways that
 require us to keep close track of what code changes what vanilla behaviour, and
@@ -68,41 +76,54 @@ created on Github at:
 
 https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues
 
-Code must belong to an issue, before it's submitted as a pull request. Check if any open issues describe the change you want to make, or create a new issue, if that isn't the case.
+Every change has a *tracking issue*, where the problem is described along with a use case
+for the Highlander change. This applies to bugs, enhancements, and new features.
 
 Any code you write should be documented to include the issue it addresses, either as
 a single line comment, or as a start and end block. Don't forget to mark any
 variables added for that issue, as well.
 
-    static function CompleteStrategyFromTacticalTransfer()
-    {
-    	// Variables for Issue #928
-    	local XComOnlineEventMgr EventManager;
-    	local array<X2DownloadableContentInfo> DLCInfos;
-    	local int i;
-
-    	UpdateSkyranger();
-    	CleanupProxyVips();
-    	ProcessMissionResults(); // Issue #345 - does an extra thing
-    	SquadTacticalToStrategyTransfer();
-
-    	EventManager = `ONLINEEVENTMGR;
-    	// Start Issue #928
-    	DLCInfos = EventManager.GetDLCInfos(false);
-    	for (i = 0; i < DLCInfos.Length; ++i)
-    	{
-    		DLCInfos[i].OnPostMission();
-    	}
-    	// End Issue #928
-    }
-
 We should be able to find every line of code related to an issue by searching
 for "Issue #928" (or whatever) in the codebase. In addition, any commits
 related to that issue should also have the issue number marked in the same way.
 
-# Building
+Additionally, every feature should be documented with *inline documentation* that will
+be published via GitHub Pages (at [https://x2communitycore.github.io/X2WOTCCommunityHighlander/](https://x2communitycore.github.io/X2WOTCCommunityHighlander/)). An example of inline documentation:
+
+```unrealscript
+/// HL-Docs: feature:ArmorEquipRollDLCPartChance; issue:155; tags:customization,compat
+/// When a unit equips new armor, the game rolls from all customization options, even the ones where
+/// the slider for the `DLCName` is set to `0`. The HL change fixes this, but if your custom armor only
+/// has customization options with a `DLCName` set, the game may discard that `DLCName` (default: in 85% of cases)
+/// which results in soldiers without torsos. If you want to keep having `DLCName`-only armor
+/// (for example to display mod icons in `UICustomize`), you must disable that behavior
+/// by creating the following lines in `XComGame.ini`:
+///
+/// ```ini
+/// [XComGame.CHHelpers]
+/// +CosmeticDLCNamesUnaffectedByRoll=MyDLCName
+/// ```
+```
+
+This documentation will automatically be built whenever the master branch is committed to.
+You can run the documentation tool locally by installing Python (recommended version 3.7)
+and running
+
+    python .\.scripts\make_docs.py .\X2WOTCCommunityHighlander\Src\ .\X2WOTCCommunityHighlander\Config\ --outdir .\target\
+
+or the `makeDocs` task in VS Code. This creates Markdown files for the documentation; rendering HTML documentation requires
+`MkDocs`:
+
+```powershell
+pip install mkdocs
+cd .\target\
+mkdocs serve
+```
+
+## Building
 
 XComGame replacements, like this highlander, can only be loaded successfully into XCOM 2 in one of two ways:
+
 1. As a cooked package (a .upk file). This is how the unmodified vanilla game works.
 2. With the `-noseekfreeloading` switch, which is designed for debugging purposes.
 
@@ -113,7 +134,7 @@ https://forums.nexusmods.com/index.php?/topic/3868395-highlander-mods-modding-na
 
 His post goes into far more detail than this guide, if you're interested.
 
-## Cooking a Final Release (Automated method)
+### Cooking a Final Release (Automated method)
 
 1. Copy 'CookCommunityHighlander.bat' to your SteamLibrary folder (the folder that
 contains the steamapps subfolder). By default, this path is `C:\Program Files (x86)\Steam`. 
@@ -126,8 +147,9 @@ SET "GameLocation=.\steamapps\common\XCOM 2\XCom2-WarOfTheChosen"
 4. Run CookCommunityHighlander.bat by double-clicking it.
 5. If a message like "Scripts are outdated. Would you like to rebuild now?" pops up, click "No".
 
-## Cooking a Final Release (Manual method)
-### One-time preparation
+### Cooking a Final Release (Manual method)
+
+#### One-time preparation
 
 
 The following instructions are functionally the same as those of a vanilla Highlander mod. All the below references to the root Steam directory are made as %STEAMLIBRARY%. You should replace them with your actual Steam directory folder, such as: "D:/SteamLibrary", or whatever. 
@@ -145,7 +167,7 @@ PersistentCookerShaderData.bin
 *.tfc
 ```
 
-### Cooking
+#### Cooking
 
 Start by building the mod through ModBuddy, as you normally would. Then, enter the command line and run the following commands:
 
@@ -216,7 +238,7 @@ with the following command (in the command prompt):
 If all goes well, the XCOM Launcher will run. Enable X2WOTCCommunityHighlander and start the game.
 
 
-# Building Against the Highlander
+## Building Against the Highlander
 
 Making new mods that use the Highlander requires one change, to
 ensure you can use any new classes or methods it implemented. The SDK uses the
