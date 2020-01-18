@@ -3,7 +3,7 @@ name: docs
 on:
   push:	
     branches:	
-      - make_docs
+      - master
 
 jobs:
   build-and-deploy:

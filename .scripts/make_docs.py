@@ -8,7 +8,7 @@ from typing import List, Optional
 
 HL_DOCS_KEYWORD = "HL-Docs:"
 HL_INCLUDE_FOLLOWING = "HL-Include:"
-HL_BRANCH = "beta"
+HL_BRANCH = "master"
 HL_ISSUES_URL = "https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/%i"
 HL_SOURCE_URL = "https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/%s/%s#L%s-L%s" % (
     HL_BRANCH, "%s", "%i", "%i")
