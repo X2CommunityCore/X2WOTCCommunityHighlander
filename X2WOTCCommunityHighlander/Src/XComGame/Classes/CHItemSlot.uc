@@ -343,6 +343,8 @@ static function bool SlotAvailable(EInventorySlot Slot, out string LockedReason,
 		case eInvSlot_PrimaryWeapon:
 			return true;
 		case eInvSlot_SecondaryWeapon:
+			/// HL-Docs: ref:Bugfixes; issue:55
+			/// Check a soldier's `NeedsSecondaryWeapon` everywhere instead of hardcoding based on Rookie rank
 			return Unit.NeedsSecondaryWeapon();
 		case eInvSlot_HeavyWeapon:
 			return Unit.GetNumHeavyWeapons(CheckGameState) > 0;

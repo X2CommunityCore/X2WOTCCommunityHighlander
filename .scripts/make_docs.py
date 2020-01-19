@@ -81,30 +81,32 @@ def parse_args() -> (List[str], Optional[str]):
     return args.indirs, args.outdir
 
 
-def make_ref(file: str, span: (int, int)) -> dict:
-    return {"file": file, "span": span}
-
-
-"""
-dict:
-    feature: str, feature name
-    issue: int, issue number
-    tags: [str], tags
-    text: str
-    links: [{file: str, span: (int, int)}]
-or
-    ref: str, feature name
-    text: str
-    links: [{file: str, span: (int, int)}]
-"""
+def make_ref(text: str, file: str, span: (int, int),
+             issue: Optional[int]) -> dict:
+    ref = {"text": text, "file": file, "span": span}
+    if issue != None:
+        ref["issue"] = issue
+    return ref
 
 
 def make_doc_item(lines: List[str], file: str,
                   span: (int, int)) -> Optional[dict]:
+    """
+    dict:
+        feature: str,
+        issue: int?,
+        tags: [str],
+        texts: [{text: str, file: str, span: (int, int), issue: int?}]
+    or
+        ref: str,
+        text: {text: str, file: str, span: (int, int), issue: int?}
+    """
     item = {}
     # first line: meta info
     for pair in lines[0].split(';'):
         k, v = pair.strip().split(':')
+        if k in item:
+            print("%s: error: %s: dupe key `%s`" % (sys.argv[0], file, k))
         if k == 'feature' or k == 'ref':
             item[k] = v
         elif k == 'issue':
@@ -114,18 +116,24 @@ def make_doc_item(lines: List[str], file: str,
         else:
             print("%s: error: %s: unknown key `%s`" % (sys.argv[0], file, k))
 
-    item["links"] = []
-    item["links"].append(make_ref(file, span))
-    item["text"] = "\n".join(lines[1:])
+    ref = make_ref("\n".join(lines[1:]), file, span, item.get('issue'))
+    if "ref" in item:
+        item["text"] = ref
+    else:
+        item["texts"] = []
+        item["texts"].append(ref)
     return item
 
 
-"""
-Process file, extract documentation
-"""
+def generate_builtin_features(doc_items):
+    bugfix_item = {"feature": HL_FEATURE_FIX, "tags": [], "texts": []}
+    doc_items.append(bugfix_item)
 
 
 def process_file(file, lang) -> List[dict]:
+    """
+    Process file, extract documentation
+    """
     class ParserState(Enum):
         TEXT = 1
         DOC = 2
@@ -201,12 +209,28 @@ def process_file(file, lang) -> List[dict]:
                                 self.lines.append(orig_line[len(self.indent):])
 
     doc_items = []
-    parser = Parser(doc_items)
 
+    generate_builtin_features(doc_items)
+
+    parser = Parser(doc_items)
     with open(file, errors='replace') as infile:
         parser.parse_file(infile, file)
 
     return doc_items
+
+
+def merge_doc_refs(doc_items: List[dict]) -> List[dict]:
+    items = dict((i["feature"], i) for i in doc_items if not "ref" in i)
+    refs = [i for i in doc_items if "ref" in i]
+
+    for ref in refs:
+        if ref["ref"] in items:
+            items[ref["ref"]]["texts"].append(ref["text"])
+        else:
+            print("%s: error: missing base doc item for ref %s" %
+                  (sys.argv[0], ref["ref"]))
+
+    return items.values()
 
 
 def ensure_dir(dir):
@@ -216,6 +240,32 @@ def ensure_dir(dir):
         except OSError as exc:  # Guard against race condition
             if exc.errno != errno.EEXIST:
                 raise
+
+
+def render_bugfix_page(item: dict, outdir: str):
+    fname = os.path.join(outdir, item["feature"] + ".md")
+    with open(fname, 'w') as file:
+        print(fname)
+
+        file.write("Title: %s\n\n" % (item["feature"]))
+        file.write("# %s\n\n" % (item["feature"]))
+        file.write(
+            "This page accomodates all bug fixes that do not deserve " +
+            "their own documentation page, as they are simple enough to " +
+            "be entirely explained by a single line.")
+        file.write("\n\n")
+        refs = sorted(item["texts"], key=lambda r: r["issue"])
+        for ref in refs:
+            issuepath = HL_ISSUES_URL % (ref["issue"])
+            urlpath = ref["file"].replace('\\', '/').replace('./', '')
+            file_url = HL_SOURCE_URL % (urlpath, ref["span"][0] + 1,
+                                        ref["span"][1])
+            file.write("* ")
+            file.write("[#%i](%s) - " % (ref["issue"], issuepath))
+            file.write("[%s:%i-%i](%s): " % (os.path.split(
+                ref["file"])[1], ref["span"][0] + 1, ref["span"][1], file_url))
+            file.write(ref["text"])
+            file.write("\n")
 
 
 def render_docs(doc_items: List[dict], outdir: str):
@@ -241,41 +291,27 @@ def render_docs(doc_items: List[dict], outdir: str):
         else:
             folder = "misc"
 
-        fname = os.path.join(outdir, folder, item["feature"] + ".md")
-        with open(fname, 'w') as file:
-            print(fname)
-            file.write("Title: %s\n\n" % (item["feature"]))
-            file.write("# %s\n\n" % (item["feature"]))
-            file.write("Tracking Issue: [#%i](%s)\n\n" %
-                       (item["issue"], HL_ISSUES_URL % (item["issue"])))
-            file.write("Tags: " + ", ".join(item["tags"]) + "\n\n")
-            file.write(item["text"])
-            file.write("\n\n")
-            file.write("## Source code references\n\n")
-            for ref in item["links"]:
-                urlpath = ref["file"].replace('\\', '/').replace('./', '')
-                file_url = HL_SOURCE_URL % (urlpath, ref["span"][0],
-                                            ref["span"][1])
-                file.write("* [%s:%i-%i](%s)\n" %
-                           (os.path.split(ref["file"])[1], ref["span"][0] + 1,
-                            ref["span"][1] + 1, file_url))
-            file.write("\n")
-
-
-def merge_doc_refs(doc_items: List[dict]) -> List[dict]:
-    items = dict((i["feature"], i) for i in doc_items if not "ref" in i)
-    refs = [i for i in doc_items if "ref" in i]
-
-    for ref in refs:
-        if ref["ref"] in items:
-            items[ref["ref"]]["links"].extend(ref["links"])
-            if ref["text"] != "":
-                items[ref["ref"]]["text"].extend("\n" + ref["text"])
+        if item["feature"] == HL_FEATURE_FIX:
+            render_bugfix_page(item, outdir)
         else:
-            print("%s: error: missing base doc item for ref %s" %
-                  (sys.argv[0], ref["ref"]))
-
-    return items.values()
+            fname = os.path.join(outdir, folder, item["feature"] + ".md")
+            with open(fname, 'w') as file:
+                print(fname)
+                file.write("Title: %s\n\n" % (item["feature"]))
+                file.write("# %s\n\n" % (item["feature"]))
+                file.write("Tracking Issue: [#%i](%s)\n\n" %
+                           (item["issue"], HL_ISSUES_URL % (item["issue"])))
+                file.write("Tags: " + ", ".join(item["tags"]) + "\n\n")
+                file.write("\n".join([t["text"] for t in item["texts"]]))
+                file.write("\n\n")
+                file.write("## Source code references\n\n")
+                for ref in item["texts"]:
+                    urlpath = ref["file"].replace('\\', '/').replace('./', '')
+                    file_url = HL_SOURCE_URL % (urlpath, ref["span"][0] + 1,
+                                                ref["span"][1])
+                    file.write("* [%s:%i-%i](%s)\n" %
+                               (os.path.split(ref["file"])[1],
+                                ref["span"][0] + 1, ref["span"][1], file_url))
 
 
 def main():

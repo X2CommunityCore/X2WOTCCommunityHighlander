@@ -444,6 +444,8 @@ function XComGameState_Unit CreateCharacter(XComGameState StartState, optional E
 		`assert(CharacterGenerator != none);
 
 		// Single Line for Issue #70
+		/// HL-Docs: ref:Bugfixes; issue:70
+		/// `CharacterPoolManager:CreateCharacter` now honors ForceCountry
 		CharacterGeneratorResult = CharacterGenerator.CreateTSoldier(CharacterTemplateName, , ForceCountry);
 
 		SoldierState.SetTAppearance(CharacterGeneratorResult.kAppearance);

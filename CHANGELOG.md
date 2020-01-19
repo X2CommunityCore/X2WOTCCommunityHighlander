@@ -279,13 +279,6 @@ RunPriorityGroup=RUN_STANDARD
 - Allow aliens and other teams to properly register non-XCOM unit locations to adjust their positions accordingly (#619)
 
 ### Fixes
-- Ensure Gremlins use the walk/run animation based on the alert status of their
-  owner, rather than the standard behaviour of always deferring to walk speed
-  (#33)
-- Fix Reaper's Banish Ability Visualisation not properly visualising
-  subsequent shots (#20)
-- Fix Initiative-Interrupting abilities giving Reinforcements a full turn
-  of action points after scamper (#36)
 - Fix some edge cases regarding idle animations and targeting (#269)
 - Fix an issue causing Rapid Fire/Chain Shot/Banish/... entering cover early (#273)
 - Fixed XCGS_Unit::GetStatModifiers() as XCGS_Unit::GetStatModifiersFixed(),
@@ -380,8 +373,6 @@ RunPriorityGroup=RUN_STANDARD
   X2EventListenerTemplates. Also allow to remove registered Listeners. (#4)
 - Allow enemies with assigned names to have them appear as their name, rather
   than a generic label. (#52)
-- Check a soldiers 'NeedsSecondaryWeapon' in UIArmory_Loadout, rather than
-  hardcoding based on Rookie Rank (#55)
 - Change UIUtilities_Colors.GetColorForFaction to use Faction template color as
   a backup (#72)
 - Prevent items from stacking if they have ComponentObjects attached to them,
@@ -429,12 +420,6 @@ RunPriorityGroup=RUN_STANDARD
 - Added Inventory Slots `eInvSlot_Wings` and `eInvSlot_ExtraBackpack`. (#678)
 
 ### Fixes
-- Fix Chosen Assassin receiving weaknesses that are exclusive to the
-  Shadowstep Strength in the narrative mission, instead Shadowstep is forced
-  ahead of awarding the remaining traits, so the trait roll takes the strength
-  into account (#51)
-- Enable ForceCountry in CharacterPoolManager - was ignored despite being
-  an argument in the CreateCharacter function (#70)
 - Fixes game terminating SoundCue narrative moments after three seconds because
   it assumes they didn't play at all. (#66)
 - Fixes UIPanels animating in with a huge delay when they are direct child panels of

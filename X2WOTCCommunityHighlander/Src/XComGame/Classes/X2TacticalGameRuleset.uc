@@ -4645,6 +4645,8 @@ simulated state TurnPhase_UnitActions
 				if( CachedUnitActionPlayerRef.ObjectID == CachedUnitActionInitiativeRef.ObjectID )
 				{
 					// ResetHitCountersOnPlayerTurnBegin(); Issue #36, commented and move below
+					/// HL-Docs: ref:Bugfixes; issue:36
+					/// Do not clear Reinforcements' "Summoning Sickness" when interrupted by Skirmisher, denying them an erronous bonus turn.
 					PlayerState = XComGameState_Player(CachedHistory.GetGameStateForObjectID(CachedUnitActionPlayerRef.ObjectID));
 					`assert( PlayerState != None );
 					PlayerStateVisualizer = XGPlayer(PlayerState.GetVisualizer());

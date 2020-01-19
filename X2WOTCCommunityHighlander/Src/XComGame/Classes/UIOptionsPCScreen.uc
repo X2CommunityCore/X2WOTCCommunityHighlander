@@ -3142,6 +3142,8 @@ simulated function AS_SetTabData( string title0, string title1, string title2, s
 }
 
 //issue #160 - lists are now dynamically built and disabled according to what the lists say: we ignore the NUM_LISTITEMS const, in other words.
+/// HL-Docs: ref:Bugfixes; issue:160
+/// `UIOptionsPCScreen` now shows all part pack sliders, adding a scroll bar if needed
 function ResetMechaListItems()
 {
 	local int i;

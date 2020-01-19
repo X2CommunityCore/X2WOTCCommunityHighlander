@@ -12808,6 +12808,8 @@ function ResetRankToRookie()
 	}
 
 	// Start Issue #95
+	/// HL-Docs: ref:Bugfixes; issue:95
+	/// `ResetRankToRookie` now correctly applies Beta Strike HP bonuses
 	ApplyFirstTimeStatModifiers();
 	// End Issue #95
 
