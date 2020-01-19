@@ -1494,6 +1494,8 @@ simulated function SequentialShot_MergeVisualization(X2Action BuildTree, out X2A
 	ExitCoverAction.bSkipExitCoverVisualization = true;
 
 	// Single Line for Issue #273 Line moved to end so that there will only be one EnterCover is the VisualizationTree so the GetNodesOfType() can't get the wrong one
+	/// HL-Docs: ref:Bugfixes; issue:273
+	/// Fix an issue causing Rapid Fire/Chain Shot/Banish/... entering cover early
 	//VisMgr.ConnectAction(MarkerStart, VisualizationTree, true, JoinMarker);
 	
 	//	now we have to make sure there's a wait parented to the first exit cover, which waits for the last enter cover

@@ -525,6 +525,8 @@ private function DoCameraCut(CinescriptCut CameraCut)
 			// this compare is slow (struct vs struct), but it happens so infrequently that it isn't worth making
 			// the rest of the class messier to avoid it
 			// Issue #318, compare against PristineCut instead of CameraCut
+			/// HL-Docs: ref:Bugfixes; issue:318
+			/// Fix Cinescript `CutAfterPrevious` not working in combination with `MatineeReplacements`, breaking Spark BIT hack camera
 			if(CameraDefinition.CameraCuts[Index].CutAfterPrevious && CameraDefinition.CameraCuts[Index - 1] == PristineCut)
 			{
 				PendingCutIndex = Index;

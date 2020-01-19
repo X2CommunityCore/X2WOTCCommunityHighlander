@@ -423,6 +423,8 @@ simulated static function XComGameState MoveAbility_BuildInterruptGameState( XCo
 				// Old LWS comment: handle use case where ValidTileList has been reduced to 0 elements.
 				// Allow units to occupy same tile in this case reset the ValidTilesList back to the default,
 				// so that a tile will be selected instead of allowing a (0,0,0) tiles to be entered by default
+				/// HL-Docs: ref:Bugfixes; issue:644
+				/// Allow patrolling units to occupy the same tile instead of teleporting to `(0,0,0)` when out of space, potentially revealing XCOM
 				if (ValidTileList.Length == 0)
 				{
 					ValidTileList = AbilityContext.InputContext.MovementPaths[MovingUnitIndex].MovementTiles;

@@ -171,6 +171,8 @@ simulated function UpdateMeleeTarget(XComGameState_BaseObject Target)
 			if(`XWORLD.GetFloorPositionForTile(PossibleTiles[0], TileLocation))
 			{
 				// Single Line for #520
+				/// HL-Docs: ref:Bugfixes; issue:520
+				/// Controller input now allows choosing melee attack destination tile despite floor differences
 				`CURSOR.m_iRequestedFloor = `CURSOR.WorldZToFloor(TargetVisualizer.Location);
 				`CURSOR.CursorSetLocation(TileLocation, true, true);
 			}

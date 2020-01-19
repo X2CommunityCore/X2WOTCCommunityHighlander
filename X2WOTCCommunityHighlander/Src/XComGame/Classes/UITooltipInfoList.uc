@@ -95,6 +95,8 @@ simulated function RefreshDisplay(array<UISummary_ItemStat> SummaryItems)
 	}
 
 	// Hide any excess list items if we didn't use them. 
+	/// HL-Docs: ref:Bugfixes; issue:303
+	/// `UITooltipInfoList` no longer displays stale data like weapon upgrades from other units
 	for( i = SummaryItems.Length - 1; i < LabelFields.Length; i++ ) // Issue #303, fix off-by-one error
 	{
 		LabelFields[i].Hide();

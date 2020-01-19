@@ -184,6 +184,8 @@ function Init()
 	}
 
 	// Start Issue #326: If we still don't have a damage type, try to pull from the manually configured
+	/// HL-Docs: ref:Bugfixes; issue:326
+	/// Allow damage flyovers from weapon-less Psi abilities to use the Psi damage popup
 	// Effect Damage from X2Effect_ApplyWeaponDamage (PsiBombStage2, mod abilities)
 	if (DamageTypeName == '')
 	{

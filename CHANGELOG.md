@@ -136,7 +136,6 @@ RunPriorityGroup=RUN_STANDARD
 - UIScanButton now calls OnMouseEventDelegate (#483). Note: DO NOT call ProcessMouseEvents, just set the delegate directly
 - Remove `private` from `X2AIBTBehaviorTree.Behaviors` so that mods can change the behavior trees without
   overwriting all the necessary entries (#410)
-- UIScanButton can now work properly when it's a grandchild of UIStrategyMapItem, not only when direct child (#638)
 - Removed `protectedwrite` from `AcquiredTraits`, `PendingTraits`, and `CuredTraits` in `XComGameState_Unit`, allowing Traits to be modified by external sources (#681)
 - Added `X2CovertActionTemplate::bCanNeverBeRookie` to allow mods to forbid a CA from being marked as a rookie one (#695)
 
@@ -173,8 +172,6 @@ RunPriorityGroup=RUN_STANDARD
 - Fix Loadout utility items when unit has an item equipped in the Ammo Pocket (#99)
 - Fix units unequipping items they shouldn't, resulting in duplicate Paired Weapons (#189)
 - Fix all Covert Actions from being removed when generating covert actions (#435)
-- Fix a pathing issue in base game with "flying" pod leaders where non-flat tiles on their
-  paths prevent them from patrolling (#503)
 - Make units with a status of `eStatus_CovertAction` unavailable for missions
   in `XComGameState_Unit.CanGoOnMission()` (#665)
 
@@ -272,40 +269,22 @@ RunPriorityGroup=RUN_STANDARD
   animations set on them (#45)
 - Make suppression work with units that don't have a suppression specific
   idle animation animation set on them (#74)
-- Gremlins (and other Cosmetic Units) are now correctly tinted and patterned (#376)
 - Register tactical event listeners in TQL (#406)
 - Allow mods to decide which team(s) are granted an ability via X2SitRepEffect_GrantAbilities and better document that class (#445)
 - Allow X2AbilityToHitCalc_StatCheck to check for hit chance modifiers (#467)
 - Allow aliens and other teams to properly register non-XCOM unit locations to adjust their positions accordingly (#619)
 
 ### Fixes
-- Fix some edge cases regarding idle animations and targeting (#269)
-- Fix an issue causing Rapid Fire/Chain Shot/Banish/... entering cover early (#273)
 - Fixed XCGS_Unit::GetStatModifiers() as XCGS_Unit::GetStatModifiersFixed(),
   X2AbilityToHitCalc_StandardAim, the only vanilla user of this method, changed to match(#313)
-- Fix non-Veteran units not having personality speech (#215)
-- Fix a display issue causing the weapon tooltip to show stale upgrades
-  from earlier units (#303)
-- Fix Cinescript CutAfterPrevious in combination with MatineeReplacements (#318)
 - Allow abilities that deal damage without a source weapon to still display
   their damage with psi flyovers (Psi Bomb, mod abilities) (#326)
-- Fix `X2AbilityToHitCalc_StandardAim` discarding unfavorable (for XCOM) changes
-  to hit results from effects (#426)
-- Allow soldiers to be carried out from multiple missions in a campaign (#557)
-- Fix patrol logic when corners of a patrol zone lie outside of the map edges and
-  a pod tries to patrol to any of them (#508)
 - Make disorient reapply to disoriented units so that things like flashbangs can
   still remove overwatch from disoriented units (#475)
-- Make sure that rescue rings do not disappear on other rescuable units after a
-  neutral unit swaps to team XCom (#551)
 - Fix rocket targeting so that it isn't always unobstructed when the shooter has
   a valid step-out tile (#617)
-- Prevent patrolling enemy units from teleporting behind XCOM and revealing the
-  squad (#644)
 - `MindControlLost` fires whenever a unit stops being mind controlled or hacked. The event
   passes the affected unit state as both event data and event source (#643)
-- Fix issue where trying to break out of a hack that has already been started using the
-  Esc key or the right mouse button bypasses Haywire's cooldown (#648)
 
 ## Miscellaneous
 
@@ -426,7 +405,3 @@ RunPriorityGroup=RUN_STANDARD
   UIScreen (#341)
 - Appearances now update correctly when a part change differs only by material override (#354)
 - All relevant body parts are now correctly validated when the torso is changed. (#350)
-- Fix `MergeAmmoAsNeeded()` does not work for units spawned from the Avenger (#608)
-- The will recovery project and soldier mental state are now consistent with each other
-  on borderline will values, whereas a rounding error previously could cause will recovery
-  to take a day for Shaken or Tired (#637)

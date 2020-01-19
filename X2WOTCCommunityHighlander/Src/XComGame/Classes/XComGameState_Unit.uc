@@ -2322,6 +2322,8 @@ function OnBeginTacticalPlay(XComGameState NewGameState)
 	// Reset the body recovered flag. A unit that was previously carried to evac while KO'd/bleeding
 	// out will have this flag set, and this flag prevents units from being carried. If this unit
 	// gets KO'd again, they won't be able to be picked up if this flag is still set.
+	/// HL-Docs: ref:Bugfixes; issue:557
+	/// Soldiers that have been carried out of a mission are no longer unable to be carried out of a later mission
 	bBodyRecovered = false;
 	// End Issue #557
 }
@@ -4065,7 +4067,8 @@ function protected MergeAmmoAsNeeded(XComGameState StartState)
 	for (Idx = 0; Idx < InventoryItems.Length; ++Idx)
 	{
 		// Start Issue #608
-		//
+		/// HL-Docs: ref:Bugfixes; issue:608
+		/// `MergeAmmoAsNeeded` now also works for units spawned from the Avenger
 		// Get the item from history, including the pending game state if there is one.
 		// This ensures that inventory items don't need to be added to the new game state
 		// just to make this function work properly.
@@ -13701,6 +13704,8 @@ function UpdateMentalState()
 	// max, the will is now directly compared to the max will for each mental
 	// state. This ensures consistency with the will recovery project, which
 	// also uses the GetMaxWillForMentalState() function.
+	/// HL-Docs: ref:Bugfixes; issue:637
+	/// Will recovery project and soldier mental state are now consistent with each other, fixing Shaken/Tired soldiers occasionally recovering instantly
 	for(idx = 0; idx < eMentalState_Max; idx++)
 	{
 		MentalStateMaxWill = GetMaxWillForMentalState(EMentalState(idx));

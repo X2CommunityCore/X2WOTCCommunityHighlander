@@ -248,7 +248,7 @@ def render_bugfix_page(item: dict, outdir: str):
         print(fname)
 
         file.write("Title: %s\n\n" % (item["feature"]))
-        file.write("# %s\n\n" % (item["feature"]))
+        file.write("<h1>%s</h1>\n\n" % (item["feature"]))
         file.write(
             "This page accomodates all bug fixes that do not deserve " +
             "their own documentation page, as they are simple enough to " +
@@ -298,7 +298,7 @@ def render_docs(doc_items: List[dict], outdir: str):
             with open(fname, 'w') as file:
                 print(fname)
                 file.write("Title: %s\n\n" % (item["feature"]))
-                file.write("# %s\n\n" % (item["feature"]))
+                file.write("<h1>%s</h1>\n\n" % (item["feature"]))
                 file.write("Tracking Issue: [#%i](%s)\n\n" %
                            (item["issue"], HL_ISSUES_URL % (item["issue"])))
                 file.write("Tags: " + ", ".join(item["tags"]) + "\n\n")

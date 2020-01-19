@@ -407,6 +407,8 @@ simulated function bool OnCancel(optional string arg = "")
 	// so players can bypass cooldowns by quickly hitting ESC after starting a hack. Also, don't re-cancel if it
 	// has already been canceled (e.g. by players spamming the ESC key) to avoid multiple cancel states 
 	// from being submitted and potentially restoring multiple charges.
+	/// HL-Docs: ref:Bugfixes; issue:648
+	/// Cancelling a hack in progress using `Esc` no longer bypasses Haywire's cooldown
 	if (!m_hackStarted && !m_hackCanceled)
 	{
 		CancelContext = class'XComGameStateContext_Ability'.static.BuildContextFromAbility(CancelHackAbility, OriginalContext.InputContext.PrimaryTarget.ObjectID);
