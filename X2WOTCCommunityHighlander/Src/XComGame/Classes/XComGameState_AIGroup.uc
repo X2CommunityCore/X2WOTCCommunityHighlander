@@ -419,6 +419,8 @@ function bool ShouldMoveToIntercept(out Vector TargetInterceptLocation, XComGame
 			// Start Issue #508
 			//
 			// Ensure the potential patrol locations are on-map, otherwise the alert will fail to set.
+			/// HL-Docs: ref:Bugfixes; issue:508
+			/// Patrol logic now ensures units do not attempt to patrol outside of the map which would cause them to stop patrolling
 			EncounterCorners[CornerIndex] = World.FindClosestValidLocation(EncounterCorners[CornerIndex], false, false);
 			// End Issue #508
 			if( VSizeSq(CurrentGroupLocation - EncounterCorners[CornerIndex]) < DESTINATION_REACHED_SIZE_SQ )

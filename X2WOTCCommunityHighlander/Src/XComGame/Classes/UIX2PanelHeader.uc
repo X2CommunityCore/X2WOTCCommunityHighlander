@@ -50,6 +50,8 @@ simulated function SetText( optional string theTitle, optional string theLabel )
 		mc.EndOp();
 
 		// Start issue #613
+		/// HL-Docs: ref:Bugfixes; issue:613
+		/// `SetText` now sends text to flash instead of requiring calling `SetHeaderWidth`
 		if (bRealizeOnSetText)
 		{
 			MC.FunctionVoid("realize");

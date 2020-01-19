@@ -540,6 +540,8 @@ event bool ShouldUseWalkAnim(XComGameState ReleventGameState)
 			return false;
 			
 		// Start Issue #33 : do not allow cosmetic units to be used by this check
+		/// HL-Docs: ref:Bugfixes; issue:33
+		/// Gremlins owned by AI units now correctly use fast walk animations even if their owner is in Red Alert
 		if (GetAlertLevel(Unit) == eAL_Green && !Unit.IsMindControlled() && !Unit.GetMyTemplate().bIsCosmetic)
 			return true;
 		

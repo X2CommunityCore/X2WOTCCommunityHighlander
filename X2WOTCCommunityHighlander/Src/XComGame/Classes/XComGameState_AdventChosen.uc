@@ -261,6 +261,8 @@ function AssignStartingTraits(out array<name> ExcludeStrengths, out array<name> 
 	// Start Issue #51: alter where the Assassin gets Shadowstep if
 	// Lost and Abandoned is enabled, so other starting traits take into account
 	// for it
+	/// HL-Docs: ref:Bugfixes; issue:51
+	/// Prevent Assassin from gaining perks incompatible with forced "Shadowstep" in Lost and Abandoned
 	// Give the Chosen one survivability trait
 	if(bNarrative && GetMyTemplateName() == 'Chosen_Assassin')
 	{

@@ -45,6 +45,8 @@ simulated state Executing
 		// Make sure the pawn's team changes too (used by X2UnitRadiusManager) and
 		// the XGUnit's squad (used by XGUnit.RemoveRanges()). This fixes the issue
 		// with disappearing rescue rings on units that haven't been rescued.
+		/// HL-Docs: ref:Bugfixes; issue:551
+		/// Rescue rings no longer disappear on other rescuable units after a neutral unit swaps to team XCom
 		VisUnit.GetPawn().SetTeamType(Unit.GetTeam());
 		VisUnit.SetSquad(VisPlayer.GetSquad());
 		// End Issue #551

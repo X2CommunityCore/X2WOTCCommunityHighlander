@@ -193,6 +193,8 @@ function InternalRollForAbilityHit(XComGameState_Ability kAbility, AvailableTarg
 	TargetState = XComGameState_Unit(History.GetGameStateForObjectID(kTarget.PrimaryTarget.ObjectID));
 	
 	// Issue #426: ChangeHitResultForX() code block moved to later in method.
+	/// HL-Docs: ref:Bugfixes; issue:426
+	/// Fix `X2AbilityToHitCalc_StandardAim` discarding unfavorable (for XCOM) changes to hit results from effects
 	// Due to how GetModifiedHitChanceForCurrentDifficulty() is implemented, it reverts attempts to change
 	// XCom Hits to Misses, or enemy misses to hits.
 	// The LW2 graze band issues are related to this phenomenon, since the graze band has the effect
@@ -695,6 +697,8 @@ function float GetReactionAdjust(XComGameState_Unit Shooter, XComGameState_Unit 
 	}
 
 	// Start Issue #493
+	/// HL-Docs: ref:Bugfixes; issue:493
+	/// Allow `REACTION_DASHING_FINALMOD` to reduce reaction fire hit chance against dashing targets
 	foreach History.IterateContextsByClassType(class'XComGameStateContext_Ability', AbilityContext,,, History.GetEventChainStartIndex()) //EventChainStartIndex is the earliest what we are reacting to could be, often it *will* be at this index
 	{
 		if(AbilityContext.InputContext.SourceObject.ObjectID==Target.ObjectID)

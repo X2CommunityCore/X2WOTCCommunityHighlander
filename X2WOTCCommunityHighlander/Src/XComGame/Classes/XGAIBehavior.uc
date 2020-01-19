@@ -9655,6 +9655,8 @@ function bool GetTileWithinOneActionPointMove( TTile kTileIn, out TTile kTileOut
 			// each potential stopping point to the floor level before testing if it's
 			// in movement range, otherwise it will always return "-1" for an invalid end
 			// point tile that's above ground.
+			/// HL-Docs: ref:Bugfixes; issue:503
+			/// "Flying" pod leaders now patrol despite non-flat tiles on their paths
 			kCurrTile.Z = XWorld.GetFloorTileZ(kCurrTile, true);
 			// End Issue #503
 			if( IsWithinMovementRange(kCurrTile, bAllowDashMovement) )

@@ -275,6 +275,8 @@ simulated function OnMouseEvent(int cmd, array<string> args)
 		}
 		break;
 	case class'UIUtilities_Input'.const.FXS_L_MOUSE_IN:
+		/// HL-Docs: ref:Bugfixes; issue:638
+		/// UIScanButton can now work properly when it's a grandchild of UIStrategyMapItem, not only when direct child
 		UIStrategyMapItem(GetParent(class'UIStrategyMapItem', true)).OnMouseIn(); // Issue #638
 		break;
 
