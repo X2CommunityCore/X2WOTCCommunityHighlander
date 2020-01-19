@@ -5,9 +5,12 @@ import os
 from enum import Enum
 from typing import List, Optional
 
-
 HL_DOCS_KEYWORD = "HL-Docs:"
 HL_INCLUDE_FOLLOWING = "HL-Include:"
+# "Bugfixes" is a feature owned by the documentation script.
+# It does not need an owning feature declaration in the code,
+# and exclusively consists of `HL-Docs: ref:Bugfixes` lines.
+HL_FEATURE_FIX = "Bugfixes"
 HL_BRANCH = "master"
 HL_ISSUES_URL = "https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/%i"
 HL_SOURCE_URL = "https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/%s/%s#L%s-L%s" % (
@@ -121,69 +124,87 @@ def make_doc_item(lines: List[str], file: str,
 Process file, extract documentation
 """
 
-class ParserState(Enum):
-    TEXT = 1
-    DOC = 2
-    INCLUDE = 3
 
 def process_file(file, lang) -> List[dict]:
+    class ParserState(Enum):
+        TEXT = 1
+        DOC = 2
+        INCLUDE = 3
 
-    lines = []
+    class Parser:
+        def __init__(self, doc_items):
+            self.doc_items = doc_items
+
+        def reset(self, filename):
+            self.lines = []
+            self.startline = -1
+            self.indent = None
+            self.state = ParserState.TEXT
+            self.filename = filename
+
+        def read_doc_line(self, line):
+            if line.startswith(HL_DOCS_KEYWORD):
+                print("%s: error: %s: multiple `%s` in one item" %
+                      (sys.argv[0], self.filename, HL_DOCS_KEYWORD))
+            elif line.startswith(HL_INCLUDE_FOLLOWING):
+                self.lines.append("\n```%s" % (lang))
+                self.state = ParserState.INCLUDE
+            else:
+                self.lines.append(line)
+
+        def parse_file(self, file, filename):
+            self.reset(filename)
+
+            for lnum, line in enumerate(infile):
+                orig_line = line.rstrip()
+                s_line = line.strip()
+                is_doc_comment = len(s_line) >= 3 and (s_line[0:3] == '///'
+                                                       or s_line[0:3] == ";;;")
+                line = s_line[3:]
+                if line.startswith(' '):
+                    line = line[1:]
+
+                if self.state == ParserState.TEXT:
+                    if is_doc_comment and line.startswith(HL_DOCS_KEYWORD):
+                        startline = lnum
+                        self.lines.append(line[len(HL_DOCS_KEYWORD) + 1:])
+                        self.state = ParserState.DOC
+                elif self.state == ParserState.DOC:
+                    if is_doc_comment:
+                        self.read_doc_line(line)
+                    else:
+                        item = make_doc_item(self.lines, self.filename,
+                                             (startline, lnum))
+                        if item != None:
+                            self.doc_items.append(item)
+                        else:
+                            print("...while processing %s:%i" % (file, lnum))
+                        self.state = ParserState.TEXT
+                        self.lines = []
+                elif self.state == ParserState.INCLUDE:
+                    if is_doc_comment:
+                        self.state = ParserState.DOC
+                        self.indent = None
+                        self.lines.append("```\n")
+                        self.read_doc_line(line)
+                    else:
+                        if self.indent == None:
+                            self.indent = orig_line[:len(orig_line) -
+                                                    len(orig_line.lstrip())]
+                            line = orig_line.lstrip()
+                            self.lines.append(line)
+                        else:
+                            if not orig_line.startswith(self.indent):
+                                print("%s: error: %s: bad indentation" %
+                                      (sys.argv[0], file))
+                            else:
+                                self.lines.append(orig_line[len(self.indent):])
+
     doc_items = []
-    startline = -1
-    indent = None
+    parser = Parser(doc_items)
 
     with open(file, errors='replace') as infile:
-        state = ParserState.TEXT
-        for lnum, line in enumerate(infile):
-            orig_line = line.rstrip()
-            s_line = line.strip()
-            is_doc_comment = len(s_line) >= 3 and (s_line[0:3] == '///' or s_line[0:3] == ";;;")
-            line = s_line[3:]
-            if line.startswith(' '):
-                line = line[1:]
-
-            if state == ParserState.TEXT:
-                if is_doc_comment and line.startswith(HL_DOCS_KEYWORD):
-                    startline = lnum
-                    lines.append(line[len(HL_DOCS_KEYWORD)+1:])
-                    state = ParserState.DOC
-            elif state == ParserState.DOC:
-                if is_doc_comment:
-                    if line.startswith(HL_DOCS_KEYWORD):
-                        print("%s: error: %s: multiple `%s` in one item" %
-                              (sys.argv[0], file, HL_DOCS_KEYWORD))
-                    elif line.startswith(HL_INCLUDE_FOLLOWING):
-                        lines.append("\n```%s" % (lang))
-                        state = ParserState.INCLUDE
-                    else:
-                        lines.append(line)
-                else:
-                    item = make_doc_item(lines, file, (startline, lnum))
-                    if item != None:
-                        doc_items.append(item)
-                    else:
-                        print("...while processing %s:%i" % (file, lnum))
-                    state = ParserState.TEXT
-                    lines = []
-            elif state == ParserState.INCLUDE:
-                if is_doc_comment:
-                    lines.append("```\n")
-                    lines.append(line)
-                    state = ParserState.DOC
-                    indent = None
-                else:
-                    if indent == None:
-                        indent = orig_line[:len(orig_line)-len(orig_line.lstrip())]
-                        line = orig_line.lstrip()
-                        lines.append(line)
-                    else:
-                        if not orig_line.startswith(indent):
-                            print("%s: error: %s: bad indentation" %
-                              (sys.argv[0], file))
-                        else:
-                            lines.append(orig_line[len(indent):])
-
+        parser.parse_file(infile, file)
 
     return doc_items
 
@@ -235,8 +256,9 @@ def render_docs(doc_items: List[dict], outdir: str):
                 urlpath = ref["file"].replace('\\', '/').replace('./', '')
                 file_url = HL_SOURCE_URL % (urlpath, ref["span"][0],
                                             ref["span"][1])
-                file.write("* [%s:%i-%i](%s)\n" % (os.path.split(
-                    ref["file"])[1], ref["span"][0], ref["span"][1], file_url))
+                file.write("* [%s:%i-%i](%s)\n" %
+                           (os.path.split(ref["file"])[1], ref["span"][0] + 1,
+                            ref["span"][1] + 1, file_url))
             file.write("\n")
 
 
