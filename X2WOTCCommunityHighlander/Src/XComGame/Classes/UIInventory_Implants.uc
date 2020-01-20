@@ -131,7 +131,7 @@ simulated function bool CanEquipImplant(StateObjectReference ImplantRef)
 			return false;
 	}
 
-	/// HL-Docs: feature:UnrestrictPsiPCS; issue:602; tags:tactical,compat
+	/// HL-Docs: feature:UnrestrictPsiPCS; issue:602; tags:tactical,strategy
 	/// When adding a PCS granting Psi stat bonus the game will restrict it to the only 'PsiOperative' class.
 	/// Mods will be able to allow any class to equip a Psi PCS by creating the following lines in `XComGame.ini`:
 	///
