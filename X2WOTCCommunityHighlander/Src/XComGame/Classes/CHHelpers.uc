@@ -171,6 +171,10 @@ var config int NoiseAlertSoundRange;
 var config array<name> AdditionalAIBTActionPointTypes;
 // End Issue #510
 
+// Start issue #602
+var config array<name> ClassesAllowPsiPCS;
+// End issue #602
+
 //	Variable for Issue #724
 var config array<name> ValidReserveAPForUnitFlag;
 
