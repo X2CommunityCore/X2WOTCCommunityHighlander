@@ -88,7 +88,17 @@ simulated function PopulateData()
 	else
 		`XCOMHISTORY.CleanupPendingGameState(NewGameState);
 	
-	// Issue #TODO
+	// Issue #736
+	/// HL-Docs: feature:AfterActionModifyRecoveredLoot; issue:736; tags:strategy
+	/// The event is triggered after the cache items were unpacked but before any loot is shown in the UI.
+	/// Part of the post-mission sequence. Inspect XComGameState_HeadquartersXCom.LootRecovered for the pending loot
+	///
+	/// ```uc
+	/// EventID: AfterActionModifyRecoveredLoot
+	/// EventSource: UIInventory_LootRecovered (self)
+	/// ```
+	///
+	/// No game state is passed, so make sure to use ELD_Immediate
 	`XEVENTMGR.TriggerEvent('AfterActionModifyRecoveredLoot',, self);
 
 	XComHQ = class'UIUtilities_Strategy'.static.GetXComHQ(true); // Refresh XComHQ
