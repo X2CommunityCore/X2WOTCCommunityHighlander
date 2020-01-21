@@ -93,7 +93,7 @@ simulated function PopulateData()
 	/// The event is triggered after the cache items were unpacked but before any loot is shown in the UI.
 	/// Part of the post-mission sequence. Inspect XComGameState_HeadquartersXCom.LootRecovered for the pending loot
 	///
-	/// ```uc
+	/// ```unrealscript
 	/// EventID: AfterActionModifyRecoveredLoot
 	/// EventSource: UIInventory_LootRecovered (self)
 	/// ```
