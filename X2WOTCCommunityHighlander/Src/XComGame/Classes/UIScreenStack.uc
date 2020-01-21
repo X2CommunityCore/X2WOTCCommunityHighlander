@@ -857,7 +857,7 @@ function UnsubscribeFromOnInputForScreen (UIScreen Screen, delegate<CHOnInputDel
 	}
 }
 
-function RemoveOnInputSubscribersForScreen (UIScreen Screen)
+private function RemoveOnInputSubscribersForScreen (UIScreen Screen)
 {
 	local int i;
 
@@ -871,7 +871,7 @@ function RemoveOnInputSubscribersForScreen (UIScreen Screen)
 	}
 }
 
-simulated function bool ModOnInputForScreen (UIScreen Screen, int iInput, int ActionMask)
+simulated private function bool ModOnInputForScreen (UIScreen Screen, int iInput, int ActionMask)
 {
 	local delegate<CHOnInputDelegateImproved> Callback;
 	local InputDelegateForScreen CallbackScreenPair;
