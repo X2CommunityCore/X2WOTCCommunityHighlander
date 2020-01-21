@@ -808,7 +808,7 @@ protected function bool AllowActionToSpawnRandomly (X2CovertActionTemplate Actio
  
 	return Tuple.Data[0].b;
 }
-// End issue #373
+// End issue #594
 
 //---------------------------------------------------------------------------------------
 function AddNewCovertActions(XComGameState NewGameState, int NumActionsToCreate, out array<Name> ExclusionList)
