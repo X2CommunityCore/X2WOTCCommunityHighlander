@@ -766,8 +766,8 @@ simulated function bool HasBeenModified()
 		
 	WeaponTemplate = X2WeaponTemplate( m_ItemTemplate );
 
-	// Single line for Issue #306
-	if ((WeaponTemplate != none) && (WeaponTemplate.NumUpgradeSlots > 0) && (GetMyWeaponUpgradeCount() > 0))
+	// Single line for Issues #93 and #306
+	if ((WeaponTemplate != none) && (GetNumUpgradeSlots() > 0) && (GetMyWeaponUpgradeCount() > 0))
 		return true;
 
 	return false;
@@ -2363,9 +2363,42 @@ function bool IsMissionObjectiveItem()
 	return false;
 }
 
+// Start Issue #93
+/// HL-Docs: feature:OverrideNumUpgradeSlots; issue:93; tags:strategy,events
+/// This is an event that mods can listen for which will allow them to
+/// modify upgrade slots on a per-gamestate basis.
+/// 
+/// In general, it should only be used if you have some type of handling that allows
+/// individual items to be customized in a way others of their type cannot.
+function int GetNumUpgradeSlots()
+{
+	local Object ThisObj;
+	local XComLWTuple Tuple;
+
+	ThisObj = self;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideNumUpgradeSlots';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVInt;
+	Tuple.Data[0].i = GetMyTemplate().GetNumUpgradeSlots();
+
+	`XEVENTMGR.TriggerEvent('OverrideNumUpgradeSlots', Tuple, ThisObj);
+
+	return Tuple.Data[0].i;
+}
+// End Issue #93
+
 // Issue #260 start
-// This function will be used to cycle through DLCInfos that will allow mods to check generally whether or not a weapon is compatible with an upgrade
-// X2WeaponUpgradeTemplate::CanApplyUpgradeToWeapon still exists as the "can this upgrade be applied to this weapon RIGHT NOW?"
+/// HL-Docs: feature:CanWeaponApplyUpgrade; issue:260; tags:strategy,dlcinfo
+/// This function will be used to cycle through DLCInfos that will allow mods to check generally
+/// whether or not a weapon is compatible with an upgrade. X2WeaponUpgradeTemplate::CanApplyUpgradeToWeapon
+/// still exists as the "can this upgrade be applied to this weapon RIGHT NOW?"
+///
+/// * The best use case for this is to bar your weapon from applying upgrades that don't meet your criteria,
+///   without having to edit those upgrades directly.
+/// * Note that this check is /in addition to/, and not /in lieu of/, CanApplyUpgradeToWeapon. This means
+///   you cannot use it to override that function's return value.
 function bool CanWeaponApplyUpgrade(X2WeaponUpgradeTemplate UpgradeTemplate)
 {
 	local int i;

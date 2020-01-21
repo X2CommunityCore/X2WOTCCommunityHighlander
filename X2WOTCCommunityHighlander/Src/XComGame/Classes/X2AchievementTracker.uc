@@ -943,7 +943,10 @@ static function EventListenerReturn OnWeaponUpgraded(Object EventData, Object Ev
 		{
 			UpgradeTemplates = WeaponState.GetMyWeaponUpgradeTemplates();
 
-			NumUpgradeSlots = WeaponTemplate.NumUpgradeSlots;
+			// Start Issue #93
+			//NumUpgradeSlots = WeaponTemplate.NumUpgradeSlots;
+			NumUpgradeSlots = WeaponState.GetNumUpgradeSlots();
+			// End Issue #93
 			if (XComHQ.bExtraWeaponUpgrade)
 				NumUpgradeSlots++;
 			if (XComHQ.ExtraUpgradeWeaponCats.Find(WeaponTemplate.WeaponCat) != INDEX_NONE)

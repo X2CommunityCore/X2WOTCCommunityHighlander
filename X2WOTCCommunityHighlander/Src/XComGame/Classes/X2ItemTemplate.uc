@@ -362,6 +362,30 @@ function bool CanBeLootedByUnit(XComGameState_Item LootItem, XComGameState_Unit 
 	return true;
 }
 
+// Start Issue #93
+function int GetNumUpgradeSlots()
+{
+	local X2WeaponTemplate SelfAsWeapon;
+	local int idx;
+
+	SelfAsWeapon = X2WeaponTemplate(self);
+
+	if (SelfAsWeapon != none)
+	{
+		return SelfAsWeapon.NumUpgradeSlots;
+	}
+
+	idx = class'CHHelpers'.default.NonWeaponUpgradeSlots.Find('TemplateName', DataName);
+
+	if (idx != INDEX_NONE)
+	{
+		return class'CHHelpers'.default.NonWeaponUpgradeSlots[idx].NumUpgradeSlots;
+	}
+
+	return 0;
+}
+// End Issue #93
+
 DefaultProperties
 {
 	iItemSize=1;
