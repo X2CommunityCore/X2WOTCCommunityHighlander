@@ -3758,28 +3758,172 @@ function bool MeetsAbilityPrerequisites(name AbilityName)
 	return true;
 }
 
+/// HL-Docs: feature:OverrideHasGrenadePocket; issue:735; tags:itemslots,strategy
+/// Extends the ability check in `HasGrenadePocket()` for the config array `AbilityUnlocksGrenadePocket` (`XComGameData.ini`) to item granted abilities
+/// and abilities granted by the character template.
+/// Finally the event OverrideHasGrenadePocket is triggered that allows mods to override the final result
+///
+/// ```unrealscript
+/// EventID: OverrideHasGrenadePocket
+/// EventData: XComLWTuple {
+/// 	Data: [
+/// 	  inout bool bHasGrenadePocket
+///     ]
+/// }
+/// EventSource: XComGameState_Unit
+/// ```
 function bool HasGrenadePocket()
 {
 	local name CheckAbility;
 
+	// Variables for Issue #735 (1/2)
+	local X2EquipmentTemplate EquipmentTemplate;
+	local array<XComGameState_Item> CurrentInventory;
+	local XComGameState_Item InventoryItem;
+	local XComLWTuple Tuple;
+	local name Ability;
+	local bool bHasGrenadePocket;
+
+	// Start Issue #735 (1/2)
 	foreach class'X2AbilityTemplateManager'.default.AbilityUnlocksGrenadePocket(CheckAbility)
 	{
 		if (HasSoldierAbility(CheckAbility))
-			return true;
+		{
+			bHasGrenadePocket = true;
+			break;
+		}
 	}
-	return false;
+	
+	if (!bHasGrenadePocket)
+	{
+		CurrentInventory = GetAllInventoryItems();
+		foreach CurrentInventory(InventoryItem)
+		{
+			EquipmentTemplate = X2EquipmentTemplate(InventoryItem.GetMyTemplate());
+			if (EquipmentTemplate != none)
+			{
+				foreach EquipmentTemplate.Abilities(Ability)
+				{
+					if (class'X2AbilityTemplateManager'.default.AbilityUnlocksGrenadePocket.Find(Ability) != INDEX_NONE)
+					{
+						bHasGrenadePocket = true;
+						break;
+					}
+				}
+			}
+			if (bHasGrenadePocket)
+			{
+				break;
+			}
+		}
+	}
+
+	if (!bHasGrenadePocket)
+	{
+		foreach m_CharTemplate.Abilities(Ability)
+		{
+			if (class'X2AbilityTemplateManager'.default.AbilityUnlocksGrenadePocket.Find(Ability) != INDEX_NONE)
+			{
+				bHasGrenadePocket = true;
+				break;
+			}
+		}
+	}
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideHasGrenadePocket';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = bHasGrenadePocket;
+
+	`XEVENTMGR.TriggerEvent('OverrideHasGrenadePocket', Tuple, self, none);
+	
+	return Tuple.Data[0].b;
+	// End Issue #735 (1/2)
 }
 
+/// HL-Docs: feature:OverrideHasAmmorPocket; issue:735; tags:itemslots,strategy
+/// Extends the ability check in `HasAmmoPocket()` for the config array `AbilityUnlocksAmmoPocket` (`XComGameData.ini`) to item granted abilities
+/// and abilities granted by the character template.
+/// Finally the event AbilityUnlocksAmmoPocket is triggered that allows mods to override the final result
+///
+/// ```unrealscript
+/// EventID: OverrideHasGrenadePocket
+/// EventData: XComLWTuple {
+/// 	Data: [
+/// 	  inout bool bHasAmmoPocket
+///     ]
+/// }
+/// EventSource: XComGameState_Unit
+/// ```
 function bool HasAmmoPocket()
 {
 	local name CheckAbility;
 
+	// Variables for Issue #735 (2/2)
+	local X2EquipmentTemplate EquipmentTemplate;
+	local array<XComGameState_Item> CurrentInventory;
+	local XComGameState_Item InventoryItem;
+	local XComLWTuple Tuple;
+	local name Ability;
+	local bool bHasAmmoPocket;
+
+	// Start Issue #735 (2/2)
 	foreach class'X2AbilityTemplateManager'.default.AbilityUnlocksAmmoPocket(CheckAbility)
 	{
 		if (HasSoldierAbility(CheckAbility))
-			return true;
+		{
+			bHasAmmoPocket = true;
+			break;
+		}
 	}
-	return false;
+
+	if (!bHasAmmoPocket)
+	{
+		CurrentInventory = GetAllInventoryItems();
+		foreach CurrentInventory(InventoryItem)
+		{
+			EquipmentTemplate = X2EquipmentTemplate(InventoryItem.GetMyTemplate());
+			if (EquipmentTemplate != none)
+			{
+				foreach EquipmentTemplate.Abilities(Ability)
+				{
+					if (class'X2AbilityTemplateManager'.default.AbilityUnlocksAmmoPocket.Find(Ability) != INDEX_NONE)
+					{
+						bHasAmmoPocket = true;
+						break;
+					}
+				}
+			}
+			if (bHasAmmoPocket)
+			{
+				break;
+			}
+		}
+	}
+
+	if (!bHasAmmoPocket)
+	{
+		foreach m_CharTemplate.Abilities(Ability)
+		{
+			if (class'X2AbilityTemplateManager'.default.AbilityUnlocksAmmoPocket.Find(Ability) != INDEX_NONE)
+			{
+				bHasAmmoPocket = true;
+				break;
+			}
+		}
+	}
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideHasAmmoPocket';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = bHasAmmoPocket;
+
+	`XEVENTMGR.TriggerEvent('OverrideHasGrenadePocket', Tuple, self, none);
+	
+	return Tuple.Data[0].b;
+	// End Issue #735 (2/2)
 }
 
 // Check is for squad select UI
