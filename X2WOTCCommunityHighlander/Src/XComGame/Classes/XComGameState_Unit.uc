@@ -3848,7 +3848,7 @@ function bool HasGrenadePocket()
 /// Finally the event OverrideHasAmmoPocket is triggered that allows mods to override the final result
 ///
 /// ```unrealscript
-/// EventID: OverrideHasGrenadePocket
+/// EventID: OverrideHasAmmoPocket
 /// EventData: XComLWTuple {
 /// 	Data: [
 /// 	  inout bool bHasAmmoPocket
