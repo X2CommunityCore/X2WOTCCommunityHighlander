@@ -91,7 +91,7 @@ Additionally, every feature should be documented with *inline documentation* tha
 be published via GitHub Pages (at [https://x2communitycore.github.io/X2WOTCCommunityHighlander/](https://x2communitycore.github.io/X2WOTCCommunityHighlander/)). An example of inline documentation:
 
 ```unrealscript
-/// HL-Docs: feature:ArmorEquipRollDLCPartChance; issue:155; tags:customization,compat
+/// HL-Docs: feature:ArmorEquipRollDLCPartChance; issue:155; tags:customization,compatibility
 /// When a unit equips new armor, the game rolls from all customization options, even the ones where
 /// the slider for the `DLCName` is set to `0`. The HL change fixes this, but if your custom armor only
 /// has customization options with a `DLCName` set, the game may discard that `DLCName` (default: in 85% of cases)

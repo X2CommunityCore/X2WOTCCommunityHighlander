@@ -7456,10 +7456,13 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 					//  setup filter based on new armor
 					Filter = `XCOMGAME.SharedBodyPartFilter;
 					//start issue #155, get usable DLC part pack names when upgrading armours
-					/// HL-Docs: feature:ArmorEquipRollDLCPartChance; issue:155; tags:customization,compat
+					/// HL-Docs: feature:ArmorEquipRollDLCPartChance; issue:155; tags:customization,compatibility
 					/// When a unit equips new armor, the game rolls from all customization options, even the ones where
-					/// the slider for the `DLCName` is set to `0`. The HL change fixes this, but if your custom armor only
-					/// has customization options with a `DLCName` set, the game may discard that `DLCName` (default: in 85% of cases)
+					/// the slider for the `DLCName` is set to `0`. The HL change fixes this.
+					/// ## Compatibility
+					/// 
+					/// If your custom armor only has customization options with a `DLCName` set,
+					/// the game may discard that `DLCName` (default: in 85% of cases)
 					/// which results in soldiers without torsos. If you want to keep having `DLCName`-only armor
 					/// (for example to display mod icons in `UICustomize`), you must disable that behavior
 					/// by creating the following lines in `XComGame.ini`:
