@@ -3842,7 +3842,7 @@ function bool HasGrenadePocket()
 	// End Issue #735 (1/2)
 }
 
-/// HL-Docs: feature:OverrideHasAmmorPocket; issue:735; tags:itemslots,strategy
+/// HL-Docs: feature:OverrideHasAmmoPocket; issue:735; tags:itemslots,strategy
 /// Extends the ability check in `HasAmmoPocket()` for the config array `AbilityUnlocksAmmoPocket` (`XComGameData.ini`) to item granted abilities
 /// and abilities granted by the character template.
 /// Finally the event AbilityUnlocksAmmoPocket is triggered that allows mods to override the final result
@@ -3920,7 +3920,7 @@ function bool HasAmmoPocket()
 	Tuple.Data[0].kind = XComLWTVBool;
 	Tuple.Data[0].b = bHasAmmoPocket;
 
-	`XEVENTMGR.TriggerEvent('OverrideHasGrenadePocket', Tuple, self, none);
+	`XEVENTMGR.TriggerEvent('OverrideHasAmmoPocket', Tuple, self, none);
 	
 	return Tuple.Data[0].b;
 	// End Issue #735 (2/2)
