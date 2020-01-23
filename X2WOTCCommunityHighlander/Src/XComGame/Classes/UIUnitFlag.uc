@@ -1712,7 +1712,7 @@ simulated function RealizeOverwatch(optional XComGameState_Unit NewUnitState = n
 		/// Compatibility: If you override `UIUnitFlag::RealizeOverwatch`, your code may undo this change.
 		foreach class'CHHelpers'.default.ValidReserveAPForUnitFlag(OverwatchActionPointName)
 		{	
-			if (NewUnitState.ReserveActionPoints.Find(OverwatchActionPointName) > -1)
+			if (NewUnitState.ReserveActionPoints.Find(OverwatchActionPointName) > INDEX_NONE)
 			{
 				AS_SetOverwatchIcon(true);
 				return;
