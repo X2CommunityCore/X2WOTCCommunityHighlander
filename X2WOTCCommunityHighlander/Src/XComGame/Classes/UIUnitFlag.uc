@@ -1703,7 +1703,7 @@ simulated function RealizeOverwatch(optional XComGameState_Unit NewUnitState = n
 		/// and also allows mods that add weapons with custom Overwatch Action Point to specify that 
 		/// action point name in XComGame.ini:
 		///
-		/// ```unrealscript
+		/// ```ini
 		/// [XComGame.CHHelpers]
 		/// +ValidReserveAPForUnitFlag = "overwatch"
 		/// +ValidReserveAPForUnitFlag = "pistoloverwatch"
