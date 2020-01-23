@@ -855,6 +855,14 @@ function SetArmorTints(X2CharacterTemplate CharacterTemplate)
 	}
 
 	// Begin issue #397
+	/// HL-Docs: feature:ChangeDefaultWeaponColor; issue:397; tags:customization
+	/// Soldiers with randomly generated appearance get the beige weapon color by default
+	/// (color number 20). This change moves the default weapon color number to `XComContent.ini`,
+	///	where it can be changed by mods or by the player manually.
+	/// ```ini
+	/// [XComGame.XGCharacterGenerator]
+	/// iDefaultWeaponTint = 20
+	/// ```
 	kSoldier.kAppearance.iWeaponTint = iDefaultWeaponTint;
 	// End issue #397
 	kSoldier.kAppearance.iTattooTint = `SYNC_RAND(ArmorPalette.Entries.length - SkipColors);
