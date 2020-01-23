@@ -2409,8 +2409,60 @@ simulated state CreateTacticalGame
 		SpawnManager.ClearCachedFireTiles();
 		SpawnManager.SpawnAllAliens(ForceLevel, AlertLevel, StartState, MissionSiteState);
 
-		// Single line issue #457
+		// Start Issue #457
+		/// HL-Docs: feature:PostAliensSpawned; issue:457; tags:tactical
+		/// This event triggers right after the alien pods are added into the tactical mission's Start State.
+		/// Overall it can be treated as an earlier alternative to `'OnTacticalBeginPlay'` event.
+		/// It can be used to make arbitrary changes to units that were just added to the Start State,
+		///	including Soldier VIPs that are spawned for Gather Survivors missions.
+		///	For example, this is how to set up an Event Listener to modify these Soldier VIPs:
+		/// ```unrealscript
+		/// class X2EventListener_PostAliensSpawned extends X2EventListener;
+		/// 
+		/// static function array<X2DataTemplate> CreateTemplates()
+		/// {
+		/// 	local array<X2DataTemplate> Templates;
+		/// 	Templates.AddItem(CreateTacticalListeners());
+		/// 	return Templates;
+		/// }
+		/// static function CHEventListenerTemplate CreateTacticalListeners()
+		/// {
+		/// 	local CHEventListenerTemplate Template;
+		/// 	`CREATE_X2TEMPLATE(class'CHEventListenerTemplate', Template, 'YourCustom_PostAliensSpawned_Listener');
+		/// 	Template.AddCHEvent('PostAliensSpawned', PostAliensSpawned_Listener, ELD_Immediate);	
+		/// 	Template.RegisterInTactical = true;
+		/// 	return Template; 
+		/// }
+		/// static protected function EventListenerReturn PostAliensSpawned_Listener(Object EventData, Object EventSource, XComGameState StartState, Name EventID, Object CallbackData)
+		/// {
+		/// 	local XComTacticalMissionManager	MissionManager;
+		/// 	local XComGameState_Unit			UnitState;
+		/// 	local XComGameState_AIGroup			GroupState;
+		/// 
+		/// 	MissionManager = `TACTICALMISSIONMGR;
+		/// 	if (MissionManager.ActiveMission.sType == "GatherSurvivors")
+		/// 	{
+		/// 		//	Cycle through Group States, which are basically Game States for pods.
+		/// 		foreach GameState.IterateByClassType(class'XComGameState_AIGroup', GroupState)
+		/// 		{
+		/// 			//	Check the pod for correct markings.
+		/// 			if (GroupState.EncounterID == 'ResistanceTeamMember_VIP' && GroupState.PrePlacedEncounterTag == 'ResistanceTeamMember_01')
+		/// 			{
+		/// 				//	Assume the pod contains only one unit and grab the Unit State for it.
+		/// 				UnitState = XComGameState_Unit(GameState.GetGameStateForObjectID(GroupState.m_arrMembers[0].ObjectID));
+		/// 				if (UnitState != none)
+		/// 				{
+		/// 					//	Make arbitrary changes to the Unit here.
+		/// 				}
+		/// 			}
+		/// 			//	Do the same for GroupState.PrePlacedEncounterTag == 'ResistanceTeamMember_02' here.
+		/// 		}
+		/// 	}
+		/// 	return ELR_NoInterrupt;
+		/// }
+		/// ```
 		`XEVENTMGR.TriggerEvent('PostAliensSpawned',,, StartState);
+		// End Issue #457
 
 		// After spawning, the AI player still needs to sync the data
 		foreach StartState.IterateByClassType(class'XComGameState_Player', IteratePlayerState)
