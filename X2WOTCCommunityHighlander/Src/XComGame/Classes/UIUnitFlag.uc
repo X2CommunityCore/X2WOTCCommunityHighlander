@@ -1684,7 +1684,10 @@ simulated function Remove()
 
 //This function will be spammed, so please only send changes to flash.
 simulated function RealizeOverwatch(optional XComGameState_Unit NewUnitState = none)
-{
+{	
+	//	Variable for Issue #724
+	local name OverwatchActionPointName;
+
 	if( NewUnitState == none )
 	{
 		NewUnitState = XComGameState_Unit(History.GetGameStateForObjectID(StoredObjectID));
@@ -1692,8 +1695,31 @@ simulated function RealizeOverwatch(optional XComGameState_Unit NewUnitState = n
 
 	if( NewUnitState != none )
 	{
-
-		AS_SetOverwatchIcon(NewUnitState.ReserveActionPoints.Find('Overwatch') > -1);
+		//	Start Issue #724
+		/// HL-Docs: feature:DisplayCustomOverwatchActionPointOnUnitFlag; issue:724; tags:tactical,compat
+		/// The base XCOM 2 behavior is to show an Overwatch "eye" icon under the unit flag
+		/// only if the soldier has at least one "overwatch" Reserve Action Point. 
+		/// The icon is not displayed for Pistol Overwatch. This change addresses that issue,
+		/// and also allows mods that add weapons with custom Overwatch Action Point to specify that 
+		/// action point name in XComGame.ini:
+		///
+		/// ```unrealscript
+		/// [XComGame.CHHelpers]
+		/// +ValidReserveAPForUnitFlag = "overwatch"
+		/// +ValidReserveAPForUnitFlag = "pistoloverwatch"
+		/// ```
+		///
+		/// Compatibility: If you override `UIUnitFlag::RealizeOverwatch`, your code may undo this change.
+		foreach class'CHHelpers'.default.ValidReserveAPForUnitFlag(OverwatchActionPointName)
+		{	
+			if (NewUnitState.ReserveActionPoints.Find(OverwatchActionPointName) > -1)
+			{
+				AS_SetOverwatchIcon(true);
+				return;
+			}
+		}
+		AS_SetOverwatchIcon(false);
+		//	End Issue #724
 	}
 }
 

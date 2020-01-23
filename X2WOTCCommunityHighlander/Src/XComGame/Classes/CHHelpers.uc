@@ -157,6 +157,9 @@ var config int NoiseAlertSoundRange;
 var config array<name> AdditionalAIBTActionPointTypes;
 // End Issue #510
 
+//	Variable for Issue #724
+var config array<name> ValidReserveAPForUnitFlag;
+
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
 	local XComContentManager		Content;
