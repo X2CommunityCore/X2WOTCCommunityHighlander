@@ -10937,6 +10937,44 @@ function ApplyBestGearLoadout(XComGameState NewGameState)
 	ValidateLoadout(NewGameState);
 	
 	// Issue #676 Start
+	/// HL-Docs: feature:OnBestGearLoadoutApplied; issue:676; tags:strategy
+	/// The `XComGameState_Unit::ApplyBestGearLoadout` does not perform CanAddItemToInventory checks, 
+	/// so if one of the selected items cannot be equipped due to an override in CanAddItemToInventory_CH,
+	/// the inventory slot will remain empty. This event passes along the Unit State whenever this function is called,
+	/// so the mods can use their arbitrary conditions to decide what is the actual best gear loadout is for a unit.
+	///
+	/// ```unrealscript
+	/// class X2EventListener_BestGearApplied extends X2EventListener;
+	/// 
+	/// static function CHEventListenerTemplate CreateListenerTemplate_OnBestGearLoadoutApplied()
+	/// {
+	/// 	local CHEventListenerTemplate Template;
+	/// 
+	/// 	`CREATE_X2TEMPLATE(class'CHEventListenerTemplate', Template, 'Your_Custom_BestGearApplied_Listener');
+	/// 
+	/// 	Template.RegisterInStrategy = true;
+	/// 	Template.AddCHEvent('OnBestGearLoadoutApplied', OnBestGearLoadoutApplied_Listener, ELD_Immediate);
+	/// 
+	/// 	return Template;
+	/// }
+	/// 
+	/// static function EventListenerReturn OnBestGearLoadoutApplied_Listener(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
+	/// {
+	/// 	local XComGameState_Unit	UnitState;
+	/// 
+	/// 	//	This gets you Unit State from History.
+	/// 	UnitState = XComGameState_Unit(EventData);
+	/// 	
+	/// 	//	Here you can *read* the Unit State.
+	/// 	
+	/// 	//	Get the Unit State from the pending New Game State.
+	/// 	UnitState = XComGameState_Unit(NewGameState.GetGameStateForObjectID(UnitState.ObjectID));
+	/// 	
+	/// 	// Now you can make changes to the Unit State, such as changing its equipment based on arbitrary conditions.
+	/// }
+	/// ```
+	///
+	/// Compatibility: If you override `XComGameState_Unit::ApplyBestGearLoadout`, your code may undo this change.
 	`XEVENTMGR.TriggerEvent('OnBestGearLoadoutApplied', self, self, NewGameState);
 	// Issue #676 End
 }
