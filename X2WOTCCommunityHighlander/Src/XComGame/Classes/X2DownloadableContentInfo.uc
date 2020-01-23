@@ -506,8 +506,54 @@ static function bool CanWeaponApplyUpgrade(XComGameState_Item WeaponState, X2Wea
 /// Allows DLC/Mods to append sockets to weapons
 /// NOTE: To create new sockets from script you need to unconst SocketName and BoneName in SkeletalMeshSocket
 /// </summary>
+/// HL-Docs: feature:DLCAppendWeaponSockets; issue:281; tags:misc
+/// Allows mods to add sockets to the skeletal mesh of any weapon, which can be used to position visual weapon attachments,
+/// using different position/scale of the same attachment's skeletal mesh for different weapons. Example use:
+/// ```unrealscript
+/// static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets, XComWeapon Weapon, XComGameState_Item ItemState)
+/// {
+/// 	local SkeletalMeshSocket    Socket;
+///     local vector                RelativeLocation;
+/// 	local rotator				RelativeRotation;
+/// 	local vector				RelativeScale;
+/// 	local float					RAD_INTO_DEG;
+///    
+/// 	RAD_INTO_DEG = 182.0416f;	//	Local constant.
+/// 	
+/// 	if (ItemState != none)
+/// 	{
+/// 		Socket = new class'SkeletalMeshSocket';
+/// 
+/// 		Socket.SocketName = 'NewSocket';
+/// 		Socket.BoneName = 'root';
+/// 
+/// 		//	Location offsets are in Unreal Units; 1 unit is roughly equal to a centimeter.
+/// 		RelativeLocation.X = 5;
+/// 		RelativeLocation.Y = 10;
+/// 		RelativeLocation.Z = 15;
+/// 		Socket.RelativeLocation = RelativeLocation;
+/// 
+/// 		//	In code, socket rotation is recorded as an int value [-65536; 65536].
+/// 		//	If we want to specify the rotation in degrees, the value must be converted.
+/// 		RelativeRotation.Pitch = 5 * default.RAD_INTO_DEG;
+/// 		RelativeRotation.Yaw = 10 * default.RAD_INTO_DEG;
+/// 		RelativeRotation.Roll = 15 * default.RAD_INTO_DEG;
+/// 		Socket.RelativeRotation = RelativeRotation;
+/// 
+/// 		//	Scaling a socket will scale any mesh attached to it.
+/// 		RelativeScale.X = 0.25f;
+/// 		RelativeScale.Y = 0.5f;
+/// 		RelativeScale.Z = 1.0f;
+/// 		Socket.RelativeScale = RelativeScale;
+/// 
+/// 		NewSockets.AddItem(Socket);
+/// 	}
+/// }
+/// ```
 static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets, XComWeapon Weapon, XComGameState_Item ItemState)
 {
+	local const float RAD_INTO_DEG = 182.0416f;
+
 	return;
 }
 /// End Issue #281
