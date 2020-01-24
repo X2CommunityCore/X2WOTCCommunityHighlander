@@ -21,6 +21,8 @@ var array<name> HideVisualizationOfResultsAdditional;
 
 // Issue #321
 var config bool NO_MINIMUM_DAMAGE;
+// Issue #743
+var config bool ARMOR_BEFORE_SHIELD;
 
 // These values are extra amount an ability may add or apply directly
 var WeaponDamageValue EffectDamageValue;

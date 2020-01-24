@@ -6065,37 +6065,76 @@ event TakeDamage( XComGameState NewGameState, const int DamageAmount, const int 
 	PostShield_DamageAmount = DamageAmount;
 	PostShield_ShredAmount = ShredAmount;
 	DamageAbsorbedByShield = 0;
-	if ((ShieldHP > 0) && !bIgnoreShields) //If there is a shield, then shield should take all damage from both armor and hp, before spilling back to armor and hp
+
+	// Begin Issue #743
+	if ((ShieldHP > 0) && !bIgnoreShields) // If there is a shield
 	{
-		DamageAmountBeforeArmor = DamageAmount + MitigationAmount;
-		DamageAmountBeforeArmorMinusShield = DamageAmountBeforeArmor - ShieldHP;
-
-		if (DamageAmountBeforeArmorMinusShield > 0) //partial shield, needs to recompute armor
+		if (class'X2Effect_ApplyWeaponDamage'.default.ARMOR_BEFORE_SHIELD) // Armor should take damage before shield, then spill to HP
 		{
-			DamageAbsorbedByShield = ShieldHP;  //The shield took as much damage as possible
-			PostShield_MitigationAmount = DamageAmountBeforeArmorMinusShield;
-			if (PostShield_MitigationAmount > MitigationAmount) //damage is more than what armor can take
+			`LOG("Beginning Armor-Shield-Health Processing!");
+			`LOG("Incoming Damage: " $ (DamageAmount + MitigationAmount));
+			`LOG("Armor Mitigation: " $ MitigationAmount);
+			`LOG("Armor Shredded: " $ ShredAmount);
+			`LOG("Leaking Damage: " $ DamageAmount);
+
+			if (DamageAmount > 0)
 			{
-				PostShield_DamageAmount = (DamageAmountBeforeArmorMinusShield - MitigationAmount);
-				PostShield_MitigationAmount = MitigationAmount;
+				if (DamageAmount < ShieldHP) // If shield survives damage
+				{
+					`LOG("Shield taking damage but unbroken!");
+					PostShield_DamageAmount = 0;
+					DamageAbsorbedByShield = DamageAmount;
+				}
+				else // If shield is broken by damage
+				{
+					`LOG("Shield broken by incoming damage!");
+					PostShield_DamageAmount = DamageAmount - ShieldHP;
+					DamageAbsorbedByShield = ShieldHP;
+				}
 			}
-			else //Armor takes the rest of the damage
+			else // If armor has tanked all damage
 			{
+				`LOG("Armor layer held all damage!");
 				PostShield_DamageAmount = 0;
+				DamageAbsorbedByShield = 0;
 			}
 
-			// Armor is taking damage, which might cause shred. We shouldn't shred more than the
-			// amount of armor used.
-			PostShield_ShredAmount = min(PostShield_ShredAmount, PostShield_MitigationAmount);
+			`LOG("Shield Damage: " $ DamageAbsorbedByShield);
+			`LOG("Health Damage: " $ PostShield_DamageAmount);
 		}
-		else //shield took all, armor doesn't need to take any
+		else // Shield should take all damage from both armor and HP, before spilling back to armor and HP
 		{
-			PostShield_MitigationAmount = 0;
-			PostShield_DamageAmount = 0;
-			DamageAbsorbedByShield = DamageAmountBeforeArmor;  //The shield took a partial hit from the damage
-			PostShield_ShredAmount = 0;
+			DamageAmountBeforeArmor = DamageAmount + MitigationAmount;
+			DamageAmountBeforeArmorMinusShield = DamageAmountBeforeArmor - ShieldHP;
+
+			if (DamageAmountBeforeArmorMinusShield > 0) //partial shield, needs to recompute armor
+			{
+				DamageAbsorbedByShield = ShieldHP;  //The shield took as much damage as possible
+				PostShield_MitigationAmount = DamageAmountBeforeArmorMinusShield;
+				if (PostShield_MitigationAmount > MitigationAmount) //damage is more than what armor can take
+				{
+					PostShield_DamageAmount = (DamageAmountBeforeArmorMinusShield - MitigationAmount);
+					PostShield_MitigationAmount = MitigationAmount;
+				}
+				else //Armor takes the rest of the damage
+				{
+					PostShield_DamageAmount = 0;
+				}
+
+				// Armor is taking damage, which might cause shred. We shouldn't shred more than the
+				// amount of armor used.
+				PostShield_ShredAmount = min(PostShield_ShredAmount, PostShield_MitigationAmount);
+			}
+			else //shield took all, armor doesn't need to take any
+			{
+				PostShield_MitigationAmount = 0;
+				PostShield_DamageAmount = 0;
+				DamageAbsorbedByShield = DamageAmountBeforeArmor;  //The shield took a partial hit from the damage
+				PostShield_ShredAmount = 0;
+			}
 		}
 	}
+	// End Issue #743
 
 	AddShreddedValue(PostShield_ShredAmount);  // Add the new PostShield_ShredAmount
 

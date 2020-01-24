@@ -251,6 +251,8 @@ RunPriorityGroup=RUN_STANDARD
   for will loss purposes (#44)
 - Added option to mitigate all weapon damage using armor instead of always taking at
   least 1 damage (#321)
+- Added option to reduce incoming damage using the target's armor before the
+  target's shields/ablative HP are damaged (#743)
 - Able to mark custom targeting methods as `RequiresTargetingActivation` for controller input (#476)
 
 ### Modding Exposures
