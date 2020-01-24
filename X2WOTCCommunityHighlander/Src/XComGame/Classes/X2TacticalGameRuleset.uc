@@ -2417,22 +2417,7 @@ simulated state CreateTacticalGame
 		///	including Soldier VIPs that are spawned for Gather Survivors missions.
 		///	For example, this is how to set up an Event Listener to modify these Soldier VIPs:
 		/// ```unrealscript
-		/// class X2EventListener_PostAliensSpawned extends X2EventListener;
-		/// 
-		/// static function array<X2DataTemplate> CreateTemplates()
-		/// {
-		/// 	local array<X2DataTemplate> Templates;
-		/// 	Templates.AddItem(CreateTacticalListeners());
-		/// 	return Templates;
-		/// }
-		/// static function CHEventListenerTemplate CreateTacticalListeners()
-		/// {
-		/// 	local CHEventListenerTemplate Template;
-		/// 	`CREATE_X2TEMPLATE(class'CHEventListenerTemplate', Template, 'YourCustom_PostAliensSpawned_Listener');
-		/// 	Template.AddCHEvent('PostAliensSpawned', PostAliensSpawned_Listener, ELD_Immediate);	
-		/// 	Template.RegisterInTactical = true;
-		/// 	return Template; 
-		/// }
+		/// //	This EventFn requires an ELD_Immediate deferral.
 		/// static protected function EventListenerReturn PostAliensSpawned_Listener(Object EventData, Object EventSource, XComGameState StartState, Name EventID, Object CallbackData)
 		/// {
 		/// 	local XComTacticalMissionManager	MissionManager;

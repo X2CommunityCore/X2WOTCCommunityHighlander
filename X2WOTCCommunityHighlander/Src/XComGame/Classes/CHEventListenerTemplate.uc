@@ -1,4 +1,58 @@
 // Issue #4 Allow to specify EventListenerDeferral for X2EventListenerTemplates
+/// HL-Docs: feature:CHEventListenerTemplate; issue:4; tags:misc
+/// Allows mods to set up Event Listener classes with specified Deferral and Priority, similar to X2AbilityTrigger_EventListener.
+///	The `AddCHEvent` function accepts up to four arguments: 
+///	1) Name of the Event to listen for.
+///	2) EventFn to run when the event is triggered.
+///	3) Optional: Deferral (default deferral is ELD_OnStateSubmitted). 
+///	It should be used if you want to submit Game State(s) in your EventFn. If you intend to make immediate changes to Event Arguments or 
+///	to the pending Game State passed to the Event Listener, use ELD_Immediate.
+///	4) Optional: Priority (default priority is 50). Event listeners with the larger priority number are executed first.
+/// Example use:
+/// ```unrealscript
+/// class X2EventListener_YourEventListener extends X2EventListener;
+/// 
+/// static function array<X2DataTemplate> CreateTemplates()
+/// {
+/// 	local array<X2DataTemplate> Templates;
+/// 
+///		//	You can create any number of Event Listener templates within one X2EventListener class.
+/// 	Templates.AddItem(CreateListenerTemplate_YourListener());
+/// 
+/// 	return Templates;
+/// }
+/// 
+/// static function CHEventListenerTemplate CreateListenerTemplate_OnBestGearLoadoutApplied()
+/// {
+/// 	local CHEventListenerTemplate Template;
+/// 
+/// 	`CREATE_X2TEMPLATE(class'CHEventListenerTemplate', Template, 'Your_Custom_BestGearApplied_Listener');
+/// 
+///		//	Whether this Listener should be active during tactical missions.
+/// 	Template.RegisterInTactical = true;
+///		//	Whether this Listener should be active on the strategic layer (while on Avenger)
+/// 	Template.RegisterInStrategy = true;
+///	
+/// 	Template.AddCHEvent('EventName', YourEventFn_Listener, ELD_Immediate, 50);
+/// 
+/// 	return Template;
+/// }
+/// 
+/// static function EventListenerReturn YourEventFn_Listener(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
+/// {
+/// 	if (GameState.GetContext().InterruptionStatus == eInterruptionStatus_Interrupt)
+///		{
+///			//	Perform actions if the event was triggered during interruption stage.
+///		}
+///		else
+///		{
+///			//	Perform actions outside interruption stage (after an ability was successfully activated, for example)
+///		}
+/// 	
+///		return ELR_NoInterrupt;
+/// }
+/// ```
+
 class CHEventListenerTemplate extends X2EventListenerTemplate;
 
 struct CHEventListenerTemplate_Event extends X2EventListenerTemplate_EventCallbackPair
