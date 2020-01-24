@@ -259,7 +259,7 @@ def render_full_feature_page(item: dict, outdir: str):
                    (item["issue"], HL_ISSUES_URL % (item["issue"])))
         linked_tags = map(
             lambda t: "[%s](%s)" % (t, os.path.join("..", t + ".md")),
-            item["tags"])
+            filter(lambda t: not t in ["strategy", "tactical"], item["tags"]))
         file.write("Tags: " + ", ".join(linked_tags) + "\n\n")
         file.write("\n".join([t["text"] for t in item["texts"]]))
         file.write("\n\n")
@@ -286,7 +286,11 @@ def record_tags(tag_lists: dict, item: dict):
 def render_tag_page(tag: str, items: List[dict], outdir: str):
     items = sorted(items, key=lambda i: i["issue"])
     fname = os.path.join(outdir, tag + ".md")
-    with open(fname, 'a') as file:
+
+    with open(fname, 'r'):
+        pass
+
+    with open(fname, 'a+') as file:
         print(fname)
         for item in items:
             file.write("* [#%i](%s) - " % (item["issue"], HL_ISSUES_URL %
