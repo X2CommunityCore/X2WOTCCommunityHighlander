@@ -6067,6 +6067,27 @@ event TakeDamage( XComGameState NewGameState, const int DamageAmount, const int 
 	DamageAbsorbedByShield = 0;
 
 	// Begin Issue #743
+	/// HL-Docs: feature:DamageCalc_ArmorBeforeShield; issue:743; tags:tactical,balance,damage-calc
+	/// By default, shields are damaged before any damage is mitigated by armor.
+	/// This is fine in vanilla when shields are rare, but becomes an issue in
+	/// modded campaigns where 'shields' are turned into 'ablative' hit points
+	/// that provide a buffer before units become wounded and suffer red fog.
+	/// Increasing ablative is often a non-optimal choice because it can make
+	/// the the soldier's armor pips become redundant. 
+	/// 
+	/// This change adds an optional config variable (XComGameCore.ini) that 
+	/// other mods or the player can enable. When enabled, it changes the `TakeDamage`
+	/// event inside `XComGameState_Unit` to handle armor mitigation and apply any
+	/// shredding to the armor before moving on to shields. Shield-bypassing damage such
+	/// as Psi or EMP damage behaves as normal, ignoring armor and shields to hit health.
+	/// 
+	/// ```ini
+	/// [XComGame.X2Effect_ApplyWeaponDamage]
+	/// ; Issue 743
+	/// ; Set to false/commented out if you want damage to hit shields/ablative, then armor, then health (vanilla behaviour)
+	/// ; Set to true/uncomment it if you want damage to hit armor, then shield/ablative, then health
+	/// ;ARMOR_BEFORE_SHIELD=true
+	/// ```
 	if ((ShieldHP > 0) && !bIgnoreShields) // If there is a shield
 	{
 		if (class'X2Effect_ApplyWeaponDamage'.default.ARMOR_BEFORE_SHIELD) // Armor should take damage before shield, then spill to HP
