@@ -1,5 +1,5 @@
 // Issue #4 Allow to specify EventListenerDeferral for X2EventListenerTemplates
-/// HL-Docs: feature:CHEventListenerTemplate; issue:4; tags:misc
+/// HL-Docs: feature:CHEventListenerTemplate; issue:4; tags:events
 /// Allows mods to set up Event Listener classes with specified Deferral and Priority, similar to X2AbilityTrigger_EventListener.
 ///	The `AddCHEvent` function accepts up to four arguments: 
 ///	1) Name of the Event to listen for.
