@@ -6092,36 +6092,36 @@ event TakeDamage( XComGameState NewGameState, const int DamageAmount, const int 
 	{
 		if (class'X2Effect_ApplyWeaponDamage'.default.ARMOR_BEFORE_SHIELD) // Armor should take damage before shield, then spill to HP
 		{
-			`LOG("Beginning Armor-Shield-Health Processing!");
-			`LOG("Incoming Damage: " $ (DamageAmount + MitigationAmount));
-			`LOG("Armor Mitigation: " $ MitigationAmount);
-			`LOG("Armor Shredded: " $ ShredAmount);
-			`LOG("Leaking Damage: " $ DamageAmount);
+			`COMBATLOG("Beginning Armor-Shield-Health Processing!");
+			`COMBATLOG("Incoming Damage: " $ (DamageAmount + MitigationAmount));
+			`COMBATLOG("Armor Mitigation: " $ MitigationAmount);
+			`COMBATLOG("Armor Shredded: " $ ShredAmount);
+			`COMBATLOG("Leaking Damage: " $ DamageAmount);
 
 			if (DamageAmount > 0)
 			{
 				if (DamageAmount < ShieldHP) // If shield survives damage
 				{
-					`LOG("Shield taking damage but unbroken!");
+					`COMBATLOG("Shield taking damage but unbroken!");
 					PostShield_DamageAmount = 0;
 					DamageAbsorbedByShield = DamageAmount;
 				}
 				else // If shield is broken by damage
 				{
-					`LOG("Shield broken by incoming damage!");
+					`COMBATLOG("Shield broken by incoming damage!");
 					PostShield_DamageAmount = DamageAmount - ShieldHP;
 					DamageAbsorbedByShield = ShieldHP;
 				}
 			}
 			else // If armor has tanked all damage
 			{
-				`LOG("Armor layer held all damage!");
+				`COMBATLOG("Armor layer held all damage!");
 				PostShield_DamageAmount = 0;
 				DamageAbsorbedByShield = 0;
 			}
 
-			`LOG("Shield Damage: " $ DamageAbsorbedByShield);
-			`LOG("Health Damage: " $ PostShield_DamageAmount);
+			`COMBATLOG("Shield Damage: " $ DamageAbsorbedByShield);
+			`COMBATLOG("Health Damage: " $ PostShield_DamageAmount);
 		}
 		else // Shield should take all damage from both armor and HP, before spilling back to armor and HP
 		{
