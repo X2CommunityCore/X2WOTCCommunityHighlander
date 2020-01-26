@@ -193,6 +193,12 @@ static function ProceedToNextRung( )
 
 	local XComGameState_Analytics CurrentAnalytics, CampaignAnalytics;
 
+	// Variables for Issue #746
+	local XComGameState_AIGroup GroupState;
+	local array<name> SpawnList;
+	local TTile SpawnTile;
+	local int index;
+
 	History = `XCOMHISTORY;
 	ParcelManager = `PARCELMGR;
 	MissionManager = `TACTICALMISSIONMGR;
@@ -344,19 +350,120 @@ static function ProceedToNextRung( )
 			NextCampaign.HACK_ForceGameIndex( CurrentCampaign.GameIndex );
 			NextCampaign.BizAnalyticsCampaignID = CurrentCampaign.BizAnalyticsCampaignID;
 
+			// Begin Issue #307
+			SquadProgressionNames = GetSquadProgressionMembers( NextMissionLadder.SquadProgressionName, NextMissionLadder.LadderRung );
+			if (NextMissionLadder.LadderSquadName != '')
+				class'UITacticalQuickLaunch_MapData'.static.GetSqaudMemberNames( NextMissionLadder.LadderSquadName, SquadProgressionNames );
+
+			if (StartState == none)
+			{
+				StartState = History.GetStartState( );
+				`assert( StartState != none );
+			}
+			for (SoldierIndex = NextHQ.Squad.Length -1 ; SoldierIndex >= SquadProgressionNames.Length; SoldierIndex--)
+			{
+				UnitState = XComGameState_Unit(History.GetGameStateForObjectID(NextHQ.Squad[SoldierIndex].ObjectID));
+				if (GroupState == none)
+				{
+					GroupState = UnitState.GetGroupMembership();
+				}
+				NextHQ.Squad.RemoveItem(UnitState.GetReference());
+				PurgeUnitState(StartState, UnitState, GroupState);
+			}
+			// End Issue #307
+
 			SoldierIndex = 0;
 			foreach NextHQ.Squad(UnitStateRef)
 			{
 				// pull the unit from the archives, and add it to the start state
 				UnitState = XComGameState_Unit(History.GetGameStateForObjectID(UnitStateRef.ObjectID));
+				// Begin Issue #307
+				if (GroupState == none)
+				{
+					GroupState = UnitState.GetGroupMembership();
+					XComPlayer = XComGameState_Player(History.GetGameStateForObjectID(UnitState.ControllingPlayer.ObjectID));
+				}
 
+				ConfigName = SquadProgressionNames[ SoldierIndex ];
+
+				if (class'UITacticalQuickLaunch_MapData'.static.GetConfigurableSoldierSpec( ConfigName, SoldierConfigData ))
+				{
+					UpdateUnitTemplate(StartState, XComPlayer, GroupState, UnitState, SoldierConfigData, NextHQ.Squad, SoldierIndex);
+				}
+				// End Issue #307
 				if (SoldierIndex < EndingUnitStates.Length)
 					UpdateUnitCustomization(UnitState, EndingUnitStates[SoldierIndex]);
 				else if(LadderData.LadderIndex <= 4)
 					LocalizeUnitName(UnitState, SoldierIndex, LadderData.LadderIndex);
-
 				++SoldierIndex;
 			}
+
+			// Begin Issue #307
+			if (SoldierIndex < SquadProgressionNames.Length)
+			{
+				while (SoldierIndex < SquadProgressionNames.Length) // new soldier added to the squad
+				{
+					ConfigName = SquadProgressionNames[ SoldierIndex ];
+
+					UnitState = class'UITacticalQuickLaunch_MapData'.static.ApplySoldier( ConfigName, StartState, XComPlayer );
+					UnitState.SetUnitFloatValue('NewConfigUnit', 1, eCleanup_BeginTactical);
+					GroupState.AddUnitToGroup(UnitState.ObjectID, StartState);
+					++SoldierIndex;
+				}
+			}
+			// End Issue #307
+
+			// Begin Issue #746
+			foreach History.IterateByClassType(class'XComGameState_AIGroup', GroupState)
+			{
+				if(GroupState.TeamName == eTeam_XCom)
+				{
+					continue;
+				}
+
+				index = class'XComTacticalMissionManager'.default.ConfigurableEncounters.Find('EncounterID', GroupState.EncounterID);
+				if(index != INDEX_NONE && class'XComTacticalMissionManager'.default.ConfigurableEncounters[index].EncounterLeaderSpawnList == ''
+					&& class'XComTacticalMissionManager'.default.ConfigurableEncounters[index].EncounterFollowerSpawnList == '' )
+				{
+					SpawnList = class'XComTacticalMissionManager'.default.ConfigurableEncounters[index].ForceSpawnTemplateNames;
+					SpawnList.Length = min(SpawnList.Length, class'XComTacticalMissionManager'.default.ConfigurableEncounters[index].MaxSpawnCount);
+
+					for (SoldierIndex = GroupState.m_arrMembers.Length -1 ; SoldierIndex >= SquadProgressionNames.Length; SoldierIndex--)
+					{
+						UnitState = XComGameState_Unit(History.GetGameStateForObjectID( GroupState.m_arrMembers[SoldierIndex].ObjectID));
+						PurgeUnitState(StartState, UnitState, GroupState);
+					}
+
+					for(SoldierIndex = 0; SoldierIndex < GroupState.m_arrMembers.Length; SoldierIndex++)
+					{
+						// pull the unit from the archives, and add it to the start state
+						UnitState = XComGameState_Unit(History.GetGameStateForObjectID(GroupState.m_arrMembers[0].ObjectID));
+						if(UnitState.GetMyTemplateName() != SpawnList[SoldierIndex])
+						{
+							SpawnTile = UnitState.TileLocation;
+							PurgeUnitState(StartState, UnitState, GroupState);
+							UnitState = CreateUnit(StartState, SpawnList[SoldierIndex], GroupState, UnitState.ControllingPlayer, SpawnTile);
+						}
+						else
+						{
+							GroupState.RemoveUnitFromGroup(UnitState.ObjectID, StartState);
+							GroupState.AddUnitToGroup(UnitState.ObjectID, StartState);
+						}
+					}
+
+					if (SoldierIndex < SpawnList.Length)
+					{
+						while (SoldierIndex < SpawnList.Length)
+						{
+							UnitState = CreateUnit(StartState, SpawnList[SoldierIndex], GroupState, UnitState.ControllingPlayer, UnitState.TileLocation);
+							UnitState.SetUnitFloatValue('NewConfigUnit', 1, eCleanup_BeginTactical);
+							++SoldierIndex;
+						}
+					}
+
+				}
+			}
+			// End Issue #746
 
 			// fix up the soldier equipment for the choices we've made along the way
 			HandlePreExistingSoliderEquipment( History, NextMissionLadder );
@@ -537,6 +644,16 @@ static function ProceedToNextRung( )
 
 	SquadProgressionNames = GetSquadProgressionMembers( LadderData.SquadProgressionName, LadderData.LadderRung + 1 );
 
+	// Begin Issue #307
+	XComHQ.Squad.Length = min (XComHQ.Squad.Length, SquadProgressionNames.Length);
+	for (SoldierIndex = NextHQ.Squad.Length -1 ; SoldierIndex >= SquadProgressionNames.Length; SoldierIndex--)
+	{
+		UnitState = XComGameState_Unit(History.GetGameStateForObjectID(NextHQ.Squad[SoldierIndex].ObjectID));
+		XComHQ.Squad.RemoveItem(UnitState.GetReference());
+		PurgeUnitState(StartState, UnitState);
+	}
+	// End Issue #307
+
 	// make sure every unit on this leg of the mission is ready to go
 	SoldierIndex = 0;
 	foreach XComHQ.Squad(UnitStateRef)
@@ -551,6 +668,8 @@ static function ProceedToNextRung( )
 
 		if (class'UITacticalQuickLaunch_MapData'.static.GetConfigurableSoldierSpec( ConfigName, SoldierConfigData ))
 		{
+			// Single Line for Issue #307
+			UpdateUnitTemplate(StartState, XComPlayer, GroupState, UnitState, SoldierConfigData, NextHQ.Squad, SoldierIndex);
 			UnitState.bIgnoreItemEquipRestrictions = true;
 			UpdateUnitCustomization( UnitState, EndingUnitStates[ SoldierIndex ] );
 			UpdateUnitState( StartState, UnitState, SoldierConfigData, LadderData.ProgressionUpgrades );
@@ -666,6 +785,68 @@ static function XComGameState_MissionSite SetupMissionSite(XComGameState LocalSt
 	return ChallengeMissionSite;
 }
 
+// Begin Issues #307 #746
+static private function PositionNewConfigUnits(XComGameState StartState)
+{
+	local XComGameState_Unit UnitState;
+	local XComGameState_BattleData BattleData;
+	local vector vSpawnLoc;
+	local XComGroupSpawn kSoldierSpawn;
+	local XComGameState_AIGroup GroupState;
+	local array<vector> FloorPoints;
+	local UnitValue kUnitValue;
+	local XComWorldData WorldData;
+	local int SpawnSize, i;
+
+	WorldData = `XWORLD;
+
+	//Updating the positions of the units
+	foreach StartState.IterateByClassType(class'XComGameState_AIGroup', GroupState)
+	{	
+		UnitState = XComGameState_Unit(StartState.GetGameStateForObjectID(GroupState.m_arrMembers[GroupState.m_arrMembers.Length -1].ObjectID));
+		if(UnitState.GetUnitValue('NewConfigUnit', kUnitValue))			
+		{
+			FloorPoints.Length = 0;
+			if(UnitState.IsPlayerControlled())
+			{
+				kSoldierSpawn = `PARCELMGR.SoldierSpawn;
+				foreach StartState.IterateByClassType( class'XComGameState_BattleData', BattleData ) { break; }
+				SpawnSize = BattleData.MapData.ActiveMission.SquadSpawnSizeOverride;
+			}
+			else
+			{
+				vSpawnLoc = GroupState.GetGroupMidpoint();
+				SpawnSize = 2;
+			}
+			for (i=0; i<GroupState.m_arrMembers.Length; i++)
+			{
+				UnitState = XComGameState_Unit(StartState.GetGameStateForObjectID(GroupState.m_arrMembers[i].ObjectID));
+				if(UnitState.GetUnitValue('NewConfigUnit', kUnitValue))
+				{
+					while(FloorPoints.Length == 0)
+					{
+						if(UnitState.IsPlayerControlled())
+						{
+							kSoldierSpawn.GetValidFloorLocations(FloorPoints, SpawnSize);
+						}
+						else
+						{
+							WorldData.GetFloorTilePositions(vSpawnLoc, 96 * SpawnSize, 64 * SpawnSize, FloorPoints, true);
+						}
+						SpawnSize++;
+					}
+					vSpawnLoc = FloorPoints[`SYNC_RAND_STATIC(FloorPoints.Length)];
+					FloorPoints.RemoveItem(vSpawnLoc);						
+					UnitState.SetVisibilityLocationFromVector(vSpawnLoc);
+					UnitState.ClearUnitValue('NewConfigUnit');
+				}
+				WorldData.SetTileBlockedByUnitFlag(UnitState);
+			}
+		}
+	}
+}
+// End Issues #307 #746
+
 static function RefreshAbilities( XComGameStateHistory History )
 {
 	local XComGameState StartState;
@@ -674,6 +855,13 @@ static function RefreshAbilities( XComGameStateHistory History )
 
 	StartState = History.GetStartState( );
 	`assert( StartState != none );
+
+	// Begin Issues #307 #746
+	if (!XComGameState_LadderProgress(History.GetSingleGameStateObjectForClass(class'XComGameState_LadderProgress')).bNewLadder)
+	{
+		PositionNewConfigUnits(StartState);
+	}
+	// End Issues #307 #746
 
 	// recreate any cosmetic units that we destroyed the original of
 	foreach StartState.IterateByClassType(class'XComGameState_Item', IterateItemState)
@@ -696,6 +884,13 @@ private static function UpdateUnitCustomization( XComGameState_Unit NextMissionU
 {
 	local XGCharacterGenerator CharacterGenerator;
 	local TSoldier Soldier;
+
+	// Begin Issue #307
+	if ( NextMissionUnit.GetMyTemplateName() != PrevMissionUnit.GetMyTemplateName() )
+	{
+		return;
+	}
+	// End Issue #307
 
 	if (PrevMissionUnit.IsAlive( ))
 	{
@@ -988,6 +1183,76 @@ private static function SwapUtilityItem( XComGameState StartState, XComGameState
 		UnitState.AddItemToInventory( ItemInstance, eInvSlot_Utility, StartState );
 	}
 }
+
+// Begin Issue #307
+private static function UpdateUnitTemplate( XComGameState StartState, XComGameState_Player PlayerState, XComGameState_AIGroup GroupState, out XComGameState_Unit UnitState, const out ConfigurableSoldier SoldierConfigData, out array<StateObjectReference> HQSquad, int SoldierIndex)
+{
+	local XComGameState_Unit NewUnit;
+
+	if( UnitState.GetMyTemplateName() != SoldierConfigData.CharacterTemplate )
+	{
+		NewUnit = class'UITacticalQuickLaunch_MapData'.static.ApplySoldier(SoldierConfigData.SoldierID, StartState, PlayerState);
+		NewUnit.SetVisibilityLocation(UnitState.TileLocation);
+		NewUnit.bIgnoreItemEquipRestrictions = true;
+
+		HQSquad.RemoveItem(NewUnit.GetReference());
+		HQSquad[SoldierIndex].ObjectID = NewUnit.ObjectID;
+
+		PurgeUnitState(StartState, UnitState, GroupState);
+		if (GroupState != none)
+		{
+			GroupState.AddUnitToGroup(NewUnit.ObjectID, StartState);
+		}
+		UnitState = NewUnit;
+	}
+}
+// End Issue #307
+
+// Begin Issue #746
+private static function XComGameState_Unit CreateUnit(XComGameState StartState, Name CharacterTemplateName, XComGameState_AIGroup GroupState, StateObjectReference PlayerRef, TTile UnitTile)
+{
+	local XComGameState_Unit UnitState;
+	local X2CharacterTemplate CharacterTemplate;
+
+	CharacterTemplate = class'X2CharacterTemplateManager'.static.GetCharacterTemplateManager().FindCharacterTemplate(CharacterTemplateName);
+
+	// create the unit
+	UnitState = CharacterTemplate.CreateInstanceFromTemplate(StartState);
+	UnitState.PostCreateInit(StartState, CharacterTemplate, PlayerRef.ObjectID, UnitTile, true, true, false);
+
+	GroupState.AddUnitToGroup(UnitState.ObjectID, StartState);
+	return UnitState;
+}
+// End Issue #746
+
+// Begin Issues #307 #746
+private static function PurgeUnitState( XComGameState StartState, XComGameState_Unit UnitState, optional XComGameState_AIGroup GroupState)
+{
+	local XComGameStateHistory History;
+	local XComGameState_Item ItemState;
+	local int Index;
+
+	History = `XCOMHISTORY;
+
+	if (GroupState != none)
+	{
+		GroupState.RemoveUnitFromGroup(UnitState.ObjectID, StartState);
+	}
+	// remove all their items
+	for (Index = UnitState.InventoryItems.Length - 1; Index >= 0; --Index)
+	{
+		ItemState = XComGameState_Item( StartState.ModifyStateObject(class'XComGameState_Item', UnitState.InventoryItems[Index].ObjectID) );
+		UnitState.RemoveItemFromInventory( ItemState, StartState );
+		History.PurgeObjectIDFromStartState( ItemState.ObjectID, false ); // don't refresh the cache every time, we'll do that once after removing all items from all units
+
+		if (ItemState.CosmeticUnitRef.ObjectID > 0) // we also need to destroy any associated units that may exist
+		{
+			History.PurgeObjectIDFromStartState( ItemState.CosmeticUnitRef.ObjectID, false ); // don't refresh the cache every time, we'll do that once after removing all items from all units
+		}
+	}
+	History.PurgeObjectIDFromStartState(UnitState.ObjectID, false);
+}
+// End Issues #307 #746
 
 private static function UpdateUnitState( XComGameState StartState, XComGameState_Unit UnitState, const out ConfigurableSoldier SoldierConfigData, const array<name> Upgrades )
 {
