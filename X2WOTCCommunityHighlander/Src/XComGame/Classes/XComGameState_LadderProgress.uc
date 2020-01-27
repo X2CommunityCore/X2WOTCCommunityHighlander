@@ -339,6 +339,9 @@ static function ProceedToNextRung( )
 			NextMissionLadder = XComGameState_LadderProgress( History.GetSingleGameStateObjectForClass( class'XComGameState_LadderProgress' ) );
 			NextMissionLadder.CumulativeScore = LadderData.CumulativeScore;
 
+			// SingleLine for Issue #746, applies any 'NarrativeLadderConfig' config changes
+			NextMissionLadder.PopulateFromNarrativeConfig();
+
 			// transfer over the active set of player choices (overwriting the choices they had made the previous time)
 			NextMissionLadder.ProgressionUpgrades = LadderData.ProgressionUpgrades;
 
