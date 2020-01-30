@@ -184,9 +184,7 @@ RunPriorityGroup=RUN_STANDARD
   want to handle it themselves (#507)
 - 'DrawDebugLabels' allows mods to draw their own debug information on the canvas used by
   `XComTacticalController.DrawDebugLabels()` (#490)
-- `OverrideAbilityIconColor` provides a tuple with the same ID as the
-  event and data of the form `[bool IsObjective, string Color]` that allows
-  mods to override the color of soldier abilities in the tactical HUD (#400)
+- `OverrideAbilityIconColor` Provides a tuple that allows mods to override the color of soldier abilities in the tactical HUD (#400, #749)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
