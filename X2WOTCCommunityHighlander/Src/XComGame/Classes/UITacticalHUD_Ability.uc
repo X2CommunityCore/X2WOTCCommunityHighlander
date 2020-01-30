@@ -67,6 +67,9 @@ simulated function UpdateData(int NewIndex, const out AvailableAction AvailableA
 	local string IconColor; 
 	local bool IsObjectiveAbility;
 	// End Issue #400
+	// Start Issue #749
+	local XComLWTuple OverrideTuple;
+	// End Issue #749
 
 	Index = NewIndex; 
 
@@ -133,10 +136,18 @@ simulated function UpdateData(int NewIndex, const out AvailableAction AvailableA
 		// Add an event that allows listeners to override the ability's icon
 		// color, whether it's an objective ability or not.
 		IsObjectiveAbility = BattleDataState.IsAbilityObjectiveHighlighted(AbilityTemplate);
-		if (IsObjectiveAbility || AbilityTemplate.AbilityIconColor != "")
+
+		// Start Issue #749
+		OverrideTuple = TriggerOverrideAbilityIconColor(AbilityState, IsObjectiveAbility, IconColor, class'UIUtilities_Colors'.const.BLACK_HTML_COLOR);
+
+		if (OverrideTuple.Data[0].b)
+		{
+			Icon.SetBGColor(OverrideTuple.Data[2].s);
+			Icon.SetForegroundColor(OverrideTuple.Data[3].s);
+		}
+		else if (IsObjectiveAbility || AbilityTemplate.AbilityIconColor != "")
 		{
 			IconColor = IsObjectiveAbility ? class'UIUtilities_Colors'.const.OBJECTIVEICON_HTML_COLOR : AbilityTemplate.AbilityIconColor;
-			TriggerOverrideAbilityIconColor(AbilityState, IsObjectiveAbility, IconColor);
 			Icon.EnableMouseAutomaticColor(IconColor, class'UIUtilities_Colors'.const.BLACK_HTML_COLOR);
 		}
 		else
@@ -166,6 +177,7 @@ simulated function UpdateData(int NewIndex, const out AvailableAction AvailableA
 			}
 		}
 	}
+	// End Issue #749
 
 	// HOTKEY LABEL (pc only)
 	if(Movie.IsMouseActive())
@@ -192,23 +204,28 @@ simulated function UpdateData(int NewIndex, const out AvailableAction AvailableA
 //      Source: Ability
 //   }
 //
-static function TriggerOverrideAbilityIconColor(XComGameState_Ability Ability, bool IsObjective, out string IconColor)
+// Start Issue #749
+static function XComLWTuple TriggerOverrideAbilityIconColor(XComGameState_Ability Ability, bool IsObjective, string BackgroundColor, string ForegroundColor)
 {
 	local XComLWTuple OverrideTuple;
 
 	OverrideTuple = new class'XComLWTuple';
 	OverrideTuple.Id = 'OverrideAbilityIconColor';
-	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data.Add(4);
 	OverrideTuple.Data[0].kind = XComLWTVBool;
-	OverrideTuple.Data[0].b = IsObjective;  // the color coming back
-	OverrideTuple.Data[1].kind = XComLWTVString;
-	OverrideTuple.Data[1].s = IconColor;  // the color coming back
+	OverrideTuple.Data[0].b = false; 			// Determines if anything has been overriden
+	OverrideTuple.Data[1].kind = XComLWTVBool;
+	OverrideTuple.Data[1].b = IsObjective;  	// If this Ability is part of the current mission objective
+	OverrideTuple.Data[2].kind = XComLWTVString;
+	OverrideTuple.Data[2].s = BackgroundColor;  // BackgroundColor
+	OverrideTuple.Data[3].kind = XComLWTVString;
+	OverrideTuple.Data[3].s = ForegroundColor;  // Foregroundcolor
 
 	`XEVENTMGR.TriggerEvent('OverrideAbilityIconColor', OverrideTuple, Ability);
 
-	IconColor = OverrideTuple.Data[1].s;
+	return OverrideTuple;
 }
-// End Issue #400
+// End Issue #400, #749
 
 simulated function OnMouseEvent(int cmd, array<string> args)
 {
