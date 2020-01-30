@@ -142,8 +142,7 @@ simulated function UpdateData(int NewIndex, const out AvailableAction AvailableA
 
 		if (OverrideTuple.Data[0].b)
 		{
-			Icon.SetBGColor(OverrideTuple.Data[2].s);
-			Icon.SetForegroundColor(OverrideTuple.Data[3].s);
+			Icon.EnableMouseAutomaticColor(OverrideTuple.Data[2].s, OverrideTuple.Data[3].s);
 		}
 		else if (IsObjectiveAbility || AbilityTemplate.AbilityIconColor != "")
 		{
