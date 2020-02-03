@@ -16,7 +16,7 @@
 /// {
 /// 	local array<X2DataTemplate> Templates;
 /// 
-///		//	You can create any number of Event Listener templates within one X2EventListener class.
+/// 	// You can create any number of Event Listener templates within one X2EventListener class.
 /// 	Templates.AddItem(CreateListenerTemplate_YourListener());
 /// 
 /// 	return Templates;
@@ -28,9 +28,9 @@
 /// 
 /// 	`CREATE_X2TEMPLATE(class'CHEventListenerTemplate', Template, 'Your_Custom_BestGearApplied_Listener');
 /// 
-///		//	Whether this Listener should be active during tactical missions.
+/// 	// Whether this Listener should be active during tactical missions.
 /// 	Template.RegisterInTactical = true;
-///		//	Whether this Listener should be active on the strategic layer (while on Avenger)
+/// 	// Whether this Listener should be active on the strategic layer (while on Avenger)
 /// 	Template.RegisterInStrategy = true;
 ///	
 /// 	Template.AddCHEvent('EventName', YourEventFn_Listener, ELD_Immediate, 50);
@@ -41,15 +41,15 @@
 /// static function EventListenerReturn YourEventFn_Listener(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
 /// {
 /// 	if (GameState.GetContext().InterruptionStatus == eInterruptionStatus_Interrupt)
-///		{
-///			//	Perform actions if the event was triggered during interruption stage.
-///		}
-///		else
-///		{
-///			//	Perform actions outside interruption stage (after an ability was successfully activated, for example)
-///		}
-/// 	
-///		return ELR_NoInterrupt;
+/// 	{
+/// 		// Perform actions if the event was triggered during interruption stage.
+/// 	}
+/// 	else
+/// 	{
+/// 		// Perform actions outside interruption stage (after an ability was successfully activated, for example)
+/// 	}
+///
+/// 	return ELR_NoInterrupt;
 /// }
 /// ```
 
