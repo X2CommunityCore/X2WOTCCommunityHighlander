@@ -3,7 +3,7 @@
 //  AUTHOR:  tracktwo / Pavonis Interactive
 //  PURPOSE: A general-purpose data structure for sharing information between mods.
 //
-/// HL-Docs: feature:XComLWTuple; issue:590; tags:events
+/// HL-Docs: feature:XComLWTuple; issue:754; tags:events
 ///
 /// XComLWTuple is based on the original LWTuple that many other mods package themselves,
 /// but it cannot be used interchangeably with that class. That means you *have* to use
@@ -41,10 +41,15 @@
 /// mods receiving the same tuple. If more than one mod needs to return data in a tuple that
 /// was not intended to receive data from more than one mod a conflict occurs and these mods
 /// may be incompatible.
-/// HL-Include:
 class XComLWTuple extends Object;
 
-// The kind of data stored in a LWTValue.
+
+/// HL-Docs: ref:XComLWTuple
+/// ## List of data types
+/// 
+/// The kind of data stored in a XComLWTValue. Find the corresponding
+/// struct property names in `XComLWTuple.uc` (see *Source code references*)
+/// HL-Include:
 enum XComLWTValueKind
 {
     XComLWTVBool,
@@ -65,6 +70,7 @@ enum XComLWTValueKind
     XComLWTVArrayRotators,
     XComLWTVArrayTiles
 };
+///
 
 // A single value stored in a tuple.
 struct XComLWTValue
@@ -95,4 +101,3 @@ var name Id;
 
 // The data stored within this tuple.
 var array<XComLWTValue> Data;
-///

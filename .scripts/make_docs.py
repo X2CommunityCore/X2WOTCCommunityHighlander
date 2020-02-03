@@ -183,12 +183,11 @@ def process_file(file, lang) -> List[dict]:
             # If the file ended with a doc item...
             if self.state == ParserState.DOC:
                 item = make_doc_item(self.lines, self.filename,
-                                             (startline, lnum))
+                                     (startline, lnum))
                 if item != None:
                     self.doc_items.append(item)
                 else:
                     print("...while processing %s:%i" % (file, lnum))
-
 
     doc_items = []
 
