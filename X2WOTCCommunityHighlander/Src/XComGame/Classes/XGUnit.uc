@@ -1447,6 +1447,8 @@ function name MaybeAddPersonalityToSpeech(Name nCharSpeech)
 
 	GameStateUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(ObjectID));
 
+	/// HL-Docs: ref:Bugfixes; issue:215
+	/// Units are now allowed to have personality speech (affected by personality) even below "Veteran" rank
 	if ( GameStateUnit == none /*|| !GameStateUnit.IsVeteran()*/ ) // Issue #215
 	{
 		return '';
@@ -3602,7 +3604,9 @@ simulated static function CreateVisualizer(XComGameState FullState, XComGameStat
 
 	UnitVisualizer.ApplyLoadoutFromGameState(SyncUnitState, FullState);
 
-	// Start Issue #376	
+	// Start Issue #376
+	/// HL-Docs: ref:Bugfixes; issue:376
+	/// Gremlins (and other Cosmetic Units) are now correctly tinted and patterned
 	if (UnitVisualizer.GetPawn().IsA('XComHumanPawn') || SyncUnitState.GetMyTemplate().bIsCosmetic) //Gives soldiers/civilians their head, hair, etc.
 	{	
 		UnitVisualizer.GetPawn().SetAppearance( SyncUnitState.kAppearance );		

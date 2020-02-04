@@ -744,79 +744,105 @@ function bool DoesLocationContainExistingAlert( TTile AlertLocation, optional ou
 
 function GetAbsoluteKnowledgeUnitList( out array<StateObjectReference> arrKnownUnits, optional out array<XComGameState_Unit> UnitStateList, bool bSkipUndamageable=true, bool IncludeCiviliansOnTerror=true)
 {
-	local AlertData kData;
-	local StateObjectReference kUnitRef;
-	local XComGameState_Unit Unit;
-	local XComGameStateHistory History;
-	local XComGameState_BattleData Battle;
-	local XGAIPlayer AIPlayer;
-	local XGPlayer EnemyPlayer;
-	local array<XComGameState_Unit> AllEnemies;
-
-	History = `XCOMHISTORY;
-	Unit = XComGameState_Unit(History.GetGameStateForObjectID(m_iUnitObjectID));
-	AIPlayer = XGAIPlayer(History.GetVisualizer(Unit.ControllingPlayer.ObjectID));
-
-	if( AIPlayer != None && AIPlayer.bAIHasKnowledgeOfAllUnconcealedXCom )
-	{
-		EnemyPlayer = `BATTLE.GetEnemyPlayer(AIPlayer);
-		if( bSkipUndamageable )
-		{
-			EnemyPlayer.GetPlayableUnits(AllEnemies);
-		}
-		else
-		{
-			EnemyPlayer.GetUnits(AllEnemies);
-		}
-		UnitStateList.Length = 0;
-		arrKnownUnits.Length = 0;
-		foreach AllEnemies(Unit)
-		{
-			if( !Unit.IsConcealed() && !Unit.bRemovedFromPlay )
-			{
-				arrKnownUnits.AddItem(Unit.GetReference());
-				UnitStateList.AddItem(Unit);
-			}
-		}
-	}
-	else
-	{
-		arrKnownUnits.Length = 0;
-		foreach m_arrAlertData(kData)
-		{
-			if( IsCauseAbsoluteKnowledge(kData.AlertCause) )
-			{
-				Unit = XComGameState_Unit(History.GetGameStateForObjectID(kData.AlertSourceUnitID));
-				if( bSkipUndamageable &&
-				   (Unit.bRemovedFromPlay
-				   || Unit.IsDead()
-				   || Unit.IsIncapacitated()
-				   || Unit.bDisabled
-				   || Unit.GetMyTemplate().bIsCosmetic)
-				   )
-				{
-					continue;
-				}
-
-				kUnitRef = Unit.GetReference();
-				if( arrKnownUnits.Find('ObjectID', kUnitRef.ObjectID) == -1 )
-				{
-					arrKnownUnits.AddItem(kUnitRef);
-					UnitStateList.AddItem(Unit);
-				}
-			}
-		}
-	}
-
-	if( IncludeCiviliansOnTerror )
-	{
-		// Include civilians on terror maps.  These don't have alert data.
-		Battle = XComGameState_BattleData(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
-		if( Battle.AreCiviliansAlienTargets() )
-		{
-			class'X2TacticalVisibilityHelpers'.static.GetAllVisibleUnitsOnTeamForSource(m_iUnitObjectID, eTeam_Neutral, arrKnownUnits);
-		}
-	}
+    local AlertData kData;
+    local StateObjectReference kUnitRef;
+    local XComGameState_Unit Unit;
+    local XComGameStateHistory History;
+    local XComGameState_BattleData Battle;
+    local XGAIPlayer AIPlayer, EnemyAIPlayer;
+    local XGPlayer EnemyPlayer;
+    local XComGameState_Player EnemyPlayerState;
+    local array<XComGameState_Player> EnemyPlayers;
+    local array<XComGameState_Unit> AllEnemies;
+ 
+    History = `XCOMHISTORY;
+    Unit = XComGameState_Unit(History.GetGameStateForObjectID(m_iUnitObjectID));
+    AIPlayer = XGAIPlayer(History.GetVisualizer(Unit.ControllingPlayer.ObjectID));
+ 
+    if( AIPlayer != None && AIPlayer.bAIHasKnowledgeOfAllUnconcealedXCom )
+    {
+		// start issue #619: use our CHhelpers function to check *all* enemies of a unit
+        EnemyPlayers = class'CHHelpers'.static.GetEnemyPlayers(AIPlayer);
+        foreach EnemyPlayers(EnemyPlayerState)
+        {
+            if (EnemyPlayerState.GetTeam() == ETeam_XCom)
+            {
+                EnemyPlayer = XGPlayer(EnemyPlayerState.GetVisualizer());
+           
+                if( bSkipUndamageable )
+                {
+                    EnemyPlayer.GetPlayableUnits(AllEnemies);
+                }
+                else
+                {
+                    EnemyPlayer.GetUnits(AllEnemies);
+                }
+            }
+            else
+            {
+                EnemyAIPlayer = XGAIPlayer(EnemyPlayerState.GetVisualizer());
+       
+                if( bSkipUndamageable )
+                {
+                    EnemyAIPlayer.GetPlayableUnits(AllEnemies);
+                }
+                else
+                {
+                    EnemyAIPlayer.GetUnits(AllEnemies);
+                }
+            }
+        }
+		// end issue #619
+        UnitStateList.Length = 0;
+        arrKnownUnits.Length = 0;
+        foreach AllEnemies(Unit)
+        {
+            if( !Unit.IsConcealed() && !Unit.bRemovedFromPlay )
+            {
+                arrKnownUnits.AddItem(Unit.GetReference());
+                UnitStateList.AddItem(Unit);
+            }
+        }
+    }
+    //bAIHasKnowledgeOfAllUnconcealedXCom defaults to true and is unused so this section wont ever apply
+    else
+    {
+        arrKnownUnits.Length = 0;
+        foreach m_arrAlertData(kData)
+        {
+            if( IsCauseAbsoluteKnowledge(kData.AlertCause) )
+            {
+                Unit = XComGameState_Unit(History.GetGameStateForObjectID(kData.AlertSourceUnitID));
+                if( bSkipUndamageable &&
+                   (Unit.bRemovedFromPlay
+                   || Unit.IsDead()
+                   || Unit.IsIncapacitated()
+                   || Unit.bDisabled
+                   || Unit.GetMyTemplate().bIsCosmetic)
+                   )
+                {
+                    continue;
+                }
+ 
+                kUnitRef = Unit.GetReference();
+                if( arrKnownUnits.Find('ObjectID', kUnitRef.ObjectID) == -1 )
+                {
+                    arrKnownUnits.AddItem(kUnitRef);
+                    UnitStateList.AddItem(Unit);
+                }
+            }
+        }
+    }
+ 
+    if( IncludeCiviliansOnTerror )
+    {
+        // Include civilians on terror maps.  These don't have alert data.
+        Battle = XComGameState_BattleData(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
+        if( Battle.AreCiviliansAlienTargets() )
+        {
+            class'X2TacticalVisibilityHelpers'.static.GetAllVisibleUnitsOnTeamForSource(m_iUnitObjectID, eTeam_Neutral, arrKnownUnits);
+        }
+    }
 }
 
 function bool HasAbsoluteKnowledge( out StateObjectReference kSpottedUnit, bool bConsiderFormerAbsolute=false )
@@ -1010,7 +1036,34 @@ static function bool ShouldEnemyFactionsTriggerAlertsOutsidePlayerVision(EAlertC
 
 static function bool IsCauseAllowedForNonvisibleUnits(EAlertCause AlertCause)
 {
-	return AlertCause < eAC_Allow_Nonvisible_Cutoff_DO_NOT_SET_TO_THIS;
+	// Start Issue #510
+	//
+	// Allow mods to override whether the given cause is allowed for
+	// units outside of XCOM's vision. This allows them to enable
+	// sound-based and other yellow alert activations.
+	//
+	// This event takes the form:
+	//
+	// {
+	//    ID: OverrideAllowedAlertCause,
+	//    Data: [in int AlertCause, inout bool AllowThisCause]
+	// }
+	//
+	// Note that there is no event source in this case.
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideAllowedAlertCause';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].Kind = XComLWTVInt;
+	OverrideTuple.Data[0].i = AlertCause;
+	OverrideTuple.Data[1].Kind = XComLWTVBool;
+	OverrideTuple.Data[1].b = AlertCause < eAC_Allow_Nonvisible_Cutoff_DO_NOT_SET_TO_THIS;
+
+	`XEVENTMGR.TriggerEvent('OverrideAllowedAlertCause', OverrideTuple);
+
+	return OverrideTuple.Data[1].b;
+	// End Issue #510
 }
 
 // These alert causes trigger an alert level upgrade to Red Alert

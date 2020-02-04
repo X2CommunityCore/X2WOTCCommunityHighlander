@@ -2645,8 +2645,48 @@ function int GetScienceScore(optional bool bAddLabBonus = false)
 		}
 	}
 
-	return Score;
+	// Start Issue #626
+	return TriggerOverrideScienceScore(Score, bAddLabBonus);
+	// End Issue #626
 }
+
+// Start Issue #626
+//
+// Fires an 'OverrideScienceScore' event that allows listeners to override
+// the current science score, for example to apply bonuses or to remove scientists
+// that are on other jobs. If the `AddLabBonus` is true, then the game is
+// calculating the actual science score contributing to tech research progress.
+// If it's false, then the game is just checking whether a tech's or item's
+// science score requirement has been met.
+//
+// The event takes the form:
+//
+//  {
+//     ID: OverrideScienceScore,
+//     Data: [inout int ScienceScore, in bool AddLabBonus],
+//     Source: self (XCGS_HeadquartersXCom)
+//  }
+//
+// This function returns the new science score (or the original one if no listeners
+// modified it).
+//
+function int TriggerOverrideScienceScore(int BaseScienceScore, bool AddLabBonus)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideScienceScore';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].Kind = XComLWTVInt;
+	OverrideTuple.Data[0].i = BaseScienceScore;
+	OverrideTuple.Data[1].Kind = XComLWTVBool;
+	OverrideTuple.Data[1].b = AddLabBonus;
+
+	`XEVENTMGR.TriggerEvent('OverrideScienceScore', OverrideTuple, self);
+
+	return OverrideTuple.Data[0].i;
+}
+// End Issue #626
 
 //---------------------------------------------------------------------------------------
 native function bool IsUnitInSquad(StateObjectReference UnitRef);
@@ -6877,7 +6917,8 @@ function CheckForInspiredTechs(XComGameState NewGameState)
 			// Prevent any techs which could be made instant (autopsies), or which have already been reduced by purchasing tech reductions from the black market
 			// and only inspire techs which the player can afford
 			if (!TechTemplate.bCheckForceInstant && AvailableTechState.TimeReductionScalar < 0.001f && !HasPausedProject(AvailableTechRefs[TechIndex]) &&
-				MeetsRequirmentsAndCanAffordCost(TechTemplate.Requirements, TechTemplate.Cost, default.ResearchCostScalars, , TechTemplate.AlternateRequirements))
+				MeetsRequirmentsAndCanAffordCost(TechTemplate.Requirements, TechTemplate.Cost, default.ResearchCostScalars, , TechTemplate.AlternateRequirements) &&
+				/* Issue #633 */ TriggerCanTechBeInspired(AvailableTechState, NewGameState))
 			{
 				AvailableTechState = XComGameState_Tech(NewGameState.ModifyStateObject(class'XComGameState_Tech', AvailableTechState.ObjectID));
 				AvailableTechState.bInspired = true;
@@ -6901,6 +6942,36 @@ function CheckForInspiredTechs(XComGameState NewGameState)
 		}
 	}
 }
+
+// Start Issue #633
+//
+// Fires a 'CanTechBeInspired' event that allows mods to determine whether a tech
+// can be inspired or not. If the bool property in the event data is `true`, then
+// the tech can be inspired, otherwise it's not eligible.
+//
+// The event takes the form:
+//
+//   {
+//      ID: CanTechBeInspired,
+//      Data: [inout bool CanBeInspired],
+//      Source: TechState (XCGS_Tech)
+//   }
+//
+private function bool TriggerCanTechBeInspired(XComGameState_Tech TechState, XComGameState NewGameState)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'CanTechBeInspired';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].Kind = XComLWTVBool;
+	Tuple.Data[0].b = true;
+
+	`XEVENTMGR.TriggerEvent('CanTechBeInspired', Tuple, TechState, NewGameState);
+
+	return Tuple.Data[0].b;
+}
+// End Issue #633
 
 private function bool CanActivateBreakthroughTech()
 {

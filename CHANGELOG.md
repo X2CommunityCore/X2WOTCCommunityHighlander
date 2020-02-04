@@ -59,6 +59,7 @@ RunPriorityGroup=RUN_STANDARD
 - Triggers the event `GetCovertActionEvents_Settings` to allow showing all covert actions in the correct order in the event queue (#391)
 - Triggers the event `CovertActionRisk_AlterChanceModifier` when calculated covert action risks. (#434)
 - Triggers the event `AllowDarkEventRisk` during XComGameState_CovertAction::EnableDarkEventRisk to allow alterations of standard logic (#434)
+- Triggers the event `AllowDarkEventRisk` during XComGameState_CovertAction::CreateRisks to allow alterations of standard logic (#692)
 - Triggers the event `UIStrategyPolicy_ScreenInit` at the end of UIStrategyPolicy::InitScreen (#440)
 - Triggers the event `UIStrategyPolicy_ShowCovertActionsOnClose` on UIStrategyPolicy::CloseScreen call (#440)
 - Triggers the event `CovertAction_ShouldBeVisible` on XComGameState_CovertAction::ShouldBeVisible call (#438)
@@ -71,6 +72,15 @@ RunPriorityGroup=RUN_STANDARD
 - Triggers the event `BlackMarketGoodsReset` when the Black Market goods are reset (#473)
 - Triggers the event `OverrideImageForItemAvaliable` to allow mods to override the image shown in eAlert_ItemAvailable (#491)
 - Triggers the event `OverrideCurrentDoom` to allow mods to override doom amount for doom updates (#550)
+- Triggers the event `PreEndOfMonth` to notify mods that the game is about to start its end-of-month processing (#539)
+- Triggers the event `ProcessNegativeIncome` to allow mods to do their own processing when XCOM's income at the
+  end of the month is negative (#539)
+- Triggers the event `OverrideDisplayNegativeIncome` to allow mods to override whether negative monthly income is
+  displayed as a negative value or as zero (latter is default behavior) (#539)
+- Triggers the event `OverrideSupplyDrop` to allow mods to override the amount of supplies awarded at month end (#539)
+- Triggers the event `OverrideSupplyLossStrings` to allow mods to override the text that is displayed for supplies
+  lost in the monthly resistance report (#539)
+- Triggers the event `PostEndOfMonth` to notify mods that end-of-month processing has come to an end (#539)
 - Triggers the event `PsiProjectCompleted` to notify mods when a soldier has finished training in the psi labs (#534)
 - Triggers the event `OverrideNoCaEventMinMonths` to allow mods to force the UI to display no CA nag during first month
 - Triggers the event `CustomizeStatusStringsSeparate` in XComGameState_Unit::GetStatusStringsSeparate (#322)
@@ -90,13 +100,44 @@ RunPriorityGroup=RUN_STANDARD
   other ways than just the tooltip and image (#537)
 - Triggers the event `MissionIconSetScanSite` to allow mods to customize a scan site's icon in other
   ways than just the tooltip and image (#537)
-
+- Triggers the event `OverrideShowPromoteIcon` to allow mods to override whether the promotion icon is
+  displayed for a given soldier or not (#631)
+- Triggers the event `SoldierListItem_ShouldDisplayMentalStatus` to allow mods to enable/disable display of mental status
+  based on additional logic (#651)
+- Triggers the event `CovertActionStarted` to allow mods to react to it in a flexible manner
+  (instead of hooking into UI mess) (#584)
+- Triggers the event `CovertActionAllowEngineerPopup` to allow mods to forbid the popup (#584)
+- Triggers the event `CovertActionAllowCheckForProjectOverlap` to allow mods to forbid the "de-bunching" logic
+  on CA start (#584)
+- Triggers the event `AllowActionToSpawnRandomly` to allow mods to prevent certain CAs from being randomly spawned (#594)
+- Triggers the event `OverridePromotionUIClasses` to allow mods to override the UI classes used for the
+  three different promotion screens (#600)
+- Triggers the event `OverrideRespecSoldierProjectPoints` to allow mods to customize how long it should
+  take to respec a given soldier (#624)
+- Triggers the event `OverrideScienceScore` to allow mods to override the XCOM HQ science score, for
+  example to add their own bonuses or to remove scientists that are engaged in other activities.
+- Triggers the event `CanTechBeInspired` to allow mods to block techs from being inspired, even if they
+  meet the vanilla game's conditions for it (#633)
+- Triggers the event `OverrideMissionImage` to allow mods to customize mission's image (used in UIMission and subclasses) (#635)
+- Triggers the event `UIResistanceReport_ShowCouncil` to allow mods to override whether the council guy (and his remarks)
+  is shown on the end-of-month report or not (#663)
+- Triggers the event `OverrideNextRetaliationDisplay` to allow mods to customize and/or enable/disable "next retaliation"
+  display in `UIAdventOperations` (#667)
+- Triggers the event `OnBestGearLoadoutApplied` at the end of `XCGS_Unit::ApplyBestGearLoadout()` to allow mods to make changes to the Unit State. (#676)
+- Triggers the event `ItemAddedToSlot` & `ItemRemovedFromSlot` to allow mods to change Items that have been Equipped/Unequipped during runtime(#694)
+- Triggers the event `CovertAction_AllowResActivityRecord` to allow mods to enable/disable "covert action completed"
+  record for the monthly resistance report (#696)
+- Triggers the event `OverrideDarkEventCount` to allow mods to change the number of dark events in the monthly report (#711)
+- Triggers the event `SitRepCheckAdditionalRequirements` to allow mods to perform additional checks for sitrep eligibility for a mission (#561)
+- Triggers the event `OverrideAddChosenTacticalTagsToMission` to allow mods to override chosen spawning (#722)
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
 - UIScanButton now calls OnMouseEventDelegate (#483). Note: DO NOT call ProcessMouseEvents, just set the delegate directly
 - Remove `private` from `X2AIBTBehaviorTree.Behaviors` so that mods can change the behavior trees without
   overwriting all the necessary entries (#410)
+- Removed `protectedwrite` from `AcquiredTraits`, `PendingTraits`, and `CuredTraits` in `XComGameState_Unit`, allowing Traits to be modified by external sources (#681)
+- Added `X2CovertActionTemplate::bCanNeverBeRookie` to allow mods to forbid a CA from being marked as a rookie one (#695)
 
 ### Configuration
 - Allow disabling of Factions being initialized on startup by
@@ -131,8 +172,8 @@ RunPriorityGroup=RUN_STANDARD
 - Fix Loadout utility items when unit has an item equipped in the Ammo Pocket (#99)
 - Fix units unequipping items they shouldn't, resulting in duplicate Paired Weapons (#189)
 - Fix all Covert Actions from being removed when generating covert actions (#435)
-- Fix a pathing issue in base game with "flying" pod leaders where non-flat tiles on their
-  paths prevent them from patrolling (#503)
+- Make units with a status of `eStatus_CovertAction` unavailable for missions
+  in `XComGameState_Unit.CanGoOnMission()` (#665)
 
 ## Tactical
 
@@ -142,6 +183,11 @@ RunPriorityGroup=RUN_STANDARD
 - Allow Mods/DLC to modify encounters after creation (#136)
 - Allow Mods/DLC to modify encounters generated as reinforcements (#278)
 - Allow Mods/DLC to alter mission data after SitRep creation (#157)
+- Add an array of `OverrideFinalHitChance` function delegates to `X2AbilityToHitCalc`
+  that mods can add functions to in order to override the default logic for handling
+  hits, grazes and crits (#555)
+- Adds `OnLoadedSavedGameToTactical` to DLCInfo that serves like the strategy counterpart `OnLoadedSavedGameToStrategy`
+- Allow Mods/DLC to utilize multiplayer teams in singleplayer (#188)
 
 ### Event Hooks
 
@@ -185,6 +231,12 @@ RunPriorityGroup=RUN_STANDARD
 - 'DrawDebugLabels' allows mods to draw their own debug information on the canvas used by
   `XComTacticalController.DrawDebugLabels()` (#490)
 - `OverrideAbilityIconColor` Provides a tuple that allows mods to override the color of soldier abilities in the tactical HUD (#400, #749)
+- `OverrideBodyRecovery` allows mods to determine whether incapacitated soldiers are recovered
+  at the end of a mission (which is only supported by full sweep missions with corpse retrieval
+  in the base game) (#571)
+- `OverrideLootRecovery` allows mods to determine whether loot is automatically recovered
+  at the end of a mission (which is only supported by full sweep missions with corpse retrieval
+  in the base game) (#571)
 
 ### Configuration
 - Added ability to modify default spawn size (#18)
@@ -208,43 +260,29 @@ RunPriorityGroup=RUN_STANDARD
 - Deprivatise XComAlienPawn.Voice to allow changes by mods (#275)
 - Deprivatise/const config variables in XComParcelManager (#404)
 - Gives SitReps access to the Tactical StartState in order to widen sitrep capabilities (#450)
+- Deprivatise variables in X2TargetingMethod_EvacZone so that it can be effectively subclassed (#165)
 
 ### Improvements
 - Make suppression work with weapons that don't have suppression specific
   animations set on them (#45)
 - Make suppression work with units that don't have a suppression specific
   idle animation animation set on them (#74)
-- Gremlins (and other Cosmetic Units) are now correctly tinted and patterned (#376)
 - Register tactical event listeners in TQL (#406)
 - Allow mods to decide which team(s) are granted an ability via X2SitRepEffect_GrantAbilities and better document that class (#445)
 - Allow X2AbilityToHitCalc_StatCheck to check for hit chance modifiers (#467)
+- Allow aliens and other teams to properly register non-XCOM unit locations to adjust their positions accordingly (#619)
 
 ### Fixes
-- Ensure Gremlins use the walk/run animation based on the alert status of their
-  owner, rather than the standard behaviour of always deferring to walk speed
-  (#33)
-- Fix Reaper's Banish Ability Visualisation not properly visualising
-  subsequent shots (#20)
-- Fix Initiative-Interrupting abilities giving Reinforcements a full turn
-  of action points after scamper (#36)
-- Fix some edge cases regarding idle animations and targeting (#269)
-- Fix an issue causing Rapid Fire/Chain Shot/Banish/... entering cover early (#273)
 - Fixed XCGS_Unit::GetStatModifiers() as XCGS_Unit::GetStatModifiersFixed(),
   X2AbilityToHitCalc_StandardAim, the only vanilla user of this method, changed to match(#313)
-- Fix non-Veteran units not having personality speech (#215)
-- Fix a display issue causing the weapon tooltip to show stale upgrades
-  from earlier units (#303)
-- Fix Cinescript CutAfterPrevious in combination with MatineeReplacements (#318)
 - Allow abilities that deal damage without a source weapon to still display
   their damage with psi flyovers (Psi Bomb, mod abilities) (#326)
-- Fix `X2AbilityToHitCalc_StandardAim` discarding unfavorable (for XCOM) changes
-  to hit results from effects (#426)
-- Allow soldiers to be carried out from multiple missions in a campaign (#557)
-- Fix patrol logic when corners of a patrol zone lie outside of the map edges and
-  a pod tries to patrol to any of them (#508)
 - Make disorient reapply to disoriented units so that things like flashbangs can
   still remove overwatch from disoriented units (#475)
-
+- Fix rocket targeting so that it isn't always unobstructed when the shooter has
+  a valid step-out tile (#617)
+- `MindControlLost` fires whenever a unit stops being mind controlled or hacked. The event
+  passes the affected unit state as both event data and event source (#643)
 
 ## Miscellaneous
 
@@ -297,12 +335,14 @@ RunPriorityGroup=RUN_STANDARD
 - Renable the ability to add positive traits in codebase, as well as additional
   filtering and behaviour on the various Trait Functions on `XComGameState_Unit`
   (#85)
-- Allow mods to register custom OnInput UI handlers (#198)
+- Allow mods to register custom OnInput UI handlers (#198, #501)
 - Able to specify new materials as counting as hair/skin/armour/weapons etc. for the purpose of
   receiving tints, patterns, tattoos etc. (#356)
 - Unprotect `X2DataSet::bShouldCreateDifficultyVariants` to allow mods to force templates from other packages to use difficulty variants (#413)
 - Allow mods to manipulate X2GameRuleset::EventObserverClasses, eg. on CDOs (#481)
 - Uprivate `XComTacticalMissionManager::CacheMissionManagerCards` to allow mods to use manager's decks (#528)
+- Unprotect `X2ItemTemplateManager::Loadouts` so they can be changed Programmatically (#698)
+- Unprotect `XComGameState_EvacZone::CenterLocation` & `XComGameState_EvacZone::Team` (#702)
 
 ### Improvements
 - Create a mod friendly way to manipulate loot tables (#8)
@@ -310,8 +350,6 @@ RunPriorityGroup=RUN_STANDARD
   X2EventListenerTemplates. Also allow to remove registered Listeners. (#4)
 - Allow enemies with assigned names to have them appear as their name, rather
   than a generic label. (#52)
-- Check a soldiers 'NeedsSecondaryWeapon' in UIArmory_Loadout, rather than
-  hardcoding based on Rookie Rank (#55)
 - Change UIUtilities_Colors.GetColorForFaction to use Faction template color as
   a backup (#72)
 - Prevent items from stacking if they have ComponentObjects attached to them,
@@ -351,14 +389,14 @@ RunPriorityGroup=RUN_STANDARD
   flag on `XComGameState_Unit`. This behavior is gated behind the new `CHHelpers.PreserveProxyUnitData`
   config variable. (#465)
 - Adds CustomDeathAnimationName property to X2Action_Death that allows overriding the default death animations (#488)
+- Change `GetScreen()` and `IsCurrentClass()` on `UIScreenStack` to take into account subclasses
+  by default. This is a breaking change but fixes a lot of problems with vanilla and mod code that
+  mistakenly ignores subclasses of screens, particularly those provided by mod. The original behavior
+  can still be accessed via new `GetScreen_CH()` and `IsCurrentClass_CH()`. (#290)
+- Allow PCS granting PsiOffense to be equiped by other classes than PsiOperative (#602)
+- Added Inventory Slots `eInvSlot_Wings` and `eInvSlot_ExtraBackpack`. (#678)
 
 ### Fixes
-- Fix Chosen Assassin receiving weaknesses that are exclusive to the
-  Shadowstep Strength in the narrative mission, instead Shadowstep is forced
-  ahead of awarding the remaining traits, so the trait roll takes the strength
-  into account (#51)
-- Enable ForceCountry in CharacterPoolManager - was ignored despite being
-  an argument in the CreateCharacter function (#70)
 - Fixes game terminating SoundCue narrative moments after three seconds because
   it assumes they didn't play at all. (#66)
 - Fixes UIPanels animating in with a huge delay when they are direct child panels of

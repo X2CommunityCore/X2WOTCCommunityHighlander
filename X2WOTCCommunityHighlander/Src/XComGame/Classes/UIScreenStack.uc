@@ -9,6 +9,14 @@
 
 class UIScreenStack extends Object;
 
+// Start issue #501
+struct InputDelegateForScreen
+{
+	var UIScreen Screen;
+	var delegate<CHOnInputDelegateImproved> Callback;
+};
+// End issue #501
+
 var bool IsInputBlocked; // Block UI system from handling input.
 var XComPresentationLayerBase Pres;
 
@@ -20,8 +28,10 @@ var bool bPauseMenuInput; //Named to the pause menu as this is not for general u
 var array<UIScreen> Screens;
 var array<UIScreen> ScreensHiddenForCinematic;
 var array< delegate<CHOnInputDelegate> > OnInputSubscribers;		// issue #198
+var protected array<InputDelegateForScreen> OnInputForScreenSubscribers; // Issue #501
 
 delegate bool CHOnInputDelegate(int iInput, int ActionMask);		// issue #198
+delegate bool CHOnInputDelegateImproved(UIScreen Screen, int iInput, int ActionMask); // Issue #501
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
@@ -96,6 +106,13 @@ simulated function bool OnInput( int iInput,  optional int ActionMask = class'UI
 		// If this Screen is not yet initialized, or is marked for removal stop the input chain right here - sbatista
 		if( !Screen.bIsInited )
 			return true;
+
+		// Start issue #501
+		if (ModOnInputForScreen(Screen, iInput, ActionMask))
+		{
+			return true;
+		}
+		// End issue #501
 
 		// Stop if a screen has handled the input or consumes it regardless.
 		if( (Screen.EvaluatesInput() && Screen.OnUnrealCommand( iInput, ActionMask )) || Screen.ConsumesInput() )
@@ -494,6 +511,7 @@ simulated function UIScreen Pop(UIScreen Screen, optional bool MustExist = true)
 	{
 		// We must remove the screen the array before triggering its OnRemove call, because OnRemove could manipulate the state stack.
 		Screens.RemoveItem(Screen);
+		RemoveOnInputSubscribersForScreen(Screen); // Issue #501
 
 		if( !Screen.bIsPermanent )
 			Screen.Movie.RemoveScreen(Screen);
@@ -614,17 +632,42 @@ simulated function PopIncludingClass( class<UIScreen> ClassToRemove, optional bo
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
-// Returns the first instance of a Screen of the target class type.
+// Start Issue #290
+//
+// Lots of code in the base game and mods seems to use `GetScreen()` when
+// it should be using `GetFirstInstanceOf()`. This change means that
+// `GetScreen()` will also return any screen that's a subclass of the
+// specified one.
+//
+// If any code wants to ignore subclasses, then it can use the new
+// `GetScreen_CH()` method instead.
+
+// Returns the first instance of a Screen of the target class type (or a subclass).
 simulated function UIScreen GetScreen( class<UIScreen> ScreenClass )
+{
+	return GetScreen_CH(ScreenClass, true);
+}
+
+simulated function UIScreen GetScreen_CH( class<UIScreen> ScreenClass, bool IncludeSubTypes )
 {
 	local int Index;
 	for( Index = 0; Index < Screens.Length;  ++Index)
 	{
-		if( ScreenClass ==  Screens[Index].Class )
+		if( IncludeSubTypes )
+		{
+			if (ClassIsChildOf(Screens[Index].Class, ScreenClass))
+			{
+				return Screens[Index];
+			}
+		}
+		else if( ScreenClass ==  Screens[Index].Class )
+		{
 			return Screens[Index];
+		}
 	}
 	return none; 
 }
+// End Issue #290
 
 // Returns the first instance of a Screen of the target class type (or derived from the target class type).
 simulated function UIScreen GetFirstInstanceOf( class<UIScreen> ScreenClass )
@@ -675,10 +718,34 @@ simulated function bool HasInstanceOf( class<UIScreen> ScreenClass )
 	return GetFirstInstanceOf(ScreenClass) != none;
 }
 
+// Start Issue #290
+//
+// A lot of code seems to assume that certain screen classes will never have
+// subclasses, which is rubbish in the context of mods. So this method will
+// now return `true` if the current screen is also a subclass of the given
+// class. However, the reverse will not work, i.e. if the given screen class
+// is a subclass of the current screen class, then this method will return
+// `false`.
+//
+// If you want to exclude subclasses, then use the new `IsCurrentClass_CH()`
+// method.
 simulated function bool IsCurrentClass( class<UIScreen> ScreenClass )
 {
-	return GetCurrentClass() == ScreenClass;
+	return IsCurrentClass_CH(ScreenClass, true);
 }
+
+simulated function bool IsCurrentClass_CH( class<UIScreen> ScreenClass, bool IncludeSubTypes )
+{
+	if( IncludeSubTypes )
+	{
+		return ClassIsChildOf(GetCurrentClass(), ScreenClass);
+	}
+	else
+	{
+		return GetCurrentClass() == ScreenClass;
+	}
+}
+// End Issue #290
 
 simulated function bool IsCurrentScreen( name ScreenClass )
 {
@@ -754,6 +821,77 @@ simulated function bool ModOnInput(int iInput, int ActionMask)
 	return false;
 }
 // end issue #198
+
+// Start issue #501
+function SubscribeToOnInputForScreen (UIScreen Screen, delegate<CHOnInputDelegateImproved> Callback)
+{
+	local InputDelegateForScreen CallbackScreenPair;
+
+	// Do not allow duplicate entries
+	foreach OnInputForScreenSubscribers(CallbackScreenPair)
+	{
+		if (CallbackScreenPair.Screen == Screen && CallbackScreenPair.Callback == Callback)
+		{
+			return;
+		}
+	}
+
+	CallbackScreenPair.Screen = Screen;
+	CallbackScreenPair.Callback = Callback;
+
+	OnInputForScreenSubscribers.AddItem(CallbackScreenPair);
+}
+
+function UnsubscribeFromOnInputForScreen (UIScreen Screen, delegate<CHOnInputDelegateImproved> Callback)
+{
+	local InputDelegateForScreen CallbackScreenPair;
+	local int i;
+
+	foreach OnInputForScreenSubscribers(CallbackScreenPair, i)
+	{
+		if (CallbackScreenPair.Screen == Screen && CallbackScreenPair.Callback == Callback)
+		{
+			OnInputForScreenSubscribers.Remove(i, 1);
+			return; // Since duplicates aren't allowed, we are done
+		}
+	}
+}
+
+function RemoveOnInputSubscribersForScreen (UIScreen Screen)
+{
+	local int i;
+
+	for (i = 0; i < OnInputForScreenSubscribers.Length; i++)
+	{
+		if (OnInputForScreenSubscribers[i].Screen == Screen)
+		{
+			OnInputForScreenSubscribers.Remove(i, 1);
+			i--;
+		}
+	}
+}
+
+simulated function bool ModOnInputForScreen (UIScreen Screen, int iInput, int ActionMask)
+{
+	local delegate<CHOnInputDelegateImproved> Callback;
+	local InputDelegateForScreen CallbackScreenPair;
+
+	foreach OnInputForScreenSubscribers(CallbackScreenPair)
+	{
+		if (CallbackScreenPair.Screen == Screen)
+		{
+			Callback = CallbackScreenPair.Callback;
+			
+			if (Callback(Screen, iInput, ActionMask))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+// End issue #501
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------

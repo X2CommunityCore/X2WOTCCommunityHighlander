@@ -44,7 +44,7 @@ event OnVisualizationBlockComplete(XComGameState AssociatedGameState)
 	// Check whether any listeners want to force the display of the reinforcements
 	// alert. If so, display it and update its text and color based on the values
 	// provided by the dominant listener.
-	if (CheckForReinforcementsOverride(sTitle, sBody, sColor))
+	if (CheckForReinforcementsOverride(sTitle, sBody, sColor, AssociatedGameState))
 	{
 		AS_SetCounterText(sTitle, sBody);
 		AS_SetMCColor( MCPath$".dags", sColor);
@@ -84,7 +84,17 @@ simulated function AS_SetCounterTimer( int iTurns )
 // This method sends an `OverrideReinforcementsAlert` event that allows listeners
 // to both force the display of the reinforcements alert and change its text and
 // color.
-simulated function bool CheckForReinforcementsOverride(out string sTitle, out string sBody, out string sColor)
+//
+// The event takes the form:
+//
+//   {
+//       ID: OverrideReinforcementsAlert,
+//       Data: [ out bool DisplayRNFAlert, out string Title, out string BodyText,
+//               out string AlertColor, in XComGameState AssociatedGameState ]
+//       Source: self (UITacticalHUD_Countdown)
+//   }
+// 
+simulated function bool CheckForReinforcementsOverride(out string sTitle, out string sBody, out string sColor, XComGameState AssociatedGameState)
 {
 	local XComLWTuple OverrideTuple;
 	
@@ -94,7 +104,7 @@ simulated function bool CheckForReinforcementsOverride(out string sTitle, out st
 	// color to use for the dags control.
 	OverrideTuple = new class'XComLWTuple';
 	OverrideTuple.Id = 'OverrideReinforcementsAlert';
-	OverrideTuple.Data.Add(4);
+	OverrideTuple.Data.Add(5);
 	OverrideTuple.Data[0].kind = XComLWTVBool;
 	OverrideTuple.Data[0].b = false;  // Force display of the reinforcement alert?
 	OverrideTuple.Data[1].kind = XComLWTVString;
@@ -103,6 +113,8 @@ simulated function bool CheckForReinforcementsOverride(out string sTitle, out st
 	OverrideTuple.Data[2].s = "";  // Reinforcement alert body (INCOMING in vanilla)
 	OverrideTuple.Data[3].kind = XComLWTVString;
 	OverrideTuple.Data[3].s = "";  // Reinforcement alert color
+	OverrideTuple.Data[4].kind = XComLWTVObject;
+	OverrideTuple.Data[4].o = AssociatedGameState;  // Reinforcement alert color
 
 	`XEVENTMGR.TriggerEvent('OverrideReinforcementsAlert', OverrideTuple, self);
 

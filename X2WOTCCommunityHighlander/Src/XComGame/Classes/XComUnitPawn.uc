@@ -149,6 +149,11 @@ var private XComNarrativeMoment DialogNarrativeMoment;
 
 var transient bool bPhotoboothPawn;
 
+// Issue #641
+// This array is private as it is internal CHL logic and mods do not need to access it directly
+// If you have a use case for accessing this array, open a new issue
+var private array<Actor> AdvancedBodyPartActors;
+
 delegate AdditionalHitEffect( XComUnitPawn Pawn );
 
 event RigidBodyCollision( PrimitiveComponent HitComponent, PrimitiveComponent OtherComponent,
@@ -1634,8 +1639,34 @@ function CreateBodyPartAttachment(XComBodyPartContent BodyPartContent)
 	local SkeletalMeshComponent SkelMeshComp;
 	local XComPawnPhysicsProp PhysicsProp;
 
+	// Variables for issue #641
+	local XComBodyPartContentAdvanced AdvancedContent;
+	local Actor Archetype, Instance;
+	local Vector SocketLocation;
+	local Rotator SocketRotation;
+
 	if (BodyPartContent == none)
 		return;
+
+	// Start issue #641
+	AdvancedContent = XComBodyPartContentAdvanced(BodyPartContent);
+	if (AdvancedContent != none)
+	{
+		foreach AdvancedContent.Archetypes(Archetype)
+		{
+		    Mesh.GetSocketWorldLocationAndRotation(BodyPartContent.SocketName, SocketLocation, SocketRotation);
+			Instance = Spawn(Archetype.Class,,, SocketLocation, SocketRotation, Archetype);
+
+			if (Instance != None)
+			{
+				Instance.SetBase(self,, Mesh, BodyPartContent.SocketName);
+				AdvancedBodyPartActors.AddItem(Instance);
+			}
+		}
+
+		return;
+	}
+	// End issue #641
 
 	if( BodyPartContent.SocketName != '' && Mesh.GetSocketByName(BodyPartContent.SocketName) != none )
 	{
@@ -1688,6 +1719,30 @@ function RemoveBodyPartAttachment(XComBodyPartContent BodyPartContent)
 {
 	local int AttachmentIndex;
 	local SkeletalMeshComponent AttachedMesh;
+
+	// Variables for issue #641
+	local XComBodyPartContentAdvanced AdvancedContent;
+	local Actor AttachedActor, Archetype;
+	
+	// Start issue #641
+	AdvancedContent = XComBodyPartContentAdvanced(BodyPartContent);
+	if (AdvancedContent != none)
+	{
+		foreach AdvancedBodyPartActors(AttachedActor)
+		{
+			foreach AdvancedContent.Archetypes(Archetype)
+			{
+				if (AttachedActor.ObjectArchetype == Archetype)
+				{
+					AdvancedBodyPartActors.RemoveItem(AttachedActor);
+					AttachedActor.Destroy();
+				}
+			}
+		}
+
+		return;
+	}
+	// End issue #641
 
 	if( BodyPartContent.SkeletalMesh != None )
 	{
@@ -1774,7 +1829,29 @@ simulated function ResetIKTranslations()
 simulated event Destroyed ()
 {
 	super.Destroyed();
+
+	DestroyAdvancedBodyPartActors(); // Issue #641
 }
+
+// Start issue #641
+simulated private function DestroyAdvancedBodyPartActors ()
+{
+	local Actor Actor;
+
+	// We do not need to worry about iterator invalidation here as no callbacks/events in Actor.Destroy() chain
+	// affect the AdvancedBodyPartActors array. However, if one is to be added, then this code needs to be checked
+	// for potential iterator invalidation issues
+	foreach AdvancedBodyPartActors(Actor)
+	{
+		if (Actor != none)
+		{
+			Actor.Destroy();
+		}
+	}
+
+	AdvancedBodyPartActors.Length = 0;
+}
+// End issue #641
 
 simulated function int GetCurrentFloor()
 {

@@ -156,9 +156,11 @@ var() int StunnedActionPoints, StunnedThisTurn;                     //Number of 
 var() int Ruptured;                                                 //Ruptured amount is permanent extra damage this unit suffers from each attack.
 var() int Shredded;                                                 //Shredded amount is always subtracted from any armor mitigation amount.
 var() int Untouchable;                                              //Number of times this unit can freely dodge attacks.
-var() protectedwrite array<name> AcquiredTraits;                    //X2TraitTemplates that this unit currently possesses
-var() protectedwrite array<name> PendingTraits;                     //X2TraitTemplates whose criteria have been met, and will be applied at the end of the mission
-var() protectedwrite array<name> CuredTraits;						//X2TraitTemplates who were previously acquired and are thus unavailable to be re-acquired
+//start issue #681: Allows Traits to be Modified by External Sources
+var() array<name> AcquiredTraits;                    								//X2TraitTemplates that this unit currently possesses
+var() array<name> PendingTraits;                     								//X2TraitTemplates whose criteria have been met, and will be applied at the end of the mission
+var() array<name> CuredTraits;											 								//X2TraitTemplates who were previously acquired and are thus unavailable to be re-acquired
+//end issue #681
 var() array<name> WorldMessageTraits;								//Cleared after seeing world message on the Avenger
 var() array<name> AlertTraits;										//Cleared after seeing the trait alert (floating icon displays until cleared)
 var() XComGameStateContext_Ability ReflectedAbilityContext;			//Original context of last reflected ability
@@ -2320,6 +2322,8 @@ function OnBeginTacticalPlay(XComGameState NewGameState)
 	// Reset the body recovered flag. A unit that was previously carried to evac while KO'd/bleeding
 	// out will have this flag set, and this flag prevents units from being carried. If this unit
 	// gets KO'd again, they won't be able to be picked up if this flag is still set.
+	/// HL-Docs: ref:Bugfixes; issue:557
+	/// Soldiers that have been carried out of a mission are no longer unable to be carried out of a later mission
 	bBodyRecovered = false;
 	// End Issue #557
 }
@@ -3735,9 +3739,10 @@ function bool MeetsAbilityPrerequisites(name AbilityName)
 			AbilityName = AbilityTemplate.PrerequisiteAbilities[iName];
 
 			// Start Issue #128
-			if (InStr(AbilityName, "NOT_") == 0)
+			if (InStr(AbilityName, class'UIArmory_PromotionHero'.default.MutuallyExclusivePrefix, , true) == 0)
 			{
-				if (HasSoldierAbility(name(Repl(AbilityName, "NOT_", ""))))
+				if (HasSoldierAbility(name(
+					Mid(AbilityName, Len(class'UIArmory_PromotionHero'.default.MutuallyExclusivePrefix)))))
 				{
 					return false;
 				}
@@ -4052,15 +4057,28 @@ function int GetUnitPointValue()
 
 function protected MergeAmmoAsNeeded(XComGameState StartState)
 {
+	local XComGameStateHistory History;  // Issue #608
 	local XComGameState_Item ItemIter, ItemInnerIter;
 	local X2WeaponTemplate MergeTemplate;
 	local int Idx, InnerIdx, BonusAmmo;
 
+	History = `XCOMHISTORY;  //Issue #608
+
 	for (Idx = 0; Idx < InventoryItems.Length; ++Idx)
 	{
-		ItemIter = XComGameState_Item(StartState.GetGameStateForObjectID(InventoryItems[Idx].ObjectID));
+		// Start Issue #608
+		/// HL-Docs: ref:Bugfixes; issue:608
+		/// `MergeAmmoAsNeeded` now also works for units spawned from the Avenger
+		// Get the item from history, including the pending game state if there is one.
+		// This ensures that inventory items don't need to be added to the new game state
+		// just to make this function work properly.
+		ItemIter = XComGameState_Item(History.GetGameStateForObjectID(InventoryItems[Idx].ObjectID));
+		// End Issue #608
 		if (ItemIter != none && !ItemIter.bMergedOut)
 		{
+			// Start Issue #608: Make sure we can modify the item
+			ItemIter = XComGameState_Item(StartState.ModifyStateObject(ItemIter.Class, ItemIter.ObjectID));
+			// End Issue #608
 			MergeTemplate = X2WeaponTemplate(ItemIter.GetMyTemplate());
 			if (MergeTemplate != none && MergeTemplate.bMergeAmmo)
 			{
@@ -4068,9 +4086,14 @@ function protected MergeAmmoAsNeeded(XComGameState StartState)
 				ItemIter.MergedItemCount = 1;
 				for (InnerIdx = Idx + 1; InnerIdx < InventoryItems.Length; ++InnerIdx)
 				{
-					ItemInnerIter = XComGameState_Item(StartState.GetGameStateForObjectID(InventoryItems[InnerIdx].ObjectID));
+					// Start Issue #608: Getting inner item from history, as above
+					ItemInnerIter = XComGameState_Item(History.GetGameStateForObjectID(InventoryItems[InnerIdx].ObjectID));
+					// End Issue #608
 					if (ItemInnerIter != none && ItemInnerIter.GetMyTemplate() == MergeTemplate)
 					{
+						// Start Issue #608: Make sure we can modify the inner item
+						ItemInnerIter = XComGameState_Item(StartState.ModifyStateObject(ItemInnerIter.Class, ItemInnerIter.ObjectID));
+						// End Issue #608
 						BonusAmmo += GetBonusWeaponAmmoFromAbilities(ItemInnerIter, StartState);
 						ItemInnerIter.bMergedOut = true;
 						ItemInnerIter.Ammo = 0;
@@ -5473,7 +5496,7 @@ simulated function bool CanGoOnMission(optional bool bAllowWoundedSoldiers = fal
 	{
 		return true;
 	}
-	else
+	else if (GetStatus() != eStatus_CovertAction)  // Issue #665: Units on covert actions can't go on missions
 	{
 		bShaken = (GetMentalState() == eMentalState_Shaken);
 		bHasInjuries = (IsInjured() || bShaken);
@@ -5488,6 +5511,12 @@ simulated function bool CanGoOnMission(optional bool bAllowWoundedSoldiers = fal
 
 		return (bHasInjuries && bIgnoreInjuries);
 	}
+
+	// Start Issue #665
+	//
+	// Unit is on covert action, so can't go on mission.
+	return false;
+	// End Issue #665
 }
 
 function name GetCountry()
@@ -7427,6 +7456,18 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 					//  setup filter based on new armor
 					Filter = `XCOMGAME.SharedBodyPartFilter;
 					//start issue #155, get usable DLC part pack names when upgrading armours
+					/// HL-Docs: feature:ArmorEquipRollDLCPartChance; issue:155; tags:customization,compat
+					/// When a unit equips new armor, the game rolls from all customization options, even the ones where
+					/// the slider for the `DLCName` is set to `0`. The HL change fixes this, but if your custom armor only
+					/// has customization options with a `DLCName` set, the game may discard that `DLCName` (default: in 85% of cases)
+					/// which results in soldiers without torsos. If you want to keep having `DLCName`-only armor
+					/// (for example to display mod icons in `UICustomize`), you must disable that behavior
+					/// by creating the following lines in `XComGame.ini`:
+					///
+					/// ```ini
+					/// [XComGame.CHHelpers]
+					/// +CosmeticDLCNamesUnaffectedByRoll=MyDLCName
+					/// ```
 					DLCNames = class'CHHelpers'.static.GetAcceptablePartPacks();
 					Filter.Set(EGender(kAppearance.iGender), ECharacterRace(kAppearance.iRace), '', , , DLCNames); //end issue #155
 					Filter.SetTorsoSelection('ForceArmorMatch', Item.GetMyTemplateName()); //ForceArmorMatch will make the system choose a torso based on the armor type
@@ -9007,6 +9048,12 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 			WeaponState = XComGameState_Item(GameState.GetGameStateForObjectID(ActivatedAbilityStateContext.InputContext.ItemObject.ObjectID));
 
 			SoundRange = WeaponState.GetItemSoundRange();
+			// Start Issue #510
+			//
+			// Allow mods to modify or replace the sound range based on the source unit,
+			// weapon and ability.
+			TriggerOverrideSoundRange(SourceUnitState, WeaponState, ActivatedAbilityState, SoundRange);
+			// End Issue #510
 			if( SoundRange > 0 )
 			{
 				if( !WeaponState.SoundOriginatesFromOwnerLocation() && ActivatedAbilityStateContext.InputContext.TargetLocations.Length > 0 )
@@ -9034,7 +9081,11 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 					// this unit just overheard the sound
 					else
 					{
-						UnitAGainsKnowledgeOfUnitB(EnemyInSoundRangeUnitState, SourceUnitState, GameState, eAC_DetectedSound, false);
+						// Start Issue #510
+						//
+						// Use the location where the sound is coming from rather than the unit's location.
+						UnitAGainsKnowledgeOfUnitBFromLocation(EnemyInSoundRangeUnitState, SourceUnitState, GameState, eAC_DetectedSound, false, SoundTileLocation);
+						// End Issue #510
 					}
 				}
 			}
@@ -9077,6 +9128,85 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 
 	return ELR_NoInterrupt;
 }
+
+// Start Issue #510
+//
+// Triggers an 'OverrideSoundRange' event that allows listeners to override
+// the sound range for a weapon/ability combo. For example, it could switch
+// to using the sound range of the weapon's ammo or modify the existing sound
+// range based on weapon attachments or the unit's abilities.
+//
+// The event itself takes the form:
+//
+//   {
+//      ID: OverrideSoundRange,
+//      Data: [in XCGS_Unit SourceUnit, in XCGS_Item Weapon,
+//             in XCGS_Ability Ability, inout int SoundRange],
+//      Source: self
+//   }
+//
+function TriggerOverrideSoundRange(
+	XComGameState_Unit SourceUnitState,
+	XComGameState_Item WeaponState,
+	XComGameState_Ability AbilityState,
+	out int SoundRange)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideSoundRange';
+	OverrideTuple.Data.Add(4);
+	OverrideTuple.Data[0].Kind = XComLWTVObject;
+	OverrideTuple.Data[0].o = SourceUnitState;
+	OverrideTuple.Data[1].Kind = XComLWTVObject;
+	OverrideTuple.Data[1].o = WeaponState;
+	OverrideTuple.Data[2].Kind = XComLWTVObject;
+	OverrideTuple.Data[2].o = AbilityState;
+	OverrideTuple.Data[3].Kind = XComLWTVInt;
+	OverrideTuple.Data[3].i = SoundRange;
+
+	`XEVENTMGR.TriggerEvent('OverrideSoundRange', OverrideTuple, self);
+
+	SoundRange = OverrideTuple.Data[3].i;
+}
+
+// Triggers an 'OverrideSeesAlertedAllies' event that allows listeners to override
+// the behavior of the "SeesAlertedAllies" alert. For example, a mod could simply
+// disable it or ensure that it only applies if the two units aren't in the same
+// pod.
+//
+// To disable the alert, simply return eAC_None for the alert cause.
+//
+// The event itself takes the form:
+//
+//   {
+//      ID: OverrideSeesAlertedAllies,
+//      Data: [in XCGS_Unit UnitA, in XCGS_Unit UnitB, inout int AlertCause],
+//      Source: UnitA
+//   }
+//
+static function TriggerOverrideSeesAlertedAllies(
+	XComGameState_Unit UnitA,
+	XComGameState_Unit UnitB,
+	out EAlertCause AlertCause)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideSeesAlertedAllies';
+	OverrideTuple.Data.Add(3);
+	OverrideTuple.Data[0].Kind = XComLWTVObject;
+	OverrideTuple.Data[0].o = UnitA;
+	OverrideTuple.Data[1].Kind = XComLWTVObject;
+	OverrideTuple.Data[1].o = UnitB;
+	OverrideTuple.Data[2].Kind = XComLWTVInt;
+	OverrideTuple.Data[2].i = AlertCause;
+
+	`XEVENTMGR.TriggerEvent('OverrideSeesAlertedAllies', OverrideTuple, UnitA);
+
+	AlertCause = EAlertCause(OverrideTuple.Data[2].i);
+}
+// End Issue #510
 
 function InterjectDirectAttackVisualization(XComGameStateContext_Ability AbilityContext, XComGameState_Ability AbilityState, XComGameState GameState)
 {
@@ -9600,14 +9730,36 @@ static function UnitASeesUnitB(XComGameState_Unit UnitA, XComGameState_Unit Unit
 			{
 				AlertCause = eAC_SeesAlertedAllies;
 			}
+
+			// Start Issue #510
+			//
+			// Allow mods to override whether the "SeesAlertedAllies" alert applies in
+			// this situation.
+			TriggerOverrideSeesAlertedAllies(UnitA, UnitB, AlertCause);
+			// End Issue #510
 		}
 
 		UnitAGainsKnowledgeOfUnitB(UnitA, UnitB, AlertInstigatingGameState, AlertCause, true);
 	}
 }
 
+// Start Issue #510
+//
+// Refactor `UnitAGainsKnowledgeOfUnitB` into two functions, one of which takes a tile
+// location as the source of the alert. The original function calls the new one, passing
+// in the Unit B's keystone visibility location, which matches the original behaviour of
+// the function.
 static function UnitAGainsKnowledgeOfUnitB(XComGameState_Unit UnitA, XComGameState_Unit UnitB, XComGameState AlertInstigatingGameState, EAlertCause AlertCause, bool bUnitAIsMidMove)
 {
+	local TTile AlertLocation;
+
+	UnitB.GetKeystoneVisibilityLocation(AlertLocation);
+	UnitAGainsKnowledgeOfUnitBFromLocation(UnitA, UnitB, AlertInstigatingGameState, AlertCause, bUnitAIsMidMove, AlertLocation);
+}
+
+static function UnitAGainsKnowledgeOfUnitBFromLocation(XComGameState_Unit UnitA, XComGameState_Unit UnitB, XComGameState AlertInstigatingGameState, EAlertCause AlertCause, bool bUnitAIsMidMove, out TTile AlertLocation)
+{
+// End Issue #510
 	local XComGameStateHistory History;
 	local AlertAbilityInfo AlertInfo;	
 	local X2TacticalGameRuleset Ruleset;
@@ -9627,7 +9779,7 @@ static function UnitAGainsKnowledgeOfUnitB(XComGameState_Unit UnitA, XComGameSta
 	{
 		OverrideAlertReq = false;
 		History = `XCOMHISTORY;
-		UnitB.GetKeystoneVisibilityLocation(AlertInfo.AlertTileLocation);
+		AlertInfo.AlertTileLocation = AlertLocation;  // Issue #510
 		AlertInfo.AlertUnitSourceID = UnitB.ObjectID;
 		AlertInfo.AnalyzingHistoryIndex = History.GetCurrentHistoryIndex();
 
@@ -10001,6 +10153,45 @@ function GetEnemiesInRange(TTile kLocation, int nMeters, out array<StateObjectRe
 		}
 	}
 }
+
+// Start Issue #510
+//
+// A copy of `GetEnemiesInRange()` except you can choose which team's units
+// you're interested in.
+function GetUnitsInRangeOnTeam(ETeam Team, TTile kLocation, int nMeters, out array<StateObjectReference> OutEnemies)
+{
+	local vector vCenter, vLoc;
+	local float fDistSq;
+	local XComGameState_Unit kUnit;
+	local XComGameStateHistory History;
+	local float AudioDistanceRadius, UnitHearingRadius, RadiiSumSquared;
+
+	History = `XCOMHISTORY;
+	vCenter = `XWORLD.GetPositionFromTileCoordinates(kLocation);
+	AudioDistanceRadius = `METERSTOUNITS(nMeters);
+	fDistSq = Square(AudioDistanceRadius);
+
+	foreach History.IterateByClassType(class'XComGameState_Unit', kUnit)
+	{
+		if( kUnit.GetTeam() == Team && kUnit.IsAlive() )
+		{
+			vLoc = `XWORLD.GetPositionFromTileCoordinates(kUnit.TileLocation);
+			UnitHearingRadius = kUnit.GetCurrentStat(eStat_HearingRadius);
+
+			RadiiSumSquared = fDistSq;
+			if( UnitHearingRadius != 0 )
+			{
+				RadiiSumSquared = Square(AudioDistanceRadius + UnitHearingRadius);
+			}
+
+			if( VSizeSq(vLoc - vCenter) < RadiiSumSquared )
+			{
+				OutEnemies.AddItem(kUnit.GetReference());
+			}
+		}
+	}
+}
+// End Issue #510
 
 native function float GetConcealmentDetectionDistance(const ref XComGameState_Unit DetectorUnit);
 
@@ -10744,6 +10935,10 @@ function ApplyBestGearLoadout(XComGameState NewGameState)
 
 	// Always validate the loadout after upgrading everything
 	ValidateLoadout(NewGameState);
+	
+	// Issue #676 Start
+	`XEVENTMGR.TriggerEvent('OnBestGearLoadoutApplied', self, self, NewGameState);
+	// Issue #676 End
 }
 
 //------------------------------------------------------
@@ -12508,7 +12703,19 @@ function SCATProgression GetSCATProgressionForAbility(name AbilityName)
 // Show the promotion icon (in strategy)
 function bool ShowPromoteIcon()
 {
-	return (IsAlive() && !bCaptured && (CanRankUpSoldier() || HasAvailablePerksToAssign()));
+	// Start Issue #631
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideShowPromoteIcon';
+	OverrideTuple.Data.Add(1);
+	OverrideTuple.Data[0].kind = XComLWTVBool;
+	OverrideTuple.Data[0].b = (IsAlive() && !bCaptured && (CanRankUpSoldier() || HasAvailablePerksToAssign()));
+
+	`XEVENTMGR.TriggerEvent('OverrideShowPromoteIcon', OverrideTuple, self);
+
+	return OverrideTuple.Data[0].b;
+	// End Issue #631
 }
 
 function bool ShowBondAvailableIcon(out StateObjectReference BondmateRef, out SoldierBond BondData)
@@ -12604,6 +12811,8 @@ function ResetRankToRookie()
 	}
 
 	// Start Issue #95
+	/// HL-Docs: ref:Bugfixes; issue:95
+	/// `ResetRankToRookie` now correctly applies Beta Strike HP bonuses
 	ApplyFirstTimeStatModifiers();
 	// End Issue #95
 
@@ -13487,17 +13696,26 @@ function EMentalState GetMentalState(optional bool bIgnoreBoost = false)
 function UpdateMentalState()
 {
 	local int WillPercent, idx;
+	local int MentalStateMaxWill; // Issue #637
 
-	WillPercent = int((GetCurrentStat(eStat_Will) / GetMaxStat(eStat_Will)) * 100.0f);
-
+	// Start Issue #637
+	//
+	// Rather than calculating the current will as a percentage of the unit's
+	// max, the will is now directly compared to the max will for each mental
+	// state. This ensures consistency with the will recovery project, which
+	// also uses the GetMaxWillForMentalState() function.
+	/// HL-Docs: ref:Bugfixes; issue:637
+	/// Will recovery project and soldier mental state are now consistent with each other, fixing Shaken/Tired soldiers occasionally recovering instantly
 	for(idx = 0; idx < eMentalState_Max; idx++)
 	{
-		if(WillPercent <= class'X2StrategyGameRulesetDataStructures'.default.MentalStatePercents[idx])
+		MentalStateMaxWill = GetMaxWillForMentalState(EMentalState(idx));
+		if(GetCurrentStat(eStat_Will) <= MentalStateMaxWill)
 		{
 			MentalState = EMentalState(idx);
 			return;
 		}
 	}
+	// End Issue #637
 }
 
 function int GetMaxWillForMentalState(EMentalState eState)

@@ -261,8 +261,8 @@ simulated event bool SubmitGameStateContext(XComGameStateContext Context, bool b
 		//@TODO - rmcfall - find a home for these ( other turn phases? )
 		/*
 		1. Turn starts 	a. Ex Rapid Regen
-		2. Turn ends 	a. Ex EXALT’s Regen Pheromones
-		3. Mission start 	a. Ex (maybe): MEC Heavy’s Body Shield, if mission starts with enemies visible
+		2. Turn ends 	a. Ex EXALT's Regen Pheromones
+		3. Mission start 	a. Ex (maybe): MEC Heavy's Body Shield, if mission starts with enemies visible
 		4. End of mission 	a. XP bonuses from abilities (like medals)
 		*/
 		ContextBuildDepth++;
@@ -361,8 +361,8 @@ simulated event bool SubmitGameStateContexts(array<XComGameStateContext> Context
 		//@TODO - rmcfall - find a home for these ( other turn phases? )
 		/*
 		1. Turn starts 	a. Ex Rapid Regen
-		2. Turn ends 	a. Ex EXALT’s Regen Pheromones
-		3. Mission start 	a. Ex (maybe): MEC Heavy’s Body Shield, if mission starts with enemies visible
+		2. Turn ends 	a. Ex EXALTï¿½s Regen Pheromones
+		3. Mission start 	a. Ex (maybe): MEC Heavyï¿½s Body Shield, if mission starts with enemies visible
 		4. End of mission 	a. XP bonuses from abilities (like medals)
 		*/
 		ContextBuildDepth++;
@@ -579,10 +579,10 @@ simulated function SubmitGameStateInternal(XComGameState NewGameState, bool bInt
 	* 1. Unit takes damage/gets healed 	a. Ex: Psi reflect, Damage Control
 	* 2. Unit changes status 	a. ex: unit is concealed and enemy successfully spots, but unit has ability to mitigate the effects of being spotted
 	* 3. Unit dies a. Ex: Secondary Heart
-	* 4. Unit scores a kill 	a. Ex: the Ranger ability that resets Melee Charge’s cooldown
+	* 4. Unit scores a kill 	a. Ex: the Ranger ability that resets Melee Chargeï¿½s cooldown
 	* 5. Civilian interacted with 	a. Ex: an ability that gives bonus Supplies every time a civilian is rescued
 	* 6. Hackable object hacked 	a. Ex: reinforcement timers extended because of a hack
-	* 7. Unit “bursts” 	a. Burst is the replacement stat for crit
+	* 7. Unit ï¿½burstsï¿½ 	a. Burst is the replacement stat for crit
 	* 8. Get loot from box or body
 	*/
 

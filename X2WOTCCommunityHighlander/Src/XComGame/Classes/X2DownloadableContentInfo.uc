@@ -55,6 +55,18 @@ static event OnLoadedSavedGameToStrategy()
 
 }
 
+
+
+//Start issue #647
+/// <summary>
+/// This method is run when the player loads a saved game directly into Tactical while this DLC is installed
+/// </summary>
+static event OnLoadedSavedGameToTactical()
+{
+
+}
+//#end issue #647
+
 /// <summary>
 /// Called when the player starts a new campaign while this DLC / Mod is installed. When a new campaign is started the initial state of the world
 /// is contained in a strategy start state. Never add additional history frames inside of InstallNewCampaign, add new state objects to the start state

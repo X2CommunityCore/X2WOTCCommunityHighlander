@@ -37,7 +37,7 @@ simulated function InitListItem(StateObjectReference initUnitRef)
 	class'UIUtilities_Strategy'.static.GetPersonnelStatusSeparate(Unit, status, statusTimeLabel, statusTimeValue);
 	mentalStatus = "";
 
-	if(Unit.IsActive())
+	if(ShouldDisplayMentalStatus(Unit)) // Issue #651
 	{
 		Unit.GetMentalStateStringsSeparate(mentalStatus, statusTimeLabel, iTimeNum);
 		statusTimeLabel = class'UIUtilities_Text'.static.GetColoredText(statusTimeLabel, Unit.GetMentalStateUIState());
@@ -129,6 +129,24 @@ simulated function InitListItem(StateObjectReference initUnitRef)
 
 	AS_SetFactionIcon(FactionState.GetFactionIcon());
 }
+
+// Start issue #651
+simulated protected function bool ShouldDisplayMentalStatus (XComGameState_Unit Unit)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = Unit.IsActive();
+	Tuple.Data[1].kind = XComLWTVObject;
+	Tuple.Data[1].o = Unit;
+
+	`XEVENTMGR.TriggerEvent('SoldierListItem_ShouldDisplayMentalStatus', Tuple, self);
+
+	return Tuple.Data[0].b;
+}
+// End issue #651
 
 simulated function AS_UpdateDataSoldier(string UnitName,
 								 string UnitNickname, 

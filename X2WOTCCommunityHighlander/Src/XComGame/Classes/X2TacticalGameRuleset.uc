@@ -1981,6 +1981,7 @@ static function CleanupTacticalMission(optional bool bSimCombat = false)
 	local int MissionIndex;
 	local MissionDefinition RefMission;
 	local int CivKilled, CivTotal, ResKilled, ResTotal, TotalSaved;
+	local XComGameState_Effect BleedOutEffect; // Issue #571
 
 	History = `XCOMHISTORY;
 	
@@ -1998,10 +1999,13 @@ static function CleanupTacticalMission(optional bool bSimCombat = false)
 	`XEVENTMGR.TriggerEvent('CleanupTacticalMission', BattleData, none, NewGameState);
 	// End Issue #96
 
-	// Sweep objective resolution:
-	// if all tactical mission objectives completed, all bodies and loot are recovered
-	if( BattleData.AllTacticalObjectivesCompleted() )
+	// Start Issue #571
+	//
+	// Let mods determine whether to recover incapacitated/dead soldiers or not
+	// if they choose.
+	if (TriggerOverrideBodyRecovery(BattleData, BattleData.AllTacticalObjectivesCompleted(), NewGameState))
 	{
+	// End Issue #571
 		// recover all dead soldiers, remove all other soldiers from play/clear deathly ailments
 		foreach History.IterateByClassType(class'XComGameState_Unit', UnitState)
 		{
@@ -2018,7 +2022,14 @@ static function CleanupTacticalMission(optional bool bSimCombat = false)
 				}
 			}
 		}
+	}
 
+	// Start Issue #571
+	//
+	// Let mods determine whether to recover loot or not if they choose.
+	if (TriggerOverrideLootRecovery(BattleData, BattleData.AllTacticalObjectivesCompleted(), NewGameState))
+	{
+	// End Issue #571
 		foreach History.IterateByClassType(class'XComGameState_LootDrop', LootDropState)
 		{
 			for( LootIndex = 0; LootIndex < LootDropState.LootableItemRefs.Length; ++LootIndex )
@@ -2031,22 +2042,48 @@ static function CleanupTacticalMission(optional bool bSimCombat = false)
 				BattleData.CarriedOutLootBucket.AddItem(ItemState.GetMyTemplateName());
 			}
 		}
+	}
 
+	// Start Issue #571
+	//
+	// Corpse retrieval and other "auto loot" stuff still needs tactical
+	// objectives to be completed.
+	if (BattleData.AllTacticalObjectivesCompleted())
+	{
+	// End Issue #571
 		// 7/29/15 Non-explicitly-picked-up loot is now once again only recovered if the sweep objective was completed
 		RolledLoot = BattleData.AutoLootBucket;
 	}
 	else
 	{
-		//It may be the case that the user lost as a result of their remaining units being mind-controlled. Consider them captured (before the mind-control effect gets wiped).
-		foreach History.IterateByClassType(class'XComGameState_Unit', UnitState)
+		// Start Issue #571
+		//
+		// Only handle capture of mind-controlled soldiers if we're *not* recovering
+		// soldiers.
+		if (!TriggerOverrideBodyRecovery(BattleData, false, NewGameState))
 		{
-			if (XComHQ.IsUnitInSquad(UnitState.GetReference()))
+		// End Issue #571
+			//It may be the case that the user lost as a result of their remaining units being mind-controlled. Consider them captured (before the mind-control effect gets wiped).
+			foreach History.IterateByClassType(class'XComGameState_Unit', UnitState)
 			{
-				if (UnitState.IsMindControlled())
+				if (XComHQ.IsUnitInSquad(UnitState.GetReference()))
 				{
-					UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', UnitState.ObjectID));
-					UnitState.bCaptured = true;
+					if (UnitState.IsMindControlled())
+					{
+						UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', UnitState.ObjectID));
+						UnitState.bCaptured = true;
+					}
 				}
+
+				// Start Issue #571
+				//
+				// Bug fix from LW2. Ensure that bleed-out status is cleared on captured (and dead) soldiers.
+				if (UnitState.bBleedingOut)
+				{
+					BleedOutEffect = UnitState.GetUnitAffectedByEffectState(class'X2StatusEffects'.default.BleedingOutName);
+					BleedOutEffect.RemoveEffect(NewGameState, NewGameState, false);
+				}
+				// End Issue #571
 			}
 		}
 	}
@@ -2121,6 +2158,69 @@ static function CleanupTacticalMission(optional bool bSimCombat = false)
 
 	`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
 }
+
+// Start Issue #571
+//
+// Fires an event that allows mods to override whether incapacitated/dead soldiers
+// should be automatically recovered at the end of a mission. The `DoBodyRecovery`
+// parameter specifies what the current behaviour will be.
+//
+// The event that's fired takes the form:
+//
+//   {
+//     ID: OverrideBodyRecovery,
+//     Data: [inout bool DoBodyRecovery],
+//     Source: XComGameState_BattleData
+//   }
+//
+private static function bool TriggerOverrideBodyRecovery(
+	XComGameState_BattleData BattleData,
+	bool DoBodyRecovery,
+	XComGameState NewGameState)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideBodyRecovery';
+	OverrideTuple.Data.Add(1);
+	OverrideTuple.Data[0].kind = XComLWTVBool;
+	OverrideTuple.Data[0].b = DoBodyRecovery;
+
+	`XEVENTMGR.TriggerEvent('OverrideBodyRecovery', OverrideTuple, BattleData, NewGameState);
+
+	return OverrideTuple.Data[0].b;
+}
+
+// Fires an event that allows mods to override whether loot should be automatically
+// recovered at the end of a mission. The `DoLootRecovery` parameter specifies what
+// the current behaviour will be.
+//
+// The event that's fired takes the form:
+//
+//   {
+//     ID: OverrideLootRecovery,
+//     Data: [inout bool DoLootRecovery],
+//     Source: XComGameState_BattleData
+//   }
+//
+private static function bool TriggerOverrideLootRecovery(
+	XComGameState_BattleData BattleData,
+	bool DoLootRecovery,
+	XComGameState NewGameState)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideLootRecovery';
+	OverrideTuple.Data.Add(1);
+	OverrideTuple.Data[0].kind = XComLWTVBool;
+	OverrideTuple.Data[0].b = DoLootRecovery;
+
+	`XEVENTMGR.TriggerEvent('OverrideLootRecovery', OverrideTuple, BattleData, NewGameState);
+
+	return OverrideTuple.Data[0].b;
+}
+// End Issue #571
 
 static function name GetObjectiveLootTable(MissionObjectiveDefinition MissionObj)
 {
@@ -3506,6 +3606,10 @@ Begin:
 		Pres.UINarrative(TutorialIntro);		
 	}
 
+	//Start Issue #647
+	UpdateDLCLoadingTacticalGame();
+	//End Issue #647
+
 	//Movie handline - for both the tutorial and normal loading
 	while(class'XComEngine'.static.IsAnyMoviePlaying() && !class'XComEngine'.static.IsLoadingMoviePlaying())
 	{
@@ -4541,6 +4645,8 @@ simulated state TurnPhase_UnitActions
 				if( CachedUnitActionPlayerRef.ObjectID == CachedUnitActionInitiativeRef.ObjectID )
 				{
 					// ResetHitCountersOnPlayerTurnBegin(); Issue #36, commented and move below
+					/// HL-Docs: ref:Bugfixes; issue:36
+					/// Do not clear Reinforcements' "Summoning Sickness" when interrupted by Skirmisher, denying them an erronous bonus turn.
 					PlayerState = XComGameState_Player(CachedHistory.GetGameStateForObjectID(CachedUnitActionPlayerRef.ObjectID));
 					`assert( PlayerState != None );
 					PlayerStateVisualizer = XGPlayer(PlayerState.GetVisualizer());
@@ -5530,6 +5636,24 @@ simulated function name GetNextTurnPhase(name CurrentState, optional name Defaul
 	`assert(false);
 	return DefaultPhaseName;
 }
+
+
+//Start issue #647
+function UpdateDLCLoadingTacticalGame()
+{
+	local XComOnlineEventMgr EventManager;
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local int i;
+
+	EventManager = `ONLINEEVENTMGR;
+	DLCInfos = EventManager.GetDLCInfos(false);
+	for (i = 0; i < DLCInfos.Length; ++i)
+	{
+		DLCInfos[i].OnLoadedSavedGameToTactical();
+	}
+}
+//End issue #647
+
 
 function StateObjectReference GetCachedUnitActionPlayerRef()
 {

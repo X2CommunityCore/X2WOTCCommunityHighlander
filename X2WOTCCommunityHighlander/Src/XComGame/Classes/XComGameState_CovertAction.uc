@@ -889,7 +889,7 @@ private function CreateRisks()
 		{
 			// The Risk is not part of the Action by default, so add it
 			RiskTemplate = X2CovertActionRiskTemplate(StratMgr.FindStrategyElementTemplate(DarkEventRiskName));
-			if (RiskTemplate.IsRiskAvailableFn == none || RiskTemplate.IsRiskAvailableFn(GetFaction()))
+			if (TriggerAllowDarkEventRisk(RiskTemplate, true)) // Issue #692
 			{
 				AddRisk(RiskTemplate, bChosenIncreaseRisks, bDarkEventRisk);
 			}
@@ -982,26 +982,13 @@ function EnableDarkEventRisk(name DarkEventRiskName)
 	local CovertActionRisk ActionRisk;
 	local array<name> RiskNames;
 	local bool bChosenIncreaseRisks;
-	local XComLWTuple Tuple; // Issue #436
 	local int idx;
 		
 	StratMgr = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
 	RiskTemplate = X2CovertActionRiskTemplate(StratMgr.FindStrategyElementTemplate(DarkEventRiskName));
 	
-	// Issue #436 Start
-	Tuple = new class'XComLWTuple';
-	Tuple.Id = 'AllowDarkEventRisk';
-	Tuple.Data.Add(2);
-	Tuple.Data[0].kind = XComLWTVObject;
-	Tuple.Data[0].o = RiskTemplate;
-	Tuple.Data[1].kind = XComLWTVBool;
-	Tuple.Data[1].b = RiskTemplate.IsRiskAvailableFn == none || RiskTemplate.IsRiskAvailableFn(GetFaction());
-
-	`XEVENTMGR.TriggerEvent('AllowDarkEventRisk', Tuple, self);
-
 	// Only add or modify risks which are available
-	if (Tuple.Data[1].b)
-	// Issue #436 End
+	if (TriggerAllowDarkEventRisk(RiskTemplate, false)) // Issue #436
 	{
 		RiskNames = GetMyTemplate().Risks;
 		bChosenIncreaseRisks = GetFaction().GetRivalChosen().ShouldIncreaseCovertActionRisks();
@@ -1029,6 +1016,27 @@ function EnableDarkEventRisk(name DarkEventRiskName)
 		}
 	}
 }
+
+// Start issues #436, #692
+private function bool TriggerAllowDarkEventRisk (X2CovertActionRiskTemplate RiskTemplate, bool bSetup)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'AllowDarkEventRisk';
+	Tuple.Data.Add(3);
+	Tuple.Data[0].kind = XComLWTVObject;
+	Tuple.Data[0].o = RiskTemplate;
+	Tuple.Data[1].kind = XComLWTVBool;
+	Tuple.Data[1].b = RiskTemplate.IsRiskAvailableFn == none || RiskTemplate.IsRiskAvailableFn(GetFaction()); // Vanilla logic
+	Tuple.Data[2].kind = XComLWTVBool;
+	Tuple.Data[2].b = bSetup;
+
+	`XEVENTMGR.TriggerEvent('AllowDarkEventRisk', Tuple, self);
+
+	return Tuple.Data[1].b;
+}
+// End issues #436, #692
 
 function DisableDarkEventRisk(name DarkEventRiskName)
 {
@@ -1489,8 +1497,27 @@ function CompleteCovertAction(XComGameState NewGameState)
 	// Flag the completion popup and trigger appropriate events
 	bNeedsActionCompletePopup = true;
 	`XEVENTMGR.TriggerEvent('CovertActionCompleted', , self, NewGameState);
-	class'XComGameState_HeadquartersResistance'.static.RecordResistanceActivity(NewGameState, 'ResAct_ActionsCompleted');
+	
+	if (TriggerAllowResActivityRecord(NewGameState)) { // Issue #696
+		class'XComGameState_HeadquartersResistance'.static.RecordResistanceActivity(NewGameState, 'ResAct_ActionsCompleted');
+	} // Issue #696
 }
+
+// Start Issue #696
+private function bool TriggerAllowResActivityRecord (XComGameState NewGameState)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = true;
+
+	`XEVENTMGR.TriggerEvent('CovertAction_AllowResActivityRecord', Tuple, self, NewGameState);
+	
+	return Tuple.Data[0].b;
+}
+// End Issue #696
 
 //#############################################################################################
 //----------------   GEOSCAPE ENTITY IMPLEMENTATION   -----------------------------------------
@@ -1951,6 +1978,7 @@ function StartAction()
 		ResHQ.bCovertActionStartedThisMonth = true;
 	}
 
+	`XEVENTMGR.TriggerEvent('CovertActionStarted',, self, NewGameState); // Issue #584
 	`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
 
 	// Update XComHQ staffing, power, and resource numbers
@@ -1959,6 +1987,8 @@ function StartAction()
 	XComHQ.HandlePowerOrStaffingChange();
 
 	`HQPRES.m_kAvengerHUD.UpdateResources();
+
+	if (!TriggerAllowEngineerPopup()) return; // Issue #584
 
 	// Throw up a popup alerting the player that there is an idle engineer
 	FacilityState = XComHQ.GetFacilityByName('ResistanceRing');
@@ -1973,6 +2003,23 @@ function StartAction()
 	}
 }
 
+// Start issue #584
+protected function bool TriggerAllowEngineerPopup ()
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'CovertActionAllowEngineerPopup';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].Kind = XComLWTVBool;
+	Tuple.Data[0].b = true;
+
+	`XEVENTMGR.TriggerEvent('CovertActionAllowEngineerPopup', Tuple, self);
+
+	return Tuple.Data[0].b;
+}
+// End issue #584
+
 private function CheckForProjectOverlap()
 {
 	local XComGameStateHistory History;
@@ -1981,6 +2028,8 @@ private function CheckForProjectOverlap()
 	local XComGameState_HeadquartersProjectHealSoldier HealProject;
 	local StateObjectReference ProjectRef;
 	local bool bModified;
+
+	if (!TriggerAllowCheckForProjectOverlap()) return; // Issue #584
 
 	History = `XCOMHISTORY;
 	XComHQ = class'UIUtilities_Strategy'.static.GetXComHQ();
@@ -2011,6 +2060,23 @@ private function CheckForProjectOverlap()
 		CheckForProjectOverlap(); // Recursive to check if the new offset time overlaps with anything
 	}
 }
+
+// Start issue #584
+protected function bool TriggerAllowCheckForProjectOverlap ()
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'CovertActionAllowCheckForProjectOverlap';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].Kind = XComLWTVBool;
+	Tuple.Data[0].b = true;
+
+	`XEVENTMGR.TriggerEvent('CovertActionAllowCheckForProjectOverlap', Tuple, self);
+
+	return Tuple.Data[0].b;
+}
+// End issue #584
 
 function UpdateGameBoard()
 {

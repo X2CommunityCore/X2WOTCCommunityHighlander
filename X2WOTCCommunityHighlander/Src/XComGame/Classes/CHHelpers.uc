@@ -145,6 +145,18 @@ var config bool UseNewPersonnelStatusBehavior;
 var config bool bSkipCampaignIntroMovies;
 // End Issue #543
 
+// Start Issue #510
+//
+// Sound range for "yelling" to alert enemy units.
+var config int NoiseAlertSoundRange;
+
+// Additional action point types supported by the `eBTCV_ActionPoints`
+// stat in AI behavior tree conditions. This is required to allow mods
+// to utilize custom action point types for reflex actions and actually
+// have units use those action points after scampering.
+var config array<name> AdditionalAIBTActionPointTypes;
+// End Issue #510
+
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
 	local XComContentManager		Content;
@@ -309,35 +321,52 @@ static function GroupItemStatsByLabel(out array<UISummary_ItemStat> InArray)
 // Issue #235 end
 
 // Start Issue #257
-// This focus change allows mods to change the focus UI that the vanilla game uses
-// to display Templar Focus. This effectively creates different types of Focus, even
-// though the game does not know about this. This imposes a few limitations on the system:
-// * A given unit only ever has a single "type" of focus. The rules for different focus
-//   types are expected to be so different from one another to make any conflicts
-//   a painful experience for modders and players.
-//   In particular, it means that this function should NOT be used to make any changes
-//   to the Templar Focus, as tempting as it may be.
-// * This also includes an Effect of the name TemplarFocus or an Effect Class of the type
-//   XComGameState_Effect_TemplarFocus.
-// In order to add your custom focus types, there are two changes in XComGame you can use:
-// * A new event hook for UIUnitFlag and UITacticalHUD_SoldierInfo: Documentation for that
-//   particular hook is directly below.
-// * A change in X2AbilityCost_Focus: You may subclass that particular class and override all
-//   functions declared there (CanAfford, ApplyCost, PreviewFocusCost). This can be used to
-//   preview a cost for custom skills that consume focus. Again, make sure to not mix and match
-//   custom subclasses with the base class for any abilities.
-/////////////////////////////////////////////////////////////////////////////////////////
+/// HL-Docs: feature:OverrideUnitFocusUI; issue:257; tags:tactical,compat
+/// This focus change allows mods to change the focus UI that the vanilla game uses
+/// to display Templar Focus. This effectively creates different types of Focus, even
+/// though the game does not know about this. For example, you can create a custom
+/// soldier class with its own type of focus, tracked with a `UnitValue`.
+/// This imposes a few limitations on the system:
+///
+/// * A given unit only ever has a single "type" of focus. The rules for different focus
+///   types are expected to be so different from one another to make any conflicts
+///   a painful experience for modders and players.
+///   In particular, it means that this function should NOT be used to make any changes
+///   to the Templar Focus, as tempting as it may be.
+/// * This also includes an Effect of the name `TemplarFocus` or an Effect Class of the type
+///   `XComGameState_Effect_TemplarFocus`.
+///
+/// In order to add your custom focus types, there are two changes in XComGame you can use:
+///
+/// * A new event hook for `UIUnitFlag` and `UITacticalHUD_SoldierInfo`: Documentation for that
+///   particular hook is directly below.
+/// * A change in `X2AbilityCost_Focus`: You may subclass that particular class and override all
+///   functions declared there (`CanAfford`, `ApplyCost`, `PreviewFocusCost`). This can be used to
+///   preview a cost for custom skills that consume focus. Again, make sure to not mix and match
+///   custom subclasses with the base class for any abilities.
+///
+/// ```unrealscript
+/// EventID: OverrideUnitFocusUI
+/// EventData: XComLWTuple {
+///     Data: [
+///       inout bool bVisible,
+///       inout int currentFocus,
+///       inout int maxFoxus,
+///       inout string color,
+///       inout string iconPath,
+///       inout string tooltipText,
+///       inout string focusLabel
+///     ]
+/// }
+/// ```
+///
+/// Note that if `bVisible == false`, the rest will be ignored and will not have valid data in it.
+///
+/// Compatibility: If you override `UIUnitFlag`, your code may undo the HL's changes that
+/// support this feature in the UI. See the tracking issue for code samples.
+
 // Static helper function used from UIUnitFlag and UITacticalHUD_SoldierInfo
 // to build a tuple used for mod-communication.
-// The tuple has the following data:
-// 0: bool   - bVisible     - whether to show a focus meter.
-// 1: int    - currentFocus - current focus level.
-// 2: int    - maxFoxus     - max focus level.
-// 3: string - color        - focus bar HTML color ("0xABCDEF")
-// 4: string - iconPath     - focus icon path. Note that this must overlap the standard icon, as there is no way for us to hide it
-// 5: string - tooltipText  - tooltip text.
-// 6: string - focusLabel   - focus Label
-// Note that if bVisible == false, the rest will be ignored and will not have valid data in it.
 static function XComLWTuple GetFocusTuple(XComGameState_Unit UnitState)
 {
 	local XComLWTuple Tup;
@@ -434,3 +463,33 @@ static function array<name> GetAmbushRiskTemplateNames()
 	return TemplateNames;
 }
 // End Issue #485
+
+// start issue #619
+static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
+{
+    local array<XComGameState_Player> EnemyPlayers;
+    local XComGameState_Player PlayerStateObject, EnemyStateObject, StateObject;
+ 
+    if (AIPlayer == none)
+        return EnemyPlayers;
+ 
+    PlayerStateObject = XComGameState_Player(`XCOMHISTORY.GetGameStateForObjectID(AIPlayer.ObjectID));
+ 
+    foreach `XCOMHISTORY.IterateByClassType(class'XComGameState_Player', StateObject)
+    {
+        if (StateObject.ObjectID == PlayerStateObject.ObjectID)
+            continue;
+        //Ignore civilians, this check is for checking actual enemies to the unit
+        if (StateObject.GetTeam() == ETeam_Neutral)
+            continue;
+        EnemyStateObject = StateObject;
+        if (PlayerStateObject.IsEnemyPlayer(EnemyStateObject))
+ 
+        if (EnemyStateObject != none)
+        {
+            EnemyPlayers.AddItem(EnemyStateObject);
+        }  
+    }
+    return EnemyPlayers;
+}
+// end issue #619

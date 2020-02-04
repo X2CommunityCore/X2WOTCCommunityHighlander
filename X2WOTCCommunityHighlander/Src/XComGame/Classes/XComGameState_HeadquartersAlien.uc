@@ -1790,11 +1790,34 @@ function int GetNumDarkEventsToPlay(XComGameState NewGameState)
 	{
 		NumEvents++;
 	}
+	
+	NumEvents = GetDarkEventOverride(NewGameState, NumEvents, bAddChosenActionDarkEvent); // Issue #711
 
+	// (Highlander comment on vanilla code) If there are still pending dark events from last month somehow, lower the number of new events
 	NumEvents -= ChosenDarkEvents.Length;
 
 	return NumEvents;
 }
+
+//---------------------------------------------------------------------------------------
+// Start Issue #711
+private function int GetDarkEventOverride(XComGameState NewGameState, int NumEvents, bool bChosenAddedEvent)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideDarkEventCount';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVInt;
+	Tuple.Data[0].i = NumEvents;
+	Tuple.Data[1].kind = XComLWTVBool;
+	Tuple.Data[1].b = bChosenAddedEvent;
+
+	`XEVENTMGR.TriggerEvent('OverrideDarkEventCount', Tuple, self, NewGameState);
+
+	return Tuple.Data[0].i;
+}
+// End Issue #711
 
 //---------------------------------------------------------------------------------------
 function array<XComGameState_DarkEvent> BuildDarkEventDeck()
@@ -3178,6 +3201,9 @@ function AddChosenTacticalTagsToMission(XComGameState_MissionSite MissionState, 
 	local float AppearChanceScalar;
 	local name ChosenSpawningTag;
 
+	// Issue #722
+	if (OverrideAddChosenTacticalTagsToMission(MissionState, bGuaranteedOnly)) return;
+
 	if(MissionState.Source == 'MissionSource_Final')
 	{
 		AllChosen = GetAllChosen(, true);
@@ -3269,6 +3295,38 @@ function AddChosenTacticalTagsToMission(XComGameState_MissionSite MissionState, 
 		}
 	}
 }
+
+// Start issue #722
+private function bool OverrideAddChosenTacticalTagsToMission (XComGameState_MissionSite MissionState, bool bGuaranteedOnly)
+{
+	local XComGameState NewGameState;
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Data.Add(2);
+
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = false;
+	Tuple.Data[1].kind = XComLWTVBool;
+	Tuple.Data[1].b = bGuaranteedOnly;
+
+	NewGameState = MissionState.GetParentGameState();
+	if (NewGameState.HistoryIndex > -1 && NewGameState != `XCOMHISTORY.GetStartState())
+	{
+		`Redscreen("CHL Warning: XCGS_HeadquartersAlien::AddChosenTacticalTagsToMission was passed MissionState that came from history, THIS WILL CAUSE BUGS");
+		`Redscreen("Make sure that the mission state comes from a pending gamestate before calling this function");
+		`Redscreen(GetScriptTrace());
+
+		// Can't trigger events on submitted states.
+		// This will probably break listeners, but it's the fault of the caller anyway
+		NewGameState = none;
+	}
+
+	`XEVENTMGR.TriggerEvent('OverrideAddChosenTacticalTagsToMission', Tuple, MissionState, NewGameState);
+
+	return Tuple.Data[0].b;
+}
+// End issue #722
 
 private function bool CanChosenAppear(int NumActiveChosen)
 {

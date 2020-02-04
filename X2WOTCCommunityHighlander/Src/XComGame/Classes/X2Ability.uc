@@ -1440,6 +1440,8 @@ simulated function SequentialShot_MergeVisualization(X2Action BuildTree, out X2A
 	VisMgr = `XCOMVISUALIZATIONMGR;
 	MarkerStart = X2Action_MarkerTreeInsertBegin(VisMgr.GetNodeOfType(BuildTree, class'X2Action_MarkerTreeInsertBegin'));
 	// Start Issue #20
+	/// HL-Docs: ref:Bugfixes; issue:20
+	/// Reaper's Banish now properly visualizes subsequent shots.
 	// This function breaks 3+ subsequent shots. Somehow, the actions filled out by GetNodesOfType are sorted so that our
 	// "get the last join marker" actually sometimes finds us the FIRST join marker. This causes all these shot contexts to
 	// try and visualize themselves alongside each other, which is definitely not intended.
@@ -1492,6 +1494,8 @@ simulated function SequentialShot_MergeVisualization(X2Action BuildTree, out X2A
 	ExitCoverAction.bSkipExitCoverVisualization = true;
 
 	// Single Line for Issue #273 Line moved to end so that there will only be one EnterCover is the VisualizationTree so the GetNodesOfType() can't get the wrong one
+	/// HL-Docs: ref:Bugfixes; issue:273
+	/// Fix an issue causing Rapid Fire/Chain Shot/Banish/... entering cover early
 	//VisMgr.ConnectAction(MarkerStart, VisualizationTree, true, JoinMarker);
 	
 	//	now we have to make sure there's a wait parented to the first exit cover, which waits for the last enter cover

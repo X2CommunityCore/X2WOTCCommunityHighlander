@@ -1087,6 +1087,8 @@ event GetDesiredCoverState(out int CoverIndex, out UnitPeekSide PeekSide)
 		}
 		// Issue #269 GetSteoOutCoverInfo() calls GetDirectionInfoForTarget()/GetDirectionInfoForPosition() as appropriate
 		// and performs logic as to whether a stepout should occur for X2Action_ExitCover
+		/// HL-Docs: ref:Bugfixes; issue:269
+		/// Fix some edge cases in `XComIdleAnimationStateMachine` regarding idle animations, targeting, and step-outs
 		bShouldStepOut=Unit.GetStepOutCoverInfo(TargetUnitState, TargetLocation, CoverIndex, PeekSide, bRequiresLean, bCanSeeFromDefault);
 		if(CoverIndex==0 && Unit.GetCoverType(0, VisualizationHistoryIndex)==CT_None)
 		{
