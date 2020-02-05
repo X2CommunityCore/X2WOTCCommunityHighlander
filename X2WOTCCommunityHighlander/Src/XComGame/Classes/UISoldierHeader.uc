@@ -262,8 +262,10 @@ public function PopulateData(optional XComGameState_Unit Unit, optional StateObj
 	ArmorBonus = Unit.GetUIStatFromInventory(eStat_ArmorMitigation, CheckGameState);
 	DodgeBonus = Unit.GetUIStatFromInventory(eStat_Dodge, CheckGameState);
 
-	if(Unit.IsPsiOperative())
+	// Start Issue #757
+	if(Unit.HasPsiGift())
 	{
+	// End Issue #757
 		Psi = string(int(Unit.GetCurrentStat(eStat_PsiOffense)) + Unit.GetUIStatFromAbilities(eStat_PsiOffense));
 		PsiBonus = Unit.GetUIStatFromInventory(eStat_PsiOffense, CheckGameState);
 	}
@@ -287,9 +289,13 @@ public function PopulateData(optional XComGameState_Unit Unit, optional StateObj
 			TechBonus += EquipmentTemplate.GetUIStatMarkup(eStat_Hacking, TmpItem);
 			ArmorBonus += EquipmentTemplate.GetUIStatMarkup(eStat_ArmorMitigation, TmpItem);
 			DodgeBonus += EquipmentTemplate.GetUIStatMarkup(eStat_Dodge, TmpItem);
-		
-			if(Unit.IsPsiOperative())
+
+			// Start Issue #757
+			if(Unit.HasPsiGift())
+			{
+			// End Issue #757
 				PsiBonus += EquipmentTemplate.GetUIStatMarkup(eStat_PsiOffense, TmpItem);
+			}
 		}
 	}
 
@@ -313,8 +319,13 @@ public function PopulateData(optional XComGameState_Unit Unit, optional StateObj
 			ArmorBonus -= EquipmentTemplate.GetUIStatMarkup(eStat_ArmorMitigation, TmpItem);
 			DodgeBonus -= EquipmentTemplate.GetUIStatMarkup(eStat_Dodge, TmpItem);
 		
-			if(Unit.IsPsiOperative())
+
+			// Start Issue #757
+			if(Unit.HasPsiGift())
+			{
 				PsiBonus -= EquipmentTemplate.GetUIStatMarkup(eStat_PsiOffense, TmpItem);
+			}
+			// End Issue #757
 		}
 	}
 
