@@ -213,6 +213,24 @@ function OnActivated(XComGameState NewGameState)
 //---------------------------------------------------------------------------------------
 function OnDeactivated(XComGameState NewGameState)
 {
+	// Issue #753
+	//
+	/// HL-Docs: feature:PreDarkEventDeactivated; issue:753; tags:strategy
+	/// Notifies listeners of when a dark event has expired/been deactivated. This
+	/// event fires before the dark event's deactivation code runs, so register an
+	/// ELD_Immediate listener if you want access to the state before that happens,
+	/// or an ELD_OnStateSubmitted listener if you want the state *after* the full
+	/// deactivation.
+	///
+	/// ```unrealscript
+	/// EventID: PreDarkEventDeactivated
+	/// EventData: XCGS_DarkEvent
+	/// EventSource: XCGS_DarkEvent
+	/// NewGameState: yes
+	/// ```
+	`XEVENTMGR.TriggerEvent('PreDarkEventDeactivated', self, self, NewGameState);
+	// End Issue #753
+
 	if(GetMyTemplate().OnDeactivatedFn != none)
 	{
 		GetMyTemplate().OnDeactivatedFn(NewGameState, self.GetReference());
