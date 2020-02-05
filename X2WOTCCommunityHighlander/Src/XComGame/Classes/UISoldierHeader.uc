@@ -166,7 +166,7 @@ public function PositionTopRight()
 
 public function PopulateData(optional XComGameState_Unit Unit, optional StateObjectReference NewItem, optional StateObjectReference ReplacedItem, optional XComGameState NewCheckGameState)
 {
-	local int iRank, WillBonus, AimBonus, HealthBonus, MobilityBonus, TechBonus, PsiBonus, ArmorBonus, DodgeBonus;
+	local int WillBonus, AimBonus, HealthBonus, MobilityBonus, TechBonus, PsiBonus, ArmorBonus, DodgeBonus;
 	local string classIcon, rankIcon, flagIcon, Will, Aim, Health, Mobility, Tech, Psi, Armor, Dodge;
 	local X2SoldierClassTemplate SoldierClass;
 	local X2EquipmentTemplate EquipmentTemplate;
@@ -186,15 +186,15 @@ public function PopulateData(optional XComGameState_Unit Unit, optional StateObj
 		else
 			Unit = XComGameState_Unit(History.GetGameStateForObjectID(UnitRef.ObjectID));
 	}
-	
-	iRank = Unit.GetRank();
 
 	SoldierClass = Unit.GetSoldierClassTemplate();
 
 	FactionState = Unit.GetResistanceFaction();
 
 	flagIcon  = (Unit.IsSoldier() && !bHideFlag) ? Unit.GetCountryTemplate().FlagImage : "";
-	rankIcon  = Unit.IsSoldier() ? class'UIUtilities_Image'.static.GetRankIcon(iRank, Unit.GetSoldierClassTemplateName()) : Unit.GetMPCharacterTemplate().IconImage;
+	// Start Issue #408
+	rankIcon  = Unit.IsSoldier() ? Unit.GetSoldierRankIcon() : Unit.GetMPCharacterTemplate().IconImage;
+	// End Issue #408
 	// Start Issue #106
 	classIcon = Unit.IsSoldier() ? Unit.GetSoldierClassIcon() : Unit.GetMPCharacterTemplate().IconImage;
 	// End Issue #106
@@ -217,26 +217,28 @@ public function PopulateData(optional XComGameState_Unit Unit, optional StateObj
 
 	if(Unit.IsMPCharacter())
 	{
+		// Start Issue #408
 		SetSoldierInfo( Caps(strMPForceName == "" ? Unit.GetName( eNameType_FullNick ) : strMPForceName),
 							  StatusLabel, StatusValue,
 							  class'XGBuildUI'.default.m_strLabelCost, 
 							  string(Unit.GetUnitPointValue()),
 							  "", "",
 							  classIcon, Caps(SoldierClass != None ? SoldierClass.DisplayName : ""),
-							  rankIcon, Caps(Unit.IsSoldier() ? `GET_RANK_STR(Unit.GetRank(), Unit.GetSoldierClassTemplateName()) : Unit.IsAlien() ? class'UIHackingScreen'.default.m_strAlienInfoTitle : class'UIHackingScreen'.default.m_strAdventInfoTitle),
+							  rankIcon, Caps(Unit.IsSoldier() ? Unit.GetSoldierRankName() : Unit.IsAlien() ? class'UIHackingScreen'.default.m_strAlienInfoTitle : class'UIHackingScreen'.default.m_strAdventInfoTitle),
 							  flagIcon, false, DaysValue);
+		// End Issue #408
 	}
 	else
 	{
-		// Start Issue #106
+		// Start Issue #106, #408
 		SetSoldierInfo( Caps(Unit.GetName( eNameType_FullNick )),
 							  StatusLabel, StatusValue,
 							  m_strMissionsLabel, string(Unit.GetNumMissions()),
 							  m_strKillsLabel, string(Unit.GetNumKills()),
 							  classIcon, Caps(SoldierClass != None ? Unit.GetSoldierClassDisplayName() : ""),
-							  rankIcon, Caps(`GET_RANK_STR(Unit.GetRank(), Unit.GetSoldierClassTemplateName())),
+							  rankIcon, Caps(Unit.GetSoldierRankName()),
 							  flagIcon, (Unit.ShowPromoteIcon()), DaysValue);
-		// End Issue #106
+		// End Issue #106, #408
 	}
 
 	SetFactionIcon(FactionState.GetFactionIcon());
@@ -260,8 +262,10 @@ public function PopulateData(optional XComGameState_Unit Unit, optional StateObj
 	ArmorBonus = Unit.GetUIStatFromInventory(eStat_ArmorMitigation, CheckGameState);
 	DodgeBonus = Unit.GetUIStatFromInventory(eStat_Dodge, CheckGameState);
 
-	if(Unit.IsPsiOperative())
+	// Start Issue #757
+	if(Unit.HasPsiGift())
 	{
+	// End Issue #757
 		Psi = string(int(Unit.GetCurrentStat(eStat_PsiOffense)) + Unit.GetUIStatFromAbilities(eStat_PsiOffense));
 		PsiBonus = Unit.GetUIStatFromInventory(eStat_PsiOffense, CheckGameState);
 	}
@@ -285,9 +289,13 @@ public function PopulateData(optional XComGameState_Unit Unit, optional StateObj
 			TechBonus += EquipmentTemplate.GetUIStatMarkup(eStat_Hacking, TmpItem);
 			ArmorBonus += EquipmentTemplate.GetUIStatMarkup(eStat_ArmorMitigation, TmpItem);
 			DodgeBonus += EquipmentTemplate.GetUIStatMarkup(eStat_Dodge, TmpItem);
-		
-			if(Unit.IsPsiOperative())
+
+			// Start Issue #757
+			if(Unit.HasPsiGift())
+			{
+			// End Issue #757
 				PsiBonus += EquipmentTemplate.GetUIStatMarkup(eStat_PsiOffense, TmpItem);
+			}
 		}
 	}
 
@@ -311,8 +319,13 @@ public function PopulateData(optional XComGameState_Unit Unit, optional StateObj
 			ArmorBonus -= EquipmentTemplate.GetUIStatMarkup(eStat_ArmorMitigation, TmpItem);
 			DodgeBonus -= EquipmentTemplate.GetUIStatMarkup(eStat_Dodge, TmpItem);
 		
-			if(Unit.IsPsiOperative())
+
+			// Start Issue #757
+			if(Unit.HasPsiGift())
+			{
 				PsiBonus -= EquipmentTemplate.GetUIStatMarkup(eStat_PsiOffense, TmpItem);
+			}
+			// End Issue #757
 		}
 	}
 
