@@ -60,6 +60,7 @@ static function array<CHLComponent> GetComponentInfo()
 
 	SelfVersion = Manager.FindStrategyElementTemplate('CHWOTCVersion');
 	Comps.AddItem(BuildComponent(SelfVersion, none, "X2WOTCCommunityHighlander", true, true));
+	Comps.AddItem(BuildComponent(Manager.FindStrategyElementTemplate('CHCoreVersion'), SelfVersion, "Core", true, true));
 	Comps.AddItem(BuildComponent(Manager.FindStrategyElementTemplate('CHEngineVersion'), SelfVersion, "Engine", true, true));
 	Comps.AddItem(BuildComponent(Manager.FindStrategyElementTemplate('CHXComGameVersion'), SelfVersion, "XComGame", true, true));
 
