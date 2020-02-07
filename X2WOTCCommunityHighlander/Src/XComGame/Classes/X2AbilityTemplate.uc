@@ -256,11 +256,13 @@ function InitAbilityForUnit(XComGameState_Ability AbilityState, XComGameState_Un
 
 function XComGameState_Ability CreateInstanceFromTemplate(XComGameState NewGameState)
 {
-	local XComGameState_Ability Ability;	
+	/*local XComGameState_Ability Ability;	
 
 	Ability = XComGameState_Ability(NewGameState.CreateNewStateObject(class'XComGameState_Ability', self));
 
-	return Ability;
+	return Ability;*/
+
+	return class'CHHelpers'.static.CreateAbilityStateFromTemplate(NewGameState, self);
 }
 
 function AddTargetEffect(X2Effect Effect)

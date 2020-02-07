@@ -493,3 +493,35 @@ static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
     return EnemyPlayers;
 }
 // end issue #619
+
+static function XComGameState_Ability CreateAbilityStateFromTemplate (XComGameState NewGameState, X2AbilityTemplate Template)
+{
+	if (DoesAbilityNeedCHState(Template))
+	{
+		`log(Template.DataName @ "state created custom",, 'CreateAbilityStateFromTemplate');
+		return XComGameState_Ability(NewGameState.CreateNewStateObject(class'XComGameState_Ability_CH', Template));
+	}
+
+	`log(Template.DataName @ "state created default",, 'CreateAbilityStateFromTemplate');
+	return XComGameState_Ability(NewGameState.CreateNewStateObject(class'XComGameState_Ability', Template));
+}
+
+static private function bool DoesAbilityNeedCHState (X2AbilityTemplate Template)
+{
+	if (Template.AbilityTargetStyle != none && Template.AbilityTargetStyle.IsA(class'X2AbilityTarget_Scripted'.Name))
+	{
+		return true;
+	}
+
+	if (Template.AbilityMultiTargetStyle != none && Template.AbilityMultiTargetStyle.IsA(class'X2AbilityMultiTarget_Scripted'.Name))
+	{
+		return true;
+	}
+
+	if (Template.AbilityPassiveAOEStyle != none && Template.AbilityPassiveAOEStyle.IsA(class'X2AbilityPassiveAOE_Scripted'.Name))
+	{
+		return true;
+	}
+
+	return false;
+}
