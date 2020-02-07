@@ -2401,6 +2401,23 @@ native final function bool IsPointInBox( const out Vector Point, const out Box T
 
 native final function bool LineBoxIntersection(Box BBox, Vector Start, Vector End, Vector Direction, Vector OneOverDirection, out Vector HitLocation);
 
+// Issue #767 Start
+/// HL-Docs: feature:ClassIsNative; issue:767; tags:
+/// To check whether a given class is native, use the static function
+/// `CH_ClassIsNative`. Example usage:
+///
+/// ```unrealscript
+/// CH_ClassIsNative(class'X2AbilityTarget_Single'); // True
+/// CH_ClassIsNative(UnitState.GetVisualizer().Class); // False because XGUnit is always non-native
+/// ```
+static final function bool CH_ClassIsNative(Class Klass)
+{
+	// This is the flag the UC VM uses to mark a class as native
+	return (Klass.ObjectFlags.B & (1 << 26)) != 0;
+}
+// Issue #767 End
+
+
 defaultproperties
 {
 }
