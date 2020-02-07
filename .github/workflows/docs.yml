@@ -1,12 +1,9 @@
 name: docs
 
-on:
-  push:	
-    branches:	
-      - master
+on: [push, pull_request]
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/setup-python@v1
@@ -20,6 +17,22 @@ jobs:
         pip install mkdocs
         cd mkdocs
         mkdocs build -d ../target
+    - name: Upload the built docs
+      uses: actions/upload-artifact@v1
+      with:
+        name: docs-html
+        path: target
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event == 'push' && github.ref == 'master'
+    steps:
+    - name: Get the built docs
+      uses: actions/download-artifact@v1
+      with:
+        name: docs-html
+        path: target
     - name: Deploy
       uses: crazy-max/ghaction-github-pages@v1
       with:
