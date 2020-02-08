@@ -182,7 +182,21 @@ simulated function UpdateData(int NewIndex, const out AvailableAction AvailableA
 	RefreshShine();
 }
 
-// Start Issue #400, #749
+/// HL-Docs: feature:OverrideAbilityIconColor; issue:400,749; tags:tactical,compatibility
+/// This event triggers each time an ability icon is updated in the UITacticalHUD, allowing mods to override the colors of each icon
+///	from a tuple that also contains all the date about the icon and its related ability.
+///
+/// ```unrealscript
+/// EventID: OverrideAbilityIconColor
+/// EventData: XComLWTuple {
+///     Data: [
+///       inout bool IsObjective,
+///       inout string BackgroundColor,
+///       inout string ForegroundColor
+///     ]
+/// }
+/// ```
+///
 static function TriggerOverrideAbilityIconColor(XComGameState_Ability Ability, bool IsObjective, out string BackgroundColor, out string ForegroundColor)
 {
 	local XComLWTuple OverrideTuple;
