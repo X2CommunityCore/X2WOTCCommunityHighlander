@@ -518,7 +518,7 @@ static function bool CanWeaponApplyUpgrade(XComGameState_Item WeaponState, X2Wea
 /// 	local vector				RelativeScale;
 /// 	local float					RAD_INTO_DEG;
 ///    
-/// 	RAD_INTO_DEG = 182.0416f;	//	Local constant.
+/// 	RAD_INTO_DEG = 182.0416f;	//	Local "constant"
 /// 	
 /// 	if (ItemState != none)
 /// 	{
@@ -552,8 +552,6 @@ static function bool CanWeaponApplyUpgrade(XComGameState_Item WeaponState, X2Wea
 /// ```
 static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets, XComWeapon Weapon, XComGameState_Item ItemState)
 {
-	local const float RAD_INTO_DEG = 182.0416f;
-
 	return;
 }
 /// End Issue #281

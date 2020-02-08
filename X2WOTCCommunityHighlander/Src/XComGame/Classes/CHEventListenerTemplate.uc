@@ -5,8 +5,7 @@
 ///	1) Name of the Event to listen for.
 ///	2) EventFn to run when the event is triggered.
 ///	3) Optional: Deferral (default deferral is ELD_OnStateSubmitted). 
-///	It should be used if you want to submit Game State(s) in your EventFn. If you intend to make immediate changes to Event Arguments or 
-///	to the pending Game State passed to the Event Listener, use ELD_Immediate.
+///	Go here for info on Deferrals: https://www.reddit.com/r/xcom2mods/wiki/index/events#wiki_deferral
 ///	4) Optional: Priority (default priority is 50). Event listeners with the larger priority number are executed first.
 /// Example use:
 /// ```unrealscript

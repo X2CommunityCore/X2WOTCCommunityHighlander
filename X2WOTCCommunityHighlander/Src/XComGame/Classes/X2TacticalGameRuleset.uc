@@ -2411,7 +2411,7 @@ simulated state CreateTacticalGame
 
 		// Start Issue #457
 		/// HL-Docs: feature:PostAliensSpawned; issue:457; tags:tactical
-		/// This event triggers right after the alien pods are added into the tactical mission's Start State.
+		/// This event triggers right after the alien pods are added into the tactical mission's Start State, before their visualizers are spawned/visualized.
 		/// Overall it can be treated as an earlier alternative to `'OnTacticalBeginPlay'` event.
 		/// It can be used to make arbitrary changes to units that were just added to the Start State,
 		///	including Soldier VIPs that are spawned for Gather Survivors missions.

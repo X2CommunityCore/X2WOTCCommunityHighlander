@@ -10938,8 +10938,8 @@ function ApplyBestGearLoadout(XComGameState NewGameState)
 	
 	// Issue #676 Start
 	/// HL-Docs: feature:OnBestGearLoadoutApplied; issue:676; tags:strategy
-	/// The `XComGameState_Unit::ApplyBestGearLoadout` does not perform CanAddItemToInventory checks, 
-	/// so if one of the selected items cannot be equipped due to an override in CanAddItemToInventory_CH,
+	/// The `XComGameState_Unit::ApplyBestGearLoadout` does not perform CanAddItemToInventory checks when it picks the best gear for the soldier, 
+	/// so if one of the selected items by that function cannot be equipped due to an override in CanAddItemToInventory_CH,
 	/// the inventory slot will remain empty. This event passes along the Unit State whenever this function is called,
 	/// so the mods can use their arbitrary conditions to decide what is the actual best gear loadout is for a unit.
 	///
