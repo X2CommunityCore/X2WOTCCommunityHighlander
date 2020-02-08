@@ -12,7 +12,7 @@ The nav bar has a list of features. Click on a feature to view that feature's
 documentation. Every feature has:
 
 * A GitHub tracking issue for discussion
-* A documented way to use it, for example with an event tuple (TODO: Document Tuples)
+* A documented way to use it, for example with an [event tuple](events.md
 * Code references that link to HL source code where the documentation is
 
 ## Documentation for the documentation tool
