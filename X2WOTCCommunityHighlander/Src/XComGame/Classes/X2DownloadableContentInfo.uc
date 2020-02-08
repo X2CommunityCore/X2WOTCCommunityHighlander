@@ -506,9 +506,15 @@ static function bool CanWeaponApplyUpgrade(XComGameState_Item WeaponState, X2Wea
 /// Allows DLC/Mods to append sockets to weapons
 /// NOTE: To create new sockets from script you need to unconst SocketName and BoneName in SkeletalMeshSocket
 /// </summary>
+<<<<<<< HEAD
 /// HL-Docs: feature:DLCAppendWeaponSockets; issue:281; tags:misc
 /// Allows mods to add, move and rescale sockets on the skeletal mesh of any weapon, which can be used to position visual weapon attachments.
 ///	Duplicate sockets are not allowed. If you try to add a socket that already exists, the older socket will be removed.
+=======
+/// HL-Docs: feature:DLCAppendWeaponSockets; issue:281; tags:pawns
+/// Allows mods to add sockets to the skeletal mesh of any weapon, which can be used to position visual weapon attachments,
+/// using different position/scale of the same attachment's skeletal mesh for different weapons. Example use:
+>>>>>>> e0517150872102f13569e751264e716271a49e2e
 /// ```unrealscript
 /// static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets, XComWeapon Weapon, XComGameState_Item ItemState)
 /// {

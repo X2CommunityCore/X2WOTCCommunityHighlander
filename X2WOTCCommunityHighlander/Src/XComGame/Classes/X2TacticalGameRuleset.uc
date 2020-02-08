@@ -2446,6 +2446,11 @@ simulated state CreateTacticalGame
 		/// 	return ELR_NoInterrupt;
 		/// }
 		/// ```
+		/// 
+		/// ```unrealscript
+		/// EventID: PostAliensSpawned
+		/// NewGameState: StartState
+		/// ```
 		`XEVENTMGR.TriggerEvent('PostAliensSpawned',,, StartState);
 		// End Issue #457
 
