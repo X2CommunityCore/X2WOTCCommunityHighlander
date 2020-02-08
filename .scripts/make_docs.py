@@ -142,7 +142,7 @@ def process_file(file, lang) -> List[dict]:
                 is_doc_comment = len(s_line) >= 3 and (s_line[0:3] == '///'
                                                        or s_line[0:3] == ";;;")
                 line = s_line[3:]
-                if line.startswith(' '):
+                if line.startswith(' ') or line.startswith('\t'):
                     line = line[1:]
 
                 if self.state == ParserState.TEXT:
