@@ -507,18 +507,15 @@ static function bool CanWeaponApplyUpgrade(XComGameState_Item WeaponState, X2Wea
 /// NOTE: To create new sockets from script you need to unconst SocketName and BoneName in SkeletalMeshSocket
 /// </summary>
 /// HL-Docs: feature:DLCAppendWeaponSockets; issue:281; tags:misc
-/// Allows mods to add sockets to the skeletal mesh of any weapon, which can be used to position visual weapon attachments,
-/// using different position/scale of the same attachment's skeletal mesh for different weapons. Example use:
+/// Allows mods to add, move and rescale sockets on the skeletal mesh of any weapon, which can be used to position visual weapon attachments.
+///	Duplicate sockets are not allowed. If you try to add a socket that already exists, the older socket will be removed.
 /// ```unrealscript
 /// static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets, XComWeapon Weapon, XComGameState_Item ItemState)
 /// {
 /// 	local SkeletalMeshSocket    Socket;
 ///     local vector                RelativeLocation;
 /// 	local rotator				RelativeRotation;
-/// 	local vector				RelativeScale;
-/// 	local float					RAD_INTO_DEG;
-///    
-/// 	RAD_INTO_DEG = 182.0416f;	//	Local "constant"
+/// 	local vector				RelativeScale;   
 /// 	
 /// 	if (ItemState != none)
 /// 	{
@@ -533,11 +530,11 @@ static function bool CanWeaponApplyUpgrade(XComGameState_Item WeaponState, X2Wea
 /// 		RelativeLocation.Z = 15;
 /// 		Socket.RelativeLocation = RelativeLocation;
 /// 
-/// 		//	In code, socket rotation is recorded as an int value [-65536; 65536].
+/// 		//	Socket rotation is recorded as an int value [-65535; 65535], which corresponds with [-360 degrees; 360 degrees]
 /// 		//	If we want to specify the rotation in degrees, the value must be converted.
-/// 		RelativeRotation.Pitch = 5 * default.RAD_INTO_DEG;
-/// 		RelativeRotation.Yaw = 10 * default.RAD_INTO_DEG;
-/// 		RelativeRotation.Roll = 15 * default.RAD_INTO_DEG;
+/// 		RelativeRotation.Pitch = 5 * class'Object'.const.DegToUnrRot;	//	Pitch of five degrees.
+/// 		RelativeRotation.Yaw = 10 * class'Object'.const.DegToUnrRot;
+/// 		RelativeRotation.Roll = 15 * class'Object'.const.DegToUnrRot;
 /// 		Socket.RelativeRotation = RelativeRotation;
 /// 
 /// 		//	Scaling a socket will scale any mesh attached to it.
