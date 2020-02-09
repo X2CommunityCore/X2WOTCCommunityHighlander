@@ -190,7 +190,7 @@ simulated function UpdateData(int NewIndex, const out AvailableAction AvailableA
 /// EventID: OverrideAbilityIconColor
 /// EventData: XComLWTuple {
 ///     Data: [
-///       inout bool IsObjective,
+///       in bool IsObjective,
 ///       inout string BackgroundColor,
 ///       inout string ForegroundColor
 ///     ]
