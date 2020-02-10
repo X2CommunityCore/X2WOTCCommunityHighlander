@@ -13,8 +13,10 @@
     <Folder Include="Config\" />
     <Folder Include="Localization\" />
     <Folder Include="Src\" />
+    <Folder Include="Src\DLC_2\Classes" />
     <Folder Include="Src\Engine" />
     <Folder Include="Src\Engine\Classes" />
+    <Folder Include="Src\DLC_2" />
     <Folder Include="Src\XComGame" />
     <Folder Include="Src\X2WOTCCommunityHighlander\" />
     <Folder Include="Src\X2WOTCCommunityHighlander\Classes\" />
@@ -41,6 +43,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="ModPreviewWindows.jpg">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\DLC_2\Classes\X2DLC2CH_CHXComGameVersion.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\Engine\Classes\AudioComponent.uc">
