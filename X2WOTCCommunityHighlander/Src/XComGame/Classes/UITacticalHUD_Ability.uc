@@ -135,10 +135,16 @@ simulated function UpdateData(int NewIndex, const out AvailableAction AvailableA
 		if (IsObjectiveAbility)
 		{
 			BackgroundColor = class'UIUtilities_Colors'.const.OBJECTIVEICON_HTML_COLOR;
+
+			// DEPRECATED - Use the new OverrideBothAbilityIconColors event instead
+			TriggerOverrideAbilityIconColor(AbilityState, 'OverrideAbilityIconColor', IsObjectiveAbility, BackgroundColor, ForegroundColor);
 		}
 		else if (AbilityTemplate.AbilityIconColor != "")
 		{
 			BackgroundColor = AbilityTemplate.AbilityIconColor;
+
+			// DEPRECATED - Use the new OverrideBothAbilityIconColors event instead
+			TriggerOverrideAbilityIconColor(AbilityState, 'OverrideAbilityIconColor', IsObjectiveAbility, BackgroundColor, ForegroundColor);
 		}
 		else
 		{
@@ -165,7 +171,8 @@ simulated function UpdateData(int NewIndex, const out AvailableAction AvailableA
 
 		ForegroundColor = class'UIUtilities_Colors'.const.BLACK_HTML_COLOR;
 
-		TriggerOverrideAbilityIconColor(AbilityState, IsObjectiveAbility, BackgroundColor, ForegroundColor);
+		/// HL-Docs: ref:OverrideBothAbilityIconColors; issue:749
+		TriggerOverrideAbilityIconColor(AbilityState, 'OverrideBothAbilityIconColors', IsObjectiveAbility, BackgroundColor, ForegroundColor);
 		Icon.EnableMouseAutomaticColor(BackgroundColor, ForegroundColor);
 	}
 	// End Issue #749
@@ -182,12 +189,12 @@ simulated function UpdateData(int NewIndex, const out AvailableAction AvailableA
 	RefreshShine();
 }
 
-/// HL-Docs: feature:OverrideAbilityIconColor; issue:400,749; tags:tactical,compatibility
+/// HL-Docs: feature:OverrideBothAbilityIconColors; issue:749; tags:tactical,compatibility
 /// This event triggers each time an ability icon is updated in the UITacticalHUD, allowing mods to override the colors of each icon
 ///	from a tuple that also contains all the date about the icon and its related ability.
 ///
 /// ```unrealscript
-/// EventID: OverrideAbilityIconColor
+/// EventID: OverrideBothAbilityIconColors
 /// EventData: XComLWTuple {
 ///     Data: [
 ///       in bool IsObjective,
@@ -196,13 +203,33 @@ simulated function UpdateData(int NewIndex, const out AvailableAction AvailableA
 ///     ]
 /// }
 /// ```
+//
+/// HL-Docs: feature:OverrideAbilityIconColor; issue:400; tags:tactical,compatibility
+/// DEPRECATED - This event triggers each time an ability icon is updated in the UITacticalHUD,
+/// if the ability is an objective ability or has the `AbilityIconColor` property set in its
+/// template. This event allows mods to override the background color of each such icon.
 ///
-static function TriggerOverrideAbilityIconColor(XComGameState_Ability Ability, bool IsObjective, out string BackgroundColor, out string ForegroundColor)
+/// ```unrealscript
+/// EventID: OverrideAbilityIconColor
+/// EventData: XComLWTuple {
+///     Data: [
+///       in bool IsObjective,
+///       inout string BackgroundColor
+///     ]
+/// }
+/// ```
+//
+static function TriggerOverrideAbilityIconColor(
+	XComGameState_Ability Ability,
+	name EventName,
+	bool IsObjective,
+	out string BackgroundColor,
+	out string ForegroundColor)
 {
 	local XComLWTuple OverrideTuple;
 
 	OverrideTuple = new class'XComLWTuple';
-	OverrideTuple.Id = 'OverrideAbilityIconColor';
+	OverrideTuple.Id = EventName;
 	OverrideTuple.Data.Add(3);
 	OverrideTuple.Data[0].kind = XComLWTVBool;
 	OverrideTuple.Data[0].b = IsObjective; // If this Ability is part of the current mission objective
@@ -211,7 +238,7 @@ static function TriggerOverrideAbilityIconColor(XComGameState_Ability Ability, b
 	OverrideTuple.Data[2].kind = XComLWTVString;
 	OverrideTuple.Data[2].s = ForegroundColor; 
 
-	`XEVENTMGR.TriggerEvent('OverrideAbilityIconColor', OverrideTuple, Ability);
+	`XEVENTMGR.TriggerEvent(EventName, OverrideTuple, Ability);
 
 	BackgroundColor = OverrideTuple.Data[1].s;
 	ForegroundColor = OverrideTuple.Data[2].s;
