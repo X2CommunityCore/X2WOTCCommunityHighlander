@@ -702,8 +702,9 @@ private function StateObjectReference GetRulerLocatedAtMission(XComGameState_Mis
 	local AlienRulerLocation RulerLocation;
 
 	// If DLC is integrated with the XPack, rulers only appear for the first time on specific missions
-	if (class'X2Helpers_DLC_Day60'.static.IsXPackIntegrationEnabled())
-	{
+	// Issue #771 - removed this check. It's useless anyway as without the xpack integration enabled AlienRulerLocations will never be populated
+	//if (class'X2Helpers_DLC_Day60'.static.IsXPackIntegrationEnabled())
+	//{
 		// Check to see if the ruler is located at this mission site
 		foreach AlienRulerLocations(RulerLocation)
 		{
@@ -712,7 +713,7 @@ private function StateObjectReference GetRulerLocatedAtMission(XComGameState_Mis
 				return RulerLocation.RulerRef;
 			}
 		}
-	}
+	//}
 }
 
 //---------------------------------------------------------------------------------------
