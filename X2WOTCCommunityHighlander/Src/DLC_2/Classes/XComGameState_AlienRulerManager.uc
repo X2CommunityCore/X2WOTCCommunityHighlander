@@ -700,6 +700,7 @@ function UpdateRulerStatsForDifficulty(XComGameState NewGameState)
 private function StateObjectReference GetRulerLocatedAtMission(XComGameState_MissionSite MissionState)
 {
 	local AlienRulerLocation RulerLocation;
+	local StateObjectReference EmptyRef; // CHL: warning fix
 
 	// If DLC is integrated with the XPack, rulers only appear for the first time on specific missions
 	// Issue #771 - removed this check. It's useless anyway as without the xpack integration enabled AlienRulerLocations will never be populated
@@ -714,6 +715,9 @@ private function StateObjectReference GetRulerLocatedAtMission(XComGameState_Mis
 			}
 		}
 	//}
+
+	// CHL: warning fix
+	return EmptyRef;
 }
 
 //---------------------------------------------------------------------------------------
