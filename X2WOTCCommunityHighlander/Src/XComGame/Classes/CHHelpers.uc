@@ -321,7 +321,7 @@ static function GroupItemStatsByLabel(out array<UISummary_ItemStat> InArray)
 // Issue #235 end
 
 // Start Issue #257
-/// HL-Docs: feature:OverrideUnitFocusUI; issue:257; tags:tactical,compat
+/// HL-Docs: feature:OverrideUnitFocusUI; issue:257; tags:tactical,compatibility
 /// This focus change allows mods to change the focus UI that the vanilla game uses
 /// to display Templar Focus. This effectively creates different types of Focus, even
 /// though the game does not know about this. For example, you can create a custom
@@ -362,7 +362,9 @@ static function GroupItemStatsByLabel(out array<UISummary_ItemStat> InArray)
 ///
 /// Note that if `bVisible == false`, the rest will be ignored and will not have valid data in it.
 ///
-/// Compatibility: If you override `UIUnitFlag`, your code may undo the HL's changes that
+/// ## Compatibility
+///
+/// If you override `UIUnitFlag`, your code may undo the HL's changes that
 /// support this feature in the UI. See the tracking issue for code samples.
 
 // Static helper function used from UIUnitFlag and UITacticalHUD_SoldierInfo

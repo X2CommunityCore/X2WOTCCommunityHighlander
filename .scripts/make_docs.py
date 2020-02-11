@@ -1,6 +1,7 @@
 import argparse
 import sys
 import os
+import shutil
 
 from enum import Enum
 from typing import List, Optional
@@ -16,44 +17,8 @@ HL_ISSUES_URL = "https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/is
 HL_SOURCE_URL = "https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/%s/%s#L%s-L%s" % (
     HL_BRANCH, "%s", "%i", "%i")
 
-HL_INDEX_PAGE = """# X2WOTCCommunityHighlander Documentation
 
-## Current status of the Documentation
-
-The documentation is freshly introduced. It will take us a while
-to document all old features, but it is expected that new features all come
-with their documentation page.
-
-## How to read
-
-The nav bar has a list of features. Click on a feature to view that feature's
-documentation. Every feature has:
-
-* A GitHub tracking issue for discussion
-* A documented way to use it, for example with an event tuple (TODO: Document Tuples)
-* Code references that link to HL source code where the documentation is
-
-## Contribute
-
-Documentation is placed inside of source code (`.uc` and `.ini`) files. Click any
-source code reference on an existing page for examples. We're especially happy to
-accept pull requests that add documentation for old features.
-"""
-
-HL_MKDOCS_YAML = """site_name: X2WOTCCommunityHighlander
-site_description: Online documentation for the X2WOTCCommunityHighlander
-repo_url: https://github.com/X2CommunityCore/X2WOTCCommunityHighlander
-edit_uri: ""
-theme:
-  name: readthedocs
-  highlightjs: true
-  hljs_languages:
-    - ini
-    - unrealscript
-"""
-
-
-def parse_args() -> (List[str], Optional[str]):
+def parse_args() -> (List[str], str, str):
     parser = argparse.ArgumentParser(
         description='Generate HL docs from source files.')
     parser.add_argument('indirs',
@@ -61,14 +26,22 @@ def parse_args() -> (List[str], Optional[str]):
                         type=str,
                         nargs='+',
                         help='input file directories')
-    parser.add_argument('--outdir',
-                        dest='outdir',
-                        help='output directorys (default: None, check only)')
+    parser.add_argument('--outdir', dest='outdir', help='output directories')
+
+    parser.add_argument(
+        '--docsdir',
+        dest='docsdir',
+        help='directory from which to copy index, mkdocs.yml, tag files')
 
     args = parser.parse_args()
 
-    if args.outdir != None and os.path.isfile(args.outdir):
+    if os.path.isfile(args.outdir):
         print("%s: error: Output dir %s is existing file" %
+              (sys.argv[0], args.outdir))
+        sys.exit(1)
+
+    if not os.path.exists(args.docsdir) or os.path.isfile(args.docsdir):
+        print("%s: error: Docs src dir %s does not exist or is file" %
               (sys.argv[0], args.outdir))
         sys.exit(1)
 
@@ -78,7 +51,7 @@ def parse_args() -> (List[str], Optional[str]):
                   (sys.argv[0], indir))
             sys.exit(1)
 
-    return args.indirs, args.outdir
+    return args.indirs, args.outdir, args.docsdir
 
 
 def make_ref(text: str, file: str, span: (int, int),
@@ -169,7 +142,7 @@ def process_file(file, lang) -> List[dict]:
                 is_doc_comment = len(s_line) >= 3 and (s_line[0:3] == '///'
                                                        or s_line[0:3] == ";;;")
                 line = s_line[3:]
-                if line.startswith(' '):
+                if line.startswith(' ') or line.startswith('\t'):
                     line = line[1:]
 
                 if self.state == ParserState.TEXT:
@@ -207,6 +180,14 @@ def process_file(file, lang) -> List[dict]:
                                       (sys.argv[0], file))
                             else:
                                 self.lines.append(orig_line[len(self.indent):])
+            # If the file ended with a doc item...
+            if self.state == ParserState.DOC:
+                item = make_doc_item(self.lines, self.filename,
+                                     (startline, lnum))
+                if item != None:
+                    self.doc_items.append(item)
+                else:
+                    print("...while processing %s:%i" % (file, lnum))
 
     doc_items = []
 
@@ -268,11 +249,66 @@ def render_bugfix_page(item: dict, outdir: str):
             file.write("\n")
 
 
+def render_full_feature_page(item: dict, outdir: str):
+    if "strategy" in item["tags"] and not "tactical" in item["tags"]:
+        folder = "strategy"
+    elif "tactical" in item["tags"] and not "strategy" in item["tags"]:
+        folder = "tactical"
+    else:
+        folder = "misc"
+
+    fname = os.path.join(outdir, folder, item["feature"] + ".md")
+    item["__filepath"] = os.path.join(folder, item["feature"] + ".md")
+    with open(fname, 'w') as file:
+        print(fname)
+        file.write("Title: %s\n\n" % (item["feature"]))
+        file.write("<h1>%s</h1>\n\n" % (item["feature"]))
+        file.write("Tracking Issue: [#%i](%s)\n\n" %
+                   (item["issue"], HL_ISSUES_URL % (item["issue"])))
+        linked_tags = map(
+            lambda t: "[%s](%s)" % (t, os.path.join("..", t + ".md")),
+            filter(lambda t: not t in ["strategy", "tactical"], item["tags"]))
+        file.write("Tags: " + ", ".join(linked_tags) + "\n\n")
+        file.write("\n".join([t["text"] for t in item["texts"]]))
+        file.write("\n\n")
+        file.write("## Source code references\n\n")
+        for ref in item["texts"]:
+            urlpath = ref["file"].replace('\\', '/').replace('./', '')
+            file_url = HL_SOURCE_URL % (urlpath, ref["span"][0] + 1,
+                                        ref["span"][1])
+            file.write("* [%s:%i-%i](%s)\n" % (os.path.split(
+                ref["file"])[1], ref["span"][0] + 1, ref["span"][1], file_url))
+
+
+def record_tags(tag_lists: dict, item: dict):
+    item_tags = item["tags"]
+    if "strategy" in item_tags: item_tags.remove("strategy")
+    if "tactical" in item_tags: item_tags.remove("tactical")
+
+    for tag in item_tags:
+        if not tag in tag_lists:
+            tag_lists[tag] = []
+        tag_lists[tag].append(item)
+
+
+def render_tag_page(tag: str, items: List[dict], outdir: str):
+    items = sorted(items, key=lambda i: i["issue"])
+    fname = os.path.join(outdir, tag + ".md")
+
+    with open(fname, 'r'):
+        pass
+
+    with open(fname, 'a+') as file:
+        print(fname)
+        for item in items:
+            file.write("* [#%i](%s) - " % (item["issue"], HL_ISSUES_URL %
+                                           (item["issue"])))
+            file.write("[%s](%s)" % (item["feature"], item["__filepath"]))
+            file.write("\n")
+
+
 def render_docs(doc_items: List[dict], outdir: str):
     ensure_dir(outdir)
-
-    with open(os.path.join(outdir, "mkdocs.yml"), 'w') as file:
-        file.write(HL_MKDOCS_YAML)
 
     outdir = os.path.join(outdir, "docs")
 
@@ -280,42 +316,40 @@ def render_docs(doc_items: List[dict], outdir: str):
     ensure_dir(os.path.join(outdir, "tactical"))
     ensure_dir(os.path.join(outdir, "misc"))
 
-    with open(os.path.join(outdir, "index.md"), 'w') as file:
-        file.write(HL_INDEX_PAGE)
+    tag_lists = {}
 
     for item in doc_items:
-        if "strategy" in item["tags"] and not "tactical" in item["tags"]:
-            folder = "strategy"
-        elif "tactical" in item["tags"] and not "strategy" in item["tags"]:
-            folder = "tactical"
-        else:
-            folder = "misc"
-
         if item["feature"] == HL_FEATURE_FIX:
             render_bugfix_page(item, outdir)
         else:
-            fname = os.path.join(outdir, folder, item["feature"] + ".md")
-            with open(fname, 'w') as file:
-                print(fname)
-                file.write("Title: %s\n\n" % (item["feature"]))
-                file.write("<h1>%s</h1>\n\n" % (item["feature"]))
-                file.write("Tracking Issue: [#%i](%s)\n\n" %
-                           (item["issue"], HL_ISSUES_URL % (item["issue"])))
-                file.write("Tags: " + ", ".join(item["tags"]) + "\n\n")
-                file.write("\n".join([t["text"] for t in item["texts"]]))
-                file.write("\n\n")
-                file.write("## Source code references\n\n")
-                for ref in item["texts"]:
-                    urlpath = ref["file"].replace('\\', '/').replace('./', '')
-                    file_url = HL_SOURCE_URL % (urlpath, ref["span"][0] + 1,
-                                                ref["span"][1])
-                    file.write("* [%s:%i-%i](%s)\n" %
-                               (os.path.split(ref["file"])[1],
-                                ref["span"][0] + 1, ref["span"][1], file_url))
+            render_full_feature_page(item, outdir)
+            record_tags(tag_lists, item)
+
+    for tag, items in tag_lists.items():
+        render_tag_page(tag, items, outdir)
+
+
+def copytree(src, dst):
+    """
+    shutil.copytree has the annoying limitation that below python 3.8,
+    it will error on existing directories with no way to turn the error off.
+    Additionally, we can't delete the directory because mkdocs serve may be
+    watching it. This function works around the issue and
+    is cribbed from https://stackoverflow.com/a/12514470
+    """
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
+            ensure_dir(d)
+            copytree(s, d)
+        else:
+            shutil.copy2(s, d)
 
 
 def main():
-    indirs, outdir = parse_args()
+    indirs, outdir, docsdir = parse_args()
+    copytree(docsdir, outdir)
     doc_items = []
     for docdir in indirs:
         for root, subdirs, files in os.walk(docdir):
@@ -329,7 +363,6 @@ def main():
     doc_items = merge_doc_refs(doc_items)
 
     if outdir != None:
-
         render_docs(doc_items, outdir)
 
 

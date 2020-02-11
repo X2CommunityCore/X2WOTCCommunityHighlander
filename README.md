@@ -88,37 +88,9 @@ for "Issue #928" (or whatever) in the codebase. In addition, any commits
 related to that issue should also have the issue number marked in the same way.
 
 Additionally, every feature should be documented with *inline documentation* that will
-be published via GitHub Pages (at [https://x2communitycore.github.io/X2WOTCCommunityHighlander/](https://x2communitycore.github.io/X2WOTCCommunityHighlander/)). An example of inline documentation:
-
-```unrealscript
-/// HL-Docs: feature:ArmorEquipRollDLCPartChance; issue:155; tags:customization,compat
-/// When a unit equips new armor, the game rolls from all customization options, even the ones where
-/// the slider for the `DLCName` is set to `0`. The HL change fixes this, but if your custom armor only
-/// has customization options with a `DLCName` set, the game may discard that `DLCName` (default: in 85% of cases)
-/// which results in soldiers without torsos. If you want to keep having `DLCName`-only armor
-/// (for example to display mod icons in `UICustomize`), you must disable that behavior
-/// by creating the following lines in `XComGame.ini`:
-///
-/// ```ini
-/// [XComGame.CHHelpers]
-/// +CosmeticDLCNamesUnaffectedByRoll=MyDLCName
-/// ```
-```
-
-This documentation will automatically be built whenever the master branch is committed to.
-You can run the documentation tool locally by installing Python (recommended version 3.7)
-and running
-
-    python .\.scripts\make_docs.py .\X2WOTCCommunityHighlander\Src\ .\X2WOTCCommunityHighlander\Config\ --outdir .\target\
-
-or the `makeDocs` task in VS Code. This creates Markdown files for the documentation; rendering HTML documentation requires
-`MkDocs`:
-
-```powershell
-pip install mkdocs
-cd .\target\
-mkdocs serve
-```
+be published via GitHub Pages (at [https://x2communitycore.github.io/X2WOTCCommunityHighlander/](https://x2communitycore.github.io/X2WOTCCommunityHighlander/)).
+That online documentation also has [instructions](https://x2communitycore.github.io/X2WOTCCommunityHighlander/#documentation-for-the-documentation-tool) for how to write your documentation
+and run the documentation tool.
 
 ## Building
 
