@@ -1696,7 +1696,7 @@ simulated function RealizeOverwatch(optional XComGameState_Unit NewUnitState = n
 	if( NewUnitState != none )
 	{
 		//	Start Issue #724
-		/// HL-Docs: feature:DisplayCustomOverwatchActionPointOnUnitFlag; issue:724; tags:tactical,compat
+		/// HL-Docs: feature:DisplayCustomOverwatchActionPointOnUnitFlag; issue:724; tags:tactical,compatibility
 		/// The base XCOM 2 behavior is to show an Overwatch "eye" icon under the unit flag
 		/// only if the soldier has at least one "overwatch" Reserve Action Point. 
 		/// The icon is not displayed for Pistol Overwatch. This change addresses that issue,
