@@ -10942,7 +10942,12 @@ function ApplyBestGearLoadout(XComGameState NewGameState)
 	/// so if one of the selected items by that function cannot be equipped due to an override in CanAddItemToInventory_CH,
 	/// the inventory slot will remain empty. This event passes along the Unit State whenever this function is called,
 	/// so the mods can use their arbitrary conditions to decide what is the actual best gear loadout is for a unit.
-	///
+	/// ```unrealscript
+	/// ID: OnBestGearLoadoutApplied
+	/// Data: self (XCGS_Unit)
+	/// Source: self (XCGS_Unit)
+	/// NewGameState: yes
+	/// ```
 	/// ```unrealscript
 	/// //	This EventFn requires the Event Listener to use an ELD_Immediate deferral.
 	/// static function EventListenerReturn OnBestGearLoadoutApplied_Listener(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
@@ -10960,7 +10965,6 @@ function ApplyBestGearLoadout(XComGameState NewGameState)
 	/// 	// Now you can make changes to the Unit State, such as changing its equipment based on arbitrary conditions.
 	/// }
 	/// ```
-	/// Compatibility: If you override `XComGameState_Unit::ApplyBestGearLoadout`, your code may undo this change.
 	`XEVENTMGR.TriggerEvent('OnBestGearLoadoutApplied', self, self, NewGameState);
 	// Issue #676 End
 }
