@@ -186,6 +186,8 @@ public function PopulateData(optional XComGameState_Unit Unit, optional StateObj
 		else
 			Unit = XComGameState_Unit(History.GetGameStateForObjectID(UnitRef.ObjectID));
 	}
+	
+	iRank = Unit.GetRank();
 
 	SoldierClass = Unit.GetSoldierClassTemplate();
 
@@ -221,7 +223,7 @@ public function PopulateData(optional XComGameState_Unit Unit, optional StateObj
 							  string(Unit.GetUnitPointValue()),
 							  "", "",
 							  classIcon, Caps(SoldierClass != None ? SoldierClass.DisplayName : ""),
-							  rankIcon, Caps(Unit.IsSoldier() ? `GET_RANK_STR(Unit.GetRank(), Unit.GetSoldierClassTemplateName()) : Unit.IsAlien() ? class'UIHackingScreen'.default.m_strAlienInfoTitle : class'UIHackingScreen'.default.m_strAdventInfoTitle),								  rankIcon, Caps(Unit.IsSoldier() ? Unit.GetSoldierRankName() : Unit.IsAlien() ? class'UIHackingScreen'.default.m_strAlienInfoTitle : class'UIHackingScreen'.default.m_strAdventInfoTitle),
+							  rankIcon, Caps(Unit.IsSoldier() ? `GET_RANK_STR(Unit.GetRank(), Unit.GetSoldierClassTemplateName()) : Unit.IsAlien() ? class'UIHackingScreen'.default.m_strAlienInfoTitle : class'UIHackingScreen'.default.m_strAdventInfoTitle),
 							  flagIcon, false, DaysValue);
 	}
 	else
