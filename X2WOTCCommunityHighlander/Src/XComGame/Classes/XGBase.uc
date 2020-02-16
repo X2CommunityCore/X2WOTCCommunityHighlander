@@ -259,6 +259,11 @@ private function UpdateFacilityUpgradeVisibilty(int RoomIdx)
 	local string PreUpgradeName;
 	local XComGameState_HeadquartersRoom RoomState;
 
+	// Issue #775 (single line)
+	/// HL-Docs: ref:Bugfixes; issue:775
+	/// Prevent crashes from applying facility upgrades if the facility map isn't loaded
+	if (m_arrLvlStreaming[RoomIdx] == none) return;
+
 	RoomState = GetRoom(RoomIdx);
 	Facility = RoomState.GetFacility();
 
