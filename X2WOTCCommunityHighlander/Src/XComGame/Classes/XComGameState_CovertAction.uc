@@ -971,6 +971,12 @@ function RecalculateRiskChanceToOccurModifiers()
 		}
 
 		Risks[idx].ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(Risks[idx], bChosenIncreaseRisks, bDarkEventRisk);
+		// Start Issue #777
+		/// HL-Docs: ref:Bugfixes; issue:777
+		/// Covert action risk level will now be updated when a risk's chance to occur
+		/// is recalculated, which ensures the risks panel displays the correct chance.
+		Risks[idx].Level = GetRiskLevel(Risks[idx]);
+		// End Issue #777
 	}
 }
 // Issue #436 End
