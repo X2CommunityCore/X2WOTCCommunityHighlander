@@ -336,9 +336,10 @@ static function CompleteStrategyFromTacticalTransfer()
 	/// ```unrealscript
 	/// EventID: PreCompleteStrategyFromTacticalTransfer
 	/// EventData: None
-	/// EventSource: XComGameStateContext_StrategyGameRule
+	/// EventSource: None
+	/// NewGameState: None
 	/// ```
-	`XEVENTMGR.TriggerEvent('PreCompleteStrategyFromTacticalTransfer',, self);
+	`XEVENTMGR.TriggerEvent('PreCompleteStrategyFromTacticalTransfer');
 
 	UpdateSkyranger();
 	CleanupProxyVips();
