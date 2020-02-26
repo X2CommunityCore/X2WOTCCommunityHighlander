@@ -1791,6 +1791,22 @@ function int GetNumDarkEventsToPlay(XComGameState NewGameState)
 		NumEvents++;
 	}
 	
+	// Issue #711
+	/// HL-Docs: feature:OverrideDarkEventCount; issue:711; tags:strategy
+	/// Triggers the event `OverrideDarkEventCount` to allow mods to change
+	/// the number of dark events in the monthly report.
+	///
+	/// ```unrealscript
+	/// EventID: OverrideNextRetaliationDisplay
+	/// EventData: XComLWTuple {
+	/// 	Data: [
+	/// 	  inout int NumEvents,
+	/// 	  inout bool bChosenAddedEvent
+	///     ]
+	/// }
+	/// EventSource: XComGameState_HeadquartersAlien
+	/// NewGameState: Yes
+	/// ```
 	NumEvents = GetDarkEventOverride(NewGameState, NumEvents, bAddChosenActionDarkEvent); // Issue #711
 
 	// (Highlander comment on vanilla code) If there are still pending dark events from last month somehow, lower the number of new events
