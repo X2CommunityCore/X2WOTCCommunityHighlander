@@ -573,7 +573,8 @@ private function bool CanRulerAppearOnMission(XComGameState_MissionSite MissionS
 
 //---------------------------------------------------------------------------------------
 // Updates which Rulers are currently active
-private function UpdateActiveAlienRulers()
+// Issue #789 - unprivatized
+/*private*/ function UpdateActiveAlienRulers()
 {
 	local XComGameStateHistory History;
 	local XComGameState_HeadquartersAlien AlienHQ;
