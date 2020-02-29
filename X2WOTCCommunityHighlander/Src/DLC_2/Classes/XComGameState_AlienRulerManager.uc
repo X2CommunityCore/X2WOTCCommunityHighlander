@@ -182,7 +182,7 @@ private function AddRulerAdditionalTacticalTags(XComGameState_HeadquartersXCom X
 }
 
 //---------------------------------------------------------------------------------------
-/*private*/ function int GetRulerAppearChance(XComGameState_Unit UnitState)
+private function int GetRulerAppearChance(XComGameState_Unit UnitState)
 {
 	local array<RulerReappearChance> AppearChances;
 	local RulerReappearChance MaxAppearChance;
