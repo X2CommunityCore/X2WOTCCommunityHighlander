@@ -45,7 +45,7 @@
     <Content Include="ModPreviewWindows.jpg">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\DLC_2\Classes\X2DLC2CH_CHXComGameVersion.uc">
+    <Content Include="Src\DLC_2\Classes\CHVersion_DLC2.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\DLC_2\Classes\XComGameState_AlienRulerManager.uc">
@@ -58,6 +58,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\Engine\Classes\SkeletalMeshSocket.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\X2WOTCCommunityHighlander\Classes\CHVersion_X2WOTCCH.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2WOTCCH_CHXComGameVersion.uc">
