@@ -2,8 +2,6 @@
 VersionFormat="v%MAJOR.%MINOR.%PATCH"
 
 RequiredNotFound="NOT LOADED - REQUIRED"
-ExpectedNotFound="NOT LOADED - EXPECTED"
-NotExpectedNotFound="Optional"
 
 VersionMismatches="- Version Mismatches"
 WarningsLabel="- Warnings"

@@ -10,6 +10,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	local array<X2DataTemplate> Templates;
 	local X2StrategyElementTemplate XComGameVersion;
 
+	// Created for legacy reasons
 	if (class'CHXComGameVersionTemplate' != none)
 	{
 		`CREATE_X2TEMPLATE(class'CHXComGameVersionTemplate', XComGameVersion, 'CHWOTCVersion');

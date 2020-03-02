@@ -1,4 +1,4 @@
-// CHL: We can't create templates in Core, so we use this to create the template in XComGame
+/// HL-Docs: ref:ComponentVersions
 class CHCoreVersion extends Object;
 
 var int MajorVersion;

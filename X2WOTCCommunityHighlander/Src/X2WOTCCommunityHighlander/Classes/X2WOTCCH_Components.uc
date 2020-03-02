@@ -3,11 +3,9 @@ class X2WOTCCH_Components extends Object config(CHLComponents);
 enum CHLComponentStatus
 {
 	// OK
-	eCHLCS_NotExpectedNotFound,
 	eCHLCS_OK,
 	// Warnings
 	eCHLCS_VersionMismatch,
-	eCHLCS_ExpectedNotFound,
 	// Errors
 	eCHLCS_RequiredNotFound,
 };
@@ -38,8 +36,6 @@ struct CHLComponentVersion
 
 var localized string VersionFormat;
 var localized string RequiredNotFound;
-var localized string ExpectedNotFound;
-var localized string NotExpectedNotFound;
 
 var localized string VersionMismatches;
 var localized string WarningsLabel;
@@ -49,86 +45,27 @@ delegate bool VersionInfoFetcher (out CHLComponentVersion VersionInfo);
 
 static function array<CHLComponent> GetComponentInfo()
 {
-	local X2StrategyElementTemplateManager Manager;
-	local X2StrategyElementTemplate SelfVersion;
-	local CHLComponentVersion SelfVersionNew;
+	local CHLComponentVersion SelfVersion;
 	local array<string> DLCNames;
 	local array<CHLComponent> Comps;
 
-	Manager = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
 	DLCNames = class'Helpers'.static.GetInstalledDLCNames();
 
-	SelfVersion = Manager.FindStrategyElementTemplate('CHWOTCVersion');
-	Comps.AddItem(BuildComponent(SelfVersion, none, "X2WOTCCommunityHighlander", true, true));
-	Comps.AddItem(BuildComponent(Manager.FindStrategyElementTemplate('CHCoreVersion'), SelfVersion, "Core", true, true));
-	Comps.AddItem(BuildComponent(Manager.FindStrategyElementTemplate('CHEngineVersion'), SelfVersion, "Engine", true, true));
-	Comps.AddItem(BuildComponent(Manager.FindStrategyElementTemplate('CHXComGameVersion'), SelfVersion, "XComGame", true, true));
+	CompanionVersionInfoFetcher(SelfVersion);
+	Comps.AddItem(BuildComponent(CompanionVersionInfoFetcher, "X2WOTCCommunityHighlander"));
+	Comps.AddItem(BuildComponent(CoreVersionInfoFetcher, "Core", SelfVersion));
+	Comps.AddItem(BuildComponent(EngineVersionInfoFetcher, "Engine", SelfVersion));
+	Comps.AddItem(BuildComponent(XComVersionInfoFetcher, "XComGame", SelfVersion));
 
 	if (DLCNames.Find("DLC_2") != INDEX_NONE)
 	{
-		CompanionVersionInfoFetcher(SelfVersionNew);
-		Comps.AddItem(BuildComponentNew(DLC2VersionInfoFetcher, "DLC_2", true, true, SelfVersionNew));
+		Comps.AddItem(BuildComponent(DLC2VersionInfoFetcher, "DLC_2", SelfVersion));
 	}
-
-	/* FIXME: Uncomment when a DLC_3 Highlander is added
-	if (DLCNames.Find("DLC_3") != INDEX_NONE)
-	{
-		Comps.AddItem(BuildComponent(Manager.FindStrategyElementTemplate('CHDLC3Version'), SelfVersion, "DLC_3", false, default.DLC3ReplacementEnabled));
-	}
-	*/
 
 	return Comps;
 }
 
-
-static function CHLComponent BuildComponent(X2StrategyElementTemplate Template, X2StrategyElementTemplate CompareVersion, string ComponentName, bool Required, bool Expected)
-{
-	local CHLComponent Comp;
-
-	Comp.DisplayName = ComponentName;
-
-	if (Template != none)
-	{
-		Comp.DisplayVersion = FormatVersion(Template);
-		if (CompareVersion != none)
-		{
-			if (CHXComGameVersionTemplate(Template).GetVersionNumber() == CHXComGameVersionTemplate(CompareVersion).GetVersionNumber())
-			{
-				Comp.CompStatus = eCHLCS_OK;
-			}
-			else
-			{
-				Comp.CompStatus = eCHLCS_VersionMismatch;
-			}
-		}
-		else
-		{
-			Comp.CompStatus = eCHLCS_OK;
-		}
-	}
-	else
-	{
-		if (Required)
-		{
-			Comp.DisplayVersion = default.RequiredNotFound;
-			Comp.CompStatus = eCHLCS_RequiredNotFound;
-		}
-		else if (Expected)
-		{
-			Comp.DisplayVersion = default.ExpectedNotFound;
-			Comp.CompStatus = eCHLCS_ExpectedNotFound;
-		}
-		else
-		{
-			Comp.DisplayVersion = default.NotExpectedNotFound;
-			Comp.CompStatus = eCHLCS_NotExpectedNotFound;
-		}
-	}
-
-	return Comp;
-}
-
-static function CHLComponent BuildComponentNew (delegate<VersionInfoFetcher> VersionFn, string ComponentName, bool Required, bool Expected, optional CHLComponentVersion CompareVersion)
+static function CHLComponent BuildComponent (delegate<VersionInfoFetcher> VersionFn, string ComponentName,  optional CHLComponentVersion CompareVersion)
 {
 	local CHLComponentVersion VersionInfo;
 	local CHLComponent Comp;
@@ -137,7 +74,7 @@ static function CHLComponent BuildComponentNew (delegate<VersionInfoFetcher> Ver
 
 	if (GetCDO().CallVersionInfoFetcher(VersionFn, VersionInfo))
 	{
-		Comp.DisplayVersion = FormatVersionNew(VersionInfo);
+		Comp.DisplayVersion = FormatVersion(VersionInfo);
 
 		if (CompareVersion.MajorVersion > -1)
 		{
@@ -157,21 +94,8 @@ static function CHLComponent BuildComponentNew (delegate<VersionInfoFetcher> Ver
 	}
 	else
 	{
-		if (Required)
-		{
-			Comp.DisplayVersion = default.RequiredNotFound;
-			Comp.CompStatus = eCHLCS_RequiredNotFound;
-		}
-		else if (Expected)
-		{
-			Comp.DisplayVersion = default.ExpectedNotFound;
-			Comp.CompStatus = eCHLCS_ExpectedNotFound;
-		}
-		else
-		{
-			Comp.DisplayVersion = default.NotExpectedNotFound;
-			Comp.CompStatus = eCHLCS_NotExpectedNotFound;
-		}
+		Comp.DisplayVersion = default.RequiredNotFound;
+		Comp.CompStatus = eCHLCS_RequiredNotFound;
 	}
 
 	return Comp;
@@ -194,24 +118,7 @@ static function CHLComponentStatus FindHighestErrorLevel(const out array<CHLComp
 	return WorstStatus;
 }
 
-static function string FormatVersion(X2StrategyElementTemplate Version)
-{
-	local string Ret;
-
-	Ret = default.VersionFormat;
-	Ret = Repl(Ret, "%MAJOR", CHXComGameVersionTemplate(Version).MajorVersion);
-	Ret = Repl(Ret, "%MINOR", CHXComGameVersionTemplate(Version).MinorVersion);
-	Ret = Repl(Ret, "%PATCH", CHXComGameVersionTemplate(Version).PatchVersion);
-
-	if (CHXComGameVersionTemplate(Version).Commit != "")
-	{
-		Ret @= "(" $ CHXComGameVersionTemplate(Version).Commit $ ")";
-	}
-
-	return Ret;
-}
-
-static function string FormatVersionNew (CHLComponentVersion Version)
+static function string FormatVersion (CHLComponentVersion Version)
 {
 	local string Ret;
 
@@ -233,27 +140,22 @@ static function string FormatVersionNew (CHLComponentVersion Version)
 ////////////////////////
 // Used by the new (non-template) version info system (see #765)
 
-static protected function bool DLC2VersionInfoFetcher (out CHLComponentVersion VersionInfo)
-{
-	if (class'CHVersion_DLC2' == none) return false;
+`define MakeVersionFetcher(FuncName, ClassName) \
+	static protected function bool `{FuncName} (out CHLComponentVersion VersionInfo) \n\
+	{ \n\
+		if (class'`{ClassName}' == none) return false; \n\
+		VersionInfo.MajorVersion = class'`{ClassName}'.default.MajorVersion; \n\
+		VersionInfo.MinorVersion = class'`{ClassName}'.default.MinorVersion; \n\
+		VersionInfo.PatchVersion = class'`{ClassName}'.default.PatchVersion; \n\
+		VersionInfo.Commit = class'`{ClassName}'.default.Commit; \n\
+		return true; \n\
+	}
 
-	VersionInfo.MajorVersion = class'CHVersion_DLC2'.default.MajorVersion;
-	VersionInfo.MinorVersion = class'CHVersion_DLC2'.default.MinorVersion;
-	VersionInfo.PatchVersion = class'CHVersion_DLC2'.default.PatchVersion;
-	VersionInfo.Commit = class'CHVersion_DLC2'.default.Commit;
-
-	return true;
-}
-
-static protected function bool CompanionVersionInfoFetcher (out CHLComponentVersion VersionInfo)
-{
-	VersionInfo.MajorVersion = class'CHVersion_X2WOTCCH'.default.MajorVersion;
-	VersionInfo.MinorVersion = class'CHVersion_X2WOTCCH'.default.MinorVersion;
-	VersionInfo.PatchVersion = class'CHVersion_X2WOTCCH'.default.PatchVersion;
-	VersionInfo.Commit = class'CHVersion_X2WOTCCH'.default.Commit;
-
-	return true;
-}
+`MakeVersionFetcher(DLC2VersionInfoFetcher, CHDLC2Version)
+`MakeVersionFetcher(CoreVersionInfoFetcher, CHCoreVersion)
+`MakeVersionFetcher(EngineVersionInfoFetcher, CHEngineVersion)
+`MakeVersionFetcher(XComVersionInfoFetcher, CHXComGameVersionTemplate)
+`MakeVersionFetcher(CompanionVersionInfoFetcher, CHX2WOTCCHVersion)
 
 ///////////////
 /// Helpers ///

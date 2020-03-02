@@ -1,4 +1,4 @@
-// CHL: We can't create templates in Engine, so we use this to create the template in XComGame
+/// HL-Docs: ref:ComponentVersions
 class CHEngineVersion extends Object;
 
 var int MajorVersion;
