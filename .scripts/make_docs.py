@@ -85,7 +85,8 @@ def make_doc_item(lines: List[str], file: str,
         elif k == 'issue':
             item[k] = int(v)
         elif k == 'tags':
-            item[k] = v.split(',')
+            tags = v.split(',')
+            item[k] = tags if tags != [''] else []
         else:
             print("%s: error: %s: unknown key `%s`" % (sys.argv[0], file, k))
 
@@ -265,10 +266,12 @@ def render_full_feature_page(item: dict, outdir: str):
         file.write("<h1>%s</h1>\n\n" % (item["feature"]))
         file.write("Tracking Issue: [#%i](%s)\n\n" %
                    (item["issue"], HL_ISSUES_URL % (item["issue"])))
-        linked_tags = map(
-            lambda t: "[%s](%s)" % (t, os.path.join("..", t + ".md")),
-            filter(lambda t: not t in ["strategy", "tactical"], item["tags"]))
-        file.write("Tags: " + ", ".join(linked_tags) + "\n\n")
+        if len(item["tags"]) > 0:
+            linked_tags = map(
+                lambda t: "[%s](%s)" % (t, os.path.join("..", t + ".md")),
+                filter(lambda t: not t in ["strategy", "tactical"],
+                       item["tags"]))
+            file.write("Tags: " + ", ".join(linked_tags) + "\n\n")
         file.write("\n".join([t["text"] for t in item["texts"]]))
         file.write("\n\n")
         file.write("## Source code references\n\n")

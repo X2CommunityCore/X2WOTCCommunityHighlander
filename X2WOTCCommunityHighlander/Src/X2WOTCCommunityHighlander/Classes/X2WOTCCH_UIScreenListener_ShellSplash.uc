@@ -64,11 +64,7 @@ function RealizeVersionText(UIShell ShellScreen)
 		case eCHLCS_OK:
 			VersionString = class'UIUtilities_Text'.static.GetColoredText(VersionString @ Comps[0].DisplayVersion, ColorStatus, 22);
 			break;
-		case eCHLCS_NotExpectedNotFound:
-			VersionString = class'UIUtilities_Text'.static.GetColoredText(VersionString @ Comps[0].DisplayVersion, ColorStatus, 22);
-			break;
 		case eCHLCS_VersionMismatch:
-		case eCHLCS_ExpectedNotFound:
 			VersionString = class'UIUtilities_Text'.static.GetColoredText(VersionString @ class'X2WOTCCH_Components'.default.WarningsLabel, ColorStatus, 22);
 			break;
 		case eCHLCS_RequiredNotFound:
@@ -149,10 +145,7 @@ function EUIState ColorForStatus(CHLComponentStatus Status)
 	{
 		case eCHLCS_OK:
 			return eUIState_Normal;
-		case eCHLCS_NotExpectedNotFound:
-			return eUIState_Faded;
 		case eCHLCS_VersionMismatch:
-		case eCHLCS_ExpectedNotFound:
 			return eUIState_Warning;
 		case eCHLCS_RequiredNotFound:
 			return eUIState_Bad;

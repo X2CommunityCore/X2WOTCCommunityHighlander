@@ -13,10 +13,12 @@
     <Folder Include="Config\" />
     <Folder Include="Localization\" />
     <Folder Include="Src\" />
-    <Folder Include="Src\DLC_2\Classes" />
+    <Folder Include="Src\Core" />
+    <Folder Include="Src\Core\Classes" />
     <Folder Include="Src\Engine" />
     <Folder Include="Src\Engine\Classes" />
     <Folder Include="Src\DLC_2" />
+    <Folder Include="Src\DLC_2\Classes" />
     <Folder Include="Src\XComGame" />
     <Folder Include="Src\X2WOTCCommunityHighlander\" />
     <Folder Include="Src\X2WOTCCommunityHighlander\Classes\" />
@@ -45,7 +47,13 @@
     <Content Include="ModPreviewWindows.jpg">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\DLC_2\Classes\CHVersion_DLC2.uc">
+    <Content Include="Src\Core\Classes\CHCoreVersion.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\Core\Classes\Object.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\DLC_2\Classes\CHDLC2Version.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\DLC_2\Classes\XComGameState_AlienRulerManager.uc">
@@ -60,7 +68,7 @@
     <Content Include="Src\Engine\Classes\SkeletalMeshSocket.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\X2WOTCCommunityHighlander\Classes\CHVersion_X2WOTCCH.uc">
+    <Content Include="Src\X2WOTCCommunityHighlander\Classes\CHX2WOTCCHVersion.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2WOTCCH_CHXComGameVersion.uc">

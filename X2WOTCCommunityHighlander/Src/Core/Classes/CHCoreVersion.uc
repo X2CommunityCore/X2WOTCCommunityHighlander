@@ -1,4 +1,5 @@
-class CHVersion_DLC2 extends Object;
+/// HL-Docs: ref:ComponentVersions
+class CHCoreVersion extends Object;
 
 var int MajorVersion;
 var int MinorVersion;
@@ -11,5 +12,5 @@ defaultproperties
     MajorVersion = 1;
     MinorVersion = 20;
     PatchVersion = 0;
-    Commit = "%COMMIT%";
+    Commit = "RC1";
 }
