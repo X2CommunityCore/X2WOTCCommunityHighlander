@@ -144,7 +144,6 @@ RunPriorityGroup=RUN_STANDARD
   `XComGameState_HeadquartersResistance`, as it can break if it collect custom
   factions and then assigns Chosen to them instead of the base game factions.
   (#82)
-- Allow specifying Second Wave options for Strategy Debug Start (#197)
 - bDontUnequipCovertOps prevents soldiers gear gets stripped when sending on covert op with no ambush risk (#153)
 - bDontUnequipWhenWounded prevents soldiers gear gets stripped when getting wounded (#310)
 - iDefaultWeaponTint allows to configure the default weappon tint for randomly generated soldiers (#397)

@@ -759,6 +759,9 @@ state StartingDebugCheatGame
 		CampaignSettingsStateObject = XComGameState_CampaignSettings(History.GetSingleGameStateObjectForClass(class'XComGameState_CampaignSettings'));
 		CampaignSettingsStateObject = XComGameState_CampaignSettings(NewGameState.ModifyStateObject(class'XComGameState_CampaignSettings', CampaignSettingsStateObject.ObjectID));
 		// Issue #197 -- replaced single 'BetaStrike' with configurable list
+		/// HL-Docs: feature:DebugStartSecondWave; issue:197; tags:
+		/// A debug strategy start by default uses Beta Strike and no other second wave options.
+		/// This change disables Beta Strike by default and makes the list configurable.
 		foreach default.DEBUG_SecondWaveOptions(Option)
 		{
 			CampaignSettingsStateObject.AddSecondWaveOption(Option);
