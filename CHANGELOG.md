@@ -289,7 +289,6 @@ RunPriorityGroup=RUN_STANDARD
 
 ### Mod/DLC Hooks
 - `UpdateAnimations` added to allow adding CustomAnimsets to UnitPawns (#24)
-- `UpdateMaterial` added to allow manipulate pawn materials (#169)
 - `DLCAppendSockets` added to allow appending sockets to UnitPawns (#21)
 - `CanAddItemToInventory` added to allow configuring whether or not a unit can
   equip a particular item as an extension to the standand rules (#50)
@@ -337,8 +336,6 @@ RunPriorityGroup=RUN_STANDARD
   filtering and behaviour on the various Trait Functions on `XComGameState_Unit`
   (#85)
 - Allow mods to register custom OnInput UI handlers (#198, #501)
-- Able to specify new materials as counting as hair/skin/armour/weapons etc. for the purpose of
-  receiving tints, patterns, tattoos etc. (#356)
 - Unprotect `X2DataSet::bShouldCreateDifficultyVariants` to allow mods to force templates from other packages to use difficulty variants (#413)
 - Allow mods to manipulate X2GameRuleset::EventObserverClasses, eg. on CDOs (#481)
 - Uprivate `XComTacticalMissionManager::CacheMissionManagerCards` to allow mods to use manager's decks (#528)

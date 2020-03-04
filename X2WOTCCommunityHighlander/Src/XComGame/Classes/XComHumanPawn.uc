@@ -929,6 +929,7 @@ simulated function UpdateMeshMaterials(MeshComponent MeshComp, optional bool bAt
 
 
 				//Start Issue #356
+				/// HL-Docs: ref:TintMaterialConfigs
 				if (class'CHHelpers'.default.SkinMaterial.Find(ParentName) != INDEX_NONE)
 				{
 					UpdateSkinMaterial(MIC, true, MeshComp == m_kHeadMeshComponent);
@@ -968,6 +969,7 @@ simulated function UpdateMeshMaterials(MeshComponent MeshComp, optional bool bAt
 			UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(ObjectID));
 		}
 
+		/// HL-Docs: ref:UpdateHumanPawnMeshComponent
 		DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 		for(i = 0; i < DLCInfos.Length; ++i)
 		{
