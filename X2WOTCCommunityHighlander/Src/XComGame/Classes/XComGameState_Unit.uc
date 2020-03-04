@@ -6884,6 +6884,40 @@ native function SetCurrentStat( ECharStatType Stat, float NewValue );
 native function GetStatModifiers(ECharStatType Stat, out array<XComGameState_Effect> Mods, out array<float> ModValues, optional XComGameStateHistory GameStateHistoryObject);
 
 // Begin Issue #313
+/// HL-Docs: feature:GetStatModifiersFixed; issue:313; tags:tactical,compatibility
+/// The base game provides a function
+///
+/// ```unrealscript
+/// native function GetStatModifiers(ECharStatType Stat, out array<XComGameState_Effect> Mods, out array<float> ModValues, optional XComGameStateHistory GameStateHistoryObject);
+/// ```
+/// that can be used to identify how much different effects contribute to the calculated stat total.
+/// For example, `X2AbilityToHitCalc_StandardAim` wants to show how many percentage points to-hit or to-crit
+/// different effects provide or diminish.
+///
+/// However, the function is subtly broken in the presence of
+/// multiplicative modifiers (`MODOP_Multiplication` or `MODOP_PostMultiplication`), where it doesn't
+/// return the correct contribution but instead simply returns `MultiplicationMod * BaseStat`. This
+/// makes multiplicative modifiers unusable for `eStat_Offense` and `eStat_CritChance`.
+///
+/// The Highlander function `GetStatModifiersFixed` wraps the broken function and fixes the numbers.
+/// Additionally, `X2AbilityToHitCalc_StandardAim` is changed to call this modified function.
+///
+/// ## Compatibility
+///
+/// Mods that override/replace `X2AbilityToHitCalc_StandardAim:GetHitChance` may undo the Highlander's
+/// changes and use the broken function. In particular, XModBase is [known to undo this fix](https://github.com/RossM/XModBase/issues/1).
+/// It is recommended that affected mods check whether `GetStatModifiersFixed` exists and call it instead:
+///
+/// ```unrealscript
+/// if (Function'XComGame.XComGameState_Unit.GetStatModifiersFixed' != none)
+/// {
+/// 	// call GetStatModifiersFixed
+/// }
+/// else
+/// {
+/// 	// call GetStatModifiers	
+/// }
+/// ```
 function GetStatModifiersFixed(ECharStatType Stat, out array<XComGameState_Effect> Mods, out array<float> ModValues, optional XComGameStateHistory GameStateHistoryObject, optional bool RoundTotals=true)
 {
 	local array <StatModifier> MultMods;

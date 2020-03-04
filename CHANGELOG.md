@@ -271,8 +271,6 @@ RunPriorityGroup=RUN_STANDARD
 - Allow aliens and other teams to properly register non-XCOM unit locations to adjust their positions accordingly (#619)
 
 ### Fixes
-- Fixed XCGS_Unit::GetStatModifiers() as XCGS_Unit::GetStatModifiersFixed(),
-  X2AbilityToHitCalc_StandardAim, the only vanilla user of this method, changed to match(#313)
 - Allow abilities that deal damage without a source weapon to still display
   their damage with psi flyovers (Psi Bomb, mod abilities) (#326)
 - Make disorient reapply to disoriented units so that things like flashbangs can
