@@ -13,9 +13,9 @@ event OnInit(UIScreen Screen)
 	// using this input hook is most useful when the HL *isn't* working -- but then,
 	// this input hook doesn't exist. Not much we can do other than ensuring the
 	// user makes it to the main menu screen, sees the error message and checks the log.
-	if (Function'XComGame.UIScreenStack.SubscribeToOnInput' != none)
+	if (Function'XComGame.UIScreenStack.SubscribeToOnInputForScreen' != none)
 	{
-		Screen.Movie.Stack.SubscribeToOnInput(OnInputHook);
+		Screen.Movie.Stack.SubscribeToOnInputForScreen(Screen, OnInputHook);
 	}
 
 	RealizeVersionText(UIShell(Screen));
@@ -31,13 +31,6 @@ event OnReceiveFocus(UIScreen Screen)
 
 event OnRemoved(UIScreen Screen)
 {
-	if(UIShell(Screen) == none || !bEnableVersionDisplay)  // this captures UIShell and UIFinalShell
-		return;
-
-	if (Function'XComGame.UIScreenStack.UnsubscribeFromOnInput' != none)
-	{
-		Screen.Movie.Stack.UnsubscribeFromOnInput(OnInputHook);
-	}
 }
 
 function RealizeVersionText(UIShell ShellScreen)
@@ -208,16 +201,15 @@ function OnHitboxMouseEvent(UIPanel control, int cmd)
 	}
 }
 
-function bool OnInputHook(int iInput, int ActionMask)
+function bool OnInputHook(UIScreen Screen, int iInput, int ActionMask)
 {
 	local UIText TooltipText;
 	local UIBGBox TooltipBG;
 	local UIShell ShellScreen;
 
-	if (iInput == class'UIUtilities_Input'.const.FXS_BUTTON_R3 && (ActionMask & class'UIUtilities_Input'.const.FXS_ACTION_RELEASE) != 0
-		&& `SCREENSTACK.IsCurrentScreen(class'UIShell'.Name))
+	if (iInput == class'UIUtilities_Input'.const.FXS_BUTTON_R3 && (ActionMask & class'UIUtilities_Input'.const.FXS_ACTION_RELEASE) != 0)
 	{
-		ShellScreen = UIShell(`SCREENSTACK.GetFirstInstanceOf(class'UIShell'));
+		ShellScreen = UIShell(Screen);
 
 		TooltipBG = UIBGBox(ShellScreen.GetChildByName('theTooltipBG', false));
 		TooltipText = UIText(ShellScreen.GetChildByName('theTooltipText', false));

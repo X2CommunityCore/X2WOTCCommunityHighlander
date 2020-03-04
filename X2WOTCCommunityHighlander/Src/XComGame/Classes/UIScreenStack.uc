@@ -782,6 +782,23 @@ simulated function bool IsNotInStack( class<UIScreen> ScreenClass, optional bool
 }
 
 // start issue #198
+/// HL-Docs: feature:SubscribeToOnInput; issue:198; tags:
+/// Mods may want to intercept mouse/keyboard/controller input and instead run their own code.
+/// For most purposes, this feature should be considered superseded by [`SubscribeToOnInputForScreen`](./SubscribeToOnInputForScreen.md),
+/// which is more ergonomic to use and harder to misuse. Read that documentation page for a general overview.
+///
+/// This feature does not allow receiving the notification only for a specific screen, which is usually what
+/// you want. Additionally, it is *required* to manually unsubscribe at some point, lest you
+/// invoke the wrath of the garbage collector and crash everyone's games.
+///
+/// ```unrealscript
+/// delegate bool CHOnInputDelegate(int iInput, int ActionMask);
+/// function SubscribeToOnInput(delegate<CHOnInputDelegate> callback);
+/// function UnsubscribeFromOnInput(delegate<CHOnInputDelegate> callback);
+/// ```
+///
+/// Again, it is recommended to instead use [`SubscribeToOnInputForScreen`](./SubscribeToOnInputForScreen.md).
+/// The documentation for that feature has examples.
 function SubscribeToOnInput(delegate<CHOnInputDelegate> callback)
 {
 	// add the delegate to the array of subscribers, if it doesn't exist
@@ -823,6 +840,79 @@ simulated function bool ModOnInput(int iInput, int ActionMask)
 // end issue #198
 
 // Start issue #501
+/// HL-Docs: feature:SubscribeToOnInputForScreen; issue:501; tags:
+/// Mods may want to intercept mouse/keyboard/controller input on certain screens and instead run their own code.
+/// For example, the Highlander adds a text to the main menu that has small pop-up accessible
+/// by pressing the right controller stick.
+///
+/// The API consists of a delegate definition and two functions:
+///
+/// ```unrealscript
+/// delegate bool CHOnInputDelegateImproved(UIScreen Screen, int iInput, int ActionMask);
+/// function SubscribeToOnInputForScreen(UIScreen Screen, delegate<CHOnInputDelegateImproved> Callback);
+/// function UnsubscribeFromOnInputForScreen(UIScreen Screen, delegate<CHOnInputDelegateImproved> Callback);
+/// ```
+///
+/// In a nutshell, with `SubscribeToOnInputForScreen` you ask the UIScreenStack
+/// "when screen `Screen` would receive input, ask me first".
+/// This is done with the `CHOnInputDelegateImproved` delegate, which defines the form
+/// of the callback function called when the targeted screen would receive input.
+///
+/// Your function receives the screen that would have received the input (`Screen`), the button (`iInput`),
+/// and the action (`ActionMask`, whether the button was pressed, released, etc.).
+/// The button and action are numeric values that correspond to constants in `UIUtilities_Input.uc`. 
+/// If your function returns true, the ScreenStack will consider the input handled and immediately
+/// stop processing the input event. If your function returns false, the ScreenStack will continue
+/// calling other subscribers and, if unhandled, will finally notify the screen itself.
+///
+/// You can manually unsubscribe from receiving input, but this is generally not necessary
+/// as your callback will only be called when the screen would have received it and
+/// will automatically be unsubscribed upon removal of the targeted screen.
+///
+/// The following simplified example is taken from [Covert Infiltration](https://github.com/WOTCStrategyOverhaul/CovertInfiltration):
+///
+/// ```unrealscript
+/// class UIListener_Mission extends UIScreenListener;
+///
+/// event OnInit (UIScreen Screen)
+/// {
+/// 	local UIMission MissionScreen;
+///
+/// 	MissionScreen = UIMission(Screen);
+/// 	if (MissionScreen == none) return;
+///
+/// 	// Spawn button
+/// 	// ...
+///
+/// 	MissionScreen.Movie.Stack.SubscribeToOnInputForScreen(MissionScreen, OnMissionScreenInput);
+/// }
+///
+/// simulated protected function bool OnMissionScreenInput (UIScreen Screen, int iInput, int ActionMask)
+/// {
+/// 	if (!Screen.CheckInputIsReleaseOrDirectionRepeat(iInput, ActionMask))
+/// 	{
+/// 		return false;
+/// 	}
+/// 
+/// 	switch (iInput)
+/// 	{
+/// 	case class'UIUtilities_Input'.const.FXS_BUTTON_RTRIGGER:
+/// 		// Show custom screen
+/// 		// ...
+/// 		return true;
+/// 		break;
+/// 	}
+/// 
+/// 	return false;
+/// }
+/// ```
+///
+/// `CheckInputIsReleaseOrDirectionRepeat` ensures that the button was just released (or, if directional button,
+/// held for a long time), making input behavior more consistent with base game screens.
+///
+/// This feature is a more convenient version of [`SubscribeToOnInput`](./SubscribeToOnInput), which receives
+/// events for any screen and has to be manually unsubscribed. It offers lower-level interaction with the input system,
+/// at the cost of ergonomics.
 function SubscribeToOnInputForScreen (UIScreen Screen, delegate<CHOnInputDelegateImproved> Callback)
 {
 	local InputDelegateForScreen CallbackScreenPair;
