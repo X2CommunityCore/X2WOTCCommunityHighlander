@@ -782,7 +782,7 @@ simulated function bool IsNotInStack( class<UIScreen> ScreenClass, optional bool
 }
 
 // start issue #198
-/// HL-Docs: feature:SubscribeToOnInput; issue:198; tags:
+/// HL-Docs: feature:SubscribeToOnInput; issue:198; tags:ui
 /// Mods may want to intercept mouse/keyboard/controller input and instead run their own code.
 /// For most purposes, this feature should be considered superseded by [`SubscribeToOnInputForScreen`](./SubscribeToOnInputForScreen.md),
 /// which is more ergonomic to use and harder to misuse. Read that documentation page for a general overview.
@@ -840,7 +840,7 @@ simulated function bool ModOnInput(int iInput, int ActionMask)
 // end issue #198
 
 // Start issue #501
-/// HL-Docs: feature:SubscribeToOnInputForScreen; issue:501; tags:
+/// HL-Docs: feature:SubscribeToOnInputForScreen; issue:501; tags:ui
 /// Mods may want to intercept mouse/keyboard/controller input on certain screens and instead run their own code.
 /// For example, the Highlander adds a text to the main menu that has small pop-up accessible
 /// by pressing the right controller stick.
@@ -855,18 +855,18 @@ simulated function bool ModOnInput(int iInput, int ActionMask)
 ///
 /// In a nutshell, with `SubscribeToOnInputForScreen` you ask the UIScreenStack
 /// "when screen `Screen` would receive input, ask me first".
-/// This is done with the `CHOnInputDelegateImproved` delegate, which defines the form
-/// of the callback function called when the targeted screen would receive input.
+/// The `CHOnInputDelegateImproved` delegate defines the signature of the callback function
+/// called when the targeted screen would receive input.
 ///
-/// Your function receives the screen that would have received the input (`Screen`), the button (`iInput`),
-/// and the action (`ActionMask`, whether the button was pressed, released, etc.).
+/// Your function will be called with three arguments: The screen that would have received the input (`Screen`),
+/// the button that was pressed (`iInput`), and the action that occured (`ActionMask`, button press/release).
 /// The button and action are numeric values that correspond to constants in `UIUtilities_Input.uc`. 
 /// If your function returns true, the ScreenStack will consider the input handled and immediately
 /// stop processing the input event. If your function returns false, the ScreenStack will continue
 /// calling other subscribers and, if unhandled, will finally notify the screen itself.
 ///
 /// You can manually unsubscribe from receiving input, but this is generally not necessary
-/// as your callback will only be called when the screen would have received it and
+/// as your callback will only be called when the screen would have received input and
 /// will automatically be unsubscribed upon removal of the targeted screen.
 ///
 /// The following simplified example is taken from [Covert Infiltration](https://github.com/WOTCStrategyOverhaul/CovertInfiltration):
@@ -881,9 +881,7 @@ simulated function bool ModOnInput(int iInput, int ActionMask)
 /// 	MissionScreen = UIMission(Screen);
 /// 	if (MissionScreen == none) return;
 ///
-/// 	// Spawn button
-/// 	// ...
-///
+/// 	// This is a UIMission screen, register
 /// 	MissionScreen.Movie.Stack.SubscribeToOnInputForScreen(MissionScreen, OnMissionScreenInput);
 /// }
 ///
@@ -897,8 +895,9 @@ simulated function bool ModOnInput(int iInput, int ActionMask)
 /// 	switch (iInput)
 /// 	{
 /// 	case class'UIUtilities_Input'.const.FXS_BUTTON_RTRIGGER:
-/// 		// Show custom screen
+/// 		// The right controller trigger was just released, show custom screen
 /// 		// ...
+/// 		// Tell the ScreenStack that this input was handled
 /// 		return true;
 /// 		break;
 /// 	}
@@ -910,9 +909,14 @@ simulated function bool ModOnInput(int iInput, int ActionMask)
 /// `CheckInputIsReleaseOrDirectionRepeat` ensures that the button was just released (or, if directional button,
 /// held for a long time), making input behavior more consistent with base game screens.
 ///
+/// Although all mouse events can be inspected, Flash usually provides its own handlers that run even if
+/// the callback indicates to the ScreenStack that the input was handled. As a result, the only mouse event
+/// that can reliably be stopped with `SubscribeToOnInputForScreen` is the already navigation-relevant
+/// right click.
+///
 /// This feature is a more convenient version of [`SubscribeToOnInput`](./SubscribeToOnInput), which receives
-/// events for any screen and has to be manually unsubscribed. It offers lower-level interaction with the input system,
-/// at the cost of ergonomics.
+/// events for any screen and has to be manually unsubscribed. `SubscribeToOnInput` offers lower-level
+/// interaction with the input system at the cost of ergonomics.
 function SubscribeToOnInputForScreen (UIScreen Screen, delegate<CHOnInputDelegateImproved> Callback)
 {
 	local InputDelegateForScreen CallbackScreenPair;

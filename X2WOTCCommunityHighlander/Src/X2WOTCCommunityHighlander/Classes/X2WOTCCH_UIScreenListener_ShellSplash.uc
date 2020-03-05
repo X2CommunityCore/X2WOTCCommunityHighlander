@@ -29,10 +29,6 @@ event OnReceiveFocus(UIScreen Screen)
 	RealizeVersionText(UIShell(Screen));
 }
 
-event OnRemoved(UIScreen Screen)
-{
-}
-
 function RealizeVersionText(UIShell ShellScreen)
 {
 	local array<CHLComponent> Comps;
