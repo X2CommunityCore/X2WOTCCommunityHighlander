@@ -104,17 +104,12 @@ RunPriorityGroup=RUN_STANDARD
 - Triggers the event `CovertActionAllowCheckForProjectOverlap` to allow mods to forbid the "de-bunching" logic
   on CA start (#584)
 - Triggers the event `AllowActionToSpawnRandomly` to allow mods to prevent certain CAs from being randomly spawned (#594)
-- Triggers the event `OverridePromotionUIClasses` to allow mods to override the UI classes used for the
-  three different promotion screens (#600)
 - Triggers the event `OverrideRespecSoldierProjectPoints` to allow mods to customize how long it should
   take to respec a given soldier (#624)
 - Triggers the event `OverrideScienceScore` to allow mods to override the XCOM HQ science score, for
   example to add their own bonuses or to remove scientists that are engaged in other activities.
 - Triggers the event `CanTechBeInspired` to allow mods to block techs from being inspired, even if they
   meet the vanilla game's conditions for it (#633)
-- Triggers the event `OverrideMissionImage` to allow mods to customize mission's image (used in UIMission and subclasses) (#635)
-- Triggers the event `UIResistanceReport_ShowCouncil` to allow mods to override whether the council guy (and his remarks)
-  is shown on the end-of-month report or not (#663)
 - Triggers the event `OverrideNextRetaliationDisplay` to allow mods to customize and/or enable/disable "next retaliation"
   display in `UIAdventOperations` (#667)
 - Triggers the event `ItemAddedToSlot` & `ItemRemovedFromSlot` to allow mods to change Items that have been Equipped/Unequipped during runtime(#694)
@@ -300,18 +295,10 @@ RunPriorityGroup=RUN_STANDARD
 - `AbilityTagExpandHandler_CH` expands vanilla AbilityTagExpandHandler to allow reflection
 
 ### Event Hooks
-- Triggers the events `SoldierClassIcon`, `SoldierClassDisplayName`,
-  `SoldierClassSummary` that allow replacement of the class icon/display
-  name/summary dynamically e.g. depending on UnitState or Soldier Loadout,
-  and adds accessor functions for those to XComGameState_Unit. (#106)
-- `GetPCSImageTuple` added to allow customising PCS Image string (#110)
 - Triggers the event `OverrideHasHeavyWeapon` that allows to override the result of `XComGameState_Unit.HasHeavyWeapon` (#172)
 - `OverrideItemMinEquipped` added to allow mods to override the min number of equipped items in a slot (#171)
 - `AddConversation` added to allow mods to change narrative behavior before they are played (#204)
 - `OverrideRandomizeAppearance` added to allow mods to block updating appearance when switching armors (#299)
-- `XComGameState_Unit` triggers `SoldierRankName`, `SoldierShortRankName` and
-  `SoldierRankIcon` events that allow listeners to override the those particular
-  properties of a soldier's rank, i.e. rank name, short name and icon (#408)
 
 ### Configuration
 - Able to list classes as excluded from AWC Skill Rolling, so they can still
