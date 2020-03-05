@@ -7987,6 +7987,19 @@ function GetResistanceEvents(out array<HQEvent> arrEvents)
 
 //---------------------------------------------------------------------------------------
 // chl issue #518 start: added tuple & event 'ForceNoCovertActionNagFirstMonth'
+
+/// HL-Docs: feature:GetCovertActionEvents_Settings; issue:391; tags:strategy,ui
+/// Allows configuring the behavior of covert actions in the event queue.  
+/// `AddAll` allows multiple covert actions, `InsertSorted` inserts them into position
+/// based on time remaining.
+///
+/// Default: Only one covert action is added at the end.
+///
+/// ```unrealscript
+/// ID: GetCovertActionEvents_Settings,
+/// Data: [out bool AddAll, out bool InsertSorted],
+/// Source: XCGS_HeadquartersXCom
+/// ```
 function GetCovertActionEvents(out array<HQEvent> arrEvents)
 {
 	local XComGameStateHistory History;

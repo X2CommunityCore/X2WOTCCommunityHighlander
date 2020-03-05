@@ -50,18 +50,13 @@ RunPriorityGroup=RUN_STANDARD
 - Triggers the events `OverrideUIArmoryScale`, `OverrideUIVIPScale`, and `OverrideCharCustomizationScale` for strategy unit scaling (#229)
 - Triggers the event `RegionOutpostBuildStart` to add a strategy reward similar to the 'Resistance Network' resistance order, but for Radio Relays instead of Network Contacts. (#279)
 - Triggers the event `GeoscapeFlightModeUpdate` to allow mods to respond to geoscape mode change (#358)
-- Triggers the event `UIAvengerShortcuts_ShowCQResistanceOrders` to allow to override the presence of Resistance Orders button in `UIAvengerShortcuts` (#368)
-- Triggers the event `Geoscape_ResInfoButtonVisible` to allow to override the visibility of resistance orders button in `UIStrategyMap_HUD` (#365)
 - Triggers the event `NumCovertActionsToAdd` to allow mods to modfiy number of Covert Actions (#373)
 - Triggers the event `CompleteRespecSoldier` when a training center soldier respec was completed. (#339)
 - Triggers the events `UIArmory_WeaponUpgrade_SlotsUpdated` and `UIArmory_WeaponUpgrade_NavHelpUpdated`
   in `UIArmory_WeaponUpgrade` (#417)
-- Triggers the event `GetCovertActionEvents_Settings` to allow showing all covert actions in the correct order in the event queue (#391)
 - Triggers the event `CovertActionRisk_AlterChanceModifier` when calculated covert action risks. (#434)
 - Triggers the event `AllowDarkEventRisk` during XComGameState_CovertAction::EnableDarkEventRisk to allow alterations of standard logic (#434)
 - Triggers the event `AllowDarkEventRisk` during XComGameState_CovertAction::CreateRisks to allow alterations of standard logic (#692)
-- Triggers the event `UIStrategyPolicy_ScreenInit` at the end of UIStrategyPolicy::InitScreen (#440)
-- Triggers the event `UIStrategyPolicy_ShowCovertActionsOnClose` on UIStrategyPolicy::CloseScreen call (#440)
 - Triggers the event `CovertAction_ShouldBeVisible` on XComGameState_CovertAction::ShouldBeVisible call (#438)
 - Triggers the event `CovertAction_CanInteract` on XComGameState_CovertAction::CanInteract call (#438)
 - Triggers the event `CovertAction_ActionSelectedOverride` on XComGameState_CovertAction::DisplaySelectionPrompt call (#438)
@@ -70,7 +65,6 @@ RunPriorityGroup=RUN_STANDARD
 - Triggers the event `CovertAction_ModifyNarrativeParamTag` on XComGameState_CovertAction::GetNarrative call (#438)
 - Triggers the event `ShouldCleanupCovertAction` to allow mod control over Covert Action deletion. (#435)
 - Triggers the event `BlackMarketGoodsReset` when the Black Market goods are reset (#473)
-- Triggers the event `OverrideImageForItemAvaliable` to allow mods to override the image shown in eAlert_ItemAvailable (#491)
 - Triggers the event `OverrideCurrentDoom` to allow mods to override doom amount for doom updates (#550)
 - Triggers the event `PreEndOfMonth` to notify mods that the game is about to start its end-of-month processing (#539)
 - Triggers the event `ProcessNegativeIncome` to allow mods to do their own processing when XCOM's income at the
@@ -132,7 +126,6 @@ RunPriorityGroup=RUN_STANDARD
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
-- UIScanButton now calls OnMouseEventDelegate (#483). Note: DO NOT call ProcessMouseEvents, just set the delegate directly
 - Remove `private` from `X2AIBTBehaviorTree.Behaviors` so that mods can change the behavior trees without
   overwriting all the necessary entries (#410)
 - Removed `protectedwrite` from `AcquiredTraits`, `PendingTraits`, and `CuredTraits` in `XComGameState_Unit`, allowing Traits to be modified by external sources (#681)
