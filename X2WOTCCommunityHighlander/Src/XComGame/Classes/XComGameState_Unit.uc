@@ -12376,6 +12376,9 @@ function RankUpSoldier(XComGameState NewGameState, optional name SoldierClass, o
 	local array<SoldierClassStatType> StatProgression;
 	local XComGameState_HeadquartersXCom XComHQ;
 	local array<SoldierClassAbilityType> RankAbilities;
+
+	//	Single line for issue #801
+	local XComLWTuple Tuple;
 	
 	XComHQ = XComGameState_HeadquartersXCom(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom', true));
 	bInjured = IsInjured();
@@ -12386,6 +12389,61 @@ function RankUpSoldier(XComGameState NewGameState, optional name SoldierClass, o
 	RankIndex = m_SoldierRank;
 	if (m_SoldierRank == 0)
 	{
+		//	Begin issue #801
+		/// HL-Docs: feature:PreUnitRankUp; issue:801; tags:strategy
+		/// The `XComGameState_Unit::RankUpSoldier` triggers a `'PreUnitRankUp'` event, allowing mods to override the soldier class template name
+		/// that will be assigned to this unit, making it possible to set a class for the soldier based on arbitrary conditions.
+		///	It is necessary to listen to this event using ELD_Immediate deferral in order for your changes to take effect in time.
+		/// If the `RankUpSoldier` function was called with a soldier class template name already specified, it means the game wanted to promote
+		/// this soldier to a specific class (e.g. GTS rookie training, Psi Operative training or Commander's Choice). In that case, you can set up your Event Listener to not
+		///	have an effect on such a soldier.
+		/// ```unrealscript
+		/// EventID: PreUnitRankUp
+		/// EventData: XComLWTuple {
+		///     Data: [
+		///       inout name SoldierClassTemplateName
+		///     ]
+		/// }
+		///	EventSource: self (XComGameState_Unit)
+		/// NewGameState: none
+		/// ```
+		///	Example of an Event Listener Function:
+		///	```unrealscript
+		///	static function EventListenerReturn ListenerEventFunction(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
+		///	{
+		///		local XComLWTuple			Tuple;
+		///		local XComGameState_Unit	UnitState;
+		///
+		///		Tuple = XComLWTuple(EventData);
+		///		UnitState = XComGameState_Unit(EventSource);
+		///		if (Tule == none || UnitState == none)
+		///			return ELR_NoInterrupt;
+		///
+		///		//	If the game did not want to promote this soldier to a specific soldier class
+		///		if (Tuple.Data[0].n == '')
+		///		{
+		///			//	If a soldier rolled high aim thanks to Not Created Equal, they are guaranteed to become a sniper.
+		///			if (UnitState.GetCurrentStat(eStat_Offense) > 70)
+		///			{
+		///				Tuple.Data[0].n = 'Sharpshooter';
+		///			}
+		///		}
+		///
+		///		return ELR_NoInterrupt;
+		///	}
+		///	```
+
+		Tuple = new class'XComLWTuple';
+		Tuple.Id = 'PreUnitRankUp';
+		Tuple.Data.Add(1);
+		Tuple.Data[0].kind = XComLWTVName;
+		Tuple.Data[0].n = SoldierClass;
+
+		`XEVENTMGR.TriggerEvent('PreUnitRankUp', Tuple, self, none);
+
+		SoldierClass = Tuple.Data[0].n;
+		//	End issue #801
+
 		if(SoldierClass == '')
 		{
 			SoldierClass = XComHQ.SelectNextSoldierClass();
