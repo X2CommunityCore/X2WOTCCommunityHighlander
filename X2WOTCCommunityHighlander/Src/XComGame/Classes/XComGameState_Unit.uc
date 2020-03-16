@@ -6154,6 +6154,8 @@ event TakeDamage( XComGameState NewGameState, const int DamageAmount, const int 
 	OverkillDamage = (GetCurrentStat( eStat_HP )) - DmgResult.DamageAmount;
 	if (OverkillDamage <= 0)
 	{
+		SetOverKillUnitValue(OverkillDamage);
+
 		// Issue #202 Start, allow listeners to override killed by explosion
 		KilledByExplosionTuple = new class'XComLWTuple';
 		KilledByExplosionTuple.Id = 'OverrideKilledByExplosion';
@@ -14681,6 +14683,23 @@ function int GetNumHeavyWeapons(optional XComGameState CheckGameState)
 	return NumHeavy;
 }
 // End Issue #171
+
+//Begin Issue #805
+/// HL-Docs: feature:OverKillDamage; issue:801; tags:tactical
+/// The UnitState's damage results array only holds the actual damage taken by the unit, so the result can't be higher than the unit's HP.
+/// This adds the OverkillDamage Unit value, which is shows how higher the kill damage value was from the standard Unit HP.
+///	One of its use cases is to modify the effects of the abilities that trigger on death, like the trigger chance on Advent Priest's Sustain.
+/// ```unrealscript
+/// 	SetUnitFloatValue('OverKillDamage', -OverkillDamage, eCleanup_BeginTurn);
+/// ```
+/// The OverKillDamage calculated by XCGS_Unit is negative, but the unit value is set to be positive to make using it more intuitive.
+private function SetOverKillUnitValue(int OverKillDamage)
+{
+	SetUnitFloatValue('OverKillDamage', -OverkillDamage, eCleanup_BeginTurn);
+}
+	//	End issue #805
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // cpptext
