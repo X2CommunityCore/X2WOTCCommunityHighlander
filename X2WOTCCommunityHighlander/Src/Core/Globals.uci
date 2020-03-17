@@ -452,3 +452,158 @@
 
 `define DEFAULTFLYOVERLOOKATTIME (1.0f)
 
+// CHL Additions
+
+/// HL-Docs: feature:MAKE_SORT; issue:61; tags:macros
+/// The built-in UnrealScript `Sort()` function to sort dynamic arrays is buggy
+/// and may fail to sort arrays with more than approx. 90 elements. Two macros
+/// can generate a quick and correct sorting algorithm implementation.
+///
+/// ## `CH_MAKE_DELEGATE_QUICKSORT`
+///
+/// ```unrealscript
+/// `define CH_MAKE_DELEGATE_QUICKSORT(FnName, Type)
+/// ```
+///
+/// The ``CH_MAKE_DELEGATE_QUICKSORT` macro generates sorting function
+/// that takes an array and a comparison delegate and sorts the array in-place.
+/// The invocation
+///
+/// ```unrealscript
+/// `CH_MAKE_DELEGATE_QUICKSORT(MySortFunction, MyType)
+/// ```
+///
+/// generates a delegate prototype and a function:
+///
+/// ```unrealscript
+/// delegate int MySortFunctionSortDelegateVar(MyType A, MyType B);
+/// function MySortFunction(out array<MyType> ToSortArr, delegate<MySortFunctionSortDelegateVar> SortDel)
+/// {
+///		// ...
+/// }
+/// ```
+///
+/// You can then sort your array like this:
+///
+/// ```unrealscript
+/// function int CompareMyType(MyType A, MyType B)
+/// {
+///		if (B.ShouldComeBefore(A)) return -1;
+/// 	return 0;
+/// }
+///
+/// `CH_MAKE_DELEGATE_QUICKSORT(SortMyType, MyType);
+///
+/// function SomeFunctionThatNeedsToSort()
+/// {
+///	    local array<MyType> MyArray;
+/// 	// fill array
+/// 	// ...
+/// 	SortMyType(MyArray, CompareMyType);
+/// 	// MyArray now sorted
+/// }
+/// ```
+///
+/// In other words, the delegate should return a negative number if `B` should come before `A`
+/// in the array. `MyArray` can be re-used with different delegates to sort with different criteria.
+///
+/// Due to the delegate-based solution, every comparison involves a function call. Function calls are
+/// comparatively slow in UnrealScript and may slow down the code significantly, especially when sorting
+/// elements with a large in-memory size. The ``CH_MAKE_QUICKSORT` macro inlines the comparison expression,
+/// yielding a *significant* speedup at the cost of flexibility.
+///
+/// ## CH_MAKE_QUICKSORT
+///
+/// ```unrealscript
+/// `define CH_MAKE_QUICKSORT(FnName, Type, CmpExpr)
+/// ```
+///
+/// Example:
+/// ```unrealscript
+///
+/// `CH_MAKE_QUICKSORT(SortMyType, MyType, (B.ShouldComeBefore(A) ? -1 : 0));
+///
+/// function SomeFunctionThatNeedsToSort()
+/// {
+///	    local array<MyType> MyArray;
+/// 	// fill array
+/// 	// ...
+/// 	SortMyType(MyArray);
+/// 	// MyArray now sorted
+/// }
+/// ```
+///
+/// The generated function `SortMyType` looks like this:
+/// ```unrealscript
+/// function SortMyType(out array<MyType> ToSortArr)
+/// {
+/// 	// ...	
+/// }
+/// ```
+///
+/// Note the lack of comparison delegate in the function signature; this is
+/// because the comparison expression has been inlined into the sorting algorithm.
+
+`define CH_MAKE_QUICKSORT_INNER(FnName, Type, CmpExpr) \n\
+	delegate int `{FnName}SortDelegateVar(`{Type} A, `{Type} B); \n\
+	private function `{FnName}Priv_InsertionSort (out array< `{Type} > ToSortArr, int Left, int Right, delegate< `{FnName}SortDelegateVar > SortDel) { \n\
+		local int i, j; \n\
+		local `{Type} A, B; \n\
+		for (i = Left + 1; i <= Right; i++) { \n\
+			A = ToSortArr[i]; \n\
+			j = i; \n\
+			while (j > 0) { \n\
+				B = ToSortArr[j - 1]; \n\
+				if (`{CmpExpr} < 0) break; \n\
+				ToSortArr[j] = B; \n\
+				j -= 1; \n\
+			} \n\
+			ToSortArr[j] = A; \n\
+		} \n\
+	} \n\
+	private function int `{FnName}Priv_Partition (out array< `{Type} > ToSortArr, int Left, int Right, delegate< `{FnName}SortDelegateVar > SortDel) { \n\
+		local `{Type} Tmp, A, B; \n\
+		local int Index, Curr; \n\
+		Index = (Left + Right) / 2; \n\
+		Tmp = ToSortArr[Right]; \n\
+		ToSortArr[Right] = ToSortArr[Index]; \n\
+		ToSortArr[Index] = Tmp; \n\
+		A = ToSortArr[Right]; \n\
+		Index = Left; \n\
+		for (Curr = Left; Curr < Right; Curr++) { \n\
+			B = ToSortArr[Curr]; \n\
+			if (`{CmpExpr} < 0) { \n\
+				Tmp = ToSortArr[Index]; \n\
+				ToSortArr[Index] = B; \n\
+				ToSortArr[Curr] = Tmp; \n\
+				Index += 1; \n\
+			} \n\
+		} \n\
+		Tmp = ToSortArr[Index]; \n\
+		ToSortArr[Index] = ToSortArr[Right]; \n\
+		ToSortArr[Right] = Tmp; \n\
+		return Index; \n\
+	} \n\
+	private function `{FnName}Priv (out array< `{Type} > ToSortArr, int Left, int Right, delegate< `{FnName}SortDelegateVar > SortDel) { \n\
+		local int i; \n\
+		if (Right - Left < 15) { \n\
+			`{FnName}Priv_InsertionSort (ToSortArr, Left, Right, SortDel); \n\
+			return; \n\
+		} else { \n\
+			i = `{FnName}Priv_Partition (ToSortArr, Left, Right, SortDel); \n\
+			`{FnName}Priv (ToSortArr, Left, i - 1, SortDel); \n\
+			`{FnName}Priv (ToSortArr, i + 1, Right, SortDel); \n\
+		} \n\
+	}
+
+`define CH_MAKE_QUICKSORT(FnName, Type, CmpExpr) \n\
+	`CH_MAKE_QUICKSORT_INNER(`{FnName}, `{Type}, `{CmpExpr}) \n\
+	function `{FnName} (out array< `{Type} > ToSortArr) { \n\
+		`{FnName}Priv (ToSortArr, 0, ToSortArr.Length - 1, none); \n\
+	}
+
+`define CH_MAKE_DELEGATE_QUICKSORT(FnName, Type) \n\
+	`CH_MAKE_QUICKSORT_INNER(`{FnName}, `{Type}, SortDel(A, B)) \n\
+	function `{FnName} (out array< `{Type} > ToSortArr, delegate< `{FnName}SortDelegateVar > SortDel) { \n\
+		`{FnName}Priv (ToSortArr, 0, ToSortArr.Length - 1, SortDel); \n\
+	}
