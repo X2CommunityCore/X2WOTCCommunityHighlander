@@ -494,7 +494,7 @@ private function CreateCostSlots(XComGameState NewGameState)
 		
 		RewardTemplate = X2RewardTemplate(StratMgr.FindStrategyElementTemplate(OptionalCost.Reward));
 		RewardState = RewardTemplate.CreateInstanceFromTemplate(NewGameState);
-		RewardState.GenerateReward(NewGameState, 0.5, GetReference());
+		RewardState.GenerateReward(NewGameState, TriggerOverrideCostScalar(RewardState, 0.5), GetReference());
 		
 		Slot.Cost = OptionalCost.Cost;
 		Slot.RewardRef = RewardState.GetReference();
@@ -569,10 +569,79 @@ private function GenerateRewards(XComGameState NewGameState)
 	{
 		RewardTemplate = X2RewardTemplate(StratMgr.FindStrategyElementTemplate(RewardTypes[idx]));
 		RewardState = RewardTemplate.CreateInstanceFromTemplate(NewGameState);
-		RewardState.GenerateReward(NewGameState, 0.5, GetReference());
+		RewardState.GenerateReward(NewGameState, TriggerOverrideRewardScalar(RewardState, 0.5), GetReference());
 		RewardRefs.AddItem(RewardState.GetReference());
 	}
 }
+
+// Start Issue #807
+/// HL-Docs: feature:CovertAction_OverrideCostScalar; issue:807; tags:strategy
+/// Allows listeners to override the multiplier covert actions use to determine
+/// how many resources an optional cost requires. The game uses 0.5 by default,
+/// which means CAs need half the supplies/intel/etc. you would get from a POI
+/// as the cost to mitigate a risk.
+///
+/// ```unrealscript
+/// EventID: CovertAction_OverrideCostScalar
+/// EventData: XComLWTuple {
+///     Data: [
+///       in XComGameState_Reward RewardState,
+///       inout float DefaultCostScalar
+///     ]
+/// }
+/// EventSource: self (XCGS_CovertAction)
+/// NewGameState: no
+/// ```
+private function float TriggerOverrideCostScalar(XComGameState_Reward RewardState, float DefaultCostScalar)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'CovertAction_OverrideCostScalar';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].kind = XComLWTVObject;
+	OverrideTuple.Data[0].o = RewardState;
+	OverrideTuple.Data[1].kind = XComLWTVFloat;
+	OverrideTuple.Data[1].f = DefaultCostScalar;
+
+	`XEVENTMGR.TriggerEvent(OverrideTuple.Id, OverrideTuple, self);
+
+	return OverrideTuple.Data[1].f;
+}
+
+/// HL-Docs: feature:CovertAction_OverrideRewardScalar; issue:807; tags:strategy
+/// Allows listeners to override the multiplier covert actions use to determine
+/// how many resources to award. The game uses 0.5 by default, which means CAs
+/// award half the supplies/intel/etc. you would get from a POI.
+///
+/// ```unrealscript
+/// EventID: CovertAction_OverrideRewardScalar
+/// EventData: XComLWTuple {
+///     Data: [
+///       in XComGameState_Reward RewardState,
+///       inout float DefaultRewardScalar
+///     ]
+/// }
+/// EventSource: self (XCGS_CovertAction)
+/// NewGameState: no
+/// ```
+private function float TriggerOverrideRewardScalar(XComGameState_Reward RewardState, float DefaultRewardScalar)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'CovertAction_OverrideRewardScalar';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].kind = XComLWTVObject;
+	OverrideTuple.Data[0].o = RewardState;
+	OverrideTuple.Data[1].kind = XComLWTVFloat;
+	OverrideTuple.Data[1].f = DefaultRewardScalar;
+
+	`XEVENTMGR.TriggerEvent(OverrideTuple.Id, OverrideTuple, self);
+
+	return OverrideTuple.Data[1].f;
+}
+// End Issue #807
 
 function GiveRewards(XComGameState NewGameState)
 {
