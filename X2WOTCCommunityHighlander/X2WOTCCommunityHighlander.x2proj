@@ -47,6 +47,9 @@
     <Content Include="ModPreviewWindows.jpg">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\Core\Globals.uci">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\Core\Classes\CHCoreVersion.uc">
       <SubType>Content</SubType>
     </Content>

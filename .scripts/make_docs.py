@@ -359,7 +359,7 @@ def main():
             for file in files:
                 infile = os.path.join(root, file)
                 ext = os.path.splitext(infile)[1]
-                known_exts = {".uc": "unrealscript", ".ini": "ini"}
+                known_exts = {".uc": "unrealscript", ".uci": "unrealscript", ".ini": "ini"}
                 if ext in known_exts:
                     doc_items.extend(process_file(infile, known_exts[ext]))
 
