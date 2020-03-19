@@ -48,6 +48,17 @@ var() config int							BondmateBonusHours; // The number of hours the duration w
 var name									AmbushMissionSource; // The MissionSource of the Ambush for this Covert Action
 // End Issue #485
 
+// Start Issue #810
+//
+// Indicates whether the covert action rewards were given to the player
+// on completion. By default this is `false`, indicating that the rewards
+// *were* given.
+//
+// Note that this variable has no value until the covert action has been
+// completed.
+var bool									RewardsNotGivenOnCompletion;
+// End Issue #810
+
 struct CovertActionStaffSlot
 {
 	var() StateObjectReference				StaffSlotRef;
@@ -649,20 +660,12 @@ function GiveRewards(XComGameState NewGameState)
 	local XComGameState_StaffSlot SlotState;
 	local XComGameState_Unit UnitState;
 	local array<XComGameState_Unit> BondedSoldiers;
-	local XComLWTuple Tuple; // Issue #438
 	local int idx;
 
 	// Issue #438 Start
-	Tuple = new class'XComLWTuple';
-	Tuple.Id = 'CovertAction_PreventGiveRewards';
-	Tuple.Data.Add(1);
-	Tuple.Data[0].kind = XComLWTVBool;
-	Tuple.Data[0].b = false;
-
-	`XEVENTMGR.TriggerEvent('CovertAction_PreventGiveRewards', Tuple, self);
-
-	if (Tuple.Data[0].b)
+	if (TriggerPreventGiveRewards())
 	{
+		RewardsNotGivenOnCompletion = true;
 		return;
 	}
 	// Issue #438 End
@@ -711,6 +714,42 @@ function GiveRewards(XComGameState NewGameState)
 		}
 	}
 }
+
+// Start Issue #438, #810
+//
+// *Note* This is private to avoid potential problems with side effects
+// and non-idempotent listeners if other parts of the code (or mods) attempt
+// to use it themselves.
+//
+/// HL-Docs: feature:CovertAction_PreventGiveRewards; issue:438; tags:strategy
+/// Fires an event that allows listeners to prevent the covert action from
+/// awarding the action's rewards to the player. Note that if the `PreventGiveRewards`
+/// boolean is `true` then not only are the rewards not given, but the soldiers
+/// on the covert action get no XP or cohesion.
+///
+/// ```unrealscript
+/// EventID: CovertAction_PreventGiveRewards
+/// EventData: XComLWTuple {
+///     Data: [ inout bool PreventGiveRewards ]
+/// }
+/// EventSource: XComGameState_CovertAction
+/// NewGameState: no
+/// ```
+private function bool TriggerPreventGiveRewards()
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'CovertAction_PreventGiveRewards';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = false;
+
+	`XEVENTMGR.TriggerEvent('CovertAction_PreventGiveRewards', Tuple, self);
+
+	return Tuple.Data[0].b;
+}
+// End Issue #438, #810
 
 //---------------------------------------------------------------------------------------
 function string GetRewardDescriptionString()
@@ -2245,6 +2284,15 @@ simulated public function ActionRewardPopups()
 	local StateObjectReference RewardRef;
 	local bool bPromoteReward;
 	local int idx;
+
+	// Start Issue #810
+	if (RewardsNotGivenOnCompletion)
+	{
+		// A mod or some other source prevented this reward from being
+		// given to the player, so don't display the popups.
+		return;
+	}
+	// End Issue #810
 
 	History = `XCOMHISTORY;
 

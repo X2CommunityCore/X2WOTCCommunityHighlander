@@ -171,7 +171,10 @@ function UpdateData()
 				PromoteLabel = (Unit.ShowPromoteIcon()) ? class'UISquadSelect_ListItem'.default.m_strPromote : "";
 				Value4 = Caps(ActionState.GetStaffRisksAppliedString(StaffIndex)); // Value 4 is automatically red / negative!
 
-				if (!Unit.bCaptured)
+				// Issue #810: Don't display XP and cohesion gain if rewards weren't
+				// given on completion of the covert action (since XP and cohesion are
+				// not granted in that case).
+				if (!Unit.bCaptured && !GetAction().RewardsNotGivenOnCompletion)
 				{
 					Value1 = m_strGainedXP; // Gained Experience
 					CohesionUnitNames = GetCohesionRewardUnits();
