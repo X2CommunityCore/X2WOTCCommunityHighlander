@@ -3799,7 +3799,7 @@ function bool HasAnyOfTheAbilitiesFromCharacterTemplate(array<name> AbilitiesToC
 }
 // End helper for Issue #735
 
-/// HL-Docs: feature:OverrideHasGrenadePocket; issue:735; tags:itemslots,strategy
+/// HL-Docs: feature:OverrideHasGrenadePocket; issue:735; tags:loadoutslots,strategy
 /// Extends the ability check in `HasGrenadePocket()` for the config array `AbilityUnlocksGrenadePocket` (`XComGameData.ini`) to item granted abilities
 /// and abilities granted by the character template.
 /// Finally the event OverrideHasGrenadePocket is triggered that allows mods to override the final result
@@ -3854,7 +3854,7 @@ function bool HasGrenadePocket()
 	// End Issue #735 (1/3)
 }
 
-/// HL-Docs: feature:OverrideHasAmmoPocket; issue:735; tags:itemslots,strategy
+/// HL-Docs: feature:OverrideHasAmmoPocket; issue:735; tags:loadoutslots,strategy
 /// Extends the ability check in `HasAmmoPocket()` for the config array `AbilityUnlocksAmmoPocket` (`XComGameData.ini`) to item granted abilities
 /// and abilities granted by the character template.
 /// Finally the event OverrideHasAmmoPocket is triggered that allows mods to override the final result
@@ -3910,7 +3910,7 @@ function bool HasAmmoPocket()
 }
 
 // Check is for squad select UI
-/// HL-Docs: feature:OverrideHasExtraUtilitySlot; issue:735; tags:itemslots,strategy
+/// HL-Docs: feature:OverrideHasExtraUtilitySlot; issue:735; tags:loadoutslots,strategy
 /// Extends the ability check in `HasExtraUtilitySlot()` for the config array `AbilityUnlocksExtraUtilitySlot` (`XComGameData.ini`) to item granted abilities
 /// and abilities granted by the character template.
 /// Finally the event OverrideHasExtraUtilitySlot is triggered that allows mods to override the final result
