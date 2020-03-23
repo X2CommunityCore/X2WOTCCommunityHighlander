@@ -3783,6 +3783,7 @@ function bool HasGrenadePocket()
 	local XComLWTuple Tuple;
 	local name Ability;
 	local bool bHasGrenadePocket;
+	// End Variables for Issue #735
 
 	// Start Issue #735 (1/2)
 	foreach class'X2AbilityTemplateManager'.default.AbilityUnlocksGrenadePocket(CheckAbility)
@@ -3867,6 +3868,7 @@ function bool HasAmmoPocket()
 	local XComLWTuple Tuple;
 	local name Ability;
 	local bool bHasAmmoPocket;
+	// End Variables for Issue #735 (2/2)
 
 	// Start Issue #735 (2/2)
 	foreach class'X2AbilityTemplateManager'.default.AbilityUnlocksAmmoPocket(CheckAbility)
