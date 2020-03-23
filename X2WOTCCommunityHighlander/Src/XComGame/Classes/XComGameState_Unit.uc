@@ -3758,6 +3758,47 @@ function bool MeetsAbilityPrerequisites(name AbilityName)
 	return true;
 }
 
+// Start helper for Issue #735
+function bool HasAnyOfTheAbilitiesFromInventory(array<name> AbilitiesToCheck)
+{
+	local array<XComGameState_Item> CurrentInventory;
+	local XComGameState_Item InventoryItem;
+	local X2EquipmentTemplate EquipmentTemplate;
+	local name Ability;
+
+	CurrentInventory = GetAllInventoryItems();
+	foreach CurrentInventory(InventoryItem)
+	{
+		EquipmentTemplate = X2EquipmentTemplate(InventoryItem.GetMyTemplate());
+		if (EquipmentTemplate != none)
+		{
+			foreach EquipmentTemplate.Abilities(Ability)
+			{
+				if (AbilitiesToCheck.Find(Ability) != INDEX_NONE)
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+function bool HasAnyOfTheAbilitiesFromCharacterTemplate(array<name> AbilitiesToCheck)
+{
+	local name Ability;
+
+	foreach m_CharTemplate.Abilities(Ability)
+	{
+		if (AbilitiesToCheck.Find(Ability) != INDEX_NONE)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+// End helper for Issue #735
+
 /// HL-Docs: feature:OverrideHasGrenadePocket; issue:735; tags:itemslots,strategy
 /// Extends the ability check in `HasGrenadePocket()` for the config array `AbilityUnlocksGrenadePocket` (`XComGameData.ini`) to item granted abilities
 /// and abilities granted by the character template.
@@ -3776,16 +3817,12 @@ function bool HasGrenadePocket()
 {
 	local name CheckAbility;
 
-	// Variables for Issue #735 (1/2)
-	local X2EquipmentTemplate EquipmentTemplate;
-	local array<XComGameState_Item> CurrentInventory;
-	local XComGameState_Item InventoryItem;
+	// Variables for Issue #735 (1/3)
 	local XComLWTuple Tuple;
-	local name Ability;
 	local bool bHasGrenadePocket;
 	// End Variables for Issue #735
 
-	// Start Issue #735 (1/2)
+	// Start Issue #735 (1/3)
 	foreach class'X2AbilityTemplateManager'.default.AbilityUnlocksGrenadePocket(CheckAbility)
 	{
 		if (HasSoldierAbility(CheckAbility))
@@ -3797,38 +3834,12 @@ function bool HasGrenadePocket()
 	
 	if (!bHasGrenadePocket)
 	{
-		CurrentInventory = GetAllInventoryItems();
-		foreach CurrentInventory(InventoryItem)
-		{
-			EquipmentTemplate = X2EquipmentTemplate(InventoryItem.GetMyTemplate());
-			if (EquipmentTemplate != none)
-			{
-				foreach EquipmentTemplate.Abilities(Ability)
-				{
-					if (class'X2AbilityTemplateManager'.default.AbilityUnlocksGrenadePocket.Find(Ability) != INDEX_NONE)
-					{
-						bHasGrenadePocket = true;
-						break;
-					}
-				}
-			}
-			if (bHasGrenadePocket)
-			{
-				break;
-			}
-		}
+		bHasGrenadePocket = HasAnyOfTheAbilitiesFromInventory(class'X2AbilityTemplateManager'.default.AbilityUnlocksGrenadePocket);
 	}
 
 	if (!bHasGrenadePocket)
 	{
-		foreach m_CharTemplate.Abilities(Ability)
-		{
-			if (class'X2AbilityTemplateManager'.default.AbilityUnlocksGrenadePocket.Find(Ability) != INDEX_NONE)
-			{
-				bHasGrenadePocket = true;
-				break;
-			}
-		}
+		bHasGrenadePocket = HasAnyOfTheAbilitiesFromCharacterTemplate(class'X2AbilityTemplateManager'.default.AbilityUnlocksGrenadePocket);
 	}
 
 	Tuple = new class'XComLWTuple';
@@ -3840,7 +3851,7 @@ function bool HasGrenadePocket()
 	`XEVENTMGR.TriggerEvent('OverrideHasGrenadePocket', Tuple, self, none);
 	
 	return Tuple.Data[0].b;
-	// End Issue #735 (1/2)
+	// End Issue #735 (1/3)
 }
 
 /// HL-Docs: feature:OverrideHasAmmoPocket; issue:735; tags:itemslots,strategy
@@ -3861,14 +3872,10 @@ function bool HasAmmoPocket()
 {
 	local name CheckAbility;
 
-	// Variables for Issue #735 (2/2)
-	local X2EquipmentTemplate EquipmentTemplate;
-	local array<XComGameState_Item> CurrentInventory;
-	local XComGameState_Item InventoryItem;
+	// Variables for Issue #735 (2/3)
 	local XComLWTuple Tuple;
-	local name Ability;
 	local bool bHasAmmoPocket;
-	// End Variables for Issue #735 (2/2)
+	// End Variables for Issue #735 (2/3)
 
 	// Start Issue #735 (2/2)
 	foreach class'X2AbilityTemplateManager'.default.AbilityUnlocksAmmoPocket(CheckAbility)
@@ -3882,38 +3889,12 @@ function bool HasAmmoPocket()
 
 	if (!bHasAmmoPocket)
 	{
-		CurrentInventory = GetAllInventoryItems();
-		foreach CurrentInventory(InventoryItem)
-		{
-			EquipmentTemplate = X2EquipmentTemplate(InventoryItem.GetMyTemplate());
-			if (EquipmentTemplate != none)
-			{
-				foreach EquipmentTemplate.Abilities(Ability)
-				{
-					if (class'X2AbilityTemplateManager'.default.AbilityUnlocksAmmoPocket.Find(Ability) != INDEX_NONE)
-					{
-						bHasAmmoPocket = true;
-						break;
-					}
-				}
-			}
-			if (bHasAmmoPocket)
-			{
-				break;
-			}
-		}
+		bHasAmmoPocket = HasAnyOfTheAbilitiesFromInventory(class'X2AbilityTemplateManager'.default.AbilityUnlocksAmmoPocket);
 	}
 
 	if (!bHasAmmoPocket)
 	{
-		foreach m_CharTemplate.Abilities(Ability)
-		{
-			if (class'X2AbilityTemplateManager'.default.AbilityUnlocksAmmoPocket.Find(Ability) != INDEX_NONE)
-			{
-				bHasAmmoPocket = true;
-				break;
-			}
-		}
+		bHasAmmoPocket = HasAnyOfTheAbilitiesFromCharacterTemplate(class'X2AbilityTemplateManager'.default.AbilityUnlocksAmmoPocket);
 	}
 
 	Tuple = new class'XComLWTuple';
@@ -3929,9 +3910,27 @@ function bool HasAmmoPocket()
 }
 
 // Check is for squad select UI
+/// HL-Docs: feature:OverrideHasExtraUtilitySlot; issue:735; tags:itemslots,strategy
+/// Extends the ability check in `HasExtraUtilitySlot()` for the config array `AbilityUnlocksExtraUtilitySlot` (`XComGameData.ini`) to item granted abilities
+/// and abilities granted by the character template.
+/// Finally the event OverrideHasExtraUtilitySlot is triggered that allows mods to override the final result
+///
+/// ```unrealscript
+/// EventID: OverrideHasExtraUtilitySlot
+/// EventData: XComLWTuple {
+/// 	Data: [
+/// 	  inout bool bHasExtraUtilitySlot
+///     ]
+/// }
+/// Even
 function bool HasExtraUtilitySlot()
 {
 	local XComGameState_Item ItemState;
+
+	// Variables for Issue #735 (3/3)
+	local XComLWTuple Tuple;
+	local bool bHasExtraUtilitySlot;
+	// End Variables for Issue #735 (3/3)
 
 	// Some units start without utility slots
 	if(GetCurrentStat(eStat_UtilityItems) <= 1.0f)
@@ -3939,15 +3938,41 @@ function bool HasExtraUtilitySlot()
 		return false;
 	}
 
+	// Start Issue #735 (3/3)
 	if (HasExtraUtilitySlotFromAbility())
-		return true;
-
-	ItemState = GetItemInSlot(eInvSlot_Armor);
-	if (ItemState != none)
 	{
-		return X2ArmorTemplate(ItemState.GetMyTemplate()).bAddsUtilitySlot;
+		bHasExtraUtilitySlot = true;
 	}
-	return false;
+
+	if (!bHasExtraUtilitySlot)
+	{
+		ItemState = GetItemInSlot(eInvSlot_Armor);
+		if (ItemState != none)
+		{
+			bHasExtraUtilitySlot = X2ArmorTemplate(ItemState.GetMyTemplate()).bAddsUtilitySlot;
+		}
+	}
+
+	if (!bHasExtraUtilitySlot)
+	{
+		bHasExtraUtilitySlot = HasAnyOfTheAbilitiesFromInventory(class'X2AbilityTemplateManager'.default.AbilityUnlocksExtraUtilitySlot);
+	}
+
+	if (!bHasExtraUtilitySlot)
+	{
+		bHasExtraUtilitySlot = HasAnyOfTheAbilitiesFromCharacterTemplate(class'X2AbilityTemplateManager'.default.AbilityUnlocksExtraUtilitySlot);
+	}
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideHasExtraUtilitySlot';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = bHasExtraUtilitySlot;
+
+	`XEVENTMGR.TriggerEvent('OverrideHasExtraUtilitySlot', Tuple, self, none);
+
+	return Tuple.Data[0].b;
+	// End Issue #735 (3/3)
 }
 
 function bool HasExtraUtilitySlotFromAbility()
