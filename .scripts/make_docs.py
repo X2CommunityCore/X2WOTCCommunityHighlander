@@ -266,11 +266,13 @@ def render_full_feature_page(item: dict, outdir: str):
         file.write("<h1>%s</h1>\n\n" % (item["feature"]))
         file.write("Tracking Issue: [#%i](%s)\n\n" %
                    (item["issue"], HL_ISSUES_URL % (item["issue"])))
-        if len(item["tags"]) > 0:
-            linked_tags = map(
+
+        linked_tags = list(
+            map(
                 lambda t: "[%s](%s)" % (t, os.path.join("..", t + ".md")),
                 filter(lambda t: not t in ["strategy", "tactical"],
-                       item["tags"]))
+                       item["tags"])))
+        if len(linked_tags) > 0:
             file.write("Tags: " + ", ".join(linked_tags) + "\n\n")
         file.write("\n".join([t["text"] for t in item["texts"]]))
         file.write("\n\n")
