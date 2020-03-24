@@ -102,12 +102,25 @@ var config bool bDontUnequipWhenWounded; // true skips unequipping soldiers afte
 // End Issue #310
 
 // Start Issue #356
+/// HL-Docs: feature:TintMaterialConfigs; issue:356; tags:customization,pawns
+/// When determining which values to pass to the material using which parameter
+/// names, the game matches against a hardcoded list of material names. As a
+/// result, mods need to confusingly name their modified materials exactly
+/// the same as base-game materials. This change moves these hardcoded names to
+/// config lists:
+/// HL-Include:
 var config(Content) array<name> HairMaterial;
 var config(Content) array<name> SkinMaterial;
 var config(Content) array<name> ArmorMaterial;
 var config(Content) array<name> WepAsArmorMaterial;
 var config(Content) array<name> EyeMaterial;
 var config(Content) array<name> FlagMaterial;
+/// You can add your own materials by creating the following lines in `XComContent.ini`:
+///
+/// ```ini
+/// [XComGame.CHHelpers]
+/// +EyeMaterial="MyCustomEyesCustomizable_TC"
+/// ```
 // End Issue #356
 
 // Start Issue #465

@@ -405,24 +405,69 @@ static function PostSitRepCreation(out GeneratedMissionData GeneratedMission, op
 // End Issue #157
 
 // Start Issue #169
+
+/// HL-Docs: feature:UpdateHumanPawnMeshMaterial; issue:169; tags:customization,pawns
+///
+/// Adds a DLC hook to update a given material applied to a human pawn mesh component
+/// that can be used to set custom parameters on materials.
+///
+/// ```unrealscript
+/// static function UpdateHumanPawnMeshMaterial(XComGameState_Unit UnitState, XComHumanPawn Pawn, MeshComponent MeshComp, name ParentMaterialName, MaterialInstanceConstant MIC);
+/// ```
+///
+/// This is called by [`UpdateHumanPawnMeshComponent`](UpdateHumanPawnMeshComponent.md) if not overridden.
+/// `UpdateHumanPawnMeshComponent` allows more control over the materials, like being able to use
+/// `MaterialInstanceTimeVarying` or outright replacing materials.
+///
+/// The following simplified example is taken from the [Warhammer 40,000: Armours of the Imperium](https://steamcommunity.com/sharedfiles/filedetails/?id=1562717298)
+/// mod. Its armor uses custom material names *and* requires that the eye color is passed to the material using
+/// `EmissiveColor` instead of `EyeColor`:
+///
+/// ```unrealscript
+/// static function UpdateHumanPawnMeshMaterial(XComGameState_Unit UnitState, XComHumanPawn Pawn, MeshComponent MeshComp, name ParentMaterialName, MaterialInstanceConstant MIC)
+/// {
+/// 	local XComLinearColorPalette Palette;
+/// 	local LinearColor ParamColor;
+///
+/// 	if (MaterialInstanceConstant(MIC.Parent).Name == 'Mat_SpaceMarine_Eyes')
+/// 	{
+/// 		Palette = `CONTENT.GetColorPalette(ePalette_EyeColor);
+/// 		ParamColor = Palette.Entries[Pawn.m_kAppearance.iEyeColor].Primary;
+/// 		MIC.SetVectorParameterValue('EmissiveColor', ParamColor);
+/// 	}
+/// }
+/// ```
+///
+/// Note that a subset of this functionality (specifically if the material parameter names match) can
+/// be implemented with config only (no code) using the [`TintMaterialConfigs`](TintMaterialConfigs.md) feature.
+
 /// <summary>
 /// Called from XComHumanPawn:UpdateMeshMaterials; lets mods manipulate pawn materials.
 /// This hook is called for each standard attachment for each MaterialInstanceConstant.
-/// Superseded by UpdateHumanPawnMeshComponent, which provides a more universal hook.
 /// </summary>
 static function UpdateHumanPawnMeshMaterial(XComGameState_Unit UnitState, XComHumanPawn Pawn, MeshComponent MeshComp, name ParentMaterialName, MaterialInstanceConstant MIC)
 {
 
 }
-// End Issue #157
+// End Issue #169
 
-/// Start Issue #216
+// Start Issue #216
+/// HL-Docs: feature:UpdateHumanPawnMeshComponent; issue:216; tags:customization,pawns
+///
+/// Adds a DLC hook to update a given human pawn mesh component's materials.
+///
+/// ```unrealscript
+/// static function UpdateHumanPawnMeshComponent(XComGameState_Unit UnitState, XComHumanPawn Pawn, MeshComponent MeshComp);
+/// ```
+///
+/// This can be used to apply custom materials to meshes, or set custom parameters.
+/// If not overridden, this calls [`UpdateHumanPawnMeshMaterial`](UpdateHumanPawnMeshMaterial.md) for every
+/// MaterialInstanceConstant. Call `super.UpdateHumanPawnMeshComponent(UnitState, Pawn, MeshComp);` if you
+/// rely on both hooks.
+
 /// <summary>
 /// Called from XComHumanPawn:UpdateMeshMaterials. This function acts as a wrapper for
 /// UpdateHumanPawnMeshMaterial to still support that hook.
-/// This hook is called after the base game has updated the materials on this mesh component:
-/// - MaterialInstanceConstants will be "instancified" to make sure that pawns' materials don't conflict
-/// - Materials / MaterialInstanceTimeVaryings will not be touched
 /// </summary>
 static function UpdateHumanPawnMeshComponent(XComGameState_Unit UnitState, XComHumanPawn Pawn, MeshComponent MeshComp)
 {
@@ -454,7 +499,7 @@ static function UpdateHumanPawnMeshComponent(XComGameState_Unit UnitState, XComH
 		}
 	}
 }
-/// End Issue #216
+// End Issue #216
 
 
 /// Start Issue #239
