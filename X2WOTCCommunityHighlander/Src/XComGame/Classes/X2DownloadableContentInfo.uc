@@ -506,6 +506,50 @@ static function bool CanWeaponApplyUpgrade(XComGameState_Item WeaponState, X2Wea
 /// Allows DLC/Mods to append sockets to weapons
 /// NOTE: To create new sockets from script you need to unconst SocketName and BoneName in SkeletalMeshSocket
 /// </summary>
+/// HL-Docs: feature:DLCAppendWeaponSockets; issue:281; tags:pawns
+/// Allows mods to add, move and rescale sockets on the skeletal mesh of any weapon, which can be used to position visual weapon attachments.
+///	Duplicate sockets are not allowed. If you try to add a socket that already exists, the older socket will be removed.
+/// HL-Docs: feature:DLCAppendWeaponSockets; issue:281; tags:pawns
+/// Allows mods to add sockets to the skeletal mesh of any weapon, which can be used to position visual weapon attachments,
+/// using different position/scale of the same attachment's skeletal mesh for different weapons. Example use:
+/// ```unrealscript
+/// static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets, XComWeapon Weapon, XComGameState_Item ItemState)
+/// {
+/// 	local SkeletalMeshSocket    Socket;
+///     local vector                RelativeLocation;
+/// 	local rotator				RelativeRotation;
+/// 	local vector				RelativeScale;   
+/// 	
+/// 	if (ItemState != none)
+/// 	{
+/// 		Socket = new class'SkeletalMeshSocket';
+/// 
+/// 		Socket.SocketName = 'NewSocket';
+/// 		Socket.BoneName = 'root';
+/// 
+/// 		//	Location offsets are in Unreal Units; 1 unit is roughly equal to a centimeter.
+/// 		RelativeLocation.X = 5;
+/// 		RelativeLocation.Y = 10;
+/// 		RelativeLocation.Z = 15;
+/// 		Socket.RelativeLocation = RelativeLocation;
+/// 
+/// 		//	Socket rotation is recorded as an int value [-65535; 65535], which corresponds with [-360 degrees; 360 degrees]
+/// 		//	If we want to specify the rotation in degrees, the value must be converted using DegToUnrRot, a const in the Object class.
+/// 		RelativeRotation.Pitch = 5 * DegToUnrRot;	//	Pitch of five degrees.
+/// 		RelativeRotation.Yaw = 10 * DegToUnrRot;
+/// 		RelativeRotation.Roll = 15 * DegToUnrRot;
+/// 		Socket.RelativeRotation = RelativeRotation;
+/// 
+/// 		//	Scaling a socket will scale any mesh attached to it.
+/// 		RelativeScale.X = 0.25f;
+/// 		RelativeScale.Y = 0.5f;
+/// 		RelativeScale.Z = 1.0f;
+/// 		Socket.RelativeScale = RelativeScale;
+/// 
+/// 		NewSockets.AddItem(Socket);
+/// 	}
+/// }
+/// ```
 static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets, XComWeapon Weapon, XComGameState_Item ItemState)
 {
 	return;
