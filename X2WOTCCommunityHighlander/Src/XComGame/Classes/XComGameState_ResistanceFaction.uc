@@ -962,9 +962,9 @@ function RemoveCovertAction(StateObjectReference ActionRef)
 function CleanUpFactionCovertActions(XComGameState NewGameState)
 {
 	local XComGameStateHistory History;
+	local int idx;
 	// Issue #435 Start
 	local XComGameState_CovertAction ActionState;
-	local StateObjectReference ActionRef;
 	local XComLWTuple Tuple;
 
 	Tuple = new class'XComLWTuple';
@@ -976,10 +976,13 @@ function CleanUpFactionCovertActions(XComGameState NewGameState)
 	
 	History = `XCOMHISTORY;
 
-	foreach CovertActions(ActionRef) // Issue #435 Changed Loop type
+	// Issue #819: Replaced the `foreach` with a reverse traversal loop which won't
+	// be affected by elements being removed during the iteration. Also removed the
+	// `ActionRef` local variable.
+	for (idx = CovertActions.Length - 1; idx >= 0; idx--)
 	{
 		// Issue #435 Start
-		ActionState = XComGameState_CovertAction(History.GetGameStateForObjectID(ActionRef.ObjectID));
+		ActionState = XComGameState_CovertAction(History.GetGameStateForObjectID(CovertActions[idx].ObjectID));
 
 		if (ActionState == none)
 		{
