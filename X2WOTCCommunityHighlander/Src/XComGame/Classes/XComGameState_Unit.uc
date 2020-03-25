@@ -3758,7 +3758,7 @@ function bool MeetsAbilityPrerequisites(name AbilityName)
 	return true;
 }
 
-// Start helper for Issue #735
+// Start helper methods for Issue #735
 function bool HasAnyOfTheAbilitiesFromInventory(array<name> AbilitiesToCheck)
 {
 	local array<XComGameState_Item> CurrentInventory;
@@ -3797,7 +3797,60 @@ function bool HasAnyOfTheAbilitiesFromCharacterTemplate(array<name> AbilitiesToC
 	}
 	return false;
 }
-// End helper for Issue #735
+
+/// Checks if any of the abilities are present in the earned soldier abilities,
+/// granted by loadout items or the character template
+function bool HasAnyOfTheAbilitiesFromAnySource(array<name> AbilitiesToCheck)
+{
+	local bool bHasAbility;
+	local name Ability;
+
+	foreach AbilitiesToCheck(Ability)
+	{
+		if (HasSoldierAbility(Ability))
+		{
+			return true;
+		}
+	}
+
+	if (!bHasAbility)
+	{
+		bHasAbility = HasAnyOfTheAbilitiesFromInventory(AbilitiesToCheck);
+	}
+
+	if (!bHasAbility)
+	{
+		bHasAbility = HasAnyOfTheAbilitiesFromCharacterTemplate(AbilitiesToCheck);
+	}
+
+	return bHasAbility;
+}
+
+/// Checks if the ability is present in the earned soldier abilities,
+/// granted by loadout items or the character template
+function bool HasAbilityFromAnySource(name Ability)
+{
+	local array<name> AbilitiesToCheck;
+
+	AbilitiesToCheck.AddItem(Ability);
+	return HasAnyOfTheAbilitiesFromAnySource(AbilitiesToCheck);
+}
+
+function bool TriggerHasPocketOfTypeEvent(name EventID, bool bOverridePocketResult)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = EventID;
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = bOverridePocketResult;
+
+	`XEVENTMGR.TriggerEvent(EventID, Tuple, self, none);
+
+	return Tuple.Data[0].b;
+}
+// End methods for Issue #735
 
 /// HL-Docs: feature:OverrideHasGrenadePocket; issue:735; tags:loadoutslots,strategy
 /// Extends the ability check in `HasGrenadePocket()` for the config array `AbilityUnlocksGrenadePocket` (`XComGameData.ini`) to item granted abilities
@@ -3812,45 +3865,20 @@ function bool HasAnyOfTheAbilitiesFromCharacterTemplate(array<name> AbilitiesToC
 ///     ]
 /// }
 /// EventSource: XComGameState_Unit
+/// NewGameState: no
 /// ```
 function bool HasGrenadePocket()
 {
 	local name CheckAbility;
 
 	// Variables for Issue #735 (1/3)
-	local XComLWTuple Tuple;
 	local bool bHasGrenadePocket;
-	// End Variables for Issue #735
+	// End Variables for Issue #735 (1/3)
 
 	// Start Issue #735 (1/3)
-	foreach class'X2AbilityTemplateManager'.default.AbilityUnlocksGrenadePocket(CheckAbility)
-	{
-		if (HasSoldierAbility(CheckAbility))
-		{
-			bHasGrenadePocket = true;
-			break;
-		}
-	}
-	
-	if (!bHasGrenadePocket)
-	{
-		bHasGrenadePocket = HasAnyOfTheAbilitiesFromInventory(class'X2AbilityTemplateManager'.default.AbilityUnlocksGrenadePocket);
-	}
+	bHasGrenadePocket = HasAnyOfTheAbilitiesFromAnySource(class'X2AbilityTemplateManager'.default.AbilityUnlocksGrenadePocket);
 
-	if (!bHasGrenadePocket)
-	{
-		bHasGrenadePocket = HasAnyOfTheAbilitiesFromCharacterTemplate(class'X2AbilityTemplateManager'.default.AbilityUnlocksGrenadePocket);
-	}
-
-	Tuple = new class'XComLWTuple';
-	Tuple.Id = 'OverrideHasGrenadePocket';
-	Tuple.Data.Add(1);
-	Tuple.Data[0].kind = XComLWTVBool;
-	Tuple.Data[0].b = bHasGrenadePocket;
-
-	`XEVENTMGR.TriggerEvent('OverrideHasGrenadePocket', Tuple, self, none);
-	
-	return Tuple.Data[0].b;
+	return TriggerHasPocketOfTypeEvent('OverrideHasGrenadePocket', bHasGrenadePocket);
 	// End Issue #735 (1/3)
 }
 
@@ -3867,46 +3895,21 @@ function bool HasGrenadePocket()
 ///     ]
 /// }
 /// EventSource: XComGameState_Unit
+/// NewGameState: no
 /// ```
 function bool HasAmmoPocket()
 {
 	local name CheckAbility;
 
 	// Variables for Issue #735 (2/3)
-	local XComLWTuple Tuple;
 	local bool bHasAmmoPocket;
 	// End Variables for Issue #735 (2/3)
 
-	// Start Issue #735 (2/2)
-	foreach class'X2AbilityTemplateManager'.default.AbilityUnlocksAmmoPocket(CheckAbility)
-	{
-		if (HasSoldierAbility(CheckAbility))
-		{
-			bHasAmmoPocket = true;
-			break;
-		}
-	}
+	// Start Issue #735 (2/3)
+	bHasAmmoPocket = HasAnyOfTheAbilitiesFromAnySource(class'X2AbilityTemplateManager'.default.AbilityUnlocksAmmoPocket);
 
-	if (!bHasAmmoPocket)
-	{
-		bHasAmmoPocket = HasAnyOfTheAbilitiesFromInventory(class'X2AbilityTemplateManager'.default.AbilityUnlocksAmmoPocket);
-	}
-
-	if (!bHasAmmoPocket)
-	{
-		bHasAmmoPocket = HasAnyOfTheAbilitiesFromCharacterTemplate(class'X2AbilityTemplateManager'.default.AbilityUnlocksAmmoPocket);
-	}
-
-	Tuple = new class'XComLWTuple';
-	Tuple.Id = 'OverrideHasAmmoPocket';
-	Tuple.Data.Add(1);
-	Tuple.Data[0].kind = XComLWTVBool;
-	Tuple.Data[0].b = bHasAmmoPocket;
-
-	`XEVENTMGR.TriggerEvent('OverrideHasAmmoPocket', Tuple, self, none);
-	
-	return Tuple.Data[0].b;
-	// End Issue #735 (2/2)
+	return TriggerHasPocketOfTypeEvent('OverrideHasAmmoPocket', bHasAmmoPocket);
+	// End Issue #735 (2/3)
 }
 
 // Check is for squad select UI
@@ -3922,13 +3925,14 @@ function bool HasAmmoPocket()
 /// 	  inout bool bHasExtraUtilitySlot
 ///     ]
 /// }
-/// Even
+/// EventSource: XComGameState_Unit
+/// NewGameState: no
+/// ```
 function bool HasExtraUtilitySlot()
 {
 	local XComGameState_Item ItemState;
 
 	// Variables for Issue #735 (3/3)
-	local XComLWTuple Tuple;
 	local bool bHasExtraUtilitySlot;
 	// End Variables for Issue #735 (3/3)
 
@@ -3952,26 +3956,13 @@ function bool HasExtraUtilitySlot()
 			bHasExtraUtilitySlot = X2ArmorTemplate(ItemState.GetMyTemplate()).bAddsUtilitySlot;
 		}
 	}
-
+	
 	if (!bHasExtraUtilitySlot)
 	{
-		bHasExtraUtilitySlot = HasAnyOfTheAbilitiesFromInventory(class'X2AbilityTemplateManager'.default.AbilityUnlocksExtraUtilitySlot);
+		bHasExtraUtilitySlot = HasAnyOfTheAbilitiesFromAnySource(class'X2AbilityTemplateManager'.default.AbilityUnlocksExtraUtilitySlot);
 	}
 
-	if (!bHasExtraUtilitySlot)
-	{
-		bHasExtraUtilitySlot = HasAnyOfTheAbilitiesFromCharacterTemplate(class'X2AbilityTemplateManager'.default.AbilityUnlocksExtraUtilitySlot);
-	}
-
-	Tuple = new class'XComLWTuple';
-	Tuple.Id = 'OverrideHasExtraUtilitySlot';
-	Tuple.Data.Add(1);
-	Tuple.Data[0].kind = XComLWTVBool;
-	Tuple.Data[0].b = bHasExtraUtilitySlot;
-
-	`XEVENTMGR.TriggerEvent('OverrideHasExtraUtilitySlot', Tuple, self, none);
-
-	return Tuple.Data[0].b;
+	return TriggerHasPocketOfTypeEvent('OverrideHasExtraUtilitySlot', bHasExtraUtilitySlot);
 	// End Issue #735 (3/3)
 }
 
