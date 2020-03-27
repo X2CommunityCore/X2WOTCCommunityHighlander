@@ -113,16 +113,57 @@ simulated function array<X2SoldierClassTemplate> GetClasses()
 
 	SoldierClassTemplateMan = class'X2SoldierClassTemplateManager'.static.GetSoldierClassTemplateManager();
 
+	// Start Issue #814
+  
 	foreach SoldierClassTemplateMan.IterateTemplates(Template, none)
 	{		
 		SoldierClassTemplate = X2SoldierClassTemplate(Template);
-		
-		if (SoldierClassTemplate.NumInForcedDeck > 0 && !SoldierClassTemplate.bMultiplayerOnly)
+
+		if(TriggerGTSClassValidationEvent(SoldierClassTemplate.DataName) && SoldierClassTemplate.NumInForcedDeck > 0 && !SoldierClassTemplate.bMultiplayerOnly)
 			ClassTemplates.AddItem(SoldierClassTemplate);
 	}
 
 	return ClassTemplates;
 }
+
+/// HL-Docs: feature:ValidateGTSClassTraining; issue:814; tags:strategy,events
+/// Triggers an 'ValidateGTSClassTraining' event that allows listeners to control
+/// whether the given class can be trained in the GTS.
+///
+/// The event is fired once for each class whenever the GTS creates a list of classes 
+/// to train. The listener simply needs to perform logic with the class name and return
+/// a boolean. It will return true by default, maintaining vanilla behavior if no 
+/// listener changes it.
+///
+/// ```unrealscript
+/// EventID: ValidateGTSClassTraining
+/// EventData: XComLWTuple {
+///     Data: [
+///       in name SoldierClassName,
+///       out bool CanTrainClass
+///     ]
+/// }
+/// EventSource: self (UIChooseClass)
+/// NewGameState: no
+/// ```
+private function bool TriggerGTSClassValidationEvent(const name SoldierClassName)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'ValidateGTSClassTraining';
+	OverrideTuple.Data.Add(2);
+	// The soldier class to be validated
+	OverrideTuple.Data[0].kind = XComLWTVName;
+	OverrideTuple.Data[0].n = SoldierClassName;
+	OverrideTuple.Data[1].kind = XComLWTVBool;
+	OverrideTuple.Data[1].b = true;  // boolean to return
+
+	`XEVENTMGR.TriggerEvent('ValidateGTSClassTraining', OverrideTuple, self, none);
+
+	return OverrideTuple.Data[1].b;
+}
+// End Issue #814
 
 function int SortClassesByName(X2SoldierClassTemplate ClassA, X2SoldierClassTemplate ClassB)
 {	
