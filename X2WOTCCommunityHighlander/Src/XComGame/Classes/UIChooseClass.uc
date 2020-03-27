@@ -119,7 +119,7 @@ simulated function array<X2SoldierClassTemplate> GetClasses()
 	{		
 		SoldierClassTemplate = X2SoldierClassTemplate(Template);
 
-		if(TriggerGTSClassValidationEvent(SoldierClassTemplate.DataName) && SoldierClassTemplate.NumInForcedDeck > 0 && !SoldierClassTemplate.bMultiplayerOnly)
+		if(TriggerGTSClassValidationEvent(SoldierClassTemplate) && SoldierClassTemplate.NumInForcedDeck > 0 && !SoldierClassTemplate.bMultiplayerOnly)
 			ClassTemplates.AddItem(SoldierClassTemplate);
 	}
 
@@ -139,29 +139,30 @@ simulated function array<X2SoldierClassTemplate> GetClasses()
 /// EventID: ValidateGTSClassTraining
 /// EventData: XComLWTuple {
 ///     Data: [
-///       in name SoldierClassName,
-///       out bool CanTrainClass
+///       out bool CanTrainClass,
+///       in name SoldierClassName
 ///     ]
 /// }
 /// EventSource: self (UIChooseClass)
 /// NewGameState: no
 /// ```
-private function bool TriggerGTSClassValidationEvent(const name SoldierClassName)
+private function bool TriggerGTSClassValidationEvent(const X2SoldierClassTemplate SoldierClassTemplate)
 {
 	local XComLWTuple OverrideTuple;
 
 	OverrideTuple = new class'XComLWTuple';
 	OverrideTuple.Id = 'ValidateGTSClassTraining';
 	OverrideTuple.Data.Add(2);
+	// boolean to return
+	OverrideTuple.Data[0].kind = XComLWTVBool;
+	OverrideTuple.Data[0].b = true;
 	// The soldier class to be validated
-	OverrideTuple.Data[0].kind = XComLWTVName;
-	OverrideTuple.Data[0].n = SoldierClassName;
-	OverrideTuple.Data[1].kind = XComLWTVBool;
-	OverrideTuple.Data[1].b = true;  // boolean to return
+	OverrideTuple.Data[1].kind = XComLWTVObject;
+	OverrideTuple.Data[1].o = SoldierClassTemplate;
 
 	`XEVENTMGR.TriggerEvent('ValidateGTSClassTraining', OverrideTuple, self, none);
 
-	return OverrideTuple.Data[1].b;
+	return OverrideTuple.Data[0].b;
 }
 // End Issue #814
 
