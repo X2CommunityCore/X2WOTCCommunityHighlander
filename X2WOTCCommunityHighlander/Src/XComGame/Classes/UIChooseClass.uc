@@ -131,22 +131,23 @@ simulated function array<X2SoldierClassTemplate> GetClasses()
 /// whether the given class can be trained in the GTS.
 ///
 /// The event is fired once for each class whenever the GTS creates a list of classes 
-/// to train. The listener simply needs to perform logic with the class name and return
-/// a boolean. It will return true by default, maintaining vanilla behavior if no 
-/// listener changes it.
+/// to train. The boolean value is based on vanilla checks (NumInForcedDeck and 
+/// bMultiplayerOnly), so vanilla behavior is maintained when the value isn't changed
+/// by the listener(s), and listeners can base their logic on the vanilla checks or
+/// override the result.
 ///
 /// ```unrealscript
 /// EventID: ValidateGTSClassTraining
 /// EventData: XComLWTuple {
 ///     Data: [
-///       inout bool CanTrainClass,
+///       out bool CanTrainClass,
 ///       in X2SoldierClassTemplate SoldierClassTemplate
 ///     ]
 /// }
 /// EventSource: self (UIChooseClass)
 /// NewGameState: no
 /// ```
-private function bool TriggerGTSClassValidationEvent(const X2SoldierClassTemplate SoldierClassTemplate)
+private function bool TriggerGTSClassValidationEvent(X2SoldierClassTemplate SoldierClassTemplate)
 {
 	local XComLWTuple OverrideTuple;
 
