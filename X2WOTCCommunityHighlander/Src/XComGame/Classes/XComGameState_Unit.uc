@@ -12570,7 +12570,7 @@ function RankUpSoldier(XComGameState NewGameState, optional name SoldierClass, o
 ///
 ///		Tuple = XComLWTuple(EventData);
 ///		UnitState = XComGameState_Unit(EventSource);
-///		if (Tule == none || UnitState == none)
+///		if (Tuple == none || UnitState == none)
 ///			return ELR_NoInterrupt;
 ///
 ///		//	If the game did not want to promote this soldier to a specific soldier class
