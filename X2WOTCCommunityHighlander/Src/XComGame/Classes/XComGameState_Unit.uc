@@ -12545,7 +12545,7 @@ function RankUpSoldier(XComGameState NewGameState, optional name SoldierClass, o
 
 //	Begin issue #801
 /// HL-Docs: feature:FirstPromotionOverrideClass; issue:801; tags:strategy
-/// The `XComGameState_Unit::RankUpSoldier` triggers a `'FirstPromotionOverrideClass'` event, allowing mods to override the soldier class template name
+/// The `XComGameState_Unit::RankUpSoldier` triggers a `FirstPromotionOverrideClass` event, allowing mods to override the soldier class template name
 /// that will be assigned to this unit, making it possible to set a class for the soldier based on arbitrary conditions.
 ///	It is necessary to listen to this event using ELD_Immediate deferral in order for your changes to take effect in time.
 /// If the `RankUpSoldier` function was called with a soldier class template name already specified, it means the game wanted to promote
