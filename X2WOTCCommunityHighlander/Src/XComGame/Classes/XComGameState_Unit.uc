@@ -12387,7 +12387,7 @@ function RankUpSoldier(XComGameState NewGameState, optional name SoldierClass, o
 	if (m_SoldierRank == 0)
 	{
 		//	Begin issue #801
-		SoldierClass = PreRankUpSoldier(NewGameState, SoldierClass);
+		SoldierClass = FirstPromotionOverrideClass(NewGameState, SoldierClass);
 		//	End issue #801
 
 		if(SoldierClass == '')
@@ -12544,22 +12544,22 @@ function RankUpSoldier(XComGameState NewGameState, optional name SoldierClass, o
 }
 
 //	Begin issue #801
-/// HL-Docs: feature:PreUnitRankUp; issue:801; tags:strategy
-/// The `XComGameState_Unit::RankUpSoldier` triggers a `'PreUnitRankUp'` event, allowing mods to override the soldier class template name
+/// HL-Docs: feature:FirstPromotionOverrideClass; issue:801; tags:strategy
+/// The `XComGameState_Unit::RankUpSoldier` triggers a `'FirstPromotionOverrideClass'` event, allowing mods to override the soldier class template name
 /// that will be assigned to this unit, making it possible to set a class for the soldier based on arbitrary conditions.
 ///	It is necessary to listen to this event using ELD_Immediate deferral in order for your changes to take effect in time.
 /// If the `RankUpSoldier` function was called with a soldier class template name already specified, it means the game wanted to promote
 /// this soldier to a specific class (e.g. GTS rookie training, Psi Operative training or Commander's Choice). In that case, you can set up your Event Listener to not
 ///	have an effect on such a soldier.
 /// ```unrealscript
-/// EventID: PreUnitRankUp
+/// EventID: FirstPromotionOverrideClass
 /// EventData: XComLWTuple {
 ///     Data: [
 ///       inout name SoldierClassTemplateName
 ///     ]
 /// }
 ///	EventSource: self (XComGameState_Unit)
-/// NewGameState: none
+/// NewGameState: yes
 /// ```
 ///	Example of an Event Listener Function:
 ///	```unrealscript
@@ -12586,17 +12586,17 @@ function RankUpSoldier(XComGameState NewGameState, optional name SoldierClass, o
 ///		return ELR_NoInterrupt;
 ///	}
 ///	```
-private function name PreRankUpSoldier(XComGameState NewGameState, name SoldierClass)
+private function name FirstPromotionOverrideClass(XComGameState NewGameState, name SoldierClass)
 {	
 	local XComLWTuple Tuple;
 
 	Tuple = new class'XComLWTuple';
-	Tuple.Id = 'PreUnitRankUp';
+	Tuple.Id = 'FirstPromotionOverrideClass';
 	Tuple.Data.Add(1);
 	Tuple.Data[0].kind = XComLWTVName;
 	Tuple.Data[0].n = SoldierClass;
 
-	`XEVENTMGR.TriggerEvent('PreUnitRankUp', Tuple, self, NewGameState);
+	`XEVENTMGR.TriggerEvent('FirstPromotionOverrideClass', Tuple, self, NewGameState);
 
 	return Tuple.Data[0].n;
 }
