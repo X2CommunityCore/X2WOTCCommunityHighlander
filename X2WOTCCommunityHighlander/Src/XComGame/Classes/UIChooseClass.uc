@@ -155,7 +155,7 @@ private function bool TriggerGTSClassValidationEvent(const X2SoldierClassTemplat
 	OverrideTuple.Data.Add(2);
 	// boolean to return
 	OverrideTuple.Data[0].kind = XComLWTVBool;
-	OverrideTuple.Data[0].b = true;
+	OverrideTuple.Data[0].b = SoldierClassTemplate.NumInForcedDeck > 0 && !SoldierClassTemplate.bMultiplayerOnly;
 	// The soldier class to be validated
 	OverrideTuple.Data[1].kind = XComLWTVObject;
 	OverrideTuple.Data[1].o = SoldierClassTemplate;
