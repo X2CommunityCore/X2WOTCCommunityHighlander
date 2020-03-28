@@ -139,7 +139,7 @@ simulated function array<X2SoldierClassTemplate> GetClasses()
 /// EventID: ValidateGTSClassTraining
 /// EventData: XComLWTuple {
 ///     Data: [
-///       out bool CanTrainClass,
+///       inout bool CanTrainClass,
 ///       in name SoldierClassName
 ///     ]
 /// }
