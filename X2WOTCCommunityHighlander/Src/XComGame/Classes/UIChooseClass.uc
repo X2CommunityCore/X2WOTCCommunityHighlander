@@ -140,7 +140,7 @@ simulated function array<X2SoldierClassTemplate> GetClasses()
 /// EventData: XComLWTuple {
 ///     Data: [
 ///       inout bool CanTrainClass,
-///       in name SoldierClassName
+///       in X2SoldierClassTemplate SoldierClassTemplate
 ///     ]
 /// }
 /// EventSource: self (UIChooseClass)
