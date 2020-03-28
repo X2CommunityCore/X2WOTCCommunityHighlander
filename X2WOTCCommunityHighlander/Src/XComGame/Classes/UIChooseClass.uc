@@ -119,7 +119,7 @@ simulated function array<X2SoldierClassTemplate> GetClasses()
 	{		
 		SoldierClassTemplate = X2SoldierClassTemplate(Template);
 
-		if(TriggerGTSClassValidationEvent(SoldierClassTemplate) && SoldierClassTemplate.NumInForcedDeck > 0 && !SoldierClassTemplate.bMultiplayerOnly)
+		if(TriggerGTSClassValidationEvent(SoldierClassTemplate))
 			ClassTemplates.AddItem(SoldierClassTemplate);
 	}
 
