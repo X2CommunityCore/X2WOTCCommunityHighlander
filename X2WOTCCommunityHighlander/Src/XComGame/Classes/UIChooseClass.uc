@@ -113,19 +113,20 @@ simulated function array<X2SoldierClassTemplate> GetClasses()
 
 	SoldierClassTemplateMan = class'X2SoldierClassTemplateManager'.static.GetSoldierClassTemplateManager();
 
-	// Start Issue #814
-  
 	foreach SoldierClassTemplateMan.IterateTemplates(Template, none)
 	{		
 		SoldierClassTemplate = X2SoldierClassTemplate(Template);
-
+		
+		// Start Issue #814
 		if(TriggerGTSClassValidationEvent(SoldierClassTemplate))
 			ClassTemplates.AddItem(SoldierClassTemplate);
+		// End Issue #814
 	}
 
 	return ClassTemplates;
 }
 
+// Start Issue #814
 /// HL-Docs: feature:ValidateGTSClassTraining; issue:814; tags:strategy,events
 /// Triggers an 'ValidateGTSClassTraining' event that allows listeners to control
 /// whether the given class can be trained in the GTS.
