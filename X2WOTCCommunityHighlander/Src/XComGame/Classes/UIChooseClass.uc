@@ -117,10 +117,8 @@ simulated function array<X2SoldierClassTemplate> GetClasses()
 	{		
 		SoldierClassTemplate = X2SoldierClassTemplate(Template);
 		
-		// Start Issue #814
-		if(TriggerGTSClassValidationEvent(SoldierClassTemplate))
+		if (TriggerGTSClassValidationEvent(SoldierClassTemplate)) // Issue #814
 			ClassTemplates.AddItem(SoldierClassTemplate);
-		// End Issue #814
 	}
 
 	return ClassTemplates;
