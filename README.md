@@ -136,16 +136,17 @@ His post goes into far more detail than this guide, if you're interested.
 
 ### Cooking a Final Release (Automated method)
 
-1. Copy 'CookCommunityHighlander.bat' to your SteamLibrary folder (the folder that
+1. Make sure you have the complete SDK installed (`full_content` branch in Properties->Betas->`full_content`). This requires about 90 GB of disk space.
+2. Copy 'CookCommunityHighlander.bat' to your SteamLibrary folder (the folder that
 contains the steamapps subfolder). By default, this path is `C:\Program Files (x86)\Steam`. 
-2. If XCOM 2 and the SDK are in the same Steam library, go to step 4. If they are in different libraries, go to the next step.
-3. Open CookCommunityHighlander.bat in a text editor, modify the variables below, and save:
+3. If XCOM 2 and the SDK are in the same Steam library, go to step 4. If they are in different libraries, go to the next step.
+4. Open CookCommunityHighlander.bat in a text editor, modify the variables below, and save:
 ```
 SET "SDKLocation=.\steamapps\common\XCOM 2 War of the Chosen SDK"
 SET "GameLocation=.\steamapps\common\XCOM 2\XCom2-WarOfTheChosen"
 ```
-4. Run CookCommunityHighlander.bat by double-clicking it.
-5. If a message like "Scripts are outdated. Would you like to rebuild now?" pops up, click "No".
+5. Run CookCommunityHighlander.bat by double-clicking it.
+6. If a message like "Scripts are outdated. Would you like to rebuild now?" pops up, click "No".
 
 ### Cooking a Final Release (Manual method)
 
@@ -166,6 +167,8 @@ GlobalPersistentCookerData.upk
 PersistentCookerShaderData.bin
 *.tfc
 ```
+
+Additionally, you need to install the complete SDK (`full_content` branch in Properties->Betas->`full_content`). This requires about 90 GB of disk space.
 
 #### Cooking
 
