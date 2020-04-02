@@ -1185,7 +1185,7 @@ function InterpolateWeapon()
 	//make sure we have got the right weapon details for the pawn/actor
 	Weapon = XComGameState_Item(`XCOMHISTORY.GetGameStateForObjectID(WeaponRef.ObjectID));
 
-	for (i=0 ; i < default.WeaponViewOffsets.Length ; i++)
+	for (i=0 ; i <= default.WeaponViewOffsets.Length ; i++)
 	{
 		// Add an offset to the camera/root based on the weapon template ... this adjusts the weapons position on the screen
 		if (X2WeaponTemplate(Weapon.GetMyTemplate()).DataName == default.WeaponViewOffsets[i].Template )
