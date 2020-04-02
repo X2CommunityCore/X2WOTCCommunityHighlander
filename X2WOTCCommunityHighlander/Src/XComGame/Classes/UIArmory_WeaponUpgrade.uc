@@ -1154,6 +1154,12 @@ function InterpolateWeapon()
 	local Vector GoalLocation;
 	local PointInSpace PlacementActor;
 
+	//required for Issue #832
+	local Vector BeginLocation, Offset;
+	local XComGameState_Item Weapon;
+	local int i;
+	// end Issue #832
+	
 	PlacementActor = GetPlacementActor();
 	GoalLocation = PlacementActor.Location;
 	if(PawnLocationTag != '')
