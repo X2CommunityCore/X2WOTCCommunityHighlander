@@ -18,6 +18,18 @@ struct TUIAvailableUpgrade
 	var string DisabledReason; // Reason why upgrade cannot be equipped
 };
 
+// Added struct for offset position - Issue #832
+struct WeaponViewOffset
+{
+	var name Template;
+	var float offset_x;
+	var float offset_y;
+	var float offset_z;
+};
+
+// Added array to the UI config for offset positions - Issue #832
+var config array<WeaponViewOffset> WeaponViewOffsets;
+
 var int FontSize;
 
 var UIList ActiveList;
@@ -1162,6 +1174,39 @@ function InterpolateWeapon()
 			ActorPawn.SetRotation(RotatorLerp);
 		}
 	}
+	
+	//===============================================
+	//	Rusty Addition to Function - Start Issue #832
+	//===============================================
+
+	// save the original position of the actor
+	BeginLocation = ActorPawn.Location;
+
+	//make sure we have got the right weapon details for the pawn/actor
+	Weapon = XComGameState_Item(`XCOMHISTORY.GetGameStateForObjectID(WeaponRef.ObjectID));
+
+	for (i=0 ; i < default.WeaponViewOffsets.Length ; i++)
+	{
+		// Add an offset to the camera/root based on the weapon template ... this adjusts the weapons position on the screen
+		if (X2WeaponTemplate(Weapon.GetMyTemplate()).DataName == default.WeaponViewOffsets[i].Template )
+		{
+			Offset.x = default.WeaponViewOffsets[i].offset_x;
+			Offset.y = default.WeaponViewOffsets[i].offset_y;
+			Offset.z = default.WeaponViewOffsets[i].offset_z;
+
+			GoalLocation = BeginLocation + Offset;
+
+			if(VSize(GoalLocation - ActorPawn.Location) > 0.1f)
+			{
+				LocationLerp = VLerp(ActorPawn.Location, GoalLocation, 0.1f);
+				ActorPawn.SetLocation(LocationLerp);
+			}
+		}
+	}
+
+	//===============================================
+	//	Rusty Addition to Function - End Issue #832
+	//===============================================
 }
 
 simulated function OnListChildMouseEvent(UIPanel Panel, int Cmd)
