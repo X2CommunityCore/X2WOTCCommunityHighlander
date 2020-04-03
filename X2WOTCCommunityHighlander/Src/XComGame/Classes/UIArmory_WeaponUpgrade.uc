@@ -1181,9 +1181,7 @@ function InterpolateWeapon()
 		}
 	}
 	
-	//===============================================
-	//	Rusty Addition to Function - Start Issue #832
-	//===============================================
+// Start Issue #832
 
 	// save the original position of the actor
 	BeginLocation = ActorPawn.Location;
