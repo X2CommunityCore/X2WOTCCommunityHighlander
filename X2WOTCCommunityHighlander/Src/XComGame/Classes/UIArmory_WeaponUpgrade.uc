@@ -1211,9 +1211,7 @@ function InterpolateWeapon()
 		}
 	}
 
-	//===============================================
-	//	Rusty Addition to Function - End Issue #832
-	//===============================================
+	// End Issue #832
 }
 
 simulated function OnListChildMouseEvent(UIPanel Panel, int Cmd)
