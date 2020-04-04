@@ -6229,7 +6229,7 @@ event TakeDamage( XComGameState NewGameState, const int DamageAmount, const int 
 	DamageAbsorbedByShield = 0;
 
 	// Begin Issue #743
-	/// HL-Docs: feature:DamageCalc_ArmorBeforeShield; issue:743; tags:tactical,balance,damage-calc
+	/// HL-Docs: feature:DamageCalc_ArmorBeforeShield; issue:743; tags:tactical
 	/// By default, shields are damaged before any damage is mitigated by armor.
 	/// This is fine in vanilla when shields are rare, but becomes an issue in
 	/// modded campaigns where 'shields' are turned into 'ablative' hit points

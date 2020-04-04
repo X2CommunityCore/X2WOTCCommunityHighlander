@@ -80,6 +80,7 @@ def make_doc_item(lines: List[str], file: str,
         k, v = pair.strip().split(':')
         if k in item:
             print("%s: error: %s: dupe key `%s`" % (sys.argv[0], file, k))
+            return None
         if k == 'feature' or k == 'ref':
             item[k] = v
         elif k == 'issue':
@@ -89,6 +90,7 @@ def make_doc_item(lines: List[str], file: str,
             item[k] = tags if tags != [''] else []
         else:
             print("%s: error: %s: unknown key `%s`" % (sys.argv[0], file, k))
+            return None
 
     ref = make_ref("\n".join(lines[1:]), file, span, item.get('issue'))
     if "ref" in item:
@@ -128,6 +130,7 @@ def process_file(file, lang) -> List[dict]:
             if line.startswith(HL_DOCS_KEYWORD):
                 print("%s: error: %s: multiple `%s` in one item" %
                       (sys.argv[0], self.filename, HL_DOCS_KEYWORD))
+                sys.exit(1)
             elif line.startswith(HL_INCLUDE_FOLLOWING):
                 self.lines.append("\n```%s" % (lang))
                 self.state = ParserState.INCLUDE
@@ -160,7 +163,9 @@ def process_file(file, lang) -> List[dict]:
                         if item != None:
                             self.doc_items.append(item)
                         else:
-                            print("...while processing %s:%i" % (file, lnum))
+                            print("...while processing %s:%i" %
+                                  (self.filename, lnum))
+                            sys.exit(1)
                         self.state = ParserState.TEXT
                         self.lines = []
                 elif self.state == ParserState.INCLUDE:
@@ -179,6 +184,7 @@ def process_file(file, lang) -> List[dict]:
                             if not orig_line.startswith(self.indent):
                                 print("%s: error: %s: bad indentation" %
                                       (sys.argv[0], file))
+                                sys.exit(1)
                             else:
                                 self.lines.append(orig_line[len(self.indent):])
             # If the file ended with a doc item...
@@ -188,7 +194,8 @@ def process_file(file, lang) -> List[dict]:
                 if item != None:
                     self.doc_items.append(item)
                 else:
-                    print("...while processing %s:%i" % (file, lnum))
+                    print("...while processing %s:%i" % (self.filename, lnum))
+                    sys.exit(1)
 
     doc_items = []
 
@@ -211,6 +218,7 @@ def merge_doc_refs(doc_items: List[dict]) -> List[dict]:
         else:
             print("%s: error: missing base doc item for ref %s" %
                   (sys.argv[0], ref["ref"]))
+            sys.exit(1)
 
     return items.values()
 
@@ -300,8 +308,14 @@ def render_tag_page(tag: str, items: List[dict], outdir: str):
     items = sorted(items, key=lambda i: i["issue"])
     fname = os.path.join(outdir, tag + ".md")
 
-    with open(fname, 'r'):
-        pass
+    try:
+        with open(fname, 'r'):
+            pass
+    except FileNotFoundError:
+        print(
+            "%s: error: file name %s not found (did you make up the tag `%s`?)"
+            % (sys.argv[0], fname, tag))
+        sys.exit(1)
 
     with open(fname, 'a+') as file:
         print(fname)
