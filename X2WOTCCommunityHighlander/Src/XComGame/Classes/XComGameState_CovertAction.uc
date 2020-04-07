@@ -494,7 +494,7 @@ private function CreateCostSlots(XComGameState NewGameState)
 		
 		RewardTemplate = X2RewardTemplate(StratMgr.FindStrategyElementTemplate(OptionalCost.Reward));
 		RewardState = RewardTemplate.CreateInstanceFromTemplate(NewGameState);
-		RewardState.GenerateReward(NewGameState, TriggerOverrideCostScalar(RewardState, 0.5), GetReference());
+		RewardState.GenerateReward(NewGameState, TriggerOverrideCostScalar(RewardState, 0.5), GetReference()); // Issue #807 - trigger call added
 		
 		Slot.Cost = OptionalCost.Cost;
 		Slot.RewardRef = RewardState.GetReference();
@@ -569,7 +569,7 @@ private function GenerateRewards(XComGameState NewGameState)
 	{
 		RewardTemplate = X2RewardTemplate(StratMgr.FindStrategyElementTemplate(RewardTypes[idx]));
 		RewardState = RewardTemplate.CreateInstanceFromTemplate(NewGameState);
-		RewardState.GenerateReward(NewGameState, TriggerOverrideRewardScalar(RewardState, 0.5), GetReference());
+		RewardState.GenerateReward(NewGameState, TriggerOverrideRewardScalar(RewardState, 0.5), GetReference()); // Issue #807 - trigger call added
 		RewardRefs.AddItem(RewardState.GetReference());
 	}
 }
@@ -585,8 +585,8 @@ private function GenerateRewards(XComGameState NewGameState)
 /// EventID: CovertAction_OverrideCostScalar
 /// EventData: XComLWTuple {
 ///     Data: [
-///       in XComGameState_Reward RewardState,
-///       inout float DefaultCostScalar
+///       inout float DefaultCostScalar,
+///       in XComGameState_Reward RewardState
 ///     ]
 /// }
 /// EventSource: self (XCGS_CovertAction)
@@ -599,14 +599,14 @@ private function float TriggerOverrideCostScalar(XComGameState_Reward RewardStat
 	OverrideTuple = new class'XComLWTuple';
 	OverrideTuple.Id = 'CovertAction_OverrideCostScalar';
 	OverrideTuple.Data.Add(2);
-	OverrideTuple.Data[0].kind = XComLWTVObject;
-	OverrideTuple.Data[0].o = RewardState;
-	OverrideTuple.Data[1].kind = XComLWTVFloat;
-	OverrideTuple.Data[1].f = DefaultCostScalar;
+	OverrideTuple.Data[0].kind = XComLWTVFloat;
+	OverrideTuple.Data[0].f = DefaultCostScalar;
+	OverrideTuple.Data[1].kind = XComLWTVObject;
+	OverrideTuple.Data[1].o = RewardState;
 
 	`XEVENTMGR.TriggerEvent(OverrideTuple.Id, OverrideTuple, self);
 
-	return OverrideTuple.Data[1].f;
+	return OverrideTuple.Data[0].f;
 }
 
 /// HL-Docs: feature:CovertAction_OverrideRewardScalar; issue:807; tags:strategy
@@ -618,8 +618,8 @@ private function float TriggerOverrideCostScalar(XComGameState_Reward RewardStat
 /// EventID: CovertAction_OverrideRewardScalar
 /// EventData: XComLWTuple {
 ///     Data: [
-///       in XComGameState_Reward RewardState,
-///       inout float DefaultRewardScalar
+///       inout float DefaultRewardScalar,
+///       in XComGameState_Reward RewardState
 ///     ]
 /// }
 /// EventSource: self (XCGS_CovertAction)
@@ -632,14 +632,14 @@ private function float TriggerOverrideRewardScalar(XComGameState_Reward RewardSt
 	OverrideTuple = new class'XComLWTuple';
 	OverrideTuple.Id = 'CovertAction_OverrideRewardScalar';
 	OverrideTuple.Data.Add(2);
-	OverrideTuple.Data[0].kind = XComLWTVObject;
-	OverrideTuple.Data[0].o = RewardState;
-	OverrideTuple.Data[1].kind = XComLWTVFloat;
-	OverrideTuple.Data[1].f = DefaultRewardScalar;
+	OverrideTuple.Data[0].kind = XComLWTVFloat;
+	OverrideTuple.Data[0].f = DefaultRewardScalar;
+	OverrideTuple.Data[1].kind = XComLWTVObject;
+	OverrideTuple.Data[1].o = RewardState;
 
 	`XEVENTMGR.TriggerEvent(OverrideTuple.Id, OverrideTuple, self);
 
-	return OverrideTuple.Data[1].f;
+	return OverrideTuple.Data[0].f;
 }
 // End Issue #807
 
