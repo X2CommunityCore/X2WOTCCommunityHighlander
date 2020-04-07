@@ -123,7 +123,6 @@ RunPriorityGroup=RUN_STANDARD
   is shown on the end-of-month report or not (#663)
 - Triggers the event `OverrideNextRetaliationDisplay` to allow mods to customize and/or enable/disable "next retaliation"
   display in `UIAdventOperations` (#667)
-- Triggers the event `OnBestGearLoadoutApplied` at the end of `XCGS_Unit::ApplyBestGearLoadout()` to allow mods to make changes to the Unit State. (#676)
 - Triggers the event `ItemAddedToSlot` & `ItemRemovedFromSlot` to allow mods to change Items that have been Equipped/Unequipped during runtime(#694)
 - Triggers the event `CovertAction_AllowResActivityRecord` to allow mods to enable/disable "covert action completed"
   record for the monthly resistance report (#696)
@@ -146,7 +145,6 @@ RunPriorityGroup=RUN_STANDARD
   (#82)
 - bDontUnequipCovertOps prevents soldiers gear gets stripped when sending on covert op with no ambush risk (#153)
 - bDontUnequipWhenWounded prevents soldiers gear gets stripped when getting wounded (#310)
-- iDefaultWeaponTint allows to configure the default weappon tint for randomly generated soldiers (#397)
 - AdditionalAmbushRiskTemplates array represents risk templates that the game will consider at risk to ambush (#485)
 - bSkipCampaignIntroMovies skips the intro movies on campaign start (#543)
 
@@ -214,7 +212,6 @@ RunPriorityGroup=RUN_STANDARD
   the Skulljack / ADVENT screen arbitrarily (#330)
 - `OverrideClipSize` to allow effects to modify weapon clip size (#393)
 - `PostMissionObjectivesSpawned` to allow for map manipulation before units are spawned  (#405)
-- 'PostAliensSpawned' to allow changes to StartState (#457)
 - Allow mods to override the number of objectives spawned for a mission via the new event
   `OverrideObjectiveSpawnCount`, which is triggered as the objective spawns are being
   selected by `XComTacticalMissionManager`. (#463)
@@ -303,7 +300,6 @@ RunPriorityGroup=RUN_STANDARD
 - `UpdateWeaponAttachments` added to allow manipulation weapon attachments at runtime (#239)
 - `WeaponInitialized` added to conditionally change the weapon archetype on initialization (#245)
 - `UpdateWeaponMaterial` added to conditionally change the weapon materials(#246)
-- `DLCAppendWeaponSockets` allows adding new sockets to weapons(#281)
 - `OnPreCreateTemplates` allows mods to modify properties of X2DataSet(s) before they are invoked (#412)
 - `UpdateTransitionMap` allows overriding the transition map -- dropship interior by default (#388)
 - `UseAlternateMissionIntroDefinition` allows overriding the mission intro (#395)
@@ -344,8 +340,6 @@ RunPriorityGroup=RUN_STANDARD
 
 ### Improvements
 - Create a mod friendly way to manipulate loot tables (#8)
-- Allow to specify EventListenerDeferral Priority for EventListeners registered
-  X2EventListenerTemplates. Also allow to remove registered Listeners. (#4)
 - Allow enemies with assigned names to have them appear as their name, rather
   than a generic label. (#52)
 - Change UIUtilities_Colors.GetColorForFaction to use Faction template color as

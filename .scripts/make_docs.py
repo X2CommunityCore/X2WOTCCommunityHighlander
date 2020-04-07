@@ -17,6 +17,16 @@ HL_ISSUES_URL = "https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/is
 HL_SOURCE_URL = "https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/%s/%s#L%s-L%s" % (
     HL_BRANCH, "%s", "%i", "%i")
 
+exit_code = 0
+
+
+def err(msg: str, fatal: bool):
+    global exit_code
+    if fatal:
+        sys.exit(1)
+    exit_code = 1
+    print("error: %s" % (msg))
+
 
 def parse_args() -> (List[str], str, str):
     parser = argparse.ArgumentParser(
@@ -36,20 +46,14 @@ def parse_args() -> (List[str], str, str):
     args = parser.parse_args()
 
     if os.path.isfile(args.outdir):
-        print("%s: error: Output dir %s is existing file" %
-              (sys.argv[0], args.outdir))
-        sys.exit(1)
+        err("Output dir %s is existing file" % (args.outdir), True)
 
     if not os.path.exists(args.docsdir) or os.path.isfile(args.docsdir):
-        print("%s: error: Docs src dir %s does not exist or is file" %
-              (sys.argv[0], args.outdir))
-        sys.exit(1)
+        err("Docs src dir %s does not exist or is file" % (args.outdir), True)
 
     for indir in args.indirs:
         if not os.path.isdir(indir):
-            print("%s: error: Input directory %s does not exist or is file" %
-                  (sys.argv[0], indir))
-            sys.exit(1)
+            err("Input directory %s does not exist or is file" % (indir), True)
 
     return args.indirs, args.outdir, args.docsdir
 
@@ -79,8 +83,7 @@ def make_doc_item(lines: List[str], file: str,
     for pair in lines[0].split(';'):
         k, v = pair.strip().split(':')
         if k in item:
-            print("%s: error: %s: dupe key `%s`" % (sys.argv[0], file, k))
-            return None
+            err("%s:%i: duplicate key `%s`" % (file, span[0] + 1, k), False)
         if k == 'feature' or k == 'ref':
             item[k] = v
         elif k == 'issue':
@@ -89,8 +92,7 @@ def make_doc_item(lines: List[str], file: str,
             tags = v.split(',')
             item[k] = tags if tags != [''] else []
         else:
-            print("%s: error: %s: unknown key `%s`" % (sys.argv[0], file, k))
-            return None
+            err("%s:%i: unknown key `%s`" % (file, span[0] + 1, k), False)
 
     ref = make_ref("\n".join(lines[1:]), file, span, item.get('issue'))
     if "ref" in item:
@@ -126,11 +128,11 @@ def process_file(file, lang) -> List[dict]:
             self.state = ParserState.TEXT
             self.filename = filename
 
-        def read_doc_line(self, line):
+        def read_doc_line(self, line, lnum):
             if line.startswith(HL_DOCS_KEYWORD):
-                print("%s: error: %s: multiple `%s` in one item" %
-                      (sys.argv[0], self.filename, HL_DOCS_KEYWORD))
-                sys.exit(1)
+                err(
+                    "%s:%i: multiple `%s` in one item" %
+                    (self.filename, lnum + 1, HL_DOCS_KEYWORD), False)
             elif line.startswith(HL_INCLUDE_FOLLOWING):
                 self.lines.append("\n```%s" % (lang))
                 self.state = ParserState.INCLUDE
@@ -156,16 +158,13 @@ def process_file(file, lang) -> List[dict]:
                         self.state = ParserState.DOC
                 elif self.state == ParserState.DOC:
                     if is_doc_comment:
-                        self.read_doc_line(line)
+                        self.read_doc_line(line, lnum)
                     else:
                         item = make_doc_item(self.lines, self.filename,
                                              (startline, lnum))
                         if item != None:
                             self.doc_items.append(item)
-                        else:
-                            print("...while processing %s:%i" %
-                                  (self.filename, lnum))
-                            sys.exit(1)
+
                         self.state = ParserState.TEXT
                         self.lines = []
                 elif self.state == ParserState.INCLUDE:
@@ -173,7 +172,7 @@ def process_file(file, lang) -> List[dict]:
                         self.state = ParserState.DOC
                         self.indent = None
                         self.lines.append("```\n")
-                        self.read_doc_line(line)
+                        self.read_doc_line(line, lnum)
                     else:
                         if self.indent == None:
                             self.indent = orig_line[:len(orig_line) -
@@ -182,9 +181,9 @@ def process_file(file, lang) -> List[dict]:
                             self.lines.append(line)
                         else:
                             if not orig_line.startswith(self.indent):
-                                print("%s: error: %s: bad indentation" %
-                                      (sys.argv[0], file))
-                                sys.exit(1)
+                                err(
+                                    "%s:%i: bad indentation" %
+                                    (self.filename, lnum + 1), False)
                             else:
                                 self.lines.append(orig_line[len(self.indent):])
             # If the file ended with a doc item...
@@ -193,9 +192,6 @@ def process_file(file, lang) -> List[dict]:
                                      (startline, lnum))
                 if item != None:
                     self.doc_items.append(item)
-                else:
-                    print("...while processing %s:%i" % (self.filename, lnum))
-                    sys.exit(1)
 
     doc_items = []
 
@@ -216,9 +212,7 @@ def merge_doc_refs(doc_items: List[dict]) -> List[dict]:
         if ref["ref"] in items:
             items[ref["ref"]]["texts"].append(ref["text"])
         else:
-            print("%s: error: missing base doc item for ref %s" %
-                  (sys.argv[0], ref["ref"]))
-            sys.exit(1)
+            err("missing base doc item for ref `%s`" % (ref["ref"]), False)
 
     return items.values()
 
@@ -235,7 +229,7 @@ def ensure_dir(dir):
 def render_bugfix_page(item: dict, outdir: str):
     fname = os.path.join(outdir, item["feature"] + ".md")
     with open(fname, 'w') as file:
-        print(fname)
+        print("ok: %s" % (fname))
 
         file.write("Title: %s\n\n" % (item["feature"]))
         file.write("<h1>%s</h1>\n\n" % (item["feature"]))
@@ -269,7 +263,7 @@ def render_full_feature_page(item: dict, outdir: str):
     fname = os.path.join(outdir, folder, item["feature"] + ".md")
     item["__filepath"] = os.path.join(folder, item["feature"] + ".md")
     with open(fname, 'w') as file:
-        print(fname)
+        print("ok: %s" % (fname))
         file.write("Title: %s\n\n" % (item["feature"]))
         file.write("<h1>%s</h1>\n\n" % (item["feature"]))
         file.write("Tracking Issue: [#%i](%s)\n\n" %
@@ -312,13 +306,11 @@ def render_tag_page(tag: str, items: List[dict], outdir: str):
         with open(fname, 'r'):
             pass
     except FileNotFoundError:
-        print(
-            "%s: error: file name %s not found (did you make up the tag `%s`?)"
-            % (sys.argv[0], fname, tag))
-        sys.exit(1)
+        err("file %s not found (`%s` is an unknown tag)" % (fname, tag), False)
+        return
 
     with open(fname, 'a+') as file:
-        print(fname)
+        print("ok: %s" % (fname))
         for item in items:
             file.write("* [#%i](%s) - " % (item["issue"], HL_ISSUES_URL %
                                            (item["issue"])))
@@ -367,6 +359,7 @@ def copytree(src, dst):
 
 
 def main():
+    global exit_code
     indirs, outdir, docsdir = parse_args()
     copytree(docsdir, outdir)
     doc_items = []
@@ -383,6 +376,13 @@ def main():
 
     if outdir != None:
         render_docs(doc_items, outdir)
+
+    if exit_code != 0:
+        print("note: the docs script found documentation errors")
+        print(
+            "note: see https://x2communitycore.github.io/X2WOTCCommunityHighlander/#documentation-for-the-documentation-tool for documentation on the docs script"
+        )
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":
