@@ -22,10 +22,10 @@ exit_code = 0
 
 def err(msg: str, fatal: bool):
     global exit_code
+    print("error: %s" % (msg))
     if fatal:
         sys.exit(1)
     exit_code = 1
-    print("error: %s" % (msg))
 
 
 def parse_args() -> (List[str], str, str):
