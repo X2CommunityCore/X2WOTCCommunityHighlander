@@ -511,6 +511,9 @@
     <Content Include="Src\XComGame\Classes\XComGameState_CovertAction.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_DarkEvent.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_Effect.uc">
       <SubType>Content</SubType>
     </Content>
