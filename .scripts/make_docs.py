@@ -253,6 +253,10 @@ def render_bugfix_page(item: dict, outdir: str):
 
 
 def render_full_feature_page(item: dict, outdir: str):
+    if not "tags" in item:
+        err("Feature '%s' does not have a 'tags' key/annotation" % (item["feature"]), False)
+        return
+
     if "strategy" in item["tags"] and not "tactical" in item["tags"]:
         folder = "strategy"
     elif "tactical" in item["tags"] and not "strategy" in item["tags"]:
