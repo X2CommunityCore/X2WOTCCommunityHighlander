@@ -124,6 +124,9 @@
     <Content Include="Src\XComGame\Classes\SeqAct_GetPawnFromSaveData.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\SeqAct_PlayGameStateMatinee.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\SeqAct_SpawnUnitFromAvenger.uc">
       <SubType>Content</SubType>
     </Content>
