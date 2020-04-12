@@ -106,6 +106,23 @@ function DistributeTacticalGameEndXp(XComGameState NewGameState)
 
 	`log("===" @ GetFuncName() @ "===",,'XComXpMan');
 
+	// Start Issue #562
+	//
+	/// HL-Docs: feature:OnDistributeTacticalGameEndXp; issue:562; tags:tactical
+	/// Allows mods to add their own mission XP distribution mechanics at the end
+	/// of a mission. This hook is mainly to aid mods in providing other sources of
+	/// XP than just kills. Mission XP (XP that's gained by just going on a mission)
+	/// is a good example.
+	///
+	/// ```event
+	/// EventID: OnDistributeTacticalGameEndXp,
+	/// EventData: XComGameState_HeadquartersXCom,
+	/// EventSource: XComGameState_XpManager (XpMgr),
+	/// NewGameState: yes
+	/// ```
+	`XEVENTMGR.TriggerEvent('OnDistributeTacticalGameEndXp', XComHQ, self, NewGameState);
+	// End Issue #562
+
 	//  If the full xp system is not enabled, just reset the RankedUp flag.
 	if (!class'X2ExperienceConfig'.default.bUseFullXpSystem)
 	{
