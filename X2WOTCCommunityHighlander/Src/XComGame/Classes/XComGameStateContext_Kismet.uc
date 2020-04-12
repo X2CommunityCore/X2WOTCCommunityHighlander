@@ -22,7 +22,7 @@ cpptext
 }
 
 native function SetSequenceOp(SequenceOp SeqOp);
-native private function SequenceOp FindSequenceOp();
+native /*private*/ function SequenceOp FindSequenceOp(); // Issue #838 - unprivated
 native private function ExecuteSequenceOp(SequenceOp SeqOp);
 native private function RestoreActivatedInputs(SequenceOp SeqOp);
 
