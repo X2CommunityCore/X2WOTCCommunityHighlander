@@ -978,7 +978,7 @@ function CleanUpFactionCovertActions(XComGameState NewGameState)
 
 	// Issue #819: Replaced the `foreach` with a reverse traversal loop which won't
 	// be affected by elements being removed during the iteration. Also removed the
-	// `ActionRef` local variable.
+	// `ActionRef` local variable (introduced in #435).
 	for (idx = CovertActions.Length - 1; idx >= 0; idx--)
 	{
 		// Issue #435 Start
