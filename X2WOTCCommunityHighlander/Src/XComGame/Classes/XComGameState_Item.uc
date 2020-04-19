@@ -952,8 +952,41 @@ simulated function int GetClipSize()
 	return ClipSize;
 }
 
+/// HL-Docs: feature:OverrideHasInfiniteAmmo; issue:842; tags:tactical
+/// Allows listeners to override the result of HasInfiniteAmmo
+///
+/// ```unrealscript
+/// EventID: OverrideProjectileInstance
+/// EventData: XComLWTuple {
+///     Data: [
+///       out bool bOverrideHasInfiniteAmmo
+///       out bool bHasInfiniteAmmo
+///     ]
+/// }
+/// EventSource: XComGameState_Item self
+/// NewGameState: no
+/// ```
 simulated function bool HasInfiniteAmmo()
 {
+	// Start Issue #842
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideHasInfiniteAmmo';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = false;
+	Tuple.Data[1].kind = XComLWTVBool;
+	Tuple.Data[1].b = false;
+
+	`XEVENTMGR.TriggerEvent('OverrideHasInfiniteAmmo', Tuple, self);
+
+	if (Tuple.Data[0].b)
+	{
+		return Tuple.Data[1].b;
+	}
+	// End Issue #842
+
 	GetMyTemplate();
 	if (m_ItemTemplate.IsA('X2WeaponTemplate'))
 		return X2WeaponTemplate(m_ItemTemplate).InfiniteAmmo;
