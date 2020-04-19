@@ -366,10 +366,49 @@ static function bool SlotAvailable(EInventorySlot Slot, out string LockedReason,
 	}
 }
 
+/// HL-Docs: feature:ShowItemInLockerList; issue:844; tags:strategy,events
+/// Allows listeners to override the result of SlotShowItemInLockerList
+///
+/// ```unrealscript
+/// EventID: OverrideShowItemInLockerList
+/// EventData: XComLWTuple {
+///     Data: [
+///       out bool bOverrideShowItemInLockerList
+///       out bool bSlotShowItemInLockerList
+///       inout EInventorySlot Slot
+///       inout XComGameState_Unit UnitState
+///     ]
+/// }
+/// EventSource: XComGameState_Item ItemState
+/// GameState: optional
+/// ```
 static function bool SlotShowItemInLockerList(EInventorySlot Slot, XComGameState_Unit Unit, XComGameState_Item ItemState, X2ItemTemplate ItemTemplate, XComGameState CheckGameState)
 {
 	local X2GrenadeTemplate GrenadeTemplate;
 	local X2EquipmentTemplate EquipmentTemplate;
+
+	// Start Issue #844
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideShowItemInLockerList';
+	Tuple.Data.Add(4);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = false; // Override?
+	Tuple.Data[1].kind = XComLWTVBool;
+	Tuple.Data[1].b = false; // Override result
+	Tuple.Data[2].kind = XComLWTVInt;
+	Tuple.Data[2].i = Slot;
+	Tuple.Data[3].kind = XComLWTVObject;
+	Tuple.Data[3].o = Unit;
+
+	`XEVENTMGR.TriggerEvent('OverrideShowItemInLockerList', Tuple, ItemState, CheckGameState);
+
+	if (Tuple.Data[0].b)
+	{
+		return Tuple.Data[1].b;
+	}
+	// End Issue #844
 
 	switch(Slot)
 	{
