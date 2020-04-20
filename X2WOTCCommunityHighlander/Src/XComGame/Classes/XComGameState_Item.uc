@@ -952,7 +952,7 @@ simulated function int GetClipSize()
 	return ClipSize;
 }
 
-/// HL-Docs: feature:OverrideHasInfiniteAmmo; issue:842; tags:tactical
+/// HL-Docs: feature:OverrideHasInfiniteAmmo; issue:842; tags:tactical,events
 /// Allows listeners to override the result of HasInfiniteAmmo
 ///
 /// ```unrealscript
