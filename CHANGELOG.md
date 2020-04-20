@@ -389,8 +389,6 @@ RunPriorityGroup=RUN_STANDARD
 - Added Inventory Slots `eInvSlot_Wings` and `eInvSlot_ExtraBackpack`. (#678)
 
 ### Fixes
-- Fixes game terminating SoundCue narrative moments after three seconds because
-  it assumes they didn't play at all. (#66)
 - Fixes UIPanels animating in with a huge delay when they are direct child panels of
   UIScreen (#341)
 - Appearances now update correctly when a part change differs only by material override (#354)
