@@ -62,6 +62,59 @@ protected event InitTemplatesInternal()
 		case "Arms":
 		case "Legs":
 			// Begin issue #328 - Check if the TemplateName indentifies the Part Type.
+			/// HL-Docs: feature:BodyPartTemplateNames; issue:328; tags:customization
+			/// Allows Torso, Arms and Legs customization pieces to be uniquely localized.
+			///
+			/// For templates, localization (i.e. providing strings for in-game display like names
+			/// or descriptions) is handled using the object name that is the same as the template name.
+			/// For example, given a template name of `'Female_LongStraight'`, the template is created
+			/// by giving the `X2BodyPartTemplate` that name:
+			///
+			/// ```unrealscript
+			/// // Object name -------vvvvvvvvvvvvvvvvvvv
+			/// Template = new(None, "Female_LongStraight") class'X2BodyPartTemplate';
+			/// Template.SetTemplateName('Female_LongStraight');
+			/// // Template name ---------^^^^^^^^^^^^^^^^^^^
+			/// ```
+			///
+			/// On the localization side, the object name is used to localize the `DisplayName`:
+			///
+			/// ```ini
+			/// ;vvvvvvvvvvvvvvvvvvv--- Object name
+			/// [Female_LongStraight X2BodyPartTemplate]
+			/// DisplayName="Long Straight"
+			/// ```
+			///
+			/// Body part templates are different from normal templates in that templates for different
+			/// customization categories are allowed to have the same name. In vanilla, there are collisions
+			/// for `Torso`, `Arms` and `Legs` so there is a Conventional Medium Male Torso, an Arms piece,
+			/// and a Legs piece with the name `CnvMed_Std_A_M`.
+			/// However, in order for localization to work, there must be no object name collisions.
+			/// As a result, the game opts to not assign any object name to Torsos, Arms, and Legs, and instead
+			/// simply shows them as "Torso 1", "Torso 2" and so on.
+			///
+			/// Because mods may want to localize their pieces, this Highlander change gives all armor pieces a unique object name.
+			/// This happens using the following algorithm for every `BodyPartTemplateConfig` entry:
+			///
+			/// 1. If the `PartType` is not `"Torso"`, `"Arms"`, `"Legs"`, the object name and the template name are
+			///    taken from `TemplateName` in the config entry (vanilla behavior).
+			/// 2. If the `PartType` is `"Torso"`, `"Arms"`, or `"Legs"`:
+			///     1. If `TemplateName` contains that part type, then the object name and the template name are
+			///         taken from `TemplateName` in the config entry.
+			///     2. If `TemplateName` does not contain that part type, then the template name is taken from
+			///         `TemplateName`, and the object name is created by appending an underscore and the part type
+			///         to the template name.
+			///
+			/// Additionally, the UI is changed to use the `DisplayName` for Torso/Arms/Legs, and fall back to numbered vanilla display
+			/// if no `DisplayName` is provided.
+			///
+			/// A table with some examples:
+			///
+			/// | Config `PartType`  | Config `TemplateName` | Resulting Template Name | Resulting Object Name    |
+			/// | ------------------ | --------------------- | ----------------------- | ------------------------ |
+			/// | `"Torso"`          | `"CnvMed_Std_A_M"`    | `'CnvMed_Std_A_M'`      | `"CnvMed_Std_A_M_Torso"` |
+			/// | `"Helmets"`        | `"Reaper_Hood_A_M"`   | `'Reaper_Hood_A_M'`     | `"Reaper_Hood_A_M"`      |
+			/// | `"Torso"`          | `"DLC_30_Torso_M"`    | `'DLC_30_Torso_M'`      | `"DLC_30_Torso_M"`       |
 			if(InStr(PartInfo.TemplateName, PartInfo.PartType,, true)==INDEX_NONE)
 			{
 				// Instead of giving up, decorate TemplateName to get unique Object Name
