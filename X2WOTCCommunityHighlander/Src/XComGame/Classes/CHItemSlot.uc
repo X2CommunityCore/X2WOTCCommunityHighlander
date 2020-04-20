@@ -373,9 +373,9 @@ static function bool SlotAvailable(EInventorySlot Slot, out string LockedReason,
 /// EventID: OverrideShowItemInLockerList
 /// EventData: XComLWTuple {
 ///     Data: [
-///       out bool bOverrideShowItemInLockerList
-///       out bool bSlotShowItemInLockerList
-///       inout EInventorySlot Slot
+///       out bool bOverrideShowItemInLockerList,
+///       out bool bSlotShowItemInLockerList,
+///       inout EInventorySlot Slot,
 ///       inout XComGameState_Unit UnitState
 ///     ]
 /// }
