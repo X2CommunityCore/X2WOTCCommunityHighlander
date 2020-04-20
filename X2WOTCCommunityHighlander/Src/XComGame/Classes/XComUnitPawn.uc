@@ -399,7 +399,7 @@ simulated function DamageTypeHitEffectContainer GetDamageTypeHitEffectContainer(
 /// EventSource: self (XComUnitPawn)
 /// NewGameState: no
 /// ```
-simulated function bool TriggerOnOverrideHitEffects(
+simulated private function bool TriggerOnOverrideHitEffects(
 	float Damage,
 	Actor InstigatedBy,
 	vector HitLocation,
