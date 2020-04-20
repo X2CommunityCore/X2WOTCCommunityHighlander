@@ -1620,11 +1620,11 @@ function AddProjectileVolley(AnimNotify_FireWeaponVolley Notify)
 /// EventID: OverrideProjectileInstance
 /// EventData: XComLWTuple {
 ///     Data: [
-///       inout bool bPreventProjectileSpawning
+///       inout bool bPreventProjectileSpawning,
 ///       inout actor ProjectileTemplate,
-///       inout AnimNotify_FireWeaponVolley InVolleyNotify
-///       inout XComWeapon InSourceWeapon
-///       inout X2Action_Fire CurrentFireAction
+///       inout AnimNotify_FireWeaponVolley InVolleyNotify,
+///       inout XComWeapon InSourceWeapon,
+///       inout X2Action_Fire CurrentFireAction,
 ///       inout XGUnitNativeBase self
 ///     ]
 /// }
