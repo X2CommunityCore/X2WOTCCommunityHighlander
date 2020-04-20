@@ -959,7 +959,7 @@ simulated function int GetClipSize()
 /// EventID: OverrideHasInfiniteAmmo
 /// EventData: XComLWTuple {
 ///     Data: [
-///       out bool bOverrideHasInfiniteAmmo
+///       out bool bOverrideHasInfiniteAmmo,
 ///       out bool bHasInfiniteAmmo
 ///     ]
 /// }
