@@ -963,7 +963,7 @@ simulated function int GetClipSize()
 ///       out bool bHasInfiniteAmmo
 ///     ]
 /// }
-/// EventSource: XComGameState_Item self
+/// EventSource: XComGameState_Item (self)
 /// NewGameState: no
 /// ```
 simulated function bool HasInfiniteAmmo()
