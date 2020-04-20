@@ -1631,7 +1631,7 @@ function AddProjectileVolley(AnimNotify_FireWeaponVolley Notify)
 /// EventSource: XComGameStateContext_Ability AbilityContext
 /// NewGameState: no
 /// ```
-function bool TriggerOverrideProjectileInstance(Actor ProjectileTemplate,
+private function bool TriggerOverrideProjectileInstance(Actor ProjectileTemplate,
 												AnimNotify_FireWeaponVolley InVolleyNotify,
 												XComGameStateContext_Ability AbilityContext,
 												XComWeapon InSourceWeapon)
