@@ -956,7 +956,7 @@ simulated function int GetClipSize()
 /// Allows listeners to override the result of HasInfiniteAmmo
 ///
 /// ```unrealscript
-/// EventID: OverrideProjectileInstance
+/// EventID: OverrideHasInfiniteAmmo
 /// EventData: XComLWTuple {
 ///     Data: [
 ///       out bool bOverrideHasInfiniteAmmo
