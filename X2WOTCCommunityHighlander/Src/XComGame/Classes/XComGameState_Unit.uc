@@ -3869,8 +3869,6 @@ function bool TriggerHasPocketOfTypeEvent(name EventID, bool bOverridePocketResu
 /// ```
 function bool HasGrenadePocket()
 {
-	local name CheckAbility;
-
 	// Variables for Issue #735 (1/3)
 	local bool bHasGrenadePocket;
 	// End Variables for Issue #735 (1/3)
@@ -3899,8 +3897,6 @@ function bool HasGrenadePocket()
 /// ```
 function bool HasAmmoPocket()
 {
-	local name CheckAbility;
-
 	// Variables for Issue #735 (2/3)
 	local bool bHasAmmoPocket;
 	// End Variables for Issue #735 (2/3)
@@ -13951,7 +13947,7 @@ function EMentalState GetMentalState(optional bool bIgnoreBoost = false)
 
 function UpdateMentalState()
 {
-	local int WillPercent, idx;
+	local int idx;
 	local int MentalStateMaxWill; // Issue #637
 
 	// Start Issue #637
