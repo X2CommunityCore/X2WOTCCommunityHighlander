@@ -2167,7 +2167,6 @@ function bool SuppressBeard()
 		   (LowerFacialContent != none && m_kLowerFacialMC.SkeletalMesh !=none && LowerFacialContent.bHideFacialHair) ||
 		   class'CHHelpers'.default.HeadSuppressesBeard.Find(HeadContent.Name) > INDEX_NONE;
 }
-// End Issue #689
 // End Issue #219
 
 function RemoveExistingBodyPartAttachments(XComBodyPartContent BodyPartContent)
