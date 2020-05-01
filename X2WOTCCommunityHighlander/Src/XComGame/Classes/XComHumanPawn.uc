@@ -2124,7 +2124,6 @@ simulated function OnBodyPartLoaded(PawnContentRequest ContentRequest)
 }
 
 // Start Issue #219
-// Note: Some of these functions may call each other (a suppressed helmet cannot affect the hairstyle)
 // Use the currently loaded helmet and head to determine whether a
 // hairstyle should be shown
 
