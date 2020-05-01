@@ -952,6 +952,20 @@ simulated function int GetClipSize()
 	return ClipSize;
 }
 
+
+simulated function bool HasInfiniteAmmo()
+{
+	// Start Issue #842
+	local bool bHasInfiniteAmmo;
+
+	GetMyTemplate();
+	if (m_ItemTemplate.IsA('X2WeaponTemplate'))
+		bHasInfiniteAmmo = X2WeaponTemplate(m_ItemTemplate).InfiniteAmmo;
+
+	return TriggerOverrideHasInfiniteAmmo(bHasInfiniteAmmo);
+	// End Issue #842
+}
+
 /// HL-Docs: feature:OverrideHasInfiniteAmmo; issue:842; tags:tactical,events
 /// Allows listeners to override the result of HasInfiniteAmmo
 ///
@@ -959,39 +973,25 @@ simulated function int GetClipSize()
 /// EventID: OverrideHasInfiniteAmmo
 /// EventData: XComLWTuple {
 ///     Data: [
-///       out bool bOverrideHasInfiniteAmmo,
 ///       out bool bHasInfiniteAmmo
 ///     ]
 /// }
 /// EventSource: XComGameState_Item (self)
 /// NewGameState: no
 /// ```
-simulated function bool HasInfiniteAmmo()
+private function bool TriggerOverrideHasInfiniteAmmo(bool bHasInfiniteAmmo)
 {
-	// Start Issue #842
 	local XComLWTuple Tuple;
 
 	Tuple = new class'XComLWTuple';
 	Tuple.Id = 'OverrideHasInfiniteAmmo';
-	Tuple.Data.Add(2);
+	Tuple.Data.Add(1);
 	Tuple.Data[0].kind = XComLWTVBool;
-	Tuple.Data[0].b = false;
-	Tuple.Data[1].kind = XComLWTVBool;
-	Tuple.Data[1].b = false;
+	Tuple.Data[0].b = bHasInfiniteAmmo;
 
 	`XEVENTMGR.TriggerEvent('OverrideHasInfiniteAmmo', Tuple, self);
 
-	if (Tuple.Data[0].b)
-	{
-		return Tuple.Data[1].b;
-	}
-	// End Issue #842
-
-	GetMyTemplate();
-	if (m_ItemTemplate.IsA('X2WeaponTemplate'))
-		return X2WeaponTemplate(m_ItemTemplate).InfiniteAmmo;
-
-	return false;
+	return Tuple.Data[0].b;
 }
 
 simulated function int GetItemSize()
