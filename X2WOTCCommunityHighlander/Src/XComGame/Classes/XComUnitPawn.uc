@@ -381,19 +381,20 @@ simulated function DamageTypeHitEffectContainer GetDamageTypeHitEffectContainer(
 /// Allows listeners to override the default behavior of XComUnitPawn.PlayHitEffects
 /// This is especially useful for preventing the hardcoded templar fx for 
 /// eHit_Parry, eHit_Reflect and eHit_Deflect which play for any abilities that utilizing these hit results.
+/// If OverrideHitEffect is set to true the PlayHitEffects function will return early and the default behavior is ommited.
 ///
 /// ```unrealscript
 /// EventID: OverrideHitEffects
 /// EventData: XComLWTuple {
 ///     Data: [
 ///       out bool OverrideHitEffect,
-///       inout float Damage
-///       inout Actor InstigatedBy
-///       inout vector HitLocation
-///       inout name DamageTypeName
-///       inout vector Momentum
-///       inout bool bIsUnitRuptured
-///       inout EAbilityHitResult HitResult
+///       inout float Damage,
+///       inout Actor InstigatedBy,
+///       inout vector HitLocation,
+///       inout name DamageTypeName,
+///       inout vector Momentum,
+///       inout bool bIsUnitRuptured,
+///       inout EAbilityHitResult HitResult,
 ///     ]
 /// }
 /// EventSource: self (XComUnitPawn)
