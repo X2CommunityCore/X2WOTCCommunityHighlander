@@ -2128,7 +2128,7 @@ simulated function OnBodyPartLoaded(PawnContentRequest ContentRequest)
 // Use the currently loaded helmet and head to determine whether a
 // hairstyle should be shown
 
-// Start Issue #689 : Replaced the calling each other with explicit mesh checks.
+// Start Issue #219: Replaced the calling each other with explicit mesh checks.
 // Basically only makes a difference on the Avenger, where parts may be hidden but not "suppressed".
 function bool SuppressHairstyle()
 {
