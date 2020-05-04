@@ -586,6 +586,9 @@
     <Content Include="Src\XComGame\Classes\XComTacticalController.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComTacticalInput.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComTacticalMissionManager.uc">
       <SubType>Content</SubType>
     </Content>
