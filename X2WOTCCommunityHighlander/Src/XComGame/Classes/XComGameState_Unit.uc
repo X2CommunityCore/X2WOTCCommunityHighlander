@@ -1133,7 +1133,7 @@ simulated function bool HasHeightAdvantageOver(XComGameState_Unit OtherUnit, boo
 /// such as one of the units being affected by a certain effect or having a certain ability.
 ///	
 /// ```unrealscript
-/// EventID: OverrideUnitFocusUI
+/// EventID: OverrideHasHeightAdvantageOver
 /// EventData: XComLWTuple {
 ///     Data: [
 ///       inout XComGameState_Unit OtherUnit,
