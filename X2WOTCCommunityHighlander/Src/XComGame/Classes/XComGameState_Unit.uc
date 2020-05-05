@@ -1129,7 +1129,7 @@ simulated function bool HasHeightAdvantageOver(XComGameState_Unit OtherUnit, boo
 ///	In order to take advantage of this event, make a listener with the ELD_Immediate deferral, 
 /// and cast EventData to XComLWTuple. `Tuple.Data[2].b` will already contain the bool value
 ///  of whether this unit has height advantage over the other unit according to the vanilla logic. 
-/// You can replace the value with your own ased on arbitrary parameters,
+/// You can replace the value with your own based on arbitrary parameters,
 /// such as one of the units being affected by a certain effect or having a certain ability.
 ///	
 /// ```unrealscript
