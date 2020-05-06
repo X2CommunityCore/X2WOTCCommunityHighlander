@@ -1207,7 +1207,7 @@ state UsingTargetingMethod
 			}
 		}
 
-		return ActivateAbilityByName(ActionMask, 'PlaceEvacZone');
+		return ActivateAbilityByName(ActionMask, class'CHHelpers'.static.GetPlaceEvacZoneAbilityName());  // Issue #855
 	}
 	function bool DPad_Up( int ActionMask )
 	{
@@ -2316,7 +2316,8 @@ state ActiveUnit_Moving
 	
 
 	function bool Stick_R3( int ActionMask )
-	{		if (!UITacticalHUD(Get2DMovie().Pres.ScreenStack.GetScreen(class'UITacticalHUD')).SkyrangerButton.bIsVisible)
+	{
+		if (!UITacticalHUD(Get2DMovie().Pres.ScreenStack.GetScreen(class'UITacticalHUD')).SkyrangerButton.bIsVisible)
 		{
 			return false;
 		}
@@ -2329,8 +2330,8 @@ state ActiveUnit_Moving
 			else
 				return false;
 		}
-		
-		return ActivateAbilityByName(ActionMask, 'PlaceEvacZone');
+
+		return ActivateAbilityByName(ActionMask, class'CHHelpers'.static.GetPlaceEvacZoneAbilityName());  // Issue #855
 	}
 	function bool Stick_L3( int ActionMask )
 	{

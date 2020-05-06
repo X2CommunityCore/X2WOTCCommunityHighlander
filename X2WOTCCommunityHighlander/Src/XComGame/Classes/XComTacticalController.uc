@@ -604,7 +604,8 @@ simulated function bool Visualizer_SelectPreviousUnit()
 simulated function PlaceEvacZone()
 {
 	local int AbilityHudIndex;
-	AbilityHudIndex = `Pres.GetTacticalHUD().m_kAbilityHUD.GetAbilityIndexByName('PlaceEvacZone');
+	AbilityHudIndex = `Pres.GetTacticalHUD().m_kAbilityHUD.GetAbilityIndexByName(
+			class'CHHelpers'.static.GetPlaceEvacZoneAbilityName());  // Issue #855
 	if(AbilityHudIndex > -1)
 	{
 		`Pres.GetTacticalHUD().m_kAbilityHUD.SelectAbility( AbilityHudIndex );
