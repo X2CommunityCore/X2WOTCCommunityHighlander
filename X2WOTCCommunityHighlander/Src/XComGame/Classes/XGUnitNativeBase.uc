@@ -1625,7 +1625,7 @@ function AddProjectileVolley(AnimNotify_FireWeaponVolley Notify)
 ///       inout AnimNotify_FireWeaponVolley InVolleyNotify,
 ///       inout XComWeapon InSourceWeapon,
 ///       inout X2Action_Fire CurrentFireAction,
-///       inout XGUnitNativeBase self
+///       in XGUnitNativeBase self
 ///     ]
 /// }
 /// EventSource: XComGameStateContext_Ability AbilityContext
