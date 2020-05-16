@@ -495,6 +495,18 @@ function UpdateForSaleItemDiscount()
 }
 
 //---------------------------------------------------------------------------------------
+// issue #859
+/// HL-Docs: feature:BlackMarketBuyPricesUpdated; issue:859; tags:strategy,events
+/// This is an event that allows mods to manipulate black market BuyPrices directly,
+/// including adding new BuyPrices that won't be reset.
+///
+/// EventData is an XComLWTuple with two values:
+/// 
+/// * An array of ints, the ObjectIDs for states with buy prices
+/// * An array of ints, the prices
+///
+/// It is important to note that, for any ObjectID, its corresponding price is at
+/// the same index in the prices array, and vice versa.
 function bool UpdateBuyPrices()
 {
 	local XComGameStateHistory History;
@@ -503,6 +515,8 @@ function bool UpdateBuyPrices()
 	local bool bUpdated;
 	local int idx;
 	local BlackMarketItemPrice BuyPrice;
+	local XComLWTuple Tuple; // variable for issue #859
+	local StateObjectReference ItemRef; // variable for issue #859
 	
 	History = `XCOMHISTORY;
 	XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
@@ -530,6 +544,28 @@ function bool UpdateBuyPrices()
 			bUpdated = true;
 		}
 	}
+
+	//start issue #859 changes
+	Tuple.Data.Add(2)
+	Tuple.Data[0].kind = XComLWTVArrayInts;
+	Tuple.Data[1].kind = XComLWTVArrayInts;
+	
+	foreach BuyPrices(BuyPrice)
+	{
+		Tuple.Data[0].ai.AddItem(BuyPrice.ItemRef.ObjectID);
+		Tuple.Data[1].ai.AddItem(BuyPrice.Price);
+	}
+
+	`XEVENTMGR.TriggerEvent('BlackMarketBuyPricesUpdated', Tuple, History);
+	BuyPrices.Length = 0;
+
+	for (idx = 0; idx < Tuple.Data[0].ai.Length; ++idx)
+	{
+		ItemRef.ObjectId = Tuple.Data[0].ai[idx];
+		BuyPrice.ItemRef = ItemRef;
+		BuyPrice.Price = Tuple.Data[1].ai[idx];
+	}
+	//end issue #859 changes
 
 	return bUpdated;
 }

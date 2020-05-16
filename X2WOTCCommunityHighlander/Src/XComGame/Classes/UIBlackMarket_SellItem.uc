@@ -84,7 +84,21 @@ simulated function PopulateData(BlackMarketItemPrice BuyPrice)
 		Price = Min(Price, ItemCost);
 	}
 
-	ItemName = class'UIUtilities_Text'.static.GetColoredText(ItemTemplate.GetItemFriendlyName(), eUIState_Normal, 24);
+	//issue #859 changes
+	Tuple.Data.Add(3)
+	Tuple.Data[0].kind = XComLWTVArrayStrings;
+	Tuple.Data[0].as.Add(1);
+	Tuple.Data[0].as.AddItem(ItemTemplate.GetItemFriendlyName());
+	Tuple.Data[0].as.Add(4);
+	Tuple.Data[1].kind = XComLWTVInt;
+	Tuple.Data[1].i = ItemRef.ObjectID;
+	Tuple.Data[2].kind = XComLWTVObject;
+	Tuple.Data[2].o = ItemTemplate;
+
+	`XEVENTMGR.TriggerEvent('BlackMarketItemCardPopulated',Tuple);
+
+	ItemName = class'UIUtilities_Text'.static.GetColoredText(Tuple.Data[0].as[1], eUIState_Normal, 24);
+    //end issue #859 changes
 	InventoryQuantity = class'UIUtilities_Text'.static.GetColoredText(string(Item.Quantity - NumSelling), eUIState_Normal, 24);
 	ItemValue = class'UIUtilities_Text'.static.GetColoredText(class'UIUtilities_Strategy'.default.m_strCreditsPrefix $ string(Price), eUIState_Cash, 24);
 

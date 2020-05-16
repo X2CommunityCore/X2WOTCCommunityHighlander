@@ -178,6 +178,12 @@
     <Content Include="Src\XComGame\Classes\UIBlackMarket.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIBlackMarket_Sell.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIBlackMarket_SellItem.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIButton.uc">
       <SubType>Content</SubType>
     </Content>

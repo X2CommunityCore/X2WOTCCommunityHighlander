@@ -260,9 +260,37 @@ simulated function SelectedItemChanged(UIList ContainerList, int ItemIndex)
 	}
 }
 
+// start issue #859
+/// HL-Docs: feature:BlackMarketItemCardPopulated; issue:859; tags:strategy,events
+/// This is an event that allows mods to manipulate the data shown for items in the
+/// black market. As PopulateItemCard() normally ignores state data in favor of
+/// template data, mods that add items for black market sale whose state data is
+/// important should use this event to make sure the item cards use the correct
+/// data.
+///
+/// ```unrealscript
+/// EventID: BlackMarketItemCardPopulated
+/// EventData: XComLWTuple {
+///     Data: [
+///       inout string strImage - the image to display for the item
+///       inout string strTitle - the title of the item card (typically the item's name)
+///       inout string m_strCostLabel - the localized string for the English word "COST"
+///       inout string ItemPrice - the string denoting the item's price (if you want to edit prices,
+///                                you should use BlackMarketGoodsReset or BlackMarketBuyPricesUpdated)
+///       inout string strInterest - the string denoting whether or not the black market is interested.
+///                                  By default, the localized string for the English words "VERY INTERESTED" or ""
+///       inout string strSummary - a summary of the item. By default, the item's BriefSummary
+///     ]
+/// }
+///	EventSource: None
+/// NewGameState: no
+/// ```
+///
+/// The EventData's string array is queued for display by the flash controller.
 simulated function PopulateItemCard(X2ItemTemplate ItemTemplate, StateObjectReference ItemRef, optional string ItemPrice = "")
 {
 	local string strImage, strTitle, strInterest;
+	local XComLWTuple Tuple; //Variable for #859
 
 	if( ItemTemplate.strImage != "" )
 		strImage = ItemTemplate.strImage;
@@ -273,17 +301,35 @@ simulated function PopulateItemCard(X2ItemTemplate ItemTemplate, StateObjectRefe
 	
 	strInterest = IsInterested(ItemTemplate) ? m_strInterestedLabel : "";
 
+	//issue #859 changes
+	Tuple.Data.Add(3)
+	Tuple.Data[0].kind = XComLWTVArrayStrings;
+	Tuple.Data[0].as.AddItem(strImage);
+	Tuple.Data[0].as.AddItem(strTitle);
+	Tuple.Data[0].as.AddItem(m_strCostLabel);
+	Tuple.Data[0].as.AddItem(ItemPrice);
+	Tuple.Data[0].as.AddItem(strInterest);
+	Tuple.Data[0].as.AddItem(ItemTemplate.GetItemBriefSummary(ItemRef.ObjectID));
+	Tuple.Data[1].kind = XComLWTVInt;
+	Tuple.Data[1].i = ItemRef.ObjectID;
+	Tuple.Data[2].kind = XComLWTVObject;
+	Tuple.Data[2].o = ItemTemplate;
+
+	`XEVENTMGR.TriggerEvent('BlackMarketItemCardPopulated',Tuple);
+
 	MC.BeginFunctionOp("UpdateItemCard");
-	MC.QueueString(strImage);
-	MC.QueueString(strTitle);
-	MC.QueueString(m_strCostLabel);
-	MC.QueueString(ItemPrice);
-	MC.QueueString(strInterest);
+	MC.QueueString(Tuple.Data[0].as[0]);
+	MC.QueueString(Tuple.Data[0].as[1]);
+	MC.QueueString(Tuple.Data[0].as[2]);
+	MC.QueueString(Tuple.Data[0].as[3]);
+	MC.QueueString(Tuple.Data[0].as[4]);
 	MC.QueueString(""); // TODO: what warning string goes here? 
-	MC.QueueString(ItemTemplate.GetItemBriefSummary(ItemRef.ObjectID));
+	MC.QueueString(Tuple.Data[0].as[5]);
+	//end issue #859 changes
 	MC.EndOp(); 
 
 }
+//end issue #859
 
 simulated function ClearItemCard()
 {
