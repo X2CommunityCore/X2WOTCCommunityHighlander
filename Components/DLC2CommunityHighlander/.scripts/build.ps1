@@ -194,9 +194,6 @@ Write-Host "Copying (main) Highlander files to Src..."
 Robocopy.exe "$srcDirectory\..\..\X2WOTCCommunityHighlander\Src" "$sdkPath\Development\Src" *.uc *.uci /XD X2WOTCCommunityHighlander /S /E /DCOPY:DA /COPY:DAT /NP /R:1000000 /W:30 2>&1>$null
 Write-Host "Copied."
 
-Write-Host "Updating CHL version and commit..."
-& "$srcDirectory\..\..\.scripts\update_version.ps1" -ps "$srcDirectory\..\..\X2WOTCCommunityHighlander\VERSION.ps1" -srcDirectory "$sdkPath\Development\Src\" -use_commit
-
 for ($i=0; $i -lt $includes.length; $i++)
 {
     $includeDir = $includes[$i]
@@ -220,6 +217,9 @@ for ($i=0; $i -lt $clean.length; $i++)
 Write-Host "Copying the mod's scripts to Src..."
 Copy-Item "$stagingPath\Src\*" "$sdkPath\Development\Src\" -Force -Recurse -WarningAction SilentlyContinue
 Write-Host "Copied."
+
+Write-Host "Updating CHL version and commit..."
+& "$srcDirectory\..\..\.scripts\update_version.ps1" -ps "$srcDirectory\..\..\VERSION.ps1" -srcDirectory "$sdkPath\Development\Src\" -use_commit
 
 # build package lists we'll need later and delete as appropriate
 # all packages we are about to compile
