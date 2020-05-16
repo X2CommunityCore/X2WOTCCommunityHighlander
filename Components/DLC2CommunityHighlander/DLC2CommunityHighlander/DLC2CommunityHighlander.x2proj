@@ -10,13 +10,20 @@
     <ProjectGuid>{935C7FB1-58ED-425C-8295-6BD424AB0118}</ProjectGuid>
   </PropertyGroup>
   <ItemGroup>
+    <Folder Include="Localization" />
     <Folder Include="Src\" />
     <Folder Include="Src\DLC_2" />
     <Folder Include="Src\DLC_2\Classes" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Localization\DLC_2.int">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ReadMe.txt" />
     <Content Include="ModPreview.jpg" />
+    <Content Include="Src\DLC_2\Classes\CHDLC2UIListener_Shell.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\DLC_2\Classes\CHDLC2Version.uc">
       <SubType>Content</SubType>
     </Content>
