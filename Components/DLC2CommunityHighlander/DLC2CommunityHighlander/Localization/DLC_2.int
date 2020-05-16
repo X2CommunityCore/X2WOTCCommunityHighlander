@@ -1,0 +1,3 @@
+[CHDLC2UIListener_Shell]
+strMissingCHL_Title="MISSING CHL"
+strMissingCHL_Text="The DLC2 Community Highlander requires the (main) X2WOTCCommunityHighlander to work. Please exit the game and install the (main) CHL, otherwise your game will crash"
