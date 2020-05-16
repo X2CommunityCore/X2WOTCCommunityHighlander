@@ -32,8 +32,6 @@ struct CHLComponentVersion
 	}
 };
 
-//var config bool DLC3ReplacementEnabled;
-
 var localized string VersionFormat;
 var localized string RequiredNotFound;
 
@@ -59,7 +57,7 @@ static function array<CHLComponent> GetComponentInfo()
 
 	if (DLCNames.Find("DLC_2") != INDEX_NONE)
 	{
-		//Comps.AddItem(BuildComponent(DLC2VersionInfoFetcher, "DLC_2", SelfVersion));
+		Comps.AddItem(BuildComponent(DLC2VersionInfoFetcher, "DLC_2", SelfVersion));
 	}
 
 	return Comps;
@@ -151,7 +149,7 @@ static function string FormatVersion (CHLComponentVersion Version)
 		return true; \n\
 	}
 
-//`MakeVersionFetcher(DLC2VersionInfoFetcher, CHDLC2Version)
+`MakeVersionFetcher(DLC2VersionInfoFetcher, CHDLC2Version)
 `MakeVersionFetcher(CoreVersionInfoFetcher, CHCoreVersion)
 `MakeVersionFetcher(EngineVersionInfoFetcher, CHEngineVersion)
 `MakeVersionFetcher(XComVersionInfoFetcher, CHXComGameVersionTemplate)

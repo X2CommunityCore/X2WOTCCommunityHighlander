@@ -252,6 +252,11 @@ Write-Host "Mirroring SrcOrig to Src..."
 Robocopy.exe "$sdkPath\Development\SrcOrig" "$sdkPath\Development\Src" *.uc *.uci /S /E /DCOPY:DA /COPY:DAT /PURGE /MIR /NP /R:1000000 /W:30
 Write-Host "Mirrored."
 
+# Copy the script components (so that we can reference their version classes in the companion package)
+Write-Host "Copying the companions's scripts to Src..."
+Copy-Item "$srcDirectory\Components\DLC2CommunityHighlander\DLC2CommunityHighlander\Src\*" "$sdkPath\Development\Src\" -Force -Recurse -WarningAction SilentlyContinue
+Write-Host "Copied."
+
 # copying the mod's scripts to the script staging location
 Write-Host "Copying the mod's scripts to Src..."
 Copy-Item "$stagingPath\Src\*" "$sdkPath\Development\Src\" -Force -Recurse -WarningAction SilentlyContinue

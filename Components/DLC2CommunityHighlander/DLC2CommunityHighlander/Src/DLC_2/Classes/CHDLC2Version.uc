@@ -1,4 +1,5 @@
-class CHVersion_DLC2 extends Object;
+/// HL-Docs: ref:ComponentVersions
+class CHDLC2Version extends Object;
 
 var int MajorVersion;
 var int MinorVersion;

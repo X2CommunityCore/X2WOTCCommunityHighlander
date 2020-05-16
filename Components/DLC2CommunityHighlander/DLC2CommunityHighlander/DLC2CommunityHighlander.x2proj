@@ -17,7 +17,7 @@
   <ItemGroup>
     <Content Include="ReadMe.txt" />
     <Content Include="ModPreview.jpg" />
-    <Content Include="Src\DLC_2\Classes\CHVersion_DLC2.uc">
+    <Content Include="Src\DLC_2\Classes\CHDLC2Version.uc">
       <SubType>Content</SubType>
     </Content>
   </ItemGroup>
@@ -56,13 +56,13 @@
       <SolutionRoot>$(MSBuildProjectDirectory)\..\\</SolutionRoot>
       <ScriptsDir>$(SolutionRoot).scripts\\</ScriptsDir>
     </PropertyGroup>
-	<!-- Per-config options -->
-	<PropertyGroup>
-		<PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -mod "DLC2CommunityHighlander" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)"</PowershellBuildCommand>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-		<PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -mod "DLC2CommunityHighlander" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)" -debug</PowershellBuildCommand>
-	</PropertyGroup>
+    <!-- Per-config options -->
+    <PropertyGroup>
+      <PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -mod "DLC2CommunityHighlander" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)"</PowershellBuildCommand>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -mod "DLC2CommunityHighlander" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)" -debug</PowershellBuildCommand>
+    </PropertyGroup>
     <Message Text="Starting custom build $(Configuration)" />
     <Exec Command="$(PowershellBuildCommand)" />
   </Target>
