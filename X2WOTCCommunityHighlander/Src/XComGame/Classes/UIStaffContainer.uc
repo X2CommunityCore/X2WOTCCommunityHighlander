@@ -53,6 +53,22 @@ simulated function OnLoseFocus()
 
 	for(i = 0; i < StaffSlots.Length; ++i)
 		StaffSlots[i].OnLoseFocus();
+
+	//start issue #866
+	/// HL-Docs: ref:Bugfixes; issue:866
+	/// By default, UIStaffContainer tries to shortcut which UIPanel should receive focus,
+	/// but the shortcut is often wrong and the time it saves is negligible, so this bypasses it.
+	// SelectedStaffSlot is only set during ShowDropDown() and only used during OnReceiveFocus(),
+	// the usage of which will preclude the call to Navigator.GetSelected() which is a more
+	// comprehensive solution for deciding which staff slot to focus on. It takes longer to run,
+	// but given that it runs every time staff slots are switched without a dropdown being shown
+	// anyway (plus it's on a UIPanel on a staff slot - not exactly code that's going to be run
+	// every frame), SelectedStaffSlot seems to be a solution to a problem that never existed.
+	//
+	// Setting it to none during OnLoseFocus() ensure that OnReceiveFocus() will always call
+	// Navigator.GetSelected(), which should always focus the correct UIPanel.
+	SelectedStaffSlot = none;
+	//end issue #866
 }
 
 simulated function OnReceiveFocus()
