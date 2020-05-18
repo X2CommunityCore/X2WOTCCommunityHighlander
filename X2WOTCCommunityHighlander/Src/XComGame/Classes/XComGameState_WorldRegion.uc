@@ -1013,7 +1013,7 @@ function int GetNumMissingPersonsThisMonth()
 //#############################################################################################
 
 //start issue #864
-/// HL-Docs: feature:WorldRegionGetStaticMesh; issue:864; tags:strategy,events;
+/// HL-Docs: feature:WorldRegionGetStaticMesh; issue:864; tags:strategy,events
 /// This is an event that mods which add new static meshes to the overworld
 /// can hook into to ensure that those static meshes actually display.
 ///
@@ -1048,7 +1048,7 @@ function StaticMesh GetStaticMesh()
 //end issue #864
 
 //start issue #864
-/// HL-Docs: feature:WorldRegionGetMeshScale; issue:864; tags:strategy,events;
+/// HL-Docs: feature:WorldRegionGetMeshScale; issue:864; tags:strategy,events
 /// This is an event that mods which add new static meshes to the overworld
 /// can hook into to ensure that those static meshes scale properly.
 ///
