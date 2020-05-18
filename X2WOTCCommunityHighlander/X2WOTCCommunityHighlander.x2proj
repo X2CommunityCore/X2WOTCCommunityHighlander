@@ -286,6 +286,9 @@
     <Content Include="Src\XComGame\Classes\UISquadSelect_UtilityItem.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIStaffSlot.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIStatList.uc">
       <SubType>Content</SubType>
     </Content>

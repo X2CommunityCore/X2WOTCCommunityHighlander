@@ -219,7 +219,17 @@ simulated function OnPersonnelSelected(StaffUnitInfo UnitInfo)
 {
 	local XComGameState_StaffSlot StaffSlotState;
 
-	OnLoseFocus();
+	//start issue #861
+	/// HL-Docs: ref:Bugfixes; issue:861
+	/// By default, UIStaffSlot removes highlighting when a personnel is selected.
+	/// However, the slot still has navigator focus, and should remain highlighted.
+	/// This only affects controllers since the mouse has moved off the button at
+	/// this point. If a controller is active, don't let the game un-highlight it.
+	if (!`ISCONTROLLERACTIVE)
+	{
+		OnLoseFocus();
+	}
+	//end issue #861
 	m_PendingStaff = UnitInfo;
 	StaffSlotState = XComGameState_StaffSlot(`XCOMHISTORY.GetGameStateForObjectID(StaffSlotRef.ObjectID));
 
@@ -391,19 +401,35 @@ simulated function bool OnUnrealCommand(int cmd, int arg)
 	return super.OnUnrealCommand(cmd, arg);
 }
 
+//start issue #862
+/// HL-Docs: ref:Bugfixes; issue:862
+/// By default, UIStaffSlot will blink on and off a staff slot that "loses"
+/// focus when focus doesn't belong to it in the first place. Make sure to
+/// only change focus if the element is not already in the destination focus state
 simulated function OnReceiveFocus()
 {
-	bIsFocused = true;
-	if( `ISCONTROLLERACTIVE )
-		MC.FunctionVoid("mouseIn");
+	if (!bIsFocused)
+	{
+		bIsFocused = true;
+		if( `ISCONTROLLERACTIVE )
+		{
+			MC.FunctionVoid("mouseIn");
+		}
+	}
 }
 
 simulated function OnLoseFocus()
 {
-	bIsFocused = false;
-	if( `ISCONTROLLERACTIVE )
-		MC.FunctionVoid("mouseOut");
+	if (bIsFocused)
+	{
+		bIsFocused = false;
+		if( `ISCONTROLLERACTIVE )
+		{
+			MC.FunctionVoid("mouseOut");
+		}
+	}
 }
+//end issue #862
 
 //==============================================================================
 
