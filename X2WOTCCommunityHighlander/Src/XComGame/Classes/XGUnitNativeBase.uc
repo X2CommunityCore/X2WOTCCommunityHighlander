@@ -1620,12 +1620,12 @@ function AddProjectileVolley(AnimNotify_FireWeaponVolley Notify)
 /// EventID: OverrideProjectileInstance
 /// EventData: XComLWTuple {
 ///     Data: [
-///       inout bool bPreventProjectileSpawning
-///       inout actor ProjectileTemplate,
-///       inout AnimNotify_FireWeaponVolley InVolleyNotify
-///       inout XComWeapon InSourceWeapon
+///       out bool bPreventProjectileSpawning
+///       in actor ProjectileTemplate,
+///       in AnimNotify_FireWeaponVolley InVolleyNotify
+///       in XComWeapon InSourceWeapon
 ///       inout X2Action_Fire CurrentFireAction
-///       inout XGUnitNativeBase self
+///       in XGUnitNativeBase self
 ///     ]
 /// }
 /// EventSource: XComGameStateContext_Ability AbilityContext
@@ -1663,10 +1663,6 @@ private function bool TriggerOverrideProjectileInstance(Actor ProjectileTemplate
 
 	`XEVENTMGR.TriggerEvent(Tuple.Id, Tuple, AbilityContext);
 
-	bPreventProjectileSpawning = Tuple.Data[0].b;
-	ProjectileTemplate = Actor(Tuple.Data[1].o);
-	InVolleyNotify = AnimNotify_FireWeaponVolley(Tuple.Data[2].o);
-	InSourceWeapon = XComWeapon(Tuple.Data[3].o);
 	CurrentFireAction = X2Action_Fire(Tuple.Data[4].o);
 
 	return bPreventProjectileSpawning;
