@@ -1611,7 +1611,7 @@ function AddProjectileVolley(AnimNotify_FireWeaponVolley Notify)
 	}
 }
 
-/// HL-Docs: feature:OverrideProjectileInstance; issue:829; tags:tactical
+/// HL-Docs: feature:OverrideProjectileInstance; issue:829; tags:tactical,events
 /// Allows listeners to override the parameters of SpawnAndConfigureNewProjectile
 /// The feature also introduces support for subclasses of X2UnifiedProjectile as custom projectile archetypes.
 /// If bPreventProjectileSpawning is set to true the projectile instance will NOT be spawned.
@@ -1624,7 +1624,7 @@ function AddProjectileVolley(AnimNotify_FireWeaponVolley Notify)
 ///       in actor ProjectileTemplate,
 ///       in AnimNotify_FireWeaponVolley InVolleyNotify
 ///       in XComWeapon InSourceWeapon
-///       inout X2Action_Fire CurrentFireAction
+///       inout X2Action_Fire CurrentFireAction,
 ///       in XGUnitNativeBase self
 ///     ]
 /// }
