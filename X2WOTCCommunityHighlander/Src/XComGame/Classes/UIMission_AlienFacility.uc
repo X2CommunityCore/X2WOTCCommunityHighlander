@@ -238,7 +238,33 @@ simulated function bool OnUnrealCommand(int cmd, int arg)
 //-------------- GAME DATA HOOKUP --------------------------------------------------------
 simulated function bool CanTakeMission()
 {
-	return GetRegion().HaveMadeContact() || !GetMission().bNotAtThreshold;
+	// Start issue #875
+	/// HL-Docs: feature:OverrideCanTakeFacilityMission; issue:875; tags:strategy,events,ui
+	/// ```unrealscript
+	/// EventID: OverrideCanTakeFacilityMission
+	/// EventData: XComLWTuple {
+	///     Data: [
+	///       inout bool CanTakeMission,
+	///       in UIMission_AlienFacility (self)
+	///     ]
+	/// }
+	/// EventSource: XComGameState_MissionSite
+	/// NewGameState: no
+	/// ```
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = GetRegion().HaveMadeContact() || !GetMission().bNotAtThreshold; // Vanilla logic
+	Tuple.Data[1].kind = XComLWTVObject;
+	Tuple.Data[1].o = self;
+
+	`XEVENTMGR.TriggerEvent('OverrideCanTakeFacilityMission', Tuple, GetMission());
+
+	return Tuple.Data[0].b;
+	// End issue #875
 }
 simulated function EUIState GetLabelColor()
 {
