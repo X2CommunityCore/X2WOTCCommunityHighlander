@@ -377,6 +377,67 @@ simulated function DamageTypeHitEffectContainer GetDamageTypeHitEffectContainer(
 	return DamageEffectContainer;
 }
 
+/// HL-Docs: feature:OverrideHitEffects; issue:825; tags:tactical
+/// Allows listeners to override the default behavior of XComUnitPawn.PlayHitEffects
+/// This is especially useful for preventing the hardcoded templar fx for 
+/// eHit_Parry, eHit_Reflect and eHit_Deflect which play for any abilities that utilizing these hit results.
+/// If OverrideHitEffect is set to true the PlayHitEffects function will return early and the default behavior is ommited.
+///
+/// ```unrealscript
+/// EventID: OverrideHitEffects
+/// EventData: XComLWTuple {
+///     Data: [
+///       out bool OverrideHitEffect,
+///       inout float Damage,
+///       inout Actor InstigatedBy,
+///       inout vector HitLocation,
+///       inout name DamageTypeName,
+///       inout vector Momentum,
+///       inout bool bIsUnitRuptured,
+///       inout EAbilityHitResult HitResult,
+///     ]
+/// }
+/// EventSource: self (XComUnitPawn)
+/// NewGameState: no
+/// ```
+simulated private function bool TriggerOnOverrideHitEffects(
+	float Damage,
+	Actor InstigatedBy,
+	vector HitLocation,
+	name DamageTypeName,
+	vector Momentum,
+	bool bIsUnitRuptured,
+	EAbilityHitResult HitResult
+)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideHitEffects';
+	Tuple.Data.Add(8);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = false; // Override default hit effects
+	Tuple.Data[1].kind = XComLWTVFloat;
+	Tuple.Data[1].f = Damage;
+	Tuple.Data[2].kind = XComLWTVObject;
+	Tuple.Data[2].o = InstigatedBy;
+	Tuple.Data[3].kind = XComLWTVVector;
+	Tuple.Data[3].v = HitLocation;
+	Tuple.Data[4].kind = XComLWTVName;
+	Tuple.Data[4].n = DamageTypeName;
+	Tuple.Data[5].kind = XComLWTVVector;
+	Tuple.Data[5].v = Momentum;
+	Tuple.Data[6].kind = XComLWTVBool;
+	Tuple.Data[6].b = bIsUnitRuptured;
+	Tuple.Data[7].kind = XComLWTVInt;
+	Tuple.Data[7].i = HitResult;
+
+	`XEVENTMGR.TriggerEvent('OverrideHitEffects', Tuple, self);
+
+	return Tuple.Data[0].b;
+}
+
+
 simulated function PlayHitEffects(float Damage, Actor InstigatedBy, vector HitLocation, name DamageTypeName, vector Momentum, bool bIsUnitRuptured, EAbilityHitResult HitResult= eHit_Success, optional TraceHitInfo ThisHitInfo )
 {
 	local XComPawnHitEffect HitEffect;
@@ -385,6 +446,13 @@ simulated function PlayHitEffects(float Damage, Actor InstigatedBy, vector HitLo
 	local XComPerkContentShared kPerkContent;
 	local DamageTypeHitEffectContainer DamageContainer;
 	local XGUnit SourceUnit;
+
+	// Start Issue #825
+	if (TriggerOnOverrideHitEffects(Damage, InstigatedBy, HitLocation, DamageTypeName, Momentum, bIsUnitRuptured, HitResult))
+	{
+		return;
+	}
+	// End Issue #825
 
 	// The HitNormal used to have noise applied, via "* 0.5 * VRand();", but S.Jameson requested 
 	// that it be removed, since he can add noise with finer control via the editor.  mdomowicz 2015_07_06
