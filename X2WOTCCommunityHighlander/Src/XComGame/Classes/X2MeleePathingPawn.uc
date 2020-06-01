@@ -11,18 +11,18 @@
 class X2MeleePathingPawn extends XComPathingPawn
 	native(Unit);
 
-var private XComGameState_Unit UnitState; // The unit we are currently using
-var private XComGameState_Ability AbilityState; // The ability we are currently using
-var private Actor TargetVisualizer; // Visualizer of the current target 
-var private X2TargetingMethod_MeleePath TargetingMethod; // targeting method that spawned this pathing pawn, if any
+var XComGameState_Unit UnitState; // The unit we are currently using
+var XComGameState_Ability AbilityState; // The ability we are currently using
+var Actor TargetVisualizer; // Visualizer of the current target 
+var X2TargetingMethod_MeleePath TargetingMethod; // targeting method that spawned this pathing pawn, if any
 
-var private array<TTile> PossibleTiles; // list of possible tiles to melee from
+var array<TTile> PossibleTiles; // list of possible tiles to melee from
 
 // Instanced mesh component for the grapple target tile markup
-var private InstancedStaticMeshComponent InstancedMeshComponent;
+var InstancedStaticMeshComponent InstancedMeshComponent;
 
 // adds tiles to the instance mesh component for every tile in the PossibileTiles array
-private native function UpdatePossibleTilesVisuals();
+private function UpdatePossibleTilesVisuals();
 
 function Init(XComGameState_Unit InUnitState, XComGameState_Ability InAbilityState, X2TargetingMethod_MeleePath InTargetingMethod)
 {
@@ -42,7 +42,7 @@ simulated function SetActive(XGUnitNativeBase kActiveXGUnit, optional bool bCanD
 }
 
 // disable the built in pathing melee targeting.
-simulated protected function bool CanUnitMeleeFromMove(XComGameState_BaseObject TargetObject, out XComGameState_Ability MeleeAbility)
+simulated function bool CanUnitMeleeFromMove(XComGameState_BaseObject TargetObject, out XComGameState_Ability MeleeAbility)
 {
 	return false;
 }
@@ -53,7 +53,7 @@ function GetTargetMeleePath(out array<TTile> OutPathTiles)
 }
 
 // overridden to always just show the slash UI, regardless of cursor location or other considerations
-simulated protected function UpdatePuckVisuals(XComGameState_Unit ActiveUnitState, 
+simulated function UpdatePuckVisuals(XComGameState_Unit ActiveUnitState, 
 												const out TTile PathDestination, 
 												Actor TargetActor,
 												X2AbilityTemplate MeleeAbilityTemplate)

@@ -92,7 +92,7 @@ function int GetVersionNumber()
 defaultproperties
 {
 	MajorVersion = 1;
-	MinorVersion = 20;
+	MinorVersion = 21;
 	PatchVersion = 0;
 	Commit = "RC1";
 }
