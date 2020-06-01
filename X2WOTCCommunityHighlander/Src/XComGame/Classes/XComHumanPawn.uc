@@ -2124,26 +2124,31 @@ simulated function OnBodyPartLoaded(PawnContentRequest ContentRequest)
 }
 
 // Start Issue #219
-// Note: Some of these functions may call each other (a suppressed helmet cannot affect the hairstyle)
 // Use the currently loaded helmet and head to determine whether a
 // hairstyle should be shown
+
+// Start Issue #219: Replaced the calling each other with explicit mesh checks.
+// Basically only makes a difference on the Avenger, where parts may be hidden but not "suppressed".
 function bool SuppressHairstyle()
 {
-	return (!SuppressHelmet() && HelmetContent != none && HelmetContent.FallbackHairIndex <= -1) || class'CHHelpers'.default.HeadSuppressesHair.Find(HeadContent.Name) > INDEX_NONE;
+	return (HelmetContent != none && m_kHelmetMC.SkeletalMesh != none && HelmetContent.FallbackHairIndex <= -1) ||
+			class'CHHelpers'.default.HeadSuppressesHair.Find(HeadContent.Name) > INDEX_NONE;
 }
 
 // Use the currently loaded helmet and head to determine whether a
 // lower face prop should be shown
 function bool SuppressLowerFaceProp()
 {
-	return (!SuppressHelmet() && HelmetContent != none && HelmetContent.bHideLowerFacialProps) || class'CHHelpers'.default.HeadSuppressesLowerFaceProp.Find(HeadContent.Name) > INDEX_NONE;
+	return (HelmetContent != none && m_kHelmetMC.SkeletalMesh != none && HelmetContent.bHideLowerFacialProps) ||
+			class'CHHelpers'.default.HeadSuppressesLowerFaceProp.Find(HeadContent.Name) > INDEX_NONE;
 }
 
 // Use the currently loaded helmet and hat to determine whether an
 // upper face prop should be shown
 function bool SuppressUpperFaceProp()
 {
-	return (!SuppressHelmet() && HelmetContent != none && HelmetContent.bHideUpperFacialProps) || class'CHHelpers'.default.HeadSuppressesUpperFaceProp.Find(HeadContent.Name) > INDEX_NONE;
+	return (HelmetContent != none && m_kHelmetMC.SkeletalMesh != none && HelmetContent.bHideUpperFacialProps) ||
+			class'CHHelpers'.default.HeadSuppressesUpperFaceProp.Find(HeadContent.Name) > INDEX_NONE;
 }
 
 // Use the currently loaded head to determine whether a
@@ -2157,8 +2162,8 @@ function bool SuppressHelmet()
 // to determine whether facial hair should be shown
 function bool SuppressBeard()
 {
-	return (!SuppressHelmet() && HelmetContent != none && HelmetContent.bHideFacialHair) ||
-		   (!SuppressLowerFaceProp() && LowerFacialContent != none && LowerFacialContent.bHideFacialHair) ||
+	return (HelmetContent != none && m_kHelmetMC.SkeletalMesh != none && HelmetContent.bHideFacialHair) ||
+		   (LowerFacialContent != none && m_kLowerFacialMC.SkeletalMesh !=none && LowerFacialContent.bHideFacialHair) ||
 		   class'CHHelpers'.default.HeadSuppressesBeard.Find(HeadContent.Name) > INDEX_NONE;
 }
 // End Issue #219
