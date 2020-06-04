@@ -73,150 +73,150 @@ struct native WaypointTile
 };
 
 // ids for the world messages that pop up on the puck when the unit is dashing or suppressed
-var private string DashLabel;
-var private string SuppressedLabel;
+var /* private */ string DashLabel;
+var /* private */ string SuppressedLabel;
 
 // Map of active unit ObjectIDs to cached concealment info
 var private{private} native Map_Mirror ConcealmentCache{TMap<INT, FHazardousTilesCache>};
 
 // config values
-var private const config string PuckMeshName; // name of the default pathing puck mesh
-var private const config string PuckMeshCircleName; // name of the cursor mesh (blue)
-var private const config string HeightCylinderName; // name of the height cylinder mesh
-var private const config string PuckMeshCircleDashingName; // name of the cursor mesh, if it's in dashing range (yellow)
-var private const config string PuckMeshConfirmedName; // name of the mesh that animates out when a move is confirmed
-var private const config string PuckMeshDashingName; // name of the mesh that is swapped for the default when the unit will dash (or use their remaining action point)
-var private const config string PuckMeshConfirmedDashingName; // same as PuckMeshConfirmedName, but for the dashing case
-var private const config string PuckMeshSlashingName; // puck that highlights a targeted unit
-var private const config string PuckMeshConfirmedSlashingName; // puck that animates out when a melee attack is confirmed
-var private const config string PuckMeshOutOfRangeName; // puck that displays when the cursor is outside of pathing range
-var private const config string PuckMeshUnitSelectName; // mesh to use when hovering over a selectable unit
-var private const config string PuckMeshEnemySelectName; // mesh to use when hovering over a selectable enemy
+var /* private */ const config string PuckMeshName; // name of the default pathing puck mesh
+var /* private */ const config string PuckMeshCircleName; // name of the cursor mesh (blue)
+var /* private */ const config string HeightCylinderName; // name of the height cylinder mesh
+var /* private */ const config string PuckMeshCircleDashingName; // name of the cursor mesh, if it's in dashing range (yellow)
+var /* private */ const config string PuckMeshConfirmedName; // name of the mesh that animates out when a move is confirmed
+var /* private */ const config string PuckMeshDashingName; // name of the mesh that is swapped for the default when the unit will dash (or use their remaining action point)
+var /* private */ const config string PuckMeshConfirmedDashingName; // same as PuckMeshConfirmedName, but for the dashing case
+var /* private */ const config string PuckMeshSlashingName; // puck that highlights a targeted unit
+var /* private */ const config string PuckMeshConfirmedSlashingName; // puck that animates out when a melee attack is confirmed
+var /* private */ const config string PuckMeshOutOfRangeName; // puck that displays when the cursor is outside of pathing range
+var /* private */ const config string PuckMeshUnitSelectName; // mesh to use when hovering over a selectable unit
+var /* private */ const config string PuckMeshEnemySelectName; // mesh to use when hovering over a selectable enemy
 
-var private const config string DefaultPuckMeshMeleePath; // mesh to use for the melee puck if there is no ability override
+var /* private */ const config string DefaultPuckMeshMeleePath; // mesh to use for the melee puck if there is no ability override
 
-var private const config name NoiseMarkerIconName; // See X2WaypointStaticMeshComponent::HazardMarkerDefinitions
-var private const config name ConcealmentMarkerIconName; // See X2WaypointStaticMeshComponent::HazardMarkerDefinitions
-var private const config name LaserScopeMarkerIconName; // See X2WaypointStaticMeshComponent::HazardMarkerDefinitions
-var private const config name KillZoneMarkerIconName; // See X2WaypointStaticMeshComponent::HazardMarkerDefinitions
+var /* private */ const config name NoiseMarkerIconName; // See X2WaypointStaticMeshComponent::HazardMarkerDefinitions
+var /* private */ const config name ConcealmentMarkerIconName; // See X2WaypointStaticMeshComponent::HazardMarkerDefinitions
+var /* private */ const config name LaserScopeMarkerIconName; // See X2WaypointStaticMeshComponent::HazardMarkerDefinitions
+var /* private */ const config name KillZoneMarkerIconName; // See X2WaypointStaticMeshComponent::HazardMarkerDefinitions
 
-var private const config string PathMaterialNormalName; // material for the ribbon that traces the movement path
-var private const config string PathMaterialDashingName; // material for the ribbon that traces the movement path when dashing
+var /* private */ const config string PathMaterialNormalName; // material for the ribbon that traces the movement path
+var /* private */ const config string PathMaterialDashingName; // material for the ribbon that traces the movement path when dashing
 
-var private const config string ConcealmentTilesVisibleMeshName; // mesh used when the concealment tiles are visible (to animate in)
-var private const config string ConcealmentTilesHiddenMeshName; // mesh used when the concealment tiles are hidden (to animate out)
+var /* private */ const config string ConcealmentTilesVisibleMeshName; // mesh used when the concealment tiles are visible (to animate in)
+var /* private */ const config string ConcealmentTilesHiddenMeshName; // mesh used when the concealment tiles are hidden (to animate out)
 
-var private const config string ConcealmentBreakTilesVisibleMeshName; // mesh used when concealment break tiles are visible (to animate in)
-var private const config string ConcealmentBreakTilesHiddenMeshName; // mesh used when concealment break tiles are hidden (to animate out)
+var /* private */ const config string ConcealmentBreakTilesVisibleMeshName; // mesh used when concealment break tiles are visible (to animate in)
+var /* private */ const config string ConcealmentBreakTilesHiddenMeshName; // mesh used when concealment break tiles are hidden (to animate out)
 
-var private const config bool ShowObjectiveTiles; // allows the objective tiles to be turned on and off with an ini switch
-var private const config string ObjectiveTilesVisibleMeshName; // mesh used when the concealment tiles are visible (to animate in)
-var private const config string ObjectiveTilesHiddenMeshName; // mesh used when the concealment tiles are hidden (to animate out)
+var /* private */ const config bool ShowObjectiveTiles; // allows the objective tiles to be turned on and off with an ini switch
+var /* private */ const config string ObjectiveTilesVisibleMeshName; // mesh used when the concealment tiles are visible (to animate in)
+var /* private */ const config string ObjectiveTilesHiddenMeshName; // mesh used when the concealment tiles are hidden (to animate out)
 
-var private const config string BondmateTilesVisibleMeshName; // mesh used when bondmate tiles are visible (to animate in)
-var private const config string BondmateTilesHiddenMeshName; // mesh used when bondmate tiles are hidden (to animate out)
+var /* private */ const config string BondmateTilesVisibleMeshName; // mesh used when bondmate tiles are visible (to animate in)
+var /* private */ const config string BondmateTilesHiddenMeshName; // mesh used when bondmate tiles are hidden (to animate out)
 
-var private const config string ReviveTilesVisibleMeshName; // mesh used when bondmate tiles are visible (to animate in)
-var private const config string ReviveTilesHiddenMeshName; // mesh used when bondmate tiles are hidden (to animate out)
+var /* private */ const config string ReviveTilesVisibleMeshName; // mesh used when bondmate tiles are visible (to animate in)
+var /* private */ const config string ReviveTilesHiddenMeshName; // mesh used when bondmate tiles are hidden (to animate out)
 
-var private const config string HuntersMarkTilesVisibleMeshName; // mesh used when HuntersMark tiles are visible (to animate in)
-var private const config string HuntersMarkTilesHiddenMeshName; // mesh used when HuntersMark tiles are hidden (to animate out)
+var /* private */ const config string HuntersMarkTilesVisibleMeshName; // mesh used when HuntersMark tiles are visible (to animate in)
+var /* private */ const config string HuntersMarkTilesHiddenMeshName; // mesh used when HuntersMark tiles are hidden (to animate out)
 
-var private const config bool ShowSummaryMarker; // if true, collates all noise and hazards markers into a summary marker at the end of the path
-var private const config bool ShowLOSPreview; // if true, updates enemy unit flags to show which units are visible from the pathing destination
-var private const config bool ShowDashingLabel; // if true, will show the "Dashing!" label
-var private const config bool ShowSuppressedLabel; // if true, will show the "Suppressed!" label
+var /* private */ const config bool ShowSummaryMarker; // if true, collates all noise and hazards markers into a summary marker at the end of the path
+var /* private */ const config bool ShowLOSPreview; // if true, updates enemy unit flags to show which units are visible from the pathing destination
+var /* private */ const config bool ShowDashingLabel; // if true, will show the "Dashing!" label
+var /* private */ const config bool ShowSuppressedLabel; // if true, will show the "Suppressed!" label
 
-var private      const config int   PathLengthOffset;        // allows the path to be shortened to match breadcrumb
-var privatewrite const config float PathHeightOffset;     // height above the ground to draw the ribbon and puck
+var /* private */     const config int   PathLengthOffset;        // allows the path to be shortened to match breadcrumb
+var /* privatewrite */ const config float PathHeightOffset;     // height above the ground to draw the ribbon and puck
 
-var private const config linearcolor DashingBorderColor;
-var private const config linearcolor NonDashingBorderColor;
+var /* private */ const config linearcolor DashingBorderColor;
+var /* private */ const config linearcolor NonDashingBorderColor;
 
-var private XGUnitNativeBase LastActiveUnit; // the last unit to be active on this pawn
-var protected X2ReachableTilesCache ActiveCache; // allows us to switch to a waypoint cache when placing waypoints
-var private bool WaypointModifyMode; // toggle set by ui to show waypoint add/remove markers. doesn't change behavior, just looks
-var private bool ForceUpdateNextTick; // set to true if some operation requires the path to update (waypoint added or removed, etc)
+var /* private */ XGUnitNativeBase LastActiveUnit; // the last unit to be active on this pawn
+var /* protected */ X2ReachableTilesCache ActiveCache; // allows us to switch to a waypoint cache when placing waypoints
+var /* private */ bool WaypointModifyMode; // toggle set by ui to show waypoint add/remove markers. doesn't change behavior, just looks
+var /* private */ bool ForceUpdateNextTick; // set to true if some operation requires the path to update (waypoint added or removed, etc)
 
-var privatewrite transient XComPath VisualPath; // the pulled path that traces the path tiles
-var privatewrite array<TTile> PathTiles;    // the actual tiles the unit will traverse if the move is confirmed
-var protectedwrite transient TTile LastDestinationTile; // the last tile the path would end at. can be different from LastCursorTile if the cursor is on an invalid tile
+var /* privatewrite */ transient XComPath VisualPath; // the pulled path that traces the path tiles
+var /* privatewrite */ array<TTile> PathTiles;    // the actual tiles the unit will traverse if the move is confirmed
+var /* protectedwrite */ transient TTile LastDestinationTile; // the last tile the path would end at. can be different from LastCursorTile if the cursor is on an invalid tile
 
-var privatewrite transient XComGameState_BaseObject LastTargetObject; // Last actor the cursor was over, allows us to path info on change in target
-var private				   bool					WasDashing;
-var private				   bool					WasInWarningZone;
+var /* privatewrite */ transient XComGameState_BaseObject LastTargetObject; // Last actor the cursor was over, allows us to path info on change in target
+var /* private */				   bool					WasDashing;
+var /* private */				   bool					WasInWarningZone;
 
-var private				   bool					bConcealmentTilesNeedUpdate;
+var /* private */				   bool					bConcealmentTilesNeedUpdate;
 
-var private InterpCurveVector kSplineInfo; // the spline used to smooth out the path visuals
+var /* private */ InterpCurveVector kSplineInfo; // the spline used to smooth out the path visuals
 
 // puck status meshs. see the config variables for each for a description
-var protected StaticMesh PuckMeshNormal; 
-var protected StaticMesh PuckMeshCircle;          // cursor mesh (blue)
-var protected StaticMesh PuckMeshCircleDashing;   // dashing cursor mesh (yellow)
-var protected StaticMesh PuckMeshDashing;
-var protected StaticMesh PuckMeshConfirmed;
-var protected StaticMesh PuckMeshConfirmedDashing;
-var protected StaticMesh PuckMeshSlashing; // the direction indicator for slashing attacks
-var protected StaticMesh PuckMeshConfirmedSlashing; // confirmed direction indicator for slashing attack
-var protected StaticMesh PuckMeshOutOfRange;
-var protected StaticMesh PuckMeshUnitSelect;
-var protected StaticMesh PuckMeshEnemySelect;
+var /* protected */ StaticMesh PuckMeshNormal; 
+var /* protected */ StaticMesh PuckMeshCircle;          // cursor mesh (blue)
+var /* protected */ StaticMesh PuckMeshCircleDashing;   // dashing cursor mesh (yellow)
+var /* protected */ StaticMesh PuckMeshDashing;
+var /* protected */ StaticMesh PuckMeshConfirmed;
+var /* protected */ StaticMesh PuckMeshConfirmedDashing;
+var /* protected */ StaticMesh PuckMeshSlashing; // the direction indicator for slashing attacks
+var /* protected */ StaticMesh PuckMeshConfirmedSlashing; // confirmed direction indicator for slashing attack
+var /* protected */ StaticMesh PuckMeshOutOfRange;
+var /* protected */ StaticMesh PuckMeshUnitSelect;
+var /* protected */ StaticMesh PuckMeshEnemySelect;
 
-var protected StaticMesh PuckMeshMelee; // the ability specific melee mesh to show when hovering over a target
+var /* protected */ StaticMesh PuckMeshMelee; // the ability specific melee mesh to show when hovering over a target
 
-var protected MaterialInterface PathMaterialNormal;
-var protected MaterialInterface PathMaterialDashing;
+var /* protected */ MaterialInterface PathMaterialNormal;
+var /* protected */ MaterialInterface PathMaterialDashing;
 
 // Component for rendering the concealment markup tiles
-var private X2FadingInstancedStaticMeshComponent ConcealmentRenderingComponent;
+var /* private */ X2FadingInstancedStaticMeshComponent ConcealmentRenderingComponent;
 
 // Component for rendering the special concealment-breaking-path when concealment is broken
-var private X2FadingInstancedStaticMeshComponent ConcealmentBreakRenderingComponent;
+var /* private */ X2FadingInstancedStaticMeshComponent ConcealmentBreakRenderingComponent;
 
 // Component for rendering the objective interaction tile markup
-var private X2FadingInstancedStaticMeshComponent ObjectiveTilesRenderingComponent;
+var /* private */ X2FadingInstancedStaticMeshComponent ObjectiveTilesRenderingComponent;
 
 // Bondmate tile markup component
-var private X2FadingInstancedStaticMeshComponent BondmateTilesRenderingComponent;
+var /* private */ X2FadingInstancedStaticMeshComponent BondmateTilesRenderingComponent;
 
 // Bondmate tile markup component
-var private X2FadingInstancedStaticMeshComponent ReviveTilesRenderingComponent;
+var /* private */ X2FadingInstancedStaticMeshComponent ReviveTilesRenderingComponent;
 
 // Hunter's mark tile markup component
-var private X2FadingInstancedStaticMeshComponent HuntersMarkTilesRenderingComponent;
+var /* private */ X2FadingInstancedStaticMeshComponent HuntersMarkTilesRenderingComponent;
 
 
 // puck mesh components
-var protected X2FadingStaticMeshComponent PuckMeshComponent; // mesh that shows at LastDestinationTile, for the normal movement puck
-var protected X2FadingStaticMeshComponent PuckMeshCircleComponent; // cursor fading static mesh component
-var protected X2FadingStaticMeshComponent SlashingMeshComponent; // mesh that shows when targeting a unit with the melee path targeting
-var protected StaticMeshComponent OutOfRangeMeshComponent; // mesh that shows when LastCursorTile does not match LastDestinationTile
+var /* protected */ X2FadingStaticMeshComponent PuckMeshComponent; // mesh that shows at LastDestinationTile, for the normal movement puck
+var /* protected */ X2FadingStaticMeshComponent PuckMeshCircleComponent; // cursor fading static mesh component
+var /* protected */ X2FadingStaticMeshComponent SlashingMeshComponent; // mesh that shows when targeting a unit with the melee path targeting
+var /* protected */ StaticMeshComponent OutOfRangeMeshComponent; // mesh that shows when LastCursorTile does not match LastDestinationTile
 
-var protected PointLightComponent PuckLightComponent;
+var /* protected */ PointLightComponent PuckLightComponent;
 
 // waypoint stuff
-var privatewrite array<WaypointTile>			    Waypoints; // all tiles with a waypoint on them
-var private array<X2WaypointStaticMeshComponent>    WaypointMeshPool; // pool to prevent needless waypoint allocations
-var private array<TTile>						    WaypointsPath; // path from the unit to the last waypoint, cached
-var private array<HazardMarker>					    HazardMarkers; // all tiles with a hazard on them
-var private array<TTile>					    	NoiseMarkers; // all tiles with a noise marker on them
-var private array<TTile>						    ConcealmentMarkers; // all tiles with a concealment marker on them
-var private array<TTile>							LaserScopeMarkers; // End path tiles with a laser scope visible to them.
-var private array<TTile>							KillZoneMarkers; // All tiles in path with killzone markers on them.
+var /* privatewrite */ array<WaypointTile>			    Waypoints; // all tiles with a waypoint on them
+var /* private */ array<X2WaypointStaticMeshComponent>    WaypointMeshPool; // pool to prevent needless waypoint allocations
+var /* private */ array<TTile>						    WaypointsPath; // path from the unit to the last waypoint, cached
+var /* private */ array<HazardMarker>					    HazardMarkers; // all tiles with a hazard on them
+var /* private */ array<TTile>					    	NoiseMarkers; // all tiles with a noise marker on them
+var /* private */ array<TTile>						    ConcealmentMarkers; // all tiles with a concealment marker on them
+var /* private */ array<TTile>							LaserScopeMarkers; // End path tiles with a laser scope visible to them.
+var /* private */ array<TTile>							KillZoneMarkers; // All tiles in path with killzone markers on them.
 
 
 // renderable path
-var protected XComRenderablePathComponent RenderablePath; // component that draws the path ribbon from the unit to the puck
-var private array<GameplayTileData> PathTileData; // gameplay friendly extra info about the path
+var /* protected */ XComRenderablePathComponent RenderablePath; // component that draws the path ribbon from the unit to the puck
+var /* private */ array<GameplayTileData> PathTileData; // gameplay friendly extra info about the path
 
 // switch for derived classes
-var protected bool AllowSelectionOfActiveUnitTile; // if true, allows the puck to target the tile the unit is currently on
+var /* protected */ bool AllowSelectionOfActiveUnitTile; // if true, allows the puck to target the tile the unit is currently on
 
 var int ActiveKillZoneAbilityID;					// If > 0, mark cursor upon entering / exiting killzone tiles.
 
-native function protected BuildSpline();
-native function protected MarkConcealmentCacheDirty(int UnitID);
+native function /* protected */ BuildSpline();
+native function /* protected */ MarkConcealmentCacheDirty(int UnitID);
 native function MarkAllConcealmentCachesDirty(); // Need this non-private for replay/tutorial purposes
 native function UpdateConcealmentMarkers();
 native function UpdateConcealmentTiles();
@@ -226,13 +226,13 @@ native function UpdateObjectiveTiles(XComGameState_Unit ActiveUnitState);
 native function UpdateBondmateTiles(XComGameState_Unit ActiveUnitState);
 native function UpdateReviveTiles(XComGameState_Unit ActiveUnitState);
 native function UpdateHuntersMarkTiles(XComGameState_Unit ActiveUnitState);
-native function protected UpdateConcealmentBreakingMarkerInfo();
-native function protected UpdateHazardTileMarkerInfo();
-native function protected UpdateHazardMarkerInfo(XComGameState_Unit ActiveUnitState);
-native function protected UpdateNoiseMarkerInfo(XComGameState_Unit ActiveUnitState);
-native function protected UpdatePathMarkers();
-native function protected SetupPathMarker(X2WaypointStaticMeshComponent MarkerComponent, const out TTile Tile);
-native function protected UpdateRenderablePath(vector CameraLocation);
+native function /* protected */ UpdateConcealmentBreakingMarkerInfo();
+native function /* protected */ UpdateHazardTileMarkerInfo();
+native function /* protected */ UpdateHazardMarkerInfo(XComGameState_Unit ActiveUnitState);
+native function /* protected */ UpdateNoiseMarkerInfo(XComGameState_Unit ActiveUnitState);
+native function /* protected */ UpdatePathMarkers();
+native function /* protected */ SetupPathMarker(X2WaypointStaticMeshComponent MarkerComponent, const out TTile Tile);
+native function /* protected */ UpdateRenderablePath(vector CameraLocation);
 
 native function DebugPathing();
 
@@ -496,7 +496,7 @@ simulated event SetActive(XGUnitNativeBase kActiveXGUnit, optional bool bCanDash
 /// Returns true if the currently active unit can finish this move with an attack on the specified TargetPawn.
 /// i.e. slashing charge, etc.
 /// </summary>
-simulated protected function bool CanUnitMeleeFromMove(XComGameState_BaseObject TargetObject, out XComGameState_Ability MeleeAbility)
+simulated /* protected */ function bool CanUnitMeleeFromMove(XComGameState_BaseObject TargetObject, out XComGameState_Ability MeleeAbility)
 {
 	local XComGameStateHistory History;
 	local XComGameState_Unit UnitState;
@@ -543,8 +543,8 @@ simulated protected function bool CanUnitMeleeFromMove(XComGameState_BaseObject 
 	}
 }
 
-simulated private native function UpdateBorderHideHeights();
-simulated private native function UpdatePath(const out TTile PathDestination, out array<TTile> Path);
+simulated /* private */ native function UpdateBorderHideHeights();
+simulated /* private */ native function UpdatePath(const out TTile PathDestination, out array<TTile> Path);
 
 function SetWaypointModifyMode(bool ModifyingWaypoints)
 {
@@ -560,7 +560,7 @@ function SetWaypointModifyMode(bool ModifyingWaypoints)
 // the mouse is pointing. This allows the user to adjust their desired pick location simply by
 // moving the mouse over the target pawn in a given direction. Returns the melee ability to be used, or none if no
 // valid attack is available
-private function XComGameState_Ability SelectMeleeMovePathDestination(XComGameState_BaseObject TargetObject, XComTacticalHUD Hud, out TTile PathDestination)
+/* private */ function XComGameState_Ability SelectMeleeMovePathDestination(XComGameState_BaseObject TargetObject, XComTacticalHUD Hud, out TTile PathDestination)
 {
 	local XComWorldData WorldData;
 	local X2GameRulesetVisibilityInterface TargetInterface;
@@ -685,7 +685,7 @@ simulated function bool CursorOnOriginalUnit()
 	return false;
 }
 
-simulated protected function RebuildOnlySplinepathingInformation(TTile PathDestination)
+simulated /* protected */ function RebuildOnlySplinepathingInformation(TTile PathDestination)
 {
 	local XComGameState_Unit ActiveUnitState;
 	local array<PathPoint> PathPoints;
@@ -731,7 +731,7 @@ simulated protected function RebuildOnlySplinepathingInformation(TTile PathDesti
 // if you need to add some other information (markers, tiles, etc) that needs to be updated when the path does, you should add a 
 // call to that update function to this function.
 
-simulated protected function RebuildPathingInformation(TTile PathDestination, Actor TargetActor, X2AbilityTemplate MeleeAbilityTemplate, TTile CursorTile)
+simulated /* protected */ function RebuildPathingInformation(TTile PathDestination, Actor TargetActor, X2AbilityTemplate MeleeAbilityTemplate, TTile CursorTile)
 {
 	local XComWorldData WorldData;
 	local XComGameState_Unit ActiveUnitState;
@@ -817,7 +817,7 @@ simulated protected function RebuildPathingInformation(TTile PathDestination, Ac
 	UpdatePuckAudio();
 }
 
-simulated protected function DoUpdatePuckVisuals(TTile PathDestination, Actor TargetActor, X2AbilityTemplate MeleeAbilityTemplate)
+simulated /* protected */ function DoUpdatePuckVisuals(TTile PathDestination, Actor TargetActor, X2AbilityTemplate MeleeAbilityTemplate)
 {
 	local XComGameState_Unit ActiveUnitState;
 
@@ -1080,7 +1080,7 @@ function OnMeleeAbilityActivated()
 	`PRES.m_kUnitFlagManager.ClearAbilityDamagePreview();
 }
 
-simulated private function bool IsVisibleEnemyUnit(XComGameState_Unit ActiveUnitState, XComUnitPawn TargetPawn)
+simulated /* private */ function bool IsVisibleEnemyUnit(XComGameState_Unit ActiveUnitState, XComUnitPawn TargetPawn)
 {
 	local array<StateObjectReference> VisibleEnemies; 
 
@@ -1110,7 +1110,7 @@ simulated private function bool IsVisibleEnemyUnit(XComGameState_Unit ActiveUnit
 	return false;
 }
 
-simulated protected function UpdatePuckVisuals(XComGameState_Unit ActiveUnitState, 
+simulated /* protected */ function UpdatePuckVisuals(XComGameState_Unit ActiveUnitState, 
 												const out TTile PathDestination, 
 												Actor TargetActor,
 												X2AbilityTemplate MeleeAbilityTemplate)
@@ -1350,7 +1350,7 @@ simulated function TogglePuckLight()
 	PuckLightComponent.SetEnabled(!PuckLightComponent.bEnabled);
 }
 
-simulated private function UpdatePuckFlyovers(XComGameState_Unit ActiveUnitState)
+simulated /* private */ function UpdatePuckFlyovers(XComGameState_Unit ActiveUnitState)
 {
 	local XComPresentationLayer Pres;
 	local XComWorldData WorldData;
@@ -1399,7 +1399,7 @@ simulated private function UpdatePuckFlyovers(XComGameState_Unit ActiveUnitState
 	}
 }
 
-simulated private function UpdatePuckAudio()
+simulated /* private */ function UpdatePuckAudio()
 {
 	local bool IsDashingNow;
 	local bool IsInWarningZone;
@@ -1424,7 +1424,7 @@ simulated private function UpdatePuckAudio()
 	}
 }
 
-simulated protected function StaticMesh GetMeleePuckMeshForAbility(X2AbilityTemplate AbilityTemplate) 
+simulated /* protected */ function StaticMesh GetMeleePuckMeshForAbility(X2AbilityTemplate AbilityTemplate) 
 {
 	local StaticMesh PuckMesh;
 	local string PuckMeshPath;
@@ -1515,7 +1515,7 @@ simulated function bool ClearAllWaypoints()
 }
 
 // drops a waypoint at the end of the current path
-simulated private function AddWaypoint()
+simulated /* private */ function AddWaypoint()
 {
 	local XComGameState_Unit UnitState;
 	local WaypointTile Waypoint;
@@ -1550,7 +1550,7 @@ simulated private function AddWaypoint()
 }
 
 // Removes the waypoint at the given index in the Waypoints array (and any waypoints after that)
-simulated private function RemoveWaypoint(int WaypointIndex)
+simulated /* private */ function RemoveWaypoint(int WaypointIndex)
 {
 	local int WaypointPathIndex;
 	local WaypointTile Waypoint;
@@ -1595,7 +1595,7 @@ simulated private function RemoveWaypoint(int WaypointIndex)
 
 native function GetWaypointTiles(out array<TTile> Tiles);
 
-simulated private function HideWorldMessages()
+simulated /* private */ function HideWorldMessages()
 {
 	local XComPresentationLayer Pres;
 

@@ -10,7 +10,7 @@ var protected XGWeapon            WeaponVisualizer;
 
 //@TODO - rmcfall/jbouscher - base this on some logic provided by the ability, projectile speed, etc.
 var private bool					bShooter;
-var private bool					bWasHit;
+var /* private */ bool					bWasHit;
 var protected float					NotifyTargetTimer;
 var protected bool					bUseAnimToSetNotifyTimer;
 var protected X2VisualizerInterface	PrimaryTarget;
@@ -33,7 +33,7 @@ var protected CustomAnimParams AdditiveAnimParams;
 var protected vector MoveEndDestination;
 var protected vector MoveEndDirection;
 var private vector ToTarget;
-var private array<X2UnifiedProjectile> ProjectileVolleys; //Tracks projectiles created during this fire action
+var /* private */ array<X2UnifiedProjectile> ProjectileVolleys; //Tracks projectiles created during this fire action
 var protected bool			 bHaltAimUpdates;
 var protected array<name>    ShooterAdditiveAnims;
 var protected bool			 bReactionFireDone;
