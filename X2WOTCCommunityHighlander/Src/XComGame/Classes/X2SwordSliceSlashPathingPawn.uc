@@ -31,7 +31,7 @@ simulated function SetActive(XGUnitNativeBase kActiveXGUnit, optional bool bCanD
 }
 
 // disable the built in pathing melee targeting.
-simulated protected function bool CanUnitMeleeFromMove(XComGameState_BaseObject TargetObject, out XComGameState_Ability MeleeAbility)
+simulated /* protected */ function bool CanUnitMeleeFromMove(XComGameState_BaseObject TargetObject, out XComGameState_Ability MeleeAbility)
 {
 	return false;
 }
