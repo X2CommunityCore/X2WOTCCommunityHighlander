@@ -10,8 +10,8 @@
 class X2SwordSliceSlashPathingPawn extends XComPathingPawn
 	native(Unit);
 
-var private XComGameState_Unit UnitState; // The unit we are currently using
-var private XComGameState_Ability AbilityState; // The ability we are currently using
+var /* private */ XComGameState_Unit UnitState; // The unit we are currently using
+var /* private */ XComGameState_Ability AbilityState; // The ability we are currently using
 var TTile CurrentlySelectedTile;
 var array<TTile> DestinationTiles;
 var array<TTile> TargetTiles;
@@ -42,7 +42,7 @@ function GetTargetMeleePath(out array<TTile> OutPathTiles)
 }
 
 // overridden to always just show the slash UI, regardless of cursor location or other considerations
-simulated protected function UpdatePuckVisuals(XComGameState_Unit ActiveUnitState, 
+simulated /* protected */ function UpdatePuckVisuals(XComGameState_Unit ActiveUnitState, 
 												const out TTile PathDestination, 
 												Actor TargetActor,
 												X2AbilityTemplate MeleeAbilityTemplate)

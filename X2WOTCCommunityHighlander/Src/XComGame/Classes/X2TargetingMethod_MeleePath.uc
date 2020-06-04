@@ -9,12 +9,12 @@
 
 class X2TargetingMethod_MeleePath extends X2TargetingMethod;
 
-var protected X2MeleePathingPawn		PathingPawn;
-var protected XComActionIconManager		IconManager;
-var protected XComLevelBorderManager	LevelBorderManager;
-var protected XCom3DCursor				Cursor;
-var protected XGUnit					TargetUnit;
-var protected X2Camera_LookAtActorTimed	LookAtCamera; // deprecated
+var /* protected */ X2MeleePathingPawn		PathingPawn;
+var /* protected */ XComActionIconManager		IconManager;
+var /* protected */ XComLevelBorderManager	LevelBorderManager;
+var /* protected */ XCom3DCursor				Cursor;
+var /* protected */ XGUnit					TargetUnit;
+var /* protected */ X2Camera_LookAtActorTimed	LookAtCamera; // deprecated
 
 // the index of the last available target we were targeting
 var protected int LastTarget;
@@ -43,7 +43,7 @@ function Init(AvailableAction InAction, int NewTargetIndex)
 	DirectSelectNearestTarget();
 }
 
-private function DirectSelectNearestTarget()
+/* private */ function DirectSelectNearestTarget()
 {
 	local XComGameStateHistory History;
 	local XComWorldData WorldData;

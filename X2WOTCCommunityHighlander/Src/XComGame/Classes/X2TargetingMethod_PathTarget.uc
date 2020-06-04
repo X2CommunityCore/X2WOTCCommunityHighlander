@@ -10,7 +10,7 @@
 
 class X2TargetingMethod_PathTarget extends X2TargetingMethod;
 
-var private X2PathTargetPathingPawn PathingPawn;
+var /* private*/ X2PathTargetPathingPawn PathingPawn;
 var privatewrite XComActionIconManager   IconManager;
 var privatewrite XComLevelBorderManager  LevelBorderManager;
 var privatewrite XCom3DCursor            Cursor;
