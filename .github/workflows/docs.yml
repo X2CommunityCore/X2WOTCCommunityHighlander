@@ -34,10 +34,9 @@ jobs:
         name: docs-html
         path: target
     - name: Deploy
-      uses: crazy-max/ghaction-github-pages@v1
+      uses: crazy-max/ghaction-github-pages@v2
       with:
         target_branch: gh-pages
         build_dir: target # The folder the action should deploy.
-        committer_name: X2CommunityCore-Docs-Bot
       env:
-        GITHUB_PAT: ${{ secrets.ACCESS_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
