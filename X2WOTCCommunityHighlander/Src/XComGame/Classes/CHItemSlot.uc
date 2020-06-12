@@ -379,8 +379,10 @@ static function bool SlotShowItemInLockerList(EInventorySlot Slot, XComGameState
 		case eInvSlot_GrenadePocket:
 			GrenadeTemplate = X2GrenadeTemplate(ItemTemplate);
 			bSlotShowItemInLockerList = GrenadeTemplate != none;
+			break;
 		case eInvSlot_AmmoPocket:
 			bSlotShowItemInLockerList = ItemTemplate.ItemCat == 'ammo';
+			break;
 		default:
 			if (SlotIsTemplated(Slot))
 			{
@@ -392,6 +394,7 @@ static function bool SlotShowItemInLockerList(EInventorySlot Slot, XComGameState
 				// xpad is only item with size 0, that is always equipped
 				bSlotShowItemInLockerList = (EquipmentTemplate != none && EquipmentTemplate.iItemSize > 0 && EquipmentTemplate.InventorySlot == Slot);
 			}
+			break;
 	}
 
 	return TriggerOverrideShowItemInLockerList(bSlotShowItemInLockerList, Slot, Unit, ItemState, CheckGameState);
