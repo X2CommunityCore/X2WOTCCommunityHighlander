@@ -1639,12 +1639,14 @@ private function bool TriggerOverrideProjectileInstance(Actor ProjectileTemplate
 	local XComLWTuple Tuple;
 	local bool bPreventProjectileSpawning;
 
+	bPreventProjectileSpawning = false;
+
 	Tuple = new class'XComLWTuple';
 	Tuple.Id = 'OverrideProjectileInstance';
 	Tuple.Data.Add(6);
 
 	Tuple.Data[0].Kind = XComLWTVBool;
-	Tuple.Data[0].b = false;
+	Tuple.Data[0].b = bPreventProjectileSpawning;
 
 	Tuple.Data[1].Kind = XComLWTVObject;
 	Tuple.Data[1].o = ProjectileTemplate;
