@@ -54,7 +54,8 @@ var bool IsEquippedSlot;
 var bool BypassesUniqueRule;
 
 // Can this slot hold more than one item (similar to Utility Slots)?
-// Imposes the limitation that its items can not be shown on cinematic pawns (Armory, SquadSelect, tactical Matinee).
+// Imposes the limitation that its items can be shown on cinematic pawns (Armory, SquadSelect, tactical Matinee)
+// only if handled by delegates via Issue #885.
 var bool IsMultiItemSlot;
 
 // Minimum number of items equipped on this slot, set to -1 to fill until all multi slots is full.
@@ -71,11 +72,13 @@ var bool IsSmallSlot;
 // The code behind this involves a lot of legacy Inventory code from EU/EW that I'm not entirely comfortable with.
 // It's best to follow the vanilla rule for slots involved, which is "only do it for weapons" (primary-septenary + heavy)
 // This seems to be mandatory for weapons that have a sheath mesh, as well as gremlins / bits
+// Multi-Item slots need to be additionally handled by a <ShouldDisplayMultiSlotItemInTacticalDelegate> delegate (see Issue #885). 
 var bool NeedsPresEquip;
 
 // Items in this slot will be shown in the Armory, in SquadSelect, and tactical Matinees
-// Can not be a multi-item slot due to UIPawnMgr restrictions, but other than that, you should se it to
-// true for all slots that the user should be able to see on the Unit Pawn (see XComUnitPawn::CreateVisualInventoryAttachments())
+// You should se it to "true" for all slots that the user should be able to see on the Unit Pawn 
+// (see XComUnitPawn::CreateVisualInventoryAttachments())
+// Multi-Item slots need to be additionally handled by a <ShouldDisplayMultiSlotItemInStrategyDelegate> delegate (see Issue #885). 
 var bool ShowOnCinematicPawns;
 
 // DELEGATES
