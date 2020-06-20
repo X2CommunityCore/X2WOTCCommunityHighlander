@@ -516,6 +516,9 @@ simulated function ApplyLoadoutFromGameState(XComGameState_Unit UnitState, XComG
 	local CHItemSlot SlotIter;
 	local EInventorySlot Slot;
 
+	// Variable for Issue #885
+	local array<XComGameState_Item> ItemStates;
+
 	kInventory = GetInventory();
 	if( kInventory == none )
 	{
@@ -601,6 +604,15 @@ simulated function ApplyLoadoutFromGameState(XComGameState_Unit UnitState, XComG
 		}
 	}
 	// Issue #118 End
+
+	// Issue #885 Start
+	ItemStates = UnitState.GetAllItemsInSlot(eInvSlot_Utility,,, true);
+	foreach ItemStates(ItemState)
+	{
+		ItemVis = XGWeapon(ItemState.GetVisualizer());
+		kInventory.PresEquip(ItemVis, true);
+	}
+	// Issue #885 End
 
 	if (kInventory.m_kPrimaryWeapon != none)
 		kItemToEquip = kInventory.m_kPrimaryWeapon;
