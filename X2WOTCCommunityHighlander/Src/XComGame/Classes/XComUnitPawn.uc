@@ -2422,96 +2422,105 @@ simulated function CreateVisualInventoryAttachmentsForUtilitySlotItems(UIPawnMgr
 	local bool bRegularItem;	
 	local XComWeapon CurrentWeapon;
 	local int i, Index;
+	local CHHelpers	CHHelpersObj;
 
-	Index = eInvSlot_Utility;
-	ItemStates = UnitState.GetAllItemsInSlot(eInvSlot_Utility, CheckGameState);
-	foreach ItemStates(ItemState)
+	CHHelpersObj = CHHelpers(class'Engine'.static.FindClassDefaultObject("CHHelpers"));
+	if (CHHelpersObj != none)
 	{
-		//	Index refers to the Utility Slot index. E.g. an item in the first Utility Slot has Index of 0, in the second Utility Slot has Index of 1, etc.
-		//	Function AssociateWeaponPawnInternal called by PawnMgr.AssociateWeaponPawn adds information about each equipped weapon visualizer into Pawns[PawnInfoIndex].Weapons array.
-		//	Normally each weapon visualizer's position in that array corresponds to the EInventorySlot enum taken by that weapon's ItemState.
-		//	Since eInvSlot_Utility is a Multi Slot and can have several items, we need more than one index. The order of slots near eInvSlot_Utiliy is as follows:
-		//	[...]
-		//	eInvSlot_Utility
-		//	eInvSlot_Mission
-		//	eInvSlot_Backpack
-		//	eInvSlot_Loot
-		//	eInvSlot_GrenadePocket
-		//	eInvSlot_CombatSim
-		//	[...]
-		//	Since and Mission, Backpack, Loot do not equip items that are visible on the soldier, we can use their indices. Together with eInvSlot_Utility's index itself,
-		//	we can display up to four utility slot items on the soldier's body via this check:
-		if (Index > eInvSlot_Loot)
-		{
-			return;
-		}
+		Index = eInvSlot_Utility;
+		ItemStates = UnitState.GetAllItemsInSlot(eInvSlot_Utility, CheckGameState);
 
-		if(bArmorAppearanceOnly)
+		foreach ItemStates(ItemState)
 		{
-			WeaponTemplate = X2WeaponTemplate(ItemState.GetMyTemplate());
-			if(WeaponTemplate == none || WeaponTemplate.bUseArmorAppearance == false)
+			if (CHHelpersObj.ShouldDisplayUtilitySlotItem(UnitState, ItemState, CheckGameState, self))
 			{
-				return;
-			}
-		}
-		
-		EquipmentTemplate = X2EquipmentTemplate(ItemState.GetMyTemplate());		
-		
-		//Is this a cosmetic unit item?
-		bRegularItem = EquipmentTemplate == none || EquipmentTemplate.CosmeticUnitTemplate == "";
-		if(bRegularItem)
-		{
-			kWeapon = XGWeapon(class'XGItem'.static.CreateVisualizer(ItemState, bSetAsVisualizer, self));
-
-			if(kWeapon != none)
-			{
-				if(kWeapon.m_kOwner != none)
+				//	Index refers to the Utility Slot index. E.g. an item in the first Utility Slot has Index of 0, in the second Utility Slot has Index of 1, etc.
+				//	Function AssociateWeaponPawnInternal called by PawnMgr.AssociateWeaponPawn adds information about each equipped weapon visualizer into Pawns[PawnInfoIndex].Weapons array.
+				//	Normally each weapon visualizer's position in that array corresponds to the EInventorySlot enum taken by that weapon's ItemState.
+				//	Since eInvSlot_Utility is a Multi Slot and can have several items, we need more than one index. The order of slots near eInvSlot_Utiliy is as follows:
+				//	[...]
+				//	eInvSlot_Utility
+				//	eInvSlot_Mission
+				//	eInvSlot_Backpack
+				//	eInvSlot_Loot
+				//	eInvSlot_GrenadePocket
+				//	eInvSlot_CombatSim
+				//	[...]
+				//	Since and Mission, Backpack, Loot do not equip items that are visible on the soldier, we can use their indices. Together with eInvSlot_Utility's index itself,
+				//	we can display up to four utility slot items on the soldier's body via this check:
+				if (Index > eInvSlot_Loot)
 				{
-					kWeapon.m_kOwner.GetInventory().PresRemoveItem(kWeapon);
+					return;
 				}
 
-				if(PawnMgr != none)
+				if(bArmorAppearanceOnly)
 				{
-					PawnMgr.AssociateWeaponPawn(Index, ItemState.GetVisualizer(), UnitState.GetReference().ObjectID, self, bUsePhotoboothPawns);
-				}
-
-				kWeapon.UnitPawn = self;
-				kWeapon.m_eSlot = X2WeaponTemplate(ItemState.GetMyTemplate()).StowedLocation; // right hand slot is for Primary weapons
-				EquipWeapon(kWeapon.GetEntity(), true, false);
-
-				if (bUsePhotoboothPawns)
-				{
-					CurrentWeapon = kWeapon.GetEntity();
-					if (CurrentWeapon != none)
+					WeaponTemplate = X2WeaponTemplate(ItemState.GetMyTemplate());
+					if(WeaponTemplate == none || WeaponTemplate.bUseArmorAppearance == false)
 					{
-						// Add the weapon's animsets
-						for (i = 0; i < CurrentWeapon.CustomUnitPawnAnimsets.Length; ++i)
+						return;
+					}
+				}
+		
+				EquipmentTemplate = X2EquipmentTemplate(ItemState.GetMyTemplate());		
+		
+				//Is this a cosmetic unit item?
+				bRegularItem = EquipmentTemplate == none || EquipmentTemplate.CosmeticUnitTemplate == "";
+				if(bRegularItem)
+				{
+					kWeapon = XGWeapon(class'XGItem'.static.CreateVisualizer(ItemState, bSetAsVisualizer, self));
+
+					if(kWeapon != none)
+					{
+						if(kWeapon.m_kOwner != none)
 						{
-							PhotoboothAnimSets.AddItem(CurrentWeapon.CustomUnitPawnAnimsets[i]);
+							kWeapon.m_kOwner.GetInventory().PresRemoveItem(kWeapon);
 						}
 
-						if (UnitState.kAppearance.iGender == eGender_Female)
+						if(PawnMgr != none)
 						{
-							for (i = 0; i < CurrentWeapon.CustomUnitPawnAnimsetsFemale.Length; ++i)
+							PawnMgr.AssociateWeaponPawn(Index, ItemState.GetVisualizer(), UnitState.GetReference().ObjectID, self, bUsePhotoboothPawns);
+						}
+
+						kWeapon.UnitPawn = self;
+						kWeapon.m_eSlot = X2WeaponTemplate(ItemState.GetMyTemplate()).StowedLocation; // right hand slot is for Primary weapons
+						EquipWeapon(kWeapon.GetEntity(), true, false);
+
+						if (bUsePhotoboothPawns)
+						{
+							CurrentWeapon = kWeapon.GetEntity();
+							if (CurrentWeapon != none)
 							{
-								PhotoboothAnimSets.AddItem(CurrentWeapon.CustomUnitPawnAnimsetsFemale[i]);
+								// Add the weapon's animsets
+								for (i = 0; i < CurrentWeapon.CustomUnitPawnAnimsets.Length; ++i)
+								{
+									PhotoboothAnimSets.AddItem(CurrentWeapon.CustomUnitPawnAnimsets[i]);
+								}
+
+								if (UnitState.kAppearance.iGender == eGender_Female)
+								{
+									for (i = 0; i < CurrentWeapon.CustomUnitPawnAnimsetsFemale.Length; ++i)
+									{
+										PhotoboothAnimSets.AddItem(CurrentWeapon.CustomUnitPawnAnimsetsFemale[i]);
+									}
+								}
 							}
 						}
 					}
 				}
-			}
-		}
-		else
-		{
-			if(PawnMgr != none)
-			{
-				SpawnCosmeticUnitPawn(PawnMgr, eInvSlot_Utility, EquipmentTemplate.CosmeticUnitTemplate, UnitState, OffsetCosmeticPawn, bUsePhotoboothPawns);
-			}
-		}
+				else
+				{
+					if(PawnMgr != none)
+					{
+						SpawnCosmeticUnitPawn(PawnMgr, eInvSlot_Utility, EquipmentTemplate.CosmeticUnitTemplate, UnitState, OffsetCosmeticPawn, bUsePhotoboothPawns);
+					}
+				}
 
-		//	Increment index before switching to the next Utility Slot item.
-		Index++;
-	}   	
+				//	Increment index for each displayed Utility Slot item.
+				Index++;	
+			}   
+		}
+	}
 }
 // Issue #885 End
 

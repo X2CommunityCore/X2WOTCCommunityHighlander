@@ -173,6 +173,27 @@ var config array<name> AdditionalAIBTActionPointTypes;
 //	Variable for Issue #724
 var config array<name> ValidReserveAPForUnitFlag;
 
+// Start Issue #885
+struct ShouldDisplayUtilitySlotItemStruct
+{
+	var int Priority;
+	var delegate<ShouldDisplayUtilitySlotItemDelegate> ShouldDisplayUtilitySlotItemFn;
+
+	structdefaultproperties
+	{
+		Priority = 50
+	}
+};
+
+var protectedwrite array<ShouldDisplayUtilitySlotItemStruct> ShouldDisplayUtilitySlotItemCallbacks;
+
+//	Set bDisplayItem = 1 to display the item. Set to 0 to keep the item hidden.
+//	Return "true" to interrupt following delegates with lower Priority.
+//	UnitPawn is provided when the delegate is called from XComUnitPawn to determine whether the Item should be displayed in the Armory.
+//	UnitPawn is none when the delegate is called from XGUnit to determine whether the Item should be displayed in Tactical. Item in the first Utility Slot may be displayed regardless of this delegate's decision.
+delegate bool ShouldDisplayUtilitySlotItemDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, XComGameState GameState, out int bDisplayItem, optional XComUnitPawn UnitPawn);
+// End Issue #885
+
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
 	local XComContentManager		Content;
@@ -511,3 +532,74 @@ static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
     return EnemyPlayers;
 }
 // end issue #619
+
+// Start Issue #885 - Interface functions
+
+//	Returns true if the delegate was successfully registered.
+simulated public function bool AddShouldDisplayUtilitySlotItemCallback(delegate<ShouldDisplayUtilitySlotItemDelegate> ShouldDisplayUtilitySlotItemFn, optional int Priority = 50)
+{
+	local ShouldDisplayUtilitySlotItemStruct NewShouldDisplayUtilitySlotItemCallback;
+	local int i;
+
+	if (ShouldDisplayUtilitySlotItemFn != none)
+	{
+		//	Cycle through the current array of Callbacks until we find the first member whose Priority is lower than the priority of the new Callback we intend to add.
+		//	Thanks to this function, Callbacks with higher Priority will be called first. Callbacks with the same priority will be called in order of their addition.
+		for (i = 0; i < ShouldDisplayUtilitySlotItemCallbacks.Length; i++)
+		{
+			if (Priority > ShouldDisplayUtilitySlotItemCallbacks[i].Priority) 
+			{
+				break;
+			}
+		}
+
+		NewShouldDisplayUtilitySlotItemCallback.Priority = Priority;
+		NewShouldDisplayUtilitySlotItemCallback.ShouldDisplayUtilitySlotItemFn = ShouldDisplayUtilitySlotItemFn;
+
+		ShouldDisplayUtilitySlotItemCallbacks.InsertItem(i, NewShouldDisplayUtilitySlotItemCallback);
+
+		return true;
+	}
+	return false;
+}
+
+//	Return true if the Callback was successfully deleted, return false otherwise.
+simulated public function bool RemoveShouldDisplayUtilitySlotItemCallback(delegate<ShouldDisplayUtilitySlotItemDelegate> ShouldDisplayUtilitySlotItemFn)
+{
+	local int i;
+
+	for (i = 0; i < ShouldDisplayUtilitySlotItemCallbacks.Length; i++)
+	{
+		if (ShouldDisplayUtilitySlotItemCallbacks[i].ShouldDisplayUtilitySlotItemFn == ShouldDisplayUtilitySlotItemFn)
+		{
+			ShouldDisplayUtilitySlotItemCallbacks.Remove(i, 1);
+			return true;
+		}
+	}
+	return false;
+}
+
+simulated public function bool ShouldDisplayUtilitySlotItem(XComGameState_Unit UnitState, XComGameState_Item ItemState, XComGameState GameState, optional XComUnitPawn UnitPawn)
+{
+	local int i, bDisplayItem;
+	local delegate<ShouldDisplayUtilitySlotItemDelegate> ShouldDisplayUtilitySlotItemFn;
+
+	for (i = 0; i < ShouldDisplayUtilitySlotItemCallbacks.Length; i++)
+	{
+		ShouldDisplayUtilitySlotItemFn = ShouldDisplayUtilitySlotItemCallbacks[i].ShouldDisplayUtilitySlotItemFn;
+
+		if (ShouldDisplayUtilitySlotItemFn(UnitState, ItemState, GameState, bDisplayItem, UnitPawn))
+		{
+			break;
+		}
+	}
+	if (bDisplayItem > 0)
+	{
+		return true;
+	}
+	return false;
+}
+// End Issue #885
+
+
+

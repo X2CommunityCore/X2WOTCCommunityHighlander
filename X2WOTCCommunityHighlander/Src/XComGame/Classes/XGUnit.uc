@@ -516,9 +516,6 @@ simulated function ApplyLoadoutFromGameState(XComGameState_Unit UnitState, XComG
 	local CHItemSlot SlotIter;
 	local EInventorySlot Slot;
 
-	// Variable for Issue #885
-	local array<XComGameState_Item> ItemStates;
-
 	kInventory = GetInventory();
 	if( kInventory == none )
 	{
@@ -604,14 +601,9 @@ simulated function ApplyLoadoutFromGameState(XComGameState_Unit UnitState, XComG
 		}
 	}
 	// Issue #118 End
-
+	
 	// Issue #885 Start
-	ItemStates = UnitState.GetAllItemsInSlot(eInvSlot_Utility,,, true);
-	foreach ItemStates(ItemState)
-	{
-		ItemVis = XGWeapon(ItemState.GetVisualizer());
-		kInventory.PresEquip(ItemVis, true);
-	}
+	DisplayUtilitySlotItems(UnitState, FullGameState, kInventory);
 	// Issue #885 End
 
 	if (kInventory.m_kPrimaryWeapon != none)
@@ -624,6 +616,30 @@ simulated function ApplyLoadoutFromGameState(XComGameState_Unit UnitState, XComG
 		kInventory.EquipItem( kItemToEquip, true, true );
 	}
 }
+
+// Issue #885 Start
+simulated private function DisplayUtilitySlotItems(XComGameState_Unit UnitState, XComGameState FullGameState, XGInventory kInventory)
+{
+	local array<XComGameState_Item> ItemStates;
+	local XComGameState_Item		ItemState;
+	local CHHelpers					CHHelpersObj;
+	local XGWeapon					ItemVis;
+
+	CHHelpersObj = CHHelpers(class'Engine'.static.FindClassDefaultObject("CHHelpers"));
+	if (CHHelpersObj != none)
+	{
+		ItemStates = UnitState.GetAllItemsInSlot(eInvSlot_Utility,,, true);
+		foreach ItemStates(ItemState)
+		{
+			if (CHHelpersObj.ShouldDisplayUtilitySlotItem(UnitState, ItemState, FullGameState))
+			{
+				ItemVis = XGWeapon(ItemState.GetVisualizer());
+				kInventory.PresEquip(ItemVis, true);
+			}
+		}
+	}
+}
+// Issue #885 End
 
 //-------------------------------------------------------------------
 // Swap between any equippable weapons on this unit
