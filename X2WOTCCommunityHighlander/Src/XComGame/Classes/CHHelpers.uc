@@ -174,11 +174,10 @@ var config array<name> AdditionalAIBTActionPointTypes;
 var config array<name> ValidReserveAPForUnitFlag;
 
 // Start Issue #885
-struct ShouldDisplayUtilitySlotItemStruct
+struct ShouldDisplayMultiSlotItemStruct
 {
 	var int Priority;
-	var delegate<ShouldDisplayUtilitySlotItemDelegate> ShouldDisplayUtilitySlotItemFn;
-	var EInventorySlot InventorySlot;
+	var delegate<ShouldDisplayMultiSlotItemDelegate> ShouldDisplayMultiSlotItemFn;
 
 	structdefaultproperties
 	{
@@ -186,13 +185,14 @@ struct ShouldDisplayUtilitySlotItemStruct
 	}
 };
 
-var protectedwrite array<ShouldDisplayUtilitySlotItemStruct> ShouldDisplayUtilitySlotItemCallbacks;
+var protectedwrite array<ShouldDisplayMultiSlotItemStruct> ShouldDisplayMultiSlotItemCallbacks;
 
-//	Set bDisplayItem = 1 to display the item. Set to 0 to keep the item hidden.
-//	Return "true" to interrupt following delegates with lower Priority.
+//	Set bDisplayItem = 1 to display the item on the soldier's body. Set to 0 to keep the item hidden.
+//	Return "true" to interrupt following delegates with lower Priority. 
 //	UnitPawn is provided when the delegate is called from XComUnitPawn to determine whether the Item should be displayed in the Armory.
-//	UnitPawn is none when the delegate is called from XGUnit to determine whether the Item should be displayed in Tactical. Item in the first Utility Slot may be displayed regardless of this delegate's decision.
-delegate bool ShouldDisplayUtilitySlotItemDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, XComGameState GameState, out int bDisplayItem, optional XComUnitPawn UnitPawn);
+//	UnitPawn is none when the delegate is called from XGUnit to determine whether the Item should be displayed in Tactical. 
+//  Item in the first slot of the Utility Slot may be displayed regardless of this delegate's decision.
+delegate bool ShouldDisplayMultiSlotItemDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, EInventorySlot InventorySlot, XComGameState GameState, out int bDisplayItem, optional XComUnitPawn UnitPawn);
 // End Issue #885
 
 // Start Issue #123
@@ -537,27 +537,27 @@ static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
 // Start Issue #885 - Interface functions
 
 //	Returns true if the delegate was successfully registered.
-simulated public function bool AddShouldDisplayUtilitySlotItemCallback(delegate<ShouldDisplayUtilitySlotItemDelegate> ShouldDisplayUtilitySlotItemFn, optional int Priority = 50)
+simulated public function bool AddShouldDisplayMultiSlotItemCallback(delegate<ShouldDisplayMultiSlotItemDelegate> ShouldDisplayMultiSlotItemFn, optional int Priority = 50)
 {
-	local ShouldDisplayUtilitySlotItemStruct NewShouldDisplayUtilitySlotItemCallback;
+	local ShouldDisplayMultiSlotItemStruct NewShouldDisplayMultiSlotItemCallback;
 	local int i;
 
-	if (ShouldDisplayUtilitySlotItemFn != none)
+	if (ShouldDisplayMultiSlotItemFn != none)
 	{
 		//	Cycle through the current array of Callbacks until we find the first member whose Priority is lower than the priority of the new Callback we intend to add.
 		//	Thanks to this function, Callbacks with higher Priority will be called first. Callbacks with the same priority will be called in order of their addition.
-		for (i = 0; i < ShouldDisplayUtilitySlotItemCallbacks.Length; i++)
+		for (i = 0; i < ShouldDisplayMultiSlotItemCallbacks.Length; i++)
 		{
-			if (Priority > ShouldDisplayUtilitySlotItemCallbacks[i].Priority) 
+			if (Priority > ShouldDisplayMultiSlotItemCallbacks[i].Priority) 
 			{
 				break;
 			}
 		}
 
-		NewShouldDisplayUtilitySlotItemCallback.Priority = Priority;
-		NewShouldDisplayUtilitySlotItemCallback.ShouldDisplayUtilitySlotItemFn = ShouldDisplayUtilitySlotItemFn;
+		NewShouldDisplayMultiSlotItemCallback.Priority = Priority;
+		NewShouldDisplayMultiSlotItemCallback.ShouldDisplayMultiSlotItemFn = ShouldDisplayMultiSlotItemFn;
 
-		ShouldDisplayUtilitySlotItemCallbacks.InsertItem(i, NewShouldDisplayUtilitySlotItemCallback);
+		ShouldDisplayMultiSlotItemCallbacks.InsertItem(i, NewShouldDisplayMultiSlotItemCallback);
 
 		return true;
 	}
@@ -565,31 +565,31 @@ simulated public function bool AddShouldDisplayUtilitySlotItemCallback(delegate<
 }
 
 //	Return true if the Callback was successfully deleted, return false otherwise.
-simulated public function bool RemoveShouldDisplayUtilitySlotItemCallback(delegate<ShouldDisplayUtilitySlotItemDelegate> ShouldDisplayUtilitySlotItemFn)
+simulated public function bool RemoveShouldDisplayMultiSlotItemCallback(delegate<ShouldDisplayMultiSlotItemDelegate> ShouldDisplayMultiSlotItemFn)
 {
 	local int i;
 
-	for (i = 0; i < ShouldDisplayUtilitySlotItemCallbacks.Length; i++)
+	for (i = 0; i < ShouldDisplayMultiSlotItemCallbacks.Length; i++)
 	{
-		if (ShouldDisplayUtilitySlotItemCallbacks[i].ShouldDisplayUtilitySlotItemFn == ShouldDisplayUtilitySlotItemFn)
+		if (ShouldDisplayMultiSlotItemCallbacks[i].ShouldDisplayMultiSlotItemFn == ShouldDisplayMultiSlotItemFn)
 		{
-			ShouldDisplayUtilitySlotItemCallbacks.Remove(i, 1);
+			ShouldDisplayMultiSlotItemCallbacks.Remove(i, 1);
 			return true;
 		}
 	}
 	return false;
 }
 
-simulated public function bool ShouldDisplayUtilitySlotItem(XComGameState_Unit UnitState, XComGameState_Item ItemState, XComGameState GameState, optional XComUnitPawn UnitPawn)
+simulated public function bool ShouldDisplayMultiSlotItem(XComGameState_Unit UnitState, XComGameState_Item ItemState, EInventorySlot InventorySlot, XComGameState GameState, optional XComUnitPawn UnitPawn)
 {
 	local int i, bDisplayItem;
-	local delegate<ShouldDisplayUtilitySlotItemDelegate> ShouldDisplayUtilitySlotItemFn;
+	local delegate<ShouldDisplayMultiSlotItemDelegate> ShouldDisplayMultiSlotItemFn;
 
-	for (i = 0; i < ShouldDisplayUtilitySlotItemCallbacks.Length; i++)
-	{
-		ShouldDisplayUtilitySlotItemFn = ShouldDisplayUtilitySlotItemCallbacks[i].ShouldDisplayUtilitySlotItemFn;
+	for (i = 0; i < ShouldDisplayMultiSlotItemCallbacks.Length; i++)
+	{	
+		ShouldDisplayMultiSlotItemFn = ShouldDisplayMultiSlotItemCallbacks[i].ShouldDisplayMultiSlotItemFn;
 
-		if (ShouldDisplayUtilitySlotItemFn(UnitState, ItemState, GameState, bDisplayItem, UnitPawn))
+		if (ShouldDisplayMultiSlotItemFn(UnitState, ItemState, InventorySlot, GameState, bDisplayItem, UnitPawn))
 		{
 			break;
 		}

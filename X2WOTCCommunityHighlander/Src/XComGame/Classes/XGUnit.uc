@@ -516,6 +516,9 @@ simulated function ApplyLoadoutFromGameState(XComGameState_Unit UnitState, XComG
 	local CHItemSlot SlotIter;
 	local EInventorySlot Slot;
 
+	//	Variable for Issue #885
+	local array<EInventorySlot> PresEquipMultiSlots;
+
 	kInventory = GetInventory();
 	if( kInventory == none )
 	{
@@ -586,9 +589,17 @@ simulated function ApplyLoadoutFromGameState(XComGameState_Unit UnitState, XComG
 	SlotTemplates = class'CHItemSlot'.static.GetAllSlotTemplates();
 	foreach SlotTemplates(SlotIter)
 	{
-		if (!SlotIter.IsMultiItemSlot && SlotIter.NeedsPresEquip)
+		if (SlotIter.NeedsPresEquip)
 		{
-			PresEquipSlots.AddItem(SlotIter.InvSlot);
+			//	Start Issue #885
+			if (SlotIter.IsMultiItemSlot)
+			{
+				PresEquipMultiSlots.AddItem(SlotIter.InvSlot);
+			}//	End Issue #885
+			else
+			{
+				PresEquipSlots.AddItem(SlotIter.InvSlot);
+			}
 		}
 	}
 	foreach PresEquipSlots(Slot)
@@ -603,7 +614,8 @@ simulated function ApplyLoadoutFromGameState(XComGameState_Unit UnitState, XComG
 	// Issue #118 End
 	
 	// Issue #885 Start
-	DisplayUtilitySlotItems(UnitState, FullGameState, kInventory);
+	PresEquipMultiSlots.AddItem(eInvSlot_Utility);
+	PresEquipMultiSlotItems(UnitState, FullGameState, kInventory, PresEquipMultiSlots);
 	// Issue #885 End
 
 	if (kInventory.m_kPrimaryWeapon != none)
@@ -618,23 +630,27 @@ simulated function ApplyLoadoutFromGameState(XComGameState_Unit UnitState, XComG
 }
 
 // Issue #885 Start
-simulated private function DisplayUtilitySlotItems(XComGameState_Unit UnitState, XComGameState FullGameState, XGInventory kInventory)
+simulated private function PresEquipMultiSlotItems(XComGameState_Unit UnitState, XComGameState FullGameState, XGInventory kInventory, array<EInventorySlot> PresEquipMultiSlots)
 {
 	local array<XComGameState_Item> ItemStates;
 	local XComGameState_Item		ItemState;
 	local CHHelpers					CHHelpersObj;
 	local XGWeapon					ItemVis;
+	local EInventorySlot			PresEquipMultiSlot;
 
 	CHHelpersObj = CHHelpers(class'Engine'.static.FindClassDefaultObject("CHHelpers"));
 	if (CHHelpersObj != none)
 	{
-		ItemStates = UnitState.GetAllItemsInSlot(eInvSlot_Utility,,, true);
-		foreach ItemStates(ItemState)
+		foreach PresEquipMultiSlots(PresEquipMultiSlot)
 		{
-			if (CHHelpersObj.ShouldDisplayUtilitySlotItem(UnitState, ItemState, FullGameState))
+			ItemStates = UnitState.GetAllItemsInSlot(PresEquipMultiSlot,,, true);
+			foreach ItemStates(ItemState)
 			{
-				ItemVis = XGWeapon(ItemState.GetVisualizer());
-				kInventory.PresEquip(ItemVis, true);
+				if (CHHelpersObj.ShouldDisplayMultiSlotItem(UnitState, ItemState, PresEquipMultiSlot, FullGameState))
+				{
+					ItemVis = XGWeapon(ItemState.GetVisualizer());
+					kInventory.PresEquip(ItemVis, true);
+				}
 			}
 		}
 	}

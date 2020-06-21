@@ -6,6 +6,14 @@ struct CosmeticInfo
 	var XComUnitPawn Pawn;
 };
 
+//	Start Issue #885
+struct MultiSlotWeaponsPawnInfo
+{
+	var array<Actor>	MultiSlotWeapons;
+	var EInventorySlot	InventorySlot;
+};
+//	End Issue #885
+
 struct PawnInfo
 {
 	var int PawnRef;
@@ -19,6 +27,9 @@ struct PawnInfo
 	var bool bForceMenuState;
 	var XComGameState_Unit Unit;
 	var delegate<OnPawnCreated_PM> Callback;
+
+	//	Added variable for Issue #885
+	var array<MultiSlotWeaponsPawnInfo> MultiSlotWeaponsPawnInfos;
 };
 
 var array<PawnInfo> Pawns;
@@ -363,7 +374,7 @@ simulated function XComUnitPawn AssociateCosmeticPawnInternal(int CosmeticSlot, 
 }
 
 //	Start Issue #885
-simulated public function AssociateUtilitySlotWeaponPawn(int Index, Actor WeaponPawn, int UnitRef,  XComUnitPawn OwningPawn, bool bUsePhotoboothPawns = false)
+simulated public function AssociateMultiSlotWeaponPawn(int Index, Actor WeaponPawn, int UnitRef, XComUnitPawn OwningPawn, EInventorySlot InventorySlot, bool bUsePhotoboothPawns = false)
 {
 	local int PawnInfoIndex;
 
@@ -372,7 +383,7 @@ simulated public function AssociateUtilitySlotWeaponPawn(int Index, Actor Weapon
 		PawnInfoIndex = PhotoboothPawns.Find('PawnRef', UnitRef);
 		if (PawnInfoIndex != -1)
 		{
-			AssociateUtilitySlotWeaponPawnInternal(Index, WeaponPawn, PhotoboothPawns, PawnInfoIndex, OwningPawn);
+			AssociateMultiSlotWeaponPawnInternal(Index, WeaponPawn, PhotoboothPawns, PawnInfoIndex, OwningPawn, InventorySlot);
 			return;
 		}
 	}
@@ -381,35 +392,47 @@ simulated public function AssociateUtilitySlotWeaponPawn(int Index, Actor Weapon
 		PawnInfoIndex = Pawns.Find('PawnRef', UnitRef);
 		if (PawnInfoIndex != -1)
 		{
-			AssociateUtilitySlotWeaponPawnInternal(Index, WeaponPawn, Pawns, PawnInfoIndex, OwningPawn);
+			AssociateMultiSlotWeaponPawnInternal(Index, WeaponPawn, Pawns, PawnInfoIndex, OwningPawn, InventorySlot);
 			return;
 		}
 
 		PawnInfoIndex = CinematicPawns.Find('PawnRef', UnitRef);
 		if (PawnInfoIndex != -1)
 		{
-			AssociateUtilitySlotWeaponPawnInternal(Index, WeaponPawn, CinematicPawns, PawnInfoIndex, OwningPawn);
+			AssociateMultiSlotWeaponPawnInternal(Index, WeaponPawn, CinematicPawns, PawnInfoIndex, OwningPawn, InventorySlot);
 			return;
 		}
 	}
 }
 
-simulated private function AssociateUtilitySlotWeaponPawnInternal(int Index, Actor WeaponPawn, out array<PawnInfo> PawnStore, int StoreIdx, XComUnitPawn OwningPawn)
+simulated private function AssociateMultiSlotWeaponPawnInternal(int Index, Actor WeaponPawn, out array<PawnInfo> PawnStore, int StoreIdx, XComUnitPawn OwningPawn, EInventorySlot InventorySlot)
 {
-	local XGInventoryItem PreviousItem;
+	local MultiSlotWeaponsPawnInfo	MultiSlotWeaponsPawnInfo;
+	local XGInventoryItem			PreviousItem;
+	local int i;
 
-	if (PawnStore[StoreIdx].UtilitySlotWeapons.Length <= Index)
-		PawnStore[StoreIdx].UtilitySlotWeapons.Length = Index + 1;
-
-	if (PawnStore[StoreIdx].UtilitySlotWeapons[Index] != WeaponPawn)
+	//	If the array of structs in PawnInfo already has a struct responsible for tracking weapons' visualizers in this Inventory Multi Slot, find it.
+	i = PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos.Find('InventorySlot', InventorySlot);
+	if (i == INDEX_NONE)
 	{
-		if (PawnStore[StoreIdx].UtilitySlotWeapons[Index] != none)
+		//	If such a struct was not found, add it.
+		MultiSlotWeaponsPawnInfo.InventorySlot = InventorySlot;
+		PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos.AddItem(MultiSlotWeaponsPawnInfo);
+		i = PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos.Length - 1;
+	}
+
+	if (PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons.Length <= Index)
+		PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons.Length = Index + 1;
+
+	if (PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[Index] != WeaponPawn)
+	{
+		if (PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[Index] != none)
 		{
-			PreviousItem = XGInventoryItem(PawnStore[StoreIdx].UtilitySlotWeapons[Index]);
+			PreviousItem = XGInventoryItem(PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[Index]);
 			OwningPawn.DetachItem(XComWeapon(PreviousItem.m_kEntity).Mesh);
-			PawnStore[StoreIdx].UtilitySlotWeapons[Index].Destroy();
+			PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[Index].Destroy();
 		}
-		PawnStore[StoreIdx].UtilitySlotWeapons[Index] = WeaponPawn;
+		PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[Index] = WeaponPawn;
 	}
 }
 //	End Issue #885
@@ -567,6 +590,9 @@ simulated function DestroyPawns(int StoreIdx, out array<PawnInfo> PawnStore)
 {
 	local int idx;
 
+	//	Added variable for Issue #885
+	local int i;
+
 	PawnStore[StoreIdx].Pawn.Destroy();
 	PawnStore[StoreIdx].Pawn = none;
 	for ( idx = 0; idx < PawnStore[StoreIdx].Cosmetics.Length; ++idx )
@@ -592,12 +618,15 @@ simulated function DestroyPawns(int StoreIdx, out array<PawnInfo> PawnStore)
 	}
 
 	//	Start Issue #885
-	for ( idx = 0; idx < PawnStore[StoreIdx].UtilitySlotWeapons.Length; ++idx )
+	for (i = 0; i < PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos.Length; i++)
 	{
-		if (PawnStore[StoreIdx].UtilitySlotWeapons[idx] != none)
+		for ( idx = 0; idx < PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons.Length; ++idx )
 		{
-			PawnStore[StoreIdx].UtilitySlotWeapons[idx].Destroy();
-			PawnStore[StoreIdx].UtilitySlotWeapons[idx] = none;
+			if (PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[idx] != none)
+			{
+				PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[idx].Destroy();
+				PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[idx] = none;
+			}
 		}
 	}
 	//	End Issue #885
