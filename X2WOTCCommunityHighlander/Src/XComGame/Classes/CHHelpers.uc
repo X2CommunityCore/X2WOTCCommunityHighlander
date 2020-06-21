@@ -178,6 +178,7 @@ struct ShouldDisplayUtilitySlotItemStruct
 {
 	var int Priority;
 	var delegate<ShouldDisplayUtilitySlotItemDelegate> ShouldDisplayUtilitySlotItemFn;
+	var EInventorySlot InventorySlot;
 
 	structdefaultproperties
 	{

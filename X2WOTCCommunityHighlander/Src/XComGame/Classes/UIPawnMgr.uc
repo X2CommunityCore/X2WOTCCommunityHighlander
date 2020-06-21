@@ -362,6 +362,58 @@ simulated function XComUnitPawn AssociateCosmeticPawnInternal(int CosmeticSlot, 
 	return Cosmetic.Pawn;
 }
 
+//	Start Issue #885
+simulated public function AssociateUtilitySlotWeaponPawn(int Index, Actor WeaponPawn, int UnitRef,  XComUnitPawn OwningPawn, bool bUsePhotoboothPawns = false)
+{
+	local int PawnInfoIndex;
+
+	if (bUsePhotoboothPawns)
+	{
+		PawnInfoIndex = PhotoboothPawns.Find('PawnRef', UnitRef);
+		if (PawnInfoIndex != -1)
+		{
+			AssociateUtilitySlotWeaponPawnInternal(Index, WeaponPawn, PhotoboothPawns, PawnInfoIndex, OwningPawn);
+			return;
+		}
+	}
+	else
+	{
+		PawnInfoIndex = Pawns.Find('PawnRef', UnitRef);
+		if (PawnInfoIndex != -1)
+		{
+			AssociateUtilitySlotWeaponPawnInternal(Index, WeaponPawn, Pawns, PawnInfoIndex, OwningPawn);
+			return;
+		}
+
+		PawnInfoIndex = CinematicPawns.Find('PawnRef', UnitRef);
+		if (PawnInfoIndex != -1)
+		{
+			AssociateUtilitySlotWeaponPawnInternal(Index, WeaponPawn, CinematicPawns, PawnInfoIndex, OwningPawn);
+			return;
+		}
+	}
+}
+
+simulated private function AssociateUtilitySlotWeaponPawnInternal(int Index, Actor WeaponPawn, out array<PawnInfo> PawnStore, int StoreIdx, XComUnitPawn OwningPawn)
+{
+	local XGInventoryItem PreviousItem;
+
+	if (PawnStore[StoreIdx].UtilitySlotWeapons.Length <= Index)
+		PawnStore[StoreIdx].UtilitySlotWeapons.Length = Index + 1;
+
+	if (PawnStore[StoreIdx].UtilitySlotWeapons[Index] != WeaponPawn)
+	{
+		if (PawnStore[StoreIdx].UtilitySlotWeapons[Index] != none)
+		{
+			PreviousItem = XGInventoryItem(PawnStore[StoreIdx].UtilitySlotWeapons[Index]);
+			OwningPawn.DetachItem(XComWeapon(PreviousItem.m_kEntity).Mesh);
+			PawnStore[StoreIdx].UtilitySlotWeapons[Index].Destroy();
+		}
+		PawnStore[StoreIdx].UtilitySlotWeapons[Index] = WeaponPawn;
+	}
+}
+//	End Issue #885
+
 simulated function XComUnitPawn RequestPawnByState(Actor referrer, XComGameState_Unit UnitState, optional Vector UseLocation, optional Rotator UseRotation, optional delegate<OnPawnCreated_PM> Callback = none)
 {
 	return RequestPawnByStateInternal(referrer, UnitState, UseLocation, UseRotation, Pawns, Callback);
@@ -538,7 +590,17 @@ simulated function DestroyPawns(int StoreIdx, out array<PawnInfo> PawnStore)
 			PawnStore[StoreIdx].Weapons[idx] = none;
 		}
 	}
-	
+
+	//	Start Issue #885
+	for ( idx = 0; idx < PawnStore[StoreIdx].UtilitySlotWeapons.Length; ++idx )
+	{
+		if (PawnStore[StoreIdx].UtilitySlotWeapons[idx] != none)
+		{
+			PawnStore[StoreIdx].UtilitySlotWeapons[idx].Destroy();
+			PawnStore[StoreIdx].UtilitySlotWeapons[idx] = none;
+		}
+	}
+	//	End Issue #885
 }
 
 simulated function ReleasePawnInternal(Actor referrer, int UnitRef, out array<PawnInfo> PawnStore, optional bool bForce)
