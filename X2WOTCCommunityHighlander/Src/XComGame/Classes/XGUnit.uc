@@ -646,7 +646,7 @@ simulated private function PresEquipMultiSlotItems(XComGameState_Unit UnitState,
 			ItemStates = UnitState.GetAllItemsInSlot(PresEquipMultiSlot,,, true);
 			foreach ItemStates(ItemState)
 			{
-				if (CHHelpersObj.ShouldDisplayMultiSlotItem(UnitState, ItemState, PresEquipMultiSlot, FullGameState))
+				if (CHHelpersObj.ShouldDisplayMultiSlotItemInTactical(UnitState, ItemState, PresEquipMultiSlot, FullGameState, self))
 				{
 					ItemVis = XGWeapon(ItemState.GetVisualizer());
 					kInventory.PresEquip(ItemVis, true);

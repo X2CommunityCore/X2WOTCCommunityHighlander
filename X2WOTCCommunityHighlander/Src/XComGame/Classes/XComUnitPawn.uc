@@ -2447,7 +2447,7 @@ simulated function CreateVisualInventoryAttachmentsForMultiSlotItems(UIPawnMgr P
 
 			foreach ItemStates(ItemState)
 			{
-				if (CHHelpersObj.ShouldDisplayMultiSlotItem(UnitState, ItemState, ValidMultiSlot, CheckGameState, self))
+				if (CHHelpersObj.ShouldDisplayMultiSlotItemInStrategy(UnitState, ItemState, ValidMultiSlot, CheckGameState, self))
 				{
 					if(bArmorAppearanceOnly)
 					{
