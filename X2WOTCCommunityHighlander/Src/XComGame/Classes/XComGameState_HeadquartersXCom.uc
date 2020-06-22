@@ -4263,7 +4263,13 @@ function AddItemToHQInventory(XComGameState_Item ItemState)
 		EverAcquiredInventoryCounts[EverAcquireInventoryIndex] += ItemState.Quantity;
 	}
 
-	Inventory.AddItem(ItemState.GetReference());
+	// Start Issue #741
+	if (TriggerItemMoved('AddItemToHQInventory', ItemState, self))
+	{
+		Inventory.AddItem(ItemState.GetReference());
+	}
+	// End Issue #741
+	
 }
 
 function bool UnpackCacheItems(XComGameState NewGameState)
@@ -4370,9 +4376,14 @@ function bool GetItemFromInventory(XComGameState AddToGameState, StateObjectRefe
 			}
 			else
 			{
-				HQModified = true;
-				Inventory.RemoveItem(ItemRef);
-				ItemState = XComGameState_Item(AddToGameState.ModifyStateObject(class'XComGameState_Item', InventoryItemState.ObjectID));
+				// Start Issue #741
+				if (TriggerItemMoved('RemoveItemFromHQInventory', ItemState, self, AddToGameState))
+				{
+					HQModified = true;
+					Inventory.RemoveItem(ItemRef);
+					ItemState = XComGameState_Item(AddToGameState.ModifyStateObject(class'XComGameState_Item', InventoryItemState.ObjectID));
+				}
+				// End Issue #741
 			}
 		}
 		else
@@ -4411,8 +4422,14 @@ function bool RemoveItemFromInventory(XComGameState AddToGameState, StateObjectR
 			}
 			else
 			{
-				HQModified = true;
-				Inventory.RemoveItem(ItemRef);
+				// Start Issue #741
+				if (TriggerItemMoved('RemoveItemFromHQInventory', InventoryItemState, self, AddToGameState))
+				{
+					HQModified = true;
+					Inventory.RemoveItem(ItemRef);
+				}
+				// End Issue #741
+				
 			}
 		}
 		else
@@ -4705,8 +4722,15 @@ static function UpgradeItems(XComGameState NewGameState, name CreatorTemplateNam
 					}
 
 					// Delete the old item, and add the new item to the inventory
-					NewGameState.RemoveStateObject(InventoryItemState.GetReference().ObjectID);
-					XComHQ.Inventory.RemoveItem(InventoryItemState.GetReference());
+
+					// Start Issue #741
+					if (TriggerItemMoved('RemoveItemFromHQInventory', InventoryItemState, XComHQ, NewGameState))
+					{
+						NewGameState.RemoveStateObject(InventoryItemState.GetReference().ObjectID);
+						XComHQ.Inventory.RemoveItem(InventoryItemState.GetReference());
+					}
+					// End Issue #741
+					
 					XComHQ.PutItemInInventory(NewGameState, UpgradedItemState);
 				}
 			}
@@ -9401,6 +9425,32 @@ simulated native function int GetGenericKeyValue(string key);
 simulated native function SetGenericKeyValue(string key, INT Value);
 
 /////////////////////////////////////////////////////////////////////////////////////////
+
+/// Helpers for Issue #741
+static function bool TriggerItemMoved(
+	name EventID,
+	XComGameState_Item ItemState,
+	XComGameState_HeadquartersXCom XComHQ,
+	optional XComGameState GameState = none
+)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = EventID;
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = true;
+	Tuple.Data[1].kind = XComLWTVObject;
+	Tuple.Data[2].o = XComHQ;
+
+	`XEVENTMGR.TriggerEvent(EventID, Tuple, ItemState, GameState);
+
+	return Tuple.Data[0].b;
+}
+
+/// End Helpers for Issue #741
+
 // cpptext
 
 cpptext
