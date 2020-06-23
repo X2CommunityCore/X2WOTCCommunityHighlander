@@ -6,13 +6,13 @@ struct CosmeticInfo
 	var XComUnitPawn Pawn;
 };
 
-//	Start Issue #885
+// Start Issue #885
 struct MultiSlotWeaponsPawnInfo
 {
 	var array<Actor>	MultiSlotWeapons;
 	var EInventorySlot	InventorySlot;
 };
-//	End Issue #885
+// End Issue #885
 
 struct PawnInfo
 {
@@ -28,7 +28,7 @@ struct PawnInfo
 	var XComGameState_Unit Unit;
 	var delegate<OnPawnCreated_PM> Callback;
 
-	//	Added variable for Issue #885
+	// Added variable for Issue #885
 	var array<MultiSlotWeaponsPawnInfo> MultiSlotWeaponsPawnInfos;
 };
 
@@ -373,69 +373,70 @@ simulated function XComUnitPawn AssociateCosmeticPawnInternal(int CosmeticSlot, 
 	return Cosmetic.Pawn;
 }
 
-//	Start Issue #885
-simulated public function AssociateMultiSlotWeaponPawn(int Index, Actor WeaponPawn, int UnitRef, XComUnitPawn OwningPawn, EInventorySlot InventorySlot, bool bUsePhotoboothPawns = false)
+// Start Issue #885
+// This is an internal CHL API. It is not intended for use by mods and is not covered by Backwards Compatibility policy.
+simulated public function AssociateMultiSlotWeaponPawn(int MultiSlotIndex, Actor WeaponPawn, int UnitRef, XComUnitPawn OwningPawn, EInventorySlot InventorySlot, bool bUsePhotoboothPawns = false)
 {
-	local int PawnInfoIndex;
+	local int StoreIndex;
 
 	if (bUsePhotoboothPawns)
 	{
-		PawnInfoIndex = PhotoboothPawns.Find('PawnRef', UnitRef);
-		if (PawnInfoIndex != -1)
+		StoreIndex = PhotoboothPawns.Find('PawnRef', UnitRef);
+		if (StoreIndex != -1)
 		{
-			AssociateMultiSlotWeaponPawnInternal(Index, WeaponPawn, PhotoboothPawns, PawnInfoIndex, OwningPawn, InventorySlot);
+			AssociateMultiSlotWeaponPawnInternal(PhotoboothPawns, StoreIndex, MultiSlotIndex, WeaponPawn, OwningPawn, InventorySlot);
 			return;
 		}
 	}
 	else
 	{
-		PawnInfoIndex = Pawns.Find('PawnRef', UnitRef);
-		if (PawnInfoIndex != -1)
+		StoreIndex = Pawns.Find('PawnRef', UnitRef);
+		if (StoreIndex != -1)
 		{
-			AssociateMultiSlotWeaponPawnInternal(Index, WeaponPawn, Pawns, PawnInfoIndex, OwningPawn, InventorySlot);
+			AssociateMultiSlotWeaponPawnInternal(Pawns, StoreIndex, MultiSlotIndex, WeaponPawn, OwningPawn, InventorySlot);
 			return;
 		}
 
-		PawnInfoIndex = CinematicPawns.Find('PawnRef', UnitRef);
-		if (PawnInfoIndex != -1)
+		StoreIndex = CinematicPawns.Find('PawnRef', UnitRef);
+		if (StoreIndex != -1)
 		{
-			AssociateMultiSlotWeaponPawnInternal(Index, WeaponPawn, CinematicPawns, PawnInfoIndex, OwningPawn, InventorySlot);
+			AssociateMultiSlotWeaponPawnInternal(CinematicPawns, StoreIndex, MultiSlotIndex, WeaponPawn, OwningPawn, InventorySlot);
 			return;
 		}
 	}
 }
 
-simulated private function AssociateMultiSlotWeaponPawnInternal(int Index, Actor WeaponPawn, out array<PawnInfo> PawnStore, int StoreIdx, XComUnitPawn OwningPawn, EInventorySlot InventorySlot)
+simulated private function AssociateMultiSlotWeaponPawnInternal(out array<PawnInfo> PawnStore, int StoreIndex, int MultiSlotIndex, Actor WeaponPawn, XComUnitPawn OwningPawn, EInventorySlot InventorySlot)
 {
-	local MultiSlotWeaponsPawnInfo	MultiSlotWeaponsPawnInfo;
+	local MultiSlotWeaponsPawnInfo	NewMultiSlotWeaponsPawnInfo;
 	local XGInventoryItem			PreviousItem;
 	local int i;
 
-	//	If the array of structs in PawnInfo already has a struct responsible for tracking weapons' visualizers in this Inventory Multi Slot, find it.
-	i = PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos.Find('InventorySlot', InventorySlot);
+	// If the array of structs in PawnInfo already has a struct responsible for tracking weapons' visualizers in this Inventory Multi Slot, find it.
+	i = PawnStore[StoreIndex].MultiSlotWeaponsPawnInfos.Find('InventorySlot', InventorySlot);
 	if (i == INDEX_NONE)
 	{
-		//	If such a struct was not found, add it.
-		MultiSlotWeaponsPawnInfo.InventorySlot = InventorySlot;
-		PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos.AddItem(MultiSlotWeaponsPawnInfo);
-		i = PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos.Length - 1;
+		// If such a struct was not found, add it.
+		NewMultiSlotWeaponsPawnInfo.InventorySlot = InventorySlot;
+		PawnStore[StoreIndex].MultiSlotWeaponsPawnInfos.AddItem(NewMultiSlotWeaponsPawnInfo);
+		i = PawnStore[StoreIndex].MultiSlotWeaponsPawnInfos.Length - 1;
 	}
 
-	if (PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons.Length <= Index)
-		PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons.Length = Index + 1;
+	if (PawnStore[StoreIndex].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons.Length <= MultiSlotIndex)
+		PawnStore[StoreIndex].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons.Length = MultiSlotIndex + 1;
 
-	if (PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[Index] != WeaponPawn)
+	if (PawnStore[StoreIndex].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[MultiSlotIndex] != WeaponPawn)
 	{
-		if (PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[Index] != none)
+		if (PawnStore[StoreIndex].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[MultiSlotIndex] != none)
 		{
-			PreviousItem = XGInventoryItem(PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[Index]);
+			PreviousItem = XGInventoryItem(PawnStore[StoreIndex].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[MultiSlotIndex]);
 			OwningPawn.DetachItem(XComWeapon(PreviousItem.m_kEntity).Mesh);
-			PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[Index].Destroy();
+			PawnStore[StoreIndex].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[MultiSlotIndex].Destroy();
 		}
-		PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[Index] = WeaponPawn;
+		PawnStore[StoreIndex].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[MultiSlotIndex] = WeaponPawn;
 	}
 }
-//	End Issue #885
+// End Issue #885
 
 simulated function XComUnitPawn RequestPawnByState(Actor referrer, XComGameState_Unit UnitState, optional Vector UseLocation, optional Rotator UseRotation, optional delegate<OnPawnCreated_PM> Callback = none)
 {
@@ -590,7 +591,7 @@ simulated function DestroyPawns(int StoreIdx, out array<PawnInfo> PawnStore)
 {
 	local int idx;
 
-	//	Added variable for Issue #885
+	// Added variable for Issue #885
 	local int i;
 
 	PawnStore[StoreIdx].Pawn.Destroy();
@@ -617,7 +618,7 @@ simulated function DestroyPawns(int StoreIdx, out array<PawnInfo> PawnStore)
 		}
 	}
 
-	//	Start Issue #885
+	// Start Issue #885
 	for (i = 0; i < PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos.Length; i++)
 	{
 		for ( idx = 0; idx < PawnStore[StoreIdx].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons.Length; ++idx )
@@ -629,7 +630,7 @@ simulated function DestroyPawns(int StoreIdx, out array<PawnInfo> PawnStore)
 			}
 		}
 	}
-	//	End Issue #885
+	// End Issue #885
 }
 
 simulated function ReleasePawnInternal(Actor referrer, int UnitRef, out array<PawnInfo> PawnStore, optional bool bForce)

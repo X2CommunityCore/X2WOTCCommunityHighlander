@@ -2095,7 +2095,7 @@ simulated function CreateVisualInventoryAttachments(UIPawnMgr PawnMgr, XComGameS
 	local CHItemSlot SlotIter;
 	local EInventorySlot Slot;
 
-	//	Variable for Issue #885
+	// Variable for Issue #885
 	local array<EInventorySlot> ValidMultiSlots;
 
 	PhotoboothAnimSets.Length = 0;
@@ -2117,11 +2117,11 @@ simulated function CreateVisualInventoryAttachments(UIPawnMgr PawnMgr, XComGameS
 	{
 		if (SlotIter.ShowOnCinematicPawns)
 		{
-			//	Start Issue #885
+			// Start Issue #885
 			if (SlotIter.IsMultiItemSlot)
 			{
 				ValidMultiSlots.AddItem(SlotIter.InvSlot);
-			}	//	End Issue #885
+			}	// End Issue #885
 			else
 			{
 				ValidSlots.AddItem(SlotIter.InvSlot);
@@ -2426,100 +2426,101 @@ simulated function CreateVisualInventoryAttachment(UIPawnMgr PawnMgr, EInventory
 // Issue #885 Start
 // Generally behaves in the same way as CreateVisualInventoryAttachment(), but it cycles through all items in all multi slots, 
 // and runs ShouldDisplayMultiSlotItemInStrategy callbacks for each to make the individual decision whether the item should be displayed on the unit.
-simulated function CreateVisualInventoryAttachmentsForMultiSlotItems(UIPawnMgr PawnMgr, XComGameState_Unit UnitState, array<EInventorySlot> ValidMultiSlots, XComGameState CheckGameState, bool bSetAsVisualizer, bool OffsetCosmeticPawn, bool bUsePhotoboothPawns = false, optional out array<AnimSet> PhotoboothAnimSets, bool bArmorAppearanceOnly = false)
+// This is an internal CHL API. It is not intended for use by mods and is not covered by Backwards Compatibility policy.
+simulated private function CreateVisualInventoryAttachmentsForMultiSlotItems(UIPawnMgr PawnMgr, XComGameState_Unit UnitState, array<EInventorySlot> ValidMultiSlots, XComGameState CheckGameState, bool bSetAsVisualizer, bool OffsetCosmeticPawn, bool bUsePhotoboothPawns = false, optional out array<AnimSet> PhotoboothAnimSets, bool bArmorAppearanceOnly = false)
 {
 	local XGWeapon kWeapon;
 	local XComGameState_Item ItemState;
 	local array<XComGameState_Item> ItemStates;
 	local X2EquipmentTemplate EquipmentTemplate;
 	local X2WeaponTemplate WeaponTemplate;
-	local bool bRegularItem;	
 	local XComWeapon CurrentWeapon;
-	local int i, Index;
+	local int i, MultiSlotIndex;
 	local CHHelpers	CHHelpersObj;
 	local EInventorySlot ValidMultiSlot;
 
 	CHHelpersObj = CHHelpers(class'Engine'.static.FindClassDefaultObject("CHHelpers"));
-	if (CHHelpersObj != none)
+	if (CHHelpersObj == none || PawnMgr == none)
 	{
-		foreach ValidMultiSlots(ValidMultiSlot)
-		{	
-			//	The Index is used to track the position of the item in the Multi Slot.
-			//  It will be used make sure that each item has its own visualizer slot in the soldier's PawnInfo, so that if this item is replaced by another item, 
-			//	the visualizer of the original item gets properly removed from the soldier's pawn.
-			Index = ValidMultiSlot;
-			ItemStates = UnitState.GetAllItemsInSlot(ValidMultiSlot, CheckGameState);
+		return;
+	}
 
-			foreach ItemStates(ItemState)
-			{
-				if (CHHelpersObj.ShouldDisplayMultiSlotItemInStrategy(UnitState, ItemState, ValidMultiSlot, CheckGameState, self))
-				{
-					if(bArmorAppearanceOnly)
-					{
-						WeaponTemplate = X2WeaponTemplate(ItemState.GetMyTemplate());
-						if(WeaponTemplate == none || WeaponTemplate.bUseArmorAppearance == false)
-						{
-							return;
-						}
-					}
-		
-					EquipmentTemplate = X2EquipmentTemplate(ItemState.GetMyTemplate());		
-		
-					//Is this a cosmetic unit item?
-					bRegularItem = EquipmentTemplate == none || EquipmentTemplate.CosmeticUnitTemplate == "";
-					if(bRegularItem)
-					{
-						kWeapon = XGWeapon(class'XGItem'.static.CreateVisualizer(ItemState, bSetAsVisualizer, self));
+	foreach ValidMultiSlots(ValidMultiSlot)
+	{	
+		// The MultiSlotIndex is used to track the position of the item in the Multi Slot.
+		// It will be used make sure that each item has its own visualizer slot in the soldier's PawnInfo, so that if this item is replaced by another item, 
+		// the visualizer of the original item gets properly removed from the soldier's pawn.
+		MultiSlotIndex = 0;
+		ItemStates = UnitState.GetAllItemsInSlot(ValidMultiSlot, CheckGameState);
 
-						if(kWeapon != none)
-						{
-							if(kWeapon.m_kOwner != none)
-							{
-								kWeapon.m_kOwner.GetInventory().PresRemoveItem(kWeapon);
-							}
-
-							PawnMgr.AssociateMultiSlotWeaponPawn(Index, ItemState.GetVisualizer(), UnitState.GetReference().ObjectID, self, ValidMultiSlot, bUsePhotoboothPawns);
-
-							kWeapon.UnitPawn = self;
-							kWeapon.m_eSlot = X2WeaponTemplate(ItemState.GetMyTemplate()).StowedLocation; // right hand slot is for Primary weapons
-							EquipWeapon(kWeapon.GetEntity(), true, false);
-
-							if (bUsePhotoboothPawns)
-							{
-								CurrentWeapon = kWeapon.GetEntity();
-								if (CurrentWeapon != none)
-								{
-									// Add the weapon's animsets
-									for (i = 0; i < CurrentWeapon.CustomUnitPawnAnimsets.Length; ++i)
-									{
-										PhotoboothAnimSets.AddItem(CurrentWeapon.CustomUnitPawnAnimsets[i]);
-									}
-
-									if (UnitState.kAppearance.iGender == eGender_Female)
-									{
-										for (i = 0; i < CurrentWeapon.CustomUnitPawnAnimsetsFemale.Length; ++i)
-										{
-											PhotoboothAnimSets.AddItem(CurrentWeapon.CustomUnitPawnAnimsetsFemale[i]);
-										}
-									}
-								}
-							}
-						}
-					}
-					else
-					{
-						if(PawnMgr != none)
-						{
-							//	Currently this method imposes the limitation that only cosmetic unit (e.g. Gremlin) can be visible per soldier.
-							SpawnCosmeticUnitPawn(PawnMgr, ValidMultiSlot, EquipmentTemplate.CosmeticUnitTemplate, UnitState, OffsetCosmeticPawn, bUsePhotoboothPawns);
-						}
-					}
-
-					//	Increment index for each displayed Utility Slot item.
-					Index++;	
-				}   
+		foreach ItemStates(ItemState)
+		{
+			if (!CHHelpersObj.ShouldDisplayMultiSlotItemInStrategy(UnitState, ItemState, ValidMultiSlot, CheckGameState, self))
+			{	
+				continue;
 			}
-		}
+
+			if(bArmorAppearanceOnly)
+			{
+				WeaponTemplate = X2WeaponTemplate(ItemState.GetMyTemplate());
+				if(WeaponTemplate == none || WeaponTemplate.bUseArmorAppearance == false)
+				{
+					continue;
+				}
+			}
+		
+			EquipmentTemplate = X2EquipmentTemplate(ItemState.GetMyTemplate());		
+			//Is this a cosmetic unit item?
+			if(EquipmentTemplate == none || EquipmentTemplate.CosmeticUnitTemplate == "")
+			{
+				kWeapon = XGWeapon(class'XGItem'.static.CreateVisualizer(ItemState, bSetAsVisualizer, self));
+
+				if(kWeapon == none)
+				{
+					continue;
+				}
+
+				if(kWeapon.m_kOwner != none)
+				{
+					kWeapon.m_kOwner.GetInventory().PresRemoveItem(kWeapon);
+				}
+
+				PawnMgr.AssociateMultiSlotWeaponPawn(MultiSlotIndex, ItemState.GetVisualizer(), UnitState.GetReference().ObjectID, self, ValidMultiSlot, bUsePhotoboothPawns);
+				kWeapon.UnitPawn = self;
+				kWeapon.m_eSlot = X2WeaponTemplate(ItemState.GetMyTemplate()).StowedLocation; // right hand slot is for Primary weapons
+				EquipWeapon(kWeapon.GetEntity(), true, false);
+					
+				if (bUsePhotoboothPawns)
+				{
+					CurrentWeapon = kWeapon.GetEntity();
+					if (CurrentWeapon == none)
+					{
+						continue;
+					}
+					// Add the weapon's animsets
+					for (i = 0; i < CurrentWeapon.CustomUnitPawnAnimsets.Length; ++i)
+					{
+						PhotoboothAnimSets.AddItem(CurrentWeapon.CustomUnitPawnAnimsets[i]);
+					}
+
+					if (UnitState.kAppearance.iGender == eGender_Female)
+					{
+						for (i = 0; i < CurrentWeapon.CustomUnitPawnAnimsetsFemale.Length; ++i)
+						{
+							PhotoboothAnimSets.AddItem(CurrentWeapon.CustomUnitPawnAnimsetsFemale[i]);
+						}
+					}
+				}
+			}
+			else 
+			{
+				// This is a cosmetic item, e.g. Gremlin. Currently this method has a limitation that only cosmetic unit can be visible per soldier.
+				SpawnCosmeticUnitPawn(PawnMgr, ValidMultiSlot, EquipmentTemplate.CosmeticUnitTemplate, UnitState, OffsetCosmeticPawn, bUsePhotoboothPawns);
+			}
+
+			// Increment index for each displayed Utility Slot item.
+			MultiSlotIndex++;	
+		}   
 	}
 }
 // Issue #885 End
