@@ -2424,6 +2424,8 @@ simulated function CreateVisualInventoryAttachment(UIPawnMgr PawnMgr, EInventory
 }
 
 // Issue #885 Start
+// Generally behaves in the same way as CreateVisualInventoryAttachment(), but it cycles through all items in all multi slots, 
+// and runs ShouldDisplayMultiSlotItemInStrategy callbacks for each to make the individual decision whether the item should be displayed on the unit.
 simulated function CreateVisualInventoryAttachmentsForMultiSlotItems(UIPawnMgr PawnMgr, XComGameState_Unit UnitState, array<EInventorySlot> ValidMultiSlots, XComGameState CheckGameState, bool bSetAsVisualizer, bool OffsetCosmeticPawn, bool bUsePhotoboothPawns = false, optional out array<AnimSet> PhotoboothAnimSets, bool bArmorAppearanceOnly = false)
 {
 	local XGWeapon kWeapon;
@@ -2441,7 +2443,10 @@ simulated function CreateVisualInventoryAttachmentsForMultiSlotItems(UIPawnMgr P
 	if (CHHelpersObj != none)
 	{
 		foreach ValidMultiSlots(ValidMultiSlot)
-		{
+		{	
+			//	The Index is used to track the position of the item in the Multi Slot.
+			//  It will be used make sure that each item has its own visualizer slot in the soldier's PawnInfo, so that if this item is replaced by another item, 
+			//	the visualizer of the original item gets properly removed from the soldier's pawn.
 			Index = ValidMultiSlot;
 			ItemStates = UnitState.GetAllItemsInSlot(ValidMultiSlot, CheckGameState);
 
@@ -2505,6 +2510,7 @@ simulated function CreateVisualInventoryAttachmentsForMultiSlotItems(UIPawnMgr P
 					{
 						if(PawnMgr != none)
 						{
+							//	Currently this method imposes the limitation that only cosmetic unit (e.g. Gremlin) can be visible per soldier.
 							SpawnCosmeticUnitPawn(PawnMgr, ValidMultiSlot, EquipmentTemplate.CosmeticUnitTemplate, UnitState, OffsetCosmeticPawn, bUsePhotoboothPawns);
 						}
 					}

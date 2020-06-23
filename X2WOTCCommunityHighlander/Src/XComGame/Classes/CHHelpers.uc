@@ -541,10 +541,68 @@ static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
 }
 // end issue #619
 
-// Start Issue #885 - Interface functions
+// Start Issue #885
+/// HL-Docs: feature:DisplayMultiSlotItems; issue:885; tags:pawns
+/// This feature allows mods to allow items equipped in multi-item inventory slots to be visible on soldiers' bodies. 
+/// The vanilla behavior is that only the first item in the Utility Slot is visible on the soldier's body,
+/// and only in Tactical, but not in the Armory.
+/// Using this feature it's possible to show all items in all multi-slots, including Highlander-templated slots.
+///	There are two delegates: 
+///	1) `ShouldDisplayMultiSlotItemInStrategyDelegate` is used to decide whether the specified item 
+///	should be visible on specified unit in the Armory and Squad Select.
+///	2) `ShouldDisplayMultiSlotItemInTacticalDelegate` - same as above, but for Tactical.
+///	Delegates must be added into `CHHelpers` ClassDefaultObject in `OnPostTemplatesCreated`.
+///	To make all items in the Utility Slot visible, just using the delegates is enough.
+///	Highlander-templated slots also need to have `NeedsPresEquip=true` to display in Tactical, 
+///	and `ShowOnCinematicPawns=true` to display in the Armory and Squad Select.
+///
+///	Here's a simple example of a delegate pair that will display all items equipped in the Utility Slot in both Tactical and Strategy.
+/// This needs to go in a class that extends `X2DownloadableContentInfo`.
+/// ```unrealscript
+/// static event OnPostTemplatesCreated()
+/// {
+/// 	local CHHelpers	CHHelpersObj;
+/// 
+/// 	CHHelpersObj = CHHelpers(class'Engine'.static.FindClassDefaultObject("CHHelpers"));
+/// 	if (CHHelpersObj != none)
+/// 	{
+/// 		CHHelpersObj.AddShouldDisplayMultiSlotItemInStrategyCallback(ShouldDisplayMultiSlotItemInStrategyDelegate);
+/// 		CHHelpersObj.AddShouldDisplayMultiSlotItemInTacticalCallback(ShouldDisplayMultiSlotItemInTacticalDelegate);
+/// 	}
+/// }
+/// 
+/// static function bool ShouldDisplayMultiSlotItemInStrategyDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, out int bDisplayItem, XComGameState GameState, XComUnitPawn UnitPawn)
+/// {
+/// 	ShouldDisplayUtilitySlotItem(ItemState, bDisplayItem);
+/// }
+/// 
+/// static function bool ShouldDisplayMultiSlotItemInTacticalDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, out int bDisplayItem, XComGameState GameState, XGUnit UnitVisualizer)
+/// {
+/// 	ShouldDisplayUtilitySlotItem(ItemState, bDisplayItem);
+/// }
+/// 
+/// static private function bool ShouldDisplayUtilitySlotItem(XComGameState_Item ItemState, out int bDisplayItem)
+/// {
+/// 	local X2EquipmentTemplate EqTemplate;
+/// 
+/// 	if (ItemState.InventorySlot == eInvSlot_Utility)
+/// 	{
+/// 		EqTemplate = X2EquipmentTemplate(ItemState.GetMyTemplate());
+/// 		if (EqTemplate != none && EqTemplate.iItemSize > 0)
+/// 		{
+/// 			bDisplayItem = 1;
+/// 		}
+/// 	}
+/// 	//	Return false to allow following Delegates to override the output of this delegate.
+/// 	return false;
+/// }
+/// ```
 
+/// HL-Docs: ref:DisplayMultiSlotItems
 //	Strategy Layer
-//	Returns true if the delegate was successfully registered.
+//	You can optionally specify callback Priority. Delegates with higher Priority value are executed first. Delegates with the same Priority are executed in the same order they were added to CHHelpers,
+//	which would normally be the same as DLCRunOrder.
+//	This function returns true if the delegate was successfully registered.
 simulated public function bool AddShouldDisplayMultiSlotItemInStrategyCallback(delegate<ShouldDisplayMultiSlotItemInStrategyDelegate> ShouldDisplayMultiSlotItemInStrategyFn, optional int Priority = 50)
 {
 	local ShouldDisplayMultiSlotItemInStrategyStruct NewShouldDisplayMultiSlotItemInStrategyCallback;
@@ -612,6 +670,7 @@ simulated public function bool ShouldDisplayMultiSlotItemInStrategy(XComGameStat
 	return false;
 }
 
+/// HL-Docs: ref:DisplayMultiSlotItems
 //	Tactical Layer
 simulated public function bool AddShouldDisplayMultiSlotItemInTacticalCallback(delegate<ShouldDisplayMultiSlotItemInTacticalDelegate> ShouldDisplayMultiSlotItemInTacticalFn, optional int Priority = 50)
 {
