@@ -557,17 +557,17 @@ static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
 /// 1) `ShouldDisplayMultiSlotItemInStrategyDelegate` is used to decide whether the specified item 
 /// should be visible on specified unit in the Armory and Squad Select.
 /// 2) `ShouldDisplayMultiSlotItemInTacticalDelegate` - same as above, but for Tactical.
-/// Delegates must be added into `CHHelpers` ClassDefaultObject in `OnPostTemplatesCreated`.
+/// Delegates must be added into `CHHelpers` ClassDefaultObject. Normally this is done in `OnPostTemplatesCreated`.
 /// Warning: Delegates must be bound to the ClassDefaultObject of your class, otherwise the game will hard crash 
 /// due to a garbage collection failure when transitioning between layers. Implementing your methods in a class 
 /// that `extends X2DownloadableContentInfo` will automatically handle this for you.
 /// Both delegates have the `out int bDisplayItem` argument. Set it to any value above zero to display the item on the soldier's body. Set to 0 to keep the item hidden.
-/// Both delegates should return `EDR_NoInterrupt` to allow subsequent delegates to run and potentially override the value you have assigned to `bDisplayItem`,
-/// or `EDR_InterruptDelegates` to not allow any subsequent delegates to run. 
-/// To make all items in the Utility Slot visible, just using the delegates is enough.
+/// You can get the template name of the item in question from the provided ItemState by doing `ItemState.GetMyTemplateName()`, 
+/// and access its Inventory Slot as `ItemState.InventorySlot`.
 /// Highlander-templated slots also need to have `NeedsPresEquip=true` to display in Tactical, 
 /// and `ShowOnCinematicPawns=true` to display in the Armory and Squad Select.
-///
+/// Both delegates should return `EDR_NoInterrupt` to allow subsequent delegates to run and potentially override the value you have assigned to `bDisplayItem`,
+/// or `EDR_InterruptDelegates` to not allow any subsequent delegates to run. 
 /// Here's a simple example of a delegate pair that will display all items equipped in the Utility Slot in both Tactical and Strategy.
 /// This needs to go in a class that extends `X2DownloadableContentInfo`.
 /// ```unrealscript
@@ -578,8 +578,8 @@ static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
 /// 	CHHelpersObj = CHHelpers(class'Engine'.static.FindClassDefaultObject("CHHelpers"));
 /// 	if (CHHelpersObj != none)
 /// 	{
-/// 		CHHelpersObj.AddShouldDisplayMultiSlotItemInStrategyCallback(ShouldDisplayMultiSlotItemInStrategyDelegate);
-/// 		CHHelpersObj.AddShouldDisplayMultiSlotItemInTacticalCallback(ShouldDisplayMultiSlotItemInTacticalDelegate);
+/// 		CHHelpersObj.AddShouldDisplayMultiSlotItemInStrategyCallback(ShouldDisplayMultiSlotItemInStrategyDelegate, 50);
+/// 		CHHelpersObj.AddShouldDisplayMultiSlotItemInTacticalCallback(ShouldDisplayMultiSlotItemInTacticalDelegate, 50);
 /// 	}
 /// }
 /// 
@@ -619,20 +619,26 @@ static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
 simulated public function bool AddShouldDisplayMultiSlotItemInStrategyCallback(delegate<ShouldDisplayMultiSlotItemInStrategyDelegate> ShouldDisplayMultiSlotItemInStrategyFn, optional int Priority = 50)
 {
 	local ShouldDisplayMultiSlotItemInStrategyStruct NewShouldDisplayMultiSlotItemInStrategyCallback;
-	local int i;
+	local int i, PriorityIndex;
 
 	if (ShouldDisplayMultiSlotItemInStrategyFn == none)
 	{
 		return false;
 	}
 
-	// Cycle through the current array of Callbacks until we find the first member whose Priority is lower than the priority of the new Callback we intend to add.
-	// Thanks to this function, Callbacks with higher Priority will be called first. Callbacks with the same priority will be called in order of their addition.
 	for (i = 0; i < ShouldDisplayMultiSlotItemInStrategyCallbacks.Length; i++)
 	{
-		if (Priority > ShouldDisplayMultiSlotItemInStrategyCallbacks[i].Priority) 
+		// Do not allow registering the same delegate more than once.
+		if (ShouldDisplayMultiSlotItemInStrategyCallbacks[i].ShouldDisplayMultiSlotItemInStrategyFn == ShouldDisplayMultiSlotItemInStrategyFn)
 		{
-			break;
+			return false;
+		}
+
+		// Remember the Index of the first member of the array of callbacks whose Priority is lower than the priority of the new Callback we intend to add.
+		// Thusly, Callbacks with higher Priority will be called first. Callbacks with the same priority will be called in order of their addition.
+		if (Priority > ShouldDisplayMultiSlotItemInStrategyCallbacks[i].Priority && PriorityIndex == 0) 
+		{
+			PriorityIndex = i;
 		}
 	}
 
@@ -683,7 +689,7 @@ simulated public function bool ShouldDisplayMultiSlotItemInStrategy(XComGameStat
 simulated public function bool AddShouldDisplayMultiSlotItemInTacticalCallback(delegate<ShouldDisplayMultiSlotItemInTacticalDelegate> ShouldDisplayMultiSlotItemInTacticalFn, optional int Priority = 50)
 {
 	local ShouldDisplayMultiSlotItemInTacticalStruct NewShouldDisplayMultiSlotItemInTacticalCallback;
-	local int i;
+	local int i, PriorityIndex;
 
 	if (ShouldDisplayMultiSlotItemInTacticalFn != none)
 	{
@@ -695,6 +701,19 @@ simulated public function bool AddShouldDisplayMultiSlotItemInTacticalCallback(d
 		if (Priority > ShouldDisplayMultiSlotItemInTacticalCallbacks[i].Priority) 
 		{
 			break;
+		}
+	}
+
+	for (i = 0; i < ShouldDisplayMultiSlotItemInTacticalCallbacks.Length; i++)
+	{
+		if (ShouldDisplayMultiSlotItemInTacticalCallbacks[i].ShouldDisplayMultiSlotItemInTacticalFn == ShouldDisplayMultiSlotItemInTacticalFn)
+		{
+			return false;
+		}
+
+		if (Priority > ShouldDisplayMultiSlotItemInTacticalCallbacks[i].Priority && PriorityIndex == 0) 
+		{
+			PriorityIndex = i;
 		}
 	}
 

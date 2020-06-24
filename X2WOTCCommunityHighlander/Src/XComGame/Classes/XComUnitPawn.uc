@@ -2450,11 +2450,14 @@ simulated private function CreateVisualInventoryAttachmentsForMultiSlotItems(UIP
 		// The MultiSlotIndex is used to track the position of the item in the Multi Slot.
 		// It will be used make sure that each item has its own visualizer slot in the soldier's PawnInfo, so that if this item is replaced by another item, 
 		// the visualizer of the original item gets properly removed from the soldier's pawn.
-		MultiSlotIndex = 0;
+		MultiSlotIndex = -1;
 		ItemStates = UnitState.GetAllItemsInSlot(ValidMultiSlot, CheckGameState);
 
 		foreach ItemStates(ItemState)
 		{
+			// Increment index for each item in this Multi Slot.
+			MultiSlotIndex++;	
+
 			if (!CHHelpersObj.ShouldDisplayMultiSlotItemInStrategy(UnitState, ItemState, ValidMultiSlot, CheckGameState, self))
 			{	
 				continue;
@@ -2517,9 +2520,6 @@ simulated private function CreateVisualInventoryAttachmentsForMultiSlotItems(UIP
 				// This is a cosmetic item, e.g. Gremlin. Currently this method has a limitation that only cosmetic unit can be visible per soldier.
 				SpawnCosmeticUnitPawn(PawnMgr, ValidMultiSlot, EquipmentTemplate.CosmeticUnitTemplate, UnitState, OffsetCosmeticPawn, bUsePhotoboothPawns);
 			}
-
-			// Increment index for each displayed Utility Slot item.
-			MultiSlotIndex++;	
 		}   
 	}
 }
