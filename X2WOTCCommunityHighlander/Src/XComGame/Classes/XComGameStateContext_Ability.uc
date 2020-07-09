@@ -1514,6 +1514,24 @@ static function XComGameStateContext_Ability ActivateAbility_Internal(ActionSele
 	{
 		AbilityTemplate.ModifyNewContextFn(NewContext);
 	}
+	// Start Issue #890
+	/// HL-Docs: feature:PostModifyNewAbilityContext; issue:890; tags:tactical
+	/// The `XComGameStateContext_Ability::ActivateAbility_Internal` triggers a `PostModifyNewAbilityContext` event, allowing mods to make changes to Ability Context.
+	/// The event triggers after the ability has gathered targets using its TargetStyles, after ToHitCalc calculations, 
+	/// and after the ability has ran its `ModifyNewContextFn` delegate, if it has one.
+	/// Modifying Ability Context is a powerful tool, as it allows to arbitrarily change ability's Hit Result, change its intended targets and hit location.
+	/// If you yourself are adding an ability that could benefit from context modification, you should probably just use the `ModifyNewContextFn` delegate.
+	/// This event is mostly intended for modifying Ability Context of base game abilities, or abilities added by other mods, so you don't have to risk 
+	/// an incompatibility by adding your own `ModifyNewContextFn` delegate to somebody else's ability.
+	/// Listeners for this event must use ELD_Immediate deferral.
+	/// ```unrealscript
+	/// EventID: PostModifyNewAbilityContext
+	/// EventData: XComGameStateContext_Ability NewContext
+	///	EventSource: XComGameState_Ability AbilityState
+	/// NewGameState: no
+	/// ```
+	`XEVENTMGR.TriggerEvent('PostModifyNewAbilityContext', NewContext, AbilityState);
+	// End Issue #890
 
 	if( VisualizeAtHistoryIndex != -1 )
 	{
