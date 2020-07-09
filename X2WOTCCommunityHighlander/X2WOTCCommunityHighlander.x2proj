@@ -514,6 +514,9 @@
     <Content Include="Src\XComGame\Classes\XComEngine.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComGameStateContext_Ability.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComGameStateContext_HeadquartersOrder.uc">
       <SubType>Content</SubType>
     </Content>
