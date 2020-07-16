@@ -4,7 +4,7 @@ import os
 import shutil
 
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Iterable
 
 HL_DOCS_KEYWORD = "HL-Docs:"
 HL_INCLUDE_FOLLOWING = "HL-Include:"
@@ -195,8 +195,6 @@ def process_file(file, lang) -> List[dict]:
 
     doc_items = []
 
-    generate_builtin_features(doc_items)
-
     parser = Parser(doc_items)
     with open(file, errors='replace') as infile:
         parser.parse_file(infile, file)
@@ -204,9 +202,50 @@ def process_file(file, lang) -> List[dict]:
     return doc_items
 
 
-def merge_doc_refs(doc_items: List[dict]) -> List[dict]:
-    items = dict((i["feature"], i) for i in doc_items if not "ref" in i)
-    refs = [i for i in doc_items if "ref" in i]
+def partition_items(doc_items: List[dict]) -> int:
+    """
+    Partition the array and check for duplicates, returning the start index
+    of the refs (where features end)
+    """
+    def cmp_doc_item(doc_item: dict) -> (bool, str):
+        is_feat = "feature" in doc_item
+        return (not is_feat,
+                doc_item["feature"] if is_feat else doc_item["ref"])
+
+    doc_items.sort(key=lambda i: cmp_doc_item(i))
+
+    first_def = None
+    seen = False
+    for idx, it in enumerate(doc_items):
+        if not "feature" in it:
+            break
+
+        def make_loc(it: dict) -> str:
+            if "texts" in it and len(it["texts"]) > 0:
+                return "at %s:%s" % (it["texts"][0]["file"],
+                                     it["texts"][0]["span"][0] + 1)
+            else:
+                return "due to builtin feature"
+
+        if first_def != None and it["feature"] == first_def["feature"]:
+            # Report duplicate feature definition
+            if not seen:
+                err("duplicate feature definition `%s`" % (it["feature"]),
+                    False)
+                print("note: first definition %s" % (make_loc(first_def)))
+                seen = True
+            print("note: this definition %s" % (make_loc(it)))
+
+        else:
+            first_def = it
+            seen = False
+
+    return idx
+
+
+def merge_doc_refs(doc_items: List[dict], refs_start: int) -> Iterable[dict]:
+    items = dict((i["feature"], i) for i in doc_items[:refs_start])
+    refs = doc_items[refs_start:]
 
     for ref in refs:
         if ref["ref"] in items:
@@ -254,7 +293,9 @@ def render_bugfix_page(item: dict, outdir: str):
 
 def render_full_feature_page(item: dict, outdir: str):
     if not "tags" in item:
-        err("Feature '%s' does not have a 'tags' key/annotation" % (item["feature"]), False)
+        err(
+            "Feature '%s' does not have a 'tags' key/annotation" %
+            (item["feature"]), False)
         return
 
     if "strategy" in item["tags"] and not "tactical" in item["tags"]:
@@ -322,7 +363,7 @@ def render_tag_page(tag: str, items: List[dict], outdir: str):
             file.write("\n")
 
 
-def render_docs(doc_items: List[dict], outdir: str):
+def render_docs(doc_items: Iterable[dict], outdir: str):
     ensure_dir(outdir)
 
     outdir = os.path.join(outdir, "docs")
@@ -366,7 +407,10 @@ def main():
     global exit_code
     indirs, outdir, docsdir = parse_args()
     copytree(docsdir, outdir)
+
     doc_items = []
+    generate_builtin_features(doc_items)
+
     for docdir in indirs:
         for root, subdirs, files in os.walk(docdir):
             for file in files:
@@ -376,7 +420,8 @@ def main():
                 if ext in known_exts:
                     doc_items.extend(process_file(infile, known_exts[ext]))
 
-    doc_items = merge_doc_refs(doc_items)
+    refs_start = partition_items(doc_items)
+    doc_items = merge_doc_refs(doc_items, refs_start)
 
     if outdir != None:
         render_docs(doc_items, outdir)
