@@ -9369,7 +9369,7 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 /// /// EventData: XComLWTuple {
 /// 	Data: [
 ///       inout int LostSpawnModifier,
-/// 	  in XComGameState_Ability ActivatedAbilityState,
+///       in XComGameState_Ability ActivatedAbilityState,
 ///     ]
 /// }
 ///	EventSource: self (XComGameState_Unit)
