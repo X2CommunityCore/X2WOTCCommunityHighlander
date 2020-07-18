@@ -9414,7 +9414,7 @@ private function TriggerOverrideLostSpawnIncreasePerUse(XComGameState_Ability Ac
 	OverrideTuple.Data[1].Kind = XComLWTVObject;
 	OverrideTuple.Data[1].o = ActivatedAbilityState;	
 
-	`XEVENTMGR.TriggerEvent('OverrideLostSpawnIncreasePerUse', OverrideTuple, self, GameState);
+	`XEVENTMGR.TriggerEvent('OverrideLostSpawnIncreaseFromUse', OverrideTuple, self, GameState);
 
 	LostSpawnModifier = OverrideTuple.Data[0].i;
 }
