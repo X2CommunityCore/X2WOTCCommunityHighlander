@@ -249,6 +249,32 @@ event OcclusionChanged(bool bNowOccluded)
 }
 
 /** called from native code when Wwise knows the duration of the currently playing event */
+/// HL-Docs: feature:SoundCueNarrativeMoments; issue:66; tags:strategy,tactical
+/// Allows mods to add their own voiceover using narrative moments (top-right corner comms box).
+///
+/// Narrative moments in the base game are realized using the WWise middleware. The middleware
+/// runs in a background thread, so if audio (spuriously) fails to play, the middleware may take
+/// a few frames to figure this out. If audio does fail to play, there must be a callback in order
+/// to not deadlock the entire narrative moment system due to the audio never successfully finishing.
+/// However, mods have to use `SoundCue` sounds instead, and the system considers every `SoundCue`
+/// as failed to play. This ends every mod-added narrative moment prematurely after about three seconds.
+///
+/// This fix simply triggers the callback only when WWise is involved and silently eats the callback
+/// if a `SoundCue` is involved.
+///
+/// ## Mini-tutorial on mod VO
+///
+/// This isn't strictly Highlander-related, but this is the best place to put it.
+///
+/// * Create a Speaker template (see `X2Character_DefaultCharacters.uc`)
+///     * `Templates.AddItem(CreateSpeakerTemplate('Firebrand', "Firebrand", "img:///UILibrary_Common.Head_Firebrand", eGender_Female));`
+/// * Compile the mod
+/// * Import the `SoundNodeWave`
+/// * Create a `SoundCue`, and create an `XComConversationNode` between the speaker and the `SoundNodeWave`
+/// * Set the `SpokenText` and choose the `SpeakerTemplate` in the `SoundNodeWave`
+/// * Create an `XComNarrativeMoment` archetype and reference the `SoundCue` in its `Conversations`
+///
+/// ![Editor Screenshot](https://i.imgur.com/goUwFkJ.png)
 event AkCallbackSetDuration(float fSeconds)
 {
 	// Start Issue #66 -- those events are explicitely Ak WWise-related
