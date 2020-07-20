@@ -271,8 +271,6 @@ RunPriorityGroup=RUN_STANDARD
 - Allow aliens and other teams to properly register non-XCOM unit locations to adjust their positions accordingly (#619)
 
 ### Fixes
-- Fixed XCGS_Unit::GetStatModifiers() as XCGS_Unit::GetStatModifiersFixed(),
-  X2AbilityToHitCalc_StandardAim, the only vanilla user of this method, changed to match(#313)
 - Allow abilities that deal damage without a source weapon to still display
   their damage with psi flyovers (Psi Bomb, mod abilities) (#326)
 - Make disorient reapply to disoriented units so that things like flashbangs can
@@ -381,10 +379,6 @@ RunPriorityGroup=RUN_STANDARD
   flag on `XComGameState_Unit`. This behavior is gated behind the new `CHHelpers.PreserveProxyUnitData`
   config variable. (#465)
 - Adds CustomDeathAnimationName property to X2Action_Death that allows overriding the default death animations (#488)
-- Change `GetScreen()` and `IsCurrentClass()` on `UIScreenStack` to take into account subclasses
-  by default. This is a breaking change but fixes a lot of problems with vanilla and mod code that
-  mistakenly ignores subclasses of screens, particularly those provided by mod. The original behavior
-  can still be accessed via new `GetScreen_CH()` and `IsCurrentClass_CH()`. (#290)
 - Allow PCS granting PsiOffense to be equiped by other classes than PsiOperative (#602)
 - Added Inventory Slots `eInvSlot_Wings` and `eInvSlot_ExtraBackpack`. (#678)
 
