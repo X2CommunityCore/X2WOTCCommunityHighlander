@@ -83,6 +83,15 @@ simulated function InitScreen(XComPlayerController InitController, UIMovie InitM
 	UpdateNavHelp(); //bsg-crobinson (5.12.17): Update navhelp when screen is inited
 
 	// Issue #440
+	/// HL-Docs: feature:UIStrategyPolicy_ScreenInit; issue:440; tags:strategy,ui
+	/// Triggers the event `UIStrategyPolicy_ScreenInit` immediately after opening the
+	/// `UIStrategyPolicy` screen, before it has fully initialized. Can be used to make
+	/// modifications to camera transition behavior that would be too late in a ScreenListener.
+	///
+	/// ```unrealscript
+	/// ID: UIStrategyPolicy_ScreenInit,
+	/// Source: UIStrategyPolicy
+	/// ```
 	`XEVENTMGR.TriggerEvent('UIStrategyPolicy_ScreenInit', , self);
 }
 
@@ -1846,6 +1855,19 @@ simulated function CloseScreen()
 	ResHQ = XComGameState_HeadquartersResistance(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersResistance'));
 
 	// Issue #440 Start
+
+	/// HL-Docs: feature:UIStrategyPolicy_ShowCovertActionsOnClose; issue:365; tags:strategy,ui
+	/// Allows overriding whether to show the `UICovertActions` screen after closing
+	/// the `UIStrategyPolicy` screen.
+	///
+	/// Default: Show if `UIStrategyPolicy` was created as part of the end-of-month report
+	/// and no covert actions are in progress.
+	///
+	/// ```unrealscript
+	/// ID: UIStrategyPolicy_ShowCovertActionsOnClose,
+	/// Data: [inout bool ShouldShow],
+	/// Source: UIStrategyPolicy
+	/// ```
 	Tuple = new class'XComLWTuple';
 	Tuple.Id = 'UIStrategyPolicy_ShowCovertActionsOnClose';
 	Tuple.Data.Add(1);

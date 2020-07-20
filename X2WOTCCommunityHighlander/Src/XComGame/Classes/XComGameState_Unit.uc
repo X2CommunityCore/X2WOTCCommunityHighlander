@@ -14842,6 +14842,31 @@ function bool UnitIsValidForPhotobooth()
 }
 
 // Start Issue #106
+/// HL-Docs: feature:DynamicSoldierClassDisplay; issue:106; tags:strategy,ui
+/// Mods may want to manipulate the way a soldier's class is displayed (in terms
+/// of icon/name/description) in more dynamic ways. For example, *RPGOverhaul*
+/// has a single soldier class and the way it is displayed depends on selected
+/// skills and loadouts. There are three events with mostly self-explanatory names:
+/// ```unrealscript
+/// ID: SoldierClassIcon,
+/// Data: [inout string IconImagePath],
+/// Source: XCGS_Unit
+/// ```
+///
+/// ```unrealscript
+/// ID: SoldierClassDisplayName,
+/// Data: [inout string DisplayName],
+/// Source: XCGS_Unit
+/// ```
+///
+/// ```unrealscript
+/// ID: SoldierClassSummary,
+/// Data: [inout string DisplaySummary],
+/// Source: XCGS_Unit
+/// ```
+///
+/// There is a sister feature [`DynamicSoldierRankDisplay`](./DynamicSoldierRankDisplay.md)
+/// that extends this to rank icon/name.
 function String GetSoldierClassIcon()
 {
 	local XComLWTuple Tuple;
@@ -14906,6 +14931,32 @@ function String GetSoldierClassSummary()
 //         unit's current rank. If this is -1, then the current rank is
 //         returned as usual.
 //
+/// HL-Docs: feature:DynamicSoldierRankDisplay; issue:408; tags:strategy,ui
+/// Mods may want to manipulate the way a soldier's rank is displayed (in terms
+/// of icon/name/description) in more dynamic ways. For example, *LWOTC*
+/// shows officer ranks for units with special officer abilities.
+/// There are three events with mostly self-explanatory names:
+///
+/// ```unrealscript
+/// ID: SoldierRankName,
+/// Data: [in int Rank, inout string DisplayRankName],
+/// Source: XCGS_Unit
+/// ```
+///
+/// ```unrealscript
+/// ID: SoldierShortRankName,
+/// Data: [in int Rank, inout string DisplayShortRankName],
+/// Source: XCGS_Unit
+/// ```
+///
+/// ```unrealscript
+/// ID: SoldierRankIcon,
+/// Data: [in int Rank, inout string IconImagePath],
+/// Source: XCGS_Unit
+/// ```
+///
+/// There is a sister feature [`DynamicSoldierClassDisplay`](./DynamicSoldierClassDisplay.md)
+/// that extends this to class icon/name.
 function string GetSoldierRankName(optional int Rank = -1)
 {
 	local XComLWTuple OverrideTuple;

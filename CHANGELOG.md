@@ -50,18 +50,13 @@ RunPriorityGroup=RUN_STANDARD
 - Triggers the events `OverrideUIArmoryScale`, `OverrideUIVIPScale`, and `OverrideCharCustomizationScale` for strategy unit scaling (#229)
 - Triggers the event `RegionOutpostBuildStart` to add a strategy reward similar to the 'Resistance Network' resistance order, but for Radio Relays instead of Network Contacts. (#279)
 - Triggers the event `GeoscapeFlightModeUpdate` to allow mods to respond to geoscape mode change (#358)
-- Triggers the event `UIAvengerShortcuts_ShowCQResistanceOrders` to allow to override the presence of Resistance Orders button in `UIAvengerShortcuts` (#368)
-- Triggers the event `Geoscape_ResInfoButtonVisible` to allow to override the visibility of resistance orders button in `UIStrategyMap_HUD` (#365)
 - Triggers the event `NumCovertActionsToAdd` to allow mods to modfiy number of Covert Actions (#373)
 - Triggers the event `CompleteRespecSoldier` when a training center soldier respec was completed. (#339)
 - Triggers the events `UIArmory_WeaponUpgrade_SlotsUpdated` and `UIArmory_WeaponUpgrade_NavHelpUpdated`
   in `UIArmory_WeaponUpgrade` (#417)
-- Triggers the event `GetCovertActionEvents_Settings` to allow showing all covert actions in the correct order in the event queue (#391)
 - Triggers the event `CovertActionRisk_AlterChanceModifier` when calculated covert action risks. (#434)
 - Triggers the event `AllowDarkEventRisk` during XComGameState_CovertAction::EnableDarkEventRisk to allow alterations of standard logic (#434)
 - Triggers the event `AllowDarkEventRisk` during XComGameState_CovertAction::CreateRisks to allow alterations of standard logic (#692)
-- Triggers the event `UIStrategyPolicy_ScreenInit` at the end of UIStrategyPolicy::InitScreen (#440)
-- Triggers the event `UIStrategyPolicy_ShowCovertActionsOnClose` on UIStrategyPolicy::CloseScreen call (#440)
 - Triggers the event `CovertAction_ShouldBeVisible` on XComGameState_CovertAction::ShouldBeVisible call (#438)
 - Triggers the event `CovertAction_CanInteract` on XComGameState_CovertAction::CanInteract call (#438)
 - Triggers the event `CovertAction_ActionSelectedOverride` on XComGameState_CovertAction::DisplaySelectionPrompt call (#438)
@@ -70,7 +65,6 @@ RunPriorityGroup=RUN_STANDARD
 - Triggers the event `CovertAction_ModifyNarrativeParamTag` on XComGameState_CovertAction::GetNarrative call (#438)
 - Triggers the event `ShouldCleanupCovertAction` to allow mod control over Covert Action deletion. (#435)
 - Triggers the event `BlackMarketGoodsReset` when the Black Market goods are reset (#473)
-- Triggers the event `OverrideImageForItemAvaliable` to allow mods to override the image shown in eAlert_ItemAvailable (#491)
 - Triggers the event `OverrideCurrentDoom` to allow mods to override doom amount for doom updates (#550)
 - Triggers the event `PreEndOfMonth` to notify mods that the game is about to start its end-of-month processing (#539)
 - Triggers the event `ProcessNegativeIncome` to allow mods to do their own processing when XCOM's income at the
@@ -110,17 +104,12 @@ RunPriorityGroup=RUN_STANDARD
 - Triggers the event `CovertActionAllowCheckForProjectOverlap` to allow mods to forbid the "de-bunching" logic
   on CA start (#584)
 - Triggers the event `AllowActionToSpawnRandomly` to allow mods to prevent certain CAs from being randomly spawned (#594)
-- Triggers the event `OverridePromotionUIClasses` to allow mods to override the UI classes used for the
-  three different promotion screens (#600)
 - Triggers the event `OverrideRespecSoldierProjectPoints` to allow mods to customize how long it should
   take to respec a given soldier (#624)
 - Triggers the event `OverrideScienceScore` to allow mods to override the XCOM HQ science score, for
   example to add their own bonuses or to remove scientists that are engaged in other activities.
 - Triggers the event `CanTechBeInspired` to allow mods to block techs from being inspired, even if they
   meet the vanilla game's conditions for it (#633)
-- Triggers the event `OverrideMissionImage` to allow mods to customize mission's image (used in UIMission and subclasses) (#635)
-- Triggers the event `UIResistanceReport_ShowCouncil` to allow mods to override whether the council guy (and his remarks)
-  is shown on the end-of-month report or not (#663)
 - Triggers the event `OverrideNextRetaliationDisplay` to allow mods to customize and/or enable/disable "next retaliation"
   display in `UIAdventOperations` (#667)
 - Triggers the event `ItemAddedToSlot` & `ItemRemovedFromSlot` to allow mods to change Items that have been Equipped/Unequipped during runtime(#694)
@@ -132,7 +121,6 @@ RunPriorityGroup=RUN_STANDARD
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
-- UIScanButton now calls OnMouseEventDelegate (#483). Note: DO NOT call ProcessMouseEvents, just set the delegate directly
 - Remove `private` from `X2AIBTBehaviorTree.Behaviors` so that mods can change the behavior trees without
   overwriting all the necessary entries (#410)
 - Removed `protectedwrite` from `AcquiredTraits`, `PendingTraits`, and `CuredTraits` in `XComGameState_Unit`, allowing Traits to be modified by external sources (#681)
@@ -305,18 +293,10 @@ RunPriorityGroup=RUN_STANDARD
 - `AbilityTagExpandHandler_CH` expands vanilla AbilityTagExpandHandler to allow reflection
 
 ### Event Hooks
-- Triggers the events `SoldierClassIcon`, `SoldierClassDisplayName`,
-  `SoldierClassSummary` that allow replacement of the class icon/display
-  name/summary dynamically e.g. depending on UnitState or Soldier Loadout,
-  and adds accessor functions for those to XComGameState_Unit. (#106)
-- `GetPCSImageTuple` added to allow customising PCS Image string (#110)
 - Triggers the event `OverrideHasHeavyWeapon` that allows to override the result of `XComGameState_Unit.HasHeavyWeapon` (#172)
 - `OverrideItemMinEquipped` added to allow mods to override the min number of equipped items in a slot (#171)
 - `AddConversation` added to allow mods to change narrative behavior before they are played (#204)
 - `OverrideRandomizeAppearance` added to allow mods to block updating appearance when switching armors (#299)
-- `XComGameState_Unit` triggers `SoldierRankName`, `SoldierShortRankName` and
-  `SoldierRankIcon` events that allow listeners to override the those particular
-  properties of a soldier's rank, i.e. rank name, short name and icon (#408)
 
 ### Configuration
 - Able to list classes as excluded from AWC Skill Rolling, so they can still
