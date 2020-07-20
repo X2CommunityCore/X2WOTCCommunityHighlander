@@ -6905,8 +6905,10 @@ native function GetStatModifiers(ECharStatType Stat, out array<XComGameState_Eff
 /// ## Compatibility
 ///
 /// Mods that override/replace `X2AbilityToHitCalc_StandardAim:GetHitChance` may undo the Highlander's
-/// changes and use the broken function. In particular, XModBase is [known to undo this fix](https://github.com/RossM/XModBase/issues/1).
-/// It is recommended that affected mods check whether `GetStatModifiersFixed` exists and call it instead:
+/// changes and use the broken function. In particular, XModBase versions prior to 2.0.2 are
+/// [known to undo this fix](https://github.com/RossM/XModBase/issues/1).
+/// It is recommended that mods using XModBase upgrade to 2.0.2, and otherwise affected mods check whether
+/// `GetStatModifiersFixed` exists and call it instead:
 ///
 /// ```unrealscript
 /// if (Function'XComGame.XComGameState_Unit.GetStatModifiersFixed' != none)
