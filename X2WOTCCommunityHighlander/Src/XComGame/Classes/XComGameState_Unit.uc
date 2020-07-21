@@ -6884,6 +6884,42 @@ native function SetCurrentStat( ECharStatType Stat, float NewValue );
 native function GetStatModifiers(ECharStatType Stat, out array<XComGameState_Effect> Mods, out array<float> ModValues, optional XComGameStateHistory GameStateHistoryObject);
 
 // Begin Issue #313
+/// HL-Docs: feature:GetStatModifiersFixed; issue:313; tags:tactical,compatibility
+/// The base game provides a function
+///
+/// ```unrealscript
+/// native function GetStatModifiers(ECharStatType Stat, out array<XComGameState_Effect> Mods, out array<float> ModValues, optional XComGameStateHistory GameStateHistoryObject);
+/// ```
+/// that can be used to identify how much different effects contribute to the calculated stat total.
+/// For example, `X2AbilityToHitCalc_StandardAim` wants to show how many percentage points to-hit or to-crit
+/// different effects provide or diminish.
+///
+/// However, the function is subtly broken in the presence of
+/// multiplicative modifiers (`MODOP_Multiplication` or `MODOP_PostMultiplication`), where it doesn't
+/// return the correct contribution but instead simply returns `MultiplicationMod * BaseStat`. This
+/// makes multiplicative modifiers unusable for `eStat_Offense` and `eStat_CritChance`.
+///
+/// The Highlander function `GetStatModifiersFixed` wraps the broken function and fixes the numbers.
+/// Additionally, `X2AbilityToHitCalc_StandardAim` is changed to call this modified function.
+///
+/// ## Compatibility
+///
+/// Mods that override/replace `X2AbilityToHitCalc_StandardAim:GetHitChance` may undo the Highlander's
+/// changes and use the broken function. In particular, XModBase versions prior to 2.0.2 are
+/// [known to undo this fix](https://github.com/RossM/XModBase/issues/1).
+/// It is recommended that mods using XModBase upgrade to 2.0.2, and otherwise affected mods check whether
+/// `GetStatModifiersFixed` exists and call it instead:
+///
+/// ```unrealscript
+/// if (Function'XComGame.XComGameState_Unit.GetStatModifiersFixed' != none)
+/// {
+/// 	// call GetStatModifiersFixed
+/// }
+/// else
+/// {
+/// 	// call GetStatModifiers	
+/// }
+/// ```
 function GetStatModifiersFixed(ECharStatType Stat, out array<XComGameState_Effect> Mods, out array<float> ModValues, optional XComGameStateHistory GameStateHistoryObject, optional bool RoundTotals=true)
 {
 	local array <StatModifier> MultMods;
@@ -14806,6 +14842,31 @@ function bool UnitIsValidForPhotobooth()
 }
 
 // Start Issue #106
+/// HL-Docs: feature:DynamicSoldierClassDisplay; issue:106; tags:strategy,ui
+/// Mods may want to manipulate the way a soldier's class is displayed (in terms
+/// of icon/name/description) in more dynamic ways. For example, *RPGOverhaul*
+/// has a single soldier class and the way it is displayed depends on selected
+/// skills and loadouts. There are three events with mostly self-explanatory names:
+/// ```unrealscript
+/// ID: SoldierClassIcon,
+/// Data: [inout string IconImagePath],
+/// Source: XCGS_Unit
+/// ```
+///
+/// ```unrealscript
+/// ID: SoldierClassDisplayName,
+/// Data: [inout string DisplayName],
+/// Source: XCGS_Unit
+/// ```
+///
+/// ```unrealscript
+/// ID: SoldierClassSummary,
+/// Data: [inout string DisplaySummary],
+/// Source: XCGS_Unit
+/// ```
+///
+/// There is a sister feature [`DynamicSoldierRankDisplay`](./DynamicSoldierRankDisplay.md)
+/// that extends this to rank icon/name.
 function String GetSoldierClassIcon()
 {
 	local XComLWTuple Tuple;
@@ -14870,6 +14931,32 @@ function String GetSoldierClassSummary()
 //         unit's current rank. If this is -1, then the current rank is
 //         returned as usual.
 //
+/// HL-Docs: feature:DynamicSoldierRankDisplay; issue:408; tags:strategy,ui
+/// Mods may want to manipulate the way a soldier's rank is displayed (in terms
+/// of icon/name/description) in more dynamic ways. For example, *LWOTC*
+/// shows officer ranks for units with special officer abilities.
+/// There are three events with mostly self-explanatory names:
+///
+/// ```unrealscript
+/// ID: SoldierRankName,
+/// Data: [in int Rank, inout string DisplayRankName],
+/// Source: XCGS_Unit
+/// ```
+///
+/// ```unrealscript
+/// ID: SoldierShortRankName,
+/// Data: [in int Rank, inout string DisplayShortRankName],
+/// Source: XCGS_Unit
+/// ```
+///
+/// ```unrealscript
+/// ID: SoldierRankIcon,
+/// Data: [in int Rank, inout string IconImagePath],
+/// Source: XCGS_Unit
+/// ```
+///
+/// There is a sister feature [`DynamicSoldierClassDisplay`](./DynamicSoldierClassDisplay.md)
+/// that extends this to class icon/name.
 function string GetSoldierRankName(optional int Rank = -1)
 {
 	local XComLWTuple OverrideTuple;

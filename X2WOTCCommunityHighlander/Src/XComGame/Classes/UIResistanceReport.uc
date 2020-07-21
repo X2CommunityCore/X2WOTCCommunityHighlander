@@ -54,6 +54,16 @@ simulated function InitScreen(XComPlayerController InitController, UIMovie InitM
 }
 
 // Start issue #663
+/// HL-Docs: feature:UIResistanceReport_ShowCouncil; issue:663; tags:strategy,ui
+/// Allows overriding whether to show the council guy and his remarks in the background
+/// at the end of month.
+///
+///
+/// ```unrealscript
+/// ID: UIResistanceReport_ShowCouncil,
+/// Data: [inout bool ShouldShow],
+/// Source: UIResistanceReport
+/// ```
 protected simulated function bool TriggerShouldShowCouncil ()
 {
 	local XComLWTuple Tuple;
