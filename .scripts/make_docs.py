@@ -393,11 +393,11 @@ def copytree(src, dst):
     watching it. This function works around the issue and
     is cribbed from https://stackoverflow.com/a/12514470
     """
+    ensure_dir(dst)
     for item in os.listdir(src):
         s = os.path.join(src, item)
         d = os.path.join(dst, item)
         if os.path.isdir(s):
-            ensure_dir(d)
             copytree(s, d)
         else:
             shutil.copy2(s, d)
