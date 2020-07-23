@@ -525,7 +525,7 @@ simulated function ApplyLoadoutFromGameState(XComGameState_Unit UnitState, XComG
 		kInventory = Spawn(class'XGInventory', Owner);
 		SetInventory(kInventory);
 		kInventory.PostInit();
-	}	
+	}
 
 	foreach UnitState.InventoryItems(ItemReference)
 	{
@@ -548,7 +548,7 @@ simulated function ApplyLoadoutFromGameState(XComGameState_Unit UnitState, XComG
 			if( kItem != none && (kItem.m_kOwner == none || kItem.m_kEntity == none) )
 			{
 				kItem.m_kOwner = self;
-				kItem.m_kEntity = kItem.CreateEntity(ItemState);		
+				kItem.m_kEntity = kItem.CreateEntity(ItemState);
 
 				ItemWeapon = XComWeapon(kItem.m_kEntity);
 				if( ItemWeapon != none )
@@ -560,7 +560,7 @@ simulated function ApplyLoadoutFromGameState(XComGameState_Unit UnitState, XComG
 			if( kItem != none && kItem.m_kEntity != none )
 			{
 				bMultipleItems = ItemState.ItemLocation == eSlot_RearBackPack;
-				kInventory.AddItem(kItem, ItemState.ItemLocation, bMultipleItems);		
+				kInventory.AddItem(kItem, ItemState.ItemLocation, bMultipleItems);
 			}
 		}
 	}
@@ -633,12 +633,12 @@ simulated function ApplyLoadoutFromGameState(XComGameState_Unit UnitState, XComG
 simulated private function PresEquipMultiSlotItems(XComGameState_Unit UnitState, XComGameState FullGameState, XGInventory kInventory, array<EInventorySlot> PresEquipMultiSlots)
 {
 	local array<XComGameState_Item> ItemStates;
-	local XComGameState_Item		ItemState;
-	local CHHelpers					CHHelpersObj;
-	local XGWeapon					ItemVis;
-	local EInventorySlot			PresEquipMultiSlot;
+	local XComGameState_Item        ItemState;
+	local CHHelpers                 CHHelpersObj;
+	local XGWeapon                  ItemVis;
+	local EInventorySlot            PresEquipMultiSlot;
 
-	CHHelpersObj = CHHelpers(class'Engine'.static.FindClassDefaultObject("CHHelpers"));
+	CHHelpersObj = class'CHHelpers'.static.GetCDO();
 	if (CHHelpersObj == none)
 	{
 		return;
@@ -649,7 +649,7 @@ simulated private function PresEquipMultiSlotItems(XComGameState_Unit UnitState,
 		ItemStates = UnitState.GetAllItemsInSlot(PresEquipMultiSlot,,, true);
 		foreach ItemStates(ItemState)
 		{
-			if (CHHelpersObj.ShouldDisplayMultiSlotItemInTactical(UnitState, ItemState, PresEquipMultiSlot, FullGameState, self))
+			if (CHHelpersObj.ShouldDisplayMultiSlotItemInTactical(UnitState, ItemState, PresEquipMultiSlot, self, FullGameState))
 			{
 				ItemVis = XGWeapon(ItemState.GetVisualizer());
 				kInventory.PresEquip(ItemVis, true);
@@ -743,7 +743,7 @@ simulated function ConstantCombatSuppress(bool bSuppress, XGUnit kTarget)
 
 	if (m_bSuppressing)
 	{
-		m_kForceConstantCombatTarget = kTarget;		
+		m_kForceConstantCombatTarget = kTarget;
 		kTarget.m_kConstantCombatUnitTargetingMe = self;
 	}
 	else 

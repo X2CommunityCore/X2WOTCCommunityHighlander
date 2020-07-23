@@ -2121,7 +2121,7 @@ simulated function CreateVisualInventoryAttachments(UIPawnMgr PawnMgr, XComGameS
 			if (SlotIter.IsMultiItemSlot)
 			{
 				ValidMultiSlots.AddItem(SlotIter.InvSlot);
-			}	// End Issue #885
+			} // End Issue #885
 			else
 			{
 				ValidSlots.AddItem(SlotIter.InvSlot);
@@ -2149,7 +2149,7 @@ simulated function CreateVisualInventoryAttachments(UIPawnMgr PawnMgr, XComGameS
 simulated function SpawnCosmeticUnitPawn(UIPawnMgr PawnMgr, EInventorySlot InvSlot, string CosmeticUnitTemplate, XComGameState_Unit OwningUnit, bool OffsetForArmory, bool bUsePhotoboothPawns = false)
 {
 	local X2CharacterTemplate EquipCharacterTemplate;
-	local XComUnitPawn ArchetypePawn, CosmeticPawn;	
+	local XComUnitPawn ArchetypePawn, CosmeticPawn;
 	local string ArchetypeStr;
 	local Vector PawnLoc;
 	local TAppearance UseAppearance;
@@ -2174,7 +2174,7 @@ simulated function SpawnCosmeticUnitPawn(UIPawnMgr PawnMgr, EInventorySlot InvSl
 	// Start Issue #380: Moved earlier because we want to SetAppearance() whether we create a new pawn or not
 	UseAppearance = OwningUnit.kAppearance;
 	UseAppearance.iArmorTint = UseAppearance.iWeaponTint;
-	UseAppearance.iArmorTintSecondary = UseAppearance.iArmorTintSecondary;	
+	UseAppearance.iArmorTintSecondary = UseAppearance.iArmorTintSecondary;
 	UseAppearance.nmPatterns = UseAppearance.nmWeaponPattern;
 	// End Issue #380
 	CosmeticPawn = PawnMgr.GetCosmeticArchetypePawn(InvSlot, OwningUnit.ObjectID, bUsePhotoboothPawns);
@@ -2347,7 +2347,7 @@ simulated function CreateVisualInventoryAttachment(UIPawnMgr PawnMgr, EInventory
 	local XComGameState_Item ItemState;
 	local X2EquipmentTemplate EquipmentTemplate;
 	local X2WeaponTemplate WeaponTemplate;
-	local bool bRegularItem;	
+	local bool bRegularItem;
 	local XComWeapon CurrentWeapon;
 	local int i;
 
@@ -2426,7 +2426,6 @@ simulated function CreateVisualInventoryAttachment(UIPawnMgr PawnMgr, EInventory
 // Issue #885 Start
 // Generally behaves in the same way as CreateVisualInventoryAttachment(), but it cycles through all items in all multi slots, 
 // and runs ShouldDisplayMultiSlotItemInStrategy callbacks for each to make the individual decision whether the item should be displayed on the unit.
-// This is an internal CHL API. It is not intended for use by mods and is not covered by Backwards Compatibility policy.
 simulated private function CreateVisualInventoryAttachmentsForMultiSlotItems(UIPawnMgr PawnMgr, XComGameState_Unit UnitState, array<EInventorySlot> ValidMultiSlots, XComGameState CheckGameState, bool bSetAsVisualizer, bool OffsetCosmeticPawn, bool bUsePhotoboothPawns = false, optional out array<AnimSet> PhotoboothAnimSets, bool bArmorAppearanceOnly = false)
 {
 	local XGWeapon kWeapon;
@@ -2436,10 +2435,10 @@ simulated private function CreateVisualInventoryAttachmentsForMultiSlotItems(UIP
 	local X2WeaponTemplate WeaponTemplate;
 	local XComWeapon CurrentWeapon;
 	local int i, MultiSlotIndex;
-	local CHHelpers	CHHelpersObj;
+	local CHHelpers CHHelpersObj;
 	local EInventorySlot ValidMultiSlot;
 
-	CHHelpersObj = CHHelpers(class'Engine'.static.FindClassDefaultObject("CHHelpers"));
+	CHHelpersObj = class'CHHelpers'.static.GetCDO();
 	if (CHHelpersObj == none || PawnMgr == none)
 	{
 		return;
@@ -2456,10 +2455,10 @@ simulated private function CreateVisualInventoryAttachmentsForMultiSlotItems(UIP
 		foreach ItemStates(ItemState)
 		{
 			// Increment index for each item in this Multi Slot.
-			MultiSlotIndex++;	
+			MultiSlotIndex++;
 
-			if (!CHHelpersObj.ShouldDisplayMultiSlotItemInStrategy(UnitState, ItemState, ValidMultiSlot, CheckGameState, self))
-			{	
+			if (!CHHelpersObj.ShouldDisplayMultiSlotItemInStrategy(UnitState, ItemState, ValidMultiSlot, self, CheckGameState))
+			{
 				continue;
 			}
 
@@ -2472,7 +2471,7 @@ simulated private function CreateVisualInventoryAttachmentsForMultiSlotItems(UIP
 				}
 			}
 		
-			EquipmentTemplate = X2EquipmentTemplate(ItemState.GetMyTemplate());		
+			EquipmentTemplate = X2EquipmentTemplate(ItemState.GetMyTemplate());
 			//Is this a cosmetic unit item?
 			if(EquipmentTemplate == none || EquipmentTemplate.CosmeticUnitTemplate == "")
 			{

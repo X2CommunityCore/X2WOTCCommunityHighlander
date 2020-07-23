@@ -9,8 +9,8 @@ struct CosmeticInfo
 // Start Issue #885
 struct MultiSlotWeaponsPawnInfo
 {
-	var array<Actor>	MultiSlotWeapons;
-	var EInventorySlot	InventorySlot;
+	var array<Actor>   MultiSlotWeapons;
+	var EInventorySlot InventorySlot;
 };
 // End Issue #885
 
@@ -375,7 +375,7 @@ simulated function XComUnitPawn AssociateCosmeticPawnInternal(int CosmeticSlot, 
 
 // Start Issue #885
 // This is an internal CHL API. It is not intended for use by mods and is not covered by Backwards Compatibility policy.
-simulated public function AssociateMultiSlotWeaponPawn(int MultiSlotIndex, Actor WeaponPawn, int UnitRef, XComUnitPawn OwningPawn, EInventorySlot InventorySlot, bool bUsePhotoboothPawns = false)
+simulated function AssociateMultiSlotWeaponPawn(int MultiSlotIndex, Actor WeaponPawn, int UnitRef, XComUnitPawn OwningPawn, EInventorySlot InventorySlot, bool bUsePhotoboothPawns = false)
 {
 	local int StoreIndex;
 
@@ -408,8 +408,8 @@ simulated public function AssociateMultiSlotWeaponPawn(int MultiSlotIndex, Actor
 
 simulated private function AssociateMultiSlotWeaponPawnInternal(out array<PawnInfo> PawnStore, int StoreIndex, int MultiSlotIndex, Actor WeaponPawn, XComUnitPawn OwningPawn, EInventorySlot InventorySlot)
 {
-	local MultiSlotWeaponsPawnInfo	NewMultiSlotWeaponsPawnInfo;
-	local XGInventoryItem			PreviousItem;
+	local MultiSlotWeaponsPawnInfo NewMultiSlotWeaponsPawnInfo;
+	local XGInventoryItem          PreviousItem;
 	local int i;
 
 	// If the array of structs in PawnInfo already has a struct responsible for tracking weapons' visualizers in this Inventory Multi Slot, find it.
@@ -464,7 +464,7 @@ simulated function XComUnitPawn RequestPawnByStateInternal(Actor referrer, XComG
 		else
 			LoadPawnPackagesAsync(UnitState, CreatePawnOnPackagesLoaded);
 		
-		PawnStore.AddItem(Info);		
+		PawnStore.AddItem(Info);
 	}
 	else if(PawnStore[PawnInfoIndex].bPawnRemoved)
 	{
