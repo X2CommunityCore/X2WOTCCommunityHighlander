@@ -85,6 +85,7 @@ var config bool AmmoSlotBypassUniqueRule;
 
 // Start Issue #219
 // Object names of head contents that don't allow Hair/Props/Helmets/Beards
+;;; HL-Docs: ref:ModAddedHeads
 var config(Content) array<name> HeadSuppressesHair;
 var config(Content) array<name> HeadSuppressesLowerFaceProp;
 var config(Content) array<name> HeadSuppressesUpperFaceProp;

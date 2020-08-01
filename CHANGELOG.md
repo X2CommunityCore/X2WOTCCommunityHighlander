@@ -337,8 +337,6 @@ RunPriorityGroup=RUN_STANDARD
 - Improve performance by removing unnecessary calls to UpdateAllMeshMaterials (#186)
 - Adds ability to have weapon upgrades modify damage, and properly accounts for
   any damage upgrades in the UI. (#237)
-- Allow Human Pawns to freely switch between custom heads and base pawn heads,
-  eliminating the need for head mods to include invisible heads (#219)
 - Changes to "Legacy Operations" squad loadout and ability selections are now always applied for the first mission. Note any non-AWC-eligble abilities added need to exist in the Soldier Classes ability tree (#307)
 - For "Legacy Operations" changes to squad members' Soldier Class, and changes to the Soldier Classes themselves, are taken into account for pre-existing operations.
   Particularly important for Central and Shen, whose custom Soldier Classes ability tree contain only the abilities granted by their squad progression (#307)
