@@ -85,8 +85,48 @@ function int CalculateWorkPerHour(optional XComGameState StartState = none, opti
 	History = `XCOMHISTORY;
 	ResHQ = XComGameState_HeadquartersResistance(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersResistance'));
 
-	return Round(float(OriginalWorkPerHour) * ResHQ.GetWillRecoveryRateScalar());
+	// Issue #650 - added call to TriggerWillRecoveryTimeModifier
+	return Round(float(OriginalWorkPerHour) * ResHQ.GetWillRecoveryRateScalar() * TriggerWillRecoveryTimeModifier(StartState, bAssumeActive));
 }
+
+// Issue #650 Start
+/// HL-Docs: feature:WillRecoveryTimeModifier; issue:650; tags:strategy
+/// Allows mods to apply a multiplier to the Will recovery project time, where a
+/// value of 1.0 makes no change, 2.0 doubles the duration, etc. Listeners can
+/// get the recovering unit from the Will project's `ProjectFocus` property.
+///
+/// ```event
+/// EventID: WillRecoveryTimeModifier,
+/// EventData: [
+///   inout float TimeMultiplier,
+///   in bool bAssumeActive
+/// ],
+/// EventSource: XComGameState_HeadquartersProjectRecoverWill (ProjectState),
+/// NewGameState: maybe
+/// ```
+///
+/// The `NewGameState` and `bAssumeActive` will be whatever caller to CalculateWorkPerHour() passes. Note that
+/// both arguments are optional.
+///
+/// If you want to modify the `TimeMultiplier`, you **must** subscribe with `ELD_Immediate` deferral
+private function float TriggerWillRecoveryTimeModifier (optional XComGameState StartState = none, optional bool bAssumeActive = false)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'WillRecoveryTimeModifier';
+	Tuple.Data.Add(2);
+
+	Tuple.Data[0].kind = XComLWTVFloat;
+	Tuple.Data[0].f = 1.0; // Default no modifier
+	Tuple.Data[1].kind = XComLWTVBool;
+	Tuple.Data[1].b = bAssumeActive;
+
+	`XEVENTMGR.TriggerEvent('WillRecoveryTimeModifier', Tuple, self, StartState);
+
+	return Tuple.Data[0].f;
+}
+// Issue #650 End
 
 //---------------------------------------------------------------------------------------
 private function int GetTotalProjectHours(XComGameState_Unit UnitState)
