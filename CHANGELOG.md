@@ -1,5 +1,7 @@
 # Change Log
-All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented in this file.
+
+*This change log is deprecated; it contains historical changes that have not been documented using the new [documentation tool and site](https://x2communitycore.github.io/X2WOTCCommunityHighlander/).  
+No new changes should be added here. Documented features should be removed from this list. Conversely, this is a list of features to document.*
 
 ## General
 
