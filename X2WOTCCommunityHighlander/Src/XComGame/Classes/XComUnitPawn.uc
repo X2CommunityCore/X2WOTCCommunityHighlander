@@ -2516,7 +2516,7 @@ simulated private function CreateVisualInventoryAttachmentsForMultiSlotItems(UIP
 			}
 			else 
 			{
-				// This is a cosmetic item, e.g. Gremlin. Currently this method has a limitation that only cosmetic unit can be visible per soldier.
+				// This is a cosmetic unit item, e.g. Gremlin. Currently there's a limitation that only cosmetic unit can be visible per inventory slot.
 				SpawnCosmeticUnitPawn(PawnMgr, ValidMultiSlot, EquipmentTemplate.CosmeticUnitTemplate, UnitState, OffsetCosmeticPawn, bUsePhotoboothPawns);
 			}
 		}   
