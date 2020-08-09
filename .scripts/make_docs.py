@@ -352,6 +352,7 @@ def render_tag_page(tag: str, items: List[dict], outdir: str):
             pass
     except FileNotFoundError:
         err("file %s not found (`%s` is an unknown tag)" % (fname, tag), False)
+        print("note: referred to by %s" % (", ".join(map(lambda i: "`%s`" % (i["feature"]), items))))
         return
 
     with open(fname, 'a+') as file:
