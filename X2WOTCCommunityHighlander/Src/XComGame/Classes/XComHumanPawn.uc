@@ -1260,19 +1260,76 @@ simulated function OnHeadLoaded(PawnContentRequest ContentRequest)
 		return;
 
 	HeadContent = XComHeadContent(ContentRequest.kContent);
+
+	/// HL-Docs: feature:ModAddedHeads; issue:219; tags:customization,pawns
+	/// Allows Human Pawns to freely switch between default head and separate
+	/// skeletal mesh heads without resorting to invisible head hacks and helmets.
+	///
+	/// ```ini
+	/// +BodyPartTemplateConfig=(PartType="Head", TemplateName="Augmentations_Head_AFR", ArchetypeName="MusashiAndroidHeads.ARC_Head_Afr_M", Gender=eGender_Male, Race=eRace_African, bCanUseOnCivilian=false, SpecializedType=false, DLCName="Augmentations")
+	/// ```
+	///
+	/// ## Base-game behavior
+	///
+	/// There are two kinds of Human Pawns in the game: Pawns that share their
+	/// head mesh with their pawn mesh, and pawns that don't. Note that the pawn mesh itself
+	/// never has any geometry except for a possible head.
+	///
+	/// In more concrete terms, the standard human pawn meshes have their head included, and the
+	/// head archetypes reference the same mesh. The Human Pawn recognizes this and doesn't
+	/// actually attach a head, and instead aliases the head component to the pawn component
+	/// so that all changes to the head customization apply to the mesh.
+	///
+	/// Sparks on the other hand have the option to switch between different head meshes,
+	/// and the head mesh never references the pawn mesh. The pawn mesh is entirely void of geometry.
+	/// The Human Pawn recognizes this and uses a separate mesh component for the head.
+	///
+	/// Where it all goes wrong is when those two types of heads are being mixed. The
+	/// Human Pawn first aliases the head to the pawn, and when a custom head is being
+	/// used, it changes the head mesh -- and, due to the alias, also the base pawn mesh.
+	/// Even worse, it tries to attach the pawn to the pawn itself instead of the head to the
+	/// pawn. This generally crashes the game.
+	///
+	/// ## The fix
+	///
+	/// * We handle the case where we go from a standard head to a custom head correctly and don't crash
+	/// * We apply an invisible material to the entire pawn mesh when a custom head is being used
+	///     * For Sparks, this causes no change in behavior because the Spark pawn has no geometry
+	///     * For Humans, this is desired because otherwise, the base head clips with any custom head
+	///     * An invisible material is used because outright hiding the pawn turns off parts of the animation system =)
+	///
+	/// ## Additional nice-to-have
+	///
+	/// Some mod-added heads don't work well with certain customization categories. For example, the
+	/// [Augmentations](https://steamcommunity.com/sharedfiles/filedetails/?id=1293725945) mod adds Cyborg
+	/// heads, which generally don't have facial hair (but other facial props are okay!)
+	///
+	/// This change allows custom head archetypes to suppress certain facial customization categories.
+	/// Example from Augmentations:
+	///
+	/// `XComContent.ini`:
+	///
+	/// ```ini
+	/// [XComGame.X2BodyPartTemplateManager]
+	/// +BodyPartTemplateConfig=(PartType="Head", TemplateName="Augmentations_Head_AFR", ArchetypeName="MusashiAndroidHeads.ARC_Head_Afr_M", Gender=eGender_Male, Race=eRace_African, bCanUseOnCivilian=false, SpecializedType=false, DLCName="Augmentations")
+	/// ;                                                                                                       Object name ^^^^^^^^^^^^^^
+	/// [XComGame.CHHelpers]
+	/// +HeadSuppressesHair="ARC_Head_Afr_M"
+	/// +HeadSuppressesBeard="ARC_Head_Afr_M"
+	/// ```
+	///
+	/// The specified name is the object name of the archetype. Full list of arrays:
+	///
+	/// * `HeadSuppressesHair`
+	/// * `HeadSuppressesLowerFaceProp`
+	/// * `HeadSuppressesUpperFaceProp`
+	/// * `HeadSuppressesHelmet`
+	/// * `HeadSuppressesBeard`
+
+
 	
 	// Start Issue #219
-	/*
-	 * Extensive comments on the way Firaxis set up heads:
-	 * The Pawn mesh component (accessible via `Mesh`) contains the standard
-	 * head for the given pawn type, or a base pawn. The HeadContent archetypes either contain a
-	 * reference to it (or not, Sparks). The standard code path for Humans below recognizes that and completely
-	 * skips any custom head logic, and instead redirects the head to the base pawn.
-	 * If the meshes differ later (by loading a mod Head), the other code path wants to set the custom head
-	 * mesh component to use the custom mesh. There's one problem -- it's `Mesh` now. This
-	 * causes major inconsistencies and crashes.
-	 * The commented out code serves purely as documentation of the default behavior.
-	 */
+	// The commented out code serves purely as documentation of the default behavior.
 	/*
 	if( HeadContent.SkeletalMesh != Mesh.SkeletalMesh )
  	{
