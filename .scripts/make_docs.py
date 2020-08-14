@@ -104,22 +104,36 @@ def make_doc_item(lines: List[str], file: str,
         k, v = pair.strip().split(':')
         if k in item:
             err(f"{file}:{span[0]+1}: duplicate key `{k}`")
-        if k == 'feature' or k == 'ref':
+        if k == "feature" or k == "ref":
             item[k] = v
-        elif k == 'issue':
+        elif k == "issue":
             item[k] = int(v)
-        elif k == 'tags':
+        elif k == "tags":
             tags = v.split(',')
             item[k] = tags if tags != [''] else []
         else:
             err(f"{file}:{span[0]+1}: unknown key `{k}`")
 
-    ref = make_ref("\n".join(lines[1:]), file, span, item.get('issue'))
+    # Check some things
+    if not ("feature" in item or "ref" in item):
+        err(f"{file}:{span[0]+1}: missing key `feature` or `ref`")
+        return None
+    if not "issue" in item and ("feature" in item
+                                or item.get("ref") == HL_FEATURE_FIX):
+        err(f"{file}:{span[0]+1}: missing key `issue`")
+        item["issue"] = 99999
+    if not "tags" in item and "feature" in item:
+        err(f"{file}:{span[0]+1}: missing key `tags`")
+        print("note: use `tags:` to specify an empty tag list")
+        item["tags"] = []
+
+    ref = make_ref("\n".join(lines[1:]), file, span, item.get("issue"))
     if "ref" in item:
         item["text"] = ref
     else:
         item["texts"] = []
         item["texts"].append(ref)
+
     return item
 
 
@@ -143,7 +157,6 @@ def process_file(file, lang) -> List[dict]:
 
         def reset(self, filename):
             self.lines = []
-            self.startline = -1
             self.indent = None
             self.state = ParserState.TEXT
             self.filename = filename
@@ -200,7 +213,7 @@ def process_file(file, lang) -> List[dict]:
                             self.lines.append(line)
                         else:
                             if not orig_line.startswith(self.indent):
-                                err(f"{self.filename}:{lnum+1}: bad indentation"
+                                err(f"{self.filename}:{lnum+1}: bad indentation for {HL_INCLUDE_FOLLOWING}"
                                     )
                             else:
                                 self.lines.append(orig_line[len(self.indent):])
@@ -210,6 +223,9 @@ def process_file(file, lang) -> List[dict]:
                                      (startline, lnum))
                 if item != None:
                     self.doc_items.append(item)
+            if self.state == ParserState.INCLUDE:
+                err(f"{self.filename}:{startline+1}: unclosed {HL_INCLUDE_FOLLOWING}"
+                    )
 
     doc_items = []
 
@@ -266,6 +282,12 @@ def merge_doc_refs(doc_items: List[dict], refs_start: int) -> Iterable[dict]:
     items = dict((i["feature"], i) for i in doc_items[:refs_start])
     refs = doc_items[refs_start:]
 
+    # sort refs for predictable order (by file name, then by line)
+    def cmp_ref(ref: dict) -> (str, int):
+        return (ref["text"]["file"], ref["text"]["span"][0])
+
+    refs.sort(key=lambda r: cmp_ref(r))
+
     for ref in refs:
         ref_name = ref["ref"]
         if ref_name in items:
@@ -308,9 +330,6 @@ def render_bugfix_page(item: dict, outdir: str):
 
 def render_full_feature_page(item: dict, outdir: str):
     feat_name = item["feature"]
-    if not "tags" in item:
-        err(f"Feature `{feat_name}` does not have a `tags` key/annotation")
-        return
 
     if "strategy" in item["tags"] and not "tactical" in item["tags"]:
         folder = "strategy"
@@ -320,7 +339,8 @@ def render_full_feature_page(item: dict, outdir: str):
         folder = "misc"
 
     fname = os.path.join(outdir, folder, feat_name + ".md")
-    item["__filepath"] = os.path.join(folder, feat_name + ".md")
+    # Always a relative path, so backslash with os.path.join not necessary on Windows
+    item["__filepath"] = folder + "/" + feat_name + ".md"
     with open(fname, 'w') as file:
         print(f"ok: {fname}")
         file.write(f"Title: {feat_name}\n\n")
@@ -329,7 +349,8 @@ def render_full_feature_page(item: dict, outdir: str):
         file.write(f"Tracking Issue: {link_to_issue(issue)}\n\n")
 
         def link_tag(tag: str) -> str:
-            path = os.path.join("..", tag + ".md")
+            # Always a relative path, so backslash with os.path.join not necessary on Windows
+            path = "../" + tag + ".md"
             return f"[{tag}]({path})"
 
         linked_tags = list(
@@ -366,7 +387,7 @@ def render_tag_page(tag: str, items: List[dict], outdir: str):
             pass
     except FileNotFoundError:
         err(f"file {fname} not found (`{tag}` is an unknown tag)")
-        referrers = ", ".join(map(lambda i: "`" + i["feature"] + "`"), items)
+        referrers = ", ".join(map(lambda i: "`" + i["feature"] + "`", items))
         print(f"note: referred to by {referrers}")
         return
 
