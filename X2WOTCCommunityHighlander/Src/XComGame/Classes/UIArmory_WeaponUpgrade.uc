@@ -1179,6 +1179,7 @@ function InterpolateWeapon()
 		}
 	}
 	
+	// Start Issue #832
 	/// HL-Docs: feature:AdjustPositionOfWeaponPawn; issue:832; tags:customization
 	/// When a weapon pawn is displayed in the weapon upgrade view it sets the position to the root bone of the mesh at the center of the screen. 
 	/// Some weapon models simply do not fit correctly on the screen and obscure the UI. This fix aims to adjust that. It moves the position of the 
@@ -1198,7 +1199,6 @@ function InterpolateWeapon()
 	/// +WeaponViewOffsets=(Template=SniperRifle_BM, offset_x=20, offset_y=10, offset_z=10)
 	/// ```
 
-	// Start Issue #832
 	// Save the original position of the actor
 	BeginLocation = ActorPawn.Location;
 
