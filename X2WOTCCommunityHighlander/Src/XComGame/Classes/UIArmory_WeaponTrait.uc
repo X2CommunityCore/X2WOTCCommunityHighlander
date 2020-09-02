@@ -30,16 +30,31 @@ delegate OnItemSelectedCallback(UIList _list, int itemIndex);
 
 simulated function InitScreen(XComPlayerController InitController, UIMovie InitMovie, optional name InitName)
 {
+	// Issue #877 Variable
+	local UIArmory_WeaponUpgrade WeaponUpgradeScreen;
+
 	super.InitScreen(InitController, InitMovie, InitName);
 
-	if(`ScreenStack.IsInStack(class'UIArmory_WeaponUpgrade'))
-		`ScreenStack.GetScreen(class'UIArmory_WeaponUpgrade').Hide();
+	// Issue #877 Start -- make sure this screen doesn't hide itself with the changes to UIScreenStack (#290)
+	WeaponUpgradeScreen = UIArmory_WeaponUpgrade(`ScreenStack.GetScreen_CH(class'UIArmory_WeaponUpgrade', false));
+	if (WeaponUpgradeScreen != none)
+	{
+		WeaponUpgradeScreen.Hide();
+	}
+	// Issue #877 End
 }
 
 simulated function OnRemoved()
 {
-	if(`ScreenStack.IsInStack(class'UIArmory_WeaponUpgrade'))
-		`ScreenStack.GetScreen(class'UIArmory_WeaponUpgrade').Show();
+	// Issue #877 Start -- make sure this screen doesn't hide itself with the changes to UIScreenStack (#290)
+	local UIArmory_WeaponUpgrade WeaponUpgradeScreen;
+
+	WeaponUpgradeScreen = UIArmory_WeaponUpgrade(`ScreenStack.GetScreen_CH(class'UIArmory_WeaponUpgrade', false));
+	if (WeaponUpgradeScreen != none)
+	{
+		WeaponUpgradeScreen.Show();
+	}
+	// Issue #877 End
 }
 
 simulated function UpdateSlots()
@@ -59,8 +74,15 @@ simulated function UpdateCustomization(UIPanel DummyParam)
 
 simulated function CreateWeaponPawn(XComGameState_Item Weapon, optional Rotator DesiredRotation)
 {
-	if(`ScreenStack.IsInStack(class'UIArmory_WeaponUpgrade'))
-		ActorPawn = UIArmory_WeaponUpgrade(`ScreenStack.GetScreen(class'UIArmory_WeaponUpgrade')).ActorPawn;
+	// Issue #877 Start -- make sure this screen doesn't hide itself with the changes to UIScreenStack (#290)
+	local UIArmory_WeaponUpgrade WeaponUpgradeScreen;
+	
+	WeaponUpgradeScreen = UIArmory_WeaponUpgrade(`ScreenStack.GetScreen_CH(class'UIArmory_WeaponUpgrade', false));
+	if (WeaponUpgradeScreen != none)
+	{
+		ActorPawn = WeaponUpgradeScreen.ActorPawn;
+	}
+	// Issue #877 End
 }
 
 simulated function UpdateTrait( string _Title, 
