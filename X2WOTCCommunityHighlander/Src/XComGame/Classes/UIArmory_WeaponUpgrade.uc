@@ -1179,6 +1179,25 @@ function InterpolateWeapon()
 		}
 	}
 	
+	/// HL-Docs: feature:AdjustPositionOfWeaponPawn; issue:832; tags:customization
+	/// When a weapon pawn is displayed in the weapon upgrade view it sets the position to the root bone of the mesh at the center of the screen. 
+	/// Some weapon models simply do not fit correctly on the screen and obscure the UI. This fix aims to adjust that. It moves the position of the 
+	/// created pawn by specified offset values from a config entry in the `XComUI.ini`.
+	/// x is left/right with moving left being positive
+	/// y is fore/aft with moving aft being positive (zoom level)
+	/// z is up/down with moving up being positive
+	/// Use this feature by creating the following lines in `XComUI.ini`:
+	///
+	/// ```ini
+	/// [XComGame.UIArmory_WeaponUpgrade]
+	/// ;template
+	/// ;+WeaponViewOffsets=(Template=, offset_x=0.0, offset_y=0.0, offset_z=0.0)
+	/// ;example that shifts the sniper rifles to the left, up a little and slightly smaller
+	/// +WeaponViewOffsets=(Template=SniperRifle_CV, offset_x=20, offset_y=10, offset_z=10)
+	/// +WeaponViewOffsets=(Template=SniperRifle_MG, offset_x=20, offset_y=10, offset_z=10)
+	/// +WeaponViewOffsets=(Template=SniperRifle_BM, offset_x=20, offset_y=10, offset_z=10)
+	/// ```
+
 	// Start Issue #832
 	// Save the original position of the actor
 	BeginLocation = ActorPawn.Location;
