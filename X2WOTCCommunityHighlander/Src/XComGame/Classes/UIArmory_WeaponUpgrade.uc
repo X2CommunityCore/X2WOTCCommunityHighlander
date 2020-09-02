@@ -540,6 +540,15 @@ simulated function PreviewUpgrade(UIList ContainerList, int ItemIndex)
 	{
 		Weapon.ApplyWeaponUpgradeTemplate(UpgradeTemplate, SlotIndex);
 
+		//	Start Issue #39
+		/// HL-Docs: ref:Bugfixes; issue:39
+		/// Create weapon pawn before setting PawnLocationTag so that the weapon can rotate when previewing weapon upgrades.
+		PreviousLocation = ActorPawn.Location;
+		CreateWeaponPawn(Weapon, ActorPawn.Rotation);
+		ActorPawn.SetLocation(PreviousLocation);
+		MouseGuard.SetActorPawn(ActorPawn, ActorPawn.Rotation);
+		//	End Issue #39
+
 		//Formulate the attachment specific location tag from the attach socket
 		WeaponTemplateName = Weapon.GetMyTemplateName();
 		for( WeaponAttachIndex = 0; WeaponAttachIndex < UpgradeTemplate.UpgradeAttachments.Length; ++WeaponAttachIndex )
@@ -565,12 +574,12 @@ simulated function PreviewUpgrade(UIList ContainerList, int ItemIndex)
 	{
 		MouseGuard.SetActorPawn(None); //Otherwise, grab the rotation to show them the upgrade as they select it
 	}
-
-	PreviousLocation = ActorPawn.Location;
-	CreateWeaponPawn(Weapon, ActorPawn.Rotation);
-	ActorPawn.SetLocation(PreviousLocation);
-	MouseGuard.SetActorPawn(ActorPawn, ActorPawn.Rotation);
-
+	//	Start Issue #39
+	//PreviousLocation = ActorPawn.Location;
+	//CreateWeaponPawn(Weapon, ActorPawn.Rotation);
+	//ActorPawn.SetLocation(PreviousLocation);
+	//MouseGuard.SetActorPawn(ActorPawn, ActorPawn.Rotation);
+	//	End Issue #39
 	`XCOMHISTORY.CleanupPendingGameState(ChangeState);
 }
 
