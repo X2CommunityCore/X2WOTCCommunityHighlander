@@ -553,22 +553,38 @@ static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
 /// The vanilla behavior is that only the first item in the Utility Slot is visible on the soldier's body,
 /// and only in Tactical, but not in the Armory.
 /// Using this feature it's possible to show all items in all multi-slots, including Highlander-templated slots.
-/// There are two delegates: 
-/// 1) `ShouldDisplayMultiSlotItemInStrategyDelegate` is used to decide whether the specified item 
-/// should be visible on specified unit in the Armory, Squad Select and Post Mission Sequence.
-/// 2) `ShouldDisplayMultiSlotItemInTacticalDelegate` - same as above, but for Tactical.
-/// Delegates must be added into `CHHelpers` ClassDefaultObject. Normally this is done in `OnPostTemplatesCreated`.
-/// Warning: Delegates must be bound to the ClassDefaultObject of your class, otherwise the game will hard crash 
+///
+/// There are two delegates:
+///
+/// ```unrealscript
+/// // Used to decide whether the specified item should be visible on specified unit in the Armory, Squad Select and Post Mission Sequence.
+/// delegate EHLDelegateReturn ShouldDisplayMultiSlotItemInStrategyDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, out int bDisplayItem, XComUnitPawn UnitPawn, optional XComGameState CheckGameState);
+/// // Same as above, but for Tactical.
+/// delegate EHLDelegateReturn ShouldDisplayMultiSlotItemInTacticalDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, out int bDisplayItem, XGUnit UnitVisualizer, optional XComGameState CheckGameState);
+/// ```
+///
+/// ## How to use
+///
+/// Delegates must be added to the `CHHelpers` ClassDefaultObject. Normally this is done in `OnPostTemplatesCreated`
+/// via `AddShouldDisplayMultiSlotItemInStrategyCallback` and `AddShouldDisplayMultiSlotItemInTacticalCallback`.
+///
+/// **Warning:** Delegates must be bound to the ClassDefaultObject of your class, otherwise the game will hard crash 
 /// due to a garbage collection failure when transitioning between layers. Implementing your methods in a class 
 /// that `extends X2DownloadableContentInfo` will automatically handle this for you.
-/// Both delegates have the `out int bDisplayItem` argument. Set it to any value above zero to display the item on the soldier's body. Set to 0 to keep the item hidden.
-/// Highlander-templated slots also need to have `NeedsPresEquip=true` to display in Tactical, 
+///
+/// Both delegates have the `out int bDisplayItem` argument. Set it to any value above zero to display the item on the soldier's body.
+/// Set to 0 to keep the item hidden. Highlander-templated slots also need to have `NeedsPresEquip=true` to display in Tactical, 
 /// and `ShowOnCinematicPawns=true` to display in the Armory and Squad Select.
-/// Both delegates should return `EHLDR_NoInterrupt` to allow subsequent delegates to run and potentially override the value you have assigned to `bDisplayItem`,
-/// or `EHLDR_InterruptDelegates` to not allow any subsequent delegates to run. 
+///
+/// Both delegates should return `EHLDR_NoInterrupt` to allow subsequent delegates to run and potentially override the value you have
+/// assigned to `bDisplayItem`, or `EHLDR_InterruptDelegates` to not allow any subsequent delegates to run. A priority can be supplied
+/// to the `AddShouldDisplay...` functions, where a higher-priority callback runs earlier.
+///
 /// You can get the template name of the item in question from the provided ItemState by doing `ItemState.GetMyTemplateName()`, 
 /// and access its Inventory Slot as `ItemState.InventorySlot`.
+///
 /// Both delegates may or may not provide you with an XComGameState that can be used to access accompanying state objects, for example:
+///
 /// ```unrealscript
 /// if (CheckGameState != none)
 /// {
@@ -579,7 +595,16 @@ static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
 /// {
 /// 	MyState = `XCOMHISTORY.GetGameStateForObjectID(ObjectID);
 /// }
+///
+/// // Alternatively, for items in a unit's inventory:
+/// ItemState = UnitState.GetItemGameState(ItemRef, CheckGameState);
+/// ItemState = UnitState.GetItemInSlot(eInvSlot_PrimaryWeapon, CheckGameState);
+/// ItemStates = UnitState.GetAllItemsInSlot(eInvSlot_Utility, CheckGameState);
 /// ```
+/// This is mostly relevant for multiplayer, as the pre-game setup doesn't have a History.
+///
+/// ## Example
+///
 /// Here's a simple example of a delegate pair that will display all items equipped in the Utility Slot in both Tactical and Strategy.
 /// This needs to go in a class that extends `X2DownloadableContentInfo`.
 /// ```unrealscript
@@ -649,7 +674,7 @@ simulated function bool AddShouldDisplayMultiSlotItemInStrategyCallback(delegate
 
 		// Remember the Index of the first member of the array of callbacks whose Priority is lower than the priority of the new Callback we intend to add.
 		// Thusly, Callbacks with higher Priority will be called first. Callbacks with the same priority will be called in order of their addition.
-		if (Priority > ShouldDisplayMultiSlotItemInStrategyCallbacks[i].Priority && !bPriorityIndexFound) 
+		if (Priority > ShouldDisplayMultiSlotItemInStrategyCallbacks[i].Priority && !bPriorityIndexFound)
 		{
 			PriorityIndex = i;
 
@@ -721,7 +746,7 @@ simulated function bool AddShouldDisplayMultiSlotItemInTacticalCallback(delegate
 			return false;
 		}
 
-		if (Priority > ShouldDisplayMultiSlotItemInTacticalCallbacks[i].Priority && !bPriorityIndexFound) 
+		if (Priority > ShouldDisplayMultiSlotItemInTacticalCallbacks[i].Priority && !bPriorityIndexFound)
 		{
 			PriorityIndex = i;
 			bPriorityIndexFound = true;
