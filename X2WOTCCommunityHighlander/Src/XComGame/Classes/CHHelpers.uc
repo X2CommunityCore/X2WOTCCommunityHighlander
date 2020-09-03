@@ -632,6 +632,7 @@ simulated function bool AddShouldDisplayMultiSlotItemInStrategyCallback(delegate
 {
 	local ShouldDisplayMultiSlotItemInStrategyStruct NewShouldDisplayMultiSlotItemInStrategyCallback;
 	local int i, PriorityIndex;
+	local bool bPriorityIndexFound;
 
 	if (ShouldDisplayMultiSlotItemInStrategyFn == none)
 	{
@@ -648,16 +649,20 @@ simulated function bool AddShouldDisplayMultiSlotItemInStrategyCallback(delegate
 
 		// Remember the Index of the first member of the array of callbacks whose Priority is lower than the priority of the new Callback we intend to add.
 		// Thusly, Callbacks with higher Priority will be called first. Callbacks with the same priority will be called in order of their addition.
-		if (Priority > ShouldDisplayMultiSlotItemInStrategyCallbacks[i].Priority && PriorityIndex == 0) 
+		if (Priority > ShouldDisplayMultiSlotItemInStrategyCallbacks[i].Priority && !bPriorityIndexFound) 
 		{
 			PriorityIndex = i;
+
+			//	Need to assign the priority index only once so that highest priority delegates do not fall through to become 2nd last member of the array.
+			//	Keep cycling through the array so that the previous check for duplicate delegates can run for every currently registered delegate.
+			bPriorityIndexFound = true;
 		}
 	}
 
 	NewShouldDisplayMultiSlotItemInStrategyCallback.Priority = Priority;
 	NewShouldDisplayMultiSlotItemInStrategyCallback.ShouldDisplayMultiSlotItemInStrategyFn = ShouldDisplayMultiSlotItemInStrategyFn;
 
-	ShouldDisplayMultiSlotItemInStrategyCallbacks.InsertItem(i, NewShouldDisplayMultiSlotItemInStrategyCallback);
+	ShouldDisplayMultiSlotItemInStrategyCallbacks.InsertItem(PriorityIndex, NewShouldDisplayMultiSlotItemInStrategyCallback);
 
 	return true;
 }
@@ -702,18 +707,11 @@ simulated function bool AddShouldDisplayMultiSlotItemInTacticalCallback(delegate
 {
 	local ShouldDisplayMultiSlotItemInTacticalStruct NewShouldDisplayMultiSlotItemInTacticalCallback;
 	local int i, PriorityIndex;
+	local bool bPriorityIndexFound;
 
 	if (ShouldDisplayMultiSlotItemInTacticalFn != none)
 	{
 		return false;
-	}
-
-	for (i = 0; i < ShouldDisplayMultiSlotItemInTacticalCallbacks.Length; i++)
-	{
-		if (Priority > ShouldDisplayMultiSlotItemInTacticalCallbacks[i].Priority) 
-		{
-			break;
-		}
 	}
 
 	for (i = 0; i < ShouldDisplayMultiSlotItemInTacticalCallbacks.Length; i++)
@@ -723,16 +721,17 @@ simulated function bool AddShouldDisplayMultiSlotItemInTacticalCallback(delegate
 			return false;
 		}
 
-		if (Priority > ShouldDisplayMultiSlotItemInTacticalCallbacks[i].Priority && PriorityIndex == 0) 
+		if (Priority > ShouldDisplayMultiSlotItemInTacticalCallbacks[i].Priority && !bPriorityIndexFound) 
 		{
 			PriorityIndex = i;
+			bPriorityIndexFound = true;
 		}
 	}
 
 	NewShouldDisplayMultiSlotItemInTacticalCallback.Priority = Priority;
 	NewShouldDisplayMultiSlotItemInTacticalCallback.ShouldDisplayMultiSlotItemInTacticalFn = ShouldDisplayMultiSlotItemInTacticalFn;
 
-	ShouldDisplayMultiSlotItemInTacticalCallbacks.InsertItem(i, NewShouldDisplayMultiSlotItemInTacticalCallback);
+	ShouldDisplayMultiSlotItemInTacticalCallbacks.InsertItem(PriorityIndex, NewShouldDisplayMultiSlotItemInTacticalCallback);
 
 	return true;
 }
