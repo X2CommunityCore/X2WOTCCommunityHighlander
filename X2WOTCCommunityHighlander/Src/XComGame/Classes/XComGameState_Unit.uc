@@ -3867,14 +3867,14 @@ function bool TriggerHasPocketOfTypeEvent(name EventID, bool bOverridePocketResu
 /// and abilities granted by the character template.
 /// Finally the event OverrideHasGrenadePocket is triggered that allows mods to override the final result
 ///
-/// ```unrealscript
-/// EventID: OverrideHasGrenadePocket
+/// ```event
+/// EventID: OverrideHasGrenadePocket,
 /// EventData: XComLWTuple {
 /// 	Data: [
 /// 	  inout bool bHasGrenadePocket
-///     ]
-/// }
-/// EventSource: XComGameState_Unit
+/// 	]
+/// },
+/// EventSource: XComGameState_Unit (SourceUnit),
 /// NewGameState: no
 /// ```
 function bool HasGrenadePocket()

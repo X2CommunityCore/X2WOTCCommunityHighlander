@@ -6,6 +6,8 @@ import shutil
 from enum import Enum
 from typing import List, Optional, Iterable
 
+from make_docs import event_tuples
+
 HL_DOCS_KEYWORD = "HL-Docs:"
 HL_INCLUDE_FOLLOWING = "HL-Include:"
 # "Bugfixes" is a feature owned by the documentation script.
@@ -15,21 +17,21 @@ HL_FEATURE_FIX = "Bugfixes"
 HL_BRANCH = "master"
 HL_REPO = "https://github.com/X2CommunityCore/X2WOTCCommunityHighlander"
 
-exit_code = 0
+
+class Session:
+    def __init__(self):
+        self.exit_code = 0
+
+    def err(self, msg: str):
+        print(f"error: {msg}")
+        self.exit_code = 1
+
+    def fatal(self, msg: str):
+        print(f"fatal error: {msg}")
+        sys.exit(1)
 
 
-def err(msg: str):
-    global exit_code
-    print(f"error: {msg}")
-    exit_code = 1
-
-
-def fatal(msg: str):
-    print(f"fatal error: {msg}")
-    sys.exit(1)
-
-
-def parse_args() -> (List[str], str, str):
+def parse_args(sess) -> (List[str], str, str):
     parser = argparse.ArgumentParser(
         description='Generate HL docs from source files.')
     parser.add_argument('indirs',
@@ -47,14 +49,14 @@ def parse_args() -> (List[str], str, str):
     args = parser.parse_args()
 
     if os.path.isfile(args.outdir):
-        fatal(f"Output dir {args.outdir} is existing file")
+        sess.fatal(f"Output dir {args.outdir} is existing file")
 
     if not os.path.exists(args.docsdir) or os.path.isfile(args.docsdir):
-        fatal(f"Docs src dir {args.outdir} does not exist or is file")
+        sess.fatal(f"Docs src dir {args.outdir} does not exist or is file")
 
     for indir in args.indirs:
         if not os.path.isdir(indir):
-            fatal(f"Input directory {indir} does not exist or is file")
+            sess.fatal(f"Input directory {indir} does not exist or is file")
 
     return args.indirs, args.outdir, args.docsdir
 
@@ -86,7 +88,7 @@ def make_ref(text: str, file: str, span: (int, int),
     return ref
 
 
-def make_doc_item(lines: List[str], file: str,
+def make_doc_item(sess, lines: List[str], file: str,
                   span: (int, int)) -> Optional[dict]:
     """
     dict:
@@ -103,7 +105,7 @@ def make_doc_item(lines: List[str], file: str,
     for pair in lines[0].split(';'):
         k, v = pair.strip().split(':')
         if k in item:
-            err(f"{file}:{span[0]+1}: duplicate key `{k}`")
+            sess.err(f"{file}:{span[0]+1}: duplicate key `{k}`")
         if k == "feature" or k == "ref":
             item[k] = v
         elif k == "issue":
@@ -112,18 +114,18 @@ def make_doc_item(lines: List[str], file: str,
             tags = v.split(',')
             item[k] = tags if tags != [''] else []
         else:
-            err(f"{file}:{span[0]+1}: unknown key `{k}`")
+            sess.err(f"{file}:{span[0]+1}: unknown key `{k}`")
 
     # Check some things
     if not ("feature" in item or "ref" in item):
-        err(f"{file}:{span[0]+1}: missing key `feature` or `ref`")
+        sess.err(f"{file}:{span[0]+1}: missing key `feature` or `ref`")
         return None
     if not "issue" in item and ("feature" in item
                                 or item.get("ref") == HL_FEATURE_FIX):
-        err(f"{file}:{span[0]+1}: missing key `issue`")
+        sess.err(f"{file}:{span[0]+1}: missing key `issue`")
         item["issue"] = 99999
     if not "tags" in item and "feature" in item:
-        err(f"{file}:{span[0]+1}: missing key `tags`")
+        sess.err(f"{file}:{span[0]+1}: missing key `tags`")
         print("note: use `tags:` to specify an empty tag list")
         item["tags"] = []
 
@@ -142,7 +144,71 @@ def generate_builtin_features(doc_items):
     doc_items.append(bugfix_item)
 
 
-def process_file(file, lang) -> List[dict]:
+TYPE_TO_STRUCT_PROP = {
+    "bool": "b",
+    "int": "i",
+    "float": "f",
+    "string": "s",
+    "name": "n",
+    "vector": "v",
+    "rotator": "r",
+    "ttile": "t",
+    "array<int>": "ai",
+    "array<float>": "af",
+    "array<string>": "as",
+    "array<name>": "an",
+    "array<vector>": "av",
+    "array<rotator>": "ar",
+    "array<ttile>": "at",
+}
+
+
+def make_listener_template(spec: dict) -> str:
+    event_id = spec["EventID"]
+
+    funcsig = f'function EventListenerReturn On{event_id}(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackObject)\n{{'
+    locals = ''
+    casts = ''
+    unwraps = ''
+    your_code_here = '\t// Your code here\n'
+    rewraps = ''
+    footer = '\treturn ELR_NoInterrupt;\n}'
+
+    if spec["EventSource"]["type"].lower(
+    ) != "none" and "name" in spec["EventSource"]:
+        locals += f'\tlocal {spec["EventSource"]["type"]} {spec["EventSource"]["name"]};\n'
+        casts += f'\t{spec["EventSource"]["name"]} = {spec["EventSource"]["type"]}(EventSource);\n'
+
+    if spec["EventData"]["type"].lower(
+    ) != "none" and "name" in spec["EventData"]:
+        locals += f'\tlocal {spec["EventData"]["type"]} {spec["EventData"]["name"]};\n'
+        casts += f'\t{spec["EventData"]["name"]} = {spec["EventData"]["type"]}(EventData);\n'
+    if "tuple" in spec["EventData"]:
+        locals += f'\tlocal XComLWTuple Tuple;\n'
+        casts += f'\tTuple = XComLWTuple(EventData);\n'
+        casts += f'\n\tif (Tuple == None || Tuple.Id != \'{event_id}\') return ELR_NoInterrupt;\n'
+
+    if "tuple" in spec["EventData"]:
+        for idx, (inoutness, type,
+                  name) in enumerate(spec["EventData"]["tuple"]):
+            if inoutness.is_in():
+                locals += f'\tlocal {type} {name};\n'
+                if type.lower() in TYPE_TO_STRUCT_PROP:
+                    unwraps += f'\t{name} = Tuple.Data[{idx}].{TYPE_TO_STRUCT_PROP[type.lower()]};\n'
+                else:
+                    unwraps += f'\t{name} = {type}(Tuple.Data[{idx}].o);\n'
+
+            if inoutness.is_out():
+                if type.lower() in TYPE_TO_STRUCT_PROP:
+                    rewraps += f'\tTuple.Data[{idx}].{TYPE_TO_STRUCT_PROP[type.lower()]} = {name};\n'
+                else:
+                    rewraps += f'\tTuple.Data[{idx}].o = {name};\n'
+
+    return "\n".join(
+        [funcsig, locals, casts, unwraps, your_code_here, rewraps, footer])
+
+
+def process_file(sess, file, lang) -> List[dict]:
     """
     Process file, extract documentation
     """
@@ -150,10 +216,12 @@ def process_file(file, lang) -> List[dict]:
         TEXT = 1
         DOC = 2
         INCLUDE = 3
+        EVENT = 4
 
     class Parser:
-        def __init__(self, doc_items):
+        def __init__(self, doc_items, sess):
             self.doc_items = doc_items
+            self.sess = sess
 
         def reset(self, filename):
             self.lines = []
@@ -163,11 +231,16 @@ def process_file(file, lang) -> List[dict]:
 
         def read_doc_line(self, line, lnum):
             if line.startswith(HL_DOCS_KEYWORD):
-                err(f"{self.filename}:{lnum+1}: multiple `{HL_DOCS_KEYWORD}` in one item"
-                    )
+                sess.err(
+                    f"{self.filename}:{lnum+1}: multiple `{HL_DOCS_KEYWORD}` in one item"
+                )
             elif line.startswith(HL_INCLUDE_FOLLOWING):
                 self.lines.append(f"\n```{lang}")
                 self.state = ParserState.INCLUDE
+            elif line.startswith("```event"):
+                self.state = ParserState.EVENT
+                self.eventstart = lnum
+                self.eventlines = []
             else:
                 self.lines.append(line)
 
@@ -192,7 +265,7 @@ def process_file(file, lang) -> List[dict]:
                     if is_doc_comment:
                         self.read_doc_line(line, lnum)
                     else:
-                        item = make_doc_item(self.lines, self.filename,
+                        item = make_doc_item(sess, self.lines, self.filename,
                                              (startline, lnum))
                         if item != None:
                             self.doc_items.append(item)
@@ -213,30 +286,54 @@ def process_file(file, lang) -> List[dict]:
                             self.lines.append(line)
                         else:
                             if not orig_line.startswith(self.indent):
-                                err(f"{self.filename}:{lnum+1}: bad indentation for {HL_INCLUDE_FOLLOWING}"
-                                    )
+                                sess.err(
+                                    f"{self.filename}:{lnum+1}: bad indentation for {HL_INCLUDE_FOLLOWING}"
+                                )
                             else:
                                 self.lines.append(orig_line[len(self.indent):])
+                elif self.state == ParserState.EVENT:
+                    if line.startswith("```"):
+                        self.lines.append("## Event specification")
+                        self.lines.append("")
+                        self.lines.append("```event")
+                        self.lines.extend(self.eventlines)
+                        self.lines.append("```")
+                        try:
+                            spec = event_tuples.parse_event_spec("\n".join(
+                                self.eventlines))
+                            self.lines.append("\n### Listener template\n")
+                            self.lines.append("```unrealscript")
+                            self.lines.append(make_listener_template(spec))
+                            self.lines.append("```")
+                        except event_tuples.ParseError as pe:
+                            sess.err(
+                                f"{self.filename}:{self.eventstart+1}: {pe.msg}"
+                            )
+
+                        self.state = ParserState.DOC
+                    else:
+                        self.eventlines.append(line)
             # If the file ended with a doc item...
             if self.state == ParserState.DOC:
-                item = make_doc_item(self.lines, self.filename,
+                item = make_doc_item(sess, self.lines, self.filename,
                                      (startline, lnum))
                 if item != None:
                     self.doc_items.append(item)
             if self.state == ParserState.INCLUDE:
-                err(f"{self.filename}:{startline+1}: unclosed {HL_INCLUDE_FOLLOWING}"
-                    )
+                sess.err(
+                    f"{self.filename}:{startline+1}: unclosed {HL_INCLUDE_FOLLOWING}"
+                )
 
     doc_items = []
 
-    parser = Parser(doc_items)
+    parser = Parser(doc_items, sess)
     with open(file, errors='replace') as infile:
         parser.parse_file(infile, file)
 
     return doc_items
 
 
-def partition_items(doc_items: List[dict]) -> int:
+def partition_items(sess, doc_items: List[dict]) -> int:
     """
     Partition the array and check for duplicates, returning the start index
     of the refs (where features end)
@@ -266,7 +363,7 @@ def partition_items(doc_items: List[dict]) -> int:
         if first_def != None and curr_feat == first_def["feature"]:
             # Report duplicate feature definition
             if not seen:
-                err(f"duplicate feature definition `{curr_feat}`")
+                sess.err(f"duplicate feature definition `{curr_feat}`")
                 print(f"note: first definition {make_loc(first_def)}")
                 seen = True
             print(f"note: this definition {make_loc(it)}")
@@ -278,7 +375,8 @@ def partition_items(doc_items: List[dict]) -> int:
     return idx
 
 
-def merge_doc_refs(doc_items: List[dict], refs_start: int) -> Iterable[dict]:
+def merge_doc_refs(sess, doc_items: List[dict],
+                   refs_start: int) -> Iterable[dict]:
     items = dict((i["feature"], i) for i in doc_items[:refs_start])
     refs = doc_items[refs_start:]
 
@@ -293,7 +391,7 @@ def merge_doc_refs(doc_items: List[dict], refs_start: int) -> Iterable[dict]:
         if ref_name in items:
             items[ref_name]["texts"].append(ref["text"])
         else:
-            err(f"missing base doc item for ref `{ref_name}`")
+            sess.err(f"missing base doc item for ref `{ref_name}`")
 
     return items.values()
 
@@ -378,7 +476,7 @@ def record_tags(tag_lists: dict, item: dict):
         tag_lists[tag].append(item)
 
 
-def render_tag_page(tag: str, items: List[dict], outdir: str):
+def render_tag_page(sess, tag: str, items: List[dict], outdir: str):
     items = sorted(items, key=lambda i: i["issue"])
     fname = os.path.join(outdir, tag + ".md")
 
@@ -386,7 +484,7 @@ def render_tag_page(tag: str, items: List[dict], outdir: str):
         with open(fname, 'r'):
             pass
     except FileNotFoundError:
-        err(f"file {fname} not found (`{tag}` is an unknown tag)")
+        sess.err(f"file {fname} not found (`{tag}` is an unknown tag)")
         referrers = ", ".join(map(lambda i: "`" + i["feature"] + "`", items))
         print(f"note: referred to by {referrers}")
         return
@@ -402,7 +500,7 @@ def render_tag_page(tag: str, items: List[dict], outdir: str):
             file.write("\n")
 
 
-def render_docs(doc_items: Iterable[dict], outdir: str):
+def render_docs(sess, doc_items: Iterable[dict], outdir: str):
     ensure_dir(outdir)
 
     outdir = os.path.join(outdir, "docs")
@@ -421,7 +519,7 @@ def render_docs(doc_items: Iterable[dict], outdir: str):
             record_tags(tag_lists, item)
 
     for tag, items in tag_lists.items():
-        render_tag_page(tag, items, outdir)
+        render_tag_page(sess, tag, items, outdir)
 
 
 def copytree(src, dst):
@@ -443,8 +541,9 @@ def copytree(src, dst):
 
 
 def main():
-    global exit_code
-    indirs, outdir, docsdir = parse_args()
+    sess = Session()
+
+    indirs, outdir, docsdir = parse_args(sess)
     copytree(docsdir, outdir)
 
     doc_items = []
@@ -457,20 +556,21 @@ def main():
                 ext = os.path.splitext(infile)[1]
                 known_exts = {".uc": "unrealscript", ".ini": "ini"}
                 if ext in known_exts:
-                    doc_items.extend(process_file(infile, known_exts[ext]))
+                    doc_items.extend(
+                        process_file(sess, infile, known_exts[ext]))
 
-    refs_start = partition_items(doc_items)
-    doc_items = merge_doc_refs(doc_items, refs_start)
+    refs_start = partition_items(sess, doc_items)
+    doc_items = merge_doc_refs(sess, doc_items, refs_start)
 
     if outdir != None:
-        render_docs(doc_items, outdir)
+        render_docs(sess, doc_items, outdir)
 
-    if exit_code != 0:
+    if sess.exit_code != 0:
         print("note: the docs script found documentation errors")
         print(
             "note: see https://x2communitycore.github.io/X2WOTCCommunityHighlander/#documentation-for-the-documentation-tool for documentation on the docs script"
         )
-    sys.exit(exit_code)
+    sys.exit(sess.exit_code)
 
 
 if __name__ == "__main__":
