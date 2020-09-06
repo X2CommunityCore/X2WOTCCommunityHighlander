@@ -142,11 +142,14 @@ The syntax for events is the following
     ```
 
 * Entries need to be comma-separated
-* `EventData` or `EventSource` specify the type, and then, optionally, in parentheses, the variable name.
+* `EventData` or `EventSource` specify the type, and then optionally in parentheses the variable name.
 * `EventData` can be an XComLWTuple. In that case, use equivalently
     * `XComLWTuple { Data: [...] }`
     * `[...]`
 * Tuple parameters can be `in`, `out`, or `inout`
+    * In the template, `in` parameters will be copied from the tuple into a local property
+    * `out` parameters will be copied from a local property into the tuple
+    * `inout` parameters do both
 * All [`XComLWTuple` types][misc/XComLWTuple.md] are supported
     * `enum`s can be typed with `enum[EnumType]`
     * `class`es can be typed with `class[class<Type>]`

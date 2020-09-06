@@ -65,7 +65,7 @@ def parse_args(sess) -> (List[str], str, str, str):
 
     args = parser.parse_args()
 
-    if os.path.isfile(args.outdir):
+    if args.outdir and os.path.isfile(args.outdir):
         sess.fatal(f"Output dir {args.outdir} is existing file")
 
     if not os.path.exists(args.docsdir) or os.path.isfile(args.docsdir):
@@ -584,8 +584,6 @@ def main():
     indirs, outdir, docsdir, dump_elt = parse_args(sess)
     sess.set_dump_elt(dump_elt)
 
-    copytree(docsdir, outdir)
-
     doc_items = []
     generate_builtin_features(doc_items)
 
@@ -602,7 +600,8 @@ def main():
     refs_start = partition_items(sess, doc_items)
     doc_items = merge_doc_refs(sess, doc_items, refs_start)
 
-    if outdir != None:
+    if outdir is not None:
+        copytree(docsdir, outdir)
         render_docs(sess, doc_items, outdir)
 
     if sess.exit_code != 0:
