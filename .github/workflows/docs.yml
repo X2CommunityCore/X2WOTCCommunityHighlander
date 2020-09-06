@@ -3,12 +3,27 @@ name: docs
 on: [push, pull_request]
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.6'
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Test docs script
+      run: |
+        cd test/docs
+        ! python ../../.scripts/make_docs.py ./test_src --outdir ./test_output --docsdir ./test_tags > ./test_output/stdout.log
+        git diff --exit-code
+        git diff --cached --exit-code
+
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/setup-python@v1
       with:
-        python-version: '3.x'
+        python-version: '3.6'
     - name: Checkout
       uses: actions/checkout@v1
     - name: Build Docs
