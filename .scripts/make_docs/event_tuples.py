@@ -33,11 +33,31 @@ class InOutness(Enum):
     def is_out(self) -> bool:
         return self in [InOutness.OUT, InOutness.INOUT]
 
+    def __str__(self) -> str:
+        if self == InOutness.IN:
+            return "in"
+        elif self == InOutness.OUT:
+            return "out"
+        elif self == InOutness.INOUT:
+            return "inout"
+        else:
+            assert False, "unreachable"
+
 
 class NewGameState(Enum):
     YES = 1
     NO = 2
     MAYBE = 3
+
+    def __str__(self) -> str:
+        if self == NewGameState.YES:
+            return "yes"
+        elif self == NewGameState.NO:
+            return "no"
+        elif self == NewGameState.MAYBE:
+            return "sometimes"
+        else:
+            assert False, "unreachable"
 
 
 class _Token:

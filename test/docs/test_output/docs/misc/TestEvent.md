@@ -8,12 +8,22 @@ Tags: [events](../events.md)
 
 ## Event specification
 
-```event
-EventID: NameOfTheEvent,
-EventData: [in enum[EMyEnum] Enum1, inout class[class<Actor>] SomeClass, out bool bResult, inout array<string> Labels],
-EventSource: XComHQPresentationLayer (Pres),
-NewGameState: no
-```
+| Param | Value |
+| - | - |
+| EventID | NameOfTheEvent |
+| EventData | XComLWTuple |
+| EventSource | XComHQPresentationLayer |
+| NewGameState | no |
+
+### Tuple contents
+
+| Index | Name | Type | Direction|
+| - | - | - | - |
+| 0 | Enum1 | enum (EMyEnum) | in |
+| 1 | SomeClass | class (class&lt;Actor&gt;) | inout |
+| 2 | bResult | bool | out |
+| 3 | Labels | array&lt;string&gt; | inout |
+
 
 ### Listener template
 

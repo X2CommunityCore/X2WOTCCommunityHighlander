@@ -29,8 +29,8 @@ class UnrealScriptFile2 extends Object;
 /// HL-Docs: feature:BadSyntaxToo; issue:6; tags:
 /// This should be part of BadSyntaxOne, BadSyntaxToo should not exist
 
-/// HL-Docs: feature:FeatWithBadTag; issue:7; tags:noncooltag
-/// Item with bad tag
+/// HL-Docs: feature:FeatWithBadTag; issue:7; tags:noncooltag,events
+/// Item with bad tags
 
 /// HL-Docs: feature:Bugfixes; issue:8; tags:
 /// Try to redefine Bugfixes

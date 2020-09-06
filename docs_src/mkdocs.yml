@@ -8,3 +8,6 @@ theme:
   hljs_languages:
     - ini
     - unrealscript
+# FIXME: https://github.com/mkdocs/mkdocs/issues/2028
+extra_javascript:
+  - js/extra.js

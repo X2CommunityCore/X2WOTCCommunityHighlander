@@ -103,7 +103,6 @@ static function EventListenerReturn OnGetCovertActionEvents_Settings(Object Even
 
 	if (Tuple == None || Tuple.Id != 'GetCovertActionEvents_Settings') return ELR_NoInterrupt;
 
-
 	// Your code here
 
 	Tuple.Data[0].b = AddAll;
@@ -118,9 +117,7 @@ static function EventListenerReturn OnOnBestGearLoadoutApplied(Object EventData,
 
 	UnitState = XComGameState_Unit(EventData);
 
-
 	// Your code here
-
 
 	return ELR_NoInterrupt;
 }
@@ -237,7 +234,6 @@ static function EventListenerReturn OnOverrideHasInfiniteAmmo(Object EventData, 
 	Tuple = XComLWTuple(EventData);
 
 	if (Tuple == None || Tuple.Id != 'OverrideHasInfiniteAmmo') return ELR_NoInterrupt;
-
 
 	// Your code here
 
@@ -471,11 +467,7 @@ static function EventListenerReturn OnOverrideUnitFocusUI(Object EventData, Obje
 
 static function EventListenerReturn OnPreCompleteStrategyFromTacticalTransfer(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackObject)
 {
-
-
-
 	// Your code here
-
 
 	return ELR_NoInterrupt;
 }
@@ -486,9 +478,7 @@ static function EventListenerReturn OnPreDarkEventDeactivated(Object EventData, 
 
 	EventState = XComGameState_DarkEvent(EventData);
 
-
 	// Your code here
-
 
 	return ELR_NoInterrupt;
 }

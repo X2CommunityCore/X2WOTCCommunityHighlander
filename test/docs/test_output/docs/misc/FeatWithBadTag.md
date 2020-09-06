@@ -4,9 +4,9 @@ Title: FeatWithBadTag
 
 Tracking Issue: [#7](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/7)
 
-Tags: [noncooltag](../noncooltag.md)
+Tags: [noncooltag](../noncooltag.md), [events](../events.md)
 
-Item with bad tag
+Item with bad tags
 
 ## Source code references
 

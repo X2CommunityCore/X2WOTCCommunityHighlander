@@ -154,6 +154,36 @@ def generate_builtin_features(sess):
     bugfix_item = {"feature": HL_FEATURE_FIX, "tags": [], "texts": []}
     sess.doc_items.append(bugfix_item)
 
+def make_event_spec_table(sess, spec: dict) -> str:
+    event_id = spec["EventID"]
+    data_type = spec["EventData"]["type"]
+    source_type = spec["EventSource"]["type"]
+    
+    newgamestate = spec["NewGameState"]
+
+    buf = "| Param | Value |\n"
+    buf += "| - | - |\n"
+    buf += f"| EventID | {event_id} |\n"
+    buf += f"| EventData | {data_type} |\n"
+    buf += f"| EventSource | {source_type} |\n"
+    buf += f"| NewGameState | {str(newgamestate)} |\n"
+
+    def hacky_escape(s: str) -> str:
+        return s.replace("<", "&lt;").replace(">", "&gt;")
+
+    tup = spec["EventData"].get("tuple")
+    if tup:
+        buf += "\n### Tuple contents\n\n"
+        buf += "| Index | Name | Type | Direction|\n"
+        buf += "| - | - | - | - |\n"
+        for idx, (inoutness, tup_type, name, local_type) in enumerate(tup):
+            ty_desc = f"{tup_type}"
+            if local_type:
+                ty_desc += f" ({local_type})"
+            ty_desc = hacky_escape(ty_desc)
+            buf += f"| {idx} | {name} | {ty_desc} | {str(inoutness)} |\n"
+
+    return buf
 
 TYPE_TO_STRUCT_PROP = {
     "bool": "b",
@@ -222,8 +252,8 @@ def make_listener_template(sess, spec: dict) -> str:
                 else:
                     rewraps += f'\tTuple.Data[{idx}].o = {name};\n'
 
-    template = "\n".join(
-        [funcsig, locals, casts, unwraps, your_code_here, rewraps, footer])
+    seq = [funcsig, locals, casts, unwraps, your_code_here, rewraps, footer]
+    template = "\n".join(filter(None, seq))
 
     sess.templates[event_id] = template
     return template
@@ -314,14 +344,12 @@ def process_file(sess, file, lang) -> List[dict]:
                                 self.lines.append(orig_line[len(self.indent):])
                 elif self.state == ParserState.EVENT:
                     if line.startswith("```"):
-                        self.lines.append("## Event specification")
-                        self.lines.append("")
-                        self.lines.append("```event")
-                        self.lines.extend(self.eventlines)
-                        self.lines.append("```")
                         try:
                             spec = event_tuples.parse_event_spec("\n".join(
                                 self.eventlines))
+                            self.lines.append("## Event specification")
+                            self.lines.append("")
+                            self.lines.append(make_event_spec_table(sess, spec))
                             self.lines.append("\n### Listener template\n")
                             self.lines.append("```unrealscript")
                             self.lines.append(
@@ -329,7 +357,7 @@ def process_file(sess, file, lang) -> List[dict]:
                             self.lines.append("```")
                         except event_tuples.ParseError as pe:
                             sess.err(
-                                f"{self.filename}:{self.eventstart+1}: {pe.msg}"
+                                f"{self.filename}:{self.eventstart+1}: event block has error: {pe.msg}"
                             )
 
                         self.events = True
