@@ -26,3 +26,11 @@ function int IPromiseThisIsARandomNumber()
 
 /// HL-Docs: ref:Bugfixes; issue:3
 /// An ordinary bugfix. This file intentionally ends without a newline.
+
+/// HL-Docs: feature:TestEvent; issue:10; tags:
+/// ```event
+/// EventID: NameOfTheEvent,
+/// EventData: [in enum[EMyEnum] Enum1, inout class[class<Actor>] SomeClass, out bool bResult, inout array<string> Labels],
+/// EventSource: XComHQPresentationLayer (Pres),
+/// NewGameState: no
+/// ```

@@ -7995,10 +7995,10 @@ function GetResistanceEvents(out array<HQEvent> arrEvents)
 ///
 /// Default: Only one covert action is added at the end.
 ///
-/// ```unrealscript
-/// ID: GetCovertActionEvents_Settings,
-/// Data: [out bool AddAll, out bool InsertSorted],
-/// Source: XCGS_HeadquartersXCom
+/// ```event
+/// EventID: GetCovertActionEvents_Settings,
+/// EventData: [out bool AddAll, out bool InsertSorted],
+/// EventSource: XComGameState_HeadquartersXCom (XComHQ)
 /// ```
 function GetCovertActionEvents(out array<HQEvent> arrEvents)
 {

@@ -966,17 +966,17 @@ simulated function bool HasInfiniteAmmo()
 	// End Issue #842
 }
 
-/// HL-Docs: feature:OverrideHasInfiniteAmmo; issue:842; tags:tactical,events
+/// HL-Docs: feature:OverrideHasInfiniteAmmo; issue:842; tags:tactical
 /// Allows listeners to override the result of HasInfiniteAmmo
 ///
-/// ```unrealscript
-/// EventID: OverrideHasInfiniteAmmo
+/// ```event
+/// EventID: OverrideHasInfiniteAmmo,
 /// EventData: XComLWTuple {
 ///     Data: [
 ///       out bool bHasInfiniteAmmo
 ///     ]
-/// }
-/// EventSource: XComGameState_Item (self)
+/// },
+/// EventSource: XComGameState_Item (ItemState),
 /// NewGameState: no
 /// ```
 private function bool TriggerOverrideHasInfiniteAmmo(bool bHasInfiniteAmmo)

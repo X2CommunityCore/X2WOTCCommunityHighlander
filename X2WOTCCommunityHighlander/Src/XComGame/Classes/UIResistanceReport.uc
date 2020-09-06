@@ -59,10 +59,10 @@ simulated function InitScreen(XComPlayerController InitController, UIMovie InitM
 /// at the end of month.
 ///
 ///
-/// ```unrealscript
-/// ID: UIResistanceReport_ShowCouncil,
-/// Data: [inout bool ShouldShow],
-/// Source: UIResistanceReport
+/// ```event
+/// EventID: UIResistanceReport_ShowCouncil,
+/// EventData: [inout bool ShouldShow],
+/// EventSource: UIResistanceReport
 /// ```
 protected simulated function bool TriggerShouldShowCouncil ()
 {

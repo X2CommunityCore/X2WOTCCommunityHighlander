@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Iterator, List, Tuple
+from typing import Iterator, List, Optional, Tuple
 import re
 
 
@@ -34,6 +34,12 @@ class InOutness(Enum):
         return self in [InOutness.OUT, InOutness.INOUT]
 
 
+class NewGameState(Enum):
+    YES = 1
+    NO = 2
+    MAYBE = 3
+
+
 class _Token:
     def __init__(self, type: _TokenType):
         self.type = type
@@ -64,7 +70,8 @@ _KWS = {
     "inout": _Keyword.INOUT,
 }
 
-_IDENTCHAR = re.compile(r"[A-Za-z\-_]")
+_STARTIDENTCHAR = re.compile(r"[A-Za-z]")
+_IDENTCHAR = re.compile(r"[A-Za-z0-9\-_<>]")
 
 
 class ParseError(Exception):
@@ -93,7 +100,7 @@ def _lex_event_spec(text: str) -> Iterator[_Token]:
             yield _PUNCTUATION[c]
             continue
 
-        if _IDENTCHAR.match(c):
+        if _STARTIDENTCHAR.match(c):
             (pos, id) = _ident(pos, text, c)
             if id in _KWS:
                 tok = _Token(_TokenType.KW)
@@ -117,6 +124,12 @@ def _expect(it, t: _TokenType) -> _Token:
         raise ParseError(f"expected {str(t)}, found {str(n)}")
 
     return n
+
+def _try_eat(it, t: _TokenType) -> _Token:
+    if it and it.peek.type == t:
+        return next(it)
+    return None
+    
 
 
 def _kw_to_inout(t: _Token) -> InOutness:
@@ -158,14 +171,38 @@ class _peekable():
         return self.peek is not self._NONE
 
 
-def _parse_type_sig(lex) -> (_Keyword, str, str):
+def _parse_type_sig(lex) -> (InOutness, str, str, Optional[str]):
     """
-    "inout bool bShow" -> (_Keyword.INOUT, "bool", "bShow")
+    "inout bool bShow" -> (InOutness.INOUT, "bool", "bShow", None)
+    "in enum[EInventorySlot] Slot" -> (InOutness.IN, "enum", "Slot", "EInventorySlot")
     """
     param_kind = _kw_to_inout(_expect(lex, _TokenType.KW))
-    type = _expect(lex, _TokenType.IDENT)
+    tup_type = _expect(lex, _TokenType.IDENT).ident
+    local_type = None
+    if _try_eat(lex, _TokenType.LBRACK):
+        local_type = _expect(lex, _TokenType.IDENT).ident
+        _expect(lex, _TokenType.RBRACK)
     name = _expect(lex, _TokenType.IDENT)
-    return param_kind, type.ident, name.ident
+    return param_kind, tup_type, name.ident, local_type
+
+
+def _parse_tuple_data(lex) -> List[Tuple]:
+    _expect(lex, _TokenType.LBRACK)
+
+    tup = []
+    comma = False
+
+    while True:
+        if _try_eat(lex, _TokenType.RBRACK):
+            break
+        if comma:
+            _expect(lex, _TokenType.COMMA)
+        comma = True
+        if _try_eat(lex, _TokenType.RBRACK):
+            break
+        tup.append(_parse_type_sig(lex))
+
+    return tup
 
 
 def _parse_tuple(lex) -> List[Tuple]:
@@ -176,22 +213,8 @@ def _parse_tuple(lex) -> List[Tuple]:
         raise ParseError(f"expected \"Data\", got {data}")
 
     _expect(lex, _TokenType.COLON)
-    _expect(lex, _TokenType.LBRACK)
-
-    tup = []
-    comma = False
-
-    while True:
-        if lex and lex.peek.type == _TokenType.RBRACK:
-            break
-        if comma:
-            _expect(lex, _TokenType.COMMA)
-        comma = True
-        if lex and lex.peek.type == _TokenType.RBRACK:
-            break
-        tup.append(_parse_type_sig(lex))
-
-    _expect(lex, _TokenType.RBRACK)
+    tup = _parse_tuple_data(lex)
+    _try_eat(lex, _TokenType.COMMA)
     _expect(lex, _TokenType.RBRACE)
     return tup
 
@@ -220,35 +243,45 @@ def parse_event_spec(text: str) -> dict:
         elif key == "EventSource":
             type = _expect(lex, _TokenType.IDENT)
             spec[key] = {"type": type.ident}
-            if lex and lex.peek.type == _TokenType.LPAREN:
-                _expect(lex, _TokenType.LPAREN)
+            if _try_eat(lex, _TokenType.LPAREN):
                 name = _expect(lex, _TokenType.IDENT)
                 spec[key]["name"] = name.ident
                 _expect(lex, _TokenType.RPAREN)
         elif key == "EventData":
-            type = _expect(lex, _TokenType.IDENT)
-            spec[key] = {"type": type.ident}
-            if type.ident == "XComLWTuple":
-                tup = _parse_tuple(lex)
-                spec[key]["tuple"] = tup
+            if lex and lex.peek.type == _TokenType.LBRACK:
+                tup = _parse_tuple_data(lex)
+                spec[key] = {"type": "XComLWTuple", "tuple": tup}
             else:
-                if lex and lex.peek.type == _TokenType.LPAREN:
-                    _expect(lex, _TokenType.LPAREN)
-                    name = _expect(lex, _TokenType.IDENT)
-                    spec[key]["name"] = name.ident
-                    _expect(lex, _TokenType.RPAREN)
+                type = _expect(lex, _TokenType.IDENT)
+                spec[key] = {"type": type.ident}
+                if type.ident == "XComLWTuple":
+                    tup = _parse_tuple(lex)
+                    spec[key]["tuple"] = tup
+                else:
+                    if _try_eat(lex, _TokenType.LPAREN):
+                        name = _expect(lex, _TokenType.IDENT)
+                        spec[key]["name"] = name.ident
+                        _expect(lex, _TokenType.RPAREN)
         elif key == "NewGameState":
             b = _expect(lex, _TokenType.IDENT).ident
             if b == "yes":
-                spec[key] = True
+                spec[key] = NewGameState.YES
             elif b == "no":
-                spec[key] = False
+                spec[key] = NewGameState.NO
+            elif b == "maybe":
+                spec[key] = NewGameState.MAYBE
             else:
-                raise ParseError(f"expected yes or no")
+                raise ParseError(f"expected yes, no, or maybe")
         else:
             raise ParseError(
                 f"unexpected key (expected EventID, EventSource, EventData, NewGameState)"
             )
+
+    if not "EventSource" in spec:
+        spec["EventSource"] = {"type": "None"}
+    if not "NewGameState" in spec:
+        spec["NewGameState"] = NewGameState.NO
+
     return spec
 
 

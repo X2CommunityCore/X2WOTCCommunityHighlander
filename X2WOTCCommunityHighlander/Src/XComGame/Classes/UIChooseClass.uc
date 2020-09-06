@@ -125,7 +125,7 @@ simulated function array<X2SoldierClassTemplate> GetClasses()
 }
 
 // Start Issue #814
-/// HL-Docs: feature:ValidateGTSClassTraining; issue:814; tags:strategy,events
+/// HL-Docs: feature:ValidateGTSClassTraining; issue:814; tags:strategy
 /// Triggers an 'ValidateGTSClassTraining' event that allows listeners to control
 /// whether the given class can be trained in the GTS.
 ///
@@ -135,15 +135,15 @@ simulated function array<X2SoldierClassTemplate> GetClasses()
 /// by the listener(s), and listeners can base their logic on the vanilla checks or
 /// override the result.
 ///
-/// ```unrealscript
-/// EventID: ValidateGTSClassTraining
+/// ```event
+/// EventID: ValidateGTSClassTraining,
 /// EventData: XComLWTuple {
 ///     Data: [
 ///       out bool CanTrainClass,
 ///       in X2SoldierClassTemplate SoldierClassTemplate
 ///     ]
-/// }
-/// EventSource: self (UIChooseClass)
+/// },
+/// EventSource: UIChooseClass (ChooseClassScreen),
 /// NewGameState: no
 /// ```
 private function bool TriggerGTSClassValidationEvent(X2SoldierClassTemplate SoldierClassTemplate)

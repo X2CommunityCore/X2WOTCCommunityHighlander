@@ -1611,24 +1611,24 @@ function AddProjectileVolley(AnimNotify_FireWeaponVolley Notify)
 	}
 }
 
-/// HL-Docs: feature:OverrideProjectileInstance; issue:829; tags:tactical,events
+/// HL-Docs: feature:OverrideProjectileInstance; issue:829; tags:tactical
 /// Allows listeners to override the parameters of SpawnAndConfigureNewProjectile
 /// The feature also introduces support for subclasses of X2UnifiedProjectile as custom projectile archetypes.
 /// If bPreventProjectileSpawning is set to true the projectile instance will NOT be spawned.
 ///
-/// ```unrealscript
-/// EventID: OverrideProjectileInstance
+/// ```event
+/// EventID: OverrideProjectileInstance,
 /// EventData: XComLWTuple {
 ///     Data: [
-///       out bool bPreventProjectileSpawning
-///       in actor ProjectileTemplate,
-///       in AnimNotify_FireWeaponVolley InVolleyNotify
-///       in XComWeapon InSourceWeapon
+///       out bool bPreventProjectileSpawning,
+///       in Actor ProjectileTemplate,
+///       in AnimNotify_FireWeaponVolley InVolleyNotify,
+///       in XComWeapon InSourceWeapon,
 ///       inout X2Action_Fire CurrentFireAction,
-///       in XGUnitNativeBase self
+///       in XGUnitNativeBase Unit
 ///     ]
-/// }
-/// EventSource: XComGameStateContext_Ability AbilityContext
+/// },
+/// EventSource: XComGameStateContext_Ability (AbilityContext),
 /// NewGameState: no
 /// ```
 private function bool TriggerOverrideProjectileInstance(Actor ProjectileTemplate,

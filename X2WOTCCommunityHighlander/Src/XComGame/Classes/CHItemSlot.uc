@@ -402,20 +402,20 @@ static function bool SlotShowItemInLockerList(EInventorySlot Slot, XComGameState
 }
 
 
-/// HL-Docs: feature:ShowItemInLockerList; issue:844; tags:strategy,events
+/// HL-Docs: feature:ShowItemInLockerList; issue:844; tags:strategy
 /// Allows listeners to override the result of SlotShowItemInLockerList
 ///
-/// ```unrealscript
-/// EventID: OverrideShowItemInLockerList
+/// ```event
+/// EventID: OverrideShowItemInLockerList,
 /// EventData: XComLWTuple {
 ///     Data: [
 ///       inout bool bSlotShowItemInLockerList,
-///       inout EInventorySlot Slot,
-///       inout XComGameState_Unit UnitState
+///       in enum[EInventorySlot] Slot,
+///       in XComGameState_Unit UnitState
 ///     ]
-/// }
-/// EventSource: XComGameState_Item ItemState
-/// GameState: optional
+/// },
+/// EventSource: XComGameState_Item (ItemState),
+/// NewGameState: maybe
 /// ```
 private static function bool TriggerOverrideShowItemInLockerList(
 	bool bSlotShowItemInLockerList,

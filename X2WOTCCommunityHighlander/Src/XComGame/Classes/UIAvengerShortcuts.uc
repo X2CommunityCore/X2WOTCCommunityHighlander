@@ -1131,10 +1131,10 @@ reliable client function array<UIAvengerShortcutMessage> GetCommandersQuartersMe
 /// Allows overriding whether the resistance orders button should be shown in `UIAvengerShortcuts`.
 /// Default: After the first month if any faction met.
 ///
-/// ```unrealscript
-/// ID: UIAvengerShortcuts_ShowCQResistanceOrders,
-/// Data: [inout bool ShouldShow],
-/// Source: UIAvengerShortcuts
+/// ```event
+/// EventID: UIAvengerShortcuts_ShowCQResistanceOrders,
+/// EventData: [inout bool ShouldShow],
+/// EventSource: UIAvengerShortcuts (ShortcutsScreen)
 /// ```
  simulated protected function bool ShouldShowResistanceOrders()
  {

@@ -24,7 +24,7 @@ MarkDown pages, which `MkDocs` in turn renders to a web page.
 You can run the documentation tool locally by installing Python (recommended version 3.7)
 and running
 
-    python .\\.scripts\\make_docs.py .\\X2WOTCCommunityHighlander\\Src\\ .\\X2WOTCCommunityHighlander\\Config\\ --outdir .\\target\\ --docsdir .\\docs_src\\
+    python .\.scripts\make_docs.py .\X2WOTCCommunityHighlander\Src\ .\X2WOTCCommunityHighlander\Config\ --outdir .\target\ --docsdir .\docs_src\ --dumpelt .\X2WOTCCommunityHighlander\Src\X2WOTCCommunityHighlander\Classes\CHL_Event_Compiletest.uc
 
 or the `makeDocs` task in VS Code. This creates Markdown files for the documentation; rendering HTML documentation requires
 `MkDocs`:
@@ -123,4 +123,57 @@ for example:
 ```unrealscript
 /// HL-Docs: ref:Bugfixes; issue:70
 /// `CharacterPoolManager:CreateCharacter` now honors ForceCountry
+```
+
+#### Events
+
+The Highlander triggers some events to pass data to and receive data from mods. We document
+these events with a special syntax and automatically generate a copy-pasteable listener template
+that developers can simply copy into their mod and fill out. Additionally, that listener template is
+printed into a CHL source file so that it can be tested whether it successfully compiles.
+
+The syntax for events is the following
+
+    ```event
+    EventID: OverridePromotionUIClass,
+    EventData: [in enum[CHLPromotionScreenType] PromotionScreenType, inout class[class<UIArmory_Promotion>] PromotionUIClass],
+    EventSource: XComHQPresentationLayer (Pres),
+    NewGameState: no
+    ```
+
+* Entries need to be comma-separated
+* `EventData` or `EventSource` specify the type, and then, optionally, in parentheses, the variable name.
+* `EventData` can be an XComLWTuple. In that case, use equivalently
+    * `XComLWTuple { Data: [...] }`
+    * `[...]`
+* Tuple parameters can be `in`, `out`, or `inout`
+* All [`XComLWTuple` types][misc/XComLWTuple.md] are supported
+    * `enum`s can be typed with `enum[EnumType]`
+    * `class`es can be typed with `class[class<Type>]`
+    * If the type is not a primitive, it's assumed to be an object
+
+The above example generares the following code
+
+```unrealscript
+function EventListenerReturn OnOverridePromotionUIClass(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackObject)
+{
+	local XComHQPresentationLayer Pres;
+	local XComLWTuple Tuple;
+	local CHLPromotionScreenType PromotionScreenType;
+	local class<UIArmory_Promotion> PromotionUIClass;
+
+	Pres = XComHQPresentationLayer(EventSource);
+	Tuple = XComLWTuple(EventData);
+
+	if (Tuple == None || Tuple.Id != 'OverridePromotionUIClass') return ELR_NoInterrupt;
+
+	PromotionScreenType = CHLPromotionScreenType(Tuple.Data[0].i);
+	PromotionUIClass = class<UIArmory_Promotion>(Tuple.Data[1].o);
+
+	// Your code here
+
+	Tuple.Data[1].o = PromotionUIClass;
+
+	return ELR_NoInterrupt;
+}
 ```

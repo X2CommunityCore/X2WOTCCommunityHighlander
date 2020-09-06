@@ -3895,14 +3895,14 @@ function bool HasGrenadePocket()
 /// and abilities granted by the character template.
 /// Finally the event OverrideHasAmmoPocket is triggered that allows mods to override the final result
 ///
-/// ```unrealscript
-/// EventID: OverrideHasAmmoPocket
+/// ```event
+/// EventID: OverrideHasAmmoPocket,
 /// EventData: XComLWTuple {
 /// 	Data: [
 /// 	  inout bool bHasAmmoPocket
 ///     ]
-/// }
-/// EventSource: XComGameState_Unit
+/// },
+/// EventSource: XComGameState_Unit (UnitState),
 /// NewGameState: no
 /// ```
 function bool HasAmmoPocket()
@@ -3924,14 +3924,14 @@ function bool HasAmmoPocket()
 /// and abilities granted by the character template.
 /// Finally the event OverrideHasExtraUtilitySlot is triggered that allows mods to override the final result
 ///
-/// ```unrealscript
-/// EventID: OverrideHasExtraUtilitySlot
+/// ```event
+/// EventID: OverrideHasExtraUtilitySlot,
 /// EventData: XComLWTuple {
 /// 	Data: [
 /// 	  inout bool bHasExtraUtilitySlot
 ///     ]
-/// }
-/// EventSource: XComGameState_Unit
+/// },
+/// EventSource: XComGameState_Unit (UnitState),
 /// NewGameState: no
 /// ```
 function bool HasExtraUtilitySlot()
@@ -11212,12 +11212,14 @@ function ApplyBestGearLoadout(XComGameState NewGameState)
 	/// so if one of the selected items by that function cannot be equipped due to an override in CanAddItemToInventory_CH,
 	/// the inventory slot will remain empty. This event passes along the Unit State whenever this function is called,
 	/// so the mods can use their arbitrary conditions to decide what is the actual best gear loadout is for a unit.
-	/// ```unrealscript
-	/// ID: OnBestGearLoadoutApplied
-	/// Data: self (XCGS_Unit)
-	/// Source: self (XCGS_Unit)
+	///
+	/// ```event
+	/// EventID: OnBestGearLoadoutApplied,
+	/// EventData: XComGameState_Unit (UnitState),
+	/// EventSource: XComGameState_Unit,
 	/// NewGameState: yes
 	/// ```
+	///
 	/// ```unrealscript
 	/// //	This EventFn requires the Event Listener to use an ELD_Immediate deferral.
 	/// static function EventListenerReturn OnBestGearLoadoutApplied_Listener(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
@@ -12846,16 +12848,18 @@ function RankUpSoldier(XComGameState NewGameState, optional name SoldierClass, o
 /// If the `RankUpSoldier` function was called with a soldier class template name already specified, it means the game wanted to promote
 /// this soldier to a specific class (e.g. GTS rookie training, Psi Operative training or Commander's Choice). In that case, you can set up your Event Listener to not
 ///	have an effect on such a soldier.
-/// ```unrealscript
-/// EventID: FirstPromotionOverrideClass
+///
+/// ```event
+/// EventID: FirstPromotionOverrideClass,
 /// EventData: XComLWTuple {
 ///     Data: [
 ///       inout name SoldierClassTemplateName
 ///     ]
-/// }
-///	EventSource: self (XComGameState_Unit)
+/// },
+///	EventSource: XComGameState_Unit (FirstSquaddie),
 /// NewGameState: yes
 /// ```
+///
 ///	Example of an Event Listener Function:
 ///	```unrealscript
 ///	static function EventListenerReturn ListenerEventFunction(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
@@ -14857,22 +14861,22 @@ function bool UnitIsValidForPhotobooth()
 /// of icon/name/description) in more dynamic ways. For example, *RPGOverhaul*
 /// has a single soldier class and the way it is displayed depends on selected
 /// skills and loadouts. There are three events with mostly self-explanatory names:
-/// ```unrealscript
-/// ID: SoldierClassIcon,
-/// Data: [inout string IconImagePath],
-/// Source: XCGS_Unit
+/// ```event
+/// EventID: SoldierClassIcon,
+/// EventData: [inout string IconImagePath],
+/// EventSource: XComGameState_Unit (UnitState)
 /// ```
 ///
-/// ```unrealscript
-/// ID: SoldierClassDisplayName,
-/// Data: [inout string DisplayName],
-/// Source: XCGS_Unit
+/// ```event
+/// EventID: SoldierClassDisplayName,
+/// EventData: [inout string DisplayName],
+/// EventSource: XComGameState_Unit (UnitState)
 /// ```
 ///
-/// ```unrealscript
-/// ID: SoldierClassSummary,
-/// Data: [inout string DisplaySummary],
-/// Source: XCGS_Unit
+/// ```event
+/// EventID: SoldierClassSummary,
+/// EventData: [inout string DisplaySummary],
+/// EventSource: XComGameState_Unit (UnitState)
 /// ```
 ///
 /// There is a sister feature [`DynamicSoldierRankDisplay`](./DynamicSoldierRankDisplay.md)
@@ -14947,22 +14951,22 @@ function String GetSoldierClassSummary()
 /// shows officer ranks for units with special officer abilities.
 /// There are three events with mostly self-explanatory names:
 ///
-/// ```unrealscript
-/// ID: SoldierRankName,
-/// Data: [in int Rank, inout string DisplayRankName],
-/// Source: XCGS_Unit
+/// ```event
+/// EventID: SoldierRankName,
+/// EventData: [in int Rank, inout string DisplayRankName],
+/// EventSource: XComGameState_Unit (UnitState)
 /// ```
 ///
-/// ```unrealscript
-/// ID: SoldierShortRankName,
-/// Data: [in int Rank, inout string DisplayShortRankName],
-/// Source: XCGS_Unit
+/// ```event
+/// EventID: SoldierShortRankName,
+/// EventData: [in int Rank, inout string DisplayShortRankName],
+/// EventSource: XComGameState_Unit (UnitState)
 /// ```
 ///
-/// ```unrealscript
-/// ID: SoldierRankIcon,
-/// Data: [in int Rank, inout string IconImagePath],
-/// Source: XCGS_Unit
+/// ```event
+/// EventID: SoldierRankIcon,
+/// EventData: [in int Rank, inout string IconImagePath],
+/// EventSource: XComGameState_Unit (UnitState)
 /// ```
 ///
 /// There is a sister feature [`DynamicSoldierClassDisplay`](./DynamicSoldierClassDisplay.md)

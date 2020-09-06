@@ -222,10 +222,10 @@ function OnDeactivated(XComGameState NewGameState)
 	/// or an ELD_OnStateSubmitted listener if you want the state *after* the full
 	/// deactivation.
 	///
-	/// ```unrealscript
-	/// EventID: PreDarkEventDeactivated
-	/// EventData: XCGS_DarkEvent
-	/// EventSource: XCGS_DarkEvent
+	/// ```event
+	/// EventID: PreDarkEventDeactivated,
+	/// EventData: XComGameState_DarkEvent (EventState),
+	/// EventSource: XComGameState_DarkEvent,
 	/// NewGameState: yes
 	/// ```
 	`XEVENTMGR.TriggerEvent('PreDarkEventDeactivated', self, self, NewGameState);

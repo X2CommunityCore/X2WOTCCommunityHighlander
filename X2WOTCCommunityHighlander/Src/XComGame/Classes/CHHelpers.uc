@@ -362,8 +362,8 @@ static function GroupItemStatsByLabel(out array<UISummary_ItemStat> InArray)
 ///   preview a cost for custom skills that consume focus. Again, make sure to not mix and match
 ///   custom subclasses with the base class for any abilities.
 ///
-/// ```unrealscript
-/// EventID: OverrideUnitFocusUI
+/// ```event
+/// EventID: OverrideUnitFocusUI,
 /// EventData: XComLWTuple {
 ///     Data: [
 ///       inout bool bVisible,
@@ -374,7 +374,9 @@ static function GroupItemStatsByLabel(out array<UISummary_ItemStat> InArray)
 ///       inout string tooltipText,
 ///       inout string focusLabel
 ///     ]
-/// }
+/// },
+/// EventSource: XComGameState_Unit (SourceUnit),
+/// NewGameState: no
 /// ```
 ///
 /// Note that if `bVisible == false`, the rest will be ignored and will not have valid data in it.

@@ -383,8 +383,8 @@ simulated function DamageTypeHitEffectContainer GetDamageTypeHitEffectContainer(
 /// eHit_Parry, eHit_Reflect and eHit_Deflect which play for any abilities that utilizing these hit results.
 /// If OverrideHitEffect is set to true the PlayHitEffects function will return early and the default behavior is ommited.
 ///
-/// ```unrealscript
-/// EventID: OverrideHitEffects
+/// ```event
+/// EventID: OverrideHitEffects,
 /// EventData: XComLWTuple {
 ///     Data: [
 ///       out bool OverrideHitEffect,
@@ -394,10 +394,10 @@ simulated function DamageTypeHitEffectContainer GetDamageTypeHitEffectContainer(
 ///       inout name DamageTypeName,
 ///       inout vector Momentum,
 ///       inout bool bIsUnitRuptured,
-///       inout EAbilityHitResult HitResult,
+///       inout enum[EAbilityHitResult] HitResult,
 ///     ]
-/// }
-/// EventSource: self (XComUnitPawn)
+/// },
+/// EventSource: XComUnitPawn (Pawn),
 /// NewGameState: no
 /// ```
 simulated private function bool TriggerOnOverrideHitEffects(

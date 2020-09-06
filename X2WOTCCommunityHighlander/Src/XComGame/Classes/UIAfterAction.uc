@@ -736,20 +736,19 @@ simulated function string GetPromotionBlueprintTag(StateObjectReference UnitRef)
 }
 
 // Start Issue #600
-//
-// Fires an 'OverridePromotionBlueprintTagPrefix' event that allows mods to override
-// the promotion blueprint tag prefix for the after action screen. This means that
-// mods can ensure the camera is positioned properly when displaying their custom
-// promotion screen during the post-mission cinematic.
-//
-// The event itself takes the form:
-//
-//   {
-//      ID: OverridePromotionBlueprintTagPrefix,
-//      Data: [in XComGameState_Unit UnitState, inout string TagPrefix],
-//      Source: self (UIAfterAction)
-//   }
-//
+/// HL-Docs: feature:OverridePromotionBlueprintTagPrefix; issue:600; tags:strategy,ui
+/// Fires an 'OverridePromotionBlueprintTagPrefix' event that allows mods to override
+/// the promotion blueprint tag prefix for the after action screen. This means that
+/// mods can ensure the camera is positioned properly when displaying their custom
+/// promotion screen during the post-mission cinematic.
+///
+/// ```event
+/// EventID: OverridePromotionBlueprintTagPrefix,
+/// EventData: XComLWTuple {
+/// 	Data: [in XComGameState_Unit UnitState, inout string TagPrefix],
+/// },
+/// EventSource: UIAfterAction (Screen)
+/// ```
 simulated function string TriggerOverridePromotionBlueprintTagPrefix(XComGameState_Unit UnitState, string TagPrefix)
 {
 	local XComLWTuple Tuple;

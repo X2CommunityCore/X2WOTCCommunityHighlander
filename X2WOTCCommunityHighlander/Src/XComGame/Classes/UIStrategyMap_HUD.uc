@@ -286,10 +286,10 @@ simulated function UpdateData()
 /// Allows overriding whether the resistance info button should be visible.
 /// Default: After the first month if any faction met and not in flight.
 ///
-/// ```unrealscript
-/// ID: Geoscape_ResInfoButtonVisible,
-/// Data: [inout bool ShouldShow, in bool InFlight],
-/// Source: UIStrategyMap_HUD
+/// ```event
+/// EventID: Geoscape_ResInfoButtonVisible,
+/// EventData: [inout bool ShouldShow, in bool InFlight],
+/// EventSource: UIStrategyMap_HUD (HUDScreen)
 /// ```
 simulated protected function bool ShouldShowResInfoButton(XComGameState_HeadquartersResistance ResHQ)
 {

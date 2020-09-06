@@ -255,8 +255,8 @@ simulated function BuildTitlePanel()
 /// "Next Retaliation: 6 Weeks (Estimated)". This event allows mods to override
 /// whether to show that text, and customize the actual displayed text.
 ///
-/// ```unrealscript
-/// EventID: OverrideNextRetaliationDisplay
+/// ```event
+/// EventID: OverrideNextRetaliationDisplay,
 /// EventData: XComLWTuple {
 /// 	Data: [
 /// 	  inout bool bShow,
@@ -271,6 +271,7 @@ simulated private function TriggerOverrideRetaliationDisplay (out int bShow, out
 	local XComLWTuple Tuple;
 
 	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideNextRetaliationDisplay';
 	Tuple.Data.Add(4);
 	Tuple.Data[0].kind = XComLWTVBool;
 	Tuple.Data[0].b = bool(bShow);
