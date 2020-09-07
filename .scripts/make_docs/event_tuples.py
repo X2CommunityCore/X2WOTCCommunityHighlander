@@ -60,6 +60,17 @@ class NewGameState(Enum):
             assert False, "unreachable"
 
 
+class EventSpec:
+    def __init__(self):
+        pass
+
+
+class EventArg:
+    def __init__(self, ty):
+        self.type = ty
+        self.name = None
+
+
 class _Token:
     def __init__(self, type: _TokenType):
         self.type = type
@@ -145,11 +156,11 @@ def _expect(it, t: _TokenType) -> _Token:
 
     return n
 
+
 def _try_eat(it, t: _TokenType) -> _Token:
     if it and it.peek.type == t:
         return next(it)
     return None
-    
 
 
 def _kw_to_inout(t: _Token) -> InOutness:
@@ -242,7 +253,7 @@ def _parse_tuple(lex) -> List[Tuple]:
 def parse_event_spec(text: str) -> dict:
     lex = _peekable(_lex_event_spec(text))
 
-    spec = dict()
+    spec = EventSpec()
     comma = False
 
     while True:
@@ -255,52 +266,57 @@ def parse_event_spec(text: str) -> dict:
         comma = True
         key = _expect(lex, _TokenType.IDENT).ident
         _expect(lex, _TokenType.COLON)
-        if key in spec:
+        if hasattr(spec, key):
             raise ParseError(f"error, duplicate key {key}")
         elif key == "EventID":
             name = _expect(lex, _TokenType.IDENT)
-            spec[key] = name.ident
+            spec.id = name.ident
         elif key == "EventSource":
             type = _expect(lex, _TokenType.IDENT)
-            spec[key] = {"type": type.ident}
+            spec.source = EventArg(type.ident)
             if _try_eat(lex, _TokenType.LPAREN):
                 name = _expect(lex, _TokenType.IDENT)
-                spec[key]["name"] = name.ident
+                spec.source.name = name.ident
                 _expect(lex, _TokenType.RPAREN)
         elif key == "EventData":
             if lex and lex.peek.type == _TokenType.LBRACK:
                 tup = _parse_tuple_data(lex)
-                spec[key] = {"type": "XComLWTuple", "tuple": tup}
+                spec.data = EventArg("XComLWTuple")
+                spec.data.tuple = tup
             else:
                 type = _expect(lex, _TokenType.IDENT)
-                spec[key] = {"type": type.ident}
+                spec.data = EventArg(type.ident)
                 if type.ident == "XComLWTuple":
                     tup = _parse_tuple(lex)
-                    spec[key]["tuple"] = tup
+                    spec.data.tuple = tup
                 else:
                     if _try_eat(lex, _TokenType.LPAREN):
                         name = _expect(lex, _TokenType.IDENT)
-                        spec[key]["name"] = name.ident
+                        spec.data.name = name.ident
                         _expect(lex, _TokenType.RPAREN)
         elif key == "NewGameState":
             b = _expect(lex, _TokenType.IDENT).ident
             if b == "yes":
-                spec[key] = NewGameState.YES
+                spec.newgs = NewGameState.YES
             elif b == "no":
-                spec[key] = NewGameState.NO
+                spec.newgs = NewGameState.NO
             elif b == "maybe":
-                spec[key] = NewGameState.MAYBE
+                spec.newgs = NewGameState.MAYBE
             else:
-                raise ParseError(f"expected yes, no, or maybe")
+                raise ParseError("expected yes, no, or maybe")
         else:
             raise ParseError(
-                f"unexpected key (expected EventID, EventSource, EventData, NewGameState)"
+                "unexpected key (expected EventID, EventSource, EventData, NewGameState)"
             )
 
-    if not "EventSource" in spec:
-        spec["EventSource"] = {"type": "None"}
-    if not "NewGameState" in spec:
-        spec["NewGameState"] = NewGameState.NO
+    if not hasattr(spec, 'id'):
+        raise ParseError("missing ID")
+    if not hasattr(spec, 'data'):
+        spec.data = EventArg("None")
+    if not hasattr(spec, 'source'):
+        spec.source = EventArg("None")
+    if not hasattr(spec, 'newgs'):
+        spec.newgs = NewGameState.NO
 
     return spec
 
