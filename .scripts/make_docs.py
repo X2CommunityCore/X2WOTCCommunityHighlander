@@ -230,7 +230,6 @@ def make_listener_template(sess, spec: dict) -> str:
     if "tuple" in event_data:
         locals += f'\tlocal XComLWTuple Tuple;\n'
         casts += f'\tTuple = XComLWTuple(EventData);\n'
-        casts += f'\n\tif (Tuple == None || Tuple.Id != \'{event_id}\') return ELR_NoInterrupt;\n'
 
     if "tuple" in event_data:
         for idx, (inoutness, tup_type, name,

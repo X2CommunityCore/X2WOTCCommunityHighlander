@@ -17,8 +17,6 @@ static function EventListenerReturn OnNameOfTheEvent(Object EventData, Object Ev
 	Pres = XComHQPresentationLayer(EventSource);
 	Tuple = XComLWTuple(EventData);
 
-	if (Tuple == None || Tuple.Id != 'NameOfTheEvent') return ELR_NoInterrupt;
-
 	Enum1 = EMyEnum(Tuple.Data[0].i);
 	SomeClass = class<Actor>(Tuple.Data[1].o);
 	Labels = Tuple.Data[3].as;

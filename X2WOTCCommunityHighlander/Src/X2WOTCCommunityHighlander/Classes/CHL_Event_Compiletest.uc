@@ -15,8 +15,6 @@ static function EventListenerReturn OnCovertAction_OverrideCostScalar(Object Eve
 	ActionState = XComGameState_CovertAction(EventSource);
 	Tuple = XComLWTuple(EventData);
 
-	if (Tuple == None || Tuple.Id != 'CovertAction_OverrideCostScalar') return ELR_NoInterrupt;
-
 	DefaultCostScalar = Tuple.Data[0].f;
 	RewardState = XComGameState_Reward(Tuple.Data[1].o);
 
@@ -37,8 +35,6 @@ static function EventListenerReturn OnCovertAction_OverrideRewardScalar(Object E
 	ActionState = XComGameState_CovertAction(EventSource);
 	Tuple = XComLWTuple(EventData);
 
-	if (Tuple == None || Tuple.Id != 'CovertAction_OverrideRewardScalar') return ELR_NoInterrupt;
-
 	DefaultRewardScalar = Tuple.Data[0].f;
 	RewardState = XComGameState_Reward(Tuple.Data[1].o);
 
@@ -57,8 +53,6 @@ static function EventListenerReturn OnFirstPromotionOverrideClass(Object EventDa
 
 	FirstSquaddie = XComGameState_Unit(EventSource);
 	Tuple = XComLWTuple(EventData);
-
-	if (Tuple == None || Tuple.Id != 'FirstPromotionOverrideClass') return ELR_NoInterrupt;
 
 	SoldierClassTemplateName = Tuple.Data[0].n;
 
@@ -79,8 +73,6 @@ static function EventListenerReturn OnGeoscape_ResInfoButtonVisible(Object Event
 	HUDScreen = UIStrategyMap_HUD(EventSource);
 	Tuple = XComLWTuple(EventData);
 
-	if (Tuple == None || Tuple.Id != 'Geoscape_ResInfoButtonVisible') return ELR_NoInterrupt;
-
 	ShouldShow = Tuple.Data[0].b;
 	InFlight = Tuple.Data[1].b;
 
@@ -100,8 +92,6 @@ static function EventListenerReturn OnGetCovertActionEvents_Settings(Object Even
 
 	XComHQ = XComGameState_HeadquartersXCom(EventSource);
 	Tuple = XComLWTuple(EventData);
-
-	if (Tuple == None || Tuple.Id != 'GetCovertActionEvents_Settings') return ELR_NoInterrupt;
 
 	// Your code here
 
@@ -130,8 +120,6 @@ static function EventListenerReturn OnOnGetPCSImage(Object EventData, Object Eve
 
 	Tuple = XComLWTuple(EventData);
 
-	if (Tuple == None || Tuple.Id != 'OnGetPCSImage') return ELR_NoInterrupt;
-
 	ItemState = XComGameState_Item(Tuple.Data[0].o);
 
 	// Your code here
@@ -150,8 +138,6 @@ static function EventListenerReturn OnOverrideDarkEventCount(Object EventData, O
 
 	AlienHQ = XComGameState_HeadquartersAlien(EventSource);
 	Tuple = XComLWTuple(EventData);
-
-	if (Tuple == None || Tuple.Id != 'OverrideDarkEventCount') return ELR_NoInterrupt;
 
 	NumEvents = Tuple.Data[0].i;
 	bChosenAddedEvent = Tuple.Data[1].b;
@@ -173,8 +159,6 @@ static function EventListenerReturn OnOverrideHasAmmoPocket(Object EventData, Ob
 	UnitState = XComGameState_Unit(EventSource);
 	Tuple = XComLWTuple(EventData);
 
-	if (Tuple == None || Tuple.Id != 'OverrideHasAmmoPocket') return ELR_NoInterrupt;
-
 	bHasAmmoPocket = Tuple.Data[0].b;
 
 	// Your code here
@@ -192,8 +176,6 @@ static function EventListenerReturn OnOverrideHasExtraUtilitySlot(Object EventDa
 
 	UnitState = XComGameState_Unit(EventSource);
 	Tuple = XComLWTuple(EventData);
-
-	if (Tuple == None || Tuple.Id != 'OverrideHasExtraUtilitySlot') return ELR_NoInterrupt;
 
 	bHasExtraUtilitySlot = Tuple.Data[0].b;
 
@@ -213,8 +195,6 @@ static function EventListenerReturn OnOverrideHasGrenadePocket(Object EventData,
 	SourceUnit = XComGameState_Unit(EventSource);
 	Tuple = XComLWTuple(EventData);
 
-	if (Tuple == None || Tuple.Id != 'OverrideHasGrenadePocket') return ELR_NoInterrupt;
-
 	bHasGrenadePocket = Tuple.Data[0].b;
 
 	// Your code here
@@ -232,8 +212,6 @@ static function EventListenerReturn OnOverrideHasInfiniteAmmo(Object EventData, 
 
 	ItemState = XComGameState_Item(EventSource);
 	Tuple = XComLWTuple(EventData);
-
-	if (Tuple == None || Tuple.Id != 'OverrideHasInfiniteAmmo') return ELR_NoInterrupt;
 
 	// Your code here
 
@@ -257,8 +235,6 @@ static function EventListenerReturn OnOverrideHitEffects(Object EventData, Objec
 
 	Pawn = XComUnitPawn(EventSource);
 	Tuple = XComLWTuple(EventData);
-
-	if (Tuple == None || Tuple.Id != 'OverrideHitEffects') return ELR_NoInterrupt;
 
 	Damage = Tuple.Data[1].f;
 	InstigatedBy = Actor(Tuple.Data[2].o);
@@ -291,8 +267,6 @@ static function EventListenerReturn OnOverrideMissionImage(Object EventData, Obj
 	MissionState = XComGameState_MissionSite(EventSource);
 	Tuple = XComLWTuple(EventData);
 
-	if (Tuple == None || Tuple.Id != 'OverrideMissionImage') return ELR_NoInterrupt;
-
 	ImagePath = Tuple.Data[0].s;
 
 	// Your code here
@@ -311,8 +285,6 @@ static function EventListenerReturn OnOverrideNextRetaliationDisplay(Object Even
 	local string strFooter;
 
 	Tuple = XComLWTuple(EventData);
-
-	if (Tuple == None || Tuple.Id != 'OverrideNextRetaliationDisplay') return ELR_NoInterrupt;
 
 	bShow = Tuple.Data[0].b;
 	strHeader = Tuple.Data[1].s;
@@ -343,8 +315,6 @@ static function EventListenerReturn OnOverrideProjectileInstance(Object EventDat
 	AbilityContext = XComGameStateContext_Ability(EventSource);
 	Tuple = XComLWTuple(EventData);
 
-	if (Tuple == None || Tuple.Id != 'OverrideProjectileInstance') return ELR_NoInterrupt;
-
 	ProjectileTemplate = Actor(Tuple.Data[1].o);
 	InVolleyNotify = AnimNotify_FireWeaponVolley(Tuple.Data[2].o);
 	InSourceWeapon = XComWeapon(Tuple.Data[3].o);
@@ -369,8 +339,6 @@ static function EventListenerReturn OnOverridePromotionBlueprintTagPrefix(Object
 	Screen = UIAfterAction(EventSource);
 	Tuple = XComLWTuple(EventData);
 
-	if (Tuple == None || Tuple.Id != 'OverridePromotionBlueprintTagPrefix') return ELR_NoInterrupt;
-
 	UnitState = XComGameState_Unit(Tuple.Data[0].o);
 	TagPrefix = Tuple.Data[1].s;
 
@@ -390,8 +358,6 @@ static function EventListenerReturn OnOverridePromotionUIClass(Object EventData,
 
 	Pres = XComHQPresentationLayer(EventSource);
 	Tuple = XComLWTuple(EventData);
-
-	if (Tuple == None || Tuple.Id != 'OverridePromotionUIClass') return ELR_NoInterrupt;
 
 	PromotionScreenType = CHLPromotionScreenType(Tuple.Data[0].i);
 	PromotionUIClass = class<UIArmory_Promotion>(Tuple.Data[1].o);
@@ -413,8 +379,6 @@ static function EventListenerReturn OnOverrideShowItemInLockerList(Object EventD
 
 	ItemState = XComGameState_Item(EventSource);
 	Tuple = XComLWTuple(EventData);
-
-	if (Tuple == None || Tuple.Id != 'OverrideShowItemInLockerList') return ELR_NoInterrupt;
 
 	bSlotShowItemInLockerList = Tuple.Data[0].b;
 	Slot = EInventorySlot(Tuple.Data[1].i);
@@ -441,8 +405,6 @@ static function EventListenerReturn OnOverrideUnitFocusUI(Object EventData, Obje
 
 	SourceUnit = XComGameState_Unit(EventSource);
 	Tuple = XComLWTuple(EventData);
-
-	if (Tuple == None || Tuple.Id != 'OverrideUnitFocusUI') return ELR_NoInterrupt;
 
 	bVisible = Tuple.Data[0].b;
 	currentFocus = Tuple.Data[1].i;
@@ -492,8 +454,6 @@ static function EventListenerReturn OnSoldierClassDisplayName(Object EventData, 
 	UnitState = XComGameState_Unit(EventSource);
 	Tuple = XComLWTuple(EventData);
 
-	if (Tuple == None || Tuple.Id != 'SoldierClassDisplayName') return ELR_NoInterrupt;
-
 	DisplayName = Tuple.Data[0].s;
 
 	// Your code here
@@ -511,8 +471,6 @@ static function EventListenerReturn OnSoldierClassIcon(Object EventData, Object 
 
 	UnitState = XComGameState_Unit(EventSource);
 	Tuple = XComLWTuple(EventData);
-
-	if (Tuple == None || Tuple.Id != 'SoldierClassIcon') return ELR_NoInterrupt;
 
 	IconImagePath = Tuple.Data[0].s;
 
@@ -532,8 +490,6 @@ static function EventListenerReturn OnSoldierClassSummary(Object EventData, Obje
 	UnitState = XComGameState_Unit(EventSource);
 	Tuple = XComLWTuple(EventData);
 
-	if (Tuple == None || Tuple.Id != 'SoldierClassSummary') return ELR_NoInterrupt;
-
 	DisplaySummary = Tuple.Data[0].s;
 
 	// Your code here
@@ -552,8 +508,6 @@ static function EventListenerReturn OnSoldierRankIcon(Object EventData, Object E
 
 	UnitState = XComGameState_Unit(EventSource);
 	Tuple = XComLWTuple(EventData);
-
-	if (Tuple == None || Tuple.Id != 'SoldierRankIcon') return ELR_NoInterrupt;
 
 	Rank = Tuple.Data[0].i;
 	IconImagePath = Tuple.Data[1].s;
@@ -575,8 +529,6 @@ static function EventListenerReturn OnSoldierRankName(Object EventData, Object E
 	UnitState = XComGameState_Unit(EventSource);
 	Tuple = XComLWTuple(EventData);
 
-	if (Tuple == None || Tuple.Id != 'SoldierRankName') return ELR_NoInterrupt;
-
 	Rank = Tuple.Data[0].i;
 	DisplayRankName = Tuple.Data[1].s;
 
@@ -597,8 +549,6 @@ static function EventListenerReturn OnSoldierShortRankName(Object EventData, Obj
 	UnitState = XComGameState_Unit(EventSource);
 	Tuple = XComLWTuple(EventData);
 
-	if (Tuple == None || Tuple.Id != 'SoldierShortRankName') return ELR_NoInterrupt;
-
 	Rank = Tuple.Data[0].i;
 	DisplayShortRankName = Tuple.Data[1].s;
 
@@ -618,8 +568,6 @@ static function EventListenerReturn OnUIAvengerShortcuts_ShowCQResistanceOrders(
 	ShortcutsScreen = UIAvengerShortcuts(EventSource);
 	Tuple = XComLWTuple(EventData);
 
-	if (Tuple == None || Tuple.Id != 'UIAvengerShortcuts_ShowCQResistanceOrders') return ELR_NoInterrupt;
-
 	ShouldShow = Tuple.Data[0].b;
 
 	// Your code here
@@ -636,8 +584,6 @@ static function EventListenerReturn OnUIResistanceReport_ShowCouncil(Object Even
 
 	Tuple = XComLWTuple(EventData);
 
-	if (Tuple == None || Tuple.Id != 'UIResistanceReport_ShowCouncil') return ELR_NoInterrupt;
-
 	ShouldShow = Tuple.Data[0].b;
 
 	// Your code here
@@ -653,8 +599,6 @@ static function EventListenerReturn OnUIStrategyPolicy_ShowCovertActionsOnClose(
 	local bool ShouldShow;
 
 	Tuple = XComLWTuple(EventData);
-
-	if (Tuple == None || Tuple.Id != 'UIStrategyPolicy_ShowCovertActionsOnClose') return ELR_NoInterrupt;
 
 	ShouldShow = Tuple.Data[0].b;
 
@@ -674,8 +618,6 @@ static function EventListenerReturn OnValidateGTSClassTraining(Object EventData,
 
 	ChooseClassScreen = UIChooseClass(EventSource);
 	Tuple = XComLWTuple(EventData);
-
-	if (Tuple == None || Tuple.Id != 'ValidateGTSClassTraining') return ELR_NoInterrupt;
 
 	SoldierClassTemplate = X2SoldierClassTemplate(Tuple.Data[1].o);
 
