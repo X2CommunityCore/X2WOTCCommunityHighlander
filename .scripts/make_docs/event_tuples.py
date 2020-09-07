@@ -174,6 +174,8 @@ def _kw_to_inout(t: _Token) -> InOutness:
 
 class _peekable():
     "Wrap iterator with lookahead to both peek and test exhausted"
+    # Code by Terry Jan Reedy, intentionally submitted to the python-ideas
+    # mailing list for inclusion into itertools.
     # https://mail.python.org/pipermail//python-ideas/2013-February/019633.html
     _NONE = object()
 

@@ -1,6 +1,6 @@
 Title: Events
 
-<h1>Events</h1>
+# Events
 
 Features with an \`\`\`event\` are automatically tagged `event`.
 

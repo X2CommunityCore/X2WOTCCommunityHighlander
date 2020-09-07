@@ -1,6 +1,6 @@
 Title: IncorrectIndentation
 
-<h1>IncorrectIndentation</h1>
+# IncorrectIndentation
 
 Tracking Issue: [#2](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/2)
 

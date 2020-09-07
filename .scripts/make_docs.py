@@ -359,7 +359,7 @@ def process_file(sess, file, lang) -> List[dict]:
                         try:
                             spec = event_tuples.parse_event_spec("\n".join(
                                 self.eventlines))
-                            self.lines.append("## Event specification")
+                            self.lines.append(f"## {spec.id} event")
                             self.lines.append("")
                             self.lines.append(make_event_spec_table(
                                 sess, spec))
@@ -471,7 +471,7 @@ def render_bugfix_page(item: dict, outdir: str):
         print(f"ok: {fname}")
 
         file.write(f"Title: {feat_name}\n\n")
-        file.write(f"<h1>{feat_name}</h1>\n\n")
+        file.write(f"# {feat_name}\n\n")
         file.write(
             "This page accomodates all bug fixes that do not deserve " +
             "their own documentation page, as they are simple enough to " +
@@ -499,7 +499,7 @@ def render_full_feature_page(item: dict, outdir: str):
     with open(fname, 'w') as file:
         print(f"ok: {fname}")
         file.write(f"Title: {item.feature}\n\n")
-        file.write(f"<h1>{item.feature}</h1>\n\n")
+        file.write(f"# {item.feature}\n\n")
         file.write(f"Tracking Issue: {link_to_issue(item.issue)}\n\n")
 
         def link_tag(tag: str) -> str:

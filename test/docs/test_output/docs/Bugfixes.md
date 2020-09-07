@@ -1,6 +1,6 @@
 Title: Bugfixes
 
-<h1>Bugfixes</h1>
+# Bugfixes
 
 This page accomodates all bug fixes that do not deserve their own documentation page, as they are simple enough to be entirely explained by a single line.
 

@@ -1,4 +1,4 @@
-<h1>Events</h1>
+# Events
 
 Many of the Highlander's features utilize *Event Hooks*. Mods can subscribe to
 any event by name, and then

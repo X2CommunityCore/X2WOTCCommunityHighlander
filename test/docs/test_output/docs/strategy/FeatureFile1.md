@@ -1,6 +1,6 @@
 Title: FeatureFile1
 
-<h1>FeatureFile1</h1>
+# FeatureFile1
 
 Tracking Issue: [#1](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1)
 

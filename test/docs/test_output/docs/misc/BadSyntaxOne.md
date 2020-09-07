@@ -1,6 +1,6 @@
 Title: BadSyntaxOne
 
-<h1>BadSyntaxOne</h1>
+# BadSyntaxOne
 
 Tracking Issue: [#5](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/5)
 

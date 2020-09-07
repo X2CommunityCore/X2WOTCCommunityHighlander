@@ -1,4 +1,4 @@
-<h1>DLC2</h1>
+# DLC2
 
 DLC2 (also known as DLC_2, DLC_60, AH and Alien Hunters) is the DLC that introduces Alien Rulers into the game.
 

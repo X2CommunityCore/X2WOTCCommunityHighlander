@@ -1,12 +1,12 @@
 Title: TestEvent
 
-<h1>TestEvent</h1>
+# TestEvent
 
 Tracking Issue: [#10](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/10)
 
 Tags: [events](../events.md)
 
-## Event specification
+## NameOfTheEvent event
 
 | Param | Value |
 | - | - |

@@ -1,6 +1,6 @@
 Title: FeatWithBadTag
 
-<h1>FeatWithBadTag</h1>
+# FeatWithBadTag
 
 Tracking Issue: [#7](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/7)
 
