@@ -5,6 +5,10 @@
 # Project specific user settings
 .vscode/settings.json
 
+# Python
 *.pyc
+__pycache__/
+
+# docs
 mkdocs/
 target/

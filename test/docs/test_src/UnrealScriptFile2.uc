@@ -38,6 +38,55 @@ class UnrealScriptFile2 extends Object;
 /// HL-Docs: ref:DoesNotExist
 /// ref for non-existing feature
 
+/// HL-Docs: feature:BadEventSyntax; issue:11; tags:
+/// Event triggers, some with errors
+///
+/// First, an empty event
+/// ```event
+/// ```
+///
+/// ```event
+/// EventSource: none
+/// ```
+///
+/// ```event
+/// EventID: OnlyAnID,
+/// ```
+///
+/// ```event
+/// EventID RandomSyntaxErr1
+/// ```
+///
+/// ```event
+/// EventID: RandomSyntaxErr2,
+/// EventData: { inout bool a }
+/// ```
+///
+/// ```event
+/// EventID: MissingComma
+/// EventData: none
+/// ```
+///
+/// ```event
+/// EventID: EventSourceTuple,
+/// EventSource: [ inout bool a ]
+/// ```
+///
+/// ```event
+/// EventID: MissingInoutness,
+/// EventData: [ bool a ]
+/// ```
+///
+/// ```event
+/// EventID: BadLocalType,
+/// EventData: Actor ({)
+/// ```
+///
+/// ```event
+/// EventID: BadExtendedTuple,
+/// EventData: XComLWTuple { [ inout bool a ] }
+/// ```
+
 function Abc()
 {
 	/// HL-Docs: feature:IffyInclude; issue:9; tags:

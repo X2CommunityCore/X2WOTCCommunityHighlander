@@ -56,4 +56,4 @@ static function EventListenerReturn OnNameOfTheEvent(Object EventData, Object Ev
 
 ## Source code references
 
-* [UnrealScriptFile1.uc:30-35](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/test_src/UnrealScriptFile1.uc#L30-L35)
+* [UnrealScriptFile1.uc:27-33](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/test_src/UnrealScriptFile1.uc#L27-L33)

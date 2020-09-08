@@ -24,9 +24,6 @@ function int IPromiseThisIsARandomNumber()
 	return 4;
 }
 
-/// HL-Docs: ref:Bugfixes; issue:3
-/// An ordinary bugfix. This file intentionally ends without a newline.
-
 /// HL-Docs: feature:TestEvent; issue:10; tags:
 /// ```event
 /// EventID: NameOfTheEvent,
@@ -34,3 +31,6 @@ function int IPromiseThisIsARandomNumber()
 /// EventSource: XComHQPresentationLayer (Pres),
 /// NewGameState: no
 /// ```
+
+/// HL-Docs: ref:Bugfixes; issue:3
+/// An ordinary bugfix. This file intentionally ends without a newline.
