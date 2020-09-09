@@ -155,10 +155,10 @@ The syntax for events is the following
     * `class`es can be typed with `class[class<Type>]`
     * If the type is not a primitive, it's assumed to be an object
 
-The above example generares the following code
+The above example generates the following code
 
 ```unrealscript
-function EventListenerReturn OnOverridePromotionUIClass(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackObject)
+static function EventListenerReturn OnOverridePromotionUIClass(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackObject)
 {
 	local XComHQPresentationLayer Pres;
 	local XComLWTuple Tuple;
@@ -167,8 +167,6 @@ function EventListenerReturn OnOverridePromotionUIClass(Object EventData, Object
 
 	Pres = XComHQPresentationLayer(EventSource);
 	Tuple = XComLWTuple(EventData);
-
-	if (Tuple == None || Tuple.Id != 'OverridePromotionUIClass') return ELR_NoInterrupt;
 
 	PromotionScreenType = CHLPromotionScreenType(Tuple.Data[0].i);
 	PromotionUIClass = class<UIArmory_Promotion>(Tuple.Data[1].o);

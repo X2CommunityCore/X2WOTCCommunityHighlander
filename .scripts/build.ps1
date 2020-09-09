@@ -5,6 +5,7 @@ Param(
     [string]$gamePath, # the path to your XCOM 2 installation ending in "XCOM2-WaroftheChosen"
     [switch]$final_release,
     [switch]$debug,
+    [switch]$include_compiletest,
     [switch]$stableModId
 )
 
@@ -254,6 +255,12 @@ Write-Host "Mirrored."
 Write-Host "Copying the mod's scripts to Src..."
 Copy-Item "$stagingPath\Src\*" "$sdkPath\Development\Src\" -Force -Recurse -WarningAction SilentlyContinue
 Write-Host "Copied."
+
+# Remove CHL_Event_Compiletest
+if ($include_compiletest -ne $true) {
+    Write-Host "Deleting *_Compiletest.uc"
+    Remove-Item "$sdkPath\Development\Src\" -Include "*_Compiletest.uc" -Recurse -WarningAction SilentlyContinue;
+}
 
 if ($final_release) {
     Write-Host "Updating version..."

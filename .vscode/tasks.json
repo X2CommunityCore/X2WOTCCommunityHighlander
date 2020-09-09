@@ -28,6 +28,13 @@
             "problemMatcher": []
         },
         {
+            "label": "Build (compiletest)",
+            "type": "shell",
+            "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\build.ps1' -mod \"X2WOTCCommunityHighlander\" -srcDirectory '${workspaceRoot}' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}' -debug -include_compiletest",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
             "label": "Build for workshop stable version",
             "type": "shell",
             "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\build.ps1' -mod \"X2WOTCCommunityHighlander\" -srcDirectory '${workspaceRoot}' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}' -final_release -stableModId",

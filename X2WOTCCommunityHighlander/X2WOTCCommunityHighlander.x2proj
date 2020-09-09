@@ -773,6 +773,10 @@
     <OutputPath>.</OutputPath>
     <PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -mod "X2WOTCCommunityHighlander" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)" -debug</PowershellBuildCommand>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Compiletest' ">
+    <OutputPath>.</OutputPath>
+    <PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -mod "X2WOTCCommunityHighlander" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)" -debug -include_compiletest</PowershellBuildCommand>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Workshop stable version' ">
     <OutputPath>.</OutputPath>
     <PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -mod "X2WOTCCommunityHighlander" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)" -final_release -stableModId</PowershellBuildCommand>
