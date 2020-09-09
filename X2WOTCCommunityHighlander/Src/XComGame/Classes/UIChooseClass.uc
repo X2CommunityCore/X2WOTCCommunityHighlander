@@ -137,12 +137,10 @@ simulated function array<X2SoldierClassTemplate> GetClasses()
 ///
 /// ```event
 /// EventID: ValidateGTSClassTraining,
-/// EventData: XComLWTuple {
-///     Data: [
-///       out bool CanTrainClass,
-///       in X2SoldierClassTemplate SoldierClassTemplate
-///     ]
-/// },
+/// EventData: [
+///     out bool CanTrainClass,
+///     in X2SoldierClassTemplate SoldierClassTemplate
+/// ],
 /// EventSource: UIChooseClass (ChooseClassScreen),
 /// NewGameState: no
 /// ```

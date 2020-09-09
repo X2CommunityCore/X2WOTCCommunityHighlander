@@ -241,34 +241,20 @@ def _parse_tuple_data(lex) -> List[Tuple]:
     return tup
 
 
-def _parse_tuple(lex) -> List[Tuple]:
-    _expect(lex, _TokenType.LBRACE, "{", "extended tuple format")
-
-    data = _expect(lex, _TokenType.IDENT, "Data", "extended tuple format")
-    if data.ident != "Data":
-        raise ParseError(
-            f"expected \"Data\", got {data} while parsing extended tuple format"
-        )
-
-    _expect(lex, _TokenType.COLON, ":", "extended tuple format")
-    tup = _parse_tuple_data(lex)
-    _try_eat(lex, _TokenType.COMMA)
-    _expect(lex, _TokenType.RBRACE, "}", "extended tuple format")
-    return tup
-
-
 def parse_event_spec(text: str) -> dict:
     lex = _peekable(_lex_event_spec(text))
 
     spec = EventSpec()
     comma = False
+    prev_key = None
 
     ctx = "event specification"
     while True:
         if not lex:
             break
         if comma:
-            _expect(lex, _TokenType.COMMA, ",", ctx)
+            spec_ctx = ctx + f" after parsing {prev_key}" if prev_key else ctx
+            _expect(lex, _TokenType.COMMA, ",", spec_ctx)
         if not lex:
             break
         comma = True
@@ -282,6 +268,7 @@ def parse_event_spec(text: str) -> dict:
         elif key == "EventSource":
             type = _expect(lex, _TokenType.IDENT, "source type", key)
             spec.source = EventArg(type.ident)
+            prev_key = key
             if _try_eat(lex, _TokenType.LPAREN):
                 name = _expect(lex, _TokenType.IDENT)
                 spec.source.name = name.ident
@@ -294,15 +281,11 @@ def parse_event_spec(text: str) -> dict:
             else:
                 type = _expect(lex, _TokenType.IDENT, "data type", key)
                 spec.data = EventArg(type.ident)
-                if type.ident == "XComLWTuple":
-                    tup = _parse_tuple(lex)
-                    spec.data.tuple = tup
-                else:
-                    if _try_eat(lex, _TokenType.LPAREN):
-                        name = _expect(lex, _TokenType.IDENT, "local name",
-                                       key)
-                        spec.data.name = name.ident
-                        _expect(lex, _TokenType.RPAREN, ")", key)
+                prev_key = key
+                if _try_eat(lex, _TokenType.LPAREN):
+                    name = _expect(lex, _TokenType.IDENT, "local name", key)
+                    spec.data.name = name.ident
+                    _expect(lex, _TokenType.RPAREN, ")", key)
         elif key == "NewGameState":
             b = _expect(lex, _TokenType.IDENT,
                         "NewGameStateness (yes, no, maybe)", key).ident

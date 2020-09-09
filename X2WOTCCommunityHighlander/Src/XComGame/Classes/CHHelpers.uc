@@ -364,17 +364,15 @@ static function GroupItemStatsByLabel(out array<UISummary_ItemStat> InArray)
 ///
 /// ```event
 /// EventID: OverrideUnitFocusUI,
-/// EventData: XComLWTuple {
-///     Data: [
-///       inout bool bVisible,
-///       inout int currentFocus,
-///       inout int maxFoxus,
-///       inout string color,
-///       inout string iconPath,
-///       inout string tooltipText,
-///       inout string focusLabel
-///     ]
-/// },
+/// EventData: [
+///     inout bool bVisible,
+///     inout int currentFocus,
+///     inout int maxFoxus,
+///     inout string color,
+///     inout string iconPath,
+///     inout string tooltipText,
+///     inout string focusLabel
+/// ],
 /// EventSource: XComGameState_Unit (SourceUnit),
 /// NewGameState: no
 /// ```

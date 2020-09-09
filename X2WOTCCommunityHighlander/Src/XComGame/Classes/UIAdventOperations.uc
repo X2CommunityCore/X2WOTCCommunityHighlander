@@ -257,14 +257,12 @@ simulated function BuildTitlePanel()
 ///
 /// ```event
 /// EventID: OverrideNextRetaliationDisplay,
-/// EventData: XComLWTuple {
-/// 	Data: [
-/// 	  inout bool bShow,
-/// 	  inout string strHeader,
-/// 	  inout string strValue,
-/// 	  inout string strFooter
-///     ]
-/// }
+/// EventData: [
+/// 	inout bool bShow,
+/// 	inout string strHeader,
+/// 	inout string strValue,
+/// 	inout string strFooter
+/// ]
 /// ```
 simulated private function TriggerOverrideRetaliationDisplay (out int bShow, out string strHeader, out string strValue, out string strFooter)
 {

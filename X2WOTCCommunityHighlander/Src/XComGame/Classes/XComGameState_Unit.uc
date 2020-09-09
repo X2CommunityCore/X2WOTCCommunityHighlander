@@ -3869,11 +3869,7 @@ function bool TriggerHasPocketOfTypeEvent(name EventID, bool bOverridePocketResu
 ///
 /// ```event
 /// EventID: OverrideHasGrenadePocket,
-/// EventData: XComLWTuple {
-/// 	Data: [
-/// 	  inout bool bHasGrenadePocket
-/// 	]
-/// },
+/// EventData: [ inout bool bHasGrenadePocket ],
 /// EventSource: XComGameState_Unit (SourceUnit),
 /// NewGameState: no
 /// ```
@@ -3897,11 +3893,7 @@ function bool HasGrenadePocket()
 ///
 /// ```event
 /// EventID: OverrideHasAmmoPocket,
-/// EventData: XComLWTuple {
-/// 	Data: [
-/// 	  inout bool bHasAmmoPocket
-///     ]
-/// },
+/// EventData: [ inout bool bHasAmmoPocket ],
 /// EventSource: XComGameState_Unit (UnitState),
 /// NewGameState: no
 /// ```
@@ -3926,11 +3918,7 @@ function bool HasAmmoPocket()
 ///
 /// ```event
 /// EventID: OverrideHasExtraUtilitySlot,
-/// EventData: XComLWTuple {
-/// 	Data: [
-/// 	  inout bool bHasExtraUtilitySlot
-///     ]
-/// },
+/// EventData: [ inout bool bHasExtraUtilitySlot ],
 /// EventSource: XComGameState_Unit (UnitState),
 /// NewGameState: no
 /// ```
@@ -12851,11 +12839,7 @@ function RankUpSoldier(XComGameState NewGameState, optional name SoldierClass, o
 ///
 /// ```event
 /// EventID: FirstPromotionOverrideClass,
-/// EventData: XComLWTuple {
-///     Data: [
-///       inout name SoldierClassTemplateName
-///     ]
-/// },
+/// EventData: [ inout name SoldierClassTemplateName ],
 ///	EventSource: XComGameState_Unit (FirstSquaddie),
 /// NewGameState: yes
 /// ```

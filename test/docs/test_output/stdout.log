@@ -14,7 +14,7 @@ error: ./test_src/UnrealScriptFile2.uc:65: event block has error: expected _Toke
 error: ./test_src/UnrealScriptFile2.uc:70: event block has error: expected _TokenType.IDENT (source type) while parsing EventSource, found _TokenType.LBRACK
 error: ./test_src/UnrealScriptFile2.uc:75: event block has error: expected _TokenType.KW (inoutness) while parsing tuple param, found _TokenType.IDENT (bool)
 error: ./test_src/UnrealScriptFile2.uc:80: event block has error: expected _TokenType.IDENT (local name) while parsing EventData, found _TokenType.LBRACE
-error: ./test_src/UnrealScriptFile2.uc:85: event block has error: expected _TokenType.IDENT (Data) while parsing extended tuple format, found _TokenType.LBRACK
+error: ./test_src/UnrealScriptFile2.uc:85: event block has error: expected _TokenType.COMMA (,) while parsing event specification after parsing EventData, found _TokenType.LBRACK
 error: ./test_src/UnrealScriptFile2.uc:96: bad indentation for HL-Include:
 error: ./test_src/UnrealScriptFile2.uc:99: bad indentation for HL-Include:
 error: ./test_src/UnrealScriptFile2.uc:92: unclosed HL-Include:

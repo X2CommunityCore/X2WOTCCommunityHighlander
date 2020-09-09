@@ -971,11 +971,7 @@ simulated function bool HasInfiniteAmmo()
 ///
 /// ```event
 /// EventID: OverrideHasInfiniteAmmo,
-/// EventData: XComLWTuple {
-///     Data: [
-///       out bool bHasInfiniteAmmo
-///     ]
-/// },
+/// EventData: [ out bool bHasInfiniteAmmo ],
 /// EventSource: XComGameState_Item (ItemState),
 /// NewGameState: no
 /// ```

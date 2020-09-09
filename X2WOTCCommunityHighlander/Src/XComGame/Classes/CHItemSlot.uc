@@ -407,13 +407,11 @@ static function bool SlotShowItemInLockerList(EInventorySlot Slot, XComGameState
 ///
 /// ```event
 /// EventID: OverrideShowItemInLockerList,
-/// EventData: XComLWTuple {
-///     Data: [
-///       inout bool bSlotShowItemInLockerList,
-///       in enum[EInventorySlot] Slot,
-///       in XComGameState_Unit UnitState
-///     ]
-/// },
+/// EventData: [
+///     inout bool bSlotShowItemInLockerList,
+///     in enum[EInventorySlot] Slot,
+///     in XComGameState_Unit UnitState
+/// ],
 /// EventSource: XComGameState_Item (ItemState),
 /// NewGameState: maybe
 /// ```

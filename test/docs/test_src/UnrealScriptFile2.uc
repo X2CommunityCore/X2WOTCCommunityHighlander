@@ -84,7 +84,7 @@ class UnrealScriptFile2 extends Object;
 ///
 /// ```event
 /// EventID: BadExtendedTuple,
-/// EventData: XComLWTuple { [ inout bool a ] }
+/// EventData: XComLWTuple [ inout bool a ]
 /// ```
 
 function Abc()

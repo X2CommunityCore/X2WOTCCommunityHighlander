@@ -385,18 +385,16 @@ simulated function DamageTypeHitEffectContainer GetDamageTypeHitEffectContainer(
 ///
 /// ```event
 /// EventID: OverrideHitEffects,
-/// EventData: XComLWTuple {
-///     Data: [
-///       out bool OverrideHitEffect,
-///       inout float Damage,
-///       inout Actor InstigatedBy,
-///       inout vector HitLocation,
-///       inout name DamageTypeName,
-///       inout vector Momentum,
-///       inout bool bIsUnitRuptured,
-///       inout enum[EAbilityHitResult] HitResult,
-///     ]
-/// },
+/// EventData: [
+///     out bool OverrideHitEffect,
+///     inout float Damage,
+///     inout Actor InstigatedBy,
+///     inout vector HitLocation,
+///     inout name DamageTypeName,
+///     inout vector Momentum,
+///     inout bool bIsUnitRuptured,
+///     inout enum[EAbilityHitResult] HitResult,
+/// ],
 /// EventSource: XComUnitPawn (Pawn),
 /// NewGameState: no
 /// ```

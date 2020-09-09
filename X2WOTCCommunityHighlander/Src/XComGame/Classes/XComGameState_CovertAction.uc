@@ -583,12 +583,10 @@ private function GenerateRewards(XComGameState NewGameState)
 ///
 /// ```event
 /// EventID: CovertAction_OverrideCostScalar,
-/// EventData: XComLWTuple {
-///     Data: [
-///       inout float DefaultCostScalar,
-///       in XComGameState_Reward RewardState
-///     ]
-/// },
+/// EventData: [
+///     inout float DefaultCostScalar,
+///     in XComGameState_Reward RewardState
+/// ],
 /// EventSource: XComGameState_CovertAction (ActionState),
 /// NewGameState: no
 /// ```
@@ -616,12 +614,10 @@ private function float TriggerOverrideCostScalar(XComGameState_Reward RewardStat
 ///
 /// ```event
 /// EventID: CovertAction_OverrideRewardScalar,
-/// EventData: XComLWTuple {
-///     Data: [
-///       inout float DefaultRewardScalar,
-///       in XComGameState_Reward RewardState
-///     ]
-/// },
+/// EventData: [
+///     inout float DefaultRewardScalar,
+///     in XComGameState_Reward RewardState
+/// ],
 /// EventSource: XComGameState_CovertAction (ActionState),
 /// NewGameState: no
 /// ```
