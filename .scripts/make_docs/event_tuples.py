@@ -259,6 +259,7 @@ def parse_event_spec(text: str) -> dict:
             break
         comma = True
         key = _expect(lex, _TokenType.IDENT, "key", ctx).ident
+        prev_key = key
         _expect(lex, _TokenType.COLON, ":", f"key {key}")
         if hasattr(spec, key):
             raise ParseError(f"error, duplicate key {key}")
@@ -268,7 +269,6 @@ def parse_event_spec(text: str) -> dict:
         elif key == "EventSource":
             type = _expect(lex, _TokenType.IDENT, "source type", key)
             spec.source = EventArg(type.ident)
-            prev_key = key
             if _try_eat(lex, _TokenType.LPAREN):
                 name = _expect(lex, _TokenType.IDENT)
                 spec.source.name = name.ident
@@ -281,7 +281,6 @@ def parse_event_spec(text: str) -> dict:
             else:
                 type = _expect(lex, _TokenType.IDENT, "data type", key)
                 spec.data = EventArg(type.ident)
-                prev_key = key
                 if _try_eat(lex, _TokenType.LPAREN):
                     name = _expect(lex, _TokenType.IDENT, "local name", key)
                     spec.data.name = name.ident

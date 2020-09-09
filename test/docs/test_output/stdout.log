@@ -10,7 +10,7 @@ error: ./test_src/UnrealScriptFile2.uc:45: event block has error: missing ID
 error: ./test_src/UnrealScriptFile2.uc:48: event block has error: missing ID
 error: ./test_src/UnrealScriptFile2.uc:56: event block has error: expected _TokenType.COLON (:) while parsing key EventID, found _TokenType.IDENT (RandomSyntaxErr1)
 error: ./test_src/UnrealScriptFile2.uc:60: event block has error: expected _TokenType.IDENT (data type) while parsing EventData, found _TokenType.LBRACE
-error: ./test_src/UnrealScriptFile2.uc:65: event block has error: expected _TokenType.COMMA (,) while parsing event specification, found _TokenType.IDENT (EventData)
+error: ./test_src/UnrealScriptFile2.uc:65: event block has error: expected _TokenType.COMMA (,) while parsing event specification after parsing EventID, found _TokenType.IDENT (EventData)
 error: ./test_src/UnrealScriptFile2.uc:70: event block has error: expected _TokenType.IDENT (source type) while parsing EventSource, found _TokenType.LBRACK
 error: ./test_src/UnrealScriptFile2.uc:75: event block has error: expected _TokenType.KW (inoutness) while parsing tuple param, found _TokenType.IDENT (bool)
 error: ./test_src/UnrealScriptFile2.uc:80: event block has error: expected _TokenType.IDENT (local name) while parsing EventData, found _TokenType.LBRACE
