@@ -176,3 +176,9 @@ static function EventListenerReturn OnOverridePromotionUIClass(Object EventData,
 	return ELR_NoInterrupt;
 }
 ```
+
+All generated listeners will be dumped into [CHL_Event_Compiletest.uc](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/X2WOTCCommunityHighlander/Classes/CHL_Event_Compiletest.uc),
+which will be excluded from normal compilation and only kept in "compiletest" tasks. If you documented a listener (or changed an existing listener documentation)
+but did not run `makeDocs`, CI (automatic scripts running on GitHub servers when you open or update a pull request) will note that `CHL_Event_Compiletest` is
+out of date and the `check-event-templates` check will fail! To fix, run `makeDocs` locally and commit the changes to `CHL_Event_Compiletest`.  
+Future possibility: generate + upload patch file as artifact?
