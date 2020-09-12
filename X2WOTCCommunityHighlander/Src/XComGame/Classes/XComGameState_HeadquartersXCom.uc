@@ -7998,7 +7998,8 @@ function GetResistanceEvents(out array<HQEvent> arrEvents)
 /// ```event
 /// EventID: GetCovertActionEvents_Settings,
 /// EventData: [out bool AddAll, out bool InsertSorted],
-/// EventSource: XComGameState_HeadquartersXCom (XComHQ)
+/// EventSource: XComGameState_HeadquartersXCom (XComHQ),
+/// NewGameState: none
 /// ```
 function GetCovertActionEvents(out array<HQEvent> arrEvents)
 {

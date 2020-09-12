@@ -262,7 +262,9 @@ simulated function BuildTitlePanel()
 /// 	inout string strHeader,
 /// 	inout string strValue,
 /// 	inout string strFooter
-/// ]
+/// ],
+/// EventSource: UIAdventOperations (Screen),
+/// NewGameState: none
 /// ```
 simulated private function TriggerOverrideRetaliationDisplay (out int bShow, out string strHeader, out string strValue, out string strFooter)
 {

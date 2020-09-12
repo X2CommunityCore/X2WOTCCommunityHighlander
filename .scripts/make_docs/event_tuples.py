@@ -46,16 +46,16 @@ class InOutness(Enum):
 
 class NewGameState(Enum):
     YES = 1
-    NO = 2
+    NONE = 2
     MAYBE = 3
 
     def __str__(self) -> str:
         if self == NewGameState.YES:
             return "yes"
-        elif self == NewGameState.NO:
-            return "no"
+        elif self == NewGameState.NONE:
+            return "none"
         elif self == NewGameState.MAYBE:
-            return "sometimes"
+            return "maybe"
         else:
             assert False, "unreachable"
 
@@ -143,7 +143,6 @@ def _lex_event_spec(text: str) -> Iterator[_Token]:
             continue
 
         raise ParseError(f"unknown start of token {c}")
-        return
 
 
 def _expect(it, t: _TokenType, thing=None, ctx=None) -> _Token:
@@ -287,27 +286,27 @@ def parse_event_spec(text: str) -> dict:
                     _expect(lex, _TokenType.RPAREN, ")", key)
         elif key == "NewGameState":
             b = _expect(lex, _TokenType.IDENT,
-                        "NewGameStateness (yes, no, maybe)", key).ident
+                        "NewGameStateness (yes, none, maybe)", key).ident
             if b == "yes":
                 spec.newgs = NewGameState.YES
-            elif b == "no":
-                spec.newgs = NewGameState.NO
+            elif b == "none" or b == "None":
+                spec.newgs = NewGameState.NONE
             elif b == "maybe":
                 spec.newgs = NewGameState.MAYBE
             else:
-                raise ParseError("expected yes, no, or maybe")
+                raise ParseError("expected yes, none, or maybe")
         else:
             raise ParseError(
                 "unexpected key (expected EventID, EventSource, EventData, NewGameState)"
             )
 
     if not hasattr(spec, 'id'):
-        raise ParseError("missing ID")
+        raise ParseError("missing EventID")
     if not hasattr(spec, 'data'):
-        spec.data = EventArg("None")
+        raise ParseError("missing EventData")
     if not hasattr(spec, 'source'):
-        spec.source = EventArg("None")
+        raise ParseError("missing EventSource")
     if not hasattr(spec, 'newgs'):
-        spec.newgs = NewGameState.NO
+        raise ParseError("missing NewGameState")
 
     return spec

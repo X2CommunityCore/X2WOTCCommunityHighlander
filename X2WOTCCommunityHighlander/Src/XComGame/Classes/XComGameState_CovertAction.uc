@@ -588,7 +588,7 @@ private function GenerateRewards(XComGameState NewGameState)
 ///     in XComGameState_Reward RewardState
 /// ],
 /// EventSource: XComGameState_CovertAction (ActionState),
-/// NewGameState: no
+/// NewGameState: none
 /// ```
 private function float TriggerOverrideCostScalar(XComGameState_Reward RewardState, float DefaultCostScalar)
 {
@@ -619,7 +619,7 @@ private function float TriggerOverrideCostScalar(XComGameState_Reward RewardStat
 ///     in XComGameState_Reward RewardState
 /// ],
 /// EventSource: XComGameState_CovertAction (ActionState),
-/// NewGameState: no
+/// NewGameState: none
 /// ```
 private function float TriggerOverrideRewardScalar(XComGameState_Reward RewardState, float DefaultRewardScalar)
 {

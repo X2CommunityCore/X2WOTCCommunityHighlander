@@ -3871,7 +3871,7 @@ function bool TriggerHasPocketOfTypeEvent(name EventID, bool bOverridePocketResu
 /// EventID: OverrideHasGrenadePocket,
 /// EventData: [ inout bool bHasGrenadePocket ],
 /// EventSource: XComGameState_Unit (SourceUnit),
-/// NewGameState: no
+/// NewGameState: none
 /// ```
 function bool HasGrenadePocket()
 {
@@ -3895,7 +3895,7 @@ function bool HasGrenadePocket()
 /// EventID: OverrideHasAmmoPocket,
 /// EventData: [ inout bool bHasAmmoPocket ],
 /// EventSource: XComGameState_Unit (UnitState),
-/// NewGameState: no
+/// NewGameState: none
 /// ```
 function bool HasAmmoPocket()
 {
@@ -3920,7 +3920,7 @@ function bool HasAmmoPocket()
 /// EventID: OverrideHasExtraUtilitySlot,
 /// EventData: [ inout bool bHasExtraUtilitySlot ],
 /// EventSource: XComGameState_Unit (UnitState),
-/// NewGameState: no
+/// NewGameState: none
 /// ```
 function bool HasExtraUtilitySlot()
 {
@@ -14848,19 +14848,22 @@ function bool UnitIsValidForPhotobooth()
 /// ```event
 /// EventID: SoldierClassIcon,
 /// EventData: [inout string IconImagePath],
-/// EventSource: XComGameState_Unit (UnitState)
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: none
 /// ```
 ///
 /// ```event
 /// EventID: SoldierClassDisplayName,
 /// EventData: [inout string DisplayName],
-/// EventSource: XComGameState_Unit (UnitState)
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: none
 /// ```
 ///
 /// ```event
 /// EventID: SoldierClassSummary,
 /// EventData: [inout string DisplaySummary],
-/// EventSource: XComGameState_Unit (UnitState)
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: none
 /// ```
 ///
 /// There is a sister feature [`DynamicSoldierRankDisplay`](./DynamicSoldierRankDisplay.md)
@@ -14938,19 +14941,22 @@ function String GetSoldierClassSummary()
 /// ```event
 /// EventID: SoldierRankName,
 /// EventData: [in int Rank, inout string DisplayRankName],
-/// EventSource: XComGameState_Unit (UnitState)
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: none
 /// ```
 ///
 /// ```event
 /// EventID: SoldierShortRankName,
 /// EventData: [in int Rank, inout string DisplayShortRankName],
-/// EventSource: XComGameState_Unit (UnitState)
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: none
 /// ```
 ///
 /// ```event
 /// EventID: SoldierRankIcon,
 /// EventData: [in int Rank, inout string IconImagePath],
-/// EventSource: XComGameState_Unit (UnitState)
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: none
 /// ```
 ///
 /// There is a sister feature [`DynamicSoldierClassDisplay`](./DynamicSoldierClassDisplay.md)

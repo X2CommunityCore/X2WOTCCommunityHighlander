@@ -62,7 +62,8 @@ simulated function InitScreen(XComPlayerController InitController, UIMovie InitM
 /// ```event
 /// EventID: UIResistanceReport_ShowCouncil,
 /// EventData: [inout bool ShouldShow],
-/// EventSource: UIResistanceReport
+/// EventSource: UIResistanceReport (Screen),
+/// NewGameState: none
 /// ```
 protected simulated function bool TriggerShouldShowCouncil ()
 {

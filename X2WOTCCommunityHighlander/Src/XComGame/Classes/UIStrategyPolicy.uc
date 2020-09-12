@@ -1866,7 +1866,8 @@ simulated function CloseScreen()
 	/// ```event
 	/// EventID: UIStrategyPolicy_ShowCovertActionsOnClose,
 	/// EventData: [inout bool ShouldShow],
-	/// EventSource: UIStrategyPolicy
+	/// EventSource: UIStrategyPolicy,
+	/// NewGameState: none
 	/// ```
 	Tuple = new class'XComLWTuple';
 	Tuple.Id = 'UIStrategyPolicy_ShowCovertActionsOnClose';

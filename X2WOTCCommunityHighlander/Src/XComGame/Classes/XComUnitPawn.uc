@@ -396,7 +396,7 @@ simulated function DamageTypeHitEffectContainer GetDamageTypeHitEffectContainer(
 ///     inout enum[EAbilityHitResult] HitResult,
 /// ],
 /// EventSource: XComUnitPawn (Pawn),
-/// NewGameState: no
+/// NewGameState: none
 /// ```
 simulated private function bool TriggerOnOverrideHitEffects(
 	float Damage,

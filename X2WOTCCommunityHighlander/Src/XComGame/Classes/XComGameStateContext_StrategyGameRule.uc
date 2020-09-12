@@ -337,7 +337,7 @@ static function CompleteStrategyFromTacticalTransfer()
 	/// EventID: PreCompleteStrategyFromTacticalTransfer,
 	/// EventData: None,
 	/// EventSource: None,
-	/// NewGameState: no,
+	/// NewGameState: none,
 	/// ```
 	`XEVENTMGR.TriggerEvent('PreCompleteStrategyFromTacticalTransfer');
 

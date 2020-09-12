@@ -6,18 +6,19 @@ error: ./test_src/UnrealScriptFile2.uc:12: missing key `tags`
 note: use `tags:` to specify an empty tag list
 error: ./test_src/UnrealScriptFile2.uc:15: missing key `issue`
 error: ./test_src/UnrealScriptFile2.uc:29: multiple `HL-Docs:` in one item
-error: ./test_src/UnrealScriptFile2.uc:45: event block has error: missing ID
-error: ./test_src/UnrealScriptFile2.uc:48: event block has error: missing ID
-error: ./test_src/UnrealScriptFile2.uc:56: event block has error: expected _TokenType.COLON (:) while parsing key EventID, found _TokenType.IDENT (RandomSyntaxErr1)
-error: ./test_src/UnrealScriptFile2.uc:60: event block has error: expected _TokenType.IDENT (data type) while parsing EventData, found _TokenType.LBRACE
-error: ./test_src/UnrealScriptFile2.uc:65: event block has error: expected _TokenType.COMMA (,) while parsing event specification after parsing EventID, found _TokenType.IDENT (EventData)
-error: ./test_src/UnrealScriptFile2.uc:70: event block has error: expected _TokenType.IDENT (source type) while parsing EventSource, found _TokenType.LBRACK
-error: ./test_src/UnrealScriptFile2.uc:75: event block has error: expected _TokenType.KW (inoutness) while parsing tuple param, found _TokenType.IDENT (bool)
-error: ./test_src/UnrealScriptFile2.uc:80: event block has error: expected _TokenType.IDENT (local name) while parsing EventData, found _TokenType.LBRACE
-error: ./test_src/UnrealScriptFile2.uc:85: event block has error: expected _TokenType.COMMA (,) while parsing event specification after parsing EventData, found _TokenType.LBRACK
-error: ./test_src/UnrealScriptFile2.uc:96: bad indentation for HL-Include:
-error: ./test_src/UnrealScriptFile2.uc:99: bad indentation for HL-Include:
-error: ./test_src/UnrealScriptFile2.uc:92: unclosed HL-Include:
+error: ./test_src/UnrealScriptFile2.uc:45: event block has error: missing EventID
+error: ./test_src/UnrealScriptFile2.uc:47: event block has error: missing EventID
+error: ./test_src/UnrealScriptFile2.uc:52: event block has error: missing EventData
+error: ./test_src/UnrealScriptFile2.uc:55: event block has error: expected _TokenType.COLON (:) while parsing key EventID, found _TokenType.IDENT (RandomSyntaxErr1)
+error: ./test_src/UnrealScriptFile2.uc:61: event block has error: expected _TokenType.IDENT (data type) while parsing EventData, found _TokenType.LBRACE
+error: ./test_src/UnrealScriptFile2.uc:67: event block has error: expected _TokenType.COMMA (,) while parsing event specification after parsing EventID, found _TokenType.IDENT (EventData)
+error: ./test_src/UnrealScriptFile2.uc:73: event block has error: expected _TokenType.IDENT (source type) while parsing EventSource, found _TokenType.LBRACK
+error: ./test_src/UnrealScriptFile2.uc:79: event block has error: expected _TokenType.KW (inoutness) while parsing tuple param, found _TokenType.IDENT (bool)
+error: ./test_src/UnrealScriptFile2.uc:85: event block has error: expected _TokenType.IDENT (local name) while parsing EventData, found _TokenType.LBRACE
+error: ./test_src/UnrealScriptFile2.uc:91: event block has error: expected _TokenType.COMMA (,) while parsing event specification after parsing EventData, found _TokenType.LBRACK
+error: ./test_src/UnrealScriptFile2.uc:104: bad indentation for HL-Include:
+error: ./test_src/UnrealScriptFile2.uc:107: bad indentation for HL-Include:
+error: ./test_src/UnrealScriptFile2.uc:100: unclosed HL-Include:
 error: duplicate feature definition `Bugfixes`
 note: first definition due to builtin feature
 note: this definition at ./test_src/UnrealScriptFile2.uc:35

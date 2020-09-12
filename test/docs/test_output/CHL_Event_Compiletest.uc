@@ -28,10 +28,3 @@ static function EventListenerReturn OnNameOfTheEvent(Object EventData, Object Ev
 	return ELR_NoInterrupt;
 }
 
-static function EventListenerReturn OnOnlyAnID(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackObject)
-{
-	// Your code here
-
-	return ELR_NoInterrupt;
-}
-

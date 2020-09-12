@@ -289,7 +289,8 @@ simulated function UpdateData()
 /// ```event
 /// EventID: Geoscape_ResInfoButtonVisible,
 /// EventData: [inout bool ShouldShow, in bool InFlight],
-/// EventSource: UIStrategyMap_HUD (HUDScreen)
+/// EventSource: UIStrategyMap_HUD (HUDScreen),
+/// NewGameState: none
 /// ```
 simulated protected function bool ShouldShowResInfoButton(XComGameState_HeadquartersResistance ResHQ)
 {

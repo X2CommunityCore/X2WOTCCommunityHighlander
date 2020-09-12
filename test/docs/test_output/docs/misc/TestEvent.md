@@ -13,7 +13,7 @@ Tags: [events](../events.md)
 | EventID | NameOfTheEvent |
 | EventData | XComLWTuple |
 | EventSource | XComHQPresentationLayer |
-| NewGameState | no |
+| NewGameState | none |
 
 ### Tuple contents
 

@@ -1134,7 +1134,8 @@ reliable client function array<UIAvengerShortcutMessage> GetCommandersQuartersMe
 /// ```event
 /// EventID: UIAvengerShortcuts_ShowCQResistanceOrders,
 /// EventData: [inout bool ShouldShow],
-/// EventSource: UIAvengerShortcuts (ShortcutsScreen)
+/// EventSource: UIAvengerShortcuts (ShortcutsScreen),
+/// NewGameState: none
 /// ```
  simulated protected function bool ShouldShowResistanceOrders()
  {

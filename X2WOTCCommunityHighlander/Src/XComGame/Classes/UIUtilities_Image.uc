@@ -847,6 +847,8 @@ simulated static function string GetPCSImage(XComGameState_Item Item)
 	/// ```event
 	/// EventID: OnGetPCSImage,
 	/// EventData: [in XComGameState_Item ItemState, out string ImagePath],
+	/// EventSource: none,
+	/// NewGameState: none
 	/// ```
 	Tuple = new class'XComLWTuple';
 	Tuple.id = 'GetPCSImageTuple';

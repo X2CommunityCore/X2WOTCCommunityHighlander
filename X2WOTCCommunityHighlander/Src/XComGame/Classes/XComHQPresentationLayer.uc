@@ -1522,7 +1522,8 @@ function ShowPromotionUI(StateObjectReference UnitRef, optional bool bInstantTra
 /// ```event
 /// EventID: OverridePromotionUIClass,
 /// EventData: [in enum[CHLPromotionScreenType] PromotionScreenType, inout class[class<UIArmory_Promotion>] PromotionUIClass],
-/// EventSource: XComHQPresentationLayer (Pres)
+/// EventSource: XComHQPresentationLayer (Pres),
+/// NewGameState: none
 /// ```
 ///
 /// The following simplified example is taken from [Community Promotion Screen](https://github.com/X2CommunityCore/X2CommunityPromotionScreen):

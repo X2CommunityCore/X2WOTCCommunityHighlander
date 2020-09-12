@@ -374,7 +374,7 @@ static function GroupItemStatsByLabel(out array<UISummary_ItemStat> InArray)
 ///     inout string focusLabel
 /// ],
 /// EventSource: XComGameState_Unit (SourceUnit),
-/// NewGameState: no
+/// NewGameState: none
 /// ```
 ///
 /// Note that if `bVisible == false`, the rest will be ignored and will not have valid data in it.

@@ -1934,7 +1934,8 @@ simulated function TriggerOverrideMissionSiteIconImage(out string ImagePath)
 /// ```event
 /// EventID: OverrideMissionImage,
 /// EventData: [inout string ImagePath],
-/// EventSource: XComGameState_MissionSite (MissionState)
+/// EventSource: XComGameState_MissionSite (MissionState),
+/// NewGameState: none
 /// ```
 function string GetMissionImage ()
 {

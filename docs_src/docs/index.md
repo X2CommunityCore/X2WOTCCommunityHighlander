@@ -138,7 +138,7 @@ The syntax for events is the following
     EventID: OverridePromotionUIClass,
     EventData: [in enum[CHLPromotionScreenType] PromotionScreenType, inout class[class<UIArmory_Promotion>] PromotionUIClass],
     EventSource: XComHQPresentationLayer (Pres),
-    NewGameState: no
+    NewGameState: none
     ```
 
 * Entries need to be comma-separated

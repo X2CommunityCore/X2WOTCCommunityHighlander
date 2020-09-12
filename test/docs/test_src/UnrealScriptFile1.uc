@@ -29,7 +29,7 @@ function int IPromiseThisIsARandomNumber()
 /// EventID: NameOfTheEvent,
 /// EventData: [in enum[EMyEnum] Enum1, inout class[class<Actor>] SomeClass, out bool bResult, inout array<string> Labels],
 /// EventSource: XComHQPresentationLayer (Pres),
-/// NewGameState: no
+/// NewGameState: none
 /// ```
 
 /// HL-Docs: ref:Bugfixes; issue:3

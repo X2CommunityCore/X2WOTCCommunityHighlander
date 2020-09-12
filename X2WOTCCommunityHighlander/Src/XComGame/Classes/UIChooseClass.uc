@@ -142,7 +142,7 @@ simulated function array<X2SoldierClassTemplate> GetClasses()
 ///     in X2SoldierClassTemplate SoldierClassTemplate
 /// ],
 /// EventSource: UIChooseClass (ChooseClassScreen),
-/// NewGameState: no
+/// NewGameState: none
 /// ```
 private function bool TriggerGTSClassValidationEvent(X2SoldierClassTemplate SoldierClassTemplate)
 {

@@ -1627,7 +1627,7 @@ function AddProjectileVolley(AnimNotify_FireWeaponVolley Notify)
 ///     in XGUnitNativeBase Unit
 /// ],
 /// EventSource: XComGameStateContext_Ability (AbilityContext),
-/// NewGameState: no
+/// NewGameState: none
 /// ```
 private function bool TriggerOverrideProjectileInstance(Actor ProjectileTemplate,
 												AnimNotify_FireWeaponVolley InVolleyNotify,

@@ -44,47 +44,55 @@ class UnrealScriptFile2 extends Object;
 /// First, an empty event
 /// ```event
 /// ```
-///
 /// ```event
-/// EventSource: none
+/// EventData: none,
+/// EventSource: none,
+/// NewGameState: none,
 /// ```
-///
 /// ```event
 /// EventID: OnlyAnID,
 /// ```
-///
 /// ```event
-/// EventID RandomSyntaxErr1
+/// EventID RandomSyntaxErr1,
+/// EventData: none,
+/// EventSource: none,
+/// NewGameState: none,
 /// ```
-///
 /// ```event
 /// EventID: RandomSyntaxErr2,
-/// EventData: { inout bool a }
+/// EventData: { inout bool a },
+/// EventSource: none,
+/// NewGameState: none,
 /// ```
-///
 /// ```event
 /// EventID: MissingComma
-/// EventData: none
+/// EventData: none,
+/// EventSource: none,
+/// NewGameState: none,
 /// ```
-///
 /// ```event
 /// EventID: EventSourceTuple,
-/// EventSource: [ inout bool a ]
+/// EventSource: [ inout bool a ],
+/// EventSource: none,
+/// NewGameState: none,
 /// ```
-///
 /// ```event
 /// EventID: MissingInoutness,
-/// EventData: [ bool a ]
+/// EventData: [ bool a ],
+/// EventSource: none,
+/// NewGameState: none,
 /// ```
-///
 /// ```event
 /// EventID: BadLocalType,
-/// EventData: Actor ({)
+/// EventData: Actor ({),
+/// EventSource: none,
+/// NewGameState: none,
 /// ```
-///
 /// ```event
 /// EventID: BadExtendedTuple,
-/// EventData: XComLWTuple [ inout bool a ]
+/// EventData: XComLWTuple [ inout bool a ],
+/// EventSource: none,
+/// NewGameState: none,
 /// ```
 
 function Abc()

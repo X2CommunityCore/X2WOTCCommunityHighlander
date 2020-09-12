@@ -745,7 +745,8 @@ simulated function string GetPromotionBlueprintTag(StateObjectReference UnitRef)
 /// ```event
 /// EventID: OverridePromotionBlueprintTagPrefix,
 /// EventData: [in XComGameState_Unit UnitState, inout string TagPrefix],
-/// EventSource: UIAfterAction (Screen)
+/// EventSource: UIAfterAction (Screen),
+/// NewGameState: none
 /// ```
 simulated function string TriggerOverridePromotionBlueprintTagPrefix(XComGameState_Unit UnitState, string TagPrefix)
 {

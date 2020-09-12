@@ -973,7 +973,7 @@ simulated function bool HasInfiniteAmmo()
 /// EventID: OverrideHasInfiniteAmmo,
 /// EventData: [ out bool bHasInfiniteAmmo ],
 /// EventSource: XComGameState_Item (ItemState),
-/// NewGameState: no
+/// NewGameState: none
 /// ```
 private function bool TriggerOverrideHasInfiniteAmmo(bool bHasInfiniteAmmo)
 {

@@ -276,12 +276,14 @@ static function EventListenerReturn OnOverrideMissionImage(Object EventData, Obj
 
 static function EventListenerReturn OnOverrideNextRetaliationDisplay(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackObject)
 {
+	local UIAdventOperations Screen;
 	local XComLWTuple Tuple;
 	local bool bShow;
 	local string strHeader;
 	local string strValue;
 	local string strFooter;
 
+	Screen = UIAdventOperations(EventSource);
 	Tuple = XComLWTuple(EventData);
 
 	bShow = Tuple.Data[0].b;
@@ -577,9 +579,11 @@ static function EventListenerReturn OnUIAvengerShortcuts_ShowCQResistanceOrders(
 
 static function EventListenerReturn OnUIResistanceReport_ShowCouncil(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackObject)
 {
+	local UIResistanceReport Screen;
 	local XComLWTuple Tuple;
 	local bool ShouldShow;
 
+	Screen = UIResistanceReport(EventSource);
 	Tuple = XComLWTuple(EventData);
 
 	ShouldShow = Tuple.Data[0].b;
