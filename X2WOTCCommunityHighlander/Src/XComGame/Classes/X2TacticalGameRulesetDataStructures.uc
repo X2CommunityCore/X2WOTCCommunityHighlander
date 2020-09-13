@@ -109,7 +109,6 @@ enum EInventorySlot
 	eInvSlot_AModMedical,
 	eInvSlot_ArmorMod,
 
-
 	// Marker slot, don't use
 	eInvSlot_END_TEMPLATED_SLOTS,
 };
