@@ -127,7 +127,11 @@ simulated function InitListItem(StateObjectReference initUnitRef)
 					BondLevel);
 	// End Issue #106, #408
 
-	AS_SetFactionIcon(FactionState.GetFactionIcon());
+	//Issue #295 - Add a 'none' check before accessing FactionState
+	if (FactionState != none)
+	{
+		AS_SetFactionIcon(FactionState.GetFactionIcon());
+	}
 }
 
 // Start issue #651

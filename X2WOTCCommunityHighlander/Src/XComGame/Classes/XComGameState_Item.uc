@@ -168,8 +168,11 @@ event OnCreation(optional X2DataTemplate Template)
 	if(EquipmentTemplate != none)
 	{
 		ItemManager = GetMyTemplateManager();
-
-		bInSkirmish = `SCREENSTACK.GetFirstInstanceOf(class'UITLE_SkirmishModeMenu') != none;
+		//Issue #295 - Add a 'none' check before using `SCREENSTACK
+		if (`SCREENSTACK != none)
+		{
+			bInSkirmish = `SCREENSTACK.GetFirstInstanceOf(class'UITLE_SkirmishModeMenu') != none;
+		}
 
 		for(idx = 0; idx < EquipmentTemplate.StatsToBoost.Length; idx++)
 		{

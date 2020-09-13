@@ -164,8 +164,12 @@ simulated function PopulateUpgradePanel( int Index, X2LadderUpgradeTemplate Upgr
 						}
 						replacementItem = Soldier.GetItemInSlot(ItemTemplate.InventorySlot);
 
-						bReplace = replacementItem != none;
-						ParamTag.StrValue2 = replacementItem.GetMyTemplate().GetItemFriendlyNameNoStats();
+						//Issue #295 - Add a 'none' check before accessing replacementItem
+						if (replacementItem != none)
+						{
+							bReplace = true;
+							ParamTag.StrValue2 = replacementItem.GetMyTemplate().GetItemFriendlyNameNoStats();
+						}
 					}
 					else
 					{

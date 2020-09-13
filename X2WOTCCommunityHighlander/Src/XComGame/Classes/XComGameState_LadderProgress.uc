@@ -920,27 +920,29 @@ private static function SwapItem( XComGameState StartState, XComGameState_Unit U
 
 		ExistingItem = UnitState.GetItemInSlot( WorkingSlot );
 
-		if (ExistingItem.GetMyTemplate() != EquipmentTemplate)
+		//Issue #295 - Move the 'none' check for ExistingItem above ExistingItem.GetMyTemplate()
+		if (ExistingItem != none)
 		{
-			if (ExistingItem != none)
+			if (ExistingItem.GetMyTemplate() != EquipmentTemplate)
 			{
 				`assert( UnitState.CanRemoveItemFromInventory( ExistingItem, StartState ) );
 
 				UnitState.RemoveItemFromInventory( ExistingItem, StartState );
 				`XCOMHISTORY.PurgeObjectIDFromStartState( ExistingItem.ObjectID, false ); // don't refresh the cache every time, we'll do that once after removing all items from all units
+			
+
+				ItemInstance = EquipmentTemplate.CreateInstanceFromTemplate( StartState );
+				UnitState.AddItemToInventory( ItemInstance, WorkingSlot, StartState );
 			}
+			else
+			{
+				// propagate this item through to the next start state
+				ExistingItem = XComGameState_Item( StartState.ModifyStateObject( class'XComGameState_Item', ExistingItem.ObjectID ) );
 
-			ItemInstance = EquipmentTemplate.CreateInstanceFromTemplate( StartState );
-			UnitState.AddItemToInventory( ItemInstance, WorkingSlot, StartState );
-		}
-		else
-		{
-			// propagate this item through to the next start state
-			ExistingItem = XComGameState_Item( StartState.ModifyStateObject( class'XComGameState_Item', ExistingItem.ObjectID ) );
-
-			// reset the reference to the cosmetic unit: A) that unit won't be coming along in the transfers, B) and we'll create new ones at the start of the map anyway
-			if (ExistingItem.CosmeticUnitRef.ObjectID > 0)
-				ExistingItem.CosmeticUnitRef.ObjectID = -1;
+				// reset the reference to the cosmetic unit: A) that unit won't be coming along in the transfers, B) and we'll create new ones at the start of the map anyway
+				if (ExistingItem.CosmeticUnitRef.ObjectID > 0)
+					ExistingItem.CosmeticUnitRef.ObjectID = -1;
+			}
 		}
 	}
 }

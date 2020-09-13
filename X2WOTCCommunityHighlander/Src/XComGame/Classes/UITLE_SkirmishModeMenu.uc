@@ -1574,13 +1574,21 @@ simulated function SetSoldierGear()
 
 	equippedItem = m_CurrentSquad[m_SelectedSoldier].GetItemInSlot(eInvSlot_Armor, StartState, true);
 	mc.QueueString(m_strArmorLabel);//armor
-	mc.QueueString(equippedItem.GetMyTemplate().strImage);
-	mc.QueueString(equippedItem.GetMyTemplate().GetItemFriendlyNameNoStats());
+	//Issue #295 - Add a 'none' check before accessing equippedItem
+	if (equippedItem != none)
+	{
+		mc.QueueString(equippedItem.GetMyTemplate().strImage);
+		mc.QueueString(equippedItem.GetMyTemplate().GetItemFriendlyNameNoStats());
+	}
 
 	equippedItem = m_CurrentSquad[m_SelectedSoldier].GetItemInSlot(eInvSlot_PrimaryWeapon, StartState, true);
 	mc.QueueString(m_strPrimaryLabel);//primary
-	mc.QueueString(equippedItem.GetMyTemplate().GetItemFriendlyNameNoStats());
-	//primary weapon image is handled in a different function to support the stack of weapon attachments
+	//Issue #295 - Add a 'none' check before accessing equippedItem
+	if (equippedItem != none)
+	{
+		mc.QueueString(equippedItem.GetMyTemplate().GetItemFriendlyNameNoStats());
+		//primary weapon image is handled in a different function to support the stack of weapon attachments
+	}
 
 	mc.QueueString(m_strSecondaryLabel);//secondary
 	
@@ -1597,8 +1605,12 @@ simulated function SetSoldierGear()
 	{
 
 		equippedItem = m_CurrentSquad[m_SelectedSoldier].GetItemInSlot(eInvSlot_SecondaryWeapon, StartState, true);
-		mc.QueueString(equippedItem.GetMyTemplate().strImage);
-		mc.QueueString(equippedItem.GetMyTemplate().GetItemFriendlyNameNoStats());
+		//Issue #295 - Add a 'none' check before accessing equippedItem
+		if (equippedItem != none)
+		{
+			mc.QueueString(equippedItem.GetMyTemplate().strImage);
+			mc.QueueString(equippedItem.GetMyTemplate().GetItemFriendlyNameNoStats());
+		}
 	}
 	
 
@@ -1610,8 +1622,12 @@ simulated function SetSoldierGear()
 	mc.QueueString(utilItems[1].GetMyTemplate().GetItemFriendlyNameNoStats());
 
 	equippedItem = m_CurrentSquad[m_SelectedSoldier].GetItemInSlot(eInvSlot_GrenadePocket, StartState, true);
-	mc.QueueString(equippedItem.GetMyTemplate().strImage);
-	mc.QueueString(equippedItem.GetMyTemplate().GetItemFriendlyNameNoStats());
+	//Issue #295 - Add a 'none' check before accessing equippedItem
+	if (equippedItem != none)
+	{
+		mc.QueueString(equippedItem.GetMyTemplate().strImage);
+		mc.QueueString(equippedItem.GetMyTemplate().GetItemFriendlyNameNoStats());
+	}
 
 	mc.EndOp();
 
@@ -2124,20 +2140,45 @@ simulated function UpdateDataSoldierEquipment()
 	{
 		utilItems = m_CurrentSquad[m_SelectedSoldier].GetAllItemsInSlot(eInvSlot_CombatSim, StartState, , true);
 		GetListItem(i).EnableNavigation();
-		GetListItem(i++).UpdateDataValue(m_PCSLabel, utilItems[0].GetMyTemplate().GetItemFriendlyNameNoStats(), OnClickPCS);
+
+		//Issue #295 - Check if the utilItems array contains at least one member before accessing it.
+		if (utilItems.Length > 0)
+		{
+			GetListItem(i++).UpdateDataValue(m_PCSLabel, utilItems[0].GetMyTemplate().GetItemFriendlyNameNoStats(), OnClickPCS);
+		}
+		else
+		{
+			GetListItem(i++).UpdateDataValue(m_PCSLabel, "", OnClickPCS);
+		}
 	}
 
 	if (m_CurrentSquad[m_SelectedSoldier].GetCurrentStat( eStat_UtilityItems ) > 0)
 	{
 		utilItems = m_CurrentSquad[m_SelectedSoldier].GetAllItemsInSlot(eInvSlot_Utility, StartState, , true);
 		GetListItem(i).EnableNavigation();
-		GetListItem(i++).UpdateDataValue(m_UtilItem1, utilItems[0].GetMyTemplate().GetItemFriendlyNameNoStats(), OnClickUtilItem1);
+		//Issue #295 - Check if the utilItems array contains at least one member before accessing it.
+		if (utilItems.Length > 0)
+		{
+			GetListItem(i++).UpdateDataValue(m_UtilItem1, utilItems[0].GetMyTemplate().GetItemFriendlyNameNoStats(), OnClickUtilItem1);
+		}
+		else
+		{
+			GetListItem(i++).UpdateDataValue(m_UtilItem1, "", OnClickUtilItem1);
+		}
 	}
 
 	if( m_CurrentSquad[m_SelectedSoldier].HasExtraUtilitySlot() )
 	{
 		GetListItem(i).EnableNavigation();
-		GetListItem(i++).UpdateDataValue(m_UtilItem2, utilItems[1].GetMyTemplate().GetItemFriendlyNameNoStats(), OnClickUtilItem2);
+		//Issue #295 - Check if the utilItems array contains at least one member before accessing it.
+		if (utilItems.Length > 1)
+		{
+			GetListItem(i++).UpdateDataValue(m_UtilItem2, utilItems[1].GetMyTemplate().GetItemFriendlyNameNoStats(), OnClickUtilItem2);
+		}
+		else
+		{
+			GetListItem(i++).UpdateDataValue(m_UtilItem2, "", OnClickUtilItem2);
+		}
 	}
 
 	if (m_CurrentSquad[m_SelectedSoldier].HasGrenadePocket())

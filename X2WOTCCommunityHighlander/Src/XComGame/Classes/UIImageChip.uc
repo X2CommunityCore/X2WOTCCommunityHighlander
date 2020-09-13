@@ -75,7 +75,12 @@ simulated function UIPanel SetSize(float newWidth, float newHeight)
 simulated function SetWidth(float newWidth)
 {
 	width = newWidth;
-	BG.SetWidth(width);
+
+	//Issue #295 - Add a 'none' check before accessing BG.
+	if (BG != none)
+	{
+		BG.SetWidth(width);
+	}
 	Highlight.SetWidth( PADDING_HIGHLIGHT + width );
 	Highlight.SetX( BG.X - (PADDING_HIGHLIGHT * 0.5) );
 	Image.SetWidth(width);
@@ -84,7 +89,12 @@ simulated function SetWidth(float newWidth)
 simulated function SetHeight(float newHeight)
 {
 	height = newHeight;
-	BG.SetHeight(height);
+
+	//Issue #295 - Add a 'none' check before accessing BG.
+	if (BG != none)
+	{
+		BG.SetHeight(height);
+	}
 	Highlight.SetHeight( PADDING_HIGHLIGHT + height );
 	Highlight.SetY( BG.Y - (PADDING_HIGHLIGHT * 0.5) );
 	Image.SetHeight(height);

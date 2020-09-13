@@ -280,15 +280,23 @@ simulated function string GetEnemyInfo(XComGameState_ChallengeData ChallengeData
 
 simulated function UpdateNavHelp()
 {
-	NavHelp.ClearButtonHelp();
-	NavHelp.AddBackButton(OnCancel);
-
-	if( `ISCONTROLLERACTIVE )
+	//Issue #295 - Add a 'none' check before accessing NavHelp and attempt to Get it if it's 'none'.
+	if (NavHelp == none)
 	{
-		NavHelp.AddLeftHelp(class'UIUtilities_Text'.default.m_strGenericConfirm, class'UIUtilities_Input'.static.GetAdvanceButtonIcon());
+		NavHelp = GetNavHelp();
 	}
+	if (NavHelp != none)
+	{
+		NavHelp.ClearButtonHelp();
+		NavHelp.AddBackButton(OnCancel);
 
-	NavHelp.Show();
+		if( `ISCONTROLLERACTIVE )
+		{
+			NavHelp.AddLeftHelp(class'UIUtilities_Text'.default.m_strGenericConfirm, class'UIUtilities_Input'.static.GetAdvanceButtonIcon());
+		}
+
+		NavHelp.Show();
+	}
 }
 
 simulated function OnChallengeClicked(UIList ContainerList, int ListItemIndex)
