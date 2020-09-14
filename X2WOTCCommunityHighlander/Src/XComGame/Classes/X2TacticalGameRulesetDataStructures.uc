@@ -106,6 +106,7 @@ enum EInventorySlot
 	eInvSlot_ExtraBackpack,
 	eInvSlot_SparkGrenadePocket,
 	eInvSlot_AuxiliaryWeapon,
+	eInvSlot_TacticalGadget,
 
 	// Marker slot, don't use
 	eInvSlot_END_TEMPLATED_SLOTS,
