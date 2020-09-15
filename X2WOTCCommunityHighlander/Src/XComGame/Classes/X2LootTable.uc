@@ -94,8 +94,9 @@ native function RollForLootTable(const out name LootTableName, out array<name> R
 ///
 /// ### LootTables
 ///
-/// This feature unprivates the otherwise `config`-only `LootTables` array. You can pretty much change anything there;
-/// just ensure to call `InitLootTables` if you add/remove/move around tables as a whole (the game maintains a name->index lookup for efficiency).
+/// This feature unprivates the otherwise `config`-only `LootTables` array. You can pretty much change anything there.
+/// If your code runs after `OnPostTemplatesCreated` returns, ensure to call `InitLootTables` if you add/remove/move
+/// around tables as a whole (the game maintains a name->index lookup for efficiency).
 ///
 /// ### RecalculateLootTableChanceStatic
 ///
