@@ -2468,6 +2468,16 @@ function OnEndTacticalPlay(XComGameState NewGameState)
 		}
 	}
 
+	// Start Issue #824
+	/// HL-Docs: ref:Bugfixes; issue:824
+	/// Units that are still stunned when a mission ends no longer lose action points
+	/// at the start of their next mission.
+	//
+	// Clear the stunned action points so they don't persist on to the next mission.
+	StunnedActionPoints = 0;
+	StunnedThisTurn = 0;
+	// End Issue #824
+
 	TileLocation.X = -1;
 	TileLocation.Y = -1;
 	TileLocation.Z = -1;
