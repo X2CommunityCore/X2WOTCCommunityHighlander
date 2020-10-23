@@ -502,6 +502,9 @@
     <Content Include="Src\XComGame\Classes\XComGameStateContext_HeadquartersOrder.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComGameStateContext_Kismet.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComGameStateContext_StrategyGameRule.uc">
       <SubType>Content</SubType>
     </Content>
