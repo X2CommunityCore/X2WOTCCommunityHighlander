@@ -130,7 +130,8 @@ function ValidateProjectFiles([string] $modProjectRoot, [string] $modName)
         # Loop through all files in subdirectories and fail the build if any filenames are missing inside the project file
         Get-ChildItem $modProjectRoot -Directory | Get-ChildItem -File -Recurse |
         ForEach-Object {
-            If (!($projContent | Select-String -Pattern $_.Name)) {
+            # Compiletest file is allowed to be missing because it's not commited and manually edited
+            If (!($_.Name -Match "CHL_Event_Compiletest.uc") -and !($projContent | Select-String -Pattern $_.Name)) {
                 $missingFiles.Add($_.Name)
             }
         }

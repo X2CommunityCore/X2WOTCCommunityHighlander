@@ -19,16 +19,40 @@ jobs:
 
   check-event-templates:
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     steps:
     - uses: actions/setup-python@v1
       with:
         python-version: '3.6'
     - name: Checkout
       uses: actions/checkout@v1
-    - name: Generate CHL_Event_Compiletest
+    - name: Find generated event templates
+      id: make-diff
+      shell: bash {0}
+      env:
+        PR_NUMBER: ${{ github.event.number }}
       run: |
+        mrgcommit=$(git rev-parse HEAD)
+        git checkout ${{ github.base_ref }}
         python ./.scripts/make_docs.py ./X2WOTCCommunityHighlander/Src/ ./X2WOTCCommunityHighlander/Config/ --docsdir ./docs_src --dumpelt ./X2WOTCCommunityHighlander/Src/X2WOTCCommunityHighlander/Classes/CHL_Event_Compiletest.uc
-        git diff --exit-code
+        git add -f ./X2WOTCCommunityHighlander/Src/X2WOTCCommunityHighlander/Classes/CHL_Event_Compiletest.uc
+        git checkout $mrgcommit
+        python ./.scripts/make_docs.py ./X2WOTCCommunityHighlander/Src/ ./X2WOTCCommunityHighlander/Config/ --docsdir ./docs_src --dumpelt ./X2WOTCCommunityHighlander/Src/X2WOTCCommunityHighlander/Classes/CHL_Event_Compiletest.uc
+        mkdir tmp_art
+        git diff --exit-code > tmp_art/new_contents.diff
+        if [ $? -eq 1 ]
+        then
+          echo "Difference found"
+          cat tmp_art/new_contents.diff
+          echo "::set-output name=has-diff::true"
+          echo $PR_NUMBER > tmp_art/pr_number.txt
+        fi
+    - name: Upload the diff
+      if: ${{ steps.make-diff.outputs.has-diff }}
+      uses: actions/upload-artifact@v1
+      with:
+        name: new_contents.diff
+        path: tmp_art/
 
   build:
     runs-on: ubuntu-latest
