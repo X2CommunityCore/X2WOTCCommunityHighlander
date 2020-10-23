@@ -1031,15 +1031,21 @@ function RecalculateRiskChanceToOccurModifiers()
 		bChosenIncreaseRisks = GetFaction().GetRivalChosen().ShouldIncreaseCovertActionRisks();
 		RiskTemplate = X2CovertActionRiskTemplate(StratMgr.FindStrategyElementTemplate(Risks[idx].RiskTemplateName));
 		if (RiskTemplate.IsRiskAvailableFn == none || RiskTemplate.IsRiskAvailableFn(GetFaction()))
-        {
-            bDarkEventRisk = false;
-            if (ResHQ.CovertActionDarkEventRisks.Find(Risks[idx].RiskTemplateName) != INDEX_NONE)
-            {
-                bDarkEventRisk = true;
-            }
+		{
+			bDarkEventRisk = false;
+			if (ResHQ.CovertActionDarkEventRisks.Find(Risks[idx].RiskTemplateName) != INDEX_NONE)
+			{
+				bDarkEventRisk = true;
+			}
 		}
 
 		Risks[idx].ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(Risks[idx], bChosenIncreaseRisks, bDarkEventRisk);
+		// Start Issue #777
+		//
+		// Covert action risk level will now be updated when a risk's chance to occur
+		// is recalculated, which ensures the risks panel displays the correct chance.
+		Risks[idx].Level = GetRiskLevel(Risks[idx]);
+		// End Issue #777
 	}
 }
 // Issue #436 End
