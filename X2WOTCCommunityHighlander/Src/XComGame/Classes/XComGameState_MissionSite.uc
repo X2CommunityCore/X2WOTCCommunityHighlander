@@ -1928,6 +1928,14 @@ simulated function TriggerOverrideMissionSiteIconImage(out string ImagePath)
 // End Issue #537
 
 // Start issue #635
+/// HL-Docs: feature:OverrideMissionImage; issue:635; tags:strategy,ui
+/// Allows overriding the image shown for a mission in the `UIMission` screen.
+///
+/// ```unrealscript
+/// ID: OverrideMissionImage,
+/// Data: [inout string ImagePath],
+/// Source: XCGS_MissionSite
+/// ```
 function string GetMissionImage ()
 {
 	local XComLWTuple Tuple;

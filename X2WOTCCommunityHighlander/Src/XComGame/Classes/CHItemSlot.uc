@@ -371,22 +371,75 @@ static function bool SlotShowItemInLockerList(EInventorySlot Slot, XComGameState
 	local X2GrenadeTemplate GrenadeTemplate;
 	local X2EquipmentTemplate EquipmentTemplate;
 
+	// Start Issue #844
+	local bool bSlotShowItemInLockerList;
+	
 	switch(Slot)
 	{
 		case eInvSlot_GrenadePocket:
 			GrenadeTemplate = X2GrenadeTemplate(ItemTemplate);
-			return GrenadeTemplate != none;
+			bSlotShowItemInLockerList = GrenadeTemplate != none;
+			break;
 		case eInvSlot_AmmoPocket:
-			return ItemTemplate.ItemCat == 'ammo';
+			bSlotShowItemInLockerList = ItemTemplate.ItemCat == 'ammo';
+			break;
 		default:
 			if (SlotIsTemplated(Slot))
 			{
-				return GetTemplateForSlot(Slot).ShowItemInLockerList(Unit, ItemState, ItemTemplate, CheckGameState);
+				bSlotShowItemInLockerList = GetTemplateForSlot(Slot).ShowItemInLockerList(Unit, ItemState, ItemTemplate, CheckGameState);
 			}
-			EquipmentTemplate = X2EquipmentTemplate(ItemTemplate);
-			// xpad is only item with size 0, that is always equipped
-			return (EquipmentTemplate != none && EquipmentTemplate.iItemSize > 0 && EquipmentTemplate.InventorySlot == Slot);
+			else
+			{
+				EquipmentTemplate = X2EquipmentTemplate(ItemTemplate);
+				// xpad is only item with size 0, that is always equipped
+				bSlotShowItemInLockerList = (EquipmentTemplate != none && EquipmentTemplate.iItemSize > 0 && EquipmentTemplate.InventorySlot == Slot);
+			}
+			break;
 	}
+
+	return TriggerOverrideShowItemInLockerList(bSlotShowItemInLockerList, Slot, Unit, ItemState, CheckGameState);
+	// End Issue #844
+}
+
+
+/// HL-Docs: feature:ShowItemInLockerList; issue:844; tags:strategy,events
+/// Allows listeners to override the result of SlotShowItemInLockerList
+///
+/// ```unrealscript
+/// EventID: OverrideShowItemInLockerList
+/// EventData: XComLWTuple {
+///     Data: [
+///       inout bool bSlotShowItemInLockerList,
+///       inout EInventorySlot Slot,
+///       inout XComGameState_Unit UnitState
+///     ]
+/// }
+/// EventSource: XComGameState_Item ItemState
+/// GameState: optional
+/// ```
+private static function bool TriggerOverrideShowItemInLockerList(
+	bool bSlotShowItemInLockerList,
+	EInventorySlot Slot,
+	XComGameState_Unit Unit,
+	XComGameState_Item ItemState,
+	XComGameState CheckGameState
+)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideShowItemInLockerList';
+	Tuple.Data.Add(3);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = bSlotShowItemInLockerList;
+	Tuple.Data[1].kind = XComLWTVInt;
+	Tuple.Data[1].i = Slot;
+	Tuple.Data[2].kind = XComLWTVObject;
+	Tuple.Data[2].o = Unit;
+
+	`XEVENTMGR.TriggerEvent('OverrideShowItemInLockerList', Tuple, ItemState, CheckGameState);
+
+	return Tuple.Data[0].b;
 }
 
 

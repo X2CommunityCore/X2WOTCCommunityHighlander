@@ -635,12 +635,44 @@ simulated function PopIncludingClass( class<UIScreen> ClassToRemove, optional bo
 // Start Issue #290
 //
 // Lots of code in the base game and mods seems to use `GetScreen()` when
-// it should be using `GetFirstInstanceOf()`. This change means that
-// `GetScreen()` will also return any screen that's a subclass of the
-// specified one.
-//
-// If any code wants to ignore subclasses, then it can use the new
-// `GetScreen_CH()` method instead.
+// it should be using `GetFirstInstanceOf()`.
+
+/// HL-Docs: feature:ScreenStackSubClasses; issue:290; tags:compatibility
+/// A number of functions in `UIScreenStack` operate on classes, but fail
+/// to consider subclasses. This causes subtle bugs in base game and mod
+/// code that fails to consider the possibility that a given class can
+/// be subclassed/overridden. For example, `UIArmory` does something like this:
+///
+/// ```unrealscript
+/// // Don't allow jumping to the geoscape from the armory when coming from squad select
+/// if (!`ScreenStack.IsInStack(class'UISquadSelect'))
+/// {
+/// 	NavHelp.AddGeoscapeButton();
+/// }
+/// ```
+///
+/// However, if `UISquadSelect` is being overridden or replaced, *this can cause the
+/// campaign to permanently deadlock* because `UIArmory` fails to find the changed
+/// squad select screen. The proper fix would be using `HasInstanceOf`, but this error
+/// is extremely common in base game and mod code. As a result, it was decided that
+/// the best fix is to change all functions in `UIScreenStack` to always consider
+/// subclasses. A full list of affected functions:
+///
+/// * `GetScreen`
+/// * `IsCurrentClass`
+/// * `IsInStack`
+/// * `IsNotInStack`
+///
+/// ## Compatibility
+///
+/// If you legitimately want to *not* consider subclasses, you can use the functions
+///
+/// ``` unrealscript
+/// function UIScreen GetScreen_CH(class<UIScreen> ScreenClass, bool IncludeSubTypes);
+/// function bool IsCurrentClass_CH(class<UIScreen> ScreenClass, bool IncludeSubTypes);
+/// ```
+///
+/// and rewrite `IsInStack`/`IsNotInStack` in terms of `GetScreen_CH(...) !=/== none`.
 
 // Returns the first instance of a Screen of the target class type (or a subclass).
 simulated function UIScreen GetScreen( class<UIScreen> ScreenClass )
@@ -721,14 +753,7 @@ simulated function bool HasInstanceOf( class<UIScreen> ScreenClass )
 // Start Issue #290
 //
 // A lot of code seems to assume that certain screen classes will never have
-// subclasses, which is rubbish in the context of mods. So this method will
-// now return `true` if the current screen is also a subclass of the given
-// class. However, the reverse will not work, i.e. if the given screen class
-// is a subclass of the current screen class, then this method will return
-// `false`.
-//
-// If you want to exclude subclasses, then use the new `IsCurrentClass_CH()`
-// method.
+// subclasses, which is rubbish in the context of mods.
 simulated function bool IsCurrentClass( class<UIScreen> ScreenClass )
 {
 	return IsCurrentClass_CH(ScreenClass, true);
@@ -782,6 +807,23 @@ simulated function bool IsNotInStack( class<UIScreen> ScreenClass, optional bool
 }
 
 // start issue #198
+/// HL-Docs: feature:SubscribeToOnInput; issue:198; tags:ui
+/// Mods may want to intercept mouse/keyboard/controller input and instead run their own code.
+/// For most purposes, this feature should be considered superseded by [`SubscribeToOnInputForScreen`](./SubscribeToOnInputForScreen.md),
+/// which is more ergonomic to use and harder to misuse. Read that documentation page for a general overview.
+///
+/// This feature does not allow receiving the notification only for a specific screen, which is usually what
+/// you want. Additionally, it is *required* to manually unsubscribe at some point, lest you
+/// invoke the wrath of the garbage collector and crash everyone's games.
+///
+/// ```unrealscript
+/// delegate bool CHOnInputDelegate(int iInput, int ActionMask);
+/// function SubscribeToOnInput(delegate<CHOnInputDelegate> callback);
+/// function UnsubscribeFromOnInput(delegate<CHOnInputDelegate> callback);
+/// ```
+///
+/// Again, it is recommended to instead use [`SubscribeToOnInputForScreen`](./SubscribeToOnInputForScreen.md).
+/// The documentation for that feature has examples.
 function SubscribeToOnInput(delegate<CHOnInputDelegate> callback)
 {
 	// add the delegate to the array of subscribers, if it doesn't exist
@@ -823,6 +865,83 @@ simulated function bool ModOnInput(int iInput, int ActionMask)
 // end issue #198
 
 // Start issue #501
+/// HL-Docs: feature:SubscribeToOnInputForScreen; issue:501; tags:ui
+/// Mods may want to intercept mouse/keyboard/controller input on certain screens and instead run their own code.
+/// For example, the Highlander adds a text to the main menu that has small pop-up accessible
+/// by pressing the right controller stick.
+///
+/// The API consists of a delegate definition and two functions:
+///
+/// ```unrealscript
+/// delegate bool CHOnInputDelegateImproved(UIScreen Screen, int iInput, int ActionMask);
+/// function SubscribeToOnInputForScreen(UIScreen Screen, delegate<CHOnInputDelegateImproved> Callback);
+/// function UnsubscribeFromOnInputForScreen(UIScreen Screen, delegate<CHOnInputDelegateImproved> Callback);
+/// ```
+///
+/// In a nutshell, with `SubscribeToOnInputForScreen` you ask the UIScreenStack
+/// "when screen `Screen` would receive input, ask me first".
+/// The `CHOnInputDelegateImproved` delegate defines the signature of the callback function
+/// called when the targeted screen would receive input.
+///
+/// Your function will be called with three arguments: The screen that would have received the input (`Screen`),
+/// the button that was pressed (`iInput`), and the action that occured (`ActionMask`, button press/release).
+/// The button and action are numeric values that correspond to constants in `UIUtilities_Input.uc`. 
+/// If your function returns true, the ScreenStack will consider the input handled and immediately
+/// stop processing the input event. If your function returns false, the ScreenStack will continue
+/// calling other subscribers and, if unhandled, will finally notify the screen itself.
+///
+/// You can manually unsubscribe from receiving input, but this is generally not necessary
+/// as your callback will only be called when the screen would have received input and
+/// will automatically be unsubscribed upon removal of the targeted screen.
+///
+/// The following simplified example is taken from [Covert Infiltration](https://github.com/WOTCStrategyOverhaul/CovertInfiltration):
+///
+/// ```unrealscript
+/// class UIListener_Mission extends UIScreenListener;
+///
+/// event OnInit (UIScreen Screen)
+/// {
+/// 	local UIMission MissionScreen;
+///
+/// 	MissionScreen = UIMission(Screen);
+/// 	if (MissionScreen == none) return;
+///
+/// 	// This is a UIMission screen, register
+/// 	MissionScreen.Movie.Stack.SubscribeToOnInputForScreen(MissionScreen, OnMissionScreenInput);
+/// }
+///
+/// simulated protected function bool OnMissionScreenInput (UIScreen Screen, int iInput, int ActionMask)
+/// {
+/// 	if (!Screen.CheckInputIsReleaseOrDirectionRepeat(iInput, ActionMask))
+/// 	{
+/// 		return false;
+/// 	}
+/// 
+/// 	switch (iInput)
+/// 	{
+/// 	case class'UIUtilities_Input'.const.FXS_BUTTON_RTRIGGER:
+/// 		// The right controller trigger was just released, show custom screen
+/// 		// ...
+/// 		// Tell the ScreenStack that this input was handled
+/// 		return true;
+/// 		break;
+/// 	}
+/// 
+/// 	return false;
+/// }
+/// ```
+///
+/// `CheckInputIsReleaseOrDirectionRepeat` ensures that the button was just released (or, if directional button,
+/// held for a long time), making input behavior more consistent with base game screens.
+///
+/// Although all mouse events can be inspected, Flash usually provides its own handlers that run even if
+/// the callback indicates to the ScreenStack that the input was handled. As a result, the only mouse event
+/// that can reliably be stopped with `SubscribeToOnInputForScreen` is the already navigation-relevant
+/// right click.
+///
+/// This feature is a more convenient version of [`SubscribeToOnInput`](./SubscribeToOnInput), which receives
+/// events for any screen and has to be manually unsubscribed. `SubscribeToOnInput` offers lower-level
+/// interaction with the input system at the cost of ergonomics.
 function SubscribeToOnInputForScreen (UIScreen Screen, delegate<CHOnInputDelegateImproved> Callback)
 {
 	local InputDelegateForScreen CallbackScreenPair;

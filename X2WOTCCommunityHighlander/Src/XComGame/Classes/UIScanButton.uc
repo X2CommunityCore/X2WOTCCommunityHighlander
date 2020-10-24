@@ -286,6 +286,10 @@ simulated function OnMouseEvent(int cmd, array<string> args)
 	}
 
 	// Start issue #483. Note: DO NOT call ProcessMouseEvents, just set the delegate directly
+	/// HL-Docs: feature:UIScanButtonOnMouseEvent; issue:483; tags:strategy,ui
+	/// `UIScanButton` now triggers its `OnMouseEventDelegate` if set. Do not
+	/// call `ProcessMouseEvents`, <del>do not pass go, do not collect $200,</del> just set
+	/// the delegate directly.
 	if (OnMouseEventDelegate != none)
 	{
 		OnMouseEventDelegate(self, cmd);

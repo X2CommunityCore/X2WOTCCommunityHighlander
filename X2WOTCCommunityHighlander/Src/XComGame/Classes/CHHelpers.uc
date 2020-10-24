@@ -85,6 +85,7 @@ var config bool AmmoSlotBypassUniqueRule;
 
 // Start Issue #219
 // Object names of head contents that don't allow Hair/Props/Helmets/Beards
+/// HL-Docs: ref:ModAddedHeads
 var config(Content) array<name> HeadSuppressesHair;
 var config(Content) array<name> HeadSuppressesLowerFaceProp;
 var config(Content) array<name> HeadSuppressesUpperFaceProp;
@@ -102,12 +103,25 @@ var config bool bDontUnequipWhenWounded; // true skips unequipping soldiers afte
 // End Issue #310
 
 // Start Issue #356
+/// HL-Docs: feature:TintMaterialConfigs; issue:356; tags:customization,pawns
+/// When determining which values to pass to the material using which parameter
+/// names, the game matches against a hardcoded list of material names. As a
+/// result, mods need to confusingly name their modified materials exactly
+/// the same as base-game materials. This change moves these hardcoded names to
+/// config lists:
+/// HL-Include:
 var config(Content) array<name> HairMaterial;
 var config(Content) array<name> SkinMaterial;
 var config(Content) array<name> ArmorMaterial;
 var config(Content) array<name> WepAsArmorMaterial;
 var config(Content) array<name> EyeMaterial;
 var config(Content) array<name> FlagMaterial;
+/// You can add your own materials by creating the following lines in `XComContent.ini`:
+///
+/// ```ini
+/// [XComGame.CHHelpers]
+/// +EyeMaterial="MyCustomEyesCustomizable_TC"
+/// ```
 // End Issue #356
 
 // Start Issue #465
@@ -160,6 +174,9 @@ var config array<name> AdditionalAIBTActionPointTypes;
 // Start issue #602
 var config array<name> ClassesAllowPsiPCS;
 // End issue #602
+
+//	Variable for Issue #724
+var config array<name> ValidReserveAPForUnitFlag;
 
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
@@ -325,7 +342,7 @@ static function GroupItemStatsByLabel(out array<UISummary_ItemStat> InArray)
 // Issue #235 end
 
 // Start Issue #257
-/// HL-Docs: feature:OverrideUnitFocusUI; issue:257; tags:tactical,compat
+/// HL-Docs: feature:OverrideUnitFocusUI; issue:257; tags:tactical,compatibility
 /// This focus change allows mods to change the focus UI that the vanilla game uses
 /// to display Templar Focus. This effectively creates different types of Focus, even
 /// though the game does not know about this. For example, you can create a custom
@@ -366,7 +383,9 @@ static function GroupItemStatsByLabel(out array<UISummary_ItemStat> InArray)
 ///
 /// Note that if `bVisible == false`, the rest will be ignored and will not have valid data in it.
 ///
-/// Compatibility: If you override `UIUnitFlag`, your code may undo the HL's changes that
+/// ## Compatibility
+///
+/// If you override `UIUnitFlag`, your code may undo the HL's changes that
 /// support this feature in the UI. See the tracking issue for code samples.
 
 // Static helper function used from UIUnitFlag and UITacticalHUD_SoldierInfo

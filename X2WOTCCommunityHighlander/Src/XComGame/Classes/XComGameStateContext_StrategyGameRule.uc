@@ -327,6 +327,20 @@ static function CompleteStrategyFromTacticalTransfer()
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local int i;
 	
+	// Start issue #785
+	/// HL-Docs: feature:PreCompleteStrategyFromTacticalTransfer; issue:785; tags:strategy
+	/// There are no events that trigger before the mission rewards and several
+	/// other critical functions are processed. This event gives a way for mods
+	/// to change several aspects in the transition from tactical to strategy.
+	///
+	/// ```unrealscript
+	/// EventID: PreCompleteStrategyFromTacticalTransfer
+	/// EventData: None
+	/// EventSource: None
+	/// NewGameState: None
+	/// ```
+	`XEVENTMGR.TriggerEvent('PreCompleteStrategyFromTacticalTransfer');
+
 	UpdateSkyranger();
 	CleanupProxyVips();
 	ProcessMissionResults();

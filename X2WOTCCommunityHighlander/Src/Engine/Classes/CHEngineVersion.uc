@@ -1,4 +1,4 @@
-// CHL: We can't create templates in Engine, so we use this to create the template in XComGame
+/// HL-Docs: ref:ComponentVersions
 class CHEngineVersion extends Object;
 
 var int MajorVersion;
@@ -10,7 +10,7 @@ var string Commit;
 defaultproperties
 {
     MajorVersion = 1;
-    MinorVersion = 20;
-    PatchVersion = 0;
+    MinorVersion = 21;
+    PatchVersion = 1;
     Commit = "RC1";
 }

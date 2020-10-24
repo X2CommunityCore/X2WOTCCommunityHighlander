@@ -3415,6 +3415,18 @@ simulated function BuildItemAvailableAlert()
 }
 
 // Start issue #491
+/// HL-Docs: feature:OverrideImageForItemAvaliable; issue:491; tags:strategy,ui
+/// Allows overriding the image shown for an item in the `eAlert_ItemAvailable` alert.
+///
+/// This alert is triggered when a tech completes and makes available a new item for building, but, if it happens
+/// to target a singular weapon (rather than the upgrade schematic), shows a weapon without
+/// attachments (as specified in the Template's `strImage`). This event gives mods a chance to fix it.
+///
+/// ```unrealscript
+/// ID: OverrideImageForItemAvaliable,
+/// Data: [inout string ImagePath, in X2ItemTemplate ItemTemplate],
+/// Source: UIAlert
+/// ```
 simulated function string GetImageForItemAvaliable(X2ItemTemplate ItemTemplate)
 {
 	local XComLWTuple Tuple;

@@ -88,37 +88,9 @@ for "Issue #928" (or whatever) in the codebase. In addition, any commits
 related to that issue should also have the issue number marked in the same way.
 
 Additionally, every feature should be documented with *inline documentation* that will
-be published via GitHub Pages (at [https://x2communitycore.github.io/X2WOTCCommunityHighlander/](https://x2communitycore.github.io/X2WOTCCommunityHighlander/)). An example of inline documentation:
-
-```unrealscript
-/// HL-Docs: feature:ArmorEquipRollDLCPartChance; issue:155; tags:customization,compat
-/// When a unit equips new armor, the game rolls from all customization options, even the ones where
-/// the slider for the `DLCName` is set to `0`. The HL change fixes this, but if your custom armor only
-/// has customization options with a `DLCName` set, the game may discard that `DLCName` (default: in 85% of cases)
-/// which results in soldiers without torsos. If you want to keep having `DLCName`-only armor
-/// (for example to display mod icons in `UICustomize`), you must disable that behavior
-/// by creating the following lines in `XComGame.ini`:
-///
-/// ```ini
-/// [XComGame.CHHelpers]
-/// +CosmeticDLCNamesUnaffectedByRoll=MyDLCName
-/// ```
-```
-
-This documentation will automatically be built whenever the master branch is committed to.
-You can run the documentation tool locally by installing Python (recommended version 3.7)
-and running
-
-    python .\.scripts\make_docs.py .\X2WOTCCommunityHighlander\Src\ .\X2WOTCCommunityHighlander\Config\ --outdir .\target\
-
-or the `makeDocs` task in VS Code. This creates Markdown files for the documentation; rendering HTML documentation requires
-`MkDocs`:
-
-```powershell
-pip install mkdocs
-cd .\target\
-mkdocs serve
-```
+be published via GitHub Pages (at [https://x2communitycore.github.io/X2WOTCCommunityHighlander/](https://x2communitycore.github.io/X2WOTCCommunityHighlander/)).
+That online documentation also has [instructions](https://x2communitycore.github.io/X2WOTCCommunityHighlander/#documentation-for-the-documentation-tool) for how to write your documentation
+and run the documentation tool.
 
 ## Building
 
@@ -136,16 +108,17 @@ His post goes into far more detail than this guide, if you're interested.
 
 ### Cooking a Final Release (Automated method)
 
-1. Copy 'CookCommunityHighlander.bat' to your SteamLibrary folder (the folder that
+1. Make sure you have the complete SDK installed (`full_content` branch in Properties->Betas->`full_content`). This requires about 90 GB of disk space.
+2. Copy 'CookCommunityHighlander.bat' to your SteamLibrary folder (the folder that
 contains the steamapps subfolder). By default, this path is `C:\Program Files (x86)\Steam`. 
-2. If XCOM 2 and the SDK are in the same Steam library, go to step 4. If they are in different libraries, go to the next step.
-3. Open CookCommunityHighlander.bat in a text editor, modify the variables below, and save:
+3. If XCOM 2 and the SDK are in the same Steam library, go to step 4. If they are in different libraries, go to the next step.
+4. Open CookCommunityHighlander.bat in a text editor, modify the variables below, and save:
 ```
 SET "SDKLocation=.\steamapps\common\XCOM 2 War of the Chosen SDK"
 SET "GameLocation=.\steamapps\common\XCOM 2\XCom2-WarOfTheChosen"
 ```
-4. Run CookCommunityHighlander.bat by double-clicking it.
-5. If a message like "Scripts are outdated. Would you like to rebuild now?" pops up, click "No".
+5. Run CookCommunityHighlander.bat by double-clicking it.
+6. If a message like "Scripts are outdated. Would you like to rebuild now?" pops up, click "No".
 
 ### Cooking a Final Release (Manual method)
 
@@ -167,6 +140,8 @@ PersistentCookerShaderData.bin
 *.tfc
 ```
 
+Additionally, you need to install the complete SDK (`full_content` branch in Properties->Betas->`full_content`). This requires about 90 GB of disk space.
+
 #### Cooking
 
 Start by building the mod through ModBuddy, as you normally would. Then, enter the command line and run the following commands:
@@ -178,18 +153,20 @@ Start by building the mod through ModBuddy, as you normally would. Then, enter t
 
 If a message like "Scripts are outdated. Would you like to rebuild now?" pops up, click "No".
 
-The commands above create cooked files for your `XComGame` and `Engine` package replacements in
+The commands above create cooked files for your `XComGame`, `Engine`, and `Core` package replacements in
 `%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\XComGame\Published\CookedPCConsole`: 
 ```
 XComGame.upk
 XComGame.upk.uncompressed_size
 Engine.upk
 Engine.upk.uncompressed_size
+Core.upk
+Core.upk.uncompressed_size
 ```
 
 Copy those files into a folder called `CookedPCConsole` inside the mod's output 
-folder. You will need to delete `Script\XComGame.u` and `Script\Engine.u`, now that we've put the
-cooked script file in it's place.
+folder. You will need to delete `Script\XComGame.u`, `Script\Engine.u` and `Script\Core.u`,
+now that we've put the cooked script file in it's place.
 
 Once you've done all that, the mod should now run in vanilla XCOM. Note that all
 logging statements will be stripped from the Cooked version, so don't expect to

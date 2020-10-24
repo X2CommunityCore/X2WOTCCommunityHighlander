@@ -91,11 +91,23 @@ copy /Y "%SDKLocation%\XComGame\Published\CookedPCConsole\Engine.upk" "%SDKLocat
 copy /Y "%SDKLocation%\XComGame\Published\CookedPCConsole\Engine.upk.uncompressed_size" "%SDKLocation%\XComGame\Mods\X2WOTCCommunityHighlander\CookedPCConsole\Engine.upk.uncompressed_size"
 
 echo.
+echo Copying Core.upk to local Highlander mod folder...
+copy /Y "%SDKLocation%\XComGame\Published\CookedPCConsole\Core.upk" "%GameLocation%\XComGame\Mods\X2WOTCCommunityHighlander\CookedPCConsole\Core.upk"
+copy /Y "%SDKLocation%\XComGame\Published\CookedPCConsole\Core.upk.uncompressed_size" "%GameLocation%\XComGame\Mods\X2WOTCCommunityHighlander\CookedPCConsole\Core.upk.uncompressed_size"
+
+echo.
+echo Copying Core.upk to SDK Highlander mod folder...
+copy /Y "%SDKLocation%\XComGame\Published\CookedPCConsole\Core.upk" "%SDKLocation%\XComGame\Mods\X2WOTCCommunityHighlander\CookedPCConsole\Core.upk"
+copy /Y "%SDKLocation%\XComGame\Published\CookedPCConsole\Core.upk.uncompressed_size" "%SDKLocation%\XComGame\Mods\X2WOTCCommunityHighlander\CookedPCConsole\Core.upk.uncompressed_size"
+
+echo.
 echo Cleaning up...
 if exist "%GameLocation%\XComGame\Mods\X2WOTCCommunityHighlander\Script\XComGame.u" del "%GameLocation%\XComGame\Mods\X2WOTCCommunityHighlander\Script\XComGame.u"
 if exist "%SDKLocation%\XComGame\Mods\X2WOTCCommunityHighlander\Script\XComGame.u" del "%SDKLocation%\XComGame\Mods\X2WOTCCommunityHighlander\Script\XComGame.u"
 if exist "%GameLocation%\XComGame\Mods\X2WOTCCommunityHighlander\Script\Engine.u" del "%GameLocation%\XComGame\Mods\X2WOTCCommunityHighlander\Script\Engine.u"
 if exist "%SDKLocation%\XComGame\Mods\X2WOTCCommunityHighlander\Script\Engine.u" del "%SDKLocation%\XComGame\Mods\X2WOTCCommunityHighlander\Script\Engine.u"
+if exist "%GameLocation%\XComGame\Mods\X2WOTCCommunityHighlander\Script\Core.u" del "%GameLocation%\XComGame\Mods\X2WOTCCommunityHighlander\Script\Core.u"
+if exist "%SDKLocation%\XComGame\Mods\X2WOTCCommunityHighlander\Script\Core.u" del "%SDKLocation%\XComGame\Mods\X2WOTCCommunityHighlander\Script\Core.u"
 
 echo.
 echo.

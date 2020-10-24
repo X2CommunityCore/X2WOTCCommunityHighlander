@@ -13,6 +13,8 @@
     <Folder Include="Config\" />
     <Folder Include="Localization\" />
     <Folder Include="Src\" />
+    <Folder Include="Src\Core" />
+    <Folder Include="Src\Core\Classes" />
     <Folder Include="Src\Engine" />
     <Folder Include="Src\Engine\Classes" />
     <Folder Include="Src\XComGame" />
@@ -43,6 +45,12 @@
     <Content Include="ModPreviewWindows.jpg">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\Core\Classes\CHCoreVersion.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\Core\Classes\Object.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\Engine\Classes\AudioComponent.uc">
       <SubType>Content</SubType>
     </Content>
@@ -50,6 +58,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\Engine\Classes\SkeletalMeshSocket.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\X2WOTCCommunityHighlander\Classes\CHX2WOTCCHVersion.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\X2WOTCCommunityHighlander\Classes\X2WOTCCH_CHXComGameVersion.uc">
@@ -170,6 +181,9 @@
     <Content Include="Src\XComGame\Classes\UIButton.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIChooseClass.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIChosenMissionSummary.uc">
       <SubType>Content</SubType>
     </Content>
@@ -198,6 +212,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIMission.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIMission_AlienFacility.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UINarrativeMgr.uc">
@@ -332,6 +349,9 @@
     <Content Include="Src\XComGame\Classes\UIUtilities_Colors.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Action_Fire.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2AIBTBehaviorTree.uc">
       <SubType>Content</SubType>
     </Content>
@@ -389,6 +409,9 @@
     <Content Include="Src\XComGame\Classes\X2MeleePathingPawn.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2PathTargetPathingPawn.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2SitRepEffectTemplate.uc">
       <SubType>Content</SubType>
     </Content>
@@ -437,6 +460,9 @@
     <Content Include="Src\XComGame\Classes\X2StrategyGame_SimCombat.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2SwordSliceSlashPathingPawn.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2TacticalGameRuleset.uc">
       <SubType>Content</SubType>
     </Content>
@@ -444,6 +470,12 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2TargetingMethod_EvacZone.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2TargetingMethod_MeleePath.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2TargetingMethod_PathTarget.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2TargetingMethod_RocketLauncher.uc">
@@ -476,6 +508,9 @@
     <Content Include="Src\XComGame\Classes\XComGameStateContext_HeadquartersOrder.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComGameStateContext_Kismet.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComGameStateContext_StrategyGameRule.uc">
       <SubType>Content</SubType>
     </Content>
@@ -498,6 +533,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_CovertAction.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_DarkEvent.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_Effect.uc">
@@ -557,6 +595,9 @@
     <Content Include="Src\XComGame\Classes\XComParcelManager.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComPathingPawn.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComSoundManager.uc">
       <SubType>Content</SubType>
     </Content>
@@ -570,6 +611,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComTacticalController.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComTacticalInput.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComTacticalMissionManager.uc">

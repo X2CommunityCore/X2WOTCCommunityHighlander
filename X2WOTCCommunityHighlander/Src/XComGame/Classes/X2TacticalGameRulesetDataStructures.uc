@@ -35,7 +35,7 @@ struct native ArmorMitigationResults
 	var int TotalMitigation;            //  total of all bonus armor effects plus eStat_ArmorMitigation
 };
 // Issue #118 Begin
-/// HL-Docs: feature:CustomInventorySlots; issue:118; tags:tactical,strategy
+/// HL-Docs: feature:CustomInventorySlots; issue:118; tags:tactical,strategy,loadoutslots
 /// This feature defines additional inventory slots in the Highlander for mods to use.
 /// Configuration is done via `CHItemSlot`. More docs to follow.
 /// HL-Include:
@@ -104,6 +104,10 @@ enum EInventorySlot
 	eInvSlot_Pistol,
 	eInvSlot_Wings,
 	eInvSlot_ExtraBackpack,
+	eInvSlot_SparkGrenadePocket,
+	eInvSlot_AuxiliaryWeapon,
+	eInvSlot_AModMedical,
+	eInvSlot_ArmorMod,
 
 	// Marker slot, don't use
 	eInvSlot_END_TEMPLATED_SLOTS,

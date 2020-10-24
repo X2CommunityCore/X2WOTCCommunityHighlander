@@ -10,6 +10,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	local array<X2DataTemplate> Templates;
 	local X2StrategyElementTemplate XComGameVersion;
 
+	// Created for legacy reasons
 	if (class'CHXComGameVersionTemplate' != none)
 	{
 		`CREATE_X2TEMPLATE(class'CHXComGameVersionTemplate', XComGameVersion, 'CHWOTCVersion');
@@ -28,7 +29,7 @@ static function array<X2DataTemplate> CreateTemplates()
 defaultproperties
 {
     MajorVersion = 1;
-    MinorVersion = 20;
-    PatchVersion = 0;
+    MinorVersion = 21;
+    PatchVersion = 1;
     Commit = "RC1";
 }

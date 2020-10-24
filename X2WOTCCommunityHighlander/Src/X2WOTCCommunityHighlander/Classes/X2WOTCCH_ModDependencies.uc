@@ -54,7 +54,7 @@ static function array<ModDependency> GetIncompatbleMods()
 	return IncompatibleMods;
 }
 
-static function GetIgnoreMods(out array<string> IgnoreRequired, array<string> IgnoreIncompatible)
+static function GetIgnoreMods(out array<string> IgnoreRequired, out array<string> IgnoreIncompatible)
 {
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local X2DownloadableContentInfo DLCInfo;
@@ -74,7 +74,7 @@ static function GetIgnoreMods(out array<string> IgnoreRequired, array<string> Ig
 		IgnoreIncompatibleMods = DLCInfo.GetIgnoreIncompatibleDLCIdentifiers();
 		foreach IgnoreIncompatibleMods(Mod)
 		{
-			IgnoreRequired.AddItem(Mod);
+			IgnoreIncompatible.AddItem(Mod);
 		}
 	}
 }

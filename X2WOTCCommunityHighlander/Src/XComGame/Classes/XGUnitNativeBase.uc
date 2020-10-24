@@ -1611,6 +1611,65 @@ function AddProjectileVolley(AnimNotify_FireWeaponVolley Notify)
 	}
 }
 
+/// HL-Docs: feature:OverrideProjectileInstance; issue:829; tags:tactical,events
+/// Allows listeners to override the parameters of SpawnAndConfigureNewProjectile
+/// The feature also introduces support for subclasses of X2UnifiedProjectile as custom projectile archetypes.
+/// If bPreventProjectileSpawning is set to true the projectile instance will NOT be spawned.
+///
+/// ```unrealscript
+/// EventID: OverrideProjectileInstance
+/// EventData: XComLWTuple {
+///     Data: [
+///       out bool bPreventProjectileSpawning
+///       in actor ProjectileTemplate,
+///       in AnimNotify_FireWeaponVolley InVolleyNotify
+///       in XComWeapon InSourceWeapon
+///       inout X2Action_Fire CurrentFireAction,
+///       in XGUnitNativeBase self
+///     ]
+/// }
+/// EventSource: XComGameStateContext_Ability AbilityContext
+/// NewGameState: no
+/// ```
+private function bool TriggerOverrideProjectileInstance(Actor ProjectileTemplate,
+												AnimNotify_FireWeaponVolley InVolleyNotify,
+												XComGameStateContext_Ability AbilityContext,
+												XComWeapon InSourceWeapon)
+{
+	local XComLWTuple Tuple;
+	local bool bPreventProjectileSpawning;
+
+	bPreventProjectileSpawning = false;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideProjectileInstance';
+	Tuple.Data.Add(6);
+
+	Tuple.Data[0].Kind = XComLWTVBool;
+	Tuple.Data[0].b = bPreventProjectileSpawning;
+
+	Tuple.Data[1].Kind = XComLWTVObject;
+	Tuple.Data[1].o = ProjectileTemplate;
+
+	Tuple.Data[2].Kind = XComLWTVObject;
+	Tuple.Data[2].o = InVolleyNotify;
+
+	Tuple.Data[3].Kind = XComLWTVObject;
+	Tuple.Data[3].o = InSourceWeapon;
+
+	Tuple.Data[4].Kind = XComLWTVObject;
+	Tuple.Data[4].o = CurrentFireAction;
+
+	Tuple.Data[5].Kind = XComLWTVObject;
+	Tuple.Data[5].o = self;
+
+	`XEVENTMGR.TriggerEvent(Tuple.Id, Tuple, AbilityContext);
+
+	CurrentFireAction = X2Action_Fire(Tuple.Data[4].o);
+
+	return bPreventProjectileSpawning;
+}
+
 private function SpawnAndConfigureNewProjectile(Actor ProjectileTemplate,
 												AnimNotify_FireWeaponVolley InVolleyNotify,
 												XComGameStateContext_Ability AbilityContext,
@@ -1618,8 +1677,17 @@ private function SpawnAndConfigureNewProjectile(Actor ProjectileTemplate,
 {
 	local X2UnifiedProjectile NewProjectile;
 
-	NewProjectile = Spawn(class'X2UnifiedProjectile', self, , , , ProjectileTemplate);
+	// Start Issue #829
+	if (TriggerOverrideProjectileInstance(ProjectileTemplate, InVolleyNotify, AbilityContext, InSourceWeapon))
+	{
+		return;
+	}
+
+	NewProjectile = Spawn(class<X2UnifiedProjectile>(ProjectileTemplate.class),self, , , , ProjectileTemplate);
+	// End Issue #829
+
 	NewProjectile.ConfigureNewProjectile(CurrentFireAction, InVolleyNotify, AbilityContext, InSourceWeapon);
+
 	NewProjectile.GotoState('Executing');
 	if (CurrentFireAction != none)
 	{

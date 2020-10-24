@@ -1,0 +1,10 @@
+site_name: X2WOTCCommunityHighlander
+site_description: Online documentation for the X2WOTCCommunityHighlander
+repo_url: https://github.com/X2CommunityCore/X2WOTCCommunityHighlander
+edit_uri: ""
+theme:
+  name: readthedocs
+  highlightjs: true
+  hljs_languages:
+    - ini
+    - unrealscript

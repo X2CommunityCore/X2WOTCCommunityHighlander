@@ -35,16 +35,6 @@
             "problemMatcher": []
         },
         {
-            "label": "build-dlc2",
-            "type": "shell",
-            "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\build.ps1' -mod \"DLC2CommunityHighlander\" -srcDirectory '${workspaceRoot}\\Components\\DLC2CommunityHighlander' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}'",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "problemMatcher": []
-        },
-        {
             "label": "runGame",
             "type": "shell",
             "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\run.ps1' -gamePath '${config:xcom.highlander.gameroot}'",
@@ -65,7 +55,16 @@
         {
             "label": "makeDocs",
             "type": "shell",
-            "command": "python .\\.scripts\\make_docs.py .\\X2WOTCCommunityHighlander\\Src\\ .\\X2WOTCCommunityHighlander\\Config\\ --outdir .\\target\\",
+            "command": "python .\\.scripts\\make_docs.py .\\X2WOTCCommunityHighlander\\Src .\\X2WOTCCommunityHighlander\\Config --outdir .\\target --docsdir .\\docs_src",
+            "problemMatcher": []
+        },
+        {
+            "label": "testDocs",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}\\test\\docs"
+            },
+            "command": "python ..\\..\\.scripts\\make_docs.py .\\test_src --outdir .\\test_output --docsdir .\\test_tags | % {$_.replace('\\', '/')} | Out-File .\\test_output\\stdout.log -Encoding ASCII",
             "problemMatcher": []
         },
     ]

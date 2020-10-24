@@ -1105,6 +1105,7 @@ function string GetCategoryDisplayName( string BodyPart, name PartToMatch, deleg
 		if( PartToMatch == BodyParts[PartIndex].DataName )
 		{
 			//Begin Issue #328
+			/// HL-Docs: ref:BodyPartTemplateNames
 			DisplayName = BodyParts[PartIndex].DisplayName;
 			if (DisplayName == "")
 			{

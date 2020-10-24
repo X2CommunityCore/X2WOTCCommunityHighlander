@@ -494,7 +494,7 @@ private function CreateCostSlots(XComGameState NewGameState)
 		
 		RewardTemplate = X2RewardTemplate(StratMgr.FindStrategyElementTemplate(OptionalCost.Reward));
 		RewardState = RewardTemplate.CreateInstanceFromTemplate(NewGameState);
-		RewardState.GenerateReward(NewGameState, 0.5, GetReference());
+		RewardState.GenerateReward(NewGameState, TriggerOverrideCostScalar(RewardState, 0.5), GetReference()); // Issue #807 - trigger call added
 		
 		Slot.Cost = OptionalCost.Cost;
 		Slot.RewardRef = RewardState.GetReference();
@@ -569,10 +569,79 @@ private function GenerateRewards(XComGameState NewGameState)
 	{
 		RewardTemplate = X2RewardTemplate(StratMgr.FindStrategyElementTemplate(RewardTypes[idx]));
 		RewardState = RewardTemplate.CreateInstanceFromTemplate(NewGameState);
-		RewardState.GenerateReward(NewGameState, 0.5, GetReference());
+		RewardState.GenerateReward(NewGameState, TriggerOverrideRewardScalar(RewardState, 0.5), GetReference()); // Issue #807 - trigger call added
 		RewardRefs.AddItem(RewardState.GetReference());
 	}
 }
+
+// Start Issue #807
+/// HL-Docs: feature:CovertAction_OverrideCostScalar; issue:807; tags:strategy
+/// Allows listeners to override the multiplier covert actions use to determine
+/// how many resources an optional cost requires. The game uses 0.5 by default,
+/// which means CAs need half the supplies/intel/etc. you would get from a POI
+/// as the cost to mitigate a risk.
+///
+/// ```unrealscript
+/// EventID: CovertAction_OverrideCostScalar
+/// EventData: XComLWTuple {
+///     Data: [
+///       inout float DefaultCostScalar,
+///       in XComGameState_Reward RewardState
+///     ]
+/// }
+/// EventSource: self (XCGS_CovertAction)
+/// NewGameState: no
+/// ```
+private function float TriggerOverrideCostScalar(XComGameState_Reward RewardState, float DefaultCostScalar)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'CovertAction_OverrideCostScalar';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].kind = XComLWTVFloat;
+	OverrideTuple.Data[0].f = DefaultCostScalar;
+	OverrideTuple.Data[1].kind = XComLWTVObject;
+	OverrideTuple.Data[1].o = RewardState;
+
+	`XEVENTMGR.TriggerEvent(OverrideTuple.Id, OverrideTuple, self);
+
+	return OverrideTuple.Data[0].f;
+}
+
+/// HL-Docs: feature:CovertAction_OverrideRewardScalar; issue:807; tags:strategy
+/// Allows listeners to override the multiplier covert actions use to determine
+/// how many resources to award. The game uses 0.5 by default, which means CAs
+/// award half the supplies/intel/etc. you would get from a POI.
+///
+/// ```unrealscript
+/// EventID: CovertAction_OverrideRewardScalar
+/// EventData: XComLWTuple {
+///     Data: [
+///       inout float DefaultRewardScalar,
+///       in XComGameState_Reward RewardState
+///     ]
+/// }
+/// EventSource: self (XCGS_CovertAction)
+/// NewGameState: no
+/// ```
+private function float TriggerOverrideRewardScalar(XComGameState_Reward RewardState, float DefaultRewardScalar)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'CovertAction_OverrideRewardScalar';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].kind = XComLWTVFloat;
+	OverrideTuple.Data[0].f = DefaultRewardScalar;
+	OverrideTuple.Data[1].kind = XComLWTVObject;
+	OverrideTuple.Data[1].o = RewardState;
+
+	`XEVENTMGR.TriggerEvent(OverrideTuple.Id, OverrideTuple, self);
+
+	return OverrideTuple.Data[0].f;
+}
+// End Issue #807
 
 function GiveRewards(XComGameState NewGameState)
 {
@@ -962,15 +1031,21 @@ function RecalculateRiskChanceToOccurModifiers()
 		bChosenIncreaseRisks = GetFaction().GetRivalChosen().ShouldIncreaseCovertActionRisks();
 		RiskTemplate = X2CovertActionRiskTemplate(StratMgr.FindStrategyElementTemplate(Risks[idx].RiskTemplateName));
 		if (RiskTemplate.IsRiskAvailableFn == none || RiskTemplate.IsRiskAvailableFn(GetFaction()))
-        {
-            bDarkEventRisk = false;
-            if (ResHQ.CovertActionDarkEventRisks.Find(Risks[idx].RiskTemplateName) != INDEX_NONE)
-            {
-                bDarkEventRisk = true;
-            }
+		{
+			bDarkEventRisk = false;
+			if (ResHQ.CovertActionDarkEventRisks.Find(Risks[idx].RiskTemplateName) != INDEX_NONE)
+			{
+				bDarkEventRisk = true;
+			}
 		}
 
 		Risks[idx].ChanceToOccurModifier = CalculateRiskChanceToOccurModifiers(Risks[idx], bChosenIncreaseRisks, bDarkEventRisk);
+		// Start Issue #777
+		//
+		// Covert action risk level will now be updated when a risk's chance to occur
+		// is recalculated, which ensures the risks panel displays the correct chance.
+		Risks[idx].Level = GetRiskLevel(Risks[idx]);
+		// End Issue #777
 	}
 }
 // Issue #436 End
@@ -1311,7 +1386,53 @@ function GetRisksStrings(out array<string> Labels, out array<string> Values)
 			Values.AddItem(GetRiskDifficultyLabel(Risks[idx].Level));
 		}
 	}
+
+	TriggerOverrideRiskStrings(Labels, Values);  // Issue #779
 }
+
+// Start Issue #779
+/// HL-Docs: feature:CovertAction_OverrideRiskStrings; issue:779; tags:strategy
+/// Allows listeners to override how risk chances are displayed in the covert
+/// actions screen (UICovertActions). The names of each risk and the texts
+/// displayed to represent the chance of each one occurring are passed in the
+/// event as two separate arrays of strings.
+///
+/// Note that the two arrays are in the same order, i.e. the first element of
+/// each array corresponds to the first risk, the second element to the second
+/// risk, and so on.
+//
+/// Also be aware that the existing texts for the chance values will be HTML
+/// markup, with some entries using `<font>` tags to color the text.
+///
+/// ```unrealscript
+/// EventID: CovertAction_OverrideRiskStrings
+/// EventData: XComLWTuple {
+///     Data: [
+///       inout array<string> RiskLabels,
+///       inout array<string> RiskChanceTexts
+///     ]
+/// }
+/// EventSource: self (XCGS_CovertAction)
+/// NewGameState: no
+/// ```
+private function TriggerOverrideRiskStrings(out array<string> Labels, out array<string> Values)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'CovertAction_OverrideRiskStrings';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].kind = XComLWTVArrayStrings;
+	OverrideTuple.Data[0].as = Labels;
+	OverrideTuple.Data[1].kind = XComLWTVArrayStrings;
+	OverrideTuple.Data[1].as = Values;
+
+	`XEVENTMGR.TriggerEvent(OverrideTuple.Id, OverrideTuple, self);
+
+	Labels = OverrideTuple.Data[0].as;
+	Values = OverrideTuple.Data[1].as;
+}
+// End Issue #779
 
 function string GetStaffRisksAppliedString(int idx)
 {
