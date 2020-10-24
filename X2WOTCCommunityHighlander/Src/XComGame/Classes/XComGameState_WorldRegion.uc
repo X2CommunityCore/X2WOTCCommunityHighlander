@@ -1023,9 +1023,10 @@ function StaticMesh GetStaticMesh()
 {
 	local XComLWTuple Tuple; //single variable for issue #864
 
-	if( `ISCONTROLLERACTIVE == false ) return none;
+	if (`ISCONTROLLERACTIVE == false) return none;
 	
 	//start issue #864 - tuple setup
+	Tuple = new class'XComLWTuple';
 	Tuple.Data.Add(1);
 	Tuple.Data[0].kind = XComLWTVObject;
 	//end issue #864 - tuple setup
@@ -1043,7 +1044,7 @@ function StaticMesh GetStaticMesh()
 
 	`XEVENTMGR.TriggerEvent('WorldRegionGetStaticMesh', Tuple, self); //issue #864 - fire event
 
-	return Tuple.Data[0].o; //issue #864 - return static mesh
+	return StaticMesh(Tuple.Data[0].o); //issue #864 - return static mesh
 }
 //end issue #864
 
@@ -1059,7 +1060,8 @@ function vector GetMeshScale()
 {
 	local vector ScaleVector;
 	local XComLWTuple Tuple; //single variable for issue #8646
-	if( `ISCONTROLLERACTIVE == false ) return ScaleVector;
+
+	if (`ISCONTROLLERACTIVE == false) return ScaleVector;
 
 	if (bCanScanForContact || ResistanceLevel == eResLevel_Unlocked)
 	{
@@ -1075,6 +1077,7 @@ function vector GetMeshScale()
 	}
 
 	//start issue #864 changes
+	Tuple = new class'XComLWTuple';
 	Tuple.Data.Add(1);
 	Tuple.Data[0].kind = XComLWTVVector;
 	Tuple.Data[0].v = ScaleVector;
