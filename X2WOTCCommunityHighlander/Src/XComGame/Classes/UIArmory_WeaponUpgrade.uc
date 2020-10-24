@@ -18,6 +18,17 @@ struct TUIAvailableUpgrade
 	var string DisabledReason; // Reason why upgrade cannot be equipped
 };
 
+// Start Issue #832
+struct WeaponViewOffset
+{
+	var name Template;
+	var float offset_x;
+	var float offset_y;
+	var float offset_z;
+};
+var config array<WeaponViewOffset> WeaponViewOffsets;
+// End Issue #832
+
 var int FontSize;
 
 var UIList ActiveList;
@@ -1142,6 +1153,11 @@ function InterpolateWeapon()
 	local Vector GoalLocation;
 	local PointInSpace PlacementActor;
 
+	// Variables for Issue #832
+	local Vector BeginLocation, Offset;
+	local XComGameState_Item WeaponState;
+	local int Index;
+	
 	PlacementActor = GetPlacementActor();
 	GoalLocation = PlacementActor.Location;
 	if(PawnLocationTag != '')
@@ -1162,6 +1178,52 @@ function InterpolateWeapon()
 			ActorPawn.SetRotation(RotatorLerp);
 		}
 	}
+	
+	// Start Issue #832
+	/// HL-Docs: feature:AdjustPositionOfWeaponPawn; issue:832; tags:customization
+	/// When a weapon pawn is displayed in the weapon upgrade view it sets the position to the root bone of the mesh at the center of the screen. 
+	/// Some weapon models simply do not fit correctly on the screen and obscure the UI. This fix aims to adjust that. It moves the position of the 
+	/// created pawn by specified offset values from a config entry in the `XComUI.ini`.
+	/// x is left/right with moving left being positive
+	/// y is fore/aft with moving aft being positive (zoom level)
+	/// z is up/down with moving up being positive
+	/// Use this feature by creating the following lines in `XComUI.ini`:
+	///
+	/// ```ini
+	/// [XComGame.UIArmory_WeaponUpgrade]
+	/// ;template
+	/// ;+WeaponViewOffsets=(Template=, offset_x=0.0, offset_y=0.0, offset_z=0.0)
+	/// ;example that shifts the sniper rifles to the left, up a little and slightly smaller
+	/// +WeaponViewOffsets=(Template=SniperRifle_CV, offset_x=20, offset_y=10, offset_z=10)
+	/// +WeaponViewOffsets=(Template=SniperRifle_MG, offset_x=20, offset_y=10, offset_z=10)
+	/// +WeaponViewOffsets=(Template=SniperRifle_BM, offset_x=20, offset_y=10, offset_z=10)
+	/// ```
+
+	// Save the original position of the actor
+	BeginLocation = ActorPawn.Location;
+
+	// Make sure we have got the right weapon details for the pawn/actor
+	WeaponState = XComGameState_Item(`XCOMHISTORY.GetGameStateForObjectID(WeaponRef.ObjectID));
+	if (WeaponState == none)
+		return;
+		
+	Index = default.WeaponViewOffsets.Find('Template', WeaponState.GetMyTemplateName());
+	if (Index == INDEX_NONE) 
+		return;
+
+	// Add an offset to the camera/root based on the weapon template ... this adjusts the weapons position on the screen
+	Offset.x = default.WeaponViewOffsets[Index].offset_x;
+	Offset.y = default.WeaponViewOffsets[Index].offset_y;
+	Offset.z = default.WeaponViewOffsets[Index].offset_z;
+
+	GoalLocation = BeginLocation + Offset;
+
+	if (VSize(GoalLocation - ActorPawn.Location) > 0.1f)
+	{
+		LocationLerp = VLerp(ActorPawn.Location, GoalLocation, 0.1f);
+		ActorPawn.SetLocation(LocationLerp);
+	}
+	// End Issue #832
 }
 
 simulated function OnListChildMouseEvent(UIPanel Panel, int Cmd)
