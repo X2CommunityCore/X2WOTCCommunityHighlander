@@ -6763,6 +6763,18 @@ protected function OnUnitDied(XComGameState NewGameState, Object CauseOfDeath, c
 			else if( (PendingLoot.LootToBeCreated.Length > 0) && !class'X2TacticalGameRulesetDataStructures'.static.TacticalOnlyGameMode( ) )
 			{
 				NewGameState.GetContext().PostBuildVisualizationFn.AddItem(VisualizeLootDestroyedByExplosives);
+				// Start Issue #682
+				//
+				// Make sure the pending loot is cleared, otherwise if this unit
+				// is killed by an explosive and is then raised as a zombie, that
+				// zombie will drop the loot on death.
+				//
+				/// HL-Docs: ref:Bugfixes; issue:682
+				/// Zombies will no longer drop loot. Only affects mods that destroy
+				/// loot when killing units with explosives.
+				NewUnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', ObjectID));
+				NewUnitState.PendingLoot.LootToBeCreated.Length = 0;
+				// End Issue #682
 			}
 
 			// no loot drops in Challenge Mode
