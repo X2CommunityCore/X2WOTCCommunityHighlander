@@ -211,6 +211,9 @@
     <Content Include="Src\XComGame\Classes\UIMission.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIMission_AlienFacility.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UINarrativeMgr.uc">
       <SubType>Content</SubType>
     </Content>
