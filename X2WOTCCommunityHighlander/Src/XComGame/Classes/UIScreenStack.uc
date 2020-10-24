@@ -635,12 +635,44 @@ simulated function PopIncludingClass( class<UIScreen> ClassToRemove, optional bo
 // Start Issue #290
 //
 // Lots of code in the base game and mods seems to use `GetScreen()` when
-// it should be using `GetFirstInstanceOf()`. This change means that
-// `GetScreen()` will also return any screen that's a subclass of the
-// specified one.
-//
-// If any code wants to ignore subclasses, then it can use the new
-// `GetScreen_CH()` method instead.
+// it should be using `GetFirstInstanceOf()`.
+
+/// HL-Docs: feature:ScreenStackSubClasses; issue:290; tags:compatibility
+/// A number of functions in `UIScreenStack` operate on classes, but fail
+/// to consider subclasses. This causes subtle bugs in base game and mod
+/// code that fails to consider the possibility that a given class can
+/// be subclassed/overridden. For example, `UIArmory` does something like this:
+///
+/// ```unrealscript
+/// // Don't allow jumping to the geoscape from the armory when coming from squad select
+/// if (!`ScreenStack.IsInStack(class'UISquadSelect'))
+/// {
+/// 	NavHelp.AddGeoscapeButton();
+/// }
+/// ```
+///
+/// However, if `UISquadSelect` is being overridden or replaced, *this can cause the
+/// campaign to permanently deadlock* because `UIArmory` fails to find the changed
+/// squad select screen. The proper fix would be using `HasInstanceOf`, but this error
+/// is extremely common in base game and mod code. As a result, it was decided that
+/// the best fix is to change all functions in `UIScreenStack` to always consider
+/// subclasses. A full list of affected functions:
+///
+/// * `GetScreen`
+/// * `IsCurrentClass`
+/// * `IsInStack`
+/// * `IsNotInStack`
+///
+/// ## Compatibility
+///
+/// If you legitimately want to *not* consider subclasses, you can use the functions
+///
+/// ``` unrealscript
+/// function UIScreen GetScreen_CH(class<UIScreen> ScreenClass, bool IncludeSubTypes);
+/// function bool IsCurrentClass_CH(class<UIScreen> ScreenClass, bool IncludeSubTypes);
+/// ```
+///
+/// and rewrite `IsInStack`/`IsNotInStack` in terms of `GetScreen_CH(...) !=/== none`.
 
 // Returns the first instance of a Screen of the target class type (or a subclass).
 simulated function UIScreen GetScreen( class<UIScreen> ScreenClass )
@@ -721,14 +753,7 @@ simulated function bool HasInstanceOf( class<UIScreen> ScreenClass )
 // Start Issue #290
 //
 // A lot of code seems to assume that certain screen classes will never have
-// subclasses, which is rubbish in the context of mods. So this method will
-// now return `true` if the current screen is also a subclass of the given
-// class. However, the reverse will not work, i.e. if the given screen class
-// is a subclass of the current screen class, then this method will return
-// `false`.
-//
-// If you want to exclude subclasses, then use the new `IsCurrentClass_CH()`
-// method.
+// subclasses, which is rubbish in the context of mods.
 simulated function bool IsCurrentClass( class<UIScreen> ScreenClass )
 {
 	return IsCurrentClass_CH(ScreenClass, true);

@@ -1012,27 +1012,53 @@ function int GetNumMissingPersonsThisMonth()
 //----------------   GEOSCAPE ENTITY IMPLEMENTATION   -----------------------------------------
 //#############################################################################################
 
+//start issue #864
+/// HL-Docs: feature:WorldRegionGetStaticMesh; issue:864; tags:strategy,events
+/// This is an event that mods which add new static meshes to the overworld
+/// can hook into to ensure that those static meshes actually display.
+///
+/// The EventData is a single-value XComLWTuple that contains the StaticMesh
+/// that will be displayed. The EventSource is the WorldRegion instance.
 function StaticMesh GetStaticMesh()
 {
-	if( `ISCONTROLLERACTIVE == false ) return none; 
+	local XComLWTuple Tuple; //single variable for issue #864
+
+	if( `ISCONTROLLERACTIVE == false ) return none;
+	
+	//start issue #864 - tuple setup
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVObject;
+	//end issue #864 - tuple setup
 
 	if (bCanScanForContact || 
 		(class'UIUtilities_Strategy'.static.GetXComHQ().IsContactResearched() && ResistanceLevel == eResLevel_Unlocked))
 	{
-		return StaticMesh'XB0_XCOM2_OverworldIcons.SingnalInterception';
+		Tuple.Data[0].o = StaticMesh'XB0_XCOM2_OverworldIcons.SingnalInterception'; //issue #864 - store in variable instead of returning
 	}
 	else if (bCanScanForOutpost ||
 		(class'UIUtilities_Strategy'.static.GetXComHQ().IsOutpostResearched() && ResistanceLevel == eResLevel_Contact))
 	{
-		return StaticMesh'UI_3D.Overwold_Final.RadioTower';
+		Tuple.Data[0].o = StaticMesh'UI_3D.Overwold_Final.RadioTower'; //issue #864 - store in variable instead of returning
 	}
 
-	return none;
-}
+	`XEVENTMGR.TriggerEvent('WorldRegionGetStaticMesh', Tuple, self); //issue #864 - fire event
 
+	return Tuple.Data[0].o; //issue #864 - return static mesh
+}
+//end issue #864
+
+//start issue #864
+/// HL-Docs: feature:WorldRegionGetMeshScale; issue:864; tags:strategy,events
+/// This is an event that mods which add new static meshes to the overworld
+/// can hook into to ensure that those static meshes scale properly.
+///
+/// The EventData is a single-value XComLWTuple that contains the vector
+/// that will be applied to the static mesh. The EventSource is the
+/// WorldRegion instance.
 function vector GetMeshScale()
 {
 	local vector ScaleVector;
+	local XComLWTuple Tuple; //single variable for issue #8646
 	if( `ISCONTROLLERACTIVE == false ) return ScaleVector;
 
 	if (bCanScanForContact || ResistanceLevel == eResLevel_Unlocked)
@@ -1048,8 +1074,19 @@ function vector GetMeshScale()
 		ScaleVector.Z = 1.0;
 	}
 
+	//start issue #864 changes
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVVector;
+	Tuple.Data[0].v = ScaleVector;
+
+	`XEVENTMGR.TriggerEvent('WorldRegionGetMeshScale', Tuple, self);
+
+	ScaleVector = Tuple.Data[0].v;
+	//end issue #864 changes
+
 	return ScaleVector;
 }
+//end issue #864
 //---------------------------------------------------------------------------------------
 function string GetDisplayName()
 {

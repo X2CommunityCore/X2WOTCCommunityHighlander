@@ -282,6 +282,15 @@ simulated function UpdateData()
 }
 
 // Start issue #365
+/// HL-Docs: feature:Geoscape_ResInfoButtonVisible; issue:365; tags:strategy,ui
+/// Allows overriding whether the resistance info button should be visible.
+/// Default: After the first month if any faction met and not in flight.
+///
+/// ```unrealscript
+/// ID: Geoscape_ResInfoButtonVisible,
+/// Data: [inout bool ShouldShow, in bool InFlight],
+/// Source: UIStrategyMap_HUD
+/// ```
 simulated protected function bool ShouldShowResInfoButton(XComGameState_HeadquartersResistance ResHQ)
 {
 	local XComLWTuple Tuple;

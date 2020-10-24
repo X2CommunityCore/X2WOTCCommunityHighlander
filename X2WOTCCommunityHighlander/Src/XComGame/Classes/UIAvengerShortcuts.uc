@@ -1126,7 +1126,16 @@ reliable client function array<UIAvengerShortcutMessage> GetCommandersQuartersMe
 	return Messages;
 }
 
- // Start issue #368
+// Start issue #368
+/// HL-Docs: feature:UIAvengerShortcuts_ShowCQResistanceOrders; issue:368; tags:strategy,ui
+/// Allows overriding whether the resistance orders button should be shown in `UIAvengerShortcuts`.
+/// Default: After the first month if any faction met.
+///
+/// ```unrealscript
+/// ID: UIAvengerShortcuts_ShowCQResistanceOrders,
+/// Data: [inout bool ShouldShow],
+/// Source: UIAvengerShortcuts
+/// ```
  simulated protected function bool ShouldShowResistanceOrders()
  {
 	local XComGameState_HeadquartersResistance ResHQ;

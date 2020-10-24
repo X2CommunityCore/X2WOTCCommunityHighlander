@@ -838,6 +838,16 @@ simulated static function string GetPCSImage(XComGameState_Item Item)
 	StatType = class'UIUtilities_Strategy'.static.GetStatBoost(Item).StatType;
     
 	// Start Issue #110: OnGetPCSImage Event
+	/// HL-Docs: feature:OnGetPCSImage; issue:110; tags:strategy,ui
+	/// Allows overriding the UI image for a PCS. The base game switches on the
+	/// stat being boosted, which precludes custom PCS from having a custom icon.
+	/// Note that for historical reasons, the tuple ID is `GetPCSImageTuple` while
+	/// the event ID is `OnGetPCSImage`.
+	///
+	/// ```unrealscript
+	/// ID: OnGetPCSImage,
+	/// Data: [in XComGameState_Item ItemState, out string ImagePath],
+	/// ```
 	Tuple = new class'XComLWTuple';
 	Tuple.id = 'GetPCSImageTuple';
 	Tuple.Data.Add(2);

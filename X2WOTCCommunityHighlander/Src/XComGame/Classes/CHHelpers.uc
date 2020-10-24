@@ -85,6 +85,7 @@ var config bool AmmoSlotBypassUniqueRule;
 
 // Start Issue #219
 // Object names of head contents that don't allow Hair/Props/Helmets/Beards
+/// HL-Docs: ref:ModAddedHeads
 var config(Content) array<name> HeadSuppressesHair;
 var config(Content) array<name> HeadSuppressesLowerFaceProp;
 var config(Content) array<name> HeadSuppressesUpperFaceProp;
@@ -169,6 +170,10 @@ var config int NoiseAlertSoundRange;
 // have units use those action points after scampering.
 var config array<name> AdditionalAIBTActionPointTypes;
 // End Issue #510
+
+// Start issue #602
+var config array<name> ClassesAllowPsiPCS;
+// End issue #602
 
 // Variable for Issue #724
 var config array<name> ValidReserveAPForUnitFlag;

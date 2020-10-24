@@ -1,12 +1,15 @@
 class XComHQPresentationLayer extends XComPresentationLayerBase;
 
 // Start Issue #600
+/// HL-Docs: ref:OverridePromotionUIClass
+/// HL-Include:
 enum CHLPromotionScreenType
 {
 	eCHLPST_Standard,
 	eCHLPST_Hero,
 	eCHLPST_PsiOp
 };
+///
 // End Issue #600
 
 var XGHQCamera						m_kCamera;
@@ -1511,18 +1514,38 @@ function ShowPromotionUI(StateObjectReference UnitRef, optional bool bInstantTra
 
 // Start Issue #600
 //
-// Fires an 'OverridePromotionUIClass' event that allows mods to override
-// the UI class used for a given promotion screen. Note that any class
-// provided by a mod must be UIArmory_Promotion or a subclass of it.
-//
-// The event itself takes the form:
-//
-//   {
-//      ID: OverridePromotionUIClass,
-//      Data: [in int PromotionScreenType, inout class PromotionUIClass],
-//      Source: self (XComHQPresentationLayer)
-//   }
-//
+/// HL-Docs: feature:OverridePromotionUIClass; issue:600; tags:strategy,ui
+/// Fires an event that allows mods to override
+/// the UI class used for a given promotion screen. Note that any class
+/// provided by a mod must be UIArmory_Promotion or a subclass of it.
+///
+/// ```unrealscript
+/// ID: OverridePromotionUIClass,
+/// Data: [in int PromotionScreenType, inout class PromotionUIClass],
+/// Source: XComHQPresentationLayer
+/// ```
+///
+/// The following simplified example is taken from [Community Promotion Screen](https://github.com/X2CommunityCore/X2CommunityPromotionScreen):
+///
+/// ```unrealscript
+/// local XComLWTuple Tuple;
+/// local CHLPromotionScreenType ScreenType;
+///
+/// Tuple = XComLWTuple(EventData);
+///
+/// ScreenType = CHLPromotionScreenType(Tuple.Data[0].i);
+///
+/// if ((ScreenType == eCHLPST_PsiOp && ShouldOverridePsiPromotionScreen()) ||
+/// 		(ScreenType == eCHLPST_Hero && ShouldOverrideHeroPromotionScreen()) ||
+/// 		(ScreenType == eCHLPST_Standard && ShouldOverrideStandardPromotionScreen()))
+/// {
+/// 	Tuple.Data[1].o = class'NPSBDP_UIArmory_PromotionHero';
+/// }
+///
+/// return ELR_NoInterrupt;
+/// ```
+///
+/// The integer values of `PromotionScreenType` correspond to the `CHLPromotionScreenType` enum.
 function class<UIArmory_Promotion> TriggerOverridePromotionUIClass(CHLPromotionScreenType ScreenType)
 {
 	local XComLWTuple Tuple;

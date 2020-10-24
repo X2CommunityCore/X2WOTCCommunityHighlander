@@ -1108,12 +1108,85 @@ function bool EverHadTrait(name TraitTemplateName)
 simulated function bool HasHeightAdvantageOver(XComGameState_Unit OtherUnit, bool bAsAttacker)
 {
 	local int BonusZ;
+	//	Local variable for Issue #851
+	local bool bHasHeightAdvantageOver;
 
 	if (bAsAttacker)
 		BonusZ = GetHeightAdvantageBonusZ();
 
-	return TileLocation.Z + BonusZ >= (OtherUnit.TileLocation.Z + class'X2TacticalGameRuleset'.default.UnitHeightAdvantage);
+	//	Begin Issue #851
+	//	This is vanilla functionality.
+	bHasHeightAdvantageOver = TileLocation.Z + BonusZ >= (OtherUnit.TileLocation.Z + class'X2TacticalGameRuleset'.default.UnitHeightAdvantage);
+
+	return OverrideHasHeightAdvantageOver(OtherUnit, bAsAttacker, bHasHeightAdvantageOver);
+	//	End Issue #851
 }
+//	Begin Issue #851
+/// HL-Docs: feature:OverrideHasHeightAdvantageOver; issue:851; tags:tactical
+/// This event allows mods to override the standard game's logic for checking
+/// whether one unit has height advantate over another unit.
+///
+///	In order to take advantage of this event, make a listener with the ELD_Immediate deferral, 
+/// and cast EventData to XComLWTuple. `Tuple.Data[0].b` will already contain the bool value
+/// of whether this unit has height advantage over the other unit according to the vanilla logic. 
+/// You can replace the value with your own based on arbitrary parameters,
+/// such as one of the units being affected by a certain effect or having a certain ability.
+///	
+/// ```unrealscript
+/// EventID: OverrideHasHeightAdvantageOver
+/// EventData: XComLWTuple {
+///     Data: [
+///       inout bool HasHeightAdvantageOver,
+///       in bool bAsAttacker,
+///       in XComGameState_Unit OtherUnit
+///     ]
+/// }
+/// EventSource: XComGameState_Unit (of the unit performing the check)
+/// Game State: never.
+/// ```
+/// Example of an Event Listener Function:
+/// ```unrealscript
+/// static function EventListenerReturn ListenerEventFunction(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
+/// {
+/// 	local XComLWTuple			Tuple;
+/// 	local XComGameState_Unit	UnitState;
+/// 
+/// 	Tuple = XComLWTuple(EventData);
+/// 	UnitState = XComGameState_Unit(EventSource);
+/// 	if (Tuple == none || UnitState == none)
+/// 		return ELR_NoInterrupt;
+/// 
+/// 	//	The Unit is an attacker and it does not already have a height advantage.
+/// 	if (Tuple.Data[1].b && !Tuple.Data[0].b)
+/// 	{
+/// 		//	Then we give the unit height advantage if they are affected by the Jet Shot effect.
+/// 		Tuple.Data[0].b = UnitState.IsUnitAffectedByEffectName('IRI_JetShot_Effect');
+/// 	}
+/// 
+/// 	return ELR_NoInterrupt;
+/// }
+/// ```
+
+simulated private function bool OverrideHasHeightAdvantageOver(XComGameState_Unit OtherUnit, bool bAsAttacker, bool bHasHeightAdvantageOver)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideHasHeightAdvantageOver';
+	Tuple.Data.Add(3);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[1].kind = XComLWTVBool;
+	Tuple.Data[2].kind = XComLWTVObject;
+
+	Tuple.Data[0].b = bHasHeightAdvantageOver;
+	Tuple.Data[1].b = bAsAttacker;
+	Tuple.Data[2].o = OtherUnit;
+
+	`XEVENTMGR.TriggerEvent('OverrideHasHeightAdvantageOver', Tuple, self, none);
+
+	return Tuple.Data[0].b;
+}
+//	End Issue #851
 
 simulated function int GetHeightAdvantageBonusZ()
 {
@@ -2467,6 +2540,16 @@ function OnEndTacticalPlay(XComGameState NewGameState)
 			EffectState.GetX2Effect().UnitEndedTacticalPlay(EffectState, self);
 		}
 	}
+
+	// Start Issue #824
+	/// HL-Docs: ref:Bugfixes; issue:824
+	/// Units that are still stunned when a mission ends no longer lose action points
+	/// at the start of their next mission.
+	//
+	// Clear the stunned action points so they don't persist on to the next mission.
+	StunnedActionPoints = 0;
+	StunnedThisTurn = 0;
+	// End Issue #824
 
 	TileLocation.X = -1;
 	TileLocation.Y = -1;
@@ -6680,6 +6763,18 @@ protected function OnUnitDied(XComGameState NewGameState, Object CauseOfDeath, c
 			else if( (PendingLoot.LootToBeCreated.Length > 0) && !class'X2TacticalGameRulesetDataStructures'.static.TacticalOnlyGameMode( ) )
 			{
 				NewGameState.GetContext().PostBuildVisualizationFn.AddItem(VisualizeLootDestroyedByExplosives);
+				// Start Issue #682
+				//
+				// Make sure the pending loot is cleared, otherwise if this unit
+				// is killed by an explosive and is then raised as a zombie, that
+				// zombie will drop the loot on death.
+				//
+				/// HL-Docs: ref:Bugfixes; issue:682
+				/// Zombies will no longer drop loot. Only affects mods that destroy
+				/// loot when killing units with explosives.
+				NewUnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', ObjectID));
+				NewUnitState.PendingLoot.LootToBeCreated.Length = 0;
+				// End Issue #682
 			}
 
 			// no loot drops in Challenge Mode
@@ -6884,6 +6979,42 @@ native function SetCurrentStat( ECharStatType Stat, float NewValue );
 native function GetStatModifiers(ECharStatType Stat, out array<XComGameState_Effect> Mods, out array<float> ModValues, optional XComGameStateHistory GameStateHistoryObject);
 
 // Begin Issue #313
+/// HL-Docs: feature:GetStatModifiersFixed; issue:313; tags:tactical,compatibility
+/// The base game provides a function
+///
+/// ```unrealscript
+/// native function GetStatModifiers(ECharStatType Stat, out array<XComGameState_Effect> Mods, out array<float> ModValues, optional XComGameStateHistory GameStateHistoryObject);
+/// ```
+/// that can be used to identify how much different effects contribute to the calculated stat total.
+/// For example, `X2AbilityToHitCalc_StandardAim` wants to show how many percentage points to-hit or to-crit
+/// different effects provide or diminish.
+///
+/// However, the function is subtly broken in the presence of
+/// multiplicative modifiers (`MODOP_Multiplication` or `MODOP_PostMultiplication`), where it doesn't
+/// return the correct contribution but instead simply returns `MultiplicationMod * BaseStat`. This
+/// makes multiplicative modifiers unusable for `eStat_Offense` and `eStat_CritChance`.
+///
+/// The Highlander function `GetStatModifiersFixed` wraps the broken function and fixes the numbers.
+/// Additionally, `X2AbilityToHitCalc_StandardAim` is changed to call this modified function.
+///
+/// ## Compatibility
+///
+/// Mods that override/replace `X2AbilityToHitCalc_StandardAim:GetHitChance` may undo the Highlander's
+/// changes and use the broken function. In particular, XModBase versions prior to 2.0.2 are
+/// [known to undo this fix](https://github.com/RossM/XModBase/issues/1).
+/// It is recommended that mods using XModBase upgrade to 2.0.2, and otherwise affected mods check whether
+/// `GetStatModifiersFixed` exists and call it instead:
+///
+/// ```unrealscript
+/// if (Function'XComGame.XComGameState_Unit.GetStatModifiersFixed' != none)
+/// {
+/// 	// call GetStatModifiersFixed
+/// }
+/// else
+/// {
+/// 	// call GetStatModifiers	
+/// }
+/// ```
 function GetStatModifiersFixed(ECharStatType Stat, out array<XComGameState_Effect> Mods, out array<float> ModValues, optional XComGameStateHistory GameStateHistoryObject, optional bool RoundTotals=true)
 {
 	local array <StatModifier> MultMods;
@@ -9344,6 +9475,10 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 	// lost spawning
 	LostSpawnModifier = AbilityTemplate.LostSpawnIncreasePerUse;
 
+	// Start Issue #892
+	TriggerOverrideLostSpawnIncreaseFromUse(ActivatedAbilityState, GameState, LostSpawnModifier);
+	// End Issue #892
+
 	// Contribute sound to lost spawning if the lost spawn is enabled and off cooldown, or the sound contribution is above the loud sound threshold
 	if(LostSpawnModifier > 0)
 	{
@@ -9352,6 +9487,69 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 
 	return ELR_NoInterrupt;
 }
+
+// Start Issue #892
+/// HL-Docs: feature:OverrideLostSpawnIncreaseFromUse; issue:892; tags:tactical
+/// Normally, each ability template has its own LostSpawnIncreasePerUse value. When the ability is activated, 
+/// this value is added to the "bucket" responsible for spawning additional Lost waves. When the "bucket" is filled, a wave of Lost spawns.
+/// This LostSpawnIncreasePerUse value is constant for each ability template; it does not depend on which weapon is used for the ability or any other context. 
+/// The `XComGameState_Unit::OnAbilityActivated` triggers a `OverrideLostSpawnIncreaseFromUse` event, 
+/// allowing mods to override the amount of Lost-attracting noise generated by abilities.
+/// ```unrealscript
+/// EventID: OverrideLostSpawnIncreaseFromUse
+/// EventData: XComLWTuple {
+/// 	Data: [
+///       inout int LostSpawnModifier,
+///       in XComGameState_Ability ActivatedAbilityState,
+///     ]
+/// }
+///	EventSource: self (XComGameState_Unit)
+/// GameState: yes
+/// ```
+/// Listeners for this event must use ELD_Immediate deferral. Example of an event listener function:
+/// ```unrealscript
+/// static function EventListenerReturn ListenerEventFunction(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
+/// {
+/// 	local XComLWTuple OverrideTuple;
+/// 	local XComGameState_Ability AbilityState;
+/// 	local XComGameState_Item	SourceWeapon, SourceAmmo;
+/// 
+/// 	OverrideTuple = XComLWTuple(EventData);
+/// 	AbilityState = XComGameState_Ability(OverrideTuple.Data[1].o);
+/// 
+/// 	if (AbilityState.GetMyTemplateName() == 'ThrowGrenade' || AbilityState.GetMyTemplateName() == 'LaunchGrenade')
+/// 	{
+/// 		SourceWeapon = AbilityState.GetSourceWeapon();
+/// 		SourceAmmo = AbilityState.GetSourceAmmo();
+/// 
+/// 		if (SourceWeapon != none && SourceWeapon.GetMyTemplateName() == 'ProximityMine' || 
+/// 			SourceAmmo != none && SourceAmmo.GetMyTemplateName() == 'ProximityMine')
+/// 		{
+///             // Override the amount of Lost-attracting noise generated by Proximity Mine if it is thrown or launched.
+/// 			OverrideTuple.Data[0].i = 0;
+/// 		}
+/// 	}
+/// 
+/// 	return ELR_NoInterrupt;
+/// }
+/// ```
+private function TriggerOverrideLostSpawnIncreaseFromUse(XComGameState_Ability ActivatedAbilityState, XComGameState GameState, out int LostSpawnModifier)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideLostSpawnIncreaseFromUse';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].Kind = XComLWTVInt;
+	OverrideTuple.Data[0].i = LostSpawnModifier;
+	OverrideTuple.Data[1].Kind = XComLWTVObject;
+	OverrideTuple.Data[1].o = ActivatedAbilityState;	
+
+	`XEVENTMGR.TriggerEvent('OverrideLostSpawnIncreaseFromUse', OverrideTuple, self, GameState);
+
+	LostSpawnModifier = OverrideTuple.Data[0].i;
+}
+// End Issue #892
 
 // Start Issue #510
 //
@@ -14806,6 +15004,31 @@ function bool UnitIsValidForPhotobooth()
 }
 
 // Start Issue #106
+/// HL-Docs: feature:DynamicSoldierClassDisplay; issue:106; tags:strategy,ui
+/// Mods may want to manipulate the way a soldier's class is displayed (in terms
+/// of icon/name/description) in more dynamic ways. For example, *RPGOverhaul*
+/// has a single soldier class and the way it is displayed depends on selected
+/// skills and loadouts. There are three events with mostly self-explanatory names:
+/// ```unrealscript
+/// ID: SoldierClassIcon,
+/// Data: [inout string IconImagePath],
+/// Source: XCGS_Unit
+/// ```
+///
+/// ```unrealscript
+/// ID: SoldierClassDisplayName,
+/// Data: [inout string DisplayName],
+/// Source: XCGS_Unit
+/// ```
+///
+/// ```unrealscript
+/// ID: SoldierClassSummary,
+/// Data: [inout string DisplaySummary],
+/// Source: XCGS_Unit
+/// ```
+///
+/// There is a sister feature [`DynamicSoldierRankDisplay`](./DynamicSoldierRankDisplay.md)
+/// that extends this to rank icon/name.
 function String GetSoldierClassIcon()
 {
 	local XComLWTuple Tuple;
@@ -14870,6 +15093,32 @@ function String GetSoldierClassSummary()
 //         unit's current rank. If this is -1, then the current rank is
 //         returned as usual.
 //
+/// HL-Docs: feature:DynamicSoldierRankDisplay; issue:408; tags:strategy,ui
+/// Mods may want to manipulate the way a soldier's rank is displayed (in terms
+/// of icon/name/description) in more dynamic ways. For example, *LWOTC*
+/// shows officer ranks for units with special officer abilities.
+/// There are three events with mostly self-explanatory names:
+///
+/// ```unrealscript
+/// ID: SoldierRankName,
+/// Data: [in int Rank, inout string DisplayRankName],
+/// Source: XCGS_Unit
+/// ```
+///
+/// ```unrealscript
+/// ID: SoldierShortRankName,
+/// Data: [in int Rank, inout string DisplayShortRankName],
+/// Source: XCGS_Unit
+/// ```
+///
+/// ```unrealscript
+/// ID: SoldierRankIcon,
+/// Data: [in int Rank, inout string IconImagePath],
+/// Source: XCGS_Unit
+/// ```
+///
+/// There is a sister feature [`DynamicSoldierClassDisplay`](./DynamicSoldierClassDisplay.md)
+/// that extends this to class icon/name.
 function string GetSoldierRankName(optional int Rank = -1)
 {
 	local XComLWTuple OverrideTuple;

@@ -153,18 +153,20 @@ Start by building the mod through ModBuddy, as you normally would. Then, enter t
 
 If a message like "Scripts are outdated. Would you like to rebuild now?" pops up, click "No".
 
-The commands above create cooked files for your `XComGame` and `Engine` package replacements in
+The commands above create cooked files for your `XComGame`, `Engine`, and `Core` package replacements in
 `%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\XComGame\Published\CookedPCConsole`: 
 ```
 XComGame.upk
 XComGame.upk.uncompressed_size
 Engine.upk
 Engine.upk.uncompressed_size
+Core.upk
+Core.upk.uncompressed_size
 ```
 
 Copy those files into a folder called `CookedPCConsole` inside the mod's output 
-folder. You will need to delete `Script\XComGame.u` and `Script\Engine.u`, now that we've put the
-cooked script file in it's place.
+folder. You will need to delete `Script\XComGame.u`, `Script\Engine.u` and `Script\Core.u`,
+now that we've put the cooked script file in it's place.
 
 Once you've done all that, the mod should now run in vanilla XCOM. Note that all
 logging statements will be stripped from the Cooked version, so don't expect to

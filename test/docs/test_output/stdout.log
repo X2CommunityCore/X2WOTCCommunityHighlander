@@ -1,0 +1,31 @@
+error: ./test_src/UnrealScriptFile2.uc:6: unknown key `whatevenisthis`
+error: ./test_src/UnrealScriptFile2.uc:6: missing key `feature` or `ref`
+error: ./test_src/UnrealScriptFile2.uc:9: duplicate key `ref`
+error: ./test_src/UnrealScriptFile2.uc:12: missing key `issue`
+error: ./test_src/UnrealScriptFile2.uc:12: missing key `tags`
+note: use `tags:` to specify an empty tag list
+error: ./test_src/UnrealScriptFile2.uc:15: missing key `issue`
+error: ./test_src/UnrealScriptFile2.uc:29: multiple `HL-Docs:` in one item
+error: ./test_src/UnrealScriptFile2.uc:47: bad indentation for HL-Include:
+error: ./test_src/UnrealScriptFile2.uc:50: bad indentation for HL-Include:
+error: ./test_src/UnrealScriptFile2.uc:43: unclosed HL-Include:
+error: duplicate feature definition `Bugfixes`
+note: first definition due to builtin feature
+note: this definition at ./test_src/UnrealScriptFile2.uc:35
+error: duplicate feature definition `DupeFeature`
+note: first definition at ./test_src/UnrealScriptFile2.uc:18
+note: this definition at ./test_src/UnrealScriptFile2.uc:21
+note: this definition at ./test_src/UnrealScriptFile2.uc:24
+error: missing base doc item for ref `DoesNotExist`
+ok: ./test_output/docs/misc/BadSyntaxOne.md
+ok: ./test_output/docs/Bugfixes.md
+ok: ./test_output/docs/misc/DupeFeature.md
+ok: ./test_output/docs/misc/FeatWithBadTag.md
+ok: ./test_output/docs/misc/FeatWithoutRest.md
+ok: ./test_output/docs/strategy/FeatureFile1.md
+ok: ./test_output/docs/tactical/IncorrectIndentation.md
+error: file ./test_output/docs/noncooltag.md not found (`noncooltag` is an unknown tag)
+note: referred to by `FeatWithBadTag`
+ok: ./test_output/docs/cooltag.md
+note: the docs script found documentation errors
+note: see https://x2communitycore.github.io/X2WOTCCommunityHighlander/#documentation-for-the-documentation-tool for documentation on the docs script
