@@ -223,7 +223,8 @@ TYPE_TO_STRUCT_PROP = {
 
 def make_listener_template(sess, spec: dict) -> str:
 
-    funcsig = f"static function EventListenerReturn On{spec.id}(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackObject)\n{{"
+    funcsig = f"static function EventListenerReturn On{spec.id}"
+    funcsig += "(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackObject)\n{"
     locals = ""
     casts = ""
     unwraps = ""
