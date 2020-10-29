@@ -258,10 +258,29 @@ function XComGameState_Ability CreateInstanceFromTemplate(XComGameState NewGameS
 {
 	local XComGameState_Ability Ability;	
 
-	Ability = XComGameState_Ability(NewGameState.CreateNewStateObject(class'XComGameState_Ability', self));
+	// Begin Issue #763
+	/// HL-Docs: ref:CustomTargetStyles
+	if (AllTargetStylesNative())
+	{
+		Ability = XComGameState_Ability(NewGameState.CreateNewStateObject(class'XComGameState_Ability', self));
+	}
+	else
+	{
+		Ability = XComGameState_Ability(NewGameState.CreateNewStateObject(class'XComGameState_Ability_CH', self));
+	}
+	// End Issue #763
 
 	return Ability;
 }
+
+// Start Issue #763
+simulated private function bool AllTargetStylesNative()
+{
+	// The AbilityPassiveAOEStyle is never required by native code, so we don't have to check it here.
+	return (AbilityTargetStyle != none && CH_ClassIsNative(AbilityTargetStyle.Class))
+		&& (AbilityMultiTargetStyle != none && CH_ClassIsNative(AbilityMultiTargetStyle.Class));
+}
+// End Issue #763
 
 function AddTargetEffect(X2Effect Effect)
 {

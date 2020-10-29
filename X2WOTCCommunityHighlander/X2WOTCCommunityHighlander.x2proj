@@ -526,6 +526,9 @@
     <Content Include="Src\XComGame\Classes\XComGameState_Ability.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_Ability_CH.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_AdventChosen.uc">
       <SubType>Content</SubType>
     </Content>
