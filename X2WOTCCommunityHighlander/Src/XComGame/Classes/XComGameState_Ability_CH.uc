@@ -24,10 +24,10 @@
 /// ## Compatibility
 ///
 /// In order to selectively override the `XComGameState_Ability` class, we modify
-/// `X2AbilityTemplate:CreateInstanceFromTemplate`. If your mod overrides `CreateInstanceFromTemplate` in a subclass,
+/// `X2AbilityTemplate:CreateInstanceFromTemplate`. If your mod overrides `CreateInstanceFromTemplate` in a subclass
 /// of `X2AbilityTemplate`, the Highlander will not be able to apply this enhancement to that ability. On the other
 /// hand, if you override `CreateInstanceFromTemplate` precisely to instantiate your own ability state object with
-/// `GatherAbilityTargets` de-nativized for custom target style, your abilities will keep working the same way.
+/// `GatherAbilityTargets` de-nativized for a custom target style, your abilities will keep working the same way.
 
 class XComGameState_Ability_CH extends XComGameState_Ability;
 
