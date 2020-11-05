@@ -23,8 +23,8 @@ COMMENT_POST = """
 <details><summary>What? (click to expand)</summary>
 
 The Highlander documentation tool generates event listener examples from event specifications.
-This comment contains the modifications that would be made to event \
-listeners for PR authors and reviewers to inspect for correctness and will \
+This comment contains the modifications that would be made to the copy-pasteable event \
+listeners in documentation, for PR authors and reviewers to inspect for correctness, and will \
 automatically be kept up-to-date whenever this PR is updated.</details>
 
 <!-- GHA-event-listeners-diff -->"""
