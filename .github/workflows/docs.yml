@@ -32,11 +32,26 @@ jobs:
       env:
         PR_NUMBER: ${{ github.event.number }}
       run: |
+        # Build base docs (master)
         git checkout ${{ github.base_ref }}
         python ./.scripts/make_docs.py ./X2WOTCCommunityHighlander/Src/ ./X2WOTCCommunityHighlander/Config/ --docsdir ./docs_src --dumpelt ./X2WOTCCommunityHighlander/Src/X2WOTCCommunityHighlander/Classes/CHL_Event_Compiletest.uc
+        if [ $? -ne 0 ]
+        then
+          echo "master docs build broken?"
+          exit 0
+        fi
         git add -f ./X2WOTCCommunityHighlander/Src/X2WOTCCommunityHighlander/Classes/CHL_Event_Compiletest.uc
+
+        # Build PR merge docs
         git checkout ${{ github.sha }}
         python ./.scripts/make_docs.py ./X2WOTCCommunityHighlander/Src/ ./X2WOTCCommunityHighlander/Config/ --docsdir ./docs_src --dumpelt ./X2WOTCCommunityHighlander/Src/X2WOTCCommunityHighlander/Classes/CHL_Event_Compiletest.uc
+        if [ $? -ne 0 ]
+        then
+          echo "PR docs fail -- should be caught by build job"
+          exit 0
+        fi
+
+        # Generate diff between master and PR merge
         mkdir tmp_art
         git diff --exit-code > tmp_art/new_contents.diff
         if [ $? -eq 1 ]
