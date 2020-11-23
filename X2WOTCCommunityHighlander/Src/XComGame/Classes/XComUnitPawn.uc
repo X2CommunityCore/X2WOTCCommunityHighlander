@@ -2045,8 +2045,15 @@ simulated function EquipWeapon( XComWeapon kWeapon, bool bImmediate, bool bIsRea
 		{
 			WeaponTemplate = X2WeaponTemplate(Item.GetMyTemplate());
 			if( bIsFemale && !IsA('XComMECPawn') && (WeaponTemplate == none || !WeaponTemplate.bUseArmorAppearance))
+			{
+				// Begin Issue #921
+				// WeaponScale is 0.85 for female soldiers, and vanilla code path hard sets this value to any weapon equipped on a female soldier,
+				// which makes it impossible to use our own custom mesh scale for a weapon, e.g. set in WeaponInitialized().
+				// To fix this, the adjusted code will multiply the pawn's WeaponScale by weapon's own MeshScale before setting it to the weapon.
+				WeaponScale *= kWeapon.Mesh.Scale;
+				// End Issue #921
 				kWeapon.Mesh.SetScale(WeaponScale);
-
+			}
 			Mesh.AttachComponentToSocket(kWeapon.Mesh, kWeapon.DefaultSocket);
 			kWeapon.Mesh.CastShadow = true;
 		}
@@ -2546,7 +2553,12 @@ simulated function AttachItem(Actor a, name SocketName, bool bIsRearBackPackItem
 		{
 			// For non-MEC females, all weapons are scaled to 75% -- jboswell
 			if (bIsFemale && !IsA('XComMECPawn'))
+			{	
+				// Begin Issue #921
+				WeaponScale *= MeshComp.Scale;
+				// End Issue #921
 				MeshComp.SetScale(WeaponScale);
+			}
 			// `log("Pawn::AddItem:" @ MeshComp @ SocketName);
 			Mesh.AttachComponentToSocket(MeshComp, SocketName);
 
