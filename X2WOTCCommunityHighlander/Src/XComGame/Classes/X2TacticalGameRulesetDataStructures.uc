@@ -108,6 +108,7 @@ enum EInventorySlot
 	eInvSlot_AuxiliaryWeapon,
 	eInvSlot_AModMedical,
 	eInvSlot_ArmorMod,
+	eInvSlot_TacticalGadget,
 
 	// Marker slot, don't use
 	eInvSlot_END_TEMPLATED_SLOTS,
