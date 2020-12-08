@@ -3076,7 +3076,9 @@ function ImproveCombatIntelligence()
 	AbilityPoints += Round(APIncrease);
 }
 
-private function int GetResistanceHeroAPAmount(int SoldierRank, ECombatIntelligence eComInt)
+// Issue #915: Deprivatized this function as it has no side effects, i.e. it
+// doesn't change any state.
+function int GetResistanceHeroAPAmount(int SoldierRank, ECombatIntelligence eComInt)
 {
 	local XComGameStateHistory History;
 	local XComGameState_HeadquartersResistance ResHQ;
@@ -3112,7 +3114,9 @@ private function int GetResistanceHeroAPAmount(int SoldierRank, ECombatIntellige
 	return APReward;
 }
 
-private function int GetBaseSoldierAPAmount(ECombatIntelligence eComInt)
+// Issue #915: Deprivatized this function as it has no side effects, i.e. it
+// doesn't change any state.
+function int GetBaseSoldierAPAmount(ECombatIntelligence eComInt)
 {
 	local XComGameStateHistory History;
 	local XComGameState_HeadquartersResistance ResHQ;
