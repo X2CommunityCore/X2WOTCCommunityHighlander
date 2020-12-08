@@ -106,6 +106,8 @@ enum EInventorySlot
 	eInvSlot_ExtraBackpack,
 	eInvSlot_SparkGrenadePocket,
 	eInvSlot_AuxiliaryWeapon,
+	eInvSlot_AModMedical,
+	eInvSlot_ArmorMod,
 	eInvSlot_TacticalGadget,
 
 	// Marker slot, don't use
