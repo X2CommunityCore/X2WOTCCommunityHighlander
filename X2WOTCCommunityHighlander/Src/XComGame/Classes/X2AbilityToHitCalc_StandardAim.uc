@@ -374,6 +374,7 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 				//  Add basic offense and defense values
 				AddModifier(UnitState.GetBaseStat(eStat_Offense), class'XLocalizedData'.default.OffenseStat, m_ShotBreakdown, eHit_Success, bDebugLog);
 				// Single Line Change for Issue #313
+				/// HL-Docs: ref:GetStatModifiersFixed
 				UnitState.GetStatModifiersFixed(eStat_Offense, StatMods, StatModValues);
 				for (i = 0; i < StatMods.Length; ++i)
 				{
@@ -534,6 +535,7 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 		{
 			AddModifier(UnitState.GetBaseStat(eStat_CritChance), class'XLocalizedData'.default.CharCritChance, m_ShotBreakdown, eHit_Crit, bDebugLog);
 			// Single Line Change for Issue #313
+			/// HL-Docs: ref:GetStatModifiersFixed
 			UnitState.GetStatModifiersFixed(eStat_CritChance, StatMods, StatModValues);
 			for (i = 0; i < StatMods.Length; ++i)
 			{

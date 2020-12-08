@@ -952,13 +952,46 @@ simulated function int GetClipSize()
 	return ClipSize;
 }
 
+
 simulated function bool HasInfiniteAmmo()
 {
+	// Start Issue #842
+	local bool bHasInfiniteAmmo;
+
 	GetMyTemplate();
 	if (m_ItemTemplate.IsA('X2WeaponTemplate'))
-		return X2WeaponTemplate(m_ItemTemplate).InfiniteAmmo;
+		bHasInfiniteAmmo = X2WeaponTemplate(m_ItemTemplate).InfiniteAmmo;
 
-	return false;
+	return TriggerOverrideHasInfiniteAmmo(bHasInfiniteAmmo);
+	// End Issue #842
+}
+
+/// HL-Docs: feature:OverrideHasInfiniteAmmo; issue:842; tags:tactical,events
+/// Allows listeners to override the result of HasInfiniteAmmo
+///
+/// ```unrealscript
+/// EventID: OverrideHasInfiniteAmmo
+/// EventData: XComLWTuple {
+///     Data: [
+///       out bool bHasInfiniteAmmo
+///     ]
+/// }
+/// EventSource: XComGameState_Item (self)
+/// NewGameState: no
+/// ```
+private function bool TriggerOverrideHasInfiniteAmmo(bool bHasInfiniteAmmo)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideHasInfiniteAmmo';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = bHasInfiniteAmmo;
+
+	`XEVENTMGR.TriggerEvent('OverrideHasInfiniteAmmo', Tuple, self);
+
+	return Tuple.Data[0].b;
 }
 
 simulated function int GetItemSize()

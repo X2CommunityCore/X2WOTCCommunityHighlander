@@ -1,5 +1,7 @@
 # Change Log
-All notable changes to Vanilla 'War Of The Chosen' Behaviour will be documented in this file.
+
+*This change log is deprecated; it contains historical changes that have not been documented using the new [documentation tool and site](https://x2communitycore.github.io/X2WOTCCommunityHighlander/).  
+No new changes should be added here. Documented features should be removed from this list. Conversely, this is a list of features to document.*
 
 ## General
 
@@ -50,18 +52,13 @@ RunPriorityGroup=RUN_STANDARD
 - Triggers the events `OverrideUIArmoryScale`, `OverrideUIVIPScale`, and `OverrideCharCustomizationScale` for strategy unit scaling (#229)
 - Triggers the event `RegionOutpostBuildStart` to add a strategy reward similar to the 'Resistance Network' resistance order, but for Radio Relays instead of Network Contacts. (#279)
 - Triggers the event `GeoscapeFlightModeUpdate` to allow mods to respond to geoscape mode change (#358)
-- Triggers the event `UIAvengerShortcuts_ShowCQResistanceOrders` to allow to override the presence of Resistance Orders button in `UIAvengerShortcuts` (#368)
-- Triggers the event `Geoscape_ResInfoButtonVisible` to allow to override the visibility of resistance orders button in `UIStrategyMap_HUD` (#365)
 - Triggers the event `NumCovertActionsToAdd` to allow mods to modfiy number of Covert Actions (#373)
 - Triggers the event `CompleteRespecSoldier` when a training center soldier respec was completed. (#339)
 - Triggers the events `UIArmory_WeaponUpgrade_SlotsUpdated` and `UIArmory_WeaponUpgrade_NavHelpUpdated`
   in `UIArmory_WeaponUpgrade` (#417)
-- Triggers the event `GetCovertActionEvents_Settings` to allow showing all covert actions in the correct order in the event queue (#391)
 - Triggers the event `CovertActionRisk_AlterChanceModifier` when calculated covert action risks. (#434)
 - Triggers the event `AllowDarkEventRisk` during XComGameState_CovertAction::EnableDarkEventRisk to allow alterations of standard logic (#434)
 - Triggers the event `AllowDarkEventRisk` during XComGameState_CovertAction::CreateRisks to allow alterations of standard logic (#692)
-- Triggers the event `UIStrategyPolicy_ScreenInit` at the end of UIStrategyPolicy::InitScreen (#440)
-- Triggers the event `UIStrategyPolicy_ShowCovertActionsOnClose` on UIStrategyPolicy::CloseScreen call (#440)
 - Triggers the event `CovertAction_ShouldBeVisible` on XComGameState_CovertAction::ShouldBeVisible call (#438)
 - Triggers the event `CovertAction_CanInteract` on XComGameState_CovertAction::CanInteract call (#438)
 - Triggers the event `CovertAction_ActionSelectedOverride` on XComGameState_CovertAction::DisplaySelectionPrompt call (#438)
@@ -70,7 +67,6 @@ RunPriorityGroup=RUN_STANDARD
 - Triggers the event `CovertAction_ModifyNarrativeParamTag` on XComGameState_CovertAction::GetNarrative call (#438)
 - Triggers the event `ShouldCleanupCovertAction` to allow mod control over Covert Action deletion. (#435)
 - Triggers the event `BlackMarketGoodsReset` when the Black Market goods are reset (#473)
-- Triggers the event `OverrideImageForItemAvaliable` to allow mods to override the image shown in eAlert_ItemAvailable (#491)
 - Triggers the event `OverrideCurrentDoom` to allow mods to override doom amount for doom updates (#550)
 - Triggers the event `PreEndOfMonth` to notify mods that the game is about to start its end-of-month processing (#539)
 - Triggers the event `ProcessNegativeIncome` to allow mods to do their own processing when XCOM's income at the
@@ -110,17 +106,12 @@ RunPriorityGroup=RUN_STANDARD
 - Triggers the event `CovertActionAllowCheckForProjectOverlap` to allow mods to forbid the "de-bunching" logic
   on CA start (#584)
 - Triggers the event `AllowActionToSpawnRandomly` to allow mods to prevent certain CAs from being randomly spawned (#594)
-- Triggers the event `OverridePromotionUIClasses` to allow mods to override the UI classes used for the
-  three different promotion screens (#600)
 - Triggers the event `OverrideRespecSoldierProjectPoints` to allow mods to customize how long it should
   take to respec a given soldier (#624)
 - Triggers the event `OverrideScienceScore` to allow mods to override the XCOM HQ science score, for
   example to add their own bonuses or to remove scientists that are engaged in other activities.
 - Triggers the event `CanTechBeInspired` to allow mods to block techs from being inspired, even if they
   meet the vanilla game's conditions for it (#633)
-- Triggers the event `OverrideMissionImage` to allow mods to customize mission's image (used in UIMission and subclasses) (#635)
-- Triggers the event `UIResistanceReport_ShowCouncil` to allow mods to override whether the council guy (and his remarks)
-  is shown on the end-of-month report or not (#663)
 - Triggers the event `OverrideNextRetaliationDisplay` to allow mods to customize and/or enable/disable "next retaliation"
   display in `UIAdventOperations` (#667)
 - Triggers the event `ItemAddedToSlot` & `ItemRemovedFromSlot` to allow mods to change Items that have been Equipped/Unequipped during runtime(#694)
@@ -132,7 +123,6 @@ RunPriorityGroup=RUN_STANDARD
 
 ### Modding Exposures
 - Allows mods to add custom items to the Avenger Shortcuts (#163)
-- UIScanButton now calls OnMouseEventDelegate (#483). Note: DO NOT call ProcessMouseEvents, just set the delegate directly
 - Remove `private` from `X2AIBTBehaviorTree.Behaviors` so that mods can change the behavior trees without
   overwriting all the necessary entries (#410)
 - Removed `protectedwrite` from `AcquiredTraits`, `PendingTraits`, and `CuredTraits` in `XComGameState_Unit`, allowing Traits to be modified by external sources (#681)
@@ -154,11 +144,6 @@ RunPriorityGroup=RUN_STANDARD
 - Class mods adding an eight rank will now interact better with classes with seven ranks (#1)
 - Allow `XComGameState_WorldRegion::DestinationReached` to use any XCGS_GeoscapeEntity class (#443)
 - Add AmbushMissionSource name property to XComGameState_CovertAction; mods can now specify the ambush mission on creation of Action GameState (#485)
-- Customization localizations now picked up for Torso/Legs/Arms. If the TemplateName already
-  contains the parttype name (ie Torso/Legs/Arms), then the object name in the localization file
-  matches as for other parts (in particular this means Anarchy's Children localizations which already exist in the files
-  are picked up automatically). Otherwise, "_Torso"/"_Legs"/"_Arms" is appended to the template name
-  to create the unique object name. (#328)
 
 ### Fixes
 - Fix an issue in base game where strategy X2EventListenerTemplates only
@@ -271,8 +256,6 @@ RunPriorityGroup=RUN_STANDARD
 - Allow aliens and other teams to properly register non-XCOM unit locations to adjust their positions accordingly (#619)
 
 ### Fixes
-- Fixed XCGS_Unit::GetStatModifiers() as XCGS_Unit::GetStatModifiersFixed(),
-  X2AbilityToHitCalc_StandardAim, the only vanilla user of this method, changed to match(#313)
 - Allow abilities that deal damage without a source weapon to still display
   their damage with psi flyovers (Psi Bomb, mod abilities) (#326)
 - Make disorient reapply to disoriented units so that things like flashbangs can
@@ -307,18 +290,10 @@ RunPriorityGroup=RUN_STANDARD
 - `AbilityTagExpandHandler_CH` expands vanilla AbilityTagExpandHandler to allow reflection
 
 ### Event Hooks
-- Triggers the events `SoldierClassIcon`, `SoldierClassDisplayName`,
-  `SoldierClassSummary` that allow replacement of the class icon/display
-  name/summary dynamically e.g. depending on UnitState or Soldier Loadout,
-  and adds accessor functions for those to XComGameState_Unit. (#106)
-- `GetPCSImageTuple` added to allow customising PCS Image string (#110)
 - Triggers the event `OverrideHasHeavyWeapon` that allows to override the result of `XComGameState_Unit.HasHeavyWeapon` (#172)
 - `OverrideItemMinEquipped` added to allow mods to override the min number of equipped items in a slot (#171)
 - `AddConversation` added to allow mods to change narrative behavior before they are played (#204)
 - `OverrideRandomizeAppearance` added to allow mods to block updating appearance when switching armors (#299)
-- `XComGameState_Unit` triggers `SoldierRankName`, `SoldierShortRankName` and
-  `SoldierRankIcon` events that allow listeners to override the those particular
-  properties of a soldier's rank, i.e. rank name, short name and icon (#408)
 
 ### Configuration
 - Able to list classes as excluded from AWC Skill Rolling, so they can still
@@ -364,8 +339,6 @@ RunPriorityGroup=RUN_STANDARD
 - Improve performance by removing unnecessary calls to UpdateAllMeshMaterials (#186)
 - Adds ability to have weapon upgrades modify damage, and properly accounts for
   any damage upgrades in the UI. (#237)
-- Allow Human Pawns to freely switch between custom heads and base pawn heads,
-  eliminating the need for head mods to include invisible heads (#219)
 - Changes to "Legacy Operations" squad loadout and ability selections are now always applied for the first mission. Note any non-AWC-eligble abilities added need to exist in the Soldier Classes ability tree (#307)
 - For "Legacy Operations" changes to squad members' Soldier Class, and changes to the Soldier Classes themselves, are taken into account for pre-existing operations.
   Particularly important for Central and Shen, whose custom Soldier Classes ability tree contain only the abilities granted by their squad progression (#307)
@@ -381,16 +354,10 @@ RunPriorityGroup=RUN_STANDARD
   flag on `XComGameState_Unit`. This behavior is gated behind the new `CHHelpers.PreserveProxyUnitData`
   config variable. (#465)
 - Adds CustomDeathAnimationName property to X2Action_Death that allows overriding the default death animations (#488)
-- Change `GetScreen()` and `IsCurrentClass()` on `UIScreenStack` to take into account subclasses
-  by default. This is a breaking change but fixes a lot of problems with vanilla and mod code that
-  mistakenly ignores subclasses of screens, particularly those provided by mod. The original behavior
-  can still be accessed via new `GetScreen_CH()` and `IsCurrentClass_CH()`. (#290)
 - Allow PCS granting PsiOffense to be equiped by other classes than PsiOperative (#602)
 - Added Inventory Slots `eInvSlot_Wings` and `eInvSlot_ExtraBackpack`. (#678)
 
 ### Fixes
-- Fixes game terminating SoundCue narrative moments after three seconds because
-  it assumes they didn't play at all. (#66)
 - Fixes UIPanels animating in with a huge delay when they are direct child panels of
   UIScreen (#341)
 - Appearances now update correctly when a part change differs only by material override (#354)

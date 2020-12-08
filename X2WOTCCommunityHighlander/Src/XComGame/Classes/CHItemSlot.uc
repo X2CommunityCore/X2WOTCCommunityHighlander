@@ -54,7 +54,8 @@ var bool IsEquippedSlot;
 var bool BypassesUniqueRule;
 
 // Can this slot hold more than one item (similar to Utility Slots)?
-// Imposes the limitation that its items can not be shown on cinematic pawns (Armory, SquadSelect, tactical Matinee).
+// Imposes the limitation that its items can be shown on cinematic pawns (Armory, SquadSelect, tactical Matinee)
+// only if handled by delegates via Issue #885.
 var bool IsMultiItemSlot;
 
 // Minimum number of items equipped on this slot, set to -1 to fill until all multi slots is full.
@@ -71,11 +72,13 @@ var bool IsSmallSlot;
 // The code behind this involves a lot of legacy Inventory code from EU/EW that I'm not entirely comfortable with.
 // It's best to follow the vanilla rule for slots involved, which is "only do it for weapons" (primary-septenary + heavy)
 // This seems to be mandatory for weapons that have a sheath mesh, as well as gremlins / bits
+// Multi-Item slots need to be additionally handled by a <ShouldDisplayMultiSlotItemInTacticalDelegate> delegate (see Issue #885). 
 var bool NeedsPresEquip;
 
 // Items in this slot will be shown in the Armory, in SquadSelect, and tactical Matinees
-// Can not be a multi-item slot due to UIPawnMgr restrictions, but other than that, you should se it to
-// true for all slots that the user should be able to see on the Unit Pawn (see XComUnitPawn::CreateVisualInventoryAttachments())
+// You should se it to "true" for all slots that the user should be able to see on the Unit Pawn 
+// (see XComUnitPawn::CreateVisualInventoryAttachments())
+// Multi-Item slots need to be additionally handled by a <ShouldDisplayMultiSlotItemInStrategyDelegate> delegate (see Issue #885). 
 var bool ShowOnCinematicPawns;
 
 // DELEGATES
@@ -371,22 +374,75 @@ static function bool SlotShowItemInLockerList(EInventorySlot Slot, XComGameState
 	local X2GrenadeTemplate GrenadeTemplate;
 	local X2EquipmentTemplate EquipmentTemplate;
 
+	// Start Issue #844
+	local bool bSlotShowItemInLockerList;
+	
 	switch(Slot)
 	{
 		case eInvSlot_GrenadePocket:
 			GrenadeTemplate = X2GrenadeTemplate(ItemTemplate);
-			return GrenadeTemplate != none;
+			bSlotShowItemInLockerList = GrenadeTemplate != none;
+			break;
 		case eInvSlot_AmmoPocket:
-			return ItemTemplate.ItemCat == 'ammo';
+			bSlotShowItemInLockerList = ItemTemplate.ItemCat == 'ammo';
+			break;
 		default:
 			if (SlotIsTemplated(Slot))
 			{
-				return GetTemplateForSlot(Slot).ShowItemInLockerList(Unit, ItemState, ItemTemplate, CheckGameState);
+				bSlotShowItemInLockerList = GetTemplateForSlot(Slot).ShowItemInLockerList(Unit, ItemState, ItemTemplate, CheckGameState);
 			}
-			EquipmentTemplate = X2EquipmentTemplate(ItemTemplate);
-			// xpad is only item with size 0, that is always equipped
-			return (EquipmentTemplate != none && EquipmentTemplate.iItemSize > 0 && EquipmentTemplate.InventorySlot == Slot);
+			else
+			{
+				EquipmentTemplate = X2EquipmentTemplate(ItemTemplate);
+				// xpad is only item with size 0, that is always equipped
+				bSlotShowItemInLockerList = (EquipmentTemplate != none && EquipmentTemplate.iItemSize > 0 && EquipmentTemplate.InventorySlot == Slot);
+			}
+			break;
 	}
+
+	return TriggerOverrideShowItemInLockerList(bSlotShowItemInLockerList, Slot, Unit, ItemState, CheckGameState);
+	// End Issue #844
+}
+
+
+/// HL-Docs: feature:ShowItemInLockerList; issue:844; tags:strategy,events
+/// Allows listeners to override the result of SlotShowItemInLockerList
+///
+/// ```unrealscript
+/// EventID: OverrideShowItemInLockerList
+/// EventData: XComLWTuple {
+///     Data: [
+///       inout bool bSlotShowItemInLockerList,
+///       inout EInventorySlot Slot,
+///       inout XComGameState_Unit UnitState
+///     ]
+/// }
+/// EventSource: XComGameState_Item ItemState
+/// GameState: optional
+/// ```
+private static function bool TriggerOverrideShowItemInLockerList(
+	bool bSlotShowItemInLockerList,
+	EInventorySlot Slot,
+	XComGameState_Unit Unit,
+	XComGameState_Item ItemState,
+	XComGameState CheckGameState
+)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideShowItemInLockerList';
+	Tuple.Data.Add(3);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = bSlotShowItemInLockerList;
+	Tuple.Data[1].kind = XComLWTVInt;
+	Tuple.Data[1].i = Slot;
+	Tuple.Data[2].kind = XComLWTVObject;
+	Tuple.Data[2].o = Unit;
+
+	`XEVENTMGR.TriggerEvent('OverrideShowItemInLockerList', Tuple, ItemState, CheckGameState);
+
+	return Tuple.Data[0].b;
 }
 
 

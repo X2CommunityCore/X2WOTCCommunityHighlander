@@ -516,13 +516,16 @@ simulated function ApplyLoadoutFromGameState(XComGameState_Unit UnitState, XComG
 	local CHItemSlot SlotIter;
 	local EInventorySlot Slot;
 
+	// Variable for Issue #885
+	local array<EInventorySlot> PresEquipMultiSlots;
+
 	kInventory = GetInventory();
 	if( kInventory == none )
 	{
 		kInventory = Spawn(class'XGInventory', Owner);
 		SetInventory(kInventory);
 		kInventory.PostInit();
-	}	
+	}
 
 	foreach UnitState.InventoryItems(ItemReference)
 	{
@@ -545,7 +548,7 @@ simulated function ApplyLoadoutFromGameState(XComGameState_Unit UnitState, XComG
 			if( kItem != none && (kItem.m_kOwner == none || kItem.m_kEntity == none) )
 			{
 				kItem.m_kOwner = self;
-				kItem.m_kEntity = kItem.CreateEntity(ItemState);		
+				kItem.m_kEntity = kItem.CreateEntity(ItemState);
 
 				ItemWeapon = XComWeapon(kItem.m_kEntity);
 				if( ItemWeapon != none )
@@ -557,7 +560,7 @@ simulated function ApplyLoadoutFromGameState(XComGameState_Unit UnitState, XComG
 			if( kItem != none && kItem.m_kEntity != none )
 			{
 				bMultipleItems = ItemState.ItemLocation == eSlot_RearBackPack;
-				kInventory.AddItem(kItem, ItemState.ItemLocation, bMultipleItems);		
+				kInventory.AddItem(kItem, ItemState.ItemLocation, bMultipleItems);
 			}
 		}
 	}
@@ -586,9 +589,17 @@ simulated function ApplyLoadoutFromGameState(XComGameState_Unit UnitState, XComG
 	SlotTemplates = class'CHItemSlot'.static.GetAllSlotTemplates();
 	foreach SlotTemplates(SlotIter)
 	{
-		if (!SlotIter.IsMultiItemSlot && SlotIter.NeedsPresEquip)
+		if (SlotIter.NeedsPresEquip)
 		{
-			PresEquipSlots.AddItem(SlotIter.InvSlot);
+			// Start Issue #885
+			if (SlotIter.IsMultiItemSlot)
+			{
+				PresEquipMultiSlots.AddItem(SlotIter.InvSlot);
+			}// End Issue #885
+			else
+			{
+				PresEquipSlots.AddItem(SlotIter.InvSlot);
+			}
 		}
 	}
 	foreach PresEquipSlots(Slot)
@@ -601,6 +612,11 @@ simulated function ApplyLoadoutFromGameState(XComGameState_Unit UnitState, XComG
 		}
 	}
 	// Issue #118 End
+	
+	// Issue #885 Start
+	PresEquipMultiSlots.AddItem(eInvSlot_Utility);
+	PresEquipMultiSlotItems(UnitState, FullGameState, kInventory, PresEquipMultiSlots);
+	// Issue #885 End
 
 	if (kInventory.m_kPrimaryWeapon != none)
 		kItemToEquip = kInventory.m_kPrimaryWeapon;
@@ -612,6 +628,36 @@ simulated function ApplyLoadoutFromGameState(XComGameState_Unit UnitState, XComG
 		kInventory.EquipItem( kItemToEquip, true, true );
 	}
 }
+
+// Issue #885 Start
+simulated private function PresEquipMultiSlotItems(XComGameState_Unit UnitState, XComGameState FullGameState, XGInventory kInventory, array<EInventorySlot> PresEquipMultiSlots)
+{
+	local array<XComGameState_Item> ItemStates;
+	local XComGameState_Item        ItemState;
+	local CHHelpers                 CHHelpersObj;
+	local XGWeapon                  ItemVis;
+	local EInventorySlot            PresEquipMultiSlot;
+
+	CHHelpersObj = class'CHHelpers'.static.GetCDO();
+	if (CHHelpersObj == none)
+	{
+		return;
+	}
+
+	foreach PresEquipMultiSlots(PresEquipMultiSlot)
+	{
+		ItemStates = UnitState.GetAllItemsInSlot(PresEquipMultiSlot,,, true);
+		foreach ItemStates(ItemState)
+		{
+			if (CHHelpersObj.ShouldDisplayMultiSlotItemInTactical(UnitState, ItemState, PresEquipMultiSlot, self, FullGameState))
+			{
+				ItemVis = XGWeapon(ItemState.GetVisualizer());
+				kInventory.PresEquip(ItemVis, true);
+			}
+		}
+	}
+}
+// Issue #885 End
 
 //-------------------------------------------------------------------
 // Swap between any equippable weapons on this unit
@@ -697,7 +743,7 @@ simulated function ConstantCombatSuppress(bool bSuppress, XGUnit kTarget)
 
 	if (m_bSuppressing)
 	{
-		m_kForceConstantCombatTarget = kTarget;		
+		m_kForceConstantCombatTarget = kTarget;
 		kTarget.m_kConstantCombatUnitTargetingMe = self;
 	}
 	else 

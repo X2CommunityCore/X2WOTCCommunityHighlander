@@ -205,10 +205,19 @@
     <Content Include="Src\XComGame\Classes\UIHackingScreen.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIInventory_Implants.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIInventory_LootRecovered.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIListItemString.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIMission.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIMission_AlienFacility.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UINarrativeMgr.uc">
@@ -227,6 +236,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIAvengerHud_SoldierStatusIndicatorContainer.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIPawnMgr.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIPersonnel.uc">
@@ -286,10 +298,13 @@
     <Content Include="Src\XComGame\Classes\UISquadSelect_UtilityItem.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\XComGame\Classes\UIStaffSlot.uc">
+    <Content Include="Src\XComGame\Classes\UIStaffContainer.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIStatList.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIStaffSlot.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIStrategyMap.uc">
@@ -344,6 +359,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIUtilities_Colors.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2Action_Fire.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2AIBTBehaviorTree.uc">
@@ -403,6 +421,9 @@
     <Content Include="Src\XComGame\Classes\X2MeleePathingPawn.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2PathTargetPathingPawn.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2SitRepEffectTemplate.uc">
       <SubType>Content</SubType>
     </Content>
@@ -451,6 +472,9 @@
     <Content Include="Src\XComGame\Classes\X2StrategyGame_SimCombat.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2SwordSliceSlashPathingPawn.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2TacticalGameRuleset.uc">
       <SubType>Content</SubType>
     </Content>
@@ -458,6 +482,12 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2TargetingMethod_EvacZone.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2TargetingMethod_MeleePath.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2TargetingMethod_PathTarget.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2TargetingMethod_RocketLauncher.uc">
@@ -488,6 +518,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameStateContext_HeadquartersOrder.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComGameStateContext_Kismet.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameStateContext_StrategyGameRule.uc">
@@ -574,6 +607,9 @@
     <Content Include="Src\XComGame\Classes\XComParcelManager.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComPathingPawn.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComSoundManager.uc">
       <SubType>Content</SubType>
     </Content>
@@ -587,6 +623,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComTacticalController.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComTacticalInput.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComTacticalMissionManager.uc">

@@ -24,7 +24,7 @@ var() int AttacksReceived;							// The number of attacks received by the unit t
 var StateObjectReference CreatedObjectReference;    // Used by various effect classes that need to track what they created.
 
 var private float DamageTakenThisFullTurn;
-var private int GrantsThisTurn;                     // Used sort of how you want. Resets automatically when the effect is ticked (assuming it is).
+var /* private */ int GrantsThisTurn;                     // Used sort of how you want. Resets automatically when the effect is ticked (assuming it is).
 var int FullTurnsTicked;
 
 var array<StatChange> StatChanges;                  //  Persistent stat changes are tracked here, as they may be dynamic

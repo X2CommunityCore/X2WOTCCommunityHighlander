@@ -377,6 +377,67 @@ simulated function DamageTypeHitEffectContainer GetDamageTypeHitEffectContainer(
 	return DamageEffectContainer;
 }
 
+/// HL-Docs: feature:OverrideHitEffects; issue:825; tags:tactical
+/// Allows listeners to override the default behavior of XComUnitPawn.PlayHitEffects
+/// This is especially useful for preventing the hardcoded templar fx for 
+/// eHit_Parry, eHit_Reflect and eHit_Deflect which play for any abilities that utilizing these hit results.
+/// If OverrideHitEffect is set to true the PlayHitEffects function will return early and the default behavior is ommited.
+///
+/// ```unrealscript
+/// EventID: OverrideHitEffects
+/// EventData: XComLWTuple {
+///     Data: [
+///       out bool OverrideHitEffect,
+///       inout float Damage,
+///       inout Actor InstigatedBy,
+///       inout vector HitLocation,
+///       inout name DamageTypeName,
+///       inout vector Momentum,
+///       inout bool bIsUnitRuptured,
+///       inout EAbilityHitResult HitResult,
+///     ]
+/// }
+/// EventSource: self (XComUnitPawn)
+/// NewGameState: no
+/// ```
+simulated private function bool TriggerOnOverrideHitEffects(
+	float Damage,
+	Actor InstigatedBy,
+	vector HitLocation,
+	name DamageTypeName,
+	vector Momentum,
+	bool bIsUnitRuptured,
+	EAbilityHitResult HitResult
+)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideHitEffects';
+	Tuple.Data.Add(8);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = false; // Override default hit effects
+	Tuple.Data[1].kind = XComLWTVFloat;
+	Tuple.Data[1].f = Damage;
+	Tuple.Data[2].kind = XComLWTVObject;
+	Tuple.Data[2].o = InstigatedBy;
+	Tuple.Data[3].kind = XComLWTVVector;
+	Tuple.Data[3].v = HitLocation;
+	Tuple.Data[4].kind = XComLWTVName;
+	Tuple.Data[4].n = DamageTypeName;
+	Tuple.Data[5].kind = XComLWTVVector;
+	Tuple.Data[5].v = Momentum;
+	Tuple.Data[6].kind = XComLWTVBool;
+	Tuple.Data[6].b = bIsUnitRuptured;
+	Tuple.Data[7].kind = XComLWTVInt;
+	Tuple.Data[7].i = HitResult;
+
+	`XEVENTMGR.TriggerEvent('OverrideHitEffects', Tuple, self);
+
+	return Tuple.Data[0].b;
+}
+
+
 simulated function PlayHitEffects(float Damage, Actor InstigatedBy, vector HitLocation, name DamageTypeName, vector Momentum, bool bIsUnitRuptured, EAbilityHitResult HitResult= eHit_Success, optional TraceHitInfo ThisHitInfo )
 {
 	local XComPawnHitEffect HitEffect;
@@ -385,6 +446,13 @@ simulated function PlayHitEffects(float Damage, Actor InstigatedBy, vector HitLo
 	local XComPerkContentShared kPerkContent;
 	local DamageTypeHitEffectContainer DamageContainer;
 	local XGUnit SourceUnit;
+
+	// Start Issue #825
+	if (TriggerOnOverrideHitEffects(Damage, InstigatedBy, HitLocation, DamageTypeName, Momentum, bIsUnitRuptured, HitResult))
+	{
+		return;
+	}
+	// End Issue #825
 
 	// The HitNormal used to have noise applied, via "* 0.5 * VRand();", but S.Jameson requested 
 	// that it be removed, since he can add noise with finer control via the editor.  mdomowicz 2015_07_06
@@ -2027,6 +2095,9 @@ simulated function CreateVisualInventoryAttachments(UIPawnMgr PawnMgr, XComGameS
 	local CHItemSlot SlotIter;
 	local EInventorySlot Slot;
 
+	// Variable for Issue #885
+	local array<EInventorySlot> ValidMultiSlots;
+
 	PhotoboothAnimSets.Length = 0;
 
 	// Issue #118 Start, clean up and add mod added slots
@@ -2044,9 +2115,17 @@ simulated function CreateVisualInventoryAttachments(UIPawnMgr PawnMgr, XComGameS
 	SlotTemplates = class'CHItemSlot'.static.GetAllSlotTemplates();
 	foreach SlotTemplates(SlotIter)
 	{
-		if (!SlotIter.IsMultiItemSlot && SlotIter.ShowOnCinematicPawns)
+		if (SlotIter.ShowOnCinematicPawns)
 		{
-			ValidSlots.AddItem(SlotIter.InvSlot);
+			// Start Issue #885
+			if (SlotIter.IsMultiItemSlot)
+			{
+				ValidMultiSlots.AddItem(SlotIter.InvSlot);
+			} // End Issue #885
+			else
+			{
+				ValidSlots.AddItem(SlotIter.InvSlot);
+			}
 		}
 	}
 
@@ -2055,6 +2134,11 @@ simulated function CreateVisualInventoryAttachments(UIPawnMgr PawnMgr, XComGameS
 		CreateVisualInventoryAttachment(PawnMgr, Slot, UnitState, CheckGameState, bSetAsVisualizer, OffsetCosmeticPawn, bUsePhotoboothPawns, PhotoboothAnimSets, bArmorAppearanceOnly);
 	}
 	// Issue #118 End
+
+	// Issue #885 Start
+	ValidMultiSlots.AddItem(eInvSlot_Utility);
+	CreateVisualInventoryAttachmentsForMultiSlotItems(PawnMgr, UnitState, ValidMultiSlots, CheckGameState, bSetAsVisualizer, OffsetCosmeticPawn, bUsePhotoboothPawns, PhotoboothAnimSets, bArmorAppearanceOnly);
+	// Issue #885 End
 
 	if (bUsePhotoboothPawns)
 	{
@@ -2065,7 +2149,7 @@ simulated function CreateVisualInventoryAttachments(UIPawnMgr PawnMgr, XComGameS
 simulated function SpawnCosmeticUnitPawn(UIPawnMgr PawnMgr, EInventorySlot InvSlot, string CosmeticUnitTemplate, XComGameState_Unit OwningUnit, bool OffsetForArmory, bool bUsePhotoboothPawns = false)
 {
 	local X2CharacterTemplate EquipCharacterTemplate;
-	local XComUnitPawn ArchetypePawn, CosmeticPawn;	
+	local XComUnitPawn ArchetypePawn, CosmeticPawn;
 	local string ArchetypeStr;
 	local Vector PawnLoc;
 	local TAppearance UseAppearance;
@@ -2090,7 +2174,7 @@ simulated function SpawnCosmeticUnitPawn(UIPawnMgr PawnMgr, EInventorySlot InvSl
 	// Start Issue #380: Moved earlier because we want to SetAppearance() whether we create a new pawn or not
 	UseAppearance = OwningUnit.kAppearance;
 	UseAppearance.iArmorTint = UseAppearance.iWeaponTint;
-	UseAppearance.iArmorTintSecondary = UseAppearance.iArmorTintSecondary;	
+	UseAppearance.iArmorTintSecondary = UseAppearance.iArmorTintSecondary;
 	UseAppearance.nmPatterns = UseAppearance.nmWeaponPattern;
 	// End Issue #380
 	CosmeticPawn = PawnMgr.GetCosmeticArchetypePawn(InvSlot, OwningUnit.ObjectID, bUsePhotoboothPawns);
@@ -2263,7 +2347,7 @@ simulated function CreateVisualInventoryAttachment(UIPawnMgr PawnMgr, EInventory
 	local XComGameState_Item ItemState;
 	local X2EquipmentTemplate EquipmentTemplate;
 	local X2WeaponTemplate WeaponTemplate;
-	local bool bRegularItem;	
+	local bool bRegularItem;
 	local XComWeapon CurrentWeapon;
 	local int i;
 
@@ -2338,6 +2422,107 @@ simulated function CreateVisualInventoryAttachment(UIPawnMgr PawnMgr, EInventory
 		`log("CreateVisualInventoryAttachment could not find inventory item for slot" @ InvSlot, , 'XCom_Visualization');
 	}
 }
+
+// Issue #885 Start
+// Generally behaves in the same way as CreateVisualInventoryAttachment(), but it cycles through all items in all multi slots, 
+// and runs ShouldDisplayMultiSlotItemInStrategy callbacks for each to make the individual decision whether the item should be displayed on the unit.
+simulated private function CreateVisualInventoryAttachmentsForMultiSlotItems(UIPawnMgr PawnMgr, XComGameState_Unit UnitState, array<EInventorySlot> ValidMultiSlots, XComGameState CheckGameState, bool bSetAsVisualizer, bool OffsetCosmeticPawn, bool bUsePhotoboothPawns = false, optional out array<AnimSet> PhotoboothAnimSets, bool bArmorAppearanceOnly = false)
+{
+	local XGWeapon kWeapon;
+	local XComGameState_Item ItemState;
+	local array<XComGameState_Item> ItemStates;
+	local X2EquipmentTemplate EquipmentTemplate;
+	local X2WeaponTemplate WeaponTemplate;
+	local XComWeapon CurrentWeapon;
+	local int i, MultiSlotIndex;
+	local CHHelpers CHHelpersObj;
+	local EInventorySlot ValidMultiSlot;
+
+	CHHelpersObj = class'CHHelpers'.static.GetCDO();
+	if (CHHelpersObj == none || PawnMgr == none)
+	{
+		return;
+	}
+
+	foreach ValidMultiSlots(ValidMultiSlot)
+	{	
+		// The MultiSlotIndex is used to track the position of the item in the Multi Slot.
+		// It will be used make sure that each item has its own visualizer slot in the soldier's PawnInfo, so that if this item is replaced by another item, 
+		// the visualizer of the original item gets properly removed from the soldier's pawn.
+		MultiSlotIndex = -1;
+		ItemStates = UnitState.GetAllItemsInSlot(ValidMultiSlot, CheckGameState);
+
+		foreach ItemStates(ItemState)
+		{
+			// Increment index for each item in this Multi Slot.
+			MultiSlotIndex++;
+
+			if (!CHHelpersObj.ShouldDisplayMultiSlotItemInStrategy(UnitState, ItemState, ValidMultiSlot, self, CheckGameState))
+			{
+				continue;
+			}
+
+			if(bArmorAppearanceOnly)
+			{
+				WeaponTemplate = X2WeaponTemplate(ItemState.GetMyTemplate());
+				if(WeaponTemplate == none || WeaponTemplate.bUseArmorAppearance == false)
+				{
+					continue;
+				}
+			}
+		
+			EquipmentTemplate = X2EquipmentTemplate(ItemState.GetMyTemplate());
+			//Is this a cosmetic unit item?
+			if(EquipmentTemplate == none || EquipmentTemplate.CosmeticUnitTemplate == "")
+			{
+				kWeapon = XGWeapon(class'XGItem'.static.CreateVisualizer(ItemState, bSetAsVisualizer, self));
+
+				if(kWeapon == none)
+				{
+					continue;
+				}
+
+				if(kWeapon.m_kOwner != none)
+				{
+					kWeapon.m_kOwner.GetInventory().PresRemoveItem(kWeapon);
+				}
+
+				PawnMgr.AssociateMultiSlotWeaponPawn(MultiSlotIndex, ItemState.GetVisualizer(), UnitState.GetReference().ObjectID, self, ValidMultiSlot, bUsePhotoboothPawns);
+				kWeapon.UnitPawn = self;
+				kWeapon.m_eSlot = X2WeaponTemplate(ItemState.GetMyTemplate()).StowedLocation; // right hand slot is for Primary weapons
+				EquipWeapon(kWeapon.GetEntity(), true, false);
+					
+				if (bUsePhotoboothPawns)
+				{
+					CurrentWeapon = kWeapon.GetEntity();
+					if (CurrentWeapon == none)
+					{
+						continue;
+					}
+					// Add the weapon's animsets
+					for (i = 0; i < CurrentWeapon.CustomUnitPawnAnimsets.Length; ++i)
+					{
+						PhotoboothAnimSets.AddItem(CurrentWeapon.CustomUnitPawnAnimsets[i]);
+					}
+
+					if (UnitState.kAppearance.iGender == eGender_Female)
+					{
+						for (i = 0; i < CurrentWeapon.CustomUnitPawnAnimsetsFemale.Length; ++i)
+						{
+							PhotoboothAnimSets.AddItem(CurrentWeapon.CustomUnitPawnAnimsetsFemale[i]);
+						}
+					}
+				}
+			}
+			else 
+			{
+				// This is a cosmetic unit item, e.g. Gremlin. Currently there's a limitation that only cosmetic unit can be visible per inventory slot.
+				SpawnCosmeticUnitPawn(PawnMgr, ValidMultiSlot, EquipmentTemplate.CosmeticUnitTemplate, UnitState, OffsetCosmeticPawn, bUsePhotoboothPawns);
+			}
+		}   
+	}
+}
+// Issue #885 End
 
 // MHU - This function is used to move the weapon or item to a new socket on the unit WITHOUT
 //       equipping it. For example, applying the initial loadout or debugging when we don't have
