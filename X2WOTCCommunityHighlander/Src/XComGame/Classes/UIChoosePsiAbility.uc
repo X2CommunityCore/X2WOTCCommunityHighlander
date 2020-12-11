@@ -166,6 +166,7 @@ simulated function array<SoldierAbilityInfo> GetAbilities()
 	local name AbilityName;
 	local int iName;
 	local bool bAddAbility;
+	local name PreReqAbilityName;  // Issue #924
 
 	Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(m_UnitRef.ObjectID));
 
@@ -206,9 +207,14 @@ simulated function array<SoldierAbilityInfo> GetAbilities()
 					{
 						for (iName = 0; iName < AbilityTemplate.PrerequisiteAbilities.Length; iName++)
 						{
-							AbilityName = AbilityTemplate.PrerequisiteAbilities[iName];
-							if (!Unit.HasSoldierAbility(AbilityName)) // if the soldier does not have the prereq ability, replace it
+							// Start Issue #924
+							/// HL-Docs: ref:Bugfixes; issue:924
+							/// Prevent the psi ability training screen from showing duplicate abilities
+							PreReqAbilityName = AbilityTemplate.PrerequisiteAbilities[iName];
+							if (!Unit.HasSoldierAbility(PreReqAbilityName)) // if the soldier does not have the prereq ability, replace it
 							{
+								AbilityName = PreReqAbilityName;
+								// End Issue #924
 								AbilityTemplate = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager().FindAbilityTemplate(AbilityName);
 								ProgressAbility = Unit.GetSCATProgressionForAbility(AbilityName);
 
