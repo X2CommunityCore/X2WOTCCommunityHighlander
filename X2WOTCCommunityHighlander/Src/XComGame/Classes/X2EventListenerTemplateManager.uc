@@ -59,6 +59,28 @@ static function RegisterStrategyListeners()
 	}
 }
 
+// Start Issue #869
+//
+// Registers CHL event listeners that are configured to listen for
+// events during a new campaign start.
+static function RegisterCampaignStartListeners()
+{
+	local CHEventListenerTemplate ListenerTemplate;
+	local X2DataTemplate Template;
+
+	UnRegisterAllListeners();
+
+	foreach GetEventListenerTemplateManager().IterateTemplates(Template)
+	{
+		ListenerTemplate = CHEventListenerTemplate(Template);
+		if (ListenerTemplate != none && ListenerTemplate.RegisterInCampaignStart)
+		{
+			ListenerTemplate.RegisterForEvents();
+		}
+	}
+}
+// End Issue #869
+
 static function UnRegisterAllListeners()
 {
 	local X2EventListenerTemplate ListenerTemplate;

@@ -60,6 +60,14 @@ struct CHEventListenerTemplate_Event extends X2EventListenerTemplate_EventCallba
 	var int Priority;
 };
 
+// Variable for issue #869
+//
+/// HL-Docs: feature:RegisterInCampaignStart; issue:869; tags:strategy
+/// Specifies that a listener template should be registered before campaign
+/// initialization occurs so that it can respond to events fired during
+/// that initialization (strategy listeners don't receive those events).
+var bool RegisterInCampaignStart;
+
 var protected array<CHEventListenerTemplate_Event> CHEventsToRegister;
 
 function AddCHEvent(name Event, delegate<X2EventManager.OnEventDelegate> EventFn, optional EventListenerDeferral Deferral = ELD_OnStateSubmitted, optional int Priority = 50)

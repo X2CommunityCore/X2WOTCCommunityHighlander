@@ -135,6 +135,13 @@ static function XComGameState CreateStrategyGameStart(
 		LocalGameEngine.SetRandomSeeds(Seed);
 	}
 
+	// Start Issue #869
+	//
+	// Register campaign-start listeners after the start state has been created
+	// but before any campaign initialization has occurred.
+	class'X2EventListenerTemplateManager'.static.RegisterCampaignStartListeners();
+	// End Issue #869
+
 	//Create start time
 	class'XComGameState_GameTime'.static.CreateGameStartTime(StartState);
 
