@@ -239,7 +239,7 @@ static function bool IsEligibleStartRegion(XComGameState StartState, XComGameSta
 	{
 		LinkedRegionState = XComGameState_WorldRegion(StartState.GetGameStateForObjectID(RegionState.LinkedRegions[idx].ObjectID));
 
-		if(LinkedRegionState != none && LinkedRegionState.Continent == RegionState.Continent)
+		if(LinkedRegionState != none && TriggerOverrideAllowStartingRegionLink(StartState, RegionState, LinkedRegionState) /* Issue #774 */)
 		{
 			Count++;
 		}
@@ -247,6 +247,53 @@ static function bool IsEligibleStartRegion(XComGameState StartState, XComGameSta
 
 	return (Count > 1);
 }
+
+// Start Issue #774
+//
+/// HL-Docs: feature:OverrideAllowStartingRegionLink; issue:774; tags:strategy
+/// This event allows mods to override the default behavior for whether a region
+/// can be linked to a potential starting region. The default behavior is that
+/// the two regions must be in the same continent if they are to be linked.
+///
+/// To override that behavior, add a listener that has `RegisterInCampaignStart`
+/// set to `true` and within the listener function simply change the value of the
+/// `AllowLink` field in the given tuple data. For example, you could always set
+/// it to `true` to remove the constraints completely, so that a starting region
+/// can be linked to any neighboring region.
+///
+/// This event is triggered during a start state, which you can access via
+/// `XComGameStateHistory:GetStartState()`.
+///
+/// ```event
+/// EventID: OverrideAllowStartingRegionLink,
+/// EventData: [ in XComGameState_WorldRegion LinkedRegion, inout bool AllowLink ],
+/// EventSource: XComGameState_WorldRegion (PotentialStartRegion),
+/// NewGameState: none
+/// ```
+//
+// **NOTE** This function is public so that it can be called from `XComGameState_WorldRegion`.
+// It is not intended to be used by mods and hence it is **not** part of the highlander's
+// public API. Backwards compatibility is not guaranteed.
+static function bool TriggerOverrideAllowStartingRegionLink(
+	XComGameState StartState,
+	XComGameState_WorldRegion RegionState,
+	XComGameState_WorldRegion LinkedRegionState)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideAllowStartingRegionLink';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].kind = XComLWTVObject;
+	OverrideTuple.Data[0].o = LinkedRegionState;
+	OverrideTuple.Data[1].kind = XComLWTVBool;
+	OverrideTuple.Data[1].b = LinkedRegionState.Continent == RegionState.Continent; // Regions must be on same continent by default
+
+	`XEVENTMGR.TriggerEvent(OverrideTuple.Id, OverrideTuple, RegionState);
+
+	return OverrideTuple.Data[1].b;
+}
+// End Issue #774
 
 //---------------------------------------------------------------------------------------
 static function RemoveNonContinentLinks(XComGameState StartState, XComGameState_WorldRegion RegionState)
@@ -258,7 +305,7 @@ static function RemoveNonContinentLinks(XComGameState StartState, XComGameState_
 	{
 		LinkedRegionState = XComGameState_WorldRegion(StartState.GetGameStateForObjectID(RegionState.LinkedRegions[idx].ObjectID));
 
-		if(LinkedRegionState != none && LinkedRegionState.Continent != RegionState.Continent)
+		if(LinkedRegionState != none && !TriggerOverrideAllowStartingRegionLink(StartState, RegionState, LinkedRegionState) /* Issue #774 */)
 		{
 			RemoveLink(StartState, RegionState, LinkedRegionState);
 		}
