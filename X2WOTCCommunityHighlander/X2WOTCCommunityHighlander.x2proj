@@ -613,6 +613,9 @@
     <Content Include="Src\XComGame\Classes\XComGameState_MissionSite.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_RegionLink.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_ResistanceFaction.uc">
       <SubType>Content</SubType>
     </Content>
