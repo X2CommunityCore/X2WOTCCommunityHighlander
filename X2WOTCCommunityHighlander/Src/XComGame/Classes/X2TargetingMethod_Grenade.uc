@@ -207,6 +207,7 @@ function Update(float DeltaTime)
 	if(NewTargetLocation != CachedTargetLocation)
 	{		
 		GetTargetedActors(NewTargetLocation, CurrentlyMarkedTargets, Tiles);
+		CheckForTargetsOnTiles(CurrentlyMarkedTargets, Tiles);  // Issue #669
 		CheckForFriendlyUnit(CurrentlyMarkedTargets);	
 		MarkTargetedActors(CurrentlyMarkedTargets, (!AbilityIsOffensive) ? FiringUnit.GetTeam() : eTeam_None );
 		DrawAOETiles(Tiles);
@@ -215,6 +216,48 @@ function Update(float DeltaTime)
 
 	super.Update(DeltaTime);
 }
+
+// Start Issue #669
+/// HL-Docs: ref:GrenadesRequiringUnitsOnTargetedTiles; issue:669
+// Removes any marked targets that aren't on one of the given tiles. This is
+// most useful for grenades that apply an effect to the world where a target
+// must be on an affected tile to get any buffs or penalties associated with
+// that effect (for example smoke grenades). In certain situations, the
+// targeting will highlight a unit that won't be affected by world effects
+// like smoke.
+function CheckForTargetsOnTiles(out array<Actor> CurrentlyMarkedTargets, array<TTile>Tiles)
+{
+	local Actor TargetActor;
+	local XGUnit TargetUnit;
+	local XComGameState_Unit kUnitState;
+	local array<Actor> TargetsToRemove;
+
+	if (class'CHHelpers'.default.GrenadesRequiringUnitsOnTargetedTiles.Find(Ability.GetSourceWeapon().GetMyTemplateName()) == INDEX_NONE)
+	{
+		return;
+	}
+
+	foreach CurrentlyMarkedTargets(TargetActor)
+	{
+		TargetUnit = XGUnit(TargetActor);
+		if (TargetUnit != none )
+		{
+			kUnitState = TargetUnit.GetVisualizedGameState();
+			if (kUnitState != none)
+			{
+				if (class'Helpers'.static.FindTileInList(kUnitState.TileLocation, Tiles) == INDEX_NONE)
+				{
+					TargetsToRemove.AddItem (TargetActor);
+				}
+			}
+		}
+	}
+	foreach TargetsToRemove (TargetActor)
+	{
+		CurrentlyMarkedTargets.RemoveItem (TargetActor);
+	}
+}
+// End Issue #669
 
 function GetTargetLocations(out array<Vector> TargetLocations)
 {

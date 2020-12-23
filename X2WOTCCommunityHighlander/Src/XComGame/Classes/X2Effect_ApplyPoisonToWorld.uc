@@ -49,7 +49,7 @@ simulated function AddX2ActionsForVisualization_Tick(XComGameState VisualizeGame
 {
 }
 
-static simulated function bool FillRequiresLOSToTargetLocation( ) { return true; }
+static simulated function bool FillRequiresLOSToTargetLocation( ) { return !class'CHHelpers'.default.DisableExtraLOSCheckForPoison; /* Issue #669 */ }
 static simulated function int GetTileDataDynamicFlagValue() { return 16; }  //TileDataContainsPoison
 
 static simulated event AddEffectToTiles(Name EffectName, X2Effect_World Effect, XComGameState NewGameState, array<TilePosPair> Tiles, vector TargetLocation, float Radius, float Coverage, optional XComGameState_Unit SourceStateObject = none, optional XComGameState_Item SourceWeaponState = none, optional bool bUseFireChance)

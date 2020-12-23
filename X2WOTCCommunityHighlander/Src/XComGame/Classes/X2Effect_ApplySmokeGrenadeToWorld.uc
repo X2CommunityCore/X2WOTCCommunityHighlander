@@ -44,7 +44,7 @@ simulated function AddX2ActionsForVisualization_Tick(XComGameState VisualizeGame
 {
 }
 
-static simulated function bool FillRequiresLOSToTargetLocation( ) { return true; }
+static simulated function bool FillRequiresLOSToTargetLocation( ) { return !class'CHHelpers'.default.DisableExtraLOSCheckForSmoke; /* Issue #669 */ }
 
 static simulated function int GetTileDataNumTurns() 
 { 
