@@ -1800,7 +1800,7 @@ function int GetNumDarkEventsToPlay(XComGameState NewGameState)
 	/// EventID: OverrideDarkEventCount,
 	/// EventData: [
 	/// 	inout int NumEvents,
-	/// 	inout bool bChosenAddedEvent
+	/// 	in bool bChosenAddedEvent
 	/// ],
 	/// EventSource: XComGameState_HeadquartersAlien (AlienHQ),
 	/// NewGameState: yes
