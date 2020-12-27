@@ -6,12 +6,15 @@ Project("{5DAE07AF-E217-45C1-8DE7-FF99D6011E8A}") = "X2WOTCCommunityHighlander",
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Compiletest|XCOM 2 = Compiletest|XCOM 2
 		Debug|XCOM 2 = Debug|XCOM 2
 		Final release|XCOM 2 = Final release|XCOM 2
 		Release|XCOM 2 = Release|XCOM 2
 		Workshop stable version|XCOM 2 = Workshop stable version|XCOM 2
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D8026E40-05DA-4006-8708-C36137E37D8B}.Compiletest|XCOM 2.ActiveCfg = Compiletest|XCOM 2
+		{D8026E40-05DA-4006-8708-C36137E37D8B}.Compiletest|XCOM 2.Build.0 = Compiletest|XCOM 2
 		{D8026E40-05DA-4006-8708-C36137E37D8B}.Debug|XCOM 2.ActiveCfg = Debug|XCOM 2
 		{D8026E40-05DA-4006-8708-C36137E37D8B}.Debug|XCOM 2.Build.0 = Debug|XCOM 2
 		{D8026E40-05DA-4006-8708-C36137E37D8B}.Final release|XCOM 2.ActiveCfg = Final release|XCOM 2

@@ -6,9 +6,19 @@ error: ./test_src/UnrealScriptFile2.uc:12: missing key `tags`
 note: use `tags:` to specify an empty tag list
 error: ./test_src/UnrealScriptFile2.uc:15: missing key `issue`
 error: ./test_src/UnrealScriptFile2.uc:29: multiple `HL-Docs:` in one item
-error: ./test_src/UnrealScriptFile2.uc:47: bad indentation for HL-Include:
-error: ./test_src/UnrealScriptFile2.uc:50: bad indentation for HL-Include:
-error: ./test_src/UnrealScriptFile2.uc:43: unclosed HL-Include:
+error: ./test_src/UnrealScriptFile2.uc:45: event block has error: missing EventID
+error: ./test_src/UnrealScriptFile2.uc:47: event block has error: missing EventID
+error: ./test_src/UnrealScriptFile2.uc:52: event block has error: missing EventData
+error: ./test_src/UnrealScriptFile2.uc:55: event block has error: expected _TokenType.COLON (:) while parsing key EventID, found _TokenType.IDENT (RandomSyntaxErr1)
+error: ./test_src/UnrealScriptFile2.uc:61: event block has error: expected _TokenType.IDENT (data type) while parsing EventData, found _TokenType.LBRACE
+error: ./test_src/UnrealScriptFile2.uc:67: event block has error: expected _TokenType.COMMA (,) while parsing event specification after parsing EventID, found _TokenType.IDENT (EventData)
+error: ./test_src/UnrealScriptFile2.uc:73: event block has error: expected _TokenType.IDENT (source type) while parsing EventSource, found _TokenType.LBRACK
+error: ./test_src/UnrealScriptFile2.uc:79: event block has error: expected _TokenType.KW (inoutness) while parsing tuple param, found _TokenType.IDENT (bool)
+error: ./test_src/UnrealScriptFile2.uc:85: event block has error: expected _TokenType.IDENT (local name) while parsing EventData, found _TokenType.LBRACE
+error: ./test_src/UnrealScriptFile2.uc:91: event block has error: expected _TokenType.COMMA (,) while parsing event specification after parsing EventData, found _TokenType.LBRACK
+error: ./test_src/UnrealScriptFile2.uc:104: bad indentation for HL-Include:
+error: ./test_src/UnrealScriptFile2.uc:107: bad indentation for HL-Include:
+error: ./test_src/UnrealScriptFile2.uc:100: unclosed HL-Include:
 error: duplicate feature definition `Bugfixes`
 note: first definition due to builtin feature
 note: this definition at ./test_src/UnrealScriptFile2.uc:35
@@ -17,6 +27,7 @@ note: first definition at ./test_src/UnrealScriptFile2.uc:18
 note: this definition at ./test_src/UnrealScriptFile2.uc:21
 note: this definition at ./test_src/UnrealScriptFile2.uc:24
 error: missing base doc item for ref `DoesNotExist`
+ok: ./test_output/docs/misc/BadEventSyntax.md
 ok: ./test_output/docs/misc/BadSyntaxOne.md
 ok: ./test_output/docs/Bugfixes.md
 ok: ./test_output/docs/misc/DupeFeature.md
@@ -24,6 +35,8 @@ ok: ./test_output/docs/misc/FeatWithBadTag.md
 ok: ./test_output/docs/misc/FeatWithoutRest.md
 ok: ./test_output/docs/strategy/FeatureFile1.md
 ok: ./test_output/docs/tactical/IncorrectIndentation.md
+ok: ./test_output/docs/misc/TestEvent.md
+ok: ./test_output/docs/events.md
 error: file ./test_output/docs/noncooltag.md not found (`noncooltag` is an unknown tag)
 note: referred to by `FeatWithBadTag`
 ok: ./test_output/docs/cooltag.md

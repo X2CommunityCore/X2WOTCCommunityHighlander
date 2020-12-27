@@ -1,6 +1,6 @@
 Title: FeatWithoutRest
 
-<h1>FeatWithoutRest</h1>
+# FeatWithoutRest
 
 Tracking Issue: [#99999](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/99999)
 

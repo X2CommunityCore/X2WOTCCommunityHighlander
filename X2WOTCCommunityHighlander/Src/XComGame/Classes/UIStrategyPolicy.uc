@@ -1863,10 +1863,11 @@ simulated function CloseScreen()
 	/// Default: Show if `UIStrategyPolicy` was created as part of the end-of-month report
 	/// and no covert actions are in progress.
 	///
-	/// ```unrealscript
-	/// ID: UIStrategyPolicy_ShowCovertActionsOnClose,
-	/// Data: [inout bool ShouldShow],
-	/// Source: UIStrategyPolicy
+	/// ```event
+	/// EventID: UIStrategyPolicy_ShowCovertActionsOnClose,
+	/// EventData: [inout bool ShouldShow],
+	/// EventSource: UIStrategyPolicy,
+	/// NewGameState: none
 	/// ```
 	Tuple = new class'XComLWTuple';
 	Tuple.Id = 'UIStrategyPolicy_ShowCovertActionsOnClose';

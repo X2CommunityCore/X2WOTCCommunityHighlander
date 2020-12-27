@@ -333,11 +333,11 @@ static function CompleteStrategyFromTacticalTransfer()
 	/// other critical functions are processed. This event gives a way for mods
 	/// to change several aspects in the transition from tactical to strategy.
 	///
-	/// ```unrealscript
-	/// EventID: PreCompleteStrategyFromTacticalTransfer
-	/// EventData: None
-	/// EventSource: None
-	/// NewGameState: None
+	/// ```event
+	/// EventID: PreCompleteStrategyFromTacticalTransfer,
+	/// EventData: None,
+	/// EventSource: None,
+	/// NewGameState: none,
 	/// ```
 	`XEVENTMGR.TriggerEvent('PreCompleteStrategyFromTacticalTransfer');
 

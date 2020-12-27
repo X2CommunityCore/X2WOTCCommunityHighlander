@@ -29,14 +29,71 @@ class UnrealScriptFile2 extends Object;
 /// HL-Docs: feature:BadSyntaxToo; issue:6; tags:
 /// This should be part of BadSyntaxOne, BadSyntaxToo should not exist
 
-/// HL-Docs: feature:FeatWithBadTag; issue:7; tags:noncooltag
-/// Item with bad tag
+/// HL-Docs: feature:FeatWithBadTag; issue:7; tags:noncooltag,events
+/// Item with bad tags
 
 /// HL-Docs: feature:Bugfixes; issue:8; tags:
 /// Try to redefine Bugfixes
 
 /// HL-Docs: ref:DoesNotExist
 /// ref for non-existing feature
+
+/// HL-Docs: feature:BadEventSyntax; issue:11; tags:
+/// Event triggers, some with errors
+///
+/// First, an empty event
+/// ```event
+/// ```
+/// ```event
+/// EventData: none,
+/// EventSource: none,
+/// NewGameState: none,
+/// ```
+/// ```event
+/// EventID: OnlyAnID,
+/// ```
+/// ```event
+/// EventID RandomSyntaxErr1,
+/// EventData: none,
+/// EventSource: none,
+/// NewGameState: none,
+/// ```
+/// ```event
+/// EventID: RandomSyntaxErr2,
+/// EventData: { inout bool a },
+/// EventSource: none,
+/// NewGameState: none,
+/// ```
+/// ```event
+/// EventID: MissingComma
+/// EventData: none,
+/// EventSource: none,
+/// NewGameState: none,
+/// ```
+/// ```event
+/// EventID: EventSourceTuple,
+/// EventSource: [ inout bool a ],
+/// EventSource: none,
+/// NewGameState: none,
+/// ```
+/// ```event
+/// EventID: MissingInoutness,
+/// EventData: [ bool a ],
+/// EventSource: none,
+/// NewGameState: none,
+/// ```
+/// ```event
+/// EventID: BadLocalType,
+/// EventData: Actor ({),
+/// EventSource: none,
+/// NewGameState: none,
+/// ```
+/// ```event
+/// EventID: BadExtendedTuple,
+/// EventData: XComLWTuple [ inout bool a ],
+/// EventSource: none,
+/// NewGameState: none,
+/// ```
 
 function Abc()
 {

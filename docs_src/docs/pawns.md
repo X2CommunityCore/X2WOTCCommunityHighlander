@@ -1,4 +1,4 @@
-<h1>Pawns</h1>
+# Pawns
 
 In the context of XCOM 2, *Pawns* are the Unreal-3D representation of units and weapons.
 These Pawns define the 3D meshes and materials, their attachments, animations, and state.

@@ -5,6 +5,7 @@ Param(
     [string]$gamePath, # the path to your XCOM 2 installation ending in "XCOM2-WaroftheChosen"
     [switch]$final_release,
     [switch]$debug,
+    [switch]$include_compiletest,
     [switch]$stableModId
 )
 
@@ -129,7 +130,8 @@ function ValidateProjectFiles([string] $modProjectRoot, [string] $modName)
         # Loop through all files in subdirectories and fail the build if any filenames are missing inside the project file
         Get-ChildItem $modProjectRoot -Directory | Get-ChildItem -File -Recurse |
         ForEach-Object {
-            If (!($projContent | Select-String -Pattern $_.Name)) {
+            # Compiletest file is allowed to be missing because it's not commited and manually edited
+            If (!($_.Name -Match "CHL_Event_Compiletest.uc") -and !($projContent | Select-String -Pattern $_.Name)) {
                 $missingFiles.Add($_.Name)
             }
         }
@@ -254,6 +256,12 @@ Write-Host "Mirrored."
 Write-Host "Copying the mod's scripts to Src..."
 Copy-Item "$stagingPath\Src\*" "$sdkPath\Development\Src\" -Force -Recurse -WarningAction SilentlyContinue
 Write-Host "Copied."
+
+# Remove CHL_Event_Compiletest
+if ($include_compiletest -ne $true) {
+    Write-Host "Deleting *_Compiletest.uc"
+    Remove-Item "$sdkPath\Development\Src\" -Include "*_Compiletest.uc" -Recurse -WarningAction SilentlyContinue;
+}
 
 if ($final_release) {
     Write-Host "Updating version..."

@@ -1,4 +1,4 @@
-<h1>Compatibility</h1>
+# Compatibility
 
 Because the Highlander is a core mod that many different mods on the workshop depend on,
 it strives to not make any observable changes to the base game (save for bug fixes and features

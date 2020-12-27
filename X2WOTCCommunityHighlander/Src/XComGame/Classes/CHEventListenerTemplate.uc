@@ -2,11 +2,13 @@
 /// HL-Docs: feature:CHEventListenerTemplate; issue:4; tags:events
 /// Allows mods to set up Event Listener classes with specified Deferral and Priority, similar to X2AbilityTrigger_EventListener.
 ///	The `AddCHEvent` function accepts up to four arguments: 
-///	1) Name of the Event to listen for.
-///	2) EventFn to run when the event is triggered.
-///	3) Optional: Deferral (default deferral is ELD_OnStateSubmitted). 
-///	Go here for info on Deferrals: https://www.reddit.com/r/xcom2mods/wiki/index/events#wiki_deferral
-///	4) Optional: Priority (default priority is 50). Event listeners with the larger priority number are executed first.
+///
+///	1. Name of the Event to listen for.
+///	2. EventFn to run when the event is triggered.
+///	3. Optional: Deferral (default deferral is ELD_OnStateSubmitted). 
+///	Visit the [r/xcom2mods wiki](https://www.reddit.com/r/xcom2mods/wiki/index/events#wiki_deferral) for info on Deferrals.
+///	4. Optional: Priority (default priority is 50). Event listeners with the larger priority number are executed first.
+///
 /// Example use:
 /// ```unrealscript
 /// class X2EventListener_YourEventListener extends X2EventListener;
