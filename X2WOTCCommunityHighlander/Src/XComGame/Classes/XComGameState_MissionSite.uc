@@ -1903,8 +1903,8 @@ function string GetUIButtonIcon()
 /// ```event
 /// EventID: OverrideMissionSiteIconImage,
 /// EventData: [inout string ImagePath],
-/// EventSource: XComGameState_MissionSite (MissionSite)
-/// NewGameState: no
+/// EventSource: XComGameState_MissionSite (MissionSite),
+/// NewGameState: none
 /// ```
 
 // Start Issue #537
