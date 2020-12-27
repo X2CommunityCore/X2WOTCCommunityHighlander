@@ -1897,6 +1897,16 @@ function string GetUIButtonIcon()
 	return StrButtonIcon;
 }
 
+/// HL-Docs: feature:OverrideMissionSiteIconImage; issue:537; tags:ui
+/// Random event test:
+///
+/// ```event
+/// EventID: OverrideMissionSiteIconImage,
+/// EventData: [inout string ImagePath],
+/// EventSource: XComGameState_MissionSite (MissionSite)
+/// NewGameState: no
+/// ```
+
 // Start Issue #537
 //
 // Fires an 'OverrideMissionSiteIconImage' event that allows mods to override
