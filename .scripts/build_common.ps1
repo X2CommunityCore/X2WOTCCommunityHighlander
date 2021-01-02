@@ -13,6 +13,7 @@ class BuildProject {
 	[bool] $compileTest = $false
 	[bool] $debug = $false
 	[bool] $final_release = $false
+	[string[]] $include = @()
 	[object[]] $preMakeHooks = @()
 
 	# lazily set
@@ -38,6 +39,7 @@ class BuildProject {
 	}
 
 	[void]SetWorkshopID([int] $publishID) {
+		if ($publishID -le 0) { throw "publishID must be >0" }
 		$this.publishID = $publishID
 	}
 
@@ -57,6 +59,11 @@ class BuildProject {
 
 	[void]AddPreMakeHook([Action[]] $action) {
 		$this.preMakeHooks += $action
+	}
+
+	[void]IncludeSrc([string] $src) {
+		if (!(Test-Path $src)) { throw "include path $src doesn't exist" }
+		$this.include += $src
 	}
 
 	[void]InvokeBuild() {
@@ -217,9 +224,14 @@ class BuildProject {
 		Robocopy.exe "$($this.sdkPath)\Development\SrcOrig" "$($this.sdkPath)\Development\Src" *.uc *.uci $global:def_robocopy_args
 		Write-Host "Mirrored."
 
-		# Copy the script components (so that we can reference their version classes in the companion package)
-		Write-Host "Copying the companions's scripts to Src..."
-		Copy-Item "$($this.projectRoot)\Components\DLC2CommunityHighlander\DLC2CommunityHighlander\Src\*" "$($this.sdkPath)\Development\Src\" -Force -Recurse -WarningAction SilentlyContinue
+		# Copy dependencies
+		Write-Host "Copying dependency scripts to Src..."
+		foreach ($depfolder in $this.include) {
+			#$dep_packages = Get-ChildItem $(depfolder) -Directory -Name
+			#Write-Host $dep_packages
+			Get-ChildItem "$($depfolder)" -Directory -Name | Write-Host
+			Copy-Item "$($depfolder)\*" "$($this.sdkPath)\Development\Src\" -Force -Recurse -WarningAction SilentlyContinue
+		}
 		Write-Host "Copied."
 
 		# copying the mod's scripts to the script staging location
@@ -284,9 +296,8 @@ class BuildProject {
 	[bool]_HasNativePackages() {
 		# Check if this is a Highlander and we need to cook things
 		$anynative = $false
-		for ($i = 0; $i -lt $this.thismodpackages.length; $i++) 
+		foreach ($name in $this.thismodpackages) 
 		{
-			$name = $this.thismodpackages[$i]
 			if ($global:nativescriptpackages.Contains($name)) {
 				$anynative = $true
 				break;
@@ -476,8 +487,7 @@ function Invoke-Cook([string] $sdkPath, [string] $gamePath, [string] $modcookdir
     }
 
     [System.String[]]$files = "GuidCache.upk", "GlobalPersistentCookerData.upk", "PersistentCookerShaderData.bin"
-    for ($i=0; $i -lt $files.length; $i++) {
-        $name = $files[$i]
+    foreach ($name in $files) {
         if(-not(Test-Path ([io.path]::combine($modcookdir, $name))))
         {
             Write-Host "Copying $name"

@@ -784,23 +784,23 @@
   </PropertyGroup>
   <!-- Per-config options -->
   <PropertyGroup>
-    <PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -mod "X2WOTCCommunityHighlander" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)"</PowershellBuildCommand>
+    <PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)" -config "default"</PowershellBuildCommand>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Final release' ">
     <OutputPath>.</OutputPath>
-    <PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -mod "X2WOTCCommunityHighlander" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)" -final_release</PowershellBuildCommand>
+    <PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)" -config "final_release"</PowershellBuildCommand>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <OutputPath>.</OutputPath>
-    <PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -mod "X2WOTCCommunityHighlander" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)" -debug</PowershellBuildCommand>
+    <PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)" -config "debug"</PowershellBuildCommand>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Compiletest' ">
     <OutputPath>.</OutputPath>
-    <PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -mod "X2WOTCCommunityHighlander" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)" -debug -include_compiletest</PowershellBuildCommand>
+    <PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)" -config "compiletest"</PowershellBuildCommand>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Workshop stable version' ">
     <OutputPath>.</OutputPath>
-    <PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -mod "X2WOTCCommunityHighlander" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)" -final_release -stableModId</PowershellBuildCommand>
+    <PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)" -config "stable"</PowershellBuildCommand>
   </PropertyGroup>
   <!--Build targets -->
   <Target Name="Clean">

@@ -1,12 +1,8 @@
 Param(
-    [string]$mod, # your mod's name - this shouldn't have spaces or special characters, and it's usually the name of the first directory inside your mod's source dir
     [string]$srcDirectory, # the path that contains your mod's .XCOM_sln
     [string]$sdkPath, # the path to your SDK installation ending in "XCOM 2 War of the Chosen SDK"
     [string]$gamePath, # the path to your XCOM 2 installation ending in "XCOM2-WaroftheChosen"
-    [switch]$final_release,
-    [switch]$debug,
-    [switch]$include_compiletest,
-    [switch]$stableModId
+    [string]$config # build configuration
 )
 
 $ScriptDirectory = Split-Path $MyInvocation.MyCommand.Path
@@ -17,23 +13,39 @@ Write-Host $common
 # This doesn't work yet, but it might at some point
 #Clear-Host
 
-$builder = [BuildProject]::new($mod, $srcDirectory, $sdkPath, $gamePath)
+$builder = [BuildProject]::new("X2WOTCCommunityHighlander", $srcDirectory, $sdkPath, $gamePath)
 
-if ($include_compiletest) {
-    $builder.EnableCompileTest()
+$dev = $false
+
+switch ($config)
+{
+    "debug" {
+        $builder.EnableDebug()
+        $dev = $true
+    }
+    "compiletest" {
+        $builder.EnableDebug()
+        $builder.EnableCompileTest()
+        $dev = $true
+    }
+    "default" {
+        $dev = $true
+    }
+    "final_release" {
+        $builder.EnableFinalRelease()
+    }
+    "stable" {
+        $builder.EnableFinalRelease()
+    }
+    "" { throw "Missing build configuration" }
+    default { throw "Unknown build configuration $config" }
 }
 
-if ($debug) {
-    $builder.EnableDebug()
-}
-
-if ($final_release) {
-    $builder.EnableFinalRelease()
-}
+$builder.IncludeSrc("$srcDirectory\Components\DLC2CommunityHighlander\DLC2CommunityHighlander\Src")
 
 if (Test-Path "$srcDirectory\WorkshopID")
 {
-    if ($stableModId -eq $true)
+    if ($config -eq "stable")
     {
         Write-Host "Setting workshop ID for stable mod"
         $modPublishedId = Get-Content -Path "$srcDirectory\WorkshopID\stable\PublishedFileId.ID"
@@ -47,12 +59,12 @@ if (Test-Path "$srcDirectory\WorkshopID")
 }
 
 $builder.AddPreMakeHook({
-    if ($final_release) {
-        Write-Host "Updating version..."
-        & "$srcDirectory\.scripts\update_version.ps1" -ps "$srcDirectory\VERSION.ps1" -srcDirectory "$sdkPath\Development\Src\"
-    } else {
+    if ($dev) {
         Write-Host "Updating version and commit..."
         & "$srcDirectory\.scripts\update_version.ps1" -ps "$srcDirectory\VERSION.ps1" -srcDirectory "$sdkPath\Development\Src\" -use_commit
+    } else {
+        Write-Host "Updating version..."
+        & "$srcDirectory\.scripts\update_version.ps1" -ps "$srcDirectory\VERSION.ps1" -srcDirectory "$sdkPath\Development\Src\"
     }
     
     Write-Host "Updated."
