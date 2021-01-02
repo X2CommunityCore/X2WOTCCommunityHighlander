@@ -68,10 +68,10 @@
     </PropertyGroup>
     <!-- Per-config options -->
     <PropertyGroup>
-      <PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -mod "DLC2CommunityHighlander" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)"</PowershellBuildCommand>
+      <PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)" -config "default"</PowershellBuildCommand>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -mod "DLC2CommunityHighlander" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)" -debug</PowershellBuildCommand>
+      <PowershellBuildCommand>powershell.exe –NonInteractive –ExecutionPolicy Unrestricted  -file "$(ScriptsDir)build.ps1" -srcDirectory "$(SolutionRoot)" -sdkPath "$(SDKInstallPath)" -gamePath "$(GameInstallPath)" -config "debug"</PowershellBuildCommand>
     </PropertyGroup>
     <Message Text="Starting custom build $(Configuration)" />
     <Exec Command="$(PowershellBuildCommand)" />

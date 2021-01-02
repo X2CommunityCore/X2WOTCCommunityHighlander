@@ -1,8 +1,11 @@
 Write-Host "Build Common Loading"
 
+$ErrorActionPreference = "Stop"
+Set-StrictMode -Version 3.0
+
 $global:def_robocopy_args = @("/S", "/E", "/DCOPY:DA", "/COPY:DAT", "/PURGE", "/MIR", "/NP", "/R:1000000", "/W:30")
 # list of all native script packages
-[System.String[]]$global:nativescriptpackages = "XComGame", "Core", "Engine", "GFxUI", "AkAudio", "GameFramework", "UnrealEd", "GFxUIEditor", "IpDrv", "OnlineSubsystemPC", "OnlineSubsystemLive", "OnlineSubsystemSteamworks", "OnlineSubsystemPSN"
+$global:nativescriptpackages = @("XComGame", "Core", "Engine", "GFxUI", "AkAudio", "GameFramework", "UnrealEd", "GFxUIEditor", "IpDrv", "OnlineSubsystemPC", "OnlineSubsystemLive", "OnlineSubsystemSteamworks", "OnlineSubsystemPSN")
 
 class BuildProject {
 	[string]$modNameCanonical
@@ -39,7 +42,7 @@ class BuildProject {
 	}
 
 	[void]SetWorkshopID([int] $publishID) {
-		if ($publishID -le 0) { throw "publishID must be >0" }
+		if ($publishID -le 0) { ThrowFailure "publishID must be >0" }
 		$this.publishID = $publishID
 	}
 
@@ -49,12 +52,12 @@ class BuildProject {
 
 	[void]EnableFinalRelease() {
 		$this.final_release = $true
-		_CheckFlags
+		$this._CheckFlags()
 	}
 
 	[void]EnableDebug() {
 		$this.debug = $true
-		_CheckFlags
+		$this._CheckFlags()
 	}
 
 	[void]AddPreMakeHook([Action[]] $action) {
@@ -62,7 +65,7 @@ class BuildProject {
 	}
 
 	[void]IncludeSrc([string] $src) {
-		if (!(Test-Path $src)) { throw "include path $src doesn't exist" }
+		if (!(Test-Path $src)) { ThrowFailure "include path $src doesn't exist" }
 		$this.include += $src
 	}
 
@@ -92,7 +95,7 @@ class BuildProject {
 	[void]_CheckFlags() {
 		if ($this.debug -eq $true -and $this.final_release -eq $true)
 		{
-			FailureMessage "-debug and -final_release cannot be used together";
+			ThrowFailure "-debug and -final_release cannot be used together"
 		}
 	}
 
@@ -103,15 +106,15 @@ class BuildProject {
 		# Check if the user config is set up correctly
 		if (([string]::IsNullOrEmpty($this.sdkPath) -or $this.sdkPath -eq '${config:xcom.highlander.sdkroot}') -or ([string]::IsNullOrEmpty($this.gamePath) -or $this.gamePath -eq '${config:xcom.highlander.gameroot}'))
 		{
-			FailureMessage "Please set up user config xcom.highlander.sdkroot and xcom.highlander.gameroot"
+			ThrowFailure "Please set up user config xcom.highlander.sdkroot and xcom.highlander.gameroot"
 		}
 		elseif (!(Test-Path $this.sdkPath)) # Verify the SDK and game paths exist before proceeding
 		{
-			FailureMessage ("The path '{}' doesn't exist. Please adjust the xcom.highlander.sdkroot variable in your user config and retry." -f $this.sdkPath)
+			ThrowFailure ("The path '{}' doesn't exist. Please adjust the xcom.highlander.sdkroot variable in your user config and retry." -f $this.sdkPath)
 		}
 		elseif (!(Test-Path $this.gamePath)) 
 		{
-			FailureMessage ("The path '{}' doesn't exist. Please adjust the xcom.highlander.gameroot variable in your user config and retry." -f $this.gamePath)
+			ThrowFailure ("The path '{}' doesn't exist. Please adjust the xcom.highlander.gameroot variable in your user config and retry." -f $this.gamePath)
 		}
 	}
 
@@ -129,7 +132,7 @@ class BuildProject {
 		$this.cook = $this.isHl -and -not $this.debug
 
 		if (-not $this.isHl -and $this.final_release) {
-			FailureMessage "-final_release only makes sense if the mod in question is a Highlander"
+			ThrowFailure "-final_release only makes sense if the mod in question is a Highlander"
 		}
 
 		$this.modcookdir = [io.path]::combine($this.sdkPath, 'XComGame', 'Published', 'CookedPCConsole')
@@ -144,7 +147,7 @@ class BuildProject {
 		
 		Write-Host "Copying mod project to staging..."
 		Robocopy.exe "$($this.modSrcRoot)" "$($this.sdkPath)\XComGame\Mods\$($this.modNameCanonical)" *.* $global:def_robocopy_args /XF @xf
-		Write-Host "Copied."
+		Write-Host "Copied project to staging."
 
 		New-Item "$($this.stagingPath)/Script" -ItemType Directory
 
@@ -189,28 +192,28 @@ class BuildProject {
 				}
 			}
 
-			if($missingFiles.Length -gt 0)
+			if ($missingFiles.Count -gt 0)
 			{
-				FailureMessage("Filenames missing in the .x2proj file: $missingFiles")
+				ThrowFailure "Filenames missing in the .x2proj file: $missingFiles"
 			}
 		}
 		else
 		{
-			throw "The project file '$projFilepath' doesn't exist"
+			ThrowFailure "The project file '$projFilepath' doesn't exist"
 		}
 	}
 
 	
 	[void]_Clean() {
-		Write-Host "Cleaning mod project at $($this.stagingPath)...";
+		Write-Host "Cleaning mod project at $($this.stagingPath)..."
 		if (Test-Path $this.stagingPath) {
-			Remove-Item $this.stagingPath -Recurse -WarningAction SilentlyContinue;
+			Remove-Item $this.stagingPath -Recurse -WarningAction SilentlyContinue
 		}
 		Write-Host "Cleaned."
 	}
 
 	[void]_ConvertLocalization() {
-		Write-Host "Converting the localization file encoding";
+		Write-Host "Converting the localization file encoding..."
 		Get-ChildItem "$($this.stagingPath)\Localization" -Recurse -File | 
 		Foreach-Object {
 			$content = Get-Content $_.FullName
@@ -222,22 +225,22 @@ class BuildProject {
 		# mirror the SDK's SrcOrig to its Src
 		Write-Host "Mirroring SrcOrig to Src..."
 		Robocopy.exe "$($this.sdkPath)\Development\SrcOrig" "$($this.sdkPath)\Development\Src" *.uc *.uci $global:def_robocopy_args
-		Write-Host "Mirrored."
+		Write-Host "Mirrored SrcOrig to Src."
 
 		# Copy dependencies
-		Write-Host "Copying dependency scripts to Src..."
+		Write-Host "Copying dependency sources to Src..."
 		foreach ($depfolder in $this.include) {
 			#$dep_packages = Get-ChildItem $(depfolder) -Directory -Name
 			#Write-Host $dep_packages
 			Get-ChildItem "$($depfolder)" -Directory -Name | Write-Host
 			Copy-Item "$($depfolder)\*" "$($this.sdkPath)\Development\Src\" -Force -Recurse -WarningAction SilentlyContinue
 		}
-		Write-Host "Copied."
+		Write-Host "Copied dependency sources to Src."
 
 		# copying the mod's scripts to the script staging location
-		Write-Host "Copying the mod's scripts to Src..."
+		Write-Host "Copying the mod's sources to Src..."
 		Copy-Item "$($this.stagingPath)\Src\*" "$($this.sdkPath)\Development\Src\" -Force -Recurse -WarningAction SilentlyContinue
-		Write-Host "Copied."
+		Write-Host "Copied mod sources to Src."
 	}
 
 	[void]_RunPreMakeHooks() {
@@ -261,7 +264,7 @@ class BuildProject {
 		Invoke-Make "$($this.sdkPath)/binaries/Win64/XComGame.com" $scriptsMakeArguments $this.sdkPath $this.modSrcRoot
 		if ($LASTEXITCODE -ne 0)
 		{
-			FailureMessage "Failed to compile base game scripts!"
+			ThrowFailure "Failed to compile base game scripts!"
 		}
 		Write-Host "Compiled base game scripts."
 
@@ -272,7 +275,7 @@ class BuildProject {
 			Invoke-Make "$($this.sdkPath)/binaries/Win64/XComGame.com" "make -nopause -unattended" $this.sdkPath $this.modSrcRoot
 			if ($LASTEXITCODE -ne 0)
 			{
-				FailureMessage "Failed to compile base game scripts without final_release!"
+				ThrowFailure "Failed to compile base game scripts without final_release!"
 			}
 		}
 	}
@@ -288,7 +291,7 @@ class BuildProject {
 		Invoke-Make "$($this.sdkPath)/binaries/Win64/XComGame.com" $scriptsMakeArguments $this.sdkPath $this.modSrcRoot
 		if ($LASTEXITCODE -ne 0)
 		{
-			FailureMessage "Failed to compile mod scripts!"
+			ThrowFailure "Failed to compile mod scripts!"
 		}
 		Write-Host "Compiled mod scripts."
 	}
@@ -300,7 +303,7 @@ class BuildProject {
 		{
 			if ($global:nativescriptpackages.Contains($name)) {
 				$anynative = $true
-				break;
+				break
 			}
 		}
 		return $anynative
@@ -308,7 +311,7 @@ class BuildProject {
 
 	[void]_CopyScriptPackages() {
 		# copy packages to staging
-		Write-Host "Copying the compiled or cooked packages to staging"
+		Write-Host "Copying the compiled or cooked packages to staging..."
 		foreach ($name in $this.thismodpackages) {
 			if ($this.cook -and $global:nativescriptpackages.Contains($name))
 			{
@@ -328,19 +331,51 @@ class BuildProject {
 	}
 
 	[void]_PrecompileShaders() {
-		if(Test-Path "$($this.modSrcRoot)/Content")
-		{
-			$contentfiles = Get-ChildItem "$($this.modSrcRoot)/Content\*" -Include *.upk, *.umap -Recurse -File -Name
-			if($contentfiles.length -gt 0)
+		if(Test-Path "$($this.modSrcRoot)/Content") {
+			$contentfiles = Get-ChildItem "$($this.modSrcRoot)/Content\*"  -Include *.upk, *.umap -Recurse -File
+
+			if ($contentfiles.length -eq 0) {
+				Write-Host "No content files, skipping PrecompileShaders."
+			}
+
+			$shader_cache_path = "$($this.gamePath)/XComGame/Mods/$($this.modNameCanonical)/Content/$($this.modNameCanonical)_ModShaderCache.upk"
+			$need_shader_precompile = $false
+			
+			# Try to find a reason to precompile the shaders
+			if (!(Test-Path -Path $shader_cache_path))
+			{
+				$need_shader_precompile = $true
+			} 
+			elseif ($contentfiles.length -gt 0)
+			{
+				$shader_cache = Get-Item $shader_cache_path
+				
+				foreach ($file in $contentfiles)
+				{
+					if ($file.LastWriteTime -gt $shader_cache.LastWriteTime -Or $file.CreationTime -gt $shader_cache.LastWriteTime)
+					{
+						$need_shader_precompile = $true
+						break
+					}
+				}
+			}
+			
+			if ($need_shader_precompile)
 			{
 				# build the mod's shader cache
 				Write-Host "Precompiling Shaders..."
-				&"$($this.sdkPath)/binaries/Win64/XComGame.com" precompileshaders -nopause platform=pc_sm4 DLC=$this.modNameCanonical
+				&"$($this.sdkPath)/binaries/Win64/XComGame.com" precompileshaders -nopause platform=pc_sm4 DLC=$($this.modNameCanonical)
 				if ($LASTEXITCODE -ne 0)
 				{
-					FailureMessage "Failed to compile mod shader cache!"
+					ThrowFailure "Failed to compile mod shader cache!"
 				}
 				Write-Host "Generated Shader Cache."
+			}
+			else
+			{
+				Write-Host "Copying existing shader cache..."
+				Copy-Item "$shader_cache_path" "$($this.stagingPath)\Content" -Force -WarningAction SilentlyContinue
+				Write-Host "Copied existing shader cache."
 			}
 		}
 	}
@@ -464,15 +499,20 @@ function Invoke-Make([string] $makeCmd, [string] $makeFlags, [string] $sdkPath, 
 
 function FailureMessage($message)
 {
-    [System.Media.SystemSounds]::Hand.Play();
-    throw $message
+	[System.Media.SystemSounds]::Hand.Play()
+	Write-Host $message -ForegroundColor "Red"
+}
+
+function ThrowFailure($message)
+{
+	throw $message
 }
 
 function SuccessMessage($message, $modNameCanonical)
 {
-    [System.Media.SystemSounds]::Asterisk.Play();
-    Write-Host $message
-    Write-Host "$modNameCanonical ready to run."
+    [System.Media.SystemSounds]::Asterisk.Play()
+    Write-Host $message -ForegroundColor "Green"
+    Write-Host "$modNameCanonical ready to run." -ForegroundColor "Green"
 }
 
 function Invoke-Cook([string] $sdkPath, [string] $gamePath, [string] $modcookdir, [bool] $final_release) {
@@ -482,7 +522,7 @@ function Invoke-Cook([string] $sdkPath, [string] $gamePath, [string] $modcookdir
     $cookedpcconsoledir = [io.path]::combine($gamePath, 'XComGame', 'CookedPCConsole')
     if(-not(Test-Path $modcookdir))
     {
-        Write-Host "Creating Published/CookedPCConsole directory"
+        Write-Host "Creating Published/CookedPCConsole directory..."
         New-Item $modcookdir -ItemType Directory
     }
 
@@ -490,31 +530,33 @@ function Invoke-Cook([string] $sdkPath, [string] $gamePath, [string] $modcookdir
     foreach ($name in $files) {
         if(-not(Test-Path ([io.path]::combine($modcookdir, $name))))
         {
-            Write-Host "Copying $name"
+            Write-Host "Copying $name..."
             Copy-Item ([io.path]::combine($cookedpcconsoledir, $name)) $modcookdir
         }
     }
 
     # Ideally, the cooking process wouldn't modify the big *.tfc files, but it does, so we don't overwrite existing ones (/XC /XN /XO)
     # In order to "reset" the cooking direcory, just delete it and let the script recreate them
-    Write-Host "Copying Texture File Caches"
-    Robocopy.exe "$cookedpcconsoledir" "$modcookdir" *.tfc /NJH /XC /XN /XO
+    Write-Host "Copying Texture File Caches..."
+	Robocopy.exe "$cookedpcconsoledir" "$modcookdir" *.tfc /NJH /XC /XN /XO
+	Write-Host "Copied Texture File Caches."
 
     # Cook it!
     # The CookPackages commandlet generally is super unhelpful. The output is basically always the same and errors
     # don't occur -- it rather just crashes the game. Hence, we just pipe the output to $null
-    Write-Host "Invoking CookPackages (this may take a while)"
+	Write-Host "Invoking CookPackages (this may take a while)"
+	$cook_args = @("-platform=pcconsole", "-quickanddirty", "-modcook", "-sha", "-multilanguagecook=INT+FRA+ITA+DEU+RUS+POL+KOR+ESN", "-singlethread", "-nopause")
     if ($final_release -eq $true)
     {
-        & "$sdkPath/binaries/Win64/XComGame.com" CookPackages -platform=pcconsole -final_release -quickanddirty -modcook -sha -multilanguagecook=INT+FRA+ITA+DEU+RUS+POL+KOR+ESN -singlethread -nopause >$null 2>&1
-    } else {
-        & "$sdkPath/binaries/Win64/XComGame.com" CookPackages -platform=pcconsole -quickanddirty -modcook -sha -multilanguagecook=INT+FRA+ITA+DEU+RUS+POL+KOR+ESN -singlethread -nopause >$null 2>&1
-    }
+		$cook_args += "-final_release"
+	}
+	
+	& "$sdkPath/binaries/Win64/XComGame.com" CookPackages @cook_args >$null 2>&1
 
     if ($LASTEXITCODE -ne 0)
     {
-        FailureMessage "Failed to cook packages"
+        ThrowFailure "Failed to cook packages!"
     }
 
-    Write-Host "Cooked packages"
+    Write-Host "Cooked packages."
 }
