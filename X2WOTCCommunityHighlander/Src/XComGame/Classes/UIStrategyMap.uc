@@ -698,7 +698,23 @@ simulated function UpdateButtonHelp()
 			}
 		}
 	}
+
+	// Start Issue #932
+	/// HL-Docs: feature:StrategyMap_NavHelpUpdated; issue:932;tags:strategy,ui
+	/// This event is fired after the base game has performed its own updates to
+	/// the nav help on the Geoscape (StrategyMap), allowing mods to make further
+	/// changes if they wish.
+	/// ```event
+	/// EventID: StrategyMap_NavHelpUpdated,
+	/// EventData: UINavigationHelp,
+	/// EventSource: UIStrategyMap (self),
+	/// NewGameState: none
+	/// ```
+	// This event is modeled on the 'UIArmory_WeaponUpgrade_NavHelpUpdated' event.
+	`XEVENTMGR.TriggerEvent('StrategyMap_NavHelpUpdated', NavBar, self);
+	// End Issue #932
 }
+
 simulated function UpdateCenteredNavHelp()
 {
 	local int i, bgPadding, containerMargin, lineHeight, helpCount;
