@@ -299,6 +299,11 @@ static function CalculateWillRoll(WillEventRollData RollInfo, XComGameState_Unit
 				CalculatedWillLoss = InSourceUnit.GetMaxStat(eStat_Will) * default.BondLevelWillLoss[BondData.BondLevel];
 			}
 			break;
+		// Start Issue #936
+		case WillEventRollStat_Flat:
+			CalculatedWillLoss = 1.0f;
+			break;
+		// End Issue #936
 		default:
 			`assert(false);
 		}
