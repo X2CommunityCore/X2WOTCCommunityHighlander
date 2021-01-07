@@ -307,7 +307,16 @@ function InteractionComplete(bool RTB)
 		History = `XCOMHISTORY;
 		XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
 
-		XComHQ.SetPendingPointOfTravel(XComHQ);
+		// Start Issue #927
+		/// HL-Docs: ref:Bugfixes; issue:927
+		/// When cancelling out of squad select or mission launch, the selected map
+		/// item will now return back to the mission rather than the Avenger (affects
+		/// controller users).
+		//
+		// The CHL change here is to pass the RTB value through, thus ensuring it's
+		// taken into account when deciding whether to overwrite LastSelectedMapItem.
+		XComHQ.SetPendingPointOfTravel(XComHQ,, RTB);
+		// End Issue #927
 	}
 }
 
