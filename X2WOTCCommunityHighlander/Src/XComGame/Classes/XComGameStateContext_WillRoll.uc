@@ -301,8 +301,24 @@ static function CalculateWillRoll(WillEventRollData RollInfo, XComGameState_Unit
 			break;
 		// Start Issue #936
 		/// HL-Docs: feature:AdditionalWillRollStats; issue:936; tags:tactical
-		/// Unused element `WillEventRollStat_Flat` of `enum WillEventRoll_StatType` added to the switch block in `CalculateWillRoll`.
-		/// The `WillEventRollStat_Flat` case sets `CalculatedWillLoss` to `1.0f` so that it can be adjusted by `RollInfo.WillLossStatMultiplier` and `SitRepWillLossScalar`.
+        /// This feature consists of new or previously unused elements, like
+        /// `WillEventRollStat_Flat`, of `enum WillEventRoll_StatType` to the
+        /// switch block in `CalculateWillRoll`.
+        ///
+        /// The `WillEventRollStat_Flat` case sets `CalculatedWillLoss` to
+        /// `1.0f`. This allows it to be modified by `SitRepWillLossScalar`
+        /// and `RollInfo.WillLossStatMultiplier`, which is impossible to do
+        /// using `WillEventRollStat_None`.
+        ///
+        /// ```ini
+        /// ; XComGameCore.ini
+        /// [XComGame.X2EventListener_DefaultWillEvents]
+        /// ExampleWillRollData=(WillLossChance=1, \\
+        ///                      FlatWillLossChance=true, \\
+        ///                      WillLossStat=WillEventRollStat_Flat, \\
+        ///                      WillLossStatMultiplier=4, \\
+        ///                      MaxWillPercentageLostPerMission=0.33)
+        /// ```
 		case WillEventRollStat_Flat:
 			CalculatedWillLoss = 1.0f;
 			break;
