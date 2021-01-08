@@ -7895,6 +7895,22 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 			`XEVENTMGR.TriggerEvent('EffectBreakUnitConcealment', self, self, NewGameState);
 		}
 
+		// Start Issue #694
+		/// HL-Docs: feature:ItemAddedOrRemovedToSlot; issue:694; tags:
+		/// Triggers `ItemAddedToSlot` event when a unit adds an item to their inventory.
+		/// Triggers `ItemRemovedFromSlot` event when a unit removes an item from their inventory.
+		/// These events are perfect when relying on `X2ItemTemplate::OnEquippedFn` and `X2ItemTemplate::OnUnequippedFn` is not an option,
+		/// such as when you need to execute arbitrary code whenever any unit adds any item to their inventory.
+		///
+		/// ```event
+		/// EventID: ItemAddedToSlot,
+		/// EventData: XComGameState_Item,
+		/// EventSource: XComGameState_Unit,
+		/// NewGameState: yes
+		/// ```
+		`XEVENTMGR.TriggerEvent('ItemAddedToSlot', Item, self, NewGameState);
+		// End Issue #694
+
 		return true;
 	}
 	return false;
@@ -8260,6 +8276,18 @@ simulated function bool RemoveItemFromInventory(XComGameState_Item Item, optiona
 		}
 
 		Item.InventorySlot = eInvSlot_Unknown;
+
+		// Start Issue #694
+		/// HL-Docs: ref:ItemAddedOrRemovedToSlot
+		/// ```event
+		/// EventID: ItemRemovedFromSlot,
+		/// EventData: XComGameState_Item,
+		/// EventSource: XComGameState_Unit,
+		/// NewGameState: maybe
+		/// ```
+		`XEVENTMGR.TriggerEvent('ItemRemovedFromSlot', Item, self, ModifyGameState);
+		// End Issue #694
+
 		return true;
 	}
 	return false;
