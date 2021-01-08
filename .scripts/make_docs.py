@@ -114,6 +114,7 @@ def make_doc_item(sess, lines: List[str], file: str, span: (int, int),
         texts: [{text: str, file: str, span: (int, int), issue: int?}]
     or
         ref: str,
+        tags: [str],
         text: {text: str, file: str, span: (int, int), issue: int?}
     """
     item = {}
@@ -140,12 +141,18 @@ def make_doc_item(sess, lines: List[str], file: str, span: (int, int),
                                 or item.get("ref") == HL_FEATURE_FIX):
         sess.err(f"{file}:{span[0]+1}: missing key `issue`")
         item["issue"] = 99999
+    if "tags" in item and "ref" in item:
+        sess.err(f"{file}:{span[0]+1}: `ref` incompatible with `tags`")
+        print("note: specify tags in the feature declaration")
+        item.pop("tags")
     if not "tags" in item and "feature" in item:
         sess.err(f"{file}:{span[0]+1}: missing key `tags`")
         print("note: use `tags:` to specify an empty tag list")
         item["tags"] = []
 
     if events:
+        if "tags" not in item:
+            item["tags"] = []
         item["tags"].append("events")
 
     ref = Ref("\n".join(lines[1:]), file, span, item.get("issue"))
