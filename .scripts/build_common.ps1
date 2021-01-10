@@ -17,6 +17,7 @@ class BuildProject {
 	[bool] $debug = $false
 	[bool] $final_release = $false
 	[string[]] $include = @()
+	[string[]] $clean = @()
 	[object[]] $preMakeHooks = @()
 
 	# lazily set
@@ -62,6 +63,10 @@ class BuildProject {
 
 	[void]AddPreMakeHook([Action[]] $action) {
 		$this.preMakeHooks += $action
+	}
+
+	[void]AddToClean([string] $modName) {
+		$this.clean += $modName
 	}
 
 	[void]IncludeSrc([string] $src) {
@@ -210,6 +215,17 @@ class BuildProject {
 			Remove-Item $this.stagingPath -Recurse -WarningAction SilentlyContinue
 		}
 		Write-Host "Cleaned."
+
+		Write-Host "Cleaning additional mods..."
+		# clean
+		foreach ($modName in $this.clean) {
+			$cleanDir = "$($this.sdkPath)/XComGame/Mods/$($modName)"
+    		if (Test-Path $cleanDir) {
+				Write-Host "Cleaning $($modName)..."
+				Remove-Item -Recurse -Force $cleanDir
+			}
+    	}
+		Write-Host "Cleaned."
 	}
 
 	[void]_ConvertLocalization() {
@@ -244,6 +260,7 @@ class BuildProject {
 	}
 
 	[void]_RunPreMakeHooks() {
+		Write-Host "Invoking pre-Make hooks"
 		foreach ($hook in $this.preMakeHooks) {
 			$hook.Invoke()
 		}

@@ -13,10 +13,13 @@ Write-Host $common
 try {
     $builder = [BuildProject]::new("DLC2CommunityHighlander", $srcDirectory, $sdkPath, $gamePath)
 
+    $dev = $false
+
     switch ($config)
     {
         "debug" {
             $builder.EnableDebug()
+            $dev = $true
         }
         "default" {
         }
@@ -25,6 +28,19 @@ try {
     }
 
     $builder.IncludeSrc("$srcDirectory\..\..\X2WOTCCommunityHighlander\Src")
+
+    $builder.AddPreMakeHook({
+        if ($dev) {
+            Write-Host "Updating version and commit..."
+            & "$srcDirectory\..\..\.scripts\update_version.ps1" -ps "$srcDirectory\..\..\VERSION.ps1" -srcDirectory "$sdkPath\Development\Src\" -use_commit
+        } else {
+            Write-Host "Updating version..."
+            & "$srcDirectory\..\..\.scripts\update_version.ps1" -ps "$srcDirectory\..\..\VERSION.ps1" -srcDirectory "$sdkPath\Development\Src\"
+        }
+        
+        Write-Host "Updated."
+    })
+
     $builder.InvokeBuild()
     # we made it!
     SuccessMessage "*** SUCCESS! ***" "DLC2CommunityHighlander"
