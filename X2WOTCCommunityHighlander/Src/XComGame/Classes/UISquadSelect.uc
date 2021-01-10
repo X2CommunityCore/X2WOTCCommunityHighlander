@@ -909,6 +909,21 @@ simulated function UpdateNavHelp()
 		}
 		`endif
 
+		// Start Issue #420
+		/// HL-Docs: feature:UpdateNavHelp; issue:420; tags:strategy
+		/// This event allows mods to modify the nav help menu at the bottom of the squad select screen
+		/// - the menu that normally includes buttons like "MAKE WEAPONS AVAILABLE".
+		/// Note that robojumper's Squad Select mod also triggers this event with the same parameters,
+		/// so it should be automatically compatible.
+		/// ```event
+		/// EventID: UISquadSelect_NavHelpUpdate,
+		/// EventData: UINavigationHelp (NavHelp),
+		/// EventSource: UISquadSelect (SquadSelect),
+		/// NewGameState: none
+		/// ```
+		`XEVENTMGR.TriggerEvent('UISquadSelect_NavHelpUpdate', NavHelp, self, none);
+		// End Issue #420
+
 		NavHelp.Show();
 	}
 }
