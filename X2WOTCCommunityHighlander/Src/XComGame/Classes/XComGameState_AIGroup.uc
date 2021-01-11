@@ -389,7 +389,7 @@ function bool ShouldMoveToIntercept(out Vector TargetInterceptLocation, XComGame
 		MissionManager.GetActiveMissionSchedule(ActiveMissionSchedule);
 		// Start Issue #500
 		/// HL-Docs: ref:OverrideEncounterZoneAnchorPoint
-		/// Allow mods to override the LoP anchor point for the encounter zone. By
+		/// This allows mods to override the LoP anchor point for the encounter zone. By
 		/// default, the encounter zone adjusts to the current location of the XCOM
 		/// squad.
 		///

@@ -31,7 +31,7 @@ var bool							bUseRewardImage; // Ignore any image set by the narrative, and in
 /// Any Covert Action without soldier rank requirements is deemed to be a "rookie" Covert Action,
 /// and any of its spawn requirements will be ignored.
 /// Mods that intend to add Covert Actions without soldier rank requirements but with spawn requirements
-///	should set `bCanNeverBeRookie` to `true` so that the game actually takes their spawn requirements into account.
+/// should set `bCanNeverBeRookie` to `true` so that the game actually takes their spawn requirements into account.
 // Single variable for Issue #695
 var bool							bCanNeverBeRookie;
 

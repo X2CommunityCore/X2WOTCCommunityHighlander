@@ -940,7 +940,7 @@ simulated function int GetClipSize()
 	/// The `OverrideClipSize` event allows mods to override Clip Size 
 	/// of a weapon after it has been modified by weapon upgrades and/or loaded ammo.
 	///
-	///	This can help make a passive ability that modifies Clip Size of the soldier's weapon,
+	/// This can help make a passive ability that modifies Clip Size of the soldier's weapon,
 	/// or to explicitly disallow a specific weapon benefitting from effects that modify Clip Size 
 	/// by resetting the clip size value to the clip size value stored in the weapon template.
 	///    

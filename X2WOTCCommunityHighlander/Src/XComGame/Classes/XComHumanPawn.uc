@@ -2434,7 +2434,7 @@ static simulated function UpdateAppearance( out TAppearance mAppearance, const o
 	}
 	// Start Issue #384
 	/// HL-Docs: ref:Bugfixes; issue:384
-	/// Allow this function to work with new deco slots added with Anarchy Children and WOTC.
+	/// Allow `bForcedAppearance` to work with new deco slots added with Anarchy Children and WOTC.
 	if (kAppearance.nmLeftArm != '')
 	{
 		mAppearance.nmLeftArm = kAppearance.nmLeftArm;
