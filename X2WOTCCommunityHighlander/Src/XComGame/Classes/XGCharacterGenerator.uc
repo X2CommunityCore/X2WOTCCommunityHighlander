@@ -668,6 +668,8 @@ function SetArmsLegsAndDeco(X2SimpleBodyPartFilter BodyPartFilter)
 	}
 
 	// Start Issue #384
+	/// HL-Docs: ref:Bugfixes; issue:384
+	/// Randomize deco slots only if the character template is not using `bForceAppearance`.
 	// XPack Hero Deco
 	if (!m_CharTemplate.bForceAppearance)
 	{
