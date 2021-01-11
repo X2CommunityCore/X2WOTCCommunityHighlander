@@ -29,7 +29,8 @@ var bool							bUseRewardImage; // Ignore any image set by the narrative, and in
 /// HL-Docs: feature:CanNeverBeRookieCovertAction; issue:695; tags:strategy
 /// The game has a concept of "Rookie Covert Actions", which are meant to be always available to the player. 
 /// Any Covert Action without soldier rank requirements is deemed to be a "rookie" Covert Action,
-/// and any of its spawn requirements will be ignored.
+/// and any of its spawn requirements will be ignored under certain conditions.
+///
 /// Mods that intend to add Covert Actions without soldier rank requirements but with spawn requirements
 /// should set `bCanNeverBeRookie` to `true` so that the game actually takes their spawn requirements into account.
 // Single variable for Issue #695
