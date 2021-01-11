@@ -17,7 +17,11 @@ enum WillEventRoll_StatType
 	WillEventRollStat_SquadmateRank,
 	WillEventRollStat_MaxWill,
 	WillEventRollStat_BondLevel,
-	WillEventRollStat_Flat
+	WillEventRollStat_Flat,
+	// Start Issue #936
+	WillEventRollStat_CHPercentageHealthLost,
+	WillEventRollStat_CHTurnCountDecimal
+	// End Issue #936
 };
 
 struct native WillEventRollData_PanicWeight
@@ -248,6 +252,9 @@ static function CalculateWillRoll(WillEventRollData RollInfo, XComGameState_Unit
 	local float WillStartOfMission;
 	local UnitValue WillStartOfMissionUnitVal;
 	// End Issue #44
+	// Start Issue #936
+	local XComGameState_Player PlayerState;
+	// End Issue #936
 
 	if( InSourceUnit.IsDead()
 		|| InSourceUnit.IsIncapacitated()
@@ -320,8 +327,25 @@ static function CalculateWillRoll(WillEventRollData RollInfo, XComGameState_Unit
 		/// * Calculated Will Loss: `1.0f`
 		/// * Similar to `WillEventRollStat_None`, but allows will loss to be modified by `X2SitRepEffect_ModifyWillPenalties` effects.
 		/// * For example usage of `X2SitRepEffect_ModifyWillPenalties` see `X2SitRep_DefaultSitRepEffects.CreateDarkEventDarkTowerEffectTemplate()`.
+		/// 
+		/// ### WillEventRollStat_CHPercentageHealthLost
+		/// * Calculated Will Loss: (Unit's Max HP - Unit's Current HP) / Unit's Max HP
+		/// * Corrected version of `WillEventRollStat_PercentageHealthLost` that actually gives the health lost (as opposed to health remaining).
+		/// * If a soldier with 5 max HP takes 2 damage to ablative HP, the calculation for will loss would be `(5 - 5) / 5 = 0`. If they then took another 3 damage, the will loss would be `(5 - 2) / 5 = 0.6`, as they have lost 60% of their total HP at this point.
+		/// 
+		/// ### WillEventRollStat_CHTurnCountDecimal
+		/// * Calculated Will Loss: (10 + Player's Turn Count) / 10
+		/// * This allows for a gradual increase in the amount of will lost as the mission goes on.
+		/// * At turn 1 the calculated will loss is `1.1`, and at turn 10 it will have nearly doubled to `2.0`.
 		case WillEventRollStat_Flat:
 			CalculatedWillLoss = 1.0f;
+			break;
+		case WillEventRollStat_CHPercentageHealthLost:
+			CalculatedWillLoss = ( InSourceUnit.GetMaxStat(eStat_HP) - InSourceUnit.GetCurrentStat(eStat_HP) ) / InSourceUnit.GetMaxStat(eStat_HP);
+			break;
+		case WillEventRollStat_CHTurnCountDecimal:
+			PlayerState = XComGameState_Player( `XCOMHISTORY.GetGameStateForObjectID( InSourceUnit.ControllingPlayer.ObjectID ) );
+			CalculatedWillLoss = (10.0f + PlayerState.PlayerTurnCount) / 10.0f;
 			break;
 		// End Issue #936
 		default:
