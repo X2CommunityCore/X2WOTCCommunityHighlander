@@ -388,14 +388,14 @@ function bool ShouldMoveToIntercept(out Vector TargetInterceptLocation, XComGame
 		MissionManager = `TACTICALMISSIONMGR;
 		MissionManager.GetActiveMissionSchedule(ActiveMissionSchedule);
 		// Start Issue #500
-		//
-		// Allow mods to override the LoP anchor point for the encounter zone. By
-		// default, the encounter zone adjusts to the current location of the XCOM
-		// squad.
-		//
-		// As an example, a mod could use the XCOM's spawn location instead so that
-		// the encounter zones remain the same regardless of where the XCOM squad is
-		// currently.
+		/// HL-Docs: ref:OverrideEncounterZoneAnchorPoint
+		/// Allow mods to override the LoP anchor point for the encounter zone. By
+		/// default, the encounter zone adjusts to the current location of the XCOM
+		/// squad.
+		///
+		/// As an example, a mod could use the XCOM's spawn location instead so that
+		/// the encounter zones remain the same regardless of where the XCOM squad is
+		/// currently.
 		CurrentXComLocation = SpawnManager.GetCurrentXComLocation();
 		TriggerOverrideEncounterZoneAnchorPoint(CurrentXComLocation);
 		// End Issue #500
@@ -451,20 +451,19 @@ function bool ShouldMoveToIntercept(out Vector TargetInterceptLocation, XComGame
 }
 
 // Start Issue #500
-//
-// Triggers an 'OverrideEncounterZoneAnchorPoint' event that allows listeners to
-// override the anchor point for determining encounter zones for patrolling pods.
-//
-// The event itself takes the form:
-//
-//   {
-//      ID: OverrideEncounterZoneAnchorPoint,
-//      Data: [inout float X, inout float Y, inout float Z],
-//      Source: self
-//   }
-//
-// X, Y and Z represent the elements of the anchor Vector.
-//
+/// HL-Docs: feature:OverrideEncounterZoneAnchorPoint; issue:500; tags:tactical
+/// The `OverrideEncounterZoneAnchorPoint` event allows mods to override 
+/// the anchor point for determining encounter zones for patrolling pods.
+///
+/// X, Y and Z components of the tuple should be treated as components 
+/// of the Anchor Point's vector coordinates.
+///    
+///```event
+///EventID: OverrideEncounterZoneAnchorPoint,
+///EventData: [inout float X, inout float Y, inout float Z],
+///EventSource: XComGameState_AIGroup (AIGroup),
+///NewGameState: none
+///```
 function TriggerOverrideEncounterZoneAnchorPoint(out Vector Anchor)
 {
 	   local XComLWTuple OverrideTuple;
