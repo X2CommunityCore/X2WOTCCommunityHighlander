@@ -13209,6 +13209,19 @@ function SCATProgression GetSCATProgressionForAbility(name AbilityName)
 function bool ShowPromoteIcon()
 {
 	// Start Issue #631
+	/// HL-Docs: feature:OverrideShowPromoteIcon; issue:631; tags:strategy
+	/// The `OverrideShowPromoteIcon` event allows mods to determine 
+	/// whether a promotion icon for a particular soldier should be displayed or not.
+	/// This can be relevant for mods that add their own promotion mechanics for soldiers,
+	/// e.g. a psionic class that has to go on a few missions before they can be stuck into
+	/// a Psi Lab to get their promotion.
+	///
+	///```event
+	///EventID: OverrideShowPromoteIcon,
+	///EventData: [out bool bShowPromotionIcon],
+	///EventSource: XComGameState_Unit (UnitState),
+	///NewGameState: none
+	///```
 	local XComLWTuple OverrideTuple;
 
 	OverrideTuple = new class'XComLWTuple';

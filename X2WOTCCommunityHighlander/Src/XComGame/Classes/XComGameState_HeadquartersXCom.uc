@@ -6953,7 +6953,7 @@ function CheckForInspiredTechs(XComGameState NewGameState)
 ///```event
 ///EventID: CanTechBeInspired,
 ///EventData: [out bool bCanTechBeInspired],
-///EventSource: XComGameState_Tech (TechState)
+///EventSource: XComGameState_Tech (TechState),
 ///NewGameState: yes
 ///```
 private function bool TriggerCanTechBeInspired(XComGameState_Tech TechState, XComGameState NewGameState)
