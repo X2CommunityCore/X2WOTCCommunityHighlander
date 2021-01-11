@@ -136,18 +136,16 @@ function OnProjectCompleted()
 }
 
 // Start Issue #534
-//
-// Triggers a 'PsiProjectCompleted' event that notifies listeners 
-// that a psi operative has finished training.
-//
-// The event itself takes the form:
-//
-//   {
-//      ID: PsiProjectCompleted,
-//      Data: [in XCGS_Unit Unit, in string AbilityName],
-//      Source: self (XCGS_HQProjectPsiTraining)
-//   }
-//
+/// HL-Docs: feature:PsiProjectCompleted; issue:534; tags:strategy
+/// Triggers a `PsiProjectCompleted` event to inform mods that a 
+/// Psi Operative has finished training in the Psi Lab.
+///    
+///```event
+///EventID: PsiProjectCompleted,
+///EventData: [in XCGS_Unit Unit, in string AbilityName],
+///EventSource: XComGameState_HeadquartersProjectPsiTraining (PsiTrainingProject),
+///NewGameState: none
+///```
 function TriggerPsiProjectCompleted(XComGameState_Unit Unit, name AbilityName)
 {
 	local XComLWTuple Tuple;
