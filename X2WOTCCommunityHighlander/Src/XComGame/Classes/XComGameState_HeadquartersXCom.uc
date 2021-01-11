@@ -6944,19 +6944,18 @@ function CheckForInspiredTechs(XComGameState NewGameState)
 }
 
 // Start Issue #633
-//
-// Fires a 'CanTechBeInspired' event that allows mods to determine whether a tech
-// can be inspired or not. If the bool property in the event data is `true`, then
-// the tech can be inspired, otherwise it's not eligible.
-//
-// The event takes the form:
-//
-//   {
-//      ID: CanTechBeInspired,
-//      Data: [inout bool CanBeInspired],
-//      Source: TechState (XCGS_Tech)
-//   }
-//
+/// HL-Docs: feature:CanTechBeInspired; issue:633; tags:strategy
+/// The `CanTechBeInspired` event allows mods to forbid a tech from being inspired. 
+/// This provides an important lever for balancing the strategy game. 
+/// It's particularly important for repeatable techs, which the inspiration mechanic doesn't seem to handle very well 
+/// (the techs remain inspired even after the first inspired research of them is complete).
+///
+///```event
+///EventID: CanTechBeInspired,
+///EventData: [out bool bCanTechBeInspired],
+///EventSource: XComGameState_Tech (TechState)
+///NewGameState: yes
+///```
 private function bool TriggerCanTechBeInspired(XComGameState_Tech TechState, XComGameState NewGameState)
 {
 	local XComLWTuple Tuple;
