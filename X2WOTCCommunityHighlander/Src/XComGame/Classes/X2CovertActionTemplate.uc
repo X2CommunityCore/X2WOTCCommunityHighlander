@@ -25,7 +25,15 @@ var bool							bMultiplesAllowed; // If true, this Covert Action can appear be p
 var bool							bDisplayIgnoresInfluence; // Will create and display this covert action even if the influence requirements are not met
 var bool							bDisplayRequiresAvailable; // For non-golden path actions, displaying the Action always requires a check of its availability
 var bool							bUseRewardImage; // Ignore any image set by the narrative, and instead use the reward image
-var bool							bCanNeverBeRookie; // Issue #695. Not a delegate/event as "is rookie" classification is done once (during campaign setup), not before the action is created
+
+/// HL-Docs: feature:CanNeverBeRookieCovertAction; issue:695; tags:strategy
+/// The game has a concept of "Rookie Covert Actions", which are meant to be always available to the player. 
+/// Any Covert Action without soldier rank requirements is deemed to be a "rookie" Covert Action,
+/// and any of its spawn requirements will be ignored.
+/// Mods that intend to add Covert Actions without soldier rank requirements but with spawn requirements
+///	should set `bCanNeverBeRookie` to `true` so that the game actually takes their spawn requirements into account.
+// Single variable for Issue #695
+var bool							bCanNeverBeRookie;
 
 // Config Data
 var config array<int>				MinActionHours;
