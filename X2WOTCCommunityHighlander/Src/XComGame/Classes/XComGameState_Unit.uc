@@ -13218,7 +13218,7 @@ function bool ShowPromoteIcon()
 	///
 	///```event
 	///EventID: OverrideShowPromoteIcon,
-	///EventData: [out bool bShowPromotionIcon],
+	///EventData: [inout bool bShowPromotionIcon],
 	///EventSource: XComGameState_Unit (UnitState),
 	///NewGameState: none
 	///```

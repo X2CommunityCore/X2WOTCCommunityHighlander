@@ -527,7 +527,7 @@ event bool CanInteractHack(XComGameState_Unit Unit)
 ///	
 ///```event
 ///EventID: AllowInteractHack,
-///EventData: [out bool bAllowInteractHack, in XComGameState_Unit HackingUnit],
+///EventData: [inout bool bAllowInteractHack, in XComGameState_Unit HackingUnit],
 ///EventSource: XComGameState_InteractiveObject (InteractiveObject),
 ///NewGameState: none
 ///```

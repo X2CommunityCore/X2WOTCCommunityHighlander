@@ -125,7 +125,7 @@ function bool MeetsRequirements(XComGameState_MissionSite MissionState)
 ///    
 ///```event
 ///EventID: SitRepCheckAdditionalRequirements,
-///EventData: [out bool bMeetsRequirements, in XComGameState_MissionSite MissionState],
+///EventData: [inout bool bMeetsRequirements, in XComGameState_MissionSite MissionState],
 ///EventSource: X2SitRepTemplate (SitRepTemplate),
 ///NewGameState: none
 ///```
