@@ -707,7 +707,7 @@ simulated function UpdateButtonHelp()
 	/// ```event
 	/// EventID: StrategyMap_NavHelpUpdated,
 	/// EventData: UINavigationHelp,
-	/// EventSource: UIStrategyMap (self),
+	/// EventSource: UIStrategyMap (StrategyMap),
 	/// NewGameState: none
 	/// ```
 	// This event is modeled on the 'UIArmory_WeaponUpgrade_NavHelpUpdated' event.
