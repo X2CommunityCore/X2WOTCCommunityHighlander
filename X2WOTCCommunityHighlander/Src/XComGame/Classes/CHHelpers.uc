@@ -128,6 +128,7 @@ var config(Content) array<name> FlagMaterial;
 var config bool PreserveProxyUnitData;
 // End Issue #465
 // Start Issue #317
+/// HL-Docs: ref:PersonalitySpeech
 struct CharSpeachLookup
 {
 	var name CharSpeech;
