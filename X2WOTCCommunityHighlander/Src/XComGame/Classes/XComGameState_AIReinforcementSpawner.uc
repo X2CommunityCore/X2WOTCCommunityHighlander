@@ -611,6 +611,18 @@ function BuildVisualizationForSpawnerCreation(XComGameState VisualizeGameState)
 	AISpawnerState = XComGameState_AIReinforcementSpawner(History.GetGameStateForObjectID(ObjectID));
 	
 	// Start Issue #448
+	/// HL-Docs: feature:OverrideDisableReinforcementsFlare; issue:448; tags:tactical
+	/// The `OverrideDisableReinforcementsFlare` event allows mods to disable the visuals
+	/// for the particle effects (red flare or purple psionic gate in base game)
+	/// that indicate the location of incoming enemy reinforcements, 
+	/// as well as other visualization associated with it, such as camera panning.
+	///    
+	///```event
+	/// EventID: OverrideDisableReinforcementsFlare,
+	/// EventData: [inout bool bDisableFlare],
+	/// EventSource: XComGameState_AIReinforcementSpawner (AISpawnerState),
+	/// NewGameState: none
+	///```
 	OverrideDisableFlareTuple = new class'XComLWTuple';
 	OverrideDisableFlareTuple.Id = 'OverrideDisableReinforcementsFlare';
 	OverrideDisableFlareTuple.Data.Add(1);
