@@ -300,25 +300,26 @@ static function CalculateWillRoll(WillEventRollData RollInfo, XComGameState_Unit
 			}
 			break;
 		// Start Issue #936
-		/// HL-Docs: feature:AdditionalWillRollStats; issue:936; tags:tactical
-    /// This feature consists of new or previously unused elements, like
-    /// `WillEventRollStat_Flat`, of `enum WillEventRoll_StatType` to the
-    /// switch block in `CalculateWillRoll`.
-    ///
-    /// The `WillEventRollStat_Flat` case sets `CalculatedWillLoss` to
-    /// `1.0f`. This allows it to be modified by `SitRepWillLossScalar`
-    /// and `RollInfo.WillLossStatMultiplier`, which is impossible to do
-    /// using `WillEventRollStat_None`.
-    ///
-    /// ```ini
-    /// ; XComGameCore.ini
-    /// [XComGame.X2EventListener_DefaultWillEvents]
-    /// ExampleWillRollData=(WillLossChance=1, \\
-    ///                      FlatWillLossChance=true, \\
-    ///                      WillLossStat=WillEventRollStat_Flat, \\
-    ///                      WillLossStatMultiplier=4, \\
-    ///                      MaxWillPercentageLostPerMission=0.33)
-    /// ```
+		/// HL-Docs: feature:MoreWillRollStats; issue:936; tags:tactical
+		/// This feature provides mods additional options when creating will loss events through `XComGameStateContext_WillRoll`.
+		/// Adds new elements to `enum WillEventRoll_StatType` and adds implementation of the new elements to `CalculateWillRoll`.
+		/// Elements of `WillEventRoll_StatType` are used when creating `WillEventRollData` in configuration files.
+		/// Example from `XComGameCore.ini`:
+		/// ```ini
+		/// [XComGame.X2EventListener_DefaultWillEvents]
+		/// SawEnemyUnitWillRollData=(WillLossChance=0.5, \\
+		///                           FlatWillLossChance=true, \\
+		///                           WillLossStat=WillEventRollStat_MaxWill, \\
+		///                           WillLossStatMultiplier=0.05, \\
+		///                           MinimumWillLoss=1, \\
+		///                           MaxWillPercentageLostPerMission=0.33)
+		/// ```
+		/// 
+		/// ## Current Additions
+		/// ### WillEventRollStat_Flat
+		/// * Calculated Will Loss: `1.0f`
+		/// * Similar to `WillEventRollStat_None`, but allows will loss to be modified by `X2SitRepEffect_ModifyWillPenalties` effects.
+		/// * For example usage of `X2SitRepEffect_ModifyWillPenalties` see `X2SitRep_DefaultSitRepEffects.CreateDarkEventDarkTowerEffectTemplate()`.
 		case WillEventRollStat_Flat:
 			CalculatedWillLoss = 1.0f;
 			break;
