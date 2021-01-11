@@ -54,24 +54,21 @@ function SetProjectFocus(StateObjectReference FocusRef, optional XComGameState N
 }
 
 // Start Issue #624
-//
-// Triggers an 'OverrideRespecSoldierProjectPoints' event that allows listeners to
-// override the number of project points, i.e. time, required to respec a given
-// soldier.
-//
-// The listener is passed the soldier that is to be respecced and the current
-// project points required, either from the base game's config or from a listener
-// that has fired earlier. To override the project points, the listener simply
-// needs to provide a new value for the ProjectPoints element of the tuple.
-//
-// The event itself takes the form:
-//
-//   {
-//      ID: OverrideRespecSoldierProjectPoints,
-//      Data: [in XComGameState_Unit Unit, inout int ProjectPoints],
-//      Source: self (XComGameState_HeadquartersProjectRespecSoldier)
-//   }
-//
+/// HL-Docs: feature:OverrideRespecSoldierProjectPoints; issue:624; tags:strategy
+/// The 'OverrideRespecSoldierProjectPoints' event that allows mods to 
+/// override the number of project points, i.e. time required to respec a given soldier.
+///
+/// The listener is passed the Unit State of the soldier that is to be respecced
+/// and the current amount of project points required, either from the base game's config,
+/// or from a listener that has fired earlier. To override the project points, 
+/// the listener simply needs to provide a new value for the ProjectPoints element of the tuple.
+///
+///```event
+///EventID: OverrideRespecSoldierProjectPoints,
+///EventData: [in XComGameState_Unit Unit, inout int ProjectPoints],
+///EventSource: XComGameState_HeadquartersProjectRespecSoldier (RespecProject),
+///NewGameState: none
+///```
 function int TriggerOverrideRespecSoldierProjectPoints(XComGameState_Unit UnitState, int ProjectPoints)
 {
 	local XComLWTuple OverrideTuple;
