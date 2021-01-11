@@ -369,7 +369,7 @@ function bool ShouldMoveToIntercept(out Vector TargetInterceptLocation, XComGame
 	// Start Issue #507
 	//
 	// Mod override for AI patrol behavior. If the event returns `true`, then
-	// leave the mod to handle it and just quit out of this metho.
+	// leave the mod to handle it and just quit out of this method.
 	if (TriggerOverridePatrolBehavior())
 	{
 		return false;
@@ -488,22 +488,20 @@ function TriggerOverrideEncounterZoneAnchorPoint(out Vector Anchor)
 // End Issue #500
 
 // Start Issue #507
-//
-// Triggers an 'OverridePatrolBehavior' event that allows listeners to
-// say whether they are handling the pod patrol behavior themselves or
-// want the base game to do it.
-//
-// The event itself takes the form:
-//
-//   {
-//      ID: OverridePatrolBehavior,
-//      Data: [out bool OverridePatrolBehavior],
-//      Source: self
-//   }
-//
+/// HL-Docs: feature:OverridePatrolBehavior; issue:507; tags:tactical
+/// The `OverridePatrolBehavior` event allows mods to override pods' patrol behavior.
+/// The `bOverridePatrolBehavior` component of the tuple should be set to `true` 
+/// if the mod *is* overriding the patrol behavior and wants to bypass 
+/// the default base game patrol logic.
+///    
+///```event
+///EventID: OverridePatrolBehavior,
+///EventData: [out bool bOverridePatrolBehavior],
+///EventSource: XComGameState_AIGroup (AIGroup),
+///NewGameState: none
+///```
 // The method returns `true` if the mod *is* overriding the patrol
 // behavior and wants to bypass the default base game patrol logic.
-//
 function bool TriggerOverridePatrolBehavior()
 {
 	   local XComLWTuple OverrideTuple;
