@@ -327,7 +327,7 @@ static function CalculateWillRoll(WillEventRollData RollInfo, XComGameState_Unit
 		/// * Calculated Will Loss: `1.0f`
 		/// * This element existed, but was not implemented in the base game code.
 		/// * Similar to `WillEventRollStat_None`, but allows will loss to be modified by `X2SitRepEffect_ModifyWillPenalties` effects.
-		/// * For example usage of `X2SitRepEffect_ModifyWillPenalties` see `X2SitRep_DefaultSitRepEffects.CreateDarkEventDarkTowerEffectTemplate()`.
+		/// * For example usage of `X2SitRepEffect_ModifyWillPenalties` see `X2SitRep_DefaultSitRepEffects:CreateDarkEventDarkTowerEffectTemplate`.
 		/// 
 		/// ### WillEventRollStat_CHPercentageHealthLost
 		/// * Calculated Will Loss: (Unit's Max HP - Unit's Current HP) / Unit's Max HP
