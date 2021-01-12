@@ -52,17 +52,17 @@ private function name RemapCondition(const name OriginalCode)
 
 event name CallMeetsCondition(XComGameState_BaseObject kTarget) 
 {
-	return RemapCondition(InnerCondition.CallMeetsCondition(kTarget));
+	return RemapCondition(InnerCondition.MeetsCondition(kTarget));
 }
 
 event name CallMeetsConditionWithSource(XComGameState_BaseObject kTarget, XComGameState_BaseObject kSource) 
 { 
-	return RemapCondition(InnerCondition.CallMeetsConditionWithSource(kTarget, kSource));
+	return RemapCondition(InnerCondition.MeetsConditionWithSource(kTarget, kSource));
 }
 
 event name CallAbilityMeetsCondition(XComGameState_Ability kAbility, XComGameState_BaseObject kTarget) 
 {
-	return RemapCondition(InnerCondition.CallAbilityMeetsCondition(kAbility, kTarget));
+	return RemapCondition(InnerCondition.AbilityMeetsCondition(kAbility, kTarget));
 }
 
 function bool CanEverBeValid(XComGameState_Unit SourceUnit, bool bStrategyCheck)
