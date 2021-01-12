@@ -35,12 +35,18 @@ private function name RemapCondition(const name OriginalCode)
 {
 	local int Index;
 
+	`LOG("Remapping Condition:" @ InnerCondition.Class.Name @ "original return code:" @ OriginalCode,, 'IRITEST');
+
 	Index = MappingDecorations.Find('OriginalCode', OriginalCode);
 
 	if (Index != INDEX_NONE)
 	{
+		`LOG("Found remapped code:" @ Index @ ":" @ MappingDecorations[Index].ReplacementCode,, 'IRITEST');
 		return MappingDecorations[Index].ReplacementCode;
 	}
+
+	`LOG("Did not find remapped code, defaulting to:" @ UnmappedCode == '' ? OriginalCode : UnmappedCode,, 'IRITEST');
+
 	return UnmappedCode == '' ? OriginalCode : UnmappedCode;
 }
 
