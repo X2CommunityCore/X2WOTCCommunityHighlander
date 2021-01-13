@@ -1906,6 +1906,18 @@ static function int GetMaxSoldiersAllowedOnMission(optional XComGameState_Missio
 	local X2SitRepEffect_SquadSize SitRepEffect;
 	local int MaxSquad;
 
+	// Start Issue #953
+	local bool MissionDefLimit;
+	local int MaxBaseSize; // Base size
+	local int SquadSizeUpgradeMod; // GTS upgrades
+	local int SituationMod; // SITREPs, intel purchase
+	local int SitRepMax;
+
+	SquadSizeUpgradeMod = 0;
+	SituationMod = 0;
+	SitRepMax = MaxInt;
+	// End Issue #953
+
 	History = `XCOMHISTORY;
 	XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom', true));
 
@@ -1914,33 +1926,36 @@ static function int GetMaxSoldiersAllowedOnMission(optional XComGameState_Missio
 		Mission = MissionSite.GeneratedMission.Mission;
 	}
 
+
+	// Start Issue #953 -- basically completely reorganized
 	if( Mission.MaxSoldiers > 0 )
 	{
-		MaxSquad = Mission.MaxSoldiers;
+		MaxBaseSize = Mission.MaxSoldiers;
+		MissionDefLimit = true;
 	}
 	else
 	{
-		MaxSquad = default.m_iMaxSoldiersOnMission;
+		MaxBaseSize = default.m_iMaxSoldiersOnMission;
 		if (History.GetCurrentHistoryIndex() > -1)
 		{
 			if (XComHQ != none)
 			{
 				if (XComHQ.SoldierUnlockTemplates.Find('SquadSizeIUnlock') != INDEX_NONE)
-					MaxSquad++;
+					SquadSizeUpgradeMod += 1;
 				if (XComHQ.SoldierUnlockTemplates.Find('SquadSizeIIUnlock') != INDEX_NONE)
-					MaxSquad++;
+					SquadSizeUpgradeMod += 1;
 			}
 			else
 			{
 				// give both unlock slots in TQL and PIE
-				MaxSquad += 2;
+				SquadSizeUpgradeMod += 2;
 			}
 		}
 	}
 
 	if( XComHQ != None && XComHQ.TacticalGameplayTags.Find('ExtraSoldier_Intel') != INDEX_NONE )
 	{
-		++MaxSquad;
+		SituationMod += 1;
 	}
 
 	// check if we have any sitreps that modify the size of the squad
@@ -1950,16 +1965,39 @@ static function int GetMaxSoldiersAllowedOnMission(optional XComGameState_Missio
 		{
 			if(SitRepEffect.MaxSquadSize > 0)
 			{
-				MaxSquad = min(MaxSquad, SitRepEffect.MaxSquadSize);
+				SitRepMax = min(SitRepMax, SitRepEffect.MaxSquadSize);
 			}
 
-			// add in the relative adjustment value, but make sure we have at least one unit
-			MaxSquad = Max(1, MaxSquad + SitRepEffect.SquadSizeAdjustment);
+			// add in the relative adjustment value
+			SituationMod += SitRepEffect.SquadSizeAdjustment;
 		}
 	}
+	
+	class'X2TacticalGameRuleset'.static.ReleaseScriptLog("GetMaxSoldiersAllowedOnMission before DLC hooks:"@`showvar(MissionDefLimit)@`showvar(MaxBaseSize)@`showvar(SquadSizeUpgradeMod)@`showvar(SituationMod)@`showvar(SitRepMax));
+	CallModifyMaxSquadSize(MissionSite, MissionDefLimit, MaxBaseSize, SquadSizeUpgradeMod, SituationMod, SitRepMax);
+	class'X2TacticalGameRuleset'.static.ReleaseScriptLog("GetMaxSoldiersAllowedOnMission after DLC hooks:"@`showvar(MissionDefLimit)@`showvar(MaxBaseSize)@`showvar(SquadSizeUpgradeMod)@`showvar(SituationMod)@`showvar(SitRepMax));
+	
+	// Make sure adjustments don't bring us below 1
+	MaxSquad = Min(Max(1, MaxBaseSize + SquadSizeUpgradeMod + SituationMod), SitRepMax);
+	class'X2TacticalGameRuleset'.static.ReleaseScriptLog("GetMaxSoldiersAllowedOnMission:"@`showvar(MaxSquad));
 
+	// End Issue #953
 	return MaxSquad;
 }
+
+// Start Issue #953
+static private function CallModifyMaxSquadSize(XComGameState_MissionSite MissionSite, bool MissionDefLimit, out int MaxBaseSize, out int SquadSizeUpgradeMod, out int SituationMod, out int SitRepMax)
+{
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local int i;
+
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	for(i = 0; i < DLCInfos.Length; ++i)
+	{
+		DLCInfos[i].ModifyMaxSquadSize(MissionSite, MissionDefLimit, MaxBaseSize, SquadSizeUpgradeMod, SituationMod, SitRepMax);
+	}
+}
+// End Issue #953
 
 static function bool HasSquadSizeUpgrade()
 {
