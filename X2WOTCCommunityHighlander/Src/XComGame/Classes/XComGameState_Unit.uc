@@ -4079,7 +4079,7 @@ function bool HasHeavyWeapon(optional XComGameState CheckGameState)
 	Tuple.Data[2].kind = XComLWTVObject;
 	Tuple.Data[2].o = CheckGameState;
 
-	`XEVENTMGR.TriggerEvent('OverrideHasHeavyWeapon', Tuple, self);
+	`XEVENTMGR.TriggerEvent('OverrideHasHeavyWeapon', Tuple, self, CheckGameState);
 
 	bOverrideHasHeavyWeapon = Tuple.Data[0].b;
 	bHasHeavyWeapon = Tuple.Data[1].b;
