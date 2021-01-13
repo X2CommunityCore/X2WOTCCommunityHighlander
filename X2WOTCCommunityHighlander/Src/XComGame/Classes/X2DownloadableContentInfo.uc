@@ -336,6 +336,13 @@ static function GetNumUtilitySlotsOverride(out int NumUtilitySlots, XComGameStat
 
 /// Allows override number of heavy weapons slots
 /// These are the only base game slots that can be safely unrestricted since they are optional and not expected by class perks, if you want other multi slots use the CHItemSlot feature
+/// HL-Docs: feature:GetNumHeavyWeaponSlotsOverride; issue:171; tags:loadoutslots,strategy
+/// The `GetNumHeavyWeaponSlotsOverride()` X2DLCInfo method allows mods to override 
+/// the base game logic that determines how many Heavy Weapon Slots a Unit has.
+/// To do so, simply interact with the `NumHeavySlots` argument by increasing,
+/// decreasing or setting its value directly.
+/// Note that this X2DLCInfo method is executed 
+/// after the [OverrideHasHeavyWeapon](../loadoutslots/OverrideHasHeavyWeapon.md) event, and may override its result.
 static function GetNumHeavyWeaponSlotsOverride(out int NumHeavySlots, XComGameState_Unit UnitState, XComGameState CheckGameState)
 {
 }
