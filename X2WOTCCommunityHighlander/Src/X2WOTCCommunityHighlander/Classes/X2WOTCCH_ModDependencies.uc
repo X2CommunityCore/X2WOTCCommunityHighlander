@@ -17,6 +17,14 @@ var localized string ModRequiredPopupTitle;
 var localized string ModIncompatiblePopupTitle;
 var localized string DisablePopup;
 
+// Begin Issue #909
+var localized string ModRequiresNewerHighlanderVersionTitle;
+var localized string ModRequiresNewerHighlanderVersionText;
+var localized string CurrentHighlanderVersionTitle;
+var localized string RequiredHighlanderVersionTitle;
+var localized string ModRequiresNewerHighlanderVersionExtraText;
+// End Issue #909
+
 static function array<ModDependency> GetRequiredMods()
 {
 	local array<X2DownloadableContentInfo> DLCInfos;
@@ -175,3 +183,40 @@ function static string Join(array<string> StringArray, optional string Delimiter
 
 	return Result;
 }
+
+// Begin Issue #909
+static final function GetModsThatRequireNewerCHLVersion(out array<CHModDependency> ModsThatRequireNewerCHLVersion)
+{
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local X2DownloadableContentInfo        DLCInfo;
+	local CHModDependency                  ModDependencyObj;
+	local CHLVersionStruct                 CurrentCHLVersion;
+
+	GetCurrentCHLVersion(CurrentCHLVersion);
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	
+	foreach DLCInfos(DLCInfo)
+	{
+		ModDependencyObj = DLCInfo.GetMyCHModDependency();
+
+		if (IsCurrentCHLVersionOlderThanRequired(CurrentCHLVersion, ModDependencyObj.RequiredHighlanderVersion))
+		{
+			ModsThatRequireNewerCHLVersion.AddItem(ModDependencyObj);
+		}
+	}
+}	
+
+static final function GetCurrentCHLVersion(out CHLVersionStruct CurrentCHLVersion)
+{
+	CurrentCHLVersion.MajorVersion = class'CHXComGameVersionTemplate'.default.MajorVersion;
+	CurrentCHLVersion.MinorVersion = class'CHXComGameVersionTemplate'.default.MinorVersion;
+	CurrentCHLVersion.PatchVersion = class'CHXComGameVersionTemplate'.default.PatchVersion;
+}
+
+static private function bool IsCurrentCHLVersionOlderThanRequired(const out CHLVersionStruct CurrentCHLVersion, const out CHLVersionStruct RequiredCHLVersion)
+{
+    return CurrentCHLVersion.MajorVersion < RequiredCHLVersion.MajorVersion ||
+           CurrentCHLVersion.MinorVersion < RequiredCHLVersion.MinorVersion ||
+           CurrentCHLVersion.PatchVersion < RequiredCHLVersion.PatchVersion;
+}
+// End Issue #909

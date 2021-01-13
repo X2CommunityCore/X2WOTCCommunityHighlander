@@ -762,3 +762,32 @@ final function string GetDisplayName()
 	return ModDependency.DisplayName;
 }
 /// End Issue #524
+
+/// Start Issue #909
+/// <summary>
+/// Allow mods to specify the required Highlander version.
+/// Should be specified in the mod's XComGame.ini like this:
+/// [ModSafeName CHModDependency]
+/// RequiredHighlanderVersion = (MajorVersion = 1, MinorVersion = 22, PatchVersion = 0)
+/// </summary>
+/// HL-Docs: feature:RequiredHighlanderVersion; issue:909; tags:compatibility
+/// Mods can specify the version of the Highlander they require to function properly.
+/// If the mod user has an older version of the Highlander installed, they will 
+/// see a popup warning when they start the game. 
+/// Note: this feature is disabled if the game is started without the `-review`
+/// launch argument. 
+/// The required version should be specified in the mod's `XComGame.ini` config file:
+///```ini
+/// [ModSafeName CHModDependency]
+/// RequiredHighlanderVersion = (MajorVersion = 1, MinorVersion = 22, PatchVersion = 0)
+///```
+final function CHModDependency GetMyCHModDependency()
+{
+	local CHModDependency ModDependencyObj;
+
+	ModDependencyObj = new(none, DLCIdentifier)class'CHModDependency';
+	ModDependencyObj.DLCIdentifier = name(DLCIdentifier);
+
+	return ModDependencyObj;
+}
+/// End Issue #909

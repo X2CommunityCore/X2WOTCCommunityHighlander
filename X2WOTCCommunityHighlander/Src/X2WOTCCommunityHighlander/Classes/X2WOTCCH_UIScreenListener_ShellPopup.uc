@@ -11,6 +11,9 @@ class X2WOTCCH_UIScreenListener_ShellPopup
 var config array<name> HideIncompatibleModWarnings;
 var config array<name> HideRequiredModWarnings;
 
+// Single variable for Issue #909
+var config array<name> HideRequiredNewerCHLVersionModWarnings;
+
 event OnInit(UIScreen Screen)
 {
 	// if UIShell(Screen).DebugMenuContainer is set do NOT show since were not on the final shell
@@ -18,6 +21,7 @@ event OnInit(UIScreen Screen)
 	{
 		Screen.SetTimer(2.5f, false, nameof(IncompatibleModsPopups), self);
 		Screen.SetTimer(2.6f, false, nameof(RequiredModsPopups), self);
+		Screen.SetTimer(2.7f, false, nameof(ModsRequireNewerCHLVersionPopups), self);
 	}
 }
 
@@ -157,3 +161,91 @@ function static string MakeBulletList(array<string> List)
 	
 	return Buffer;
 }
+
+// Begin Issue #909
+simulated function ModsRequireNewerCHLVersionPopups()
+{
+	local TDialogueBoxData            kDialogData;
+	local X2WOTCCH_DialogCallbackData CallbackData;
+	local int                         Index;
+	local array<CHModDependency>      ModsForPopup;
+	local CHModDependency             ModForPopup;
+	local string                      strCurrentVersion;
+	local string                      strRequiredVersion;
+
+	class'X2WOTCCH_ModDependencies'.static.GetModsThatRequireNewerCHLVersion(ModsForPopup);
+	strCurrentVersion = GetCurrentCHLVersionColoredText();
+	
+	foreach ModsForPopup(ModForPopup)
+	{
+		Index = HideRequiredNewerCHLVersionModWarnings.Find(ModForPopup.DLCIdentifier);
+
+		if (Index == INDEX_NONE)
+		{
+			kDialogData.strTitle = class'X2WOTCCH_ModDependencies'.default.ModRequiresNewerHighlanderVersionTitle;
+
+			strRequiredVersion = GetRequiredCHLVersionColoredText(ModForPopup.RequiredHighlanderVersion);
+			kDialogData.strText = GetRequireNewerCHLVersionPopupText(ModForPopup, strCurrentVersion, strRequiredVersion);
+
+			CallbackData = new class'X2WOTCCH_DialogCallbackData';
+			CallbackData.DependencyData.DLCIdentifier = ModForPopup.DLCIdentifier;
+			kDialogData.xUserData = CallbackData;
+			kDialogData.fnCallbackEx = RequireNewerCHLVersionCB;
+			kDialogData.strAccept = class'X2WOTCCH_ModDependencies'.default.DisablePopup;
+			kDialogData.strCancel = class'UIUtilities_Text'.default.m_strGenericAccept;
+			kDialogData.eType = eDialog_Warning;
+			
+			`PRESBASE.UIRaiseDialog(kDialogData);
+		}
+	}
+}
+static private function string GetRequireNewerCHLVersionPopupText(const out CHModDependency ModForPopup, string strCurrentVersion, string strRequiredVersion)
+{
+	local string strModDisplayName;
+	
+	strModDisplayName = ModForPopup.DisplayName == "" ? string(ModForPopup.DLCIdentifier) : ModForPopup.DisplayName;
+
+	return class'X2WOTCCH_ModDependencies'.default.ModRequiresNewerHighlanderVersionText @ strModDisplayName $ "\n" $ 
+	       strCurrentVersion $ 
+		   strRequiredVersion $ "\n\n" $
+           class'X2WOTCCH_ModDependencies'.default.ModRequiresNewerHighlanderVersionExtraText;
+}
+static private function string GetCurrentCHLVersionColoredText()
+{
+	local CHLVersionStruct CHLVersion;
+	local string strVersionText;
+
+	class'X2WOTCCH_ModDependencies'.static.GetCurrentCHLVersion(CHLVersion);
+
+	strVersionText = CHLVersion.MajorVersion $ "." $ CHLVersion.MinorVersion $ "." $ CHLVersion.PatchVersion;
+	
+	return class'X2WOTCCH_ModDependencies'.default.CurrentHighlanderVersionTitle @ class'UIUtilities_Text'.static.GetColoredText(strVersionText, eUIState_Bad) $ "\n";
+}
+static private function string GetRequiredCHLVersionColoredText(const out CHLVersionStruct CHLVersion)
+{
+	local string strVersionText;
+
+	strVersionText = CHLVersion.MajorVersion $ "." $ CHLVersion.MinorVersion $ "." $ CHLVersion.PatchVersion;
+	
+	return class'X2WOTCCH_ModDependencies'.default.RequiredHighlanderVersionTitle @ class'UIUtilities_Text'.static.GetColoredText(strVersionText, eUIState_Good);
+}
+
+simulated function RequireNewerCHLVersionCB(Name eAction, UICallbackData xUserData)
+{
+	local X2WOTCCH_DialogCallbackData CallbackData;
+
+	if (eAction == 'eUIAction_Accept')
+	{
+		CallbackData = X2WOTCCH_DialogCallbackData(xUserData);
+		HideRequiredNewerCHLVersionModWarnings.AddItem(CallbackData.DependencyData.DLCIdentifier);
+
+		`PRESBASE.PlayUISound(eSUISound_MenuSelect);
+		
+		self.SaveConfig();
+	}
+	else
+	{
+		`PRESBASE.PlayUISound(eSUISound_MenuSelect);
+	}
+}
+// End Issue #909
