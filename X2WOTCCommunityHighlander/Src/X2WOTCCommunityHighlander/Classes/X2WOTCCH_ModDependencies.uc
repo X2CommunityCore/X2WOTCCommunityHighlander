@@ -215,8 +215,18 @@ static final function GetCurrentCHLVersion(out CHLVersionStruct CurrentCHLVersio
 
 static private function bool IsCurrentCHLVersionOlderThanRequired(const out CHLVersionStruct CurrentCHLVersion, const out CHLVersionStruct RequiredCHLVersion)
 {
-    return CurrentCHLVersion.MajorVersion < RequiredCHLVersion.MajorVersion ||
-           CurrentCHLVersion.MinorVersion < RequiredCHLVersion.MinorVersion ||
-           CurrentCHLVersion.PatchVersion < RequiredCHLVersion.PatchVersion;
+	if (CurrentCHLVersion.MajorVersion > RequiredCHLVersion.MajorVersion)
+		return false;
+
+	if (CurrentCHLVersion.MajorVersion < RequiredCHLVersion.MajorVersion)
+		return true;
+
+	if (CurrentCHLVersion.MinorVersion > RequiredCHLVersion.MinorVersion)
+		return false;
+
+	if (CurrentCHLVersion.MinorVersion < RequiredCHLVersion.MinorVersion)
+		return true;
+
+	return CurrentCHLVersion.PatchVersion < RequiredCHLVersion.PatchVersion;
 }
 // End Issue #909

@@ -758,7 +758,7 @@ final function string GetDisplayName()
 	local CHModDependency ModDependency;
 
 	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
-	// Equivalent to empty string if not specified in localization
+	// Equivalent to empty string if not specified in config
 	return ModDependency.DisplayName;
 }
 /// End Issue #524
