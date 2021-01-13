@@ -3690,6 +3690,42 @@ function RollForTrainingCenterAbilities()
 			}
 		}
 	}
+
+	/// HL-Docs: feature:PostRollForTrainingCenterAbilities; issue:815; tags:strategy
+	/// The `PostRollForTrainingCenterAbilities` event allows mods to make arbitrary changes
+	/// to a Soldier after their Training Center abilities have been rolled.
+	///
+	/// Typicaly this should be used to add or remove Training Center abilities
+	/// from the Soldier. To do so you have to access `UnitState.AbilityTree` directly. 
+	/// If the Soldier has rolled any Training Center abilities, 
+	/// they will be in the very last Rank Index.
+	///
+	///```event
+	/// EventID: PostRollForTrainingCenterAbilities,
+	/// EventData: none,
+	/// EventSource: XComGameState_Unit (UnitState),
+	/// NewGameState: none
+	///```
+	/// Example code:
+	///```unrealscript
+	///static function EventListenerReturn ListenerEventFunction(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
+	///{
+	///    local XComGameState_Unit UnitState;
+	///    local int MaxRankIndex;
+	///    local int i;
+	///
+	///    UnitState = XComGameState_Unit(EventSource);
+	///    MaxRankIndex = UnitState.GetSoldierClassTemplate().GetMaxConfiguredRank() - 1;
+	///
+	///    // Cycle through the row of Training Center perks
+	///    for (i = 0; i < UnitState.AbilityTree[MaxRankIndex].Abilities.Length; i++)
+	///    {
+	///        // Do something with UnitState.AbilityTree[MaxRankIndex].Abilities[i]
+	///    }
+	///    return ELR_NoInterrupt;
+	///}
+	// Single line for Issue #815
+	`XEVENTMGR.TriggerEvent('PostRollForTrainingCenterAbilities',, self);
 }
 
 function bool NeedsAWCAbilityPopup()
