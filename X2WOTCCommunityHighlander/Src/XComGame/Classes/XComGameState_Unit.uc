@@ -4052,12 +4052,23 @@ function bool HasExtraUtilitySlotFromAbility()
 function bool HasHeavyWeapon(optional XComGameState CheckGameState)
 {
 	local XComGameState_Item ItemState;
-	local name CheckAbility;
 	// Variables for Issue #172
 	local XComLWTuple Tuple;
 	local bool bOverrideHasHeavyWeapon, bHasHeavyWeapon;
 
 	// Start Issue #172
+	/// HL-Docs: feature:OverrideHasHeavyWeapon; issue:172; tags:loadoutslots,strategy
+	/// The `OverrideHasHeavyWeapon` event allows mods to override the base game logic
+	/// that determines whether a Unit has a Heavy Weapon Slot or not.
+	/// Keep in mind the [GetNumHeavyWeaponSlotsOverride()](../loadoutslots/GetNumHeavyWeaponSlotsOverride.md) X2DLCInfo method may override
+	/// this later.
+	///
+	/// ```event
+	/// EventID: OverrideHasHeavyWeapon,
+	/// EventData: [inout bool bOverrideHasHeavyWeapon, inout bool bHasHeavyWeapon],
+	/// EventSource: XComGameState_Unit (UnitState),
+	/// NewGameState: maybe
+	/// ```
 	Tuple = new class'XComLWTuple';
 	Tuple.Id = 'OverrideHasHeavyWeapon';
 	Tuple.Data.Add(3);
