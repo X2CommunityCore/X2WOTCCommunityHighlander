@@ -685,7 +685,7 @@ static function UnitPawnPostInitAnimTree(XComGameState_Unit UnitState, XComUnitP
 /// 	if (MissionDefLimit) return; // Mission definition imposes a maximum -- probably for a good reason
 /// 
 /// 	XComHQ = `XCOMHQ;
-/// 	if (History.GetCurrentHistoryIndex() > -1 && XComHQ != none) // cargo-culted from original code
+/// 	if (`XCOMHISTORY.GetCurrentHistoryIndex() > -1 && XComHQ != none) // cargo-culted from original code
 ///     {
 ///     	if (XComHQ.SoldierUnlockTemplates.Find('SquadSizeIIIUnlock') != INDEX_NONE) { SquadSizeUpgradeMod += 1; }
 ///     	if (XComHQ.SoldierUnlockTemplates.Find('SquadSizeIVUnlock') != INDEX_NONE) { SquadSizeUpgradeMod += 1; }
