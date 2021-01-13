@@ -22,9 +22,9 @@ class BuildProject {
 
 	# lazily set
 	[string] $modSrcRoot
+	[string] $devSrcRoot
 	[string] $stagingPath
 	[string] $modcookdir
-	[string[]] $allpackages
 	[string[]] $thismodpackages
 	[bool] $isHl
 	[bool] $cook
@@ -126,10 +126,9 @@ class BuildProject {
 	[void]_SetupUtils() {
 		$this.modSrcRoot = "$($this.projectRoot)\$($this.modNameCanonical)"
 		$this.stagingPath = "$($this.sdkPath)\XComGame\Mods\$($this.modNameCanonical)"
+		$this.devSrcRoot = "$($this.sdkPath)\Development\Src"
 
 		# build package lists we'll need later and delete as appropriate
-		# all packages we are about to compile
-		$this.allpackages = Get-ChildItem "$($this.sdkPath)/Development/Src" -Directory
 		# the mod's packages
 		$this.thismodpackages = Get-ChildItem "$($this.modSrcRoot)/Src" -Directory
 
@@ -240,23 +239,29 @@ class BuildProject {
 	[void]_CopyToSrc() {
 		# mirror the SDK's SrcOrig to its Src
 		Write-Host "Mirroring SrcOrig to Src..."
-		Robocopy.exe "$($this.sdkPath)\Development\SrcOrig" "$($this.sdkPath)\Development\Src" *.uc *.uci $global:def_robocopy_args
+		Robocopy.exe "$($this.sdkPath)\Development\SrcOrig" "$($this.devSrcRoot)" *.uc *.uci $global:def_robocopy_args
 		Write-Host "Mirrored SrcOrig to Src."
 
 		# Copy dependencies
 		Write-Host "Copying dependency sources to Src..."
 		foreach ($depfolder in $this.include) {
-			#$dep_packages = Get-ChildItem $(depfolder) -Directory -Name
-			#Write-Host $dep_packages
 			Get-ChildItem "$($depfolder)" -Directory -Name | Write-Host
-			Copy-Item "$($depfolder)\*" "$($this.sdkPath)\Development\Src\" -Force -Recurse -WarningAction SilentlyContinue
+			$this._CopySrcFolder($depfolder)
 		}
 		Write-Host "Copied dependency sources to Src."
 
 		# copying the mod's scripts to the script staging location
 		Write-Host "Copying the mod's sources to Src..."
-		Copy-Item "$($this.stagingPath)\Src\*" "$($this.sdkPath)\Development\Src\" -Force -Recurse -WarningAction SilentlyContinue
+		$this._CopySrcFolder("$($this.stagingPath)\Src")
 		Write-Host "Copied mod sources to Src."
+	}
+
+	[void]_CopySrcFolder([string] $includeDir) {
+		Copy-Item "$($includeDir)\*" "$($this.devSrcRoot)\" -Force -Recurse -WarningAction SilentlyContinue
+		if (Test-Path "$($includeDir)\extra_globals.uci") {
+			# append extra_globals.uci to globals.uci
+			Get-Content "$($includeDir)\extra_globals.uci" | Add-Content "$($this.devSrcRoot)\Core\Globals.uci"
+		}
 	}
 
 	[void]_RunPreMakeHooks() {
