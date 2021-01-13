@@ -4090,11 +4090,16 @@ function bool HasHeavyWeapon(optional XComGameState CheckGameState)
 	}
 	// End Issue Issue #172
 
-	foreach class'X2AbilityTemplateManager'.default.AbilityUnlocksHeavyWeapon(CheckAbility)
+	// Start Issue #881
+	/// HL-Docs: feature:ExtendHasHeavyWeapon; issue:881; tags:loadoutslots,strategy
+	/// Extends the ability check in `HasHeavyWeapon()` for the config array `AbilityUnlocksHeavyWeapon` (`XComGameData.ini`) to item granted abilities
+	/// and abilities granted by the character template.
+	bHasHeavyWeapon = HasAnyOfTheAbilitiesFromAnySource(class'X2AbilityTemplateManager'.default.AbilityUnlocksHeavyWeapon);
+	if (bHasHeavyWeapon)
 	{
-		if (HasSoldierAbility(CheckAbility))
-			return true;
+		return true;
 	}
+	// End Issue #881
 
 	ItemState = GetItemInSlot(eInvSlot_Armor, CheckGameState);
 	if (ItemState != none)
