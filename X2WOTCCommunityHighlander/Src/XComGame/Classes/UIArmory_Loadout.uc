@@ -1121,7 +1121,7 @@ simulated function bool EquipItem(UIArmory_LoadoutItem Item)
 	local XComGameState_Unit UpdatedUnit;
 	local XComGameState UpdatedState;
 	local X2WeaponTemplate WeaponTemplate;
-	local EInventorySlot InventorySlot;
+	//local EInventorySlot InventorySlot; // Issue #337
 
 	UpdatedState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Equip Item");
 	UpdatedUnit = XComGameState_Unit(UpdatedState.ModifyStateObject(class'XComGameState_Unit', GetUnit().ObjectID));
@@ -1139,6 +1139,17 @@ simulated function bool EquipItem(UIArmory_LoadoutItem Item)
 	if(PrevItem != none)
 	{
 		PrevItem = XComGameState_Item(UpdatedState.ModifyStateObject(class'XComGameState_Item', PrevItem.ObjectID));
+
+		// Start Issue #337
+		/// HL-Docs: ref:Bugfixes; issue:337
+		/// Detach all visible equipment before destroying it rather than only primary or secondary weapons.
+		Weapon = XGWeapon(PrevItem.GetVisualizer());
+		if (Weapon != none && Weapon.GetEntity().Mesh != none && XComUnitPawn(ActorPawn) != none)
+		{
+			XComUnitPawn(ActorPawn).DetachItem(Weapon.GetEntity().Mesh);
+			Weapon.Destroy();
+		}
+		// End Issue #337
 	}
 
 	foreach UpdatedState.IterateByClassType(class'XComGameState_HeadquartersXCom', XComHQ)
@@ -1152,17 +1163,20 @@ simulated function bool EquipItem(UIArmory_LoadoutItem Item)
 		XComHQ = XComGameState_HeadquartersXCom(UpdatedState.ModifyStateObject(class'XComGameState_HeadquartersXCom', XComHQ.ObjectID));
 	}
 
+	// Start Issue #337
+	// Deprecate base game code, as it is redundant with the code above.
 	// Attempt to remove previously equipped primary or secondary weapons
-	WeaponTemplate = (PrevItem != none) ? X2WeaponTemplate(PrevItem.GetMyTemplate()) : none;
-	InventorySlot = (WeaponTemplate != none) ? WeaponTemplate.InventorySlot : eInvSlot_Unknown;
-	if( (InventorySlot == eInvSlot_PrimaryWeapon) || (InventorySlot == eInvSlot_SecondaryWeapon))
-	{
-		Weapon = XGWeapon(PrevItem.GetVisualizer());
-		// Weapon must be graphically detach, otherwise destroying it leaves a NULL component attached at that socket
-		XComUnitPawn(ActorPawn).DetachItem(Weapon.GetEntity().Mesh);
-
-		Weapon.Destroy();
-	}
+	//WeaponTemplate = (PrevItem != none) ? X2WeaponTemplate(PrevItem.GetMyTemplate()) : none;
+	//InventorySlot = (WeaponTemplate != none) ? WeaponTemplate.InventorySlot : eInvSlot_Unknown;
+	//if( (InventorySlot == eInvSlot_PrimaryWeapon) || (InventorySlot == eInvSlot_SecondaryWeapon))
+	//{
+	//	Weapon = XGWeapon(PrevItem.GetVisualizer());
+	//	// Weapon must be graphically detach, otherwise destroying it leaves a NULL component attached at that socket
+	//	XComUnitPawn(ActorPawn).DetachItem(Weapon.GetEntity().Mesh);
+	//
+	//	Weapon.Destroy();
+	//}
+	// End Issue #337
 	
 	//issue #114: pass along item state in CanAddItemToInventory check, in case there's a mod that wants to prevent a specific item from being equipped. We also assign an itemstate to NewItem now, so we can use it for the full inventory check.
 	NewItem = XComGameState_Item(`XCOMHISTORY.GetGameStateForObjectID(NewItemRef.ObjectID));
