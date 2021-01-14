@@ -765,7 +765,9 @@ static function TypicalAbility_BuildVisualization(XComGameState VisualizeGameSta
 	VisualizationMgr = `XCOMVISUALIZATIONMGR;
 	Context = XComGameStateContext_Ability(VisualizeGameState.GetContext());
 	AbilityContext = Context.InputContext;
-	AbilityState = XComGameState_Ability(History.GetGameStateForObjectID(AbilityContext.AbilityRef.ObjectID));
+	/// HL-Docs: ref:Bugfixes; issue:879
+	/// Use HistoryIndex to access the AbilityState as it was when the ability was activated rather than getting the most recent version.
+	AbilityState = XComGameState_Ability(History.GetGameStateForObjectID(AbilityContext.AbilityRef.ObjectID,, VisualizeGameState.HistoryIndex));
 	AbilityTemplate = class'XComGameState_Ability'.static.GetMyTemplateManager().FindAbilityTemplate(AbilityContext.AbilityTemplateName);
 	ShootingUnitRef = Context.InputContext.SourceObject;
 
@@ -782,7 +784,9 @@ static function TypicalAbility_BuildVisualization(XComGameState VisualizeGameSta
 		SourceData.StateObject_NewState = SourceData.StateObject_OldState;
 	SourceData.VisualizeActor = ShooterVisualizer;	
 
-	SourceWeapon = XComGameState_Item(History.GetGameStateForObjectID(AbilityContext.ItemObject.ObjectID));
+	/// HL-Docs: ref:Bugfixes; issue:879
+	/// Use HistoryIndex to access the WeaponState as it was when the ability was activated rather than getting the most recent version.
+	SourceWeapon = XComGameState_Item(History.GetGameStateForObjectID(AbilityContext.ItemObject.ObjectID,, VisualizeGameState.HistoryIndex));
 	if (SourceWeapon != None)
 	{
 		WeaponTemplate = X2WeaponTemplate(SourceWeapon.GetMyTemplate());
