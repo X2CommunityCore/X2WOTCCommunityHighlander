@@ -2013,6 +2013,8 @@ simulated function EquipWeapon( XComWeapon kWeapon, bool bImmediate, bool bIsRea
 	local XComGameStateHistory History;
 	local X2WeaponTemplate WeaponTemplate;
 	local int Idx;
+	// Single variable for Issue #921
+	local float fOverrideWeaponScale;
 
 	// Jerad@Psyonix, do some stuff that InventoryManager.CreateInventory does...
 	if (kWeapon != None)
@@ -2044,6 +2046,13 @@ simulated function EquipWeapon( XComWeapon kWeapon, bool bImmediate, bool bIsRea
 			WeaponTemplate = X2WeaponTemplate(Item.GetMyTemplate());
 			if( bIsFemale && !IsA('XComMECPawn') && (WeaponTemplate == none || !WeaponTemplate.bUseArmorAppearance))
 				kWeapon.Mesh.SetScale(WeaponScale);
+
+			// Start Issue #921
+			if (TriggerOverrideWeaponScale(fOverrideWeaponScale, Item))
+			{
+				kWeapon.Mesh.SetScale(fOverrideWeaponScale);
+			}
+			// End Issue #921
 
 			Mesh.AttachComponentToSocket(kWeapon.Mesh, kWeapon.DefaultSocket);
 			kWeapon.Mesh.CastShadow = true;
@@ -2080,6 +2089,39 @@ simulated function EquipWeapon( XComWeapon kWeapon, bool bImmediate, bool bIsRea
 
 	MarkAuxParametersAsDirty(m_bAuxParamNeedsPrimary, m_bAuxParamNeedsSecondary, m_bAuxParamUse3POutline);
 }
+// Start Issue #921
+/// HL-Docs: feature:OverrideWeaponScale; issue:921; tags:pawns
+/// The `OverrideWeaponScale` event allows mods to rescale weapons for unit pawns. 
+/// This event is triggered from `XComUnitPawn::EquipWeapon()` and `XComUnitPawn::AttachItem()`.
+/// The `ItemState` component of the Tuple will be `none` in the second case.
+///
+/// ```event
+/// EventID: OverrideWeaponScale,
+/// EventData: [out bool bOverride, inout float fOverrideWeaponScale, in XComGameState_Item ItemState],
+/// EventSource: XComUnitPawn (UnitPawn),
+/// NewGameState: none
+/// ```
+private function bool TriggerOverrideWeaponScale(out float fOverrideWeaponScale, optional XComGameState_Item Item)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideWeaponScale';
+	OverrideTuple.Data.Add(3);
+	OverrideTuple.Data[0].kind = XComLWTVBool;
+	OverrideTuple.Data[0].b = false;  
+	OverrideTuple.Data[1].kind = XComLWTVFloat;
+	OverrideTuple.Data[1].f = fOverrideWeaponScale; 
+	OverrideTuple.Data[2].kind = XComLWTVObject;
+	OverrideTuple.Data[2].o = Item; 
+
+	`XEVENTMGR.TriggerEvent('OverrideWeaponScale', OverrideTuple, self);
+
+	fOverrideWeaponScale = OverrideTuple.Data[1].f;
+
+	return OverrideTuple.Data[0].b;
+}
+// End Issue #921
 
 // This function creates and attaches the meshes needed for a soldier's loadout in a non-gamestate altering way.
 // It is ONLY intended for representative purposes, such as the UI, throwaway matinee pawns, etc. Do not use it 
@@ -2531,6 +2573,9 @@ simulated function AttachItem(Actor a, name SocketName, bool bIsRearBackPackItem
 	local bool bHideItem;
 	local int i;
 
+	// Single variable for Issue #921
+	local float fOverrideWeaponScale;
+
 	// MHU - Is there already a foundMeshComponent? If so, then the weapon was already added to the unit
 	//       and we're now moving it to a different socketName.
 	if (kFoundMeshComponent != none)
@@ -2545,6 +2590,14 @@ simulated function AttachItem(Actor a, name SocketName, bool bIsRearBackPackItem
 			// For non-MEC females, all weapons are scaled to 75% -- jboswell
 			if (bIsFemale && !IsA('XComMECPawn'))
 				MeshComp.SetScale(WeaponScale);
+
+			// Start Issue #921
+			if (TriggerOverrideWeaponScale(fOverrideWeaponScale))
+			{
+				MeshComp.SetScale(fOverrideWeaponScale);
+			}
+			// End Issue #921
+
 			// `log("Pawn::AddItem:" @ MeshComp @ SocketName);
 			Mesh.AttachComponentToSocket(MeshComp, SocketName);
 
