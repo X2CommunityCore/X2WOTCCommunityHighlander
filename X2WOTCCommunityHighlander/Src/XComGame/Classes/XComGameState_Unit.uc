@@ -6415,7 +6415,12 @@ event TakeDamage( XComGameState NewGameState, const int DamageAmount, const int 
 	//Damage removes ReserveActionPoints(Overwatch)
 	if ((DamageAmount + MitigationAmount) > 0)
 	{
-		ReserveActionPoints.Length = 0;
+		// Begin Issue #903
+		if (TriggerOverrideDamageRemovesReserveActionPointsEvent(NewGameState))
+		{
+			ReserveActionPoints.Length = 0;
+		}
+		// End Issue #903
 	}
 
 	SetUnitFloatValue( 'LastEffectDamage', DmgResult.DamageAmount, eCleanup_BeginTactical );
@@ -6544,6 +6549,38 @@ event TakeDamage( XComGameState NewGameState, const int DamageAmount, const int 
 	if (GetCurrentStat( eStat_HP ) < LowestHP)
 		LowestHP = GetCurrentStat( eStat_HP );
 }
+
+// Begin Issue #903
+/// HL-Docs: feature:OverrideDamageRemovesReserveActionPoints; issue:903; tags:tactical
+/// The `OverrideDamageRemovesReserveActionPoints` event allows mods to override 
+/// the base game logic that determines that a Unit must lose their Reserve Action Points 
+/// when they take damage.
+///
+/// This event triggers after the information about this damage instance has been
+/// added to the `UnitState.DamageResults` array, so you can use that last entry
+/// to get any additional info about who damaged whom with what.
+///
+/// ```event
+/// EventID: OverrideDamageRemovesReserveActionPoints,
+/// EventData: [inout bool bDamageRemovesReserveActionPoints],
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: yes
+/// ```
+private function bool TriggerOverrideDamageRemovesReserveActionPointsEvent(XComGameState NewGameState)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideDamageRemovesReserveActionPoints';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = true;
+
+	`XEVENTMGR.TriggerEvent('OverrideDamageRemovesReserveActionPoints', Tuple, self, NewGameState);
+
+	return Tuple.Data[0].b;
+}
+// End Issue #903
 
 function OnUnitBledOut(XComGameState NewGameState, Object CauseOfDeath, const out StateObjectReference SourceStateObjectRef, optional const out EffectAppliedData EffectData)
 {
