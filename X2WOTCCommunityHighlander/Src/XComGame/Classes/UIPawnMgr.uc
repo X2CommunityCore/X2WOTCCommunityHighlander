@@ -305,7 +305,14 @@ simulated function AssociateWeaponPawnInternal(int CosmeticSlot, Actor WeaponPaw
 		if (PawnStore[StoreIdx].Weapons[CosmeticSlot] != none)
 		{
 			PreviousItem = XGInventoryItem(PawnStore[StoreIdx].Weapons[CosmeticSlot]);
-			OwningPawn.DetachItem(XComWeapon(PreviousItem.m_kEntity).Mesh);
+			
+			// Start Issue #337
+			/// HL-Docs: ref:Bugfixes; issue:337
+			/// Add `none` checks before attempting to detach the mesh.
+			if (PreviousItem != none && XComWeapon(PreviousItem.m_kEntity) != none && XComWeapon(PreviousItem.m_kEntity).Mesh != none)
+			{
+				OwningPawn.DetachItem(XComWeapon(PreviousItem.m_kEntity).Mesh);
+			}// End Issue #337
 			PawnStore[StoreIdx].Weapons[CosmeticSlot].Destroy();
 		}
 		PawnStore[StoreIdx].Weapons[CosmeticSlot] = WeaponPawn;
@@ -430,7 +437,13 @@ simulated private function AssociateMultiSlotWeaponPawnInternal(out array<PawnIn
 		if (PawnStore[StoreIndex].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[MultiSlotIndex] != none)
 		{
 			PreviousItem = XGInventoryItem(PawnStore[StoreIndex].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[MultiSlotIndex]);
-			OwningPawn.DetachItem(XComWeapon(PreviousItem.m_kEntity).Mesh);
+			// Start Issue #337
+			/// HL-Docs: ref:Bugfixes; issue:337
+			/// Add `none` checks before attempting to detach the mesh.
+			if (PreviousItem != none && XComWeapon(PreviousItem.m_kEntity) != none && XComWeapon(PreviousItem.m_kEntity).Mesh != none)
+			{
+				OwningPawn.DetachItem(XComWeapon(PreviousItem.m_kEntity).Mesh);
+			}// End Issue #337
 			PawnStore[StoreIndex].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[MultiSlotIndex].Destroy();
 		}
 		PawnStore[StoreIndex].MultiSlotWeaponsPawnInfos[i].MultiSlotWeapons[MultiSlotIndex] = WeaponPawn;
