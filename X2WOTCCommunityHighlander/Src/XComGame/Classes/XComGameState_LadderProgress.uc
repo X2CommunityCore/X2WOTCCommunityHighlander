@@ -927,12 +927,14 @@ private static function SwapItem( XComGameState StartState, XComGameState_Unit U
 			{
 				`assert( UnitState.CanRemoveItemFromInventory( ExistingItem, StartState ) );
 
-				UnitState.RemoveItemFromInventory( ExistingItem, StartState );
-				`XCOMHISTORY.PurgeObjectIDFromStartState( ExistingItem.ObjectID, false ); // don't refresh the cache every time, we'll do that once after removing all items from all units
-			
-
-				ItemInstance = EquipmentTemplate.CreateInstanceFromTemplate( StartState );
-				UnitState.AddItemToInventory( ItemInstance, WorkingSlot, StartState );
+				// Issue #295 - Purge Item State and add new item to inventory only if we successfully unequipped the Existing Item
+				if (UnitState.RemoveItemFromInventory( ExistingItem, StartState ))
+				{
+					`XCOMHISTORY.PurgeObjectIDFromStartState( ExistingItem.ObjectID, false ); // don't refresh the cache every time, we'll do that once after removing all items from all units
+	
+					ItemInstance = EquipmentTemplate.CreateInstanceFromTemplate( StartState );
+					UnitState.AddItemToInventory( ItemInstance, WorkingSlot, StartState );
+				}
 			}
 			else
 			{

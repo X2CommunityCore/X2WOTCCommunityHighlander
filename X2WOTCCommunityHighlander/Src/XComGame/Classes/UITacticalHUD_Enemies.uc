@@ -577,7 +577,8 @@ simulated function int GetEnemyIDAtIcon( int iTargetIcon )
 simulated function StateObjectReference GetSelectedEnemyStateObjectRef()
 {
 	local StateObjectReference EmptyRef;
-	if (CurrentTargetIndex >= 0 && CurrentTargetIndex <= m_arrTargets.Length)
+	// Issue #295 - Replace "<=" with "<" to prevent accessing m_arrTargets when its Length is 0
+	if (CurrentTargetIndex >= 0 && CurrentTargetIndex < m_arrTargets.Length)
 		return m_arrTargets[CurrentTargetIndex];
 	else
 		return EmptyRef;
