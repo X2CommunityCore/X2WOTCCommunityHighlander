@@ -335,7 +335,7 @@ static function CalculateWillRoll(WillEventRollData RollInfo, XComGameState_Unit
 		/// * If a soldier with 5 max HP takes 2 damage to ablative HP, the calculation for will loss would be `(5 - 5) / 5 = 0`. If they then took another 3 damage, the will loss would be `(5 - 2) / 5 = 0.6`, as they have lost 60% of their total HP at this point.
 		/// 
 		/// ### WillEventRollStat_CHTurnCountDecimal
-		/// * Calculated Will Loss: (10 + Player's Turn Count) / 10
+		/// * Calculated Will Loss: 1 + (Player's Turn Count / 10)
 		/// * This allows for a gradual increase in the amount of will lost as the mission goes on.
 		/// * At turn 1 the calculated will loss is `1.1`, and at turn 10 it will have nearly doubled to `2.0`.
 		case WillEventRollStat_Flat:
@@ -345,8 +345,14 @@ static function CalculateWillRoll(WillEventRollData RollInfo, XComGameState_Unit
 			CalculatedWillLoss = ( InSourceUnit.GetMaxStat(eStat_HP) - InSourceUnit.GetCurrentStat(eStat_HP) ) / InSourceUnit.GetMaxStat(eStat_HP);
 			break;
 		case WillEventRollStat_CHTurnCountDecimal:
-			PlayerState = XComGameState_Player( `XCOMHISTORY.GetGameStateForObjectID( InSourceUnit.ControllingPlayer.ObjectID ) );
-			CalculatedWillLoss = (10.0f + PlayerState.PlayerTurnCount) / 10.0f;
+			PlayerState = XComGameState_Player(`XCOMHISTORY.GetGameStateForObjectID(InSourceUnit.ControllingPlayer.ObjectID));
+			if (PlayerState != none)
+			{
+				CalculatedWillLoss = 1.0f + (PlayerState.PlayerTurnCount / 10.0f);
+				break;
+			}
+			`Log("WillEventRollStat_CHTurnCountDecimal: PlayerState not found", , 'CH_Issue_936');
+			CalculatedWillLoss = 1.1f;
 			break;
 		// End Issue #936
 		default:
