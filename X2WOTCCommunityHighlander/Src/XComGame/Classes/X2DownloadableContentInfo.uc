@@ -768,7 +768,7 @@ final function int GetRunPriorityGroup()
 /// +IgnoreRequiredMods=...
 /// DisplayName="..."
 /// </summary>
-final function array<string> GetIncompatibleDLCIdentifiers()
+final function array<string> GetIncompatibleDLCNames()
 {
 	local CHModDependency ModDependency;
 
@@ -777,7 +777,7 @@ final function array<string> GetIncompatibleDLCIdentifiers()
 	return ModDependency.IncompatibleMods;
 }
 
-final function array<string> GetIgnoreIncompatibleDLCIdentifiers()
+final function array<string> GetIgnoreIncompatibleDLCNames()
 {
 	local CHModDependency ModDependency;
 
@@ -786,7 +786,7 @@ final function array<string> GetIgnoreIncompatibleDLCIdentifiers()
 	return ModDependency.IgnoreIncompatibleMods;
 }
 
-final function array<string> GetRequiredDLCIdentifiers()
+final function array<string> GetRequiredDLCNames()
 {
 	local CHModDependency ModDependency;
 
@@ -795,7 +795,7 @@ final function array<string> GetRequiredDLCIdentifiers()
 	return ModDependency.RequiredMods;
 }
 
-final function array<string> GetIgnoreRequiredDLCIdentifiers()
+final function array<string> GetIgnoreRequiredDLCNames()
 {
 	local CHModDependency ModDependency;
 

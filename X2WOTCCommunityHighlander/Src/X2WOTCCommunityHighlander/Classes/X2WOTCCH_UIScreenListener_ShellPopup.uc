@@ -10,12 +10,16 @@ class X2WOTCCH_UIScreenListener_ShellPopup
 
 var config array<name> HideIncompatibleModWarnings;
 var config array<name> HideRequiredModWarnings;
+var X2WOTCCH_ModDependencies DependencyChecker;
 
 event OnInit(UIScreen Screen)
 {
 	// if UIShell(Screen).DebugMenuContainer is set do NOT show since were not on the final shell
 	if(UIShell(Screen) != none && UIShell(Screen).DebugMenuContainer == none)
 	{
+		DependencyChecker = new class'X2WOTCCH_ModDependencies';
+		DependencyChecker.Init();
+
 		Screen.SetTimer(2.5f, false, nameof(IncompatibleModsPopups), self);
 		Screen.SetTimer(2.6f, false, nameof(RequiredModsPopups), self);
 	}
@@ -24,25 +28,25 @@ event OnInit(UIScreen Screen)
 simulated function IncompatibleModsPopups()
 {
 	local TDialogueBoxData kDialogData;
-	local array<ModDependency> IncompatibleMods;
-	local ModDependency Dep;
+	local array<ModDependencyData> ModsWithIncompats;
+	local ModDependencyData Mod;
 	local X2WOTCCH_DialogCallbackData CallbackData;
 	local int Index;
 
-	IncompatibleMods = class'X2WOTCCH_ModDependencies'.static.GetIncompatbleMods();
+	ModsWithIncompats = DependencyChecker.GetModsWithEnabledIncompatibilities();
 
-	foreach IncompatibleMods(Dep)
+	foreach ModsWithIncompats(Mod)
 	{
-		Index = HideIncompatibleModWarnings.Find(Dep.DLCIdentifier);
+		Index = HideIncompatibleModWarnings.Find(Mod.SourceDLCIdentifier);
 
-		if (Index == INDEX_NONE && Dep.ModName != "" && Dep.Children.Length > 0)
+		if (Index == INDEX_NONE && Mod.ModName != "" && Mod.Children.Length > 0)
 		{
 			CallbackData = new class'X2WOTCCH_DialogCallbackData';
-			CallbackData.DependencyData = Dep;
+			CallbackData.DependencyData = Mod;
 
-			kDialogData.strTitle = Dep.ModName @ class'X2WOTCCH_ModDependencies'.default.ModIncompatiblePopupTitle;
+			kDialogData.strTitle = Mod.ModName @ class'X2WOTCCH_ModDependencies'.default.ModIncompatiblePopupTitle;
 			kDialogData.eType = eDialog_Warning;
-			kDialogData.strText = GetIncompatibleModsText(Dep);
+			kDialogData.strText = GetIncompatibleModsText(Mod);
 			kDialogData.fnCallbackEx = IncompatibleModsCB;
 			kDialogData.strAccept = class'X2WOTCCH_ModDependencies'.default.DisablePopup;
 			kDialogData.strCancel = class'UIUtilities_Text'.default.m_strGenericAccept;
@@ -58,24 +62,24 @@ simulated function IncompatibleModsPopups()
 simulated function RequiredModsPopups()
 {
 	local TDialogueBoxData kDialogData;
-	local array<ModDependency> RequiredMods;
-	local ModDependency Dep;
+	local array<ModDependencyData> ModsWithMissing;
+	local ModDependencyData Mod;
 	local X2WOTCCH_DialogCallbackData CallbackData;
 	local int Index;
 
-	RequiredMods = class'X2WOTCCH_ModDependencies'.static.GetRequiredMods();
+	ModsWithMissing = DependencyChecker.GetModsWithMissingRequirements();
 
-	foreach RequiredMods(Dep)
+	foreach ModsWithMissing(Mod)
 	{
-		Index = HideRequiredModWarnings.Find(Dep.DLCIdentifier);
-		if (Index == INDEX_NONE && Dep.ModName != "" && Dep.Children.Length > 0)
+		Index = HideRequiredModWarnings.Find(Mod.SourceDLCIdentifier);
+		if (Index == INDEX_NONE && Mod.ModName != "" && Mod.Children.Length > 0)
 		{
 			CallbackData = new class'X2WOTCCH_DialogCallbackData';
-			CallbackData.DependencyData = Dep;
+			CallbackData.DependencyData = Mod;
 
-			kDialogData.strTitle = Dep.ModName @ class'X2WOTCCH_ModDependencies'.default.ModRequiredPopupTitle;
+			kDialogData.strTitle = Mod.ModName @ class'X2WOTCCH_ModDependencies'.default.ModRequiredPopupTitle;
 			kDialogData.eType = eDialog_Warning;
-			kDialogData.strText = GetRequiredModsText(Dep);
+			kDialogData.strText = GetRequiredModsText(Mod);
 			kDialogData.fnCallbackEx = RequiredModsCB;
 			kDialogData.strAccept = class'X2WOTCCH_ModDependencies'.default.DisablePopup;
 			kDialogData.strCancel = class'UIUtilities_Text'.default.m_strGenericAccept;
@@ -95,7 +99,7 @@ simulated function IncompatibleModsCB(Name eAction, UICallbackData xUserData)
 	if (eAction == 'eUIAction_Accept')
 	{
 		CallbackData = X2WOTCCH_DialogCallbackData(xUserData);
-		HideIncompatibleModWarnings.AddItem(CallbackData.DependencyData.DLCIdentifier);
+		HideIncompatibleModWarnings.AddItem(CallbackData.DependencyData.SourceDLCIdentifier);
 
 		`PRESBASE.PlayUISound(eSUISound_MenuSelect);
 		
@@ -114,7 +118,7 @@ simulated function RequiredModsCB(Name eAction, UICallbackData xUserData)
 	if (eAction == 'eUIAction_Accept')
 	{
 		CallbackData = X2WOTCCH_DialogCallbackData(xUserData);
-		HideRequiredModWarnings.AddItem(CallbackData.DependencyData.DLCIdentifier);
+		HideRequiredModWarnings.AddItem(CallbackData.DependencyData.SourceDLCIdentifier);
 
 		`PRESBASE.PlayUISound(eSUISound_MenuSelect);
 		
@@ -126,13 +130,13 @@ simulated function RequiredModsCB(Name eAction, UICallbackData xUserData)
 	}
 }
 
-simulated function string GetIncompatibleModsText(ModDependency Dep)
+simulated function string GetIncompatibleModsText(ModDependencyData Dep)
 {
 	return class'UIUtilities_Text'.static.GetColoredText(Repl(class'X2WOTCCH_ModDependencies'.default.ModIncompatible, "%s", Dep.ModName, true), eUIState_Header) $ "\n\n" $
 			class'UIUtilities_Text'.static.GetColoredText(MakeBulletList(Dep.Children), eUIState_Bad) $ "\n";
 }
 
-simulated function string GetRequiredModsText(ModDependency Dep)
+simulated function string GetRequiredModsText(ModDependencyData Dep)
 {
 	return class'UIUtilities_Text'.static.GetColoredText(Repl(class'X2WOTCCH_ModDependencies'.default.ModRequired, "%s", Dep.ModName, true), eUIState_Header) $ "\n\n" $
 			class'UIUtilities_Text'.static.GetColoredText(MakeBulletList(Dep.Children), eUIState_Bad) $ "\n";

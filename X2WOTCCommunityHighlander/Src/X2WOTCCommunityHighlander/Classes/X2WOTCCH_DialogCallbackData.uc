@@ -4,4 +4,4 @@
  **/
 class X2WOTCCH_DialogCallbackData extends UICallbackData dependson (X2WOTCCH_ModDependencies);
 
-var ModDependency DependencyData;
+var ModDependencyData DependencyData;
