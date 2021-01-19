@@ -673,7 +673,7 @@ static function UnitPawnPostInitAnimTree(XComGameState_Unit UnitState, XComUnitP
 /// * `MaxBaseSize`: Base max squad size
 /// * `SquadSizeUpgradeMod`: Modifier from GTS squad size purchases. `0` if `MissionDefLimit == true`
 /// * `SituationMod`: Modifiers from SITREPs and the intel purchase (network tower mission)
-/// * `SitRepMax`: Maximum squad size imposed by SITREPs. Will be `MaxInt` if no SITREP limits squad size (none of the vanilla SITREPs do)
+/// * `SitRepMax`: Maximum squad size imposed by SITREPs. Will be `MaxInt` if no SITREP limits squad size
 ///
 /// Example usage:
 ///
