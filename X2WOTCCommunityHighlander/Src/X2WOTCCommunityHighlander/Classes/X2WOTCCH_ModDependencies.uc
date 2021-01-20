@@ -1,7 +1,4 @@
-/**
- * Issue #524
- * Check mods required and incompatible mods against the actually loaded mod and display a popup
- **/
+/// HL-Docs: ref:ModDependencyCheck
 class X2WOTCCH_ModDependencies extends Object config(Game);
 
 enum CHPolarity

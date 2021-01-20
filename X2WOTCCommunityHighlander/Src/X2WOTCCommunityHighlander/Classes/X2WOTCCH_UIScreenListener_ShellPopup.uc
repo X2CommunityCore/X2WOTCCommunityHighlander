@@ -1,7 +1,4 @@
-/**
- * Issue #524
- * Check mods required and incompatible mods against the actually loaded mod and display a popup for each mod
- **/
+/// HL-Docs: ref:ModDependencyCheck
 class X2WOTCCH_UIScreenListener_ShellPopup
 	extends UIScreenListener
 	dependson (X2WOTCCH_ModDependencies)
