@@ -24,8 +24,6 @@ var localized string ModRequiredPopupTitle;
 var localized string ModIncompatiblePopupTitle;
 var localized string DisablePopup;
 
-var config array<name> AdditionalDepInfoNames;
-
 // Mods may install themselves as a fix mod that fixes an incompatibility
 // or a missing dependency (in case that mod provides functionality that
 // would otherwise be missing).
@@ -43,7 +41,6 @@ function Init()
 	local CHModDependency DepInfo;
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local name AddDepInfo;
-	local string Mod;
 	local int i;
 
 	OnlineEventMgr = `ONLINEEVENTMGR;
@@ -58,8 +55,8 @@ function Init()
 	{
 		if (DLCInfo.DLCIdentifier != "")
 		{
-			DepInfo = new(none, DLCInfo.DLCIdentifier) class'CHModDependency';
-			if (DepInfo.DisplayName == "")
+			DepInfo = CreateUniqueDepInfoForInstalled(DLCInfo.DLCIdentifier);
+			if (DepInfo != none && DepInfo.DisplayName == "")
 			{
 				if (DLCInfo.PartContentLabel != "")
 				{
@@ -70,32 +67,51 @@ function Init()
 					DepInfo.DisplayName = DLCInfo.DLCIdentifier;
 				}
 			}
-			self.DepInfos.AddItem(DepInfo);
 		}
 	}
 
-	foreach default.AdditionalDepInfoNames(AddDepInfo)
+	foreach self.EnabledDLCNames(AddDepInfo)
 	{
-		DepInfo = new(none, string(AddDepInfo)) class'CHModDependency';
-		if (DepInfo.DisplayName == "")
+		DepInfo = CreateUniqueDepInfoForInstalled(string(AddDepInfo));
+		if (DepInfo != none && DepInfo.DisplayName == "")
 		{
 			DepInfo.DisplayName = string(AddDepInfo);
 		}
-		self.DepInfos.AddItem(DepInfo);
 	}
+}
 
-	foreach self.DepInfos(DepInfo)
+private function CHModDependency CreateUniqueDepInfoForInstalled(string DLCName)
+{
+	local string Mod;
+	local CHModDependency DepInfo;
+
+	// NB. since garbage collection runs between frames, `FindObject`
+	// should even find objects that weren't added to `self.DepInfos`
+	DepInfo = CHModDependency(FindObject("Transient." $ DLCName, class'CHModDependency'));
+	if (DepInfo != none)
 	{
-		foreach DepInfo.IgnoreRequiredMods(Mod)
-		{
-			self.IgnoreRequiredMods.AddItem(Mod);
-		}
-
-		foreach DepInfo.IgnoreIncompatibleMods(Mod)
-		{
-			self.IgnoreIncompatibleMods.AddItem(Mod);
-		}
+		return None;
 	}
+
+	DepInfo = new(none, DLCName) class'CHModDependency';
+
+	if (!DepInfo.IsInteresting())
+	{
+		return None;
+	}
+
+	foreach DepInfo.IgnoreRequiredMods(Mod)
+	{
+		self.IgnoreRequiredMods.AddItem(Mod);
+	}
+
+	foreach DepInfo.IgnoreIncompatibleMods(Mod)
+	{
+		self.IgnoreIncompatibleMods.AddItem(Mod);
+	}
+
+	self.DepInfos.AddItem(DepInfo);
+	return DepInfo;
 }
 
 function array<ModDependencyData> GetModsWithMissingRequirements()
@@ -138,7 +154,7 @@ function array<ModDependencyData> GetModsWithEnabledIncompatibilities()
 
 private function bool GetModDependencies(
 	CHModDependency DepInfo,
-	array<string> DependencyDLCNames,
+	const out array<string> DependencyDLCNames,
 	CHPolarity Polarity,
 	out ModDependencyData DepData
 )
@@ -157,14 +173,14 @@ private function bool GetModDependencies(
 				case ePolarity_Requirement:
 					if (!bIsInstalled && self.IgnoreRequiredMods.Find(DependencyDLCName) == INDEX_NONE)
 					{
-						DepData.Children.AddItem(DependencyDLCName);
+						DepData.Children.AddItem(FormatDepName(DependencyDLCName));
 						`LOG(GetFuncName() @ DepData.ModName @ "Add required" @ DependencyDLCName,, 'X2WOTCCommunityHighlander');
 					}
 					break;
 				case ePolarity_Incompatibility:
 					if (bIsInstalled && self.IgnoreIncompatibleMods.Find(DependencyDLCName) == INDEX_NONE)
 					{
-						DepData.Children.AddItem(DependencyDLCName);
+						DepData.Children.AddItem(FormatDepName(DependencyDLCName));
 						`LOG(GetFuncName() @ DepData.ModName @ "Add incompatible" @ DependencyDLCName,, 'X2WOTCCommunityHighlander');
 					}
 					break;
@@ -173,4 +189,22 @@ private function bool GetModDependencies(
 	}
 
 	return DepData.Children.Length > 0;
+}
+
+private function string FormatDepName(string DLCName)
+{
+	local CHModDependency DepInfo;
+
+	DepInfo = CHModDependency(FindObject("Transient." $ DLCName, class'CHModDependency'));
+	if (DepInfo == none)
+	{
+		DepInfo = new(none, DLCName) class'CHModDependency';
+	}
+
+	if (DepInfo.DisplayName != "" && DepInfo.DisplayName != DLCName)
+	{
+		return DepInfo.DisplayName @ "(" $ DLCName $ ")";
+	}
+
+	return DLCName;
 }
