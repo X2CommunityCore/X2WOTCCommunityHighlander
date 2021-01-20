@@ -110,6 +110,12 @@
 /// and the popup would display that incompatibility as "Classless XCOM: MINT (AddMintToMyChocolate)".
 /// The same system can also be used to provide a DisplayName for requirements that may be missing
 /// and as such can't inform the dependency checker about their DisplayName.
+///
+/// If the user presses "Do not show me this again", the Highlander will store the object
+/// name (DLCName or DLCIdentifier, depending on how the depencency checker found it in
+/// the first place) of the mod that provides this data in a user config file
+/// (`%USERPROFILE%/Documents/My Games/XCOM 2 War of the Chosen/XComGame/Config/X2WOTCCommunityHighlander_NullConfig.ini`)
+/// and won't show this popup again.
 
 class CHModDependency extends Object perobjectconfig Config(Game);
 
