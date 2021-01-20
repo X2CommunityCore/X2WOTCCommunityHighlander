@@ -31,15 +31,12 @@ simulated function IncompatibleModsPopups()
 	local array<ModDependencyData> ModsWithIncompats;
 	local ModDependencyData Mod;
 	local X2WOTCCH_DialogCallbackData CallbackData;
-	local int Index;
 
 	ModsWithIncompats = DependencyChecker.GetModsWithEnabledIncompatibilities();
 
 	foreach ModsWithIncompats(Mod)
 	{
-		Index = HideIncompatibleModWarnings.Find(Mod.SourceName);
-
-		if (Index == INDEX_NONE && Mod.ModName != "" && Mod.Children.Length > 0)
+		if (HideIncompatibleModWarnings.Find(Mod.SourceName) == INDEX_NONE)
 		{
 			CallbackData = new class'X2WOTCCH_DialogCallbackData';
 			CallbackData.DependencyData = Mod;
@@ -65,14 +62,12 @@ simulated function RequiredModsPopups()
 	local array<ModDependencyData> ModsWithMissing;
 	local ModDependencyData Mod;
 	local X2WOTCCH_DialogCallbackData CallbackData;
-	local int Index;
 
 	ModsWithMissing = DependencyChecker.GetModsWithMissingRequirements();
 
 	foreach ModsWithMissing(Mod)
 	{
-		Index = HideRequiredModWarnings.Find(Mod.SourceName);
-		if (Index == INDEX_NONE && Mod.ModName != "" && Mod.Children.Length > 0)
+		if (HideRequiredModWarnings.Find(Mod.SourceName) == INDEX_NONE)
 		{
 			CallbackData = new class'X2WOTCCH_DialogCallbackData';
 			CallbackData.DependencyData = Mod;
@@ -130,19 +125,19 @@ simulated function RequiredModsCB(Name eAction, UICallbackData xUserData)
 	}
 }
 
-simulated function string GetIncompatibleModsText(ModDependencyData Dep)
+simulated function string GetIncompatibleModsText(const out ModDependencyData Dep)
 {
 	return class'UIUtilities_Text'.static.GetColoredText(Repl(class'X2WOTCCH_ModDependencies'.default.ModIncompatible, "%s", Dep.ModName, true), eUIState_Header) $ "\n\n" $
 			class'UIUtilities_Text'.static.GetColoredText(MakeBulletList(Dep.Children), eUIState_Bad) $ "\n";
 }
 
-simulated function string GetRequiredModsText(ModDependencyData Dep)
+simulated function string GetRequiredModsText(const out ModDependencyData Dep)
 {
 	return class'UIUtilities_Text'.static.GetColoredText(Repl(class'X2WOTCCH_ModDependencies'.default.ModRequired, "%s", Dep.ModName, true), eUIState_Header) $ "\n\n" $
 			class'UIUtilities_Text'.static.GetColoredText(MakeBulletList(Dep.Children), eUIState_Bad) $ "\n";
 }
 
-function static string MakeBulletList(array<string> List)
+function static string MakeBulletList(const out array<string> List)
 {
 	local string Buffer;
 	local int Index;

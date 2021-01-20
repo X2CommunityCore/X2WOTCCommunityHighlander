@@ -77,6 +77,10 @@ function Init()
 	foreach default.AdditionalDepInfoNames(AddDepInfo)
 	{
 		DepInfo = new(none, string(AddDepInfo)) class'CHModDependency';
+		if (DepInfo.DisplayName == "")
+		{
+			DepInfo.DisplayName = string(AddDepInfo);
+		}
 		self.DepInfos.AddItem(DepInfo);
 	}
 
