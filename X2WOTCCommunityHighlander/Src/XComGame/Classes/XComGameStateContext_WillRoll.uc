@@ -351,7 +351,7 @@ static function CalculateWillRoll(WillEventRollData RollInfo, XComGameState_Unit
 				CalculatedWillLoss = 1.0f + (PlayerState.PlayerTurnCount / 10.0f);
 				break;
 			}
-			`Log("WillEventRollStat_CHTurnCountDecimal: PlayerState not found", , 'CH_Issue_936');
+			`REDSCREEN("X2WOTCCommunityHighlander: WillEventRollStat_CHTurnCountDecimal: No PlayerState found for unit with name:" @ InSourceUnit.GetFullName());
 			CalculatedWillLoss = 1.1f;
 			break;
 		// End Issue #936
