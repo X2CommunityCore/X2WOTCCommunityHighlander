@@ -4,6 +4,4 @@ var config array<string> IncompatibleMods;
 var config array<string> IgnoreIncompatibleMods;
 var config array<string> RequiredMods;
 var config array<string> IgnoreRequiredMods;
-var string DisplayName;
-
-
+var config string DisplayName;

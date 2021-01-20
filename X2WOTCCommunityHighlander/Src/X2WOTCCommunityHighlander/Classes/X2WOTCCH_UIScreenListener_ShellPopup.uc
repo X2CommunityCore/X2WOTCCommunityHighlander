@@ -37,7 +37,7 @@ simulated function IncompatibleModsPopups()
 
 	foreach ModsWithIncompats(Mod)
 	{
-		Index = HideIncompatibleModWarnings.Find(Mod.SourceDLCIdentifier);
+		Index = HideIncompatibleModWarnings.Find(Mod.SourceName);
 
 		if (Index == INDEX_NONE && Mod.ModName != "" && Mod.Children.Length > 0)
 		{
@@ -71,7 +71,7 @@ simulated function RequiredModsPopups()
 
 	foreach ModsWithMissing(Mod)
 	{
-		Index = HideRequiredModWarnings.Find(Mod.SourceDLCIdentifier);
+		Index = HideRequiredModWarnings.Find(Mod.SourceName);
 		if (Index == INDEX_NONE && Mod.ModName != "" && Mod.Children.Length > 0)
 		{
 			CallbackData = new class'X2WOTCCH_DialogCallbackData';
@@ -99,7 +99,7 @@ simulated function IncompatibleModsCB(Name eAction, UICallbackData xUserData)
 	if (eAction == 'eUIAction_Accept')
 	{
 		CallbackData = X2WOTCCH_DialogCallbackData(xUserData);
-		HideIncompatibleModWarnings.AddItem(CallbackData.DependencyData.SourceDLCIdentifier);
+		HideIncompatibleModWarnings.AddItem(CallbackData.DependencyData.SourceName);
 
 		`PRESBASE.PlayUISound(eSUISound_MenuSelect);
 		
@@ -118,7 +118,7 @@ simulated function RequiredModsCB(Name eAction, UICallbackData xUserData)
 	if (eAction == 'eUIAction_Accept')
 	{
 		CallbackData = X2WOTCCH_DialogCallbackData(xUserData);
-		HideRequiredModWarnings.AddItem(CallbackData.DependencyData.SourceDLCIdentifier);
+		HideRequiredModWarnings.AddItem(CallbackData.DependencyData.SourceName);
 
 		`PRESBASE.PlayUISound(eSUISound_MenuSelect);
 		

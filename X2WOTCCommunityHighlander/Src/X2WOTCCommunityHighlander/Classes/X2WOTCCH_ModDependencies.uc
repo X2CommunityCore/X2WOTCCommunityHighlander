@@ -2,7 +2,7 @@
  * Issue #524
  * Check mods required and incompatible mods against the actually loaded mod and display a popup
  **/
-class X2WOTCCH_ModDependencies extends Object;
+class X2WOTCCH_ModDependencies extends Object config(Game);
 
 enum CHPolarity
 {
@@ -13,7 +13,7 @@ enum CHPolarity
 struct ModDependencyData
 {
 	var string ModName; // The display name of the mod causing this error.
-	var name SourceDLCIdentifier; // The stored name of the mod in case user presses "ok, please ignore"
+	var name SourceName; // The stored name of the mod in case user presses "ok, please ignore"
 	var CHPolarity Polarity; // Whether these mods are required and not installed, or incompatible but present
 	var array<String> Children; // The set of mods required by or incompatible with the cause
 };
@@ -24,6 +24,8 @@ var localized string ModRequiredPopupTitle;
 var localized string ModIncompatiblePopupTitle;
 var localized string DisablePopup;
 
+var config array<name> AdditionalDepInfoNames;
+
 // Mods may install themselves as a fix mod that fixes an incompatibility
 // or a missing dependency (in case that mod provides functionality that
 // would otherwise be missing).
@@ -32,53 +34,77 @@ var array<string> IgnoreIncompatibleMods;
 
 // Faster than retrieving from OnlineEventMgr all the time, and enables `.Find()`
 var array<name> EnabledDLCNames;
-var array<X2DownloadableContentInfo> DLCInfos;
+var array<CHModDependency> DepInfos;
 
 function Init()
 {
 	local XComOnlineEventMgr OnlineEventMgr;
 	local X2DownloadableContentInfo DLCInfo;
-	local array<string> IgnoreRequired, IgnoreIncompatible;
+	local CHModDependency DepInfo;
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local name AddDepInfo;
 	local string Mod;
 	local int i;
 
 	OnlineEventMgr = `ONLINEEVENTMGR;
-	self.DLCInfos = OnlineEventMgr.GetDLCInfos(false);
-
-	foreach self.DLCInfos(DLCInfo)
-	{
-		IgnoreRequired = DLCInfo.GetIgnoreRequiredDLCNames();
-		foreach IgnoreRequired(Mod)
-		{
-			self.IgnoreRequiredMods.AddItem(Mod);
-		}
-
-		IgnoreIncompatible = DLCInfo.GetIgnoreIncompatibleDLCNames();
-		foreach IgnoreIncompatible(Mod)
-		{
-			self.IgnoreIncompatibleMods.AddItem(Mod);
-		}
-	}
 
 	for (i = 0; i < OnlineEventMgr.GetNumDLC(); ++i)
 	{
 		self.EnabledDLCNames.AddItem(OnlineEventMgr.GetDLCNames(i));
 	}
+
+	DLCInfos = OnlineEventMgr.GetDLCInfos(false);
+	foreach DLCInfos(DLCInfo)
+	{
+		if (DLCInfo.DLCIdentifier != "")
+		{
+			DepInfo = new(none, DLCInfo.DLCIdentifier) class'CHModDependency';
+			if (DepInfo.DisplayName == "")
+			{
+				if (DLCInfo.PartContentLabel != "")
+				{
+					DepInfo.DisplayName = DLCInfo.PartContentLabel;
+				}
+				else
+				{
+					DepInfo.DisplayName = DLCInfo.DLCIdentifier;
+				}
+			}
+			self.DepInfos.AddItem(DepInfo);
+		}
+	}
+
+	foreach default.AdditionalDepInfoNames(AddDepInfo)
+	{
+		DepInfo = new(none, string(AddDepInfo)) class'CHModDependency';
+		self.DepInfos.AddItem(DepInfo);
+	}
+
+	foreach self.DepInfos(DepInfo)
+	{
+		foreach DepInfo.IgnoreRequiredMods(Mod)
+		{
+			self.IgnoreRequiredMods.AddItem(Mod);
+		}
+
+		foreach DepInfo.IgnoreIncompatibleMods(Mod)
+		{
+			self.IgnoreIncompatibleMods.AddItem(Mod);
+		}
+	}
 }
 
 function array<ModDependencyData> GetModsWithMissingRequirements()
 {
-	local X2DownloadableContentInfo DLCInfo;
-	local array<string> RequiredDLCNames;
+	local CHModDependency DepInfo;
 
 	local ModDependencyData ReqData, DefaultData;
 	local array<ModDependencyData> ModsWithReqs;
 
-	foreach self.DLCInfos(DLCInfo)
+	foreach self.DepInfos(DepInfo)
 	{
-		RequiredDLCNames = DLCInfo.GetRequiredDLCNames();
 		ReqData = DefaultData;
-		if (GetModDependencies(DLCInfo, RequiredDLCNames, ePolarity_Requirement, ReqData))
+		if (GetModDependencies(DepInfo, DepInfo.RequiredMods, ePolarity_Requirement, ReqData))
 		{
 			ModsWithReqs.AddItem(ReqData);
 		}
@@ -89,17 +115,15 @@ function array<ModDependencyData> GetModsWithMissingRequirements()
 
 function array<ModDependencyData> GetModsWithEnabledIncompatibilities()
 {
-	local X2DownloadableContentInfo DLCInfo;
-	local array<string> IncompatibleDLCNames;
-	local ModDependencyData IncompatData, DefaultData;
+	local CHModDependency DepInfo;
 
+	local ModDependencyData IncompatData, DefaultData;
 	local array<ModDependencyData> ModsWithIncompats;
 
-	foreach self.DLCInfos(DLCInfo)
+	foreach self.DepInfos(DepInfo)
 	{
-		IncompatibleDLCNames = DLCInfo.GetIncompatibleDLCNames();
 		IncompatData = DefaultData;
-		if (GetModDependencies(DLCInfo, IncompatibleDLCNames, ePolarity_Incompatibility, IncompatData))
+		if (GetModDependencies(DepInfo, DepInfo.IncompatibleMods, ePolarity_Incompatibility, IncompatData))
 		{
 			ModsWithIncompats.AddItem(IncompatData);
 		}
@@ -109,10 +133,10 @@ function array<ModDependencyData> GetModsWithEnabledIncompatibilities()
 }
 
 private function bool GetModDependencies(
-	X2DownloadableContentInfo DLCInfo,
+	CHModDependency DepInfo,
 	array<string> DependencyDLCNames,
 	CHPolarity Polarity,
-	out ModDependencyData ModDependencies
+	out ModDependencyData DepData
 )
 {
 	local string DependencyDLCName;
@@ -120,8 +144,8 @@ private function bool GetModDependencies(
 
 	if (DependencyDLCNames.Length > 0)
 	{
-		ModDependencies.ModName = GetModDisplayName(DLCInfo);
-		ModDependencies.SourceDLCIdentifier = name(DLCInfo.DLCIdentifier);
+		DepData.ModName = DepInfo.DisplayName;
+		DepData.SourceName = DepInfo.Name;
 		foreach DependencyDLCNames(DependencyDLCName)
 		{
 			bIsInstalled = self.EnabledDLCNames.Find(name(DependencyDLCName)) != INDEX_NONE;
@@ -129,35 +153,20 @@ private function bool GetModDependencies(
 				case ePolarity_Requirement:
 					if (!bIsInstalled && self.IgnoreRequiredMods.Find(DependencyDLCName) == INDEX_NONE)
 					{
-						ModDependencies.Children.AddItem(DependencyDLCName);
-						`LOG(GetFuncName() @ GetModDisplayName(DLCInfo) @ "Add required" @ DependencyDLCName,, 'X2WOTCCommunityHighlander');
+						DepData.Children.AddItem(DependencyDLCName);
+						`LOG(GetFuncName() @ DepData.ModName @ "Add required" @ DependencyDLCName,, 'X2WOTCCommunityHighlander');
 					}
 					break;
 				case ePolarity_Incompatibility:
 					if (bIsInstalled && self.IgnoreIncompatibleMods.Find(DependencyDLCName) == INDEX_NONE)
 					{
-						ModDependencies.Children.AddItem(DependencyDLCName);
-						`LOG(GetFuncName() @ GetModDisplayName(DLCInfo) @ "Add incompatible" @ DependencyDLCName,, 'X2WOTCCommunityHighlander');
+						DepData.Children.AddItem(DependencyDLCName);
+						`LOG(GetFuncName() @ DepData.ModName @ "Add incompatible" @ DependencyDLCName,, 'X2WOTCCommunityHighlander');
 					}
 					break;
 			}
 		}
 	}
 
-	return ModDependencies.Children.Length > 0;
-}
-
-private static function string GetModDisplayName(X2DownloadableContentInfo DLCInfo)
-{
-	if (DLCInfo.GetDisplayName() != "")
-	{
-		return DLCInfo.GetDisplayName();
-	}
-
-	if (DLCInfo.PartContentLabel != "")
-	{
-		return DLCInfo.PartContentLabel;
-	}
-
-	return DLCInfo.DLCIdentifier;
+	return DepData.Children.Length > 0;
 }

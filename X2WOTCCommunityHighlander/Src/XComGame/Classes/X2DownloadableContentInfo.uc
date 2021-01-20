@@ -757,63 +757,6 @@ final function int GetRunPriorityGroup()
 }
 /// End Issue #511
 
-/// Start Issue #524
-/// <summary>
-/// Allow mods to specify array of incompatible and required mod.
-/// Should be specified in the mods XComGame.ini like
-/// [ModSafeName CHModDependency]
-/// +IncompatibleMods=...
-/// +IgnoreIncompatibleMods=...
-/// +RequiredMods=...
-/// +IgnoreRequiredMods=...
-/// DisplayName="..."
-/// </summary>
-final function array<string> GetIncompatibleDLCNames()
-{
-	local CHModDependency ModDependency;
-
-	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
-	// Equivalent to empty array if not specified in config
-	return ModDependency.IncompatibleMods;
-}
-
-final function array<string> GetIgnoreIncompatibleDLCNames()
-{
-	local CHModDependency ModDependency;
-
-	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
-	// Equivalent to empty array if not specified in config
-	return ModDependency.IgnoreIncompatibleMods;
-}
-
-final function array<string> GetRequiredDLCNames()
-{
-	local CHModDependency ModDependency;
-
-	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
-	// Equivalent to empty array if not specified in config
-	return ModDependency.RequiredMods;
-}
-
-final function array<string> GetIgnoreRequiredDLCNames()
-{
-	local CHModDependency ModDependency;
-
-	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
-	// Equivalent to empty array if not specified in config
-	return ModDependency.IgnoreRequiredMods;
-}
-
-final function string GetDisplayName()
-{
-	local CHModDependency ModDependency;
-
-	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
-	// Equivalent to empty string if not specified in localization
-	return ModDependency.DisplayName;
-}
-/// End Issue #524
-
 // Start Issue #783
 // <summary>
 /// Called from XGCharacterGenerator:CreateTSoldier
