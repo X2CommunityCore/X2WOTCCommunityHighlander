@@ -118,9 +118,6 @@
     <Content Include="Src\XComGame\Classes\CHXComGameVersionTemplate.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\XComGame\Classes\CHDLCInfoTopologicalOrderNode.uc">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Src\XComGame\Classes\Helpers.uc">
       <SubType>Content</SubType>
     </Content>

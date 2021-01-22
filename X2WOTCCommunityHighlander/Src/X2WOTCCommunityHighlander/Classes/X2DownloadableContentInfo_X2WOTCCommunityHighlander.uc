@@ -87,3 +87,8 @@ exec function CHLSimulateReacquireHQWeapons()
 		History.CleanupPendingGameState(NewGameState);
 	}
 }
+
+exec function CHL_DumpRunOrderInternals()
+{
+	CHOnlineEventMgr(`ONLINEEVENTMGR).DumpInternals();
+}

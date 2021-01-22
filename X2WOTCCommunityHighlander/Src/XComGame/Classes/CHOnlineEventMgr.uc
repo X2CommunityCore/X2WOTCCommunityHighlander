@@ -3,23 +3,52 @@
 class CHOnlineEventMgr extends XComOnlineEventMgr dependson(CHDLCRunOrder);
 
 var bool bWarmCache;
-var string strWarnings;
+
+enum CHRunOrderWarningKind
+{
+	eCHROWK_OrderCorrectDifferentGroup, // e.g. A RunsBefore B and A is RUN_FIRST and B is RUN_STANDARD
+	eCHROWK_OrderIncorrectDifferentGroup, // e.g. A RunsBefore B and A is RUN_LAST and B is RUN_STANDARD
+	eCHROKW_Cycle,
+};
+
+struct CHRunOrderDesiredEdge
+{
+	var CHDLCRunOrder FirstNode;
+	var CHDLCRunOrder SecondNode;
+	var EDLCEdgeSource EdgeSource;
+};
+
+struct CHRunOrderWarning
+{
+	var CHRunOrderWarningKind Kind;
+	var array<CHRunOrderDesiredEdge> Edges;
+};
+
+struct CHRunOrderIdentLookup
+{
+	var string DLCIdentifier;
+	var CHDLCRunOrder Node;
+};
+
+// Accelerator for access by DLCIdentifier
+var array<CHRunOrderIdentLookup> AllNodes;
+
+var array<CHRunOrderWarning> Warnings;
 
 event Init()
 {
 	super.Init();
-	TestTopologicalOrdering();
 }
 
 function array<X2DownloadableContentInfo> GetDLCInfos(bool bNewDLCOnly)
 {
 	local array<X2DownloadableContentInfo> DLCInfoClasses;
 	local X2DownloadableContentInfo DLCInfoClass;
-	local CHDLCInfoTopologicalOrderNode Node;
-	local array<CHDLCInfoTopologicalOrderNode> NodesFirst;
-	local array<CHDLCInfoTopologicalOrderNode> NodesStandard;
-	local array<CHDLCInfoTopologicalOrderNode> NodesLast;
-	local array<CHDLCInfoTopologicalOrderNode> Stack;
+	local CHDLCRunOrder ConfigObject;
+	local array<CHRunOrderIdentLookup> NodesFirst;
+	local array<CHRunOrderIdentLookup> NodesStandard;
+	local array<CHRunOrderIdentLookup> NodesLast;
+	local CHRunOrderIdentLookup TmpLookup;
 
 	DLCInfoClasses = super.GetDLCInfos(bNewDLCOnly);
 
@@ -36,234 +65,293 @@ function array<X2DownloadableContentInfo> GetDLCInfos(bool bNewDLCOnly)
 
 	foreach DLCInfoClasses(DLCInfoClass)
 	{
-		Node = new class'CHDLCInfoTopologicalOrderNode';
-		Node.DLCInfoClass = DLCInfoClass;
-		Node.DLCIdentifier = DLCInfoClass.DLCIdentifier;
-		Node.RunBefore = DLCInfoClass.GetRunBeforeDLCIdentifiers();
-		Node.RunAfter =  DLCInfoClass.GetRunAfterDLCIdentifiers();
-		Node.bVisited = false;
+		if (DLCInfoClass.DLCIdentifier != "")
+		{
+			ConfigObject = new(none, DLCInfoClass.DLCIdentifier) class'CHDLCRunOrder';
+		}
+		else
+		{
+			ConfigObject = new class'CHDLCRunOrder';
+		}
 
-		switch (DLCInfoClass.GetRunPriorityGroup())
+		ConfigObject.DLCInfoClass = DLCInfoClass;
+
+		TmpLookup.DLCIdentifier = DLCInfoClass.DLCIdentifier;
+		TmpLookup.Node = ConfigObject;
+		AllNodes.AddItem(TmpLookup);
+
+		switch (ConfigObject.RunPriorityGroup)
 		{
 			case RUN_FIRST:
-				NodesFirst.AddItem(Node);
+				NodesFirst.AddItem(TmpLookup);
 				break;
 			case RUN_LAST:
-				NodesLast.AddItem(Node);
+				NodesLast.AddItem(TmpLookup);
 				break;
-			case RUN_STANDARD: default:
-				NodesStandard.AddItem(Node);
+			case RUN_STANDARD:
+			default:
+				NodesStandard.AddItem(TmpLookup);
 				break;
 		}
 	}
 
 	`LOG(default.class @ GetFuncName() @ "--- Before sort" @ DLCInfoClasses.Length,, 'X2WOTCCommunityHighlander');
 
-	strWarnings = "";
+	CanonicalizeEdges();
+
 	DLCInfoClasses.Length = 0;
 	m_cachedDLCInfos.Length = 0;
 
-	ToplogicalSort(NodesFirst, Stack);
-	AddStackAndReset(DLCInfoClasses, Stack);
-	strWarnings = Repl(strWarnings, "%s", "RUN_FIRST");
-
-	ToplogicalSort(NodesStandard, Stack);
-	AddStackAndReset(DLCInfoClasses, Stack);
-	strWarnings = Repl(strWarnings, "%s", "RUN_STANDARD");
-
-	ToplogicalSort(NodesLast, Stack);
-	AddStackAndReset(DLCInfoClasses, Stack);
-	strWarnings = Repl(strWarnings, "%s", "RUN_LAST");
+	ToplogicalSort(NodesFirst, DLCInfoClasses);
+	ToplogicalSort(NodesStandard, DLCInfoClasses);
+	ToplogicalSort(NodesLast, DLCInfoClasses);
 
 	`LOG(default.class @ GetFuncName() @ "--- After sort" @ DLCInfoClasses.Length,, 'X2WOTCCommunityHighlander');
 
-	if (strWarnings != "")
-	{
-		`LOG(default.class @ GetFuncName() @ strWarnings,, 'X2WOTCCommunityHighlander');
-		strWarnings = "";
-	}
-
+	m_cachedDLCInfos = DLCInfoClasses;
 	bWarmCache = true;
 
 	return DLCInfoClasses;
 }
 
-
-private function AddStackAndReset(
-	out array<X2DownloadableContentInfo> DLCInfoClasses,
-	out array<CHDLCInfoTopologicalOrderNode> Stack
-)
+// Rewrite all edges in terms of RunAfter while reporting warnings for DLCIdentifiers that
+// attempt to do RunOrder things with DLCIdentifiers in other RunPriorityGroups
+private function CanonicalizeEdges()
 {
-	local CHDLCInfoTopologicalOrderNode Node;
+	local CHRunOrderIdentLookup Lookup;
+	local CHDLCRunOrder Curr, Other;
+	local string Target;
+	local int CmpResult;
 
-	foreach Stack(Node)
+	foreach AllNodes(Lookup)
 	{
-		DLCInfoClasses.AddItem(Node.DLCInfoClass);
-		m_cachedDLCInfos.AddItem(Node.DLCInfoClass);
-	}
-
-	Stack.Length = 0;
-}
-
-private function ToplogicalSort(array<CHDLCInfoTopologicalOrderNode> Nodes, out array<CHDLCInfoTopologicalOrderNode> Stack)
-{
-	local CHDLCInfoTopologicalOrderNode Node, RunBeforeNode;
-	local string RunBefore;
-	
-	// rewrite RunBefore to RunAfter
-	foreach Nodes(Node)
-	{
-		foreach Node.RunBefore(RunBefore)
+		Curr = Lookup.Node;
+		foreach Curr.RunBefore(Target)
 		{
-			RunBeforeNode = FindNode(Nodes, RunBefore);
-
-			if (RunBeforeNode == none)
+			Other = FindNode(AllNodes, Target);
+			if (Other != none)
 			{
-				strWarnings $= default.class @ Node.DLCIdentifier @ "could not find RunBefore" @ RunBefore @ "in priority group %s\n";
+				CmpResult = CompareRunPriority(Curr.RunPriorityGroup, Other.RunPriorityGroup);
+				switch (CmpResult)
+				{
+					case -1:
+						PushGroupWarning(eCHROWK_OrderCorrectDifferentGroup, Curr, Other, SOURCE_RunBefore);
+						break;
+					case 1:
+						PushGroupWarning(eCHROWK_OrderIncorrectDifferentGroup, Curr, Other, SOURCE_RunBefore);
+						break;
+					case 0:
+						Other.PushRunAfterEdge(Curr, SOURCE_RunBefore);
+						break;
+				}
 			}
+		}
 
-			if (RunBeforeNode != None)
+		foreach Curr.RunAfter(Target)
+		{
+			Other = FindNode(AllNodes, Target);
+			if (Other != none)
 			{
-				RunBeforeNode.RunAfter.AddItem(Node.DLCIdentifier);
+				CmpResult = CompareRunPriority(Curr.RunPriorityGroup, Other.RunPriorityGroup);
+				switch (CmpResult)
+				{
+					case -1:
+						PushGroupWarning(eCHROWK_OrderIncorrectDifferentGroup, Other, Curr, SOURCE_RunAfter);
+						break;
+					case 1:
+						PushGroupWarning(eCHROWK_OrderCorrectDifferentGroup, Other, Curr, SOURCE_RunAfter);
+						break;
+					case 0:
+						Curr.PushRunAfterEdge(Other, SOURCE_RunAfter);
+						break;
+				}
 			}
 		}
 	}
+}
 
-	// Sort NodesStandard based on RunAfter
-	foreach Nodes(Node)
+private function PushGroupWarning(CHRunOrderWarningKind Kind, CHDLCRunOrder First, CHDLCRunOrder Second, EDLCEdgeSource EdgeSource)
+{
+	local CHRunOrderWarning Warning;
+	local CHRunOrderDesiredEdge Edge;
+
+	Warning.Kind = Kind;
+
+	Edge.FirstNode = First;
+	Edge.SecondNode = Second;
+	Edge.EdgeSource = EdgeSource;
+	Warning.Edges.AddItem(Edge);
+
+	Warnings.AddItem(Warning);
+}
+
+private function ReportCycleError(const out array<CHRunOrderDesiredEdge> Edges)
+{
+	local CHRunOrderWarning Warning;
+
+	Warning.Kind = eCHROKW_Cycle;
+	Warning.Edges = Edges;
+
+	Warnings.AddItem(Warning);
+}
+
+// Returns 0 if same run group, -1 if A runs before B, +1 if B runs before A
+private function int CompareRunPriority(EDLCRunPriority A, EDLCRunPriority B)
+{
+	if (A == B) return 0;
+	if (A == RUN_FIRST) return -1;
+	if (A == RUN_LAST) return 1;
+	if (B == RUN_FIRST) return 1;
+	if (B == RUN_LAST) return -1;
+}
+
+private function ToplogicalSort(const out array<CHRunOrderIdentLookup> Nodes, out array<X2DownloadableContentInfo> DLCInfos)
+{
+	local CHRunOrderIdentLookup Entry;
+	local array<CHRunOrderDesiredEdge> PotentialCycleEdges;
+
+	foreach Nodes(Entry)
 	{
-		if (!Node.bVisited)
+		if (!Entry.Node.bVisited)
 		{
-			ToplogicalSortUtil(Nodes, Stack, Node);
+			DFSTopSort(Nodes, DLCInfos, PotentialCycleEdges, Entry.Node);
 		}
 	}
 }
 
-private function ToplogicalSortUtil(
-	array<CHDLCInfoTopologicalOrderNode> Nodes,
-	out array<CHDLCInfoTopologicalOrderNode> Stack,
-	CHDLCInfoTopologicalOrderNode Node
+// A depth-first-search based topological sorting algorithm with cycle checking -- and a twist.
+// The algorithm is based on https://en.wikipedia.org/wiki/Topological_sorting#Depth-first_search
+// with a small modification:
+// Instead of starting with an unvisited node and running the recursive DFS over its successors and adding
+// the node to the head of the list after the recursive call, we run the DFS over the predecessors and add
+// nodes to the tail of the list. This is facilitated by `CanonicalizeEdges`, which rewrites all edges
+// to RunAfter edges.
+private function DFSTopSort(
+	const out array<CHRunOrderIdentLookup> Nodes,
+	out array<X2DownloadableContentInfo> DLCInfos,
+	out array<CHRunOrderDesiredEdge> PotentialCycleEdges,
+	CHDLCRunOrder Node
 )
 {
-	local CHDLCInfoTopologicalOrderNode SubNode;
-	local string RunAfter;
+	local RunAfterEdge RunAfter;
+	local CHRunOrderDesiredEdge NewEdge;
 
+	if (Node.bVisitedWeak)
+	{
+		ReportCycleError(PotentialCycleEdges);
+		// This will lead to incorrect order since a topological ordering
+		// is not possible. Losing DLCInfo classes would be much worse though,
+		// so simply return and end up with *some* order.
+		Node.bVisitedWeak = false;
+		return;
+	}
+
+	Node.bVisitedWeak = true;
+
+	foreach Node.RunAfterEdges(RunAfter)
+	{
+		if (!RunAfter.Node.bVisited)
+		{
+			NewEdge.FirstNode = RunAfter.Node;
+			NewEdge.SecondNode = Node;
+			NewEdge.EdgeSource = RunAfter.EdgeSource;
+			PotentialCycleEdges.AddItem(NewEdge);
+			
+			DFSTopSort(Nodes, DLCInfos, PotentialCycleEdges, RunAfter.Node);
+
+			PotentialCycleEdges.Remove(PotentialCycleEdges.Length - 1, 1);
+		}
+	}
+
+	Node.bVisitedWeak = false;
 	Node.bVisited = true;
 
-	foreach Node.RunAfter(RunAfter)
-	{
-		SubNode = FindNode(Nodes, RunAfter);
-
-		if (SubNode == none)
-		{
-			strWarnings $= default.class @ Node.DLCIdentifier @ "could not find RunAfter" @ RunAfter @ "in priority group %s\n";
-		}
-
-		if (SubNode != None && !SubNode.bVisited)
-		{
-			ToplogicalSortUtil(Nodes, Stack, SubNode);
-		}
-	}
-
-	Stack.AddItem(Node);
+	DLCInfos.AddItem(Node.DLCInfoClass);
 }
 
-private function CHDLCInfoTopologicalOrderNode FindNode(array<CHDLCInfoTopologicalOrderNode> HayStack, string DLCIdentifier)
+private function CHDLCRunOrder FindNode(const out array<CHRunOrderIdentLookup> Nodes, string DLCIdentifier)
 {
-	local CHDLCInfoTopologicalOrderNode Node;
+	local int idx;
 
-	foreach HayStack(Node)
+	idx = Nodes.Find('DLCIdentifier', DLCIdentifier);
+
+	return idx != INDEX_NONE ? Nodes[idx].Node : None;
+}
+
+
+final function DumpInternals()
+{
+	local CHRunOrderIdentLookup Lookup;
+	local RunAfterEdge Edge;
+
+	foreach AllNodes(Lookup)
 	{
-		if (Node.DLCIdentifier == DLCIdentifier)
+		if (Lookup.Node.RunAfterEdges.Length > 0)
 		{
-			return Node;
+			`log("Node with" @ Lookup.DLCIdentifier @ "runs after:", , 'X2WOTCCommunityHighlander');
+			foreach Lookup.Node.RunAfterEdges(Edge)
+			{
+				`log("  " $ Edge.Node.DLCInfoClass.DLCIdentifier @ "with source" @ Edge.EdgeSource, , 'X2WOTCCommunityHighlander');
+			}
+		}
+		else
+		{
+			`log("Node with" @ Lookup.DLCIdentifier, , 'X2WOTCCommunityHighlander');
 		}
 	}
-	return None;
+
+	PrintWarnings();
 }
 
-// Unit tests
-private function TestTopologicalOrdering()
+final function PrintWarnings()
 {
-	local array<CHDLCInfoTopologicalOrderNode> NodesFst, NodesLst, NodesStd;
-	local array<CHDLCInfoTopologicalOrderNode> Buffer, MyStack;
-	local CHDLCInfoTopologicalOrderNode Node;
-	local array<string> ExpectedResult;
-	local int Index;
+	local CHRunOrderWarning Warn;
 
-	NodesFst.AddItem(GetNode("Z"));
-	NodesFst.AddItem(GetNode("Y", "1", "Z"));
-
-	NodesStd.AddItem(GetNode("A", "Z", "C"));
-	NodesStd.AddItem(GetNode("B",, "A"));
-	NodesStd.AddItem(GetNode("C"));
-	NodesStd.AddItem(GetNode("E", "A"));
-
-	NodesLst.AddItem(GetNode("2", "B"));
-	NodesLst.AddItem(GetNode("1", "2"));
-
-	ExpectedResult.AddItem("Z");
-	ExpectedResult.AddItem("Y");
-	ExpectedResult.AddItem("C");
-	ExpectedResult.AddItem("E");
-	ExpectedResult.AddItem("A");
-	ExpectedResult.AddItem("B");
-	ExpectedResult.AddItem("1");
-	ExpectedResult.AddItem("2");
-
-	ToplogicalSort(NodesFst, MyStack);
-	AddMyStackToBufferAndReset(Buffer, MyStack);
-	strWarnings = Repl(strWarnings, "%s", "RUN_FIRST");
-
-	ToplogicalSort(NodesStd, MyStack);
-	AddMyStackToBufferAndReset(Buffer, MyStack);
-	strWarnings = Repl(strWarnings, "%s", "RUN_STANDARD");
-
-	ToplogicalSort(NodesLst, MyStack);
-	AddMyStackToBufferAndReset(Buffer, MyStack);
-	strWarnings = Repl(strWarnings, "%s", "RUN_LAST");
-
-	`LOG(default.class @ GetFuncName() @ strWarnings,, 'X2WOTCCommunityHighlander');
-
-	foreach Buffer(Node)
+	foreach Warnings(Warn)
 	{
-		`LOG(default.class @ GetFuncName() @ Node.DLCIdentifier @ Node.DLCIdentifier == ExpectedResult[Index],, 'X2WOTCCommunityHighlander');
-		Index++;
+		switch (Warn.Kind)
+		{
+			case eCHROKW_Cycle:
+				PrintCycleWarning(Warn.Edges);
+				break;
+			case eCHROWK_OrderCorrectDifferentGroup:
+				`log("WARNING: Redundant RunBefore/RunAfter lines:" @ FormatFact(Warn.Edges[0]) @ "but this is always the case because" @ FormatGroups(Warn.Edges[0]), , 'X2WOTCCommunityHighlander');
+				break;
+			case eCHROWK_OrderIncorrectDifferentGroup:
+				`log("ERROR: INCORRECT and IGNORED RunBefore/RunAfter lines:" @ FormatFact(Warn.Edges[0]) @ "but this is NEVER the case because" @ FormatGroups(Warn.Edges[0]), , 'X2WOTCCommunityHighlander');
+				break;
+		}
 	}
 }
 
-private function AddMyStackToBufferAndReset(
-	out array<CHDLCInfoTopologicalOrderNode> Buffer,
-	out array<CHDLCInfoTopologicalOrderNode> Stack
-)
+private function PrintCycleWarning(const out array<CHRunOrderDesiredEdge> Edges)
 {
-	local CHDLCInfoTopologicalOrderNode Node;
+	local CHRunOrderDesiredEdge Edge;
+	`log("ERROR: RunBefore/RunAfter lines cause cycle and cannot be fulfilled:", , 'X2WOTCCommunityHighlander');
 
-	foreach Stack(Node)
+	foreach Edges(Edge)
 	{
-		Buffer.AddItem(Node);
+		`log("    " $ FormatFact(Edge), , 'X2WOTCCommunityHighlander');
 	}
-
-	Stack.Length = 0;
+	`log("  ...completing the cycle. Until this is corrected, run order will be undefined.", , 'X2WOTCCommunityHighlander');
 }
 
-static private function CHDLCInfoTopologicalOrderNode GetNode(
-	string DLCIdentifer,
-	optional string RunBefore,
-	optional string RunAfter
-)
-{	
-	local CHDLCInfoTopologicalOrderNode Node;
+private function string FormatFact(CHRunOrderDesiredEdge Edge)
+{
+	switch (Edge.EdgeSource)
+	{
+		case SOURCE_RunBefore:
+			return Edge.FirstNode.DLCInfoClass.DLCIdentifier @ "wants to run before" @ Edge.SecondNode.DLCInfoClass.DLCIdentifier;
+		case SOURCE_RunAfter:
+			return Edge.SecondNode.DLCInfoClass.DLCIdentifier @ "wants to run after" @ Edge.FirstNode.DLCInfoClass.DLCIdentifier;
+		case SOURCE_Both:
+			return Edge.FirstNode.DLCInfoClass.DLCIdentifier @ "wants to run before" @ Edge.SecondNode.DLCInfoClass.DLCIdentifier
+				@ "and" @ Edge.SecondNode.DLCInfoClass.DLCIdentifier @ "wants to run after" @ Edge.FirstNode.DLCInfoClass.DLCIdentifier;
+	}
+}
 
-	Node = new class'CHDLCInfoTopologicalOrderNode';
-	Node.DLCIdentifier = DLCIdentifer;
-	if (RunBefore != "")
-	{
-		Node.RunBefore.AddItem(RunBefore);
-	}
-	if (RunAfter != "")
-	{
-		Node.RunAfter.AddItem(RunAfter);
-	}
-	return Node;
+private function string FormatGroups(CHRunOrderDesiredEdge Edge)
+{
+	return Edge.FirstNode.DLCInfoClass.DLCIdentifier @ "is in group" @ Edge.FirstNode.RunPriorityGroup @ "and"
+		@ Edge.SecondNode.DLCInfoClass.DLCIdentifier @ "is in group" @ Edge.SecondNode.RunPriorityGroup;
 }

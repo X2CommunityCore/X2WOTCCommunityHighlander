@@ -729,32 +729,6 @@ static function UnitPawnPostInitAnimTree(XComGameState_Unit UnitState, XComUnitP
 /// RunPriorityGroup=...
 ///
 /// </summary>
-final function array<string> GetRunBeforeDLCIdentifiers()
-{
-	local CHDLCRunOrder RunOrder;
-
-	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
-	// Equivalent to empty array if not specified in config
-	return RunOrder.RunBefore;
-}
-
-final function array<string> GetRunAfterDLCIdentifiers()
-{
-	local CHDLCRunOrder RunOrder;
-
-	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
-	// Equivalent to empty array if not specified in config
-	return RunOrder.RunAfter;
-}
-
-final function int GetRunPriorityGroup()
-{
-	local CHDLCRunOrder RunOrder;
-
-	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
-	// Equivalent to RUN_STANDARD if not specified in config
-	return RunOrder.RunPriorityGroup;
-}
 /// End Issue #511
 
 // Start Issue #783
