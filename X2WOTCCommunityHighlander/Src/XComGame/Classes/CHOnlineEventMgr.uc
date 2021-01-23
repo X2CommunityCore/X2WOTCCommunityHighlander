@@ -188,9 +188,20 @@ private function PushGroupWarning(CHRunOrderWarningKind Kind, CHDLCRunOrder Firs
 private function ReportCycleError(const out array<CHRunOrderDesiredEdge> Edges)
 {
 	local CHRunOrderWarning Warning;
+	local string Last;
 
 	Warning.Kind = eCHROKW_Cycle;
 	Warning.Edges = Edges;
+
+	Last = Warning.Edges[Warning.Edges.Length - 1].SecondNode.DLCIdentifier;
+
+	// This loop *should* always exit due to the second condition, but we really don't
+	// want some super weird config I couldn't ever imagine to deadlock the game just for
+	// some error reporting.
+	while (Warning.Edges.Length > 0 && Warning.Edges[0].FirstNode.DLCIdentifier != Last)
+	{
+		Warning.Edges.Remove(0, 1);
+	}
 
 	Warnings.AddItem(Warning);
 }
