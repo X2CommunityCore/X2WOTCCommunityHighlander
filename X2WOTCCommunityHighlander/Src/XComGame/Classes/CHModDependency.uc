@@ -12,12 +12,12 @@
 /// specify in the `ActiveMods` list, and the way the game knows how to load that mod. Every mod has exactly
 /// one DLCName. Mods with the same DLCName can only be enabled or disabled together.
 /// The game stores the `DLCName` in the save file, and shows a warning upon attempting to load a save file
-/// when it had recorded a mod that's no longer enabled.
+/// when it had recorded a mod that's no longer enabled. DLCNames are case-insensitive.
 /// * **`DLCIdentifier`** is an identifier corresponding to a `X2DownloadableContentInfo` classes.
 /// Every mod has zero, one, or several `X2DownloadableContentInfo` classes, and the DLCIdentifier may be empty for
 /// any of them. This DLCIdentifier is used for some customization aspects (like part icons or slider names) and
 /// narrative content options (for the official DLCs). It's also used in CHL's Run Order (still need docs, sorry)
-/// since Run Order is all about `X2DownloadableContentInfo` classes.
+/// since Run Order is all about `X2DownloadableContentInfo` classes. DLCIdentifiers are generally case-sensitive.
 ///
 /// In the default ModBuddy mod project, the mod has exactly one `X2DownloadableContentInfo` subclass
 /// with a DLCIdentifier identical to the DLCName. However, config-only mods have no `X2DownloadableContentInfo`
@@ -90,11 +90,15 @@
 /// * All currently enabled DLCNames
 /// * All non-empty DLCIdentifiers from found `X2DownloadableContentInfo` classes
 /// 
-/// while ignoring duplicates.
+/// while ignoring duplicates. Note that only DLCNames are supported for `IncompatibleMods`,
+/// `RequiredMods` etc., you cannot specify a requirement on or incompatibility with a given DLCIdentifier!
+///
+///
 /// This means that mods can easily provide dependency info for other mods --
 /// the config object will be ignored if the corresponding DLCName isn't
 /// enabled. This also allows mods to add friendly names for other mods so
-/// that even if the mod isn't installed or doesn't set a `DisplayName`.
+/// that even if the mod isn't installed or doesn't set a `DisplayName`, the
+/// popup doesn't only show an internal ID.
 ///
 /// For example, `AddMintToMyChocolate` doesn't participate in the CHL depencency
 /// checker at all, but this DLCName is kind of confusing and a reported incompatibility
