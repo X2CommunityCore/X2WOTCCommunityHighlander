@@ -72,11 +72,11 @@
 /// so another mod should not consider `NewPromotionScreenbyDefault` missing if RPGO
 /// is enabled.
 ///
-/// There also is a `IgnoreIncompatibleMods` list of DLCNames that allows mods to
-/// suppress incompatibilites. For example, an overhaul can consider itself
-/// incompatible with a mod that adds a new weapon type unless a "bridge mod" is
-/// installed that provides functionality the overhaul expects -- that mod would then
-/// add `+IgnoreIncompatibleMods="ThatNewWeaponMod"`.
+/// There also is a `IgnoreIncompatibleMods` list of DLCNames that I am unfortunately
+/// not qualified to present a use case for. What `+IgnoreIncompatibleMods="SomeDLCName"`
+/// does is silence any warning that a third mod would throw if it listed 
+/// `+IncompatibleMods="SomeDLCName"`. If you think this is useful in any way, please tell
+/// us about it in [HL issue #967](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/967).
 ///
 /// This is what the popup for missing requirements looks like:
 /// ![Screenshot of RPGO's missing required mods](https://i.imgur.com/D1G6ZF7.png)
