@@ -88,7 +88,7 @@ exec function CHLSimulateReacquireHQWeapons()
 	}
 }
 
-exec function CHL_DumpRunOrderInternals()
+exec function CHLDumpRunOrderInternals()
 {
 	CHOnlineEventMgr(`ONLINEEVENTMGR).DumpInternals();
 }

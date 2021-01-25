@@ -1,3 +1,79 @@
+/// HL-Docs: feature:DLCRunOrder; issue:511; tags:compatibility
+/// The base game and Highlander have a number of "DLC hooks": Overridable
+/// functions in `X2DownloadableContentInfo` that the game calls for all mods
+/// in some order so that mods can to do something. The most ubiquitous hook
+/// is `OnPostTemplatesCreated`, which allows mods to modify templates.
+///
+/// Unfortunately, the order in which the DLC hooks of mods are executed
+/// ("run order") depends on load order, which is [not guaranteed][blog].
+/// However, run order can matter a lot. Consider a mod that creates copies
+/// of guns with different visuals, or duplicates secondary weapons to wield
+/// in the primary slot: These mods really want to run after mods that make
+/// changes to specific guns (i.e. stat changes for guns) so that the changes
+/// translate to the copies.
+///
+/// The CHL Run Order system provides two ways for mods to specify their
+/// position within the run order. This information is relayed to the
+/// Highlander using configuration entries (XComGame.ini):
+///
+/// ```
+/// [zzzWeaponSkinReplacer.X2DownloadableContentInfo_WeaponSkinReplacer]
+/// DLCIdentifier="zzzWeaponSkinReplacer"
+///
+/// [zzzWeaponSkinReplacer CHDLCRunOrder]
+/// +RunAfter=PrimarySecondaries
+/// +RunAfter=XCOM2RPGOverhaul
+/// +RunBefore=WOTCUnderbarrelAttachments
+/// RunPriorityGroup=RUN_LAST
+/// ```
+///
+/// Since this system is all about DLC Hooks, the important identifier here is
+/// the `DLCIdentifier` of the `X2DownloadableContentInfo` class, of which a mod
+/// may have zero, one or more. The DLCIdentifier is *case-sensitive*.
+/// Run Order is about DLCInfos, not individual mods, and a mod may have an
+/// X2DLCInfo that runs before a certain other X2DLCInfo and another that runs
+/// after that other one.
+///
+/// ## Coarse (RunPriorityGroup)
+///
+/// `RunPriorityGroup` is a coarse way for DLCInfos to control when they run.
+/// RunPriorityGroup can have three different values: `RUN_STANDARD`,
+/// `RUN_FIRST` and `RUN_LAST`. `RUN_STANDARD` is the default. All DLCInfos
+/// with `RUN_FIRST` always run before all `RUN_STANDARD` ones, and all
+/// DLCInfos with `RUN_LAST` always run after all `RUN_STANDARD` ones.
+///
+/// A DLCInfo with `RunPriorityGroup=RUN_LAST` already runs after the vast
+/// majority of other DLCInfos.
+///
+/// ## Fine (RunBefore/RunAfter)
+///
+/// Within these groups, DLCInfos can specify which other DLCInfos they run
+/// before and after. `[A] +RunBefore="B"` is equivalent to specifying
+/// `[B] +RunAfter="A"`. If `A` and `B` were in a different
+/// `RunPriorityGroup`, their relative `RunBefore`/`RunAfter` lines would
+/// be ignored.
+///
+/// ## Errors
+///
+/// The Highlander catches some potential configuration errors and writes them
+/// to the log. Warnings and errors are printed to the log, errors are shown
+/// to the user in combination with a list of DLCIdentifiers whose authors they
+/// should report the error to.
+///
+/// * It is a *warning* for a DLCInfo B to `RunAfter` a DLCInfo A, or A to
+///   `RunBefore` B, if A is in an earlier `RunPriorityGroup` than B, since
+///   these config lines are redundant and always fulfilled.
+/// * It is an *error* for a DLCInfo B to `RunAfter` a DLCInfo A, or A to
+///   `RunBefore` B, if A is in a later `RunPriorityGroup` than B, since
+///   these config lines are redundant and always fulfilled.
+/// * It is an *error* for any number of DLCInfos to cause a cycle, since
+///   cycles have no solution that fulfills all requirements.
+///
+/// The console command `CHLDumpRunOrderInternals` can be used to print all
+/// the information the CHL has about `X2DownloadableContentInfo` classes
+/// to the log, for debugging purposes.
+///
+/// [blog]: https://robojumper.github.io/too-real/load-order/
 class CHDLCRunOrder extends Object perobjectconfig config(Game);
 
 enum EDLCRunPriority

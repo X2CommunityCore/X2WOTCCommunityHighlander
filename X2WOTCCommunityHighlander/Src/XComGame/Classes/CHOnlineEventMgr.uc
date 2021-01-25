@@ -1,28 +1,8 @@
 // Issue #511
 // Create a DLCInfo loadorder system
-class CHOnlineEventMgr extends XComOnlineEventMgr dependson(CHDLCRunOrder);
+class CHOnlineEventMgr extends XComOnlineEventMgr dependson(CHDLCRunOrder, CHDLCRunOrderDiagnostic);
 
 var bool bWarmCache;
-
-enum CHRunOrderWarningKind
-{
-	eCHROWK_OrderCorrectDifferentGroup, // e.g. A RunsBefore B and A is RUN_FIRST and B is RUN_STANDARD
-	eCHROWK_OrderIncorrectDifferentGroup, // e.g. A RunsBefore B and A is RUN_LAST and B is RUN_STANDARD
-	eCHROKW_Cycle,
-};
-
-struct CHRunOrderDesiredEdge
-{
-	var CHDLCRunOrder FirstNode;
-	var CHDLCRunOrder SecondNode;
-	var EDLCEdgeSource EdgeSource;
-};
-
-struct CHRunOrderWarning
-{
-	var CHRunOrderWarningKind Kind;
-	var array<CHRunOrderDesiredEdge> Edges;
-};
 
 struct CHRunOrderIdentLookup
 {
@@ -33,7 +13,7 @@ struct CHRunOrderIdentLookup
 // Accelerator for access by DLCIdentifier
 var array<CHRunOrderIdentLookup> AllNodes;
 
-var array<CHRunOrderWarning> Warnings;
+var array<CHDLCRunOrderDiagnostic> Diagnostics;
 
 event Init()
 {
@@ -135,10 +115,10 @@ private function CanonicalizeEdges()
 				switch (CmpResult)
 				{
 					case -1:
-						PushGroupWarning(eCHROWK_OrderCorrectDifferentGroup, Curr, Other, SOURCE_RunBefore);
+						Diagnostics.AddItem(class'CHDLCRunOrderDiagnostic'.static.GroupWarning(eCHROWK_OrderCorrectDifferentGroup, Curr, Other, SOURCE_RunBefore));
 						break;
 					case 1:
-						PushGroupWarning(eCHROWK_OrderIncorrectDifferentGroup, Curr, Other, SOURCE_RunBefore);
+						Diagnostics.AddItem(class'CHDLCRunOrderDiagnostic'.static.GroupWarning(eCHROWK_OrderIncorrectDifferentGroup, Curr, Other, SOURCE_RunBefore));
 						break;
 					case 0:
 						Other.PushRunAfterEdge(Curr, SOURCE_RunBefore);
@@ -156,10 +136,10 @@ private function CanonicalizeEdges()
 				switch (CmpResult)
 				{
 					case -1:
-						PushGroupWarning(eCHROWK_OrderIncorrectDifferentGroup, Other, Curr, SOURCE_RunAfter);
+						Diagnostics.AddItem(class'CHDLCRunOrderDiagnostic'.static.GroupWarning(eCHROWK_OrderIncorrectDifferentGroup, Other, Curr, SOURCE_RunAfter));
 						break;
 					case 1:
-						PushGroupWarning(eCHROWK_OrderCorrectDifferentGroup, Other, Curr, SOURCE_RunAfter);
+						Diagnostics.AddItem(class'CHDLCRunOrderDiagnostic'.static.GroupWarning(eCHROWK_OrderCorrectDifferentGroup, Other, Curr, SOURCE_RunAfter));
 						break;
 					case 0:
 						Curr.PushRunAfterEdge(Other, SOURCE_RunAfter);
@@ -168,42 +148,6 @@ private function CanonicalizeEdges()
 			}
 		}
 	}
-}
-
-private function PushGroupWarning(CHRunOrderWarningKind Kind, CHDLCRunOrder First, CHDLCRunOrder Second, EDLCEdgeSource EdgeSource)
-{
-	local CHRunOrderWarning Warning;
-	local CHRunOrderDesiredEdge Edge;
-
-	Warning.Kind = Kind;
-
-	Edge.FirstNode = First;
-	Edge.SecondNode = Second;
-	Edge.EdgeSource = EdgeSource;
-	Warning.Edges.AddItem(Edge);
-
-	Warnings.AddItem(Warning);
-}
-
-private function ReportCycleError(const out array<CHRunOrderDesiredEdge> Edges)
-{
-	local CHRunOrderWarning Warning;
-	local string Last;
-
-	Warning.Kind = eCHROKW_Cycle;
-	Warning.Edges = Edges;
-
-	Last = Warning.Edges[Warning.Edges.Length - 1].SecondNode.DLCIdentifier;
-
-	// This loop *should* always exit due to the second condition, but we really don't
-	// want some super weird config I couldn't ever imagine to deadlock the game just for
-	// some error reporting.
-	while (Warning.Edges.Length > 0 && Warning.Edges[0].FirstNode.DLCIdentifier != Last)
-	{
-		Warning.Edges.Remove(0, 1);
-	}
-
-	Warnings.AddItem(Warning);
 }
 
 // Returns 0 if same run group, -1 if A runs before B, +1 if B runs before A
@@ -249,7 +193,7 @@ private function DFSTopSort(
 
 	if (Node.bVisitedWeak)
 	{
-		ReportCycleError(PotentialCycleEdges);
+		Diagnostics.AddItem(class'CHDLCRunOrderDiagnostic'.static.CycleError(PotentialCycleEdges));
 		// This will lead to incorrect order since a topological ordering
 		// is not possible. Losing DLCInfo classes would be much worse though,
 		// so simply return and end up with *some* order.
@@ -284,85 +228,117 @@ private function CHDLCRunOrder FindNode(const out array<CHRunOrderIdentLookup> N
 {
 	local int idx;
 
+	if (DLCIdentifier == "") return None;
+
 	idx = Nodes.Find('DLCIdentifier', DLCIdentifier);
 
 	return idx != INDEX_NONE ? Nodes[idx].Node : None;
 }
 
-
 final function DumpInternals()
 {
-	local CHRunOrderIdentLookup Lookup;
-	local RunAfterEdge Edge;
+	local X2DownloadableContentInfo DLCInfo;
 
-	foreach AllNodes(Lookup)
+	if (!bWarmCache)
 	{
-		if (Lookup.Node.RunAfterEdges.Length > 0)
+		CHReleaseLog("DumpInternals: No info yet", 'X2WOTCCommunityHighlander');
+		return;
+	}
+
+	CHReleaseLog("#########################################", 'X2WOTCCommunityHighlander');
+	CHReleaseLog("Run Order DumpInternals: Dumping info about DLC Info classes, in run order:", 'X2WOTCCommunityHighlander');
+
+	foreach m_cachedDLCInfos(DLCInfo)
+	{
+		CHReleaseLog(FormatDLCInfo(DLCInfo), 'X2WOTCCommunityHighlander');
+	}
+
+	CHReleaseLog("#########################################", 'X2WOTCCommunityHighlander');
+	CHReleaseLog("Run Order DumpInternals: The following warnings and errors were found during DAG construction", 'X2WOTCCommunityHighlander');
+	PrintWarnings();
+	CHReleaseLog("#########################################", 'X2WOTCCommunityHighlander');
+}
+
+private function string FormatDLCInfo(X2DownloadableContentInfo DLCInfo)
+{
+	local string Fmt, Arr, DLCIdent;
+	local CHDLCRunOrder Node;
+	local int i;
+
+	Fmt $= PathName(DLCInfo.Class) $ ": DLCIdentifier=";
+	DLCIdent = DLCInfo.DLCIdentifier;
+	Fmt $= DLCIdent != "" ? DLCIdent : "MISSING";
+
+	if (DLCIdent != "")
+	{
+		i = AllNodes.Find('DLCIdentifier', DLCIdent);
+		if (i != INDEX_NONE)
 		{
-			`log("Node with" @ Lookup.DLCIdentifier @ "runs after:", , 'X2WOTCCommunityHighlander');
-			foreach Lookup.Node.RunAfterEdges(Edge)
+			Node = AllNodes[i].Node;
+
+			Fmt $= ", RunPriorityGroup=" $ Node.RunPriorityGroup;
+
+			if (Node.RunBefore.Length > 0)
 			{
-				`log("  " $ Edge.Node.DLCInfoClass.DLCIdentifier @ "with source" @ Edge.EdgeSource, , 'X2WOTCCommunityHighlander');
+				Arr = "";
+				Fmt $= ", RunBefore=[";
+				JoinArray(Node.RunBefore, Arr);
+				Fmt $= Arr $ "]";
+			}
+
+			if (Node.RunAfter.Length > 0)
+			{
+				Arr = "";
+				Fmt $= ", RunAfter=[";
+				JoinArray(Node.RunAfter, Arr);
+				Fmt $= Arr $ "]";
 			}
 		}
-		else
-		{
-			`log("Node with" @ Lookup.DLCIdentifier, , 'X2WOTCCommunityHighlander');
-		}
 	}
 
-	PrintWarnings();
+	return Fmt;
 }
 
-final function PrintWarnings()
+private function PrintWarnings()
 {
-	local CHRunOrderWarning Warn;
+	local CHDLCRunOrderDiagnostic Diag;
+	local array<string> Blame;
+	local string BlameFmt;
 
-	foreach Warnings(Warn)
+	foreach Diagnostics(Diag)
 	{
-		switch (Warn.Kind)
+		switch (Diag.Kind)
 		{
 			case eCHROKW_Cycle:
-				PrintCycleWarning(Warn.Edges);
+				PrintCycleWarning(Diag);
 				break;
 			case eCHROWK_OrderCorrectDifferentGroup:
-				`log("WARNING: Redundant RunBefore/RunAfter lines:" @ FormatFact(Warn.Edges[0]) @ "but this is always the case because" @ FormatGroups(Warn.Edges[0]), , 'X2WOTCCommunityHighlander');
+				CHReleaseLog("WARNING: Redundant RunBefore/RunAfter lines:" @ Diag.FormatSingleFact() @ "but this is always the case because" @ Diag.FormatGroups(), 'X2WOTCCommunityHighlander');
 				break;
 			case eCHROWK_OrderIncorrectDifferentGroup:
-				`log("ERROR: INCORRECT and IGNORED RunBefore/RunAfter lines:" @ FormatFact(Warn.Edges[0]) @ "but this is NEVER the case because" @ FormatGroups(Warn.Edges[0]), , 'X2WOTCCommunityHighlander');
+				CHReleaseLog("ERROR: INCORRECT and IGNORED RunBefore/RunAfter lines:" @ Diag.FormatSingleFact() @ "but this is NEVER the case because" @ Diag.FormatGroups(), 'X2WOTCCommunityHighlander');
 				break;
 		}
+
+		BlameFmt = "";
+		Blame = Diag.Blame();
+		JoinArray(Blame, BlameFmt, ", ");
+		CHReleaseLog("  The following DLCIdentifiers provided config that lead to this problem:" @ BlameFmt, 'X2WOTCCommunityHighlander');
 	}
 }
 
-private function PrintCycleWarning(const out array<CHRunOrderDesiredEdge> Edges)
+private function PrintCycleWarning(CHDLCRunOrderDiagnostic Diag)
 {
-	local CHRunOrderDesiredEdge Edge;
-	`log("ERROR: RunBefore/RunAfter lines cause cycle and cannot be fulfilled:", , 'X2WOTCCommunityHighlander');
+	local array<string> Facts;
+	local string Fact;
 
-	foreach Edges(Edge)
+	CHReleaseLog("ERROR: RunBefore/RunAfter lines cause cycle and cannot be fulfilled:", 'X2WOTCCommunityHighlander');
+	
+	Facts = Diag.FormatEdgeFacts();
+
+	foreach Facts(Fact)
 	{
-		`log("    " $ FormatFact(Edge), , 'X2WOTCCommunityHighlander');
+		CHReleaseLog("    " $ Fact, 'X2WOTCCommunityHighlander');
 	}
-	`log("  ...completing the cycle. Until this is corrected, run order will be undefined.", , 'X2WOTCCommunityHighlander');
-}
-
-private function string FormatFact(CHRunOrderDesiredEdge Edge)
-{
-	switch (Edge.EdgeSource)
-	{
-		case SOURCE_RunBefore:
-			return Edge.FirstNode.DLCInfoClass.DLCIdentifier @ "wants to run before" @ Edge.SecondNode.DLCInfoClass.DLCIdentifier;
-		case SOURCE_RunAfter:
-			return Edge.SecondNode.DLCInfoClass.DLCIdentifier @ "wants to run after" @ Edge.FirstNode.DLCInfoClass.DLCIdentifier;
-		case SOURCE_Both:
-			return Edge.FirstNode.DLCInfoClass.DLCIdentifier @ "wants to run before" @ Edge.SecondNode.DLCInfoClass.DLCIdentifier
-				@ "and" @ Edge.SecondNode.DLCInfoClass.DLCIdentifier @ "wants to run after" @ Edge.FirstNode.DLCInfoClass.DLCIdentifier;
-	}
-}
-
-private function string FormatGroups(CHRunOrderDesiredEdge Edge)
-{
-	return Edge.FirstNode.DLCInfoClass.DLCIdentifier @ "is in group" @ Edge.FirstNode.RunPriorityGroup @ "and"
-		@ Edge.SecondNode.DLCInfoClass.DLCIdentifier @ "is in group" @ Edge.SecondNode.RunPriorityGroup;
+	CHReleaseLog("  ...completing the cycle. Until this is corrected, run order will be undefined.", 'X2WOTCCommunityHighlander');
 }

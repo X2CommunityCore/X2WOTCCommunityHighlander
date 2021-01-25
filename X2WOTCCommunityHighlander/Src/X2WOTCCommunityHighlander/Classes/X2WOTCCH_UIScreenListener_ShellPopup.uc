@@ -21,6 +21,7 @@ event OnInit(UIScreen Screen)
 			Screen.SetTimer(2.5f, false, nameof(IncompatibleModsPopups), self);
 			Screen.SetTimer(2.6f, false, nameof(RequiredModsPopups), self);
 		}
+		Screen.SetTimer(2.7f, false, nameof(RunOrderPopups), self);
 	}
 }
 
@@ -136,7 +137,90 @@ simulated function string GetRequiredModsText(const out ModDependencyData Dep)
 			class'UIUtilities_Text'.static.GetColoredText(MakeBulletList(Dep.Children), eUIState_Bad) $ "\n";
 }
 
-function static string MakeBulletList(const out array<string> List)
+simulated function RunOrderPopups()
+{
+	local CHOnlineEventMgr OnlineEventMgr;
+	local CHDLCRunOrderDiagnostic Diag;
+
+	OnlineEventMgr = CHOnlineEventMgr(`ONLINEEVENTMGR);
+	// Guard against older XComGame versions
+	if (OnlineEventMgr != none && ArrayProperty'XComGame.CHOnlineEventMgr.Diagnostics' != none)
+	{
+		foreach OnlineEventMgr.Diagnostics(Diag)
+		{
+			switch (Diag.Kind)
+			{
+				case eCHROKW_Cycle:
+					CyclePopup(Diag);
+					break;
+				case eCHROWK_OrderIncorrectDifferentGroup:
+					GroupPopup(Diag);
+					break;
+			}
+		}
+	}
+}
+
+simulated function CyclePopup(CHDLCRunOrderDiagnostic Diag)
+{
+	local TDialogueBoxData kDialogData;
+
+	kDialogData.strTitle = "Cycle in Run Order Detected";
+	kDialogData.eType = eDialog_Warning;
+	kDialogData.strText = GetCycleText(Diag);
+	kDialogData.strCancel = class'UIUtilities_Text'.default.m_strGenericAccept;
+
+	`PRESBASE.UIRaiseDialog(kDialogData);
+}
+
+function string GetCycleText(CHDLCRunOrderDiagnostic Diag)
+{
+	local string Fmt, BlameText;
+
+	Fmt = "Mods specified a cyclic run order:\n\n";
+	Fmt $= MakeBulletList(Diag.FormatEdgeFacts());
+	Fmt $= "\n...completing the cycle. Until this is corrected, run order will be undefined.\n\n";
+	Fmt $= "The following DLCIdentifiers provided config that lead to this problem: ";
+	JoinArray(Diag.Blame(), BlameText, ", ");
+	Fmt $= BlameText;
+	Fmt $= "\n\nPlease inform the respective mod authors about this problem.";
+
+	return Fmt;
+}
+
+simulated function GroupPopup(CHDLCRunOrderDiagnostic Diag)
+{
+	local TDialogueBoxData kDialogData;
+
+	kDialogData.strTitle = "Conflicting Run Order data";
+	kDialogData.eType = eDialog_Warning;
+	kDialogData.strText = GetGroupText(Diag);
+	kDialogData.strAccept = class'X2WOTCCH_ModDependencies'.default.DisablePopup;
+	kDialogData.strCancel = class'UIUtilities_Text'.default.m_strGenericAccept;
+
+	`PRESBASE.UIRaiseDialog(kDialogData);
+}
+
+function string GetGroupText(CHDLCRunOrderDiagnostic Diag)
+{
+	local string Fmt, BlameText;
+	local array<string> Facts;
+
+	Facts.AddItem(Diag.FormatSingleFact());
+	Facts.AddItem(Diag.FormatGroups());
+
+	Fmt = "Mods specified conflicting run order information:\n\n";
+	Fmt $= MakeBulletList(Facts);
+	Fmt $= "\nThis behavior is specified, but may indicate a configuration error.\n\n";
+	Fmt $= "The following DLCIdentifiers provided config that lead to this problem: ";
+	JoinArray(Diag.Blame(), BlameText, ", ");
+	Fmt $= BlameText;
+	Fmt $= "\n\nPlease inform the respective mod authors about this problem.";
+
+	return Fmt;
+}
+
+final static function string MakeBulletList(const out array<string> List)
 {
 	local string Buffer;
 	local int Index;
