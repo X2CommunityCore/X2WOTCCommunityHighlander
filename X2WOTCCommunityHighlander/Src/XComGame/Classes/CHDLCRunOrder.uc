@@ -73,6 +73,57 @@
 /// the information the CHL has about `X2DownloadableContentInfo` classes
 /// to the log, for debugging purposes.
 ///
+/// One configuration error that can't be caught is a missing `DLCIdentifier`.
+/// If your `X2DownloadableContentInfo` subclass specifies a custom config
+/// file via `config(CustomConfig)`, then the `DLCIdentifier` needs to go in
+/// `XComCustomConfig.ini`, while the `CHDLCRunOrder` still goes in
+/// `XComGame.ini`.
+///
+/// ## Splitting DLCInfo
+///
+/// Sometimes it can be useful to split your DLC Infos into two different
+/// classes, one containing all changes that can run whenever (`RUN_STANDARD`)
+/// and one that needs to make its changes last. You can simply create more
+/// subclasses and specify run order for any of them:
+///
+/// <pre hidden>X2DownloadableContentInfo_NormalChanges.uc</pre>
+/// ```unrealscript
+/// class X2DownloadableContentInfo_NormalChanges extends X2DownloadableContentInfo;
+///
+/// static event OnPostTemplatesCreated()
+/// {
+/// 	// Make regular changes here
+/// }
+/// ```
+///
+/// `X2DownloadableContentInfo_LastChanges.uc`
+/// ```unrealscript
+/// class X2DownloadableContentInfo_LastChanges extends X2DownloadableContentInfo;
+///
+/// static event OnPostTemplatesCreated()
+/// {
+/// 	// Make last changes here
+/// }
+/// ```
+///
+/// `XComGame.ini`
+/// ```ini
+/// [MyMod.X2DownloadableContentInfo_NormalChanges]
+/// DLCIdentifier="MyModNormal"
+/// [MyMod.X2DownloadableContentInfo_LastChanges]
+/// DLCIdentifier="MyModLast"
+///
+/// [MyModLast CHDLCRunOrder]
+/// RunPriorityGroup=RUN_LAST
+/// ```
+///
+/// This combats the trend of mods to move all their changes to `RUN_LAST`
+/// because they contain only one change that actually needs to run last.
+/// This trend can be problematic because it requires explicit `RunAfter`
+/// annotations in other mods if they want to run after your normal changes.
+/// Splitting DLCInfos can help mods that use `RUN_LAST` do the right thing
+/// by default.
+///
 /// [blog]: https://robojumper.github.io/too-real/load-order/
 class CHDLCRunOrder extends Object perobjectconfig config(Game);
 
