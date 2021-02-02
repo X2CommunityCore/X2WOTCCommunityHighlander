@@ -12,7 +12,7 @@ struct ModDependencyData
 	var string ModName; // The display name of the mod causing this error.
 	var name SourceName; // The stored name of the mod in case user presses "ok, please ignore"
 	var CHPolarity Polarity; // Whether these mods are required and not installed, or incompatible but present
-	var array<String> Children; // The set of mods required by or incompatible with the cause
+	var array<string> Children; // The set of mods required by or incompatible with the cause
 };
 
 var localized string ModRequired;
@@ -30,6 +30,13 @@ var array<string> IgnoreIncompatibleMods;
 // Faster than retrieving from OnlineEventMgr all the time, and enables `.Find()`
 var array<name> EnabledDLCNames;
 var array<CHModDependency> DepInfos;
+
+function bool HasHLSupport()
+{
+	// Check whether XComGame replacement is active at all.
+	// The internal refactoring in #965 works with older versions of `CHModDependency` too.
+	return Class'XComGame.CHModDependency' != none;
+}
 
 function Init()
 {
@@ -92,7 +99,7 @@ private function CHModDependency CreateUniqueDepInfoForInstalled(string DLCName)
 
 	DepInfo = new(none, DLCName) class'CHModDependency';
 
-	if (!DepInfo.IsInteresting())
+	if (!IsInteresting(DepInfo))
 	{
 		return None;
 	}
@@ -109,6 +116,13 @@ private function CHModDependency CreateUniqueDepInfoForInstalled(string DLCName)
 
 	self.DepInfos.AddItem(DepInfo);
 	return DepInfo;
+}
+
+final function bool IsInteresting(CHModDependency DepInfo)
+{
+	return DepInfo.IncompatibleMods.Length > 0 || DepInfo.RequiredMods.Length > 0
+		|| DepInfo.IgnoreIncompatibleMods.Length > 0 || DepInfo.IgnoreRequiredMods.Length > 0
+		|| DepInfo.DisplayName != "";
 }
 
 function array<ModDependencyData> GetModsWithMissingRequirements()

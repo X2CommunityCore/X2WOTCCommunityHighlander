@@ -15,10 +15,12 @@ event OnInit(UIScreen Screen)
 	if(UIShell(Screen) != none && UIShell(Screen).DebugMenuContainer == none)
 	{
 		DependencyChecker = new class'X2WOTCCH_ModDependencies';
-		DependencyChecker.Init();
-
-		Screen.SetTimer(2.5f, false, nameof(IncompatibleModsPopups), self);
-		Screen.SetTimer(2.6f, false, nameof(RequiredModsPopups), self);
+		if (DependencyChecker.HasHLSupport())
+		{
+			DependencyChecker.Init();
+			Screen.SetTimer(2.5f, false, nameof(IncompatibleModsPopups), self);
+			Screen.SetTimer(2.6f, false, nameof(RequiredModsPopups), self);
+		}
 	}
 }
 

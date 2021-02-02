@@ -7,19 +7,6 @@ No new changes should be added here. Documented features should be removed from 
 
 ### Ini settings
 
-#### Mod compatibility
-
-In `XComGame.ini` mods can specify an array of incompatible and/or required mods. This will be used to show an warning popup if they are present. (#524)
-
-```
-[ModSafeName CHModDependency]
-+IncompatibleMods=OtherModSafeName
-+IgnoreIncompatibleMods=OtherModSafeName
-+RequiredMods=OtherModSafeName
-+IgnoreRequiredMods=OtherModSafeName
-DisplayName="Fancy Mod"
-```
-
 #### DLC Run Order
 
 In `XComGame.ini` mods can define an array of other mods which dlc hooks should run before and/or after the mods dlc hook.
