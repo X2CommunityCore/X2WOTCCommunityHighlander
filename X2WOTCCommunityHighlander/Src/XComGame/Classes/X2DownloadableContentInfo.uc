@@ -715,22 +715,6 @@ static function UnitPawnPostInitAnimTree(XComGameState_Unit UnitState, XComUnitP
 }
 /// End Issue #455
 
-/// Start Issue #511
-/// <summary>
-/// Allowes mod to define dlc run order dependencies
-/// RunPriorityGroup can be STANDARD = 0, FIRST = 1 or LAST = 2
-/// Only change load priority if you really sure that its needed for you mod.
-/// RunBefore and RunAfter only work within the defined LoadPriority group
-///
-/// Should be specified in the mods XComGame.ini like
-/// [ModSafeName CHDLCRunOrder]
-/// +RunBefore=...
-/// +RunAfter=...
-/// RunPriorityGroup=...
-///
-/// </summary>
-/// End Issue #511
-
 // Start Issue #783
 // <summary>
 /// Called from XGCharacterGenerator:CreateTSoldier

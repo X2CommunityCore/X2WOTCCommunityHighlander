@@ -13,3 +13,10 @@ ModRequired="Please ACTIVATE the following mods and restart or %s will not work 
 ModIncompatiblePopupTitle="detected INCOMPATIBLE mods"
 ModIncompatible="Please DEACTIVATE the following mods and restart or %s will not work properly:"
 DisablePopup="DO NOT SHOW ME THIS AGAIN"
+
+[X2WOTCCH_UIScreenListener_ShellPopup]
+CycleErrorTitle="Cycle in Run Order Detected"
+CycleErrorText="Mods specified a cyclic run order:\n\n%FACTS\n...completing the cycle. Until this is corrected, run order will be undefined."
+GroupErrorTitle="Conflicting Run Order data"
+GroupErrorText="Mods specified conflicting run order information:\n\n%FACTS\nThis behavior is specified, but may indicate a configuration error."
+BlameText="The following DLCIdentifiers provided config that lead to this problem: %BLAME\n\nPlease inform the respective mod authors about this problem."

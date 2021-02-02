@@ -1,4 +1,6 @@
-/// HL-Docs: ref:ModDependencyCheck
+// Issue #524, Issue #511
+// * Check mods required and incompatible mods against the actually loaded mod and display a popup for each mod
+// * Check run order configuration errors and display popups
 class X2WOTCCH_UIScreenListener_ShellPopup
 	extends UIScreenListener
 	dependson (X2WOTCCH_ModDependencies)
@@ -8,6 +10,12 @@ class X2WOTCCH_UIScreenListener_ShellPopup
 var config array<name> HideIncompatibleModWarnings;
 var config array<name> HideRequiredModWarnings;
 var X2WOTCCH_ModDependencies DependencyChecker;
+
+var config array<string> HideGroupWarnings;
+
+var localized string CycleErrorTitle, CycleErrorText;
+var localized string GroupErrorTitle, GroupErrorText;
+var localized string BlameText;
 
 event OnInit(UIScreen Screen)
 {
@@ -141,6 +149,7 @@ simulated function RunOrderPopups()
 {
 	local CHOnlineEventMgr OnlineEventMgr;
 	local CHDLCRunOrderDiagnostic Diag;
+	local array<string> Blamed;
 
 	OnlineEventMgr = CHOnlineEventMgr(`ONLINEEVENTMGR);
 	// Guard against older XComGame versions
@@ -154,7 +163,11 @@ simulated function RunOrderPopups()
 					CyclePopup(Diag);
 					break;
 				case eCHROWK_OrderIncorrectDifferentGroup:
-					GroupPopup(Diag);
+					Blamed = Diag.Blame();
+					if (!AllGroupIgnored(Blamed))
+					{
+						GroupPopup(Diag);
+					}
 					break;
 			}
 		}
@@ -165,7 +178,7 @@ simulated function CyclePopup(CHDLCRunOrderDiagnostic Diag)
 {
 	local TDialogueBoxData kDialogData;
 
-	kDialogData.strTitle = "Cycle in Run Order Detected";
+	kDialogData.strTitle = default.CycleErrorTitle;
 	kDialogData.eType = eDialog_Warning;
 	kDialogData.strText = GetCycleText(Diag);
 	kDialogData.strCancel = class'UIUtilities_Text'.default.m_strGenericAccept;
@@ -175,15 +188,15 @@ simulated function CyclePopup(CHDLCRunOrderDiagnostic Diag)
 
 function string GetCycleText(CHDLCRunOrderDiagnostic Diag)
 {
-	local string Fmt, BlameText;
+	local string Fmt, BlameBuf;
+	local array<string> Facts;
 
-	Fmt = "Mods specified a cyclic run order:\n\n";
-	Fmt $= MakeBulletList(Diag.FormatEdgeFacts());
-	Fmt $= "\n...completing the cycle. Until this is corrected, run order will be undefined.\n\n";
-	Fmt $= "The following DLCIdentifiers provided config that lead to this problem: ";
-	JoinArray(Diag.Blame(), BlameText, ", ");
-	Fmt $= BlameText;
-	Fmt $= "\n\nPlease inform the respective mod authors about this problem.";
+	Facts = Diag.FormatEdgeFacts();
+
+	Fmt = Repl(default.CycleErrorText, "%FACTS", MakeBulletList(Facts));
+	Fmt $= "\n\n";
+	JoinArray(Diag.Blame(), BlameBuf, ", ");
+	Fmt $= Repl(default.BlameText, "%BLAME", BlameBuf);
 
 	return Fmt;
 }
@@ -191,36 +204,85 @@ function string GetCycleText(CHDLCRunOrderDiagnostic Diag)
 simulated function GroupPopup(CHDLCRunOrderDiagnostic Diag)
 {
 	local TDialogueBoxData kDialogData;
+	local X2WOTCCH_DialogCallbackData CallbackData;
 
-	kDialogData.strTitle = "Conflicting Run Order data";
+	CallbackData = new class'X2WOTCCH_DialogCallbackData';
+	CallbackData.Diag = Diag;
+
+	kDialogData.strTitle = default.GroupErrorTitle;
 	kDialogData.eType = eDialog_Warning;
 	kDialogData.strText = GetGroupText(Diag);
+	kDialogData.fnCallbackEx = GroupPopupCB;
 	kDialogData.strAccept = class'X2WOTCCH_ModDependencies'.default.DisablePopup;
 	kDialogData.strCancel = class'UIUtilities_Text'.default.m_strGenericAccept;
+	kDialogData.xUserData = CallbackData;
 
 	`PRESBASE.UIRaiseDialog(kDialogData);
 }
 
 function string GetGroupText(CHDLCRunOrderDiagnostic Diag)
 {
-	local string Fmt, BlameText;
+	local string Fmt, BlameBuf;
 	local array<string> Facts;
 
 	Facts.AddItem(Diag.FormatSingleFact());
 	Facts.AddItem(Diag.FormatGroups());
 
-	Fmt = "Mods specified conflicting run order information:\n\n";
-	Fmt $= MakeBulletList(Facts);
-	Fmt $= "\nThis behavior is specified, but may indicate a configuration error.\n\n";
-	Fmt $= "The following DLCIdentifiers provided config that lead to this problem: ";
-	JoinArray(Diag.Blame(), BlameText, ", ");
-	Fmt $= BlameText;
-	Fmt $= "\n\nPlease inform the respective mod authors about this problem.";
-
+	Fmt = Repl(default.GroupErrorText, "%FACTS", MakeBulletList(Facts));
+	Fmt $= "\n\n";
+	JoinArray(Diag.Blame(), BlameBuf, ", ");
+	Fmt $= Repl(default.BlameText, "%BLAME", BlameBuf);
 	return Fmt;
 }
 
-final static function string MakeBulletList(const out array<string> List)
+simulated function GroupPopupCB(Name eAction, UICallbackData xUserData)
+{
+	local X2WOTCCH_DialogCallbackData CallbackData;
+	local array<string> Blamed;
+
+	if (eAction == 'eUIAction_Accept')
+	{
+		CallbackData = X2WOTCCH_DialogCallbackData(xUserData);
+		Blamed = CallbackData.Diag.Blame();
+		ExtendIgnoredGroups(Blamed);
+		self.SaveConfig();
+
+		`PRESBASE.PlayUISound(eSUISound_MenuSelect);
+	}
+	else
+	{
+		`PRESBASE.PlayUISound(eSUISound_MenuSelect);
+	}
+}
+
+private function bool AllGroupIgnored(const out array<string> BlameArr)
+{
+	local string Blame;
+
+	foreach BlameArr(Blame)
+	{
+		if (HideGroupWarnings.Find(Blame) == INDEX_NONE)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+private function ExtendIgnoredGroups(const out array<string> BlameArr)
+{
+	local string Blame;
+
+	foreach BlameArr(Blame)
+	{
+		if (HideGroupWarnings.Find(Blame) == INDEX_NONE)
+		{
+			HideGroupWarnings.AddItem(Blame);
+		}
+	}
+}
+
+private static function string MakeBulletList(const out array<string> List)
 {
 	local string Buffer;
 	local int Index;

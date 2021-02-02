@@ -3,21 +3,6 @@
 *This change log is deprecated; it contains historical changes that have not been documented using the new [documentation tool and site](https://x2communitycore.github.io/X2WOTCCommunityHighlander/).  
 No new changes should be added here. Documented features should be removed from this list. Conversely, this is a list of features to document.*
 
-## General
-
-### Ini settings
-
-#### DLC Run Order
-
-In `XComGame.ini` mods can define an array of other mods which dlc hooks should run before and/or after the mods dlc hook.
-LoadPriority can be RUN_STANDARD, RUN_FIRST or RUN_LAST. RunBefore and RunAfter only work within the defined LoadPriority group. Only change load priority if you really sure that its needed for you mod (#511)
-```
-[ModSafeName CHDLCRunOrder]
-+RunBefore=OtherModSafeName
-+RunAfter=OtherModSafeName
-RunPriorityGroup=RUN_STANDARD
-```
-
 ## Strategy
 
 ### Mod/DLC Hooks

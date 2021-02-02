@@ -65,7 +65,7 @@
 ///   these config lines are redundant and always fulfilled.
 /// * It is an *error* for a DLCInfo B to `RunAfter` a DLCInfo A, or A to
 ///   `RunBefore` B, if A is in a later `RunPriorityGroup` than B, since
-///   these config lines are redundant and always fulfilled.
+///   these config lines are contradictions and never fulfilled.
 /// * It is an *error* for any number of DLCInfos to cause a cycle, since
 ///   cycles have no solution that fulfills all requirements.
 ///
@@ -86,7 +86,7 @@
 /// and one that needs to make its changes last. You can simply create more
 /// subclasses and specify run order for any of them:
 ///
-/// <pre hidden>X2DownloadableContentInfo_NormalChanges.uc</pre>
+/// `X2DownloadableContentInfo_NormalChanges.uc`
 /// ```unrealscript
 /// class X2DownloadableContentInfo_NormalChanges extends X2DownloadableContentInfo;
 ///

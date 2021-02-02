@@ -1,5 +1,5 @@
 // Issue #511
-// Create a DLCInfo loadorder system
+/// HL-Docs: ref:DLCRunOrder
 class CHOnlineEventMgr extends XComOnlineEventMgr dependson(CHDLCRunOrder, CHDLCRunOrderDiagnostic);
 
 var bool bWarmCache;
@@ -87,6 +87,7 @@ function array<X2DownloadableContentInfo> GetDLCInfos(bool bNewDLCOnly)
 	ToplogicalSort(NodesLast, DLCInfoClasses);
 
 	`LOG(default.class @ GetFuncName() @ "--- After sort" @ DLCInfoClasses.Length,, 'X2WOTCCommunityHighlander');
+	PrintWarnings();
 
 	m_cachedDLCInfos = DLCInfoClasses;
 	bWarmCache = true;
@@ -313,10 +314,10 @@ private function PrintWarnings()
 				PrintCycleWarning(Diag);
 				break;
 			case eCHROWK_OrderCorrectDifferentGroup:
-				CHReleaseLog("WARNING: Redundant RunBefore/RunAfter lines:" @ Diag.FormatSingleFact() @ "but this is always the case because" @ Diag.FormatGroups(), 'X2WOTCCommunityHighlander');
+				CHReleaseLog("WARNING: Redundant RunBefore/RunAfter lines:" @ Diag.FormatSingleFact(true) @ "but this is always the case because" @ Diag.FormatGroups(true), 'X2WOTCCommunityHighlander');
 				break;
 			case eCHROWK_OrderIncorrectDifferentGroup:
-				CHReleaseLog("ERROR: INCORRECT and IGNORED RunBefore/RunAfter lines:" @ Diag.FormatSingleFact() @ "but this is NEVER the case because" @ Diag.FormatGroups(), 'X2WOTCCommunityHighlander');
+				CHReleaseLog("ERROR: INCORRECT and IGNORED RunBefore/RunAfter lines:" @ Diag.FormatSingleFact(true) @ "but this is NEVER the case because" @ Diag.FormatGroups(true), 'X2WOTCCommunityHighlander');
 				break;
 		}
 
@@ -334,7 +335,7 @@ private function PrintCycleWarning(CHDLCRunOrderDiagnostic Diag)
 
 	CHReleaseLog("ERROR: RunBefore/RunAfter lines cause cycle and cannot be fulfilled:", 'X2WOTCCommunityHighlander');
 	
-	Facts = Diag.FormatEdgeFacts();
+	Facts = Diag.FormatEdgeFacts(true);
 
 	foreach Facts(Fact)
 	{

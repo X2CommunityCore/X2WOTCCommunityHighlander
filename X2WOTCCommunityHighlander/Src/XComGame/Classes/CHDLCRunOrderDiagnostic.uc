@@ -84,26 +84,26 @@ function array<string> Blame()
 	return UniqueDLCIdents;
 }
 
-function array<string> FormatEdgeFacts()
+function array<string> FormatEdgeFacts(optional bool ForceINT = false)
 {
 	local array<string> Res;
 	local CHRunOrderDesiredEdge Edge;
 
 	foreach Edges(Edge)
 	{
-		Res.AddItem(FormatFact(Edge));
+		Res.AddItem(FormatFact(Edge, ForceINT));
 	}
 
 	return Res;
 }
 
-function string FormatSingleFact()
+function string FormatSingleFact(optional bool ForceINT = false)
 {
 	`assert(Kind == eCHROWK_OrderCorrectDifferentGroup || Kind == eCHROWK_OrderIncorrectDifferentGroup);
-	return FormatFact(Edges[0]);
+	return FormatFact(Edges[0], ForceINT);
 }
 
-function string FormatGroups()
+function string FormatGroups(optional bool ForceINT = false)
 {
 	local CHRunOrderDesiredEdge Edge;
 	local string FmtString;
@@ -112,10 +112,10 @@ function string FormatGroups()
 	switch (Kind)
 	{
 		case eCHROWK_OrderIncorrectDifferentGroup:
-			FmtString = "%FID is in group %FGROUP and %SID is in group %SGROUP, so %FID will never run before %SID";
+			FmtString = ForceINT ? class'XLocalizedData'.default.RunOrderDiffGroupsConflict_INT : class'XLocalizedData'.default.RunOrderDiffGroupsConflict;
 			break;
 		case eCHROWK_OrderCorrectDifferentGroup:
-			FmtString = "%FID is in group %FGROUP and %SID is in group %SGROUP, so %FID will always run before %SID";
+			FmtString = ForceINT ? class'XLocalizedData'.default.RunOrderDiffGroupsRedundant_INT : class'XLocalizedData'.default.RunOrderDiffGroupsRedundant;
 			break;
 	}
 
@@ -128,19 +128,19 @@ function string FormatGroups()
 	return FmtString;
 }
 
-private function string FormatFact(CHRunOrderDesiredEdge Edge)
+private function string FormatFact(CHRunOrderDesiredEdge Edge, optional bool ForceINT = false)
 {
 	local string FmtString;
 	switch (Edge.EdgeSource)
 	{
 		case SOURCE_RunBefore:
-			FmtString = "%FID wants to run before %SID";
+			FmtString = ForceINT ? class'XLocalizedData'.default.RunOrderBefore_INT : class'XLocalizedData'.default.RunOrderBefore;
 			break;
 		case SOURCE_RunAfter:
-			FmtString = "%SID wants to run after %FID";
+			FmtString = ForceINT ? class'XLocalizedData'.default.RunOrderAfter_INT : class'XLocalizedData'.default.RunOrderAfter;
 			break;
 		case SOURCE_Both:
-			FmtString = "%FID wants to run before %SID and %SID wants to run after %FID";
+			FmtString = ForceINT ? class'XLocalizedData'.default.RunOrderBeforeAfter_INT : class'XLocalizedData'.default.RunOrderBeforeAfter;
 			break;
 	}
 
