@@ -148,7 +148,8 @@ simulated function UIArmory_LoadoutItem SetImage(XComGameState_Item Item, option
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
-		DLCInfos[i].OverrideItemImage(NewImages, EquipmentSlot, ItemTemplate, UIArmory(Screen).GetUnit());
+		// Single line for Issue #962 - pass on Item State.
+		DLCInfos[i].OverrideItemImage_Improved(NewImages, EquipmentSlot, ItemTemplate, UIArmory(Screen).GetUnit(), Item);
 	}
 	// End Issue #171
 
