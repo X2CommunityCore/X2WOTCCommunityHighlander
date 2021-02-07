@@ -148,7 +148,7 @@ The syntax for events is the following
     * In the template, `in` parameters will be copied from the tuple into a local property
     * `out` parameters will be copied from a local property into the tuple
     * `inout` parameters do both
-* All [`XComLWTuple` types][misc/XComLWTuple.md] are supported
+* All [`XComLWTuple` types](misc/XComLWTuple.md) are supported
     * `enum`s can be typed with `enum[EnumType]`
     * `class`es can be typed with `class[class<Type>]`
     * If the type is not a primitive, it's assumed to be an object
@@ -180,3 +180,5 @@ static function EventListenerReturn OnOverridePromotionUIClass(Object EventData,
 All generated listeners will be dumped into [CHL_Event_Compiletest.uc](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/X2WOTCCommunityHighlander/Classes/CHL_Event_Compiletest.uc),
 which will be excluded from normal compilation and only kept in "compiletest" tasks. CI automatically determines the changes your PR would make to that
 file and posts a comment containing the diff for reviewers (and you). This comment will be updated whenever the PR is updated.
+
+If you provide a better example listener, you can simply opt out of the template with `` ```event,notemplate ``.

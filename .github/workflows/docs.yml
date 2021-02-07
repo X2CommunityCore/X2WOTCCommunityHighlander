@@ -10,7 +10,7 @@ jobs:
       with:
         python-version: '3.6'
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
     - name: Test docs script
       run: |
         cd test/docs
@@ -25,7 +25,7 @@ jobs:
       with:
         python-version: '3.6'
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
     - name: Find generated event templates
       id: make-diff
       shell: bash {0}
@@ -75,7 +75,7 @@ jobs:
       with:
         python-version: '3.6'
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
     - name: Build Docs
       run: |
         python ./.scripts/make_docs.py ./X2WOTCCommunityHighlander/Src/ ./X2WOTCCommunityHighlander/Config/ --outdir ./mkdocs --docsdir ./docs_src

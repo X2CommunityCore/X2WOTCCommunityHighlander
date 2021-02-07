@@ -218,6 +218,8 @@ def _parse_type_sig(lex) -> (InOutness, str, str, Optional[str]):
                              "tuple param").ident
         _expect(lex, _TokenType.RBRACK, "inoutness", "tuple param")
     name = _expect(lex, _TokenType.IDENT, "param name", "tuple param")
+    if name.ident.lower() == "self":
+        raise ParseError(f"{name} not a valid local variable name")
     return param_kind, tup_type, name.ident, local_type
 
 
