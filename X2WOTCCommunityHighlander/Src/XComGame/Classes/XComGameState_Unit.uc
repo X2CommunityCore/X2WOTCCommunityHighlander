@@ -11245,7 +11245,56 @@ function ApplyInventoryLoadout(XComGameState ModifyGameState, optional name NonD
 		NewItem = EquipmentTemplate.CreateInstanceFromTemplate(ModifyGameState);
 		AddItemToInventory(NewItem, eInvSlot_Armor, ModifyGameState);
 	}
+
+	// Single line for Issue #800
+	/// HL-Docs: feature:PostInventoryLoadoutApplied; issue:800; tags:strategy
+	/// The `PostInventoryLoadoutApplied` event allows mods to make arbitrary changes to a Unit
+	/// after they have been equipped with a Loadout by `XComGameState_Unit::ApplyInventoryLoadout()`.
+	///
+	/// Normally this is done only once, shortly after the unit was created, but the
+	/// `ApplyInventoryLoadout()` may call itself to also equip the Required Loadout on the unit.
+	/// This means that if listeners intend to call `UnitState.ApplyInventoryLoadout()` themselves
+	/// to equip a replacement loadout, they should use `UnitState.HasLoadout()` to check 
+	/// if the replacement loadout was already equipped by previously triggered listener.
+	///
+	/// Note that the LoadoutName and LoadoutItems components of the Tuple will be empty
+	/// if `ApplyInventoryLoadout()` fails to find the loadout it was looking for.
+	///
+	///```event
+	/// EventID: PostInventoryLoadoutApplied,
+	/// EventData: [in name LoadoutName, in array<name> LoadoutItems],
+	/// EventSource: XComGameState_Unit (UnitState),
+	/// NewGameState: yes
+	///```
+	/// 
+	/// [Refer to this feature](../strategy/OnBestGearLoadoutApplied.md) for an event that triggers
+	/// every time the unit is equipped with best available infinite weapons and armor.
+	TriggerInventoryLoadoutApplied('PostInventoryLoadoutApplied', Loadout, ModifyGameState);
 }
+
+// Start Issue #800
+private function TriggerInventoryLoadoutApplied(name EventID, InventoryLoadout Loadout, XComGameState ModifyGameState)
+{
+	local XComLWTuple          Tuple;
+	local InventoryLoadoutItem LoadoutItem;
+	local array<name>          LoadoutItems;
+
+	foreach Loadout.Items(LoadoutItem)
+	{
+		LoadoutItems.AddItem(LoadoutItem.Item);
+	}
+	
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = EventID;
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVName;
+	Tuple.Data[0].n = Loadout.LoadoutName;
+	Tuple.Data[1].kind = XComLWTVArrayNames;
+	Tuple.Data[1].an = LoadoutItems;
+
+	`XEVENTMGR.TriggerEvent(EventID, Tuple, self, ModifyGameState);
+}
+// End Issue #800
 
 //  Called only when ranking up from rookie to squaddie. Applies items per configured loadout, safely removing
 //  items and placing them back into HQ's inventory.
@@ -11369,6 +11418,25 @@ function ApplySquaddieLoadout(XComGameState GameState, optional XComGameState_He
 		ItemState = ItemTemplate.CreateInstanceFromTemplate(GameState);
 		AddItemToInventory(ItemState, eInvSlot_Armor, GameState);
 	}
+
+	/// HL-Docs: ref:PostInventoryLoadoutApplied
+	/// ## PostSquaddieLoadoutApplied
+	/// The `PostSquaddieLoadoutApplied` event allows mods to make arbitrary changes to a Unit after
+	/// they have been equipped with a Squaddie Loadout by `XComGameState_Unit::ApplySquaddieLoadout()`.
+	///
+	/// Normally this function is called only when the unit is ranked up from a rookie to squaddie.
+	///
+	/// Note that the LoadoutName and LoadoutItems components of the Tuple will be empty
+	/// if `ApplySquaddieLoadout()` fails to find the loadout it was looking for.
+	///
+	///```event
+	/// EventID: PostSquaddieLoadoutApplied,
+	/// EventData: [in name LoadoutName, in array<name> LoadoutItems],
+	/// EventSource: XComGameState_Unit (UnitState),
+	/// NewGameState: yes
+	///```
+	// Single line for Issue #800
+	TriggerInventoryLoadoutApplied('PostSquaddieLoadoutApplied', Loadout, GameState);
 }
 
 //------------------------------------------------------
