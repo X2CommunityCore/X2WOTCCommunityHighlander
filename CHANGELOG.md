@@ -114,7 +114,6 @@ RunPriorityGroup=RUN_STANDARD
   meet the vanilla game's conditions for it (#633)
 - Triggers the event `OverrideNextRetaliationDisplay` to allow mods to customize and/or enable/disable "next retaliation"
   display in `UIAdventOperations` (#667)
-- Triggers the event `ItemAddedToSlot` & `ItemRemovedFromSlot` to allow mods to change Items that have been Equipped/Unequipped during runtime(#694)
 - Triggers the event `CovertAction_AllowResActivityRecord` to allow mods to enable/disable "covert action completed"
   record for the monthly resistance report (#696)
 - Triggers the event `OverrideDarkEventCount` to allow mods to change the number of dark events in the monthly report (#711)
