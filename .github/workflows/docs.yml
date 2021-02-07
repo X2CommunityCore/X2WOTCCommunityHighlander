@@ -25,9 +25,9 @@ jobs:
       with:
         python-version: '3.6'
     - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: '0'
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: '0'
     - name: Find generated event templates
       id: make-diff
       shell: bash {0}
