@@ -299,6 +299,7 @@ def process_file(sess, file, lang) -> List[dict]:
             self.state = ParserState.TEXT
             self.filename = filename
             self.events = False
+            self.maketemplate = False
 
         def read_doc_line(self, line, lnum):
             if line.startswith(HL_DOCS_KEYWORD):
@@ -309,6 +310,7 @@ def process_file(sess, file, lang) -> List[dict]:
                 self.lines.append(f"\n```{lang}")
                 self.state = ParserState.INCLUDE
             elif line.startswith("```event"):
+                self.maketemplate = "notemplate" not in line
                 self.state = ParserState.EVENT
                 self.eventstart = lnum
                 self.eventlines = []
@@ -371,11 +373,12 @@ def process_file(sess, file, lang) -> List[dict]:
                             self.lines.append("")
                             self.lines.append(make_event_spec_table(
                                 sess, spec))
-                            self.lines.append("\n### Listener template\n")
-                            self.lines.append("```unrealscript")
-                            self.lines.append(
-                                make_listener_template(sess, spec))
-                            self.lines.append("```")
+                            if self.maketemplate:
+                                self.lines.append("\n### Listener template\n")
+                                self.lines.append("```unrealscript")
+                                self.lines.append(
+                                    make_listener_template(sess, spec))
+                                self.lines.append("```")
                         except event_tuples.ParseError as pe:
                             sess.err(
                                 f"{self.filename}:{self.eventstart+1}: event block has error: {pe.msg}"
