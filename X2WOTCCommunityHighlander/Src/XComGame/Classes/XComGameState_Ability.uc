@@ -281,6 +281,7 @@ simulated function int GetFocusCost(XComGameState_Unit OwnerUnitState)
 	return TotalFocus;
 }
 
+/// HL-Docs: ref:CustomTargetStyles
 //This function is native for performance reasons, the script code below describes its function
 simulated function native name GatherAbilityTargets(out array<AvailableTarget> Targets, optional XComGameState_Unit OverrideOwnerState);
 /*
