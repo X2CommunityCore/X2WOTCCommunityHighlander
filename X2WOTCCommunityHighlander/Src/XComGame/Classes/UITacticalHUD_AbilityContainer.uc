@@ -280,12 +280,12 @@ simulated function bool OnUnrealCommand(int ucmd, int arg)
 				break;
 			case (class'UIUtilities_Input'.const.FXS_DPAD_LEFT):
 			case (class'UIUtilities_Input'.const.FXS_ARROW_LEFT):
-				XComTacticalController(PC).YawCamera(90.0);
+				XComTacticalController(PC).YawCamera(class'XComTacticalInput'.static.GetCameraRotationAngle(arg));  // Issue #854
 				bHandled = true;
 				break;
 			case (class'UIUtilities_Input'.const.FXS_DPAD_RIGHT):
 			case (class'UIUtilities_Input'.const.FXS_ARROW_RIGHT):
-				XComTacticalController(PC).YawCamera(-90.0);
+				XComTacticalController(PC).YawCamera(-1 * class'XComTacticalInput'.static.GetCameraRotationAngle(arg));  // Issue #854
 				bHandled = true;
 				break;
 			case (class'UIUtilities_Input'.const.FXS_DPAD_UP):
