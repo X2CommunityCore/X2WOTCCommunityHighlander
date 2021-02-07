@@ -4052,12 +4052,23 @@ function bool HasExtraUtilitySlotFromAbility()
 function bool HasHeavyWeapon(optional XComGameState CheckGameState)
 {
 	local XComGameState_Item ItemState;
-	local name CheckAbility;
 	// Variables for Issue #172
 	local XComLWTuple Tuple;
 	local bool bOverrideHasHeavyWeapon, bHasHeavyWeapon;
 
 	// Start Issue #172
+	/// HL-Docs: feature:OverrideHasHeavyWeapon; issue:172; tags:loadoutslots,strategy
+	/// The `OverrideHasHeavyWeapon` event allows mods to override the base game logic
+	/// that determines whether a Unit has a Heavy Weapon Slot or not.
+	/// Keep in mind the [GetNumHeavyWeaponSlotsOverride()](../loadoutslots/GetNumHeavyWeaponSlotsOverride.md) X2DLCInfo method may override
+	/// this later.
+	///
+	/// ```event
+	/// EventID: OverrideHasHeavyWeapon,
+	/// EventData: [inout bool bOverrideHasHeavyWeapon, inout bool bHasHeavyWeapon],
+	/// EventSource: XComGameState_Unit (UnitState),
+	/// NewGameState: maybe
+	/// ```
 	Tuple = new class'XComLWTuple';
 	Tuple.Id = 'OverrideHasHeavyWeapon';
 	Tuple.Data.Add(3);
@@ -4068,7 +4079,7 @@ function bool HasHeavyWeapon(optional XComGameState CheckGameState)
 	Tuple.Data[2].kind = XComLWTVObject;
 	Tuple.Data[2].o = CheckGameState;
 
-	`XEVENTMGR.TriggerEvent('OverrideHasHeavyWeapon', Tuple, self);
+	`XEVENTMGR.TriggerEvent('OverrideHasHeavyWeapon', Tuple, self, CheckGameState);
 
 	bOverrideHasHeavyWeapon = Tuple.Data[0].b;
 	bHasHeavyWeapon = Tuple.Data[1].b;
@@ -4079,11 +4090,16 @@ function bool HasHeavyWeapon(optional XComGameState CheckGameState)
 	}
 	// End Issue Issue #172
 
-	foreach class'X2AbilityTemplateManager'.default.AbilityUnlocksHeavyWeapon(CheckAbility)
+	// Start Issue #881
+	/// HL-Docs: feature:ExtendHasHeavyWeapon; issue:881; tags:loadoutslots,strategy
+	/// Extends the ability check in `HasHeavyWeapon()` for the config array `AbilityUnlocksHeavyWeapon` (`XComGameData.ini`) to item granted abilities
+	/// and abilities granted by the character template.
+	bHasHeavyWeapon = HasAnyOfTheAbilitiesFromAnySource(class'X2AbilityTemplateManager'.default.AbilityUnlocksHeavyWeapon);
+	if (bHasHeavyWeapon)
 	{
-		if (HasSoldierAbility(CheckAbility))
-			return true;
+		return true;
 	}
+	// End Issue #881
 
 	ItemState = GetItemInSlot(eInvSlot_Armor, CheckGameState);
 	if (ItemState != none)
