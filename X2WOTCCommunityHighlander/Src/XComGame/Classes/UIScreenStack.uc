@@ -976,7 +976,12 @@ function UnsubscribeFromOnInputForScreen (UIScreen Screen, delegate<CHOnInputDel
 	}
 }
 
-function RemoveOnInputSubscribersForScreen (UIScreen Screen)
+// The next 2 functions were intended to be private, but by accident were released into a stable version as public.
+// As such, they are technically covered by the BC policy.
+// HOWEVER, MODS ARE STRONGLY DISCOURAGED FROM USING THEM.
+// Please open a github issue first if you have a use case for calling either (or both) directly.
+
+/*private*/ function RemoveOnInputSubscribersForScreen (UIScreen Screen)
 {
 	local int i;
 
@@ -990,7 +995,7 @@ function RemoveOnInputSubscribersForScreen (UIScreen Screen)
 	}
 }
 
-simulated function bool ModOnInputForScreen (UIScreen Screen, int iInput, int ActionMask)
+simulated /*private*/ function bool ModOnInputForScreen (UIScreen Screen, int iInput, int ActionMask)
 {
 	local delegate<CHOnInputDelegateImproved> Callback;
 	local InputDelegateForScreen CallbackScreenPair;
