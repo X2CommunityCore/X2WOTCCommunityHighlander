@@ -592,6 +592,9 @@
     <Content Include="Src\XComGame\Classes\XComGameState_HeadquartersXCom.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_GeoscapeEntity.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_InteractiveObject.uc">
       <SubType>Content</SubType>
     </Content>
