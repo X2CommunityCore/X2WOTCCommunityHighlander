@@ -70,6 +70,8 @@ simulated function UIArmory_LoadoutItem InitLoadoutItem(XComGameState_Item Item,
 		SetDisabled(true, class'UIUtilities_Text'.static.GetColoredText(InitDisabledReason, eUIState_Bad));
 	}
 
+	/// HL-Docs: ref:Bugfixes; issue:701
+	/// Allows armory UI to highlight the item the player needs to build during the tutorial even if it's not the item with the exact template name `'Medikit'`
 	if (ItemTemplate != none && ItemTemplate.DataName == class'UIInventory_BuildItems'.default.TutorialBuildItem // Issue #701 from 'Medikit'
 		&& class'XComGameState_HeadquartersXCom'.static.NeedsToEquipMedikitTutorial())
 	{

@@ -13,7 +13,7 @@ function Update(float DeltaTime)
 	local UnitPeekSide PeekSide;
 	local int OutRequiresLean;
 	local TTile BlockedTile, PeekTile, UnitTile;
-	local TTile TargetTile;   // Issue #617
+	local TTile TargetTile;   // Single variable for Issue #617
 	local bool GoodView;
 	local CachedCoverAndPeekData PeekData;
 	local array<TTile> Tiles;
@@ -41,8 +41,8 @@ function Update(float DeltaTime)
 					PeekTile = PeekData.CoverDirectionInfo[Direction].RightPeek.PeekTile;
 
 				// Start Issue #617
-				//
-				// Ray trace from the peek tile to the target, not from the unit tile to the peek tile.
+				/// HL-Docs: ref:Bugfixes; issue:617
+				/// Ray trace from the peek tile to the target, not from the unit tile to the peek tile.
 				TargetTile = World.GetTileCoordinatesFromPosition(NewTargetLocation);
 				if (!World.VoxelRaytrace_Tiles(PeekTile, TargetTile, Raytrace))
 					GoodView = true;

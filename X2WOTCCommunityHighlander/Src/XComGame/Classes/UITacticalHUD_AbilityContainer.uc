@@ -168,6 +168,22 @@ simulated function bool AbilityRequiresTargetingActivation(int Index)
 	if (AbilityState != none)
 	{
 		// Start Issue #476
+		/// HL-Docs: feature:RequiresTargetingActivation; issue:476; tags:tactical
+		/// When playing with a controller (gamepad), some abilities allow the player
+		/// to press (A) again to aim the ability, which allows them to rotate the camera 
+		/// with the buttons that would normally cycle the ability selection.
+		///
+		/// In base game this behaviour was hardcoded to work only for a few specific Targeting Methods.
+		/// Highlander replaces the original implementation with a the `RequiresTargetingActivation` 
+		/// config array that takes values from `XComGame.ini` config file.
+		/// This potentailly allows mods to use this behavior for custom Targeting Methods
+		/// that do not extend any of the Targeting Methods that are already configured to use this behavior.
+		///    
+		///```ini
+		/// [XComGame.CHHelpers]
+		/// +RequiresTargetingActivation=X2TargetingMethod_Grenade
+		/// +RequiresTargetingActivation=X2TargetingMethod_Cone
+		///```
 		return class'CHHelpers'.static.TargetingClassRequiresActivation(X2TargetingMethod(class'XComEngine'.static.GetClassDefaultObject(AbilityState.GetMyTemplate().TargetingMethod)));
 		// End Issue #476
 	}

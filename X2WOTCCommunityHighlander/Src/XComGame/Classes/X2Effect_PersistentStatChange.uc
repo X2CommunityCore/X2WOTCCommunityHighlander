@@ -10,9 +10,13 @@ class X2Effect_PersistentStatChange extends X2Effect_ModifyStats;
 var array<StatChange>	m_aStatChanges;
 
 // Start Issue #475
-//
-// Controls whether an effect can be reapplied to a unit that is already
-// under the influence of that effect.
+/// HL-Docs: feature:ForceReapplyOnRefresh; issue:475; tags:tactical
+/// The `bForceReapplyOnRefresh` flag allows effects that use or
+/// extend the `X2Effect_PersistentStatChange` class to be reapplied
+/// to a unit that is already under the influence of this effect. 
+///
+/// For example, it can be used to make sure Flashbangs remove Overwatch
+/// from units that are already disoriented.
 var bool bForceReapplyOnRefresh;
 // End Issue #475
 

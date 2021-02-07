@@ -97,17 +97,17 @@ function array<SoldierClassAbilityType> GetCrossClassAbilities(optional X2Soldie
 }
 
 // Start Issue #62
-//
-// The CH variant of GetCrossClassAbilities compared to vanilla does two things differently:
-//  - Adds a check to ensure that the ability to be added to the CrossClassAbilities list isn't already
-//    in the soldiers default ability tree.
-//  - This variant supersedes issue #30 by checking against the actual abilities in the current soldiers
-//    tree, instead of comparing against all the potential abilities the soldier could have had available.
-//    This is especially important when classes uses the RandomAbilityDecks, since otherwise in the worst
-//    case scenario, you could end up with no available cross class abilities.
-//
-// The old function is kept in case mods call it, but is otherwise ignored
-// throughout the XComGame codebase
+/// HL-Docs: feature:GetCrossClassAbilities_CH; issue:62; tags:
+/// The CH variant of GetCrossClassAbilities compared to vanilla does two things differently:
+///  - Adds a check to ensure that the ability to be added to the CrossClassAbilities list isn't already
+///    in the soldiers default ability tree.
+///  - This variant supersedes issue #30 by checking against the actual abilities in the current soldiers
+///    tree, instead of comparing against all the potential abilities the soldier could have had available.
+///    This is especially important when classes uses the RandomAbilityDecks, since otherwise in the worst
+///    case scenario, you could end up with no available cross class abilities.
+///
+/// The old function is kept in case mods call it, but is otherwise ignored
+/// throughout the XComGame codebase
 function array<SoldierClassAbilityType> GetCrossClassAbilities_CH(array <SoldierRankAbilities> SoldierAbilityTree)	
 {
 	local X2AbilityTemplateManager AbilityMgr;

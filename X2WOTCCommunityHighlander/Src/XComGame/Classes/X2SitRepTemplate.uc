@@ -118,6 +118,17 @@ function bool MeetsRequirements(XComGameState_MissionSite MissionState)
 }
 
 // Start issue #561
+/// HL-Docs: feature:SitRepCheckAdditionalRequirements; issue:561; tags:strategy
+/// The `SitRepCheckAdditionalRequirements` event allows mods to subject sitreps
+/// to additional checks for specific missions, and then either allow the sitrep
+/// to be added to the particular mission (default behavior), or forbid it.
+///    
+///```event
+///EventID: SitRepCheckAdditionalRequirements,
+///EventData: [inout bool bMeetsRequirements, in XComGameState_MissionSite MissionState],
+///EventSource: X2SitRepTemplate (SitRepTemplate),
+///NewGameState: none
+///```
 function bool TriggerAdditionalChecks(XComGameState_MissionSite MissionState)
 {
 	local XComLWTuple Tuple;
