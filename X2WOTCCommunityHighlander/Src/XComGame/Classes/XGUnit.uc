@@ -3685,7 +3685,8 @@ simulated static function CreateVisualizer(XComGameState FullState, XComGameStat
 	{
 		Ability = XComGameState_Ability(`XCOMHISTORY.GetGameStateForObjectID(SyncUnitState.Abilities[i].ObjectID));
 
-		if( Ability.GetMyTemplate() != none ) // abilities can be removed during dev between saves
+		//Issue #295 - Add a 'none' check before accessing Ability
+		if(Ability != none && Ability.GetMyTemplate() != none ) // abilities can be removed during dev between saves
 		{
 			UnitVisualizer.GetPawn().AppendAbilityPerks( Ability.GetMyTemplate().GetPerkAssociationName() );
 		}

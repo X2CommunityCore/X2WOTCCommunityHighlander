@@ -1435,7 +1435,20 @@ static function string GetBonusDisplayStringDefault(XComGameState_StaffSlot Slot
 
 static function string GetLocationDisplayStringDefault(XComGameState_StaffSlot SlotState)
 {
-	return SlotState.GetFacility().GetMyTemplate().DisplayName;
+	//Issue #295 - Store objects in local vars and add 'none' checks before accessing them.
+	local XComGameState_FacilityXCom FacilityXCom;
+	local X2FacilityTemplate		 FacilityTemplate;
+
+	FacilityXCom = SlotState.GetFacility();
+	if (FacilityXCom != none)
+	{
+		FacilityTemplate = FacilityXCom.GetMyTemplate();
+		if (FacilityTemplate != none)
+		{
+			return FacilityTemplate.DisplayName;
+		}
+	}
+	return "";
 }
 
 static function array<StaffUnitInfo> GetValidUnitsForSlotDefault(XComGameState_StaffSlot SlotState)
