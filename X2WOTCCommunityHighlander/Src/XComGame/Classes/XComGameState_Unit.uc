@@ -3702,7 +3702,7 @@ function RollForTrainingCenterAbilities()
 		///```event,notemplate
 		/// EventID: PostRollForTrainingCenterAbilities,
 		/// EventData: none,
-		/// EventSource: inout XComGameState_Unit (UnitState),
+		/// EventSource: XComGameState_Unit (UnitState),
 		/// NewGameState: none
 		///```
 		/// Example code:
