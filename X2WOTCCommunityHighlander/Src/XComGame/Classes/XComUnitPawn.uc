@@ -2092,8 +2092,12 @@ simulated function EquipWeapon( XComWeapon kWeapon, bool bImmediate, bool bIsRea
 // Start Issue #921
 /// HL-Docs: feature:OverrideWeaponScale; issue:921; tags:pawns
 /// The `OverrideWeaponScale` event allows mods to rescale weapons for unit pawns. 
-/// This event is triggered from `XComUnitPawn::EquipWeapon()` and `XComUnitPawn::AttachItem()`.
-/// The `ItemState` component of the Tuple will be `none` in the second case.
+/// 
+/// This event is triggered from two places: 
+/// 1) `XComUnitPawn::EquipWeapon()` is used by items in weapon slots, as well as for utility items
+/// that use the [Display Multi Slot Items](../misc/DisplayMultiSlotItems.md) functionality. 
+/// 2) `XComUnitPawn::AttachItem()` is used for utility items by default. In this case,
+/// the `ItemState` component of the Tuple will be `none`. 
 ///
 /// ```event
 /// EventID: OverrideWeaponScale,
