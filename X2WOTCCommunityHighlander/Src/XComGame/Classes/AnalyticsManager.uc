@@ -896,6 +896,13 @@ static function EventListenerReturn OnCoverActionComplete( Object EventData, Obj
 		return ELR_NoInterrupt;
 	}
 
+	// Start issue #752
+	if (!TriggerAllowOnCovertActionComplete(EventData, EventSource, GameState, Event, CallbackData))
+	{
+		return ELR_NoInterrupt;
+	}
+	// End issue #752
+
 	History = `XCOMHISTORY;
 
 	// check if we have analytics object
@@ -907,6 +914,56 @@ static function EventListenerReturn OnCoverActionComplete( Object EventData, Obj
 
 	return ELR_NoInterrupt;
 }
+
+// Start issue #752
+/// HL-Docs: feature:AllowOnCovertActionCompleteAnalytics; issue:752; tags:strategy
+/// Allows mods to prevent CA completion from counting towards campaign stats.
+///
+/// This event is triggered from `AnalyticsManager::OnCoverActionComplete` and passes all
+/// original listener arguments in the tuple.
+///
+/// ```event
+/// EventID: AllowOnCovertActionCompleteAnalytics,
+/// EventData: [
+///   inout bool bAllow,
+///   in Object OriginalEventData,
+///   in Object OriginalEventSource,
+///   in XComGameState OriginalGameState,
+///   in name OriginalEvent,
+///   in Object OriginalCallbackData
+/// ],
+/// EventSource: none,
+/// NewGameState: none
+/// ```
+///
+/// Note 1: The `OriginalEventSource` should be the `XComGameState_CovertAction` that was
+/// just completed, although the AnalyticsManager code does not validate that.
+///
+/// Note 2: you **must** subscribe with `ELD_Immediate` deferral to modify `bAllow`
+private static function bool TriggerAllowOnCovertActionComplete (Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Data.Add(6);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = true; // Allow by default
+	Tuple.Data[1].kind = XComLWTVObject;
+	Tuple.Data[1].o = EventData;
+	Tuple.Data[2].kind = XComLWTVObject;
+	Tuple.Data[2].o = EventSource;
+	Tuple.Data[3].kind = XComLWTVObject;
+	Tuple.Data[3].o = GameState;
+	Tuple.Data[4].kind = XComLWTVName;
+	Tuple.Data[4].n = Event;
+	Tuple.Data[5].kind = XComLWTVObject;
+	Tuple.Data[5].o = CallbackData;
+
+	`XEVENTMGR.TriggerEvent('AllowOnCovertActionCompleteAnalytics', Tuple);
+
+	return Tuple.Data[0].b;
+}
+// End issue #752
 
 static function EventListenerReturn OnFacilityConstruction( Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData )
 {
