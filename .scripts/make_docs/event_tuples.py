@@ -296,7 +296,7 @@ def parse_event_spec(text: str) -> dict:
             elif b == "maybe":
                 spec.newgs = NewGameState.MAYBE
             else:
-                raise ParseError("expected yes, none, or maybe")
+                raise ParseError("expected yes, none, or maybe for NewGameState")
         else:
             raise ParseError(
                 "unexpected key (expected EventID, EventSource, EventData, NewGameState)"
