@@ -12,7 +12,7 @@ var config array<TeamRequest> ModAddedTeams;
 var config int SPAWN_EXTRA_TILE; // Issue #18 - Add extra ini config
 var config int MAX_TACTICAL_AUTOSAVES; // Issue #53 - make configurable, only use if over 0
 
-// Start Issue #41 
+// Start Issue #41
 // allow chosen to ragdoll, and to collide via config.
 // will have performance impacts as the physics will not turn off.
 var config bool ENABLE_CHOSEN_RAGDOLL;
@@ -181,6 +181,25 @@ var config array<name> ValidReserveAPForUnitFlag;
 // Variable for Issue #854
 var config float CameraRotationAngle;
 
+// Start Issue #917
+enum ECHRounding_Type
+{
+	eCHRounding_None,
+	eCHRounding_HalfUp,
+	eCHRounding_HalfDown,
+	eCHRounding_HalfAwayZero,
+	eCHRounding_HalfToZero,
+	eCHRounding_HalfEven,
+	eCHRounding_HalfOdd,
+	eCHRounding_Floor,
+	eCHRounding_Ceiling
+};
+
+var config bool bDisableBetaStrikeEndTacticalHeal;
+var config float fBetaStrikeEndTacticalHeal_Fraction;
+var config ECHRounding_Type eBetaStrikeEndTacticalHeal_Rounding;
+// End Issue #917
+
 // Start Issue #885
 enum EHLDelegateReturn
 {
@@ -233,28 +252,28 @@ simulated static function RebuildPerkContentCache() {
 static function bool TeamOneRequired()
 {
 	local TeamRequest CheckedRequest;
-	
+
 	foreach default.ModAddedTeams(CheckedRequest)
 	{
 		if(CheckedRequest.Team == eTeam_One){
 			return true;
 		}
 	}
-	
+
 	return false;
 }
 
 static function bool TeamTwoRequired()
 {
 	local TeamRequest CheckedRequest;
-	
+
 	foreach default.ModAddedTeams(CheckedRequest)
 	{
 		if(CheckedRequest.Team == eTeam_Two){
 			return true;
 		}
 	}
-	
+
 	return false;
 }
 
@@ -305,7 +324,7 @@ static function array<name> GetAcceptablePartPacks()
 
 	PartTemplateManager = class'X2BodyPartTemplateManager'.static.GetBodyPartTemplateManager();
 	PartPackNames = PartTemplateManager.GetPartPackNames();
-		
+
 	DLCNames.Length = 0;
 	DLCNames.AddItem(''); //this represents vanilla or otherwise unassigned parts
 	for(PartPackIndex = 0; PartPackIndex < PartPackNames.Length; ++PartPackIndex)
@@ -530,12 +549,12 @@ static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
 {
     local array<XComGameState_Player> EnemyPlayers;
     local XComGameState_Player PlayerStateObject, EnemyStateObject, StateObject;
- 
+
     if (AIPlayer == none)
         return EnemyPlayers;
- 
+
     PlayerStateObject = XComGameState_Player(`XCOMHISTORY.GetGameStateForObjectID(AIPlayer.ObjectID));
- 
+
     foreach `XCOMHISTORY.IterateByClassType(class'XComGameState_Player', StateObject)
     {
         if (StateObject.ObjectID == PlayerStateObject.ObjectID)
@@ -545,11 +564,11 @@ static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
             continue;
         EnemyStateObject = StateObject;
         if (PlayerStateObject.IsEnemyPlayer(EnemyStateObject))
- 
+
         if (EnemyStateObject != none)
         {
             EnemyPlayers.AddItem(EnemyStateObject);
-        }  
+        }
     }
     return EnemyPlayers;
 }
@@ -557,7 +576,7 @@ static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
 
 // Start Issue #885
 /// HL-Docs: feature:DisplayMultiSlotItems; issue:885; tags:pawns
-/// This feature allows mods to allow items equipped in multi-item inventory slots to be visible on soldiers' bodies. 
+/// This feature allows mods to allow items equipped in multi-item inventory slots to be visible on soldiers' bodies.
 /// The vanilla behavior is that only the first item in the Utility Slot is visible on the soldier's body,
 /// and only in Tactical, but not in the Armory.
 /// Using this feature it's possible to show all items in all multi-slots, including Highlander-templated slots.
@@ -576,19 +595,19 @@ static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
 /// Delegates must be added to the `CHHelpers` ClassDefaultObject. Normally this is done in `OnPostTemplatesCreated`
 /// via `AddShouldDisplayMultiSlotItemInStrategyCallback` and `AddShouldDisplayMultiSlotItemInTacticalCallback`.
 ///
-/// **Warning:** Delegates must be bound to the ClassDefaultObject of your class, otherwise the game will hard crash 
-/// due to a garbage collection failure when transitioning between layers. Implementing your methods in a class 
+/// **Warning:** Delegates must be bound to the ClassDefaultObject of your class, otherwise the game will hard crash
+/// due to a garbage collection failure when transitioning between layers. Implementing your methods in a class
 /// that `extends X2DownloadableContentInfo` will automatically handle this for you.
 ///
 /// Both delegates have the `out int bDisplayItem` argument. Set it to any value above zero to display the item on the soldier's body.
-/// Set to 0 to keep the item hidden. Highlander-templated slots also need to have `NeedsPresEquip=true` to display in Tactical, 
+/// Set to 0 to keep the item hidden. Highlander-templated slots also need to have `NeedsPresEquip=true` to display in Tactical,
 /// and `ShowOnCinematicPawns=true` to display in the Armory and Squad Select.
 ///
 /// Both delegates should return `EHLDR_NoInterrupt` to allow subsequent delegates to run and potentially override the value you have
 /// assigned to `bDisplayItem`, or `EHLDR_InterruptDelegates` to not allow any subsequent delegates to run. A priority can be supplied
 /// to the `AddShouldDisplay...` functions, where a higher-priority callback runs earlier.
 ///
-/// You can get the template name of the item in question from the provided ItemState by doing `ItemState.GetMyTemplateName()`, 
+/// You can get the template name of the item in question from the provided ItemState by doing `ItemState.GetMyTemplateName()`,
 /// and access its Inventory Slot as `ItemState.InventorySlot`.
 ///
 /// Both delegates may or may not provide you with an XComGameState that can be used to access accompanying state objects, for example:
@@ -598,7 +617,7 @@ static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
 /// {
 /// 	MyState = CheckGameState.GetGameStateForObjectID(ObjectID);
 /// }
-/// 
+///
 /// if (MyState == none)
 /// {
 /// 	MyState = `XCOMHISTORY.GetGameStateForObjectID(ObjectID);
@@ -619,7 +638,7 @@ static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
 /// static event OnPostTemplatesCreated()
 /// {
 /// 	local CHHelpers CHHelpersObj;
-/// 
+///
 /// 	CHHelpersObj = class'CHHelpers'.static.GetCDO();
 /// 	if (CHHelpersObj != none)
 /// 	{
@@ -627,24 +646,24 @@ static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
 /// 		CHHelpersObj.AddShouldDisplayMultiSlotItemInTacticalCallback(ShouldDisplayMultiSlotItemInTacticalDelegate, 50);
 /// 	}
 /// }
-/// 
+///
 /// static private function EHLDelegateReturn ShouldDisplayMultiSlotItemInStrategyDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, out int bDisplayItem, XComUnitPawn UnitPawn, optional XComGameState CheckGameState)
 /// {
 /// 	ShouldDisplayUtilitySlotItem(ItemState, bDisplayItem);
 /// 	// Return this to allow following Delegates to override the output of this delegate.
 /// 	return EHLDR_NoInterrupt;
 /// }
-/// 
+///
 /// static private function bool ShouldDisplayMultiSlotItemInTacticalDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, out int bDisplayItem, XGUnit UnitVisualizer, optional XComGameState CheckGameState);
 /// {
 /// 	return ShouldDisplayUtilitySlotItem(ItemState, bDisplayItem);
 /// 	return EHLDR_NoInterrupt;
 /// }
-/// 
+///
 /// static private function ShouldDisplayUtilitySlotItem(XComGameState_Item ItemState, out int bDisplayItem)
 /// {
 /// 	local X2EquipmentTemplate EqTemplate;
-/// 
+///
 /// 	if (ItemState.InventorySlot == eInvSlot_Utility)
 /// 	{
 /// 		EqTemplate = X2EquipmentTemplate(ItemState.GetMyTemplate());
@@ -723,7 +742,7 @@ simulated function bool ShouldDisplayMultiSlotItemInStrategy(XComGameState_Unit 
 	local delegate<ShouldDisplayMultiSlotItemInStrategyDelegate> ShouldDisplayMultiSlotItemInStrategyFn;
 
 	for (i = 0; i < ShouldDisplayMultiSlotItemInStrategyCallbacks.Length; i++)
-	{	
+	{
 		ShouldDisplayMultiSlotItemInStrategyFn = ShouldDisplayMultiSlotItemInStrategyCallbacks[i].ShouldDisplayMultiSlotItemInStrategyFn;
 
 		if (ShouldDisplayMultiSlotItemInStrategyFn(UnitState, ItemState, bDisplayItem, UnitPawn, CheckGameState) == EHLDR_InterruptDelegates)
@@ -792,7 +811,7 @@ simulated function bool ShouldDisplayMultiSlotItemInTactical(XComGameState_Unit 
 	local delegate<ShouldDisplayMultiSlotItemInTacticalDelegate> ShouldDisplayMultiSlotItemInTacticalFn;
 
 	for (i = 0; i < ShouldDisplayMultiSlotItemInTacticalCallbacks.Length; i++)
-	{	
+	{
 		ShouldDisplayMultiSlotItemInTacticalFn = ShouldDisplayMultiSlotItemInTacticalCallbacks[i].ShouldDisplayMultiSlotItemInTacticalFn;
 
 		if (ShouldDisplayMultiSlotItemInTacticalFn(UnitState, ItemState, bDisplayItem, UnitVisualizer, CheckGameState) == EHLDR_InterruptDelegates)
