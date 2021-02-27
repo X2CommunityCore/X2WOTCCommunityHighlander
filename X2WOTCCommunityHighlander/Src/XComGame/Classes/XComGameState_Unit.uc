@@ -2616,7 +2616,7 @@ function EndTacticalHealthMod()
 	HealthLost = HighestHP - LowestHP;
 
 	// Start Issue #917
-	/// HL-Docs: feature:BetaStrikeEndTacticalHeal; issue:917
+	/// HL-Docs: feature:BetaStrikeEndTacticalHeal; issue:917; tags:
 	/// This feature allows users to disable or modify the amount of health loss that is ignored when returning from a mission due to the Beta Strike Second Wave option being enabled.
 	/// This will have no effect if Beta Strike is not enabled in Second Wave options.
 	/// The feature is set up so that having no config values set reverts to the base game default mechanics.

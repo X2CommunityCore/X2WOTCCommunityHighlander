@@ -182,7 +182,7 @@ var config array<name> ValidReserveAPForUnitFlag;
 var config float CameraRotationAngle;
 
 // Start Issue #917
-/// HL-Docs: feature:ECHRounding_Type; issue:917
+/// HL-Docs: feature:ECHRounding_Type; issue:917; tags:
 /// This feature adds an Enum for the most common methods of rounding floating point values.
 /// * Allows features to have configurations for rounding methods without using more ambiguous formats such as `name` or `int` to select a method.
 /// * It is generally recommended that `eCHRounding_Default` be used for cases where there is no value set for the variable, as in the example below from feature 'BetaStrikeEndTacticalHeal'.
