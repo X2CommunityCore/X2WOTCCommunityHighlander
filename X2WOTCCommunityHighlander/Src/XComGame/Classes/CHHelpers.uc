@@ -181,6 +181,75 @@ var config array<name> ValidReserveAPForUnitFlag;
 // Variable for Issue #854
 var config float CameraRotationAngle;
 
+// Start Issue #917
+/// HL-Docs: feature:ECHRounding_Type; issue:917
+/// This feature adds an Enum for the most common methods of rounding floating point values.
+/// * Allows features to have configurations for rounding methods without using more ambiguous formats such as `name` or `int` to select a method.
+/// * It is generally recommended that `eCHRounding_Default` be used for cases where there is no value set for the variable, as in the example below from feature 'BetaStrikeEndTacticalHeal'.
+/// ```ini
+/// [xComGame.CHHelpers]
+/// ;bDisableBetaStrikeEndTacticalHeal=true ; Uncomment this to disable the wound reduction after a mission with Beta Strike enabled
+/// ;fBetaStrikeEndTacticalHeal_Fraction=0.5f ; Uncomment this to choose what fraction of wounds are removed after a mission with Beta Strike enabled
+/// ;eBetaStrikeEndTacticalHeal_Rounding=eCHRounding_Floor ; Uncomment this to choose a different rounding type for the wound reduction with Beta Strike enabled
+/// ```
+/// ```cpp
+/// switch (class'CHHelpers'.default.eBetaStrikeEndTacticalHeal_Rounding)
+/// {
+/// 	// Floor
+/// 	case eCHRounding_Default:
+/// 	case eCHRounding_Floor:
+/// 		SWHeal = FFLoor(SWHeal);
+/// 		break;
+/// 	// Ceiling
+/// 	case eCHRounding_Ceiling:
+/// 		SWHeal = FCeil(SWHeal);
+/// 		break;
+/// 	// Half Up
+/// 	case eCHRounding_HalfUp:
+/// 		SWHeal = Round(SWHeal);
+/// 		break;
+/// 	// Redscreen and default to Floor:
+/// 	default:
+/// 		`REDSCREEN("X2WOTCCommunityHighlander: XComGameState_Unit.EndTacticalHealthMod: Unsupported ECHRounding_Type: '" $ class'CHHelpers'.default.eBetaStrikeEndTacticalHeal_Rounding $ "'. Defaulting to 'eCHRounding_Floor'.");
+/// 		SWHeal = FFLoor(SWHeal);
+/// }
+/// ```
+/// 
+/// ## Rounding Types
+/// ```
+/// Input | Half Up | Half Down | Half Away Zero | Half To Zero | Half Even | Half Odd | Floor | Ceiling
+///  8    |  8      |  8        |  8             |  8           |  8        |  8       |  8    |  8
+///  7.5  |  8      |  7        |  8             |  7           |  8        |  7       |  7    |  8
+///  7    |  7      |  7        |  7             |  7           |  7        |  7       |  7    |  7
+/// -7    | -7      | -7        | -7             | -7           | -7        | -7       | -7    | -7
+/// -7.4  | -7      | -7        | -7             | -7           | -7        | -7       | -8    | -7
+/// -7.5  | -7      | -8        | -8             | -7           | -8        | -7       | -8    | -7
+/// -7.6  | -8      | -8        | -8             | -8           | -8        | -8       | -8    | -7
+/// -8    | -8      | -8        | -8             | -8           | -8        | -8       | -8    | -8
+/// ```
+/// (https://www.mathsisfun.com/numbers/rounding-methods.html)
+
+/// HL-Docs: ref:BetaStrikeEndTacticalHeal
+enum ECHRounding_Type
+{
+	eCHRounding_Default,
+	eCHRounding_HalfUp,
+	eCHRounding_HalfDown,
+	eCHRounding_HalfAwayZero,
+	eCHRounding_HalfToZero,
+	eCHRounding_HalfEven,
+	eCHRounding_HalfOdd,
+	eCHRounding_Floor,
+	eCHRounding_Ceiling
+	eCHRounding_None,
+};
+
+/// HL-Docs: ref:BetaStrikeEndTacticalHeal
+var config bool bDisableBetaStrikeEndTacticalHeal;
+var config float fBetaStrikeEndTacticalHeal_Fraction;
+var config ECHRounding_Type eBetaStrikeEndTacticalHeal_Rounding;
+// End Issue #917
+
 // Start Issue #885
 enum EHLDelegateReturn
 {

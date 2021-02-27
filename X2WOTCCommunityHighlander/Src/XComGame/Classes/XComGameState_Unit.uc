@@ -2615,9 +2615,44 @@ function EndTacticalHealthMod()
 
 	HealthLost = HighestHP - LowestHP;
 
-	if (LowestHP > 0 && `SecondWaveEnabled('BetaStrike'))  // Immediately Heal 1/2 Damage
+	// Start Issue #917
+	/// HL-Docs: feature:BetaStrikeEndTacticalHeal; issue:917
+	/// This feature allows users to disable or modify the amount of health loss that is ignored when returning from a mission due to the Beta Strike Second Wave option being enabled.
+	/// This will have no effect if Beta Strike is not enabled in Second Wave options.
+	/// The feature is set up so that having no config values set reverts to the base game default mechanics.
+	/// Default Values for `XComGame.ini` (mirrors base game mechanics):
+	/// ```ini
+	/// [xComGame.CHHelpers]
+	/// bDisableBetaStrikeEndTacticalHeal=false ; Accepts: true, false
+	/// fBetaStrikeEndTacticalHeal_Fraction=0.5f ; Accepts: (0.0f - 1.0f]
+	/// eBetaStrikeEndTacticalHeal_Rounding=eCHRounding_Floor ; Accepts: eCHRounding_Floor, eCHRounding_Ceiling, eCHRounding_HalfUp
+	/// ```
+	if (!class'CHHelpers'.default.bDisableBetaStrikeEndTacticalHeal && LowestHP > 0 && `SecondWaveEnabled('BetaStrike'))  // Immediately Heal a fraction of damage based on config
 	{
-		SWHeal = FFloor( HealthLost / 2 );
+		SWHeal = class'CHHelpers'.default.fBetaStrikeEndTacticalHeal_Fraction == 0 ?
+			HealthLost * 0.5f :
+			HealthLost * class'CHHelpers'.default.fBetaStrikeEndTacticalHeal_Fraction;
+		switch (class'CHHelpers'.default.eBetaStrikeEndTacticalHeal_Rounding)
+		{
+			// Floor
+			case eCHRounding_Default:
+			case eCHRounding_Floor:
+				SWHeal = FFLoor(SWHeal);
+				break;
+			// Ceiling
+			case eCHRounding_Ceiling:
+				SWHeal = FCeil(SWHeal);
+				break;
+			// Half Up
+			case eCHRounding_HalfUp:
+				SWHeal = Round(SWHeal);
+				break;
+			// Redscreen and default to Floor:
+			default:
+				`REDSCREEN("X2WOTCCommunityHighlander: XComGameState_Unit.EndTacticalHealthMod: Unsupported ECHRounding_Type: '" $ class'CHHelpers'.default.eBetaStrikeEndTacticalHeal_Rounding $ "'. Defaulting to 'eCHRounding_Floor'.");
+				SWHeal = FFLoor(SWHeal);
+		}
+		// End Issue #917
 		LowestHP += SWHeal;
 		HealthLost -= SWHeal;
 	}
