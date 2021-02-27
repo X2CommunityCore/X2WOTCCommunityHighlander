@@ -2618,20 +2618,24 @@ function EndTacticalHealthMod()
 	// Start Issue #917
 	/// HL-Docs: feature:BetaStrikeEndTacticalHeal; issue:917; tags:
 	/// This feature allows users to disable or modify the amount of health loss that is ignored when returning from a mission due to the Beta Strike Second Wave option being enabled.
-	/// This will have no effect if Beta Strike is not enabled in Second Wave options.
-	/// The feature is set up so that having no config values set reverts to the base game default mechanics.
+	///
+	/// * This will have no effect if Beta Strike is not enabled in Second Wave options.
+	/// * The feature is set up so that having no config values set reverts to the base game default mechanics.
+	///
 	/// Default Values for `XComGame.ini` (mirrors base game mechanics):
 	/// ```ini
-	/// [xComGame.CHHelpers]
+	/// [XComGame.CHHelpers]
 	/// bDisableBetaStrikeEndTacticalHeal=false ; Accepts: true, false
 	/// fBetaStrikeEndTacticalHeal_Fraction=0.5f ; Accepts: (0.0f - 1.0f]
 	/// eBetaStrikeEndTacticalHeal_Rounding=eCHRounding_Floor ; Accepts: eCHRounding_Floor, eCHRounding_Ceiling, eCHRounding_HalfUp
 	/// ```
 	if (!class'CHHelpers'.default.bDisableBetaStrikeEndTacticalHeal && LowestHP > 0 && `SecondWaveEnabled('BetaStrike'))  // Immediately Heal a fraction of damage based on config
 	{
-		SWHeal = class'CHHelpers'.default.fBetaStrikeEndTacticalHeal_Fraction == 0 ?
+		// If fBetaStrikeEndTacticalHeal_Fraction not set in XComGame.ini use default 0.5f
+		SWHeal = class'CHHelpers'.default.fBetaStrikeEndTacticalHeal_Fraction == 0.0f ?
 			HealthLost * 0.5f :
 			HealthLost * class'CHHelpers'.default.fBetaStrikeEndTacticalHeal_Fraction;
+		/// HL-Docs: ref:ECHRounding_Type
 		switch (class'CHHelpers'.default.eBetaStrikeEndTacticalHeal_Rounding)
 		{
 			// Floor
