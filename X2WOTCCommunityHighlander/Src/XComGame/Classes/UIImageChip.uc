@@ -80,9 +80,13 @@ simulated function SetWidth(float newWidth)
 	if (BG != none)
 	{
 		BG.SetWidth(width);
+		Highlight.SetX( BG.X - (PADDING_HIGHLIGHT * 0.5) );
+	}
+	else
+	{
+		Highlight.SetX( 0 /* BG.X when BG is none */ - (PADDING_HIGHLIGHT * 0.5) );
 	}
 	Highlight.SetWidth( PADDING_HIGHLIGHT + width );
-	Highlight.SetX( BG.X - (PADDING_HIGHLIGHT * 0.5) );
 	Image.SetWidth(width);
 	//Image.SetX(BG.X);
 }
@@ -94,9 +98,13 @@ simulated function SetHeight(float newHeight)
 	if (BG != none)
 	{
 		BG.SetHeight(height);
+		Highlight.SetY( BG.Y - (PADDING_HIGHLIGHT * 0.5) );
+	}
+	else
+	{
+		Highlight.SetY(0 /* BG.Y when BG is none */ - (PADDING_HIGHLIGHT * 0.5) );
 	}
 	Highlight.SetHeight( PADDING_HIGHLIGHT + height );
-	Highlight.SetY( BG.Y - (PADDING_HIGHLIGHT * 0.5) );
 	Image.SetHeight(height);
 }
 

@@ -3690,6 +3690,11 @@ simulated static function CreateVisualizer(XComGameState FullState, XComGameStat
 		{
 			UnitVisualizer.GetPawn().AppendAbilityPerks( Ability.GetMyTemplate().GetPerkAssociationName() );
 		}
+		else
+		{
+			// Still call AppendAbilityPerks() if Ability is 'none' to preserve backwards compatibility.
+			UnitVisualizer.GetPawn().AppendAbilityPerks('');
+		}
 	}
 	UnitVisualizer.GetPawn().StartPersistentPawnPerkFX( );
 

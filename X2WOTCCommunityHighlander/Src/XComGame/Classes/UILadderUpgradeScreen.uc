@@ -170,6 +170,10 @@ simulated function PopulateUpgradePanel( int Index, X2LadderUpgradeTemplate Upgr
 							bReplace = true;
 							ParamTag.StrValue2 = replacementItem.GetMyTemplate().GetItemFriendlyNameNoStats();
 						}
+						else 
+						{
+							ParamTag.StrValue2 = ""; // Set string to empty to when replacementItem is 'none'.
+						}
 					}
 					else
 					{

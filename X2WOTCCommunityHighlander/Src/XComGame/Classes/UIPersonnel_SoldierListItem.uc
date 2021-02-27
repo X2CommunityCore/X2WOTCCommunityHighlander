@@ -28,6 +28,8 @@ simulated function InitListItem(StateObjectReference initUnitRef)
 	local StateObjectReference BondmateRef;
 	local XComGameState_Unit Bondmate;
 	local int BondLevel; 
+
+	local StackedUIIconData EmptyIconInfo; // Single variable for Issue #295
 	
 	Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitRef.ObjectID));
 	
@@ -131,6 +133,11 @@ simulated function InitListItem(StateObjectReference initUnitRef)
 	if (FactionState != none)
 	{
 		AS_SetFactionIcon(FactionState.GetFactionIcon());
+	}
+	else
+	{
+		// Preserve backwards compatibility in case AS_SetFactionIcon() is overridden via an MCO.
+		AS_SetFactionIcon(EmptyIconInfo);
 	}
 }
 
