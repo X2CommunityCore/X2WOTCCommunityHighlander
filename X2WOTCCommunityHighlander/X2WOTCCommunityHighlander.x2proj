@@ -421,6 +421,9 @@
     <Content Include="Src\XComGame\Classes\X2Effect_Burning.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2EncyclopediaTemplate.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2FiraxisLiveClient.uc">
       <SubType>Content</SubType>
     </Content>
