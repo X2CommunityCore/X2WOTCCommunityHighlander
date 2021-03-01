@@ -355,7 +355,6 @@ RunPriorityGroup=RUN_STANDARD
 - Adds CustomDeathAnimationName property to X2Action_Death that allows overriding the default death animations (#488)
 - Allow PCS granting PsiOffense to be equiped by other classes than PsiOperative (#602)
 - Added Inventory Slots `eInvSlot_Wings` and `eInvSlot_ExtraBackpack`. (#678)
-- Added Inventory Slots `eInvSlot_MZAux` and `eInvSlot_TemplateMaster`. (#984)
 
 ### Fixes
 - Fixes UIPanels animating in with a huge delay when they are direct child panels of
