@@ -1691,7 +1691,7 @@ function EventListenerReturn HandleNeutralReactionsOnMovement(Object EventData, 
 ///
 /// ```event
 /// EventID: ShouldCivilianRun,
-/// EventData: [in XComGameState_Unit MovedUnit, in bool AIAttacksCivilians, out bool ShouldRun],
+/// EventData: [in XComGameState_Unit MovedUnit, in bool AIAttacksCivilians, inout bool ShouldRun],
 /// EventSource: XComGameState_Unit (Civilian),
 /// NewGameState: none
 /// ```
