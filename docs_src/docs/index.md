@@ -152,6 +152,7 @@ The syntax for events is the following
     * `enum`s can be typed with `enum[EnumType]`
     * `class`es can be typed with `class[class<Type>]`
     * If the type is not a primitive, it's assumed to be an object
+* `NewGameState` needs to be one of three values: `yes`, `maybe` or `none`
 
 The above example generates the following code
 
