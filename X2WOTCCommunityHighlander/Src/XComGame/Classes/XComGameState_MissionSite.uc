@@ -1931,10 +1931,11 @@ simulated function TriggerOverrideMissionSiteIconImage(out string ImagePath)
 /// HL-Docs: feature:OverrideMissionImage; issue:635; tags:strategy,ui
 /// Allows overriding the image shown for a mission in the `UIMission` screen.
 ///
-/// ```unrealscript
-/// ID: OverrideMissionImage,
-/// Data: [inout string ImagePath],
-/// Source: XCGS_MissionSite
+/// ```event
+/// EventID: OverrideMissionImage,
+/// EventData: [inout string ImagePath],
+/// EventSource: XComGameState_MissionSite (MissionState),
+/// NewGameState: none
 /// ```
 function string GetMissionImage ()
 {

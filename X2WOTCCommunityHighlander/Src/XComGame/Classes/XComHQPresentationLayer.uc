@@ -1519,10 +1519,11 @@ function ShowPromotionUI(StateObjectReference UnitRef, optional bool bInstantTra
 /// the UI class used for a given promotion screen. Note that any class
 /// provided by a mod must be UIArmory_Promotion or a subclass of it.
 ///
-/// ```unrealscript
-/// ID: OverridePromotionUIClass,
-/// Data: [in int PromotionScreenType, inout class PromotionUIClass],
-/// Source: XComHQPresentationLayer
+/// ```event
+/// EventID: OverridePromotionUIClass,
+/// EventData: [in enum[CHLPromotionScreenType] PromotionScreenType, inout class[class<UIArmory_Promotion>] PromotionUIClass],
+/// EventSource: XComHQPresentationLayer (Pres),
+/// NewGameState: none
 /// ```
 ///
 /// The following simplified example is taken from [Community Promotion Screen](https://github.com/X2CommunityCore/X2CommunityPromotionScreen):

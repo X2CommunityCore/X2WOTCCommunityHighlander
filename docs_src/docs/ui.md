@@ -1,6 +1,6 @@
 Title: User Interface
 
-<h1>User Interface</h1>
+# User Interface
 
 The XCOM 2 user interface is mostly built in flash, but offers custom components
 that can be used to produce quite sophisticated screens and UI elements.

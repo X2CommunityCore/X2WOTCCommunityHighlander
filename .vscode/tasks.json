@@ -28,6 +28,13 @@
             "problemMatcher": []
         },
         {
+            "label": "Build (compiletest)",
+            "type": "shell",
+            "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\build.ps1' -mod \"X2WOTCCommunityHighlander\" -srcDirectory '${workspaceRoot}' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}' -debug -include_compiletest",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
             "label": "Build for workshop stable version",
             "type": "shell",
             "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\build.ps1' -mod \"X2WOTCCommunityHighlander\" -srcDirectory '${workspaceRoot}' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}' -final_release -stableModId",
@@ -55,7 +62,7 @@
         {
             "label": "makeDocs",
             "type": "shell",
-            "command": "python .\\.scripts\\make_docs.py .\\X2WOTCCommunityHighlander\\Src .\\X2WOTCCommunityHighlander\\Config --outdir .\\target --docsdir .\\docs_src",
+            "command": "python .\\.scripts\\make_docs.py .\\X2WOTCCommunityHighlander\\Src .\\X2WOTCCommunityHighlander\\Config --outdir .\\target --docsdir .\\docs_src --dumpelt .\\X2WOTCCommunityHighlander\\Src\\X2WOTCCommunityHighlander\\Classes\\CHL_Event_Compiletest.uc",
             "problemMatcher": []
         },
         {
@@ -64,7 +71,7 @@
             "options": {
                 "cwd": "${workspaceRoot}\\test\\docs"
             },
-            "command": "python ..\\..\\.scripts\\make_docs.py .\\test_src --outdir .\\test_output --docsdir .\\test_tags | % {$_.replace('\\', '/')} | Out-File .\\test_output\\stdout.log -Encoding ASCII",
+            "command": "python ..\\..\\.scripts\\make_docs.py .\\test_src --outdir .\\test_output --docsdir .\\test_tags --dumpelt .\\test_output\\CHL_Event_Compiletest.uc | % {$_.replace('\\', '/')} | Out-File .\\test_output\\stdout.log -Encoding ASCII",
             "problemMatcher": []
         },
     ]

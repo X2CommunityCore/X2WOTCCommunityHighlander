@@ -1,6 +1,6 @@
 Title: DupeFeature
 
-<h1>DupeFeature</h1>
+# DupeFeature
 
 Tracking Issue: [#4](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/4)
 

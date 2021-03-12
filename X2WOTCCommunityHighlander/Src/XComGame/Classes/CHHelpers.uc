@@ -193,6 +193,9 @@ var config array<name> ValidReserveAPForUnitFlag;
 var config name PlaceEvacZoneAbilityName;
 // End Issue #855
 
+// Variable for Issue #854
+var config float CameraRotationAngle;
+
 // Start Issue #885
 enum EHLDelegateReturn
 {
@@ -416,19 +419,19 @@ static function GroupItemStatsByLabel(out array<UISummary_ItemStat> InArray)
 ///   preview a cost for custom skills that consume focus. Again, make sure to not mix and match
 ///   custom subclasses with the base class for any abilities.
 ///
-/// ```unrealscript
-/// EventID: OverrideUnitFocusUI
-/// EventData: XComLWTuple {
-///     Data: [
-///       inout bool bVisible,
-///       inout int currentFocus,
-///       inout int maxFoxus,
-///       inout string color,
-///       inout string iconPath,
-///       inout string tooltipText,
-///       inout string focusLabel
-///     ]
-/// }
+/// ```event
+/// EventID: OverrideUnitFocusUI,
+/// EventData: [
+///     inout bool bVisible,
+///     inout int currentFocus,
+///     inout int maxFoxus,
+///     inout string color,
+///     inout string iconPath,
+///     inout string tooltipText,
+///     inout string focusLabel
+/// ],
+/// EventSource: XComGameState_Unit (SourceUnit),
+/// NewGameState: none
 /// ```
 ///
 /// Note that if `bVisible == false`, the rest will be ignored and will not have valid data in it.

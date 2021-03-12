@@ -844,9 +844,11 @@ simulated static function string GetPCSImage(XComGameState_Item Item)
 	/// Note that for historical reasons, the tuple ID is `GetPCSImageTuple` while
 	/// the event ID is `OnGetPCSImage`.
 	///
-	/// ```unrealscript
-	/// ID: OnGetPCSImage,
-	/// Data: [in XComGameState_Item ItemState, out string ImagePath],
+	/// ```event
+	/// EventID: OnGetPCSImage,
+	/// EventData: [in XComGameState_Item ItemState, out string ImagePath],
+	/// EventSource: none,
+	/// NewGameState: none
 	/// ```
 	Tuple = new class'XComLWTuple';
 	Tuple.id = 'GetPCSImageTuple';

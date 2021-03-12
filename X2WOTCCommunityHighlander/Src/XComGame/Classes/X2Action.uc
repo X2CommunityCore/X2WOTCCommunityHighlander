@@ -107,6 +107,9 @@ static function X2Action AddActionToVisualizationTree(X2Action AddAction, out Vi
 {
 	local XComGameStateVisualizationMgr LocalVisualizationMgr; //Local because this is a static method
 
+	// Local variable for Issue #295
+	local X2VisualizedInterface         VisualizedInterface;
+
 	LocalVisualizationMgr = `XCOMVISUALIZATIONMGR;
 
 	ActionMetadata.LastActionAdded = AddAction;
@@ -118,7 +121,12 @@ static function X2Action AddActionToVisualizationTree(X2Action AddAction, out Vi
 	//Set the visualize actor if it is unset. If it has been set by the calling code, then we go with that
 	if (AddAction.Metadata.VisualizeActor == none && ActionMetadata.StateObject_NewState != none)
 	{
-		AddAction.Metadata.VisualizeActor = X2VisualizedInterface((ActionMetadata.StateObject_NewState)).FindOrCreateVisualizer();
+		//Issue #295 - Store VisualizedInterface in local var and add a 'none' checks before accessing it.
+		VisualizedInterface = X2VisualizedInterface(ActionMetadata.StateObject_NewState);
+		if (VisualizedInterface != none)
+		{
+			AddAction.Metadata.VisualizeActor = VisualizedInterface.FindOrCreateVisualizer();
+		}
 	}
 
 	ActionMetadata.VisualizeActor = AddAction.Metadata.VisualizeActor;

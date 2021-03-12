@@ -5,5 +5,12 @@
 # Project specific user settings
 .vscode/settings.json
 
+# Python
+*.pyc
+__pycache__/
+
+# docs
 mkdocs/
 target/
+
+X2WOTCCommunityHighlander/Src/X2WOTCCommunityHighlander/Classes/CHL_Event_Compiletest.uc

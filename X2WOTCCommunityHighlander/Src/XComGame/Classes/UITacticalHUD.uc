@@ -568,7 +568,16 @@ simulated function TargetHighestHitChanceEnemy()
 	}
 
 	m_kAbilityHUD.GetTargetingMethod().DirectSetTarget(HighestHitChanceIndex);
-	TargetEnemy(Targets[HighestHitChanceIndex].PrimaryTarget.ObjectID);
+	
+	// Issue #295 - Make sure there's at least one member in the Targets array before accessing it.
+	if (Targets.Length > 0)
+	{
+		TargetEnemy(Targets[HighestHitChanceIndex].PrimaryTarget.ObjectID);
+	}
+	else
+	{
+		TargetEnemy();
+	}
 }
 
 simulated function OnChosenHUDEvent(UIPanel ChildControl, int cmd)

@@ -9,7 +9,7 @@ but with a bunch of syntax and logic errors; `test_output` has the corresponding
 You can run in this directory (Powershell)
 
 ```ps
-python ..\..\.scripts\make_docs.py .\test_src --outdir .\test_output --docsdir .\test_tags | % {$_.replace('\', '/')} | Out-File .\test_output\stdout.log -Encoding ASCII
+python ..\..\.scripts\make_docs.py .\test_src --outdir .\test_output --docsdir .\test_tags --dumpelt .\test_output\CHL_Event_Compiletest.uc | % {$_.replace('\', '/')} | Out-File .\test_output\stdout.log -Encoding ASCII
 ```
 
 or the `testDocs` VS Code task to generate the output + corresponding stdout log. If there are changes compared to

@@ -2366,6 +2366,8 @@ static simulated function UpdateAppearance( out TAppearance mAppearance, const o
 	{
 		mAppearance.nmArms = kAppearance.nmArms;
 		// Start Issue #384
+		/// HL-Docs: ref:Bugfixes; issue:384
+		/// Remove cosmetics from separate Left and Right Arm slots when updating Appearance to one that includes a cosmetic body part for both Arms in one slot.
 		mAppearance.nmLeftArm = '';
 		mAppearance.nmRightArm = '';
 		// End Issue #384
@@ -2431,6 +2433,8 @@ static simulated function UpdateAppearance( out TAppearance mAppearance, const o
 		mAppearance.nmVoice = kAppearance.nmVoice;
 	}
 	// Start Issue #384
+	/// HL-Docs: ref:Bugfixes; issue:384
+	/// Allow `bForcedAppearance` to work with new deco slots added with Anarchy Children and WOTC.
 	if (kAppearance.nmLeftArm != '')
 	{
 		mAppearance.nmLeftArm = kAppearance.nmLeftArm;

@@ -216,6 +216,7 @@ var localized string BleedingFriendlyDesc;
 var localized string BleedingEffectAcquiredString;
 var localized string BleedingEffectTickedString;
 var localized string BleedingEffectLostString;
+var config bool BLEEDING_IGNORES_SHIELDS; // Single variable for Issue #629
 
 var config int ULTRASONICLURE_TURNS;
 var name UltrasonicLureName;
@@ -1138,6 +1139,28 @@ static function X2Effect_PersistentStatChange CreatePoisonedStatusEffect()
 	DamageEffect.DamageTypes.AddItem('Poison');
 	DamageEffect.bAllowFreeKill = false;
 	DamageEffect.bIgnoreArmor = true;
+	/// HL-Docs: feature:BurningAndPoisonedDamageBypassesShields; issue:89; tags:tactical
+	/// In base game, shields (eStat_ShieldHP) absorb damage from typical damage over time effects, 
+	/// such as burning or poisoned. Mods can override this behavior by setting the following
+	/// flags in `XComGameCore.ini`:
+	///
+	///```ini
+	///[XComGame.X2Effect_Burning]
+	///BURNED_IGNORES_SHIELDS=true ; Make burn and acid DOT ignore shields
+	///
+	///[XComGame.X2StatusEffects]
+	///POISONED_IGNORES_SHIELDS=true ; Make poison DOT ignore shields
+	///```
+	/// Note that `BURNED_IGNORES_SHIELDS` will apply to all instances of `X2Effect_Burning` that
+	/// use its `SetBurnDamage()` helper method to set up the burn damage effect.
+	///
+	/// `POISONED_IGNORES_SHIELDS` will apply to all instances of posioned effect created using 
+	/// the `X2StatusEffect::CreatePoisonedStatusEffect()` helper method.
+	///
+	/// This should cover all instance of these effects in the base game, but mods can potentially
+	/// disregard these helper methods.
+	///
+	/// [Refer to this feature](../tactical/BleedingDamageBypassesShields.md) to apply similar change to bleeding damage over time.
 	DamageEffect.bBypassShields = default.POISONED_IGNORES_SHIELDS; // Issue #89
 	PersistentStatChangeEffect.ApplyOnTick.AddItem(DamageEffect);
 
@@ -2290,6 +2313,25 @@ static function X2Effect_Persistent CreateBleedingStatusEffect(int NumTurns, int
 	DamageEffect.DamageTypes.AddItem('Bleeding');
 	DamageEffect.bAllowFreeKill = false;
 	DamageEffect.bIgnoreArmor = true;
+
+	/// HL-Docs: feature:BleedingDamageBypassesShields; issue:629; tags:tactical
+	/// In base game, shields (eStat_ShieldHP) absorb damage from typical damage over time 
+	/// bleeding effects, such as those applied by ADVENT Stiletto Rounds. 
+	/// Mods can override this behavior by setting the `BLEEDING_IGNORES_SHIELDS` flag
+	/// in `XComGameCore.ini`:
+	///
+	///```ini
+	///[XComGame.X2StatusEffects]
+	///BLEEDING_IGNORES_SHIELDS=true ; Make bleeding DOT ignore shields
+	///```
+	///
+	/// Note that this will apply only to bleeding effects created using the
+	/// `X2StatusEffect::CreateBleedingStatusEffect()` helper method, which
+	/// should cover all instance of bleeding DOT effects in the base game, 
+	/// but mods can potentially create their own bleeding effects, bypassing this helper method.
+	///
+	/// [Refer to this feature](../tactical/BurningAndPoisonedDamageBypassesShields.md) to apply similar change to burning, poisoned and acid damage over time.
+	DamageEffect.bBypassShields = default.BLEEDING_IGNORES_SHIELDS; // Single line for Issue #629
 	PersistentEffect.ApplyOnTick.AddItem(DamageEffect);
 
 	return PersistentEffect;

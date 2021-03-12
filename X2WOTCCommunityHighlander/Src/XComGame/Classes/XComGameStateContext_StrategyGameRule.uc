@@ -135,6 +135,13 @@ static function XComGameState CreateStrategyGameStart(
 		LocalGameEngine.SetRandomSeeds(Seed);
 	}
 
+	// Start Issue #869
+	//
+	// Register campaign-start listeners after the start state has been created
+	// but before any campaign initialization has occurred.
+	class'X2EventListenerTemplateManager'.static.RegisterCampaignStartListeners();
+	// End Issue #869
+
 	//Create start time
 	class'XComGameState_GameTime'.static.CreateGameStartTime(StartState);
 
@@ -333,11 +340,11 @@ static function CompleteStrategyFromTacticalTransfer()
 	/// other critical functions are processed. This event gives a way for mods
 	/// to change several aspects in the transition from tactical to strategy.
 	///
-	/// ```unrealscript
-	/// EventID: PreCompleteStrategyFromTacticalTransfer
-	/// EventData: None
-	/// EventSource: None
-	/// NewGameState: None
+	/// ```event
+	/// EventID: PreCompleteStrategyFromTacticalTransfer,
+	/// EventData: None,
+	/// EventSource: None,
+	/// NewGameState: none,
 	/// ```
 	`XEVENTMGR.TriggerEvent('PreCompleteStrategyFromTacticalTransfer');
 

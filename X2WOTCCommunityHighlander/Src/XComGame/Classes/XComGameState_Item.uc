@@ -168,8 +168,11 @@ event OnCreation(optional X2DataTemplate Template)
 	if(EquipmentTemplate != none)
 	{
 		ItemManager = GetMyTemplateManager();
-
-		bInSkirmish = `SCREENSTACK.GetFirstInstanceOf(class'UITLE_SkirmishModeMenu') != none;
+		//Issue #295 - Add a 'none' check before using `SCREENSTACK
+		if (`SCREENSTACK != none)
+		{
+			bInSkirmish = `SCREENSTACK.GetFirstInstanceOf(class'UITLE_SkirmishModeMenu') != none;
+		}
 
 		for(idx = 0; idx < EquipmentTemplate.StatsToBoost.Length; idx++)
 		{
@@ -935,8 +938,21 @@ simulated function int GetClipSize()
 		ClipSize = X2AmmoTemplate(m_ItemTemplate).ModClipSize;
 	}
 
-	// Start Issue #393:
-	// Set up a Tuple to pass out the current Clipsize (after being modified by attachments/ammo)
+	// Start Issue #393
+	/// HL-Docs: feature:OverrideClipSize; issue:393; tags:tactical
+	/// The `OverrideClipSize` event allows mods to override Clip Size 
+	/// of a weapon after it has been modified by weapon upgrades and/or loaded ammo.
+	///
+	/// This can help make a passive ability that modifies Clip Size of the soldier's weapon,
+	/// or to explicitly disallow a specific weapon benefitting from effects that modify Clip Size 
+	/// by resetting the clip size value to the clip size value stored in the weapon template.
+	///    
+	///```event
+	///EventID: OverrideClipSize,
+	///EventData: [inout int iClipSize],
+	///EventSource: XComGameState_Item (ItemState),
+	///NewGameState: none
+	///```
 	Tuple = new class'XComLWTuple';
 	Tuple.Id = 'OverrideClipSize';
 	Tuple.Data.Add(1);
@@ -966,18 +982,14 @@ simulated function bool HasInfiniteAmmo()
 	// End Issue #842
 }
 
-/// HL-Docs: feature:OverrideHasInfiniteAmmo; issue:842; tags:tactical,events
+/// HL-Docs: feature:OverrideHasInfiniteAmmo; issue:842; tags:tactical
 /// Allows listeners to override the result of HasInfiniteAmmo
 ///
-/// ```unrealscript
-/// EventID: OverrideHasInfiniteAmmo
-/// EventData: XComLWTuple {
-///     Data: [
-///       out bool bHasInfiniteAmmo
-///     ]
-/// }
-/// EventSource: XComGameState_Item (self)
-/// NewGameState: no
+/// ```event
+/// EventID: OverrideHasInfiniteAmmo,
+/// EventData: [ out bool bHasInfiniteAmmo ],
+/// EventSource: XComGameState_Item (ItemState),
+/// NewGameState: none
 /// ```
 private function bool TriggerOverrideHasInfiniteAmmo(bool bHasInfiniteAmmo)
 {

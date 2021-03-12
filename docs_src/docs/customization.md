@@ -1,4 +1,4 @@
-<h1>Customization</h1>
+# Customization
 
 This is a list of all pages tagged "customization".
 

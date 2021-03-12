@@ -1796,16 +1796,14 @@ function int GetNumDarkEventsToPlay(XComGameState NewGameState)
 	/// Triggers the event `OverrideDarkEventCount` to allow mods to change
 	/// the number of dark events in the monthly report.
 	///
-	/// ```unrealscript
-	/// EventID: OverrideNextRetaliationDisplay
-	/// EventData: XComLWTuple {
-	/// 	Data: [
-	/// 	  inout int NumEvents,
-	/// 	  inout bool bChosenAddedEvent
-	///     ]
-	/// }
-	/// EventSource: XComGameState_HeadquartersAlien
-	/// NewGameState: Yes
+	/// ```event
+	/// EventID: OverrideDarkEventCount,
+	/// EventData: [
+	/// 	inout int NumEvents,
+	/// 	inout bool bChosenAddedEvent
+	/// ],
+	/// EventSource: XComGameState_HeadquartersAlien (AlienHQ),
+	/// NewGameState: yes
 	/// ```
 	NumEvents = GetDarkEventOverride(NewGameState, NumEvents, bAddChosenActionDarkEvent); // Issue #711
 

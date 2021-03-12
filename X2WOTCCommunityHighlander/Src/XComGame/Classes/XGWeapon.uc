@@ -407,8 +407,12 @@ event Destroyed()
 	local SkeletalMeshComponent PawnMesh;
 	local int i;
 
-	m_kEntity.SetHidden(true);
-	m_kEntity.Destroy();
+	//Issue #295 - Add a 'none' check before accessing m_kEntity
+	if (m_kEntity != none)
+	{
+		m_kEntity.SetHidden(true);
+		m_kEntity.Destroy();
+	}
 
 	if( UnitPawn != None )
 	{

@@ -522,6 +522,15 @@ event bool CanInteractHack(XComGameState_Unit Unit)
 }
 
 // Start issue #564
+/// HL-Docs: feature:AllowInteractHack; issue:564; tags:tactical
+/// The `AllowInteractHack` event allows mods to forbid an interactive object from being hackable by a unit. 
+///	
+///```event
+///EventID: AllowInteractHack,
+///EventData: [inout bool bAllowInteractHack, in XComGameState_Unit HackingUnit],
+///EventSource: XComGameState_InteractiveObject (InteractiveObject),
+///NewGameState: none
+///```
 function bool AllowInteractHack(XComGameState_Unit Unit)
 {
 	local XComLWTuple Tuple;

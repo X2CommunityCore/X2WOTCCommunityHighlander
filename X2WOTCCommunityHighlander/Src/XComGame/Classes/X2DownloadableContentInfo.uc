@@ -320,6 +320,19 @@ static private function bool CanAddItemToInventory(out int bCanAddItem, const EI
 
 //end Issue #50
 
+// Start Issue #962
+/// HL-Docs: feature:OverrideItemImage_Improved; issue:962; tags:strategy
+/// The `OverrideItemImage_Improved` X2DLCInfo method is called from `UIArmory_Loadout`.
+/// It allows mods to conditionally override items' inventory image. 
+/// It can be used to replace the original image entirely
+/// or to overlay an additional icon on top of it to mark the specific item.
+/// To do so replace the contents of the `imagePath` array or add more image paths to it.
+static function OverrideItemImage_Improved(out array<string> imagePath, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, XComGameState_Unit UnitState, const XComGameState_Item ItemState)
+{
+	OverrideItemImage(imagePath, Slot, ItemTemplate, UnitState);
+}
+// End Issue #962
+
 // Start Issue #171
 /// Calls to override item image shown in UIArmory_Loadout
 /// For example it allows you to show multiple grenades on grenade slot for someone with heavy ordnance
@@ -336,6 +349,13 @@ static function GetNumUtilitySlotsOverride(out int NumUtilitySlots, XComGameStat
 
 /// Allows override number of heavy weapons slots
 /// These are the only base game slots that can be safely unrestricted since they are optional and not expected by class perks, if you want other multi slots use the CHItemSlot feature
+/// HL-Docs: feature:GetNumHeavyWeaponSlotsOverride; issue:171; tags:loadoutslots,strategy
+/// The `GetNumHeavyWeaponSlotsOverride()` X2DLCInfo method allows mods to override 
+/// the base game logic that determines how many Heavy Weapon Slots a Unit has.
+/// To do so, simply interact with the `NumHeavySlots` argument by increasing,
+/// decreasing or setting its value directly.
+/// Note that this X2DLCInfo method is executed 
+/// after the [OverrideHasHeavyWeapon](../loadoutslots/OverrideHasHeavyWeapon.md) event, and may override its result.
 static function GetNumHeavyWeaponSlotsOverride(out int NumHeavySlots, XComGameState_Unit UnitState, XComGameState CheckGameState)
 {
 }
@@ -622,6 +642,37 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 /// Called from XComGameState_Unit:GetEarnedSoldierAbilities
 /// Allows DLC/Mods to add to and modify a unit's EarnedSoldierAbilities
 /// Has no return value, just modify the EarnedAbilities out variable array
+/// </summary>
+/// HL-Docs: feature:ModifyEarnedSoldierAbilities; issue:409; tags:
+/// This allows mods to add to or otherwise modify earned abilities for units.
+/// For example, the Officer Pack can use this to attach learned officer abilities to the unit.
+///
+/// Note: abilities added this way will **not** be picked up by `XComGameState_Unit::HasSoldierAbility()`
+///
+/// Elements of the `EarnedAbilities` array are structs of type `SoldierClassAbilityType`.
+/// Each element has the following parameters:
+///  * AbilityName - template name of the ability that should be added to the unit.
+///  * ApplyToWeaponSlot - inventory slot of the item that this ability should be attached to.
+/// Being attached to the correct item is critical for abilities that rely on the source item, 
+/// for example abilities that deal damage of the weapon they are attached to.
+/// * UtilityCat - used only if `ApplyToWeaponSlot = eInvSlot_Utility`. Optional. 
+/// If specified, the ability will be initialized for the unit when they enter tactical combat 
+/// only if they have a weapon with the specified weapon category in one of their utility slots.
+///
+///```unrealscript
+/// local SoldierClassAbilityType NewAbility;
+///
+/// NewAbility.AbilityName = 'PrimaryWeapon_AbilityTemplateName';
+/// NewAbility.ApplyToWeaponSlot = eInvSlot_Primary;
+///
+/// EarnedAbilities.AddItem(NewAbility);
+///
+/// NewAbility.AbilityName = 'UtilityItem_AbilityTemplateName';
+/// NewAbility.ApplyToWeaponSlot = eInvSlot_Utility;
+/// NewAbility.UtilityCat = 'UtilityItemWeaponCategory';
+///
+/// EarnedAbilities.AddItem(NewAbility);
+///```
 static function ModifyEarnedSoldierAbilities(out array<SoldierClassAbilityType> EarnedAbilities, XComGameState_Unit UnitState)
 {}
 /// End Issue #409

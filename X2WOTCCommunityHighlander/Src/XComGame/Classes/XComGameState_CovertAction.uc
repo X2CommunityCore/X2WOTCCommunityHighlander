@@ -581,16 +581,14 @@ private function GenerateRewards(XComGameState NewGameState)
 /// which means CAs need half the supplies/intel/etc. you would get from a POI
 /// as the cost to mitigate a risk.
 ///
-/// ```unrealscript
-/// EventID: CovertAction_OverrideCostScalar
-/// EventData: XComLWTuple {
-///     Data: [
-///       inout float DefaultCostScalar,
-///       in XComGameState_Reward RewardState
-///     ]
-/// }
-/// EventSource: self (XCGS_CovertAction)
-/// NewGameState: no
+/// ```event
+/// EventID: CovertAction_OverrideCostScalar,
+/// EventData: [
+///     inout float DefaultCostScalar,
+///     in XComGameState_Reward RewardState
+/// ],
+/// EventSource: XComGameState_CovertAction (ActionState),
+/// NewGameState: none
 /// ```
 private function float TriggerOverrideCostScalar(XComGameState_Reward RewardState, float DefaultCostScalar)
 {
@@ -614,16 +612,14 @@ private function float TriggerOverrideCostScalar(XComGameState_Reward RewardStat
 /// how many resources to award. The game uses 0.5 by default, which means CAs
 /// award half the supplies/intel/etc. you would get from a POI.
 ///
-/// ```unrealscript
-/// EventID: CovertAction_OverrideRewardScalar
-/// EventData: XComLWTuple {
-///     Data: [
-///       inout float DefaultRewardScalar,
-///       in XComGameState_Reward RewardState
-///     ]
-/// }
-/// EventSource: self (XCGS_CovertAction)
-/// NewGameState: no
+/// ```event
+/// EventID: CovertAction_OverrideRewardScalar,
+/// EventData: [
+///     inout float DefaultRewardScalar,
+///     in XComGameState_Reward RewardState
+/// ],
+/// EventSource: XComGameState_CovertAction (ActionState),
+/// NewGameState: none
 /// ```
 private function float TriggerOverrideRewardScalar(XComGameState_Reward RewardState, float DefaultRewardScalar)
 {

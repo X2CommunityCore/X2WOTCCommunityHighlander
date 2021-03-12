@@ -3944,15 +3944,11 @@ function bool TriggerHasPocketOfTypeEvent(name EventID, bool bOverridePocketResu
 /// and abilities granted by the character template.
 /// Finally the event OverrideHasGrenadePocket is triggered that allows mods to override the final result
 ///
-/// ```unrealscript
-/// EventID: OverrideHasGrenadePocket
-/// EventData: XComLWTuple {
-/// 	Data: [
-/// 	  inout bool bHasGrenadePocket
-///     ]
-/// }
-/// EventSource: XComGameState_Unit
-/// NewGameState: no
+/// ```event
+/// EventID: OverrideHasGrenadePocket,
+/// EventData: [ inout bool bHasGrenadePocket ],
+/// EventSource: XComGameState_Unit (SourceUnit),
+/// NewGameState: none
 /// ```
 function bool HasGrenadePocket()
 {
@@ -3972,15 +3968,11 @@ function bool HasGrenadePocket()
 /// and abilities granted by the character template.
 /// Finally the event OverrideHasAmmoPocket is triggered that allows mods to override the final result
 ///
-/// ```unrealscript
-/// EventID: OverrideHasAmmoPocket
-/// EventData: XComLWTuple {
-/// 	Data: [
-/// 	  inout bool bHasAmmoPocket
-///     ]
-/// }
-/// EventSource: XComGameState_Unit
-/// NewGameState: no
+/// ```event
+/// EventID: OverrideHasAmmoPocket,
+/// EventData: [ inout bool bHasAmmoPocket ],
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: none
 /// ```
 function bool HasAmmoPocket()
 {
@@ -4001,15 +3993,11 @@ function bool HasAmmoPocket()
 /// and abilities granted by the character template.
 /// Finally the event OverrideHasExtraUtilitySlot is triggered that allows mods to override the final result
 ///
-/// ```unrealscript
-/// EventID: OverrideHasExtraUtilitySlot
-/// EventData: XComLWTuple {
-/// 	Data: [
-/// 	  inout bool bHasExtraUtilitySlot
-///     ]
-/// }
-/// EventSource: XComGameState_Unit
-/// NewGameState: no
+/// ```event
+/// EventID: OverrideHasExtraUtilitySlot,
+/// EventData: [ inout bool bHasExtraUtilitySlot ],
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: none
 /// ```
 function bool HasExtraUtilitySlot()
 {
@@ -4064,12 +4052,23 @@ function bool HasExtraUtilitySlotFromAbility()
 function bool HasHeavyWeapon(optional XComGameState CheckGameState)
 {
 	local XComGameState_Item ItemState;
-	local name CheckAbility;
 	// Variables for Issue #172
 	local XComLWTuple Tuple;
 	local bool bOverrideHasHeavyWeapon, bHasHeavyWeapon;
 
 	// Start Issue #172
+	/// HL-Docs: feature:OverrideHasHeavyWeapon; issue:172; tags:loadoutslots,strategy
+	/// The `OverrideHasHeavyWeapon` event allows mods to override the base game logic
+	/// that determines whether a Unit has a Heavy Weapon Slot or not.
+	/// Keep in mind the [GetNumHeavyWeaponSlotsOverride()](../loadoutslots/GetNumHeavyWeaponSlotsOverride.md) X2DLCInfo method may override
+	/// this later.
+	///
+	/// ```event
+	/// EventID: OverrideHasHeavyWeapon,
+	/// EventData: [inout bool bOverrideHasHeavyWeapon, inout bool bHasHeavyWeapon],
+	/// EventSource: XComGameState_Unit (UnitState),
+	/// NewGameState: maybe
+	/// ```
 	Tuple = new class'XComLWTuple';
 	Tuple.Id = 'OverrideHasHeavyWeapon';
 	Tuple.Data.Add(3);
@@ -4080,7 +4079,7 @@ function bool HasHeavyWeapon(optional XComGameState CheckGameState)
 	Tuple.Data[2].kind = XComLWTVObject;
 	Tuple.Data[2].o = CheckGameState;
 
-	`XEVENTMGR.TriggerEvent('OverrideHasHeavyWeapon', Tuple, self);
+	`XEVENTMGR.TriggerEvent('OverrideHasHeavyWeapon', Tuple, self, CheckGameState);
 
 	bOverrideHasHeavyWeapon = Tuple.Data[0].b;
 	bHasHeavyWeapon = Tuple.Data[1].b;
@@ -4091,11 +4090,16 @@ function bool HasHeavyWeapon(optional XComGameState CheckGameState)
 	}
 	// End Issue Issue #172
 
-	foreach class'X2AbilityTemplateManager'.default.AbilityUnlocksHeavyWeapon(CheckAbility)
+	// Start Issue #881
+	/// HL-Docs: feature:ExtendHasHeavyWeapon; issue:881; tags:loadoutslots,strategy
+	/// Extends the ability check in `HasHeavyWeapon()` for the config array `AbilityUnlocksHeavyWeapon` (`XComGameData.ini`) to item granted abilities
+	/// and abilities granted by the character template.
+	bHasHeavyWeapon = HasAnyOfTheAbilitiesFromAnySource(class'X2AbilityTemplateManager'.default.AbilityUnlocksHeavyWeapon);
+	if (bHasHeavyWeapon)
 	{
-		if (HasSoldierAbility(CheckAbility))
-			return true;
+		return true;
 	}
+	// End Issue #881
 
 	ItemState = GetItemInSlot(eInvSlot_Armor, CheckGameState);
 	if (ItemState != none)
@@ -6427,7 +6431,12 @@ event TakeDamage( XComGameState NewGameState, const int DamageAmount, const int 
 	//Damage removes ReserveActionPoints(Overwatch)
 	if ((DamageAmount + MitigationAmount) > 0)
 	{
-		ReserveActionPoints.Length = 0;
+		// Begin Issue #903
+		if (TriggerOverrideDamageRemovesReserveActionPointsEvent(NewGameState))
+		{
+			ReserveActionPoints.Length = 0;
+		}
+		// End Issue #903
 	}
 
 	SetUnitFloatValue( 'LastEffectDamage', DmgResult.DamageAmount, eCleanup_BeginTactical );
@@ -6556,6 +6565,38 @@ event TakeDamage( XComGameState NewGameState, const int DamageAmount, const int 
 	if (GetCurrentStat( eStat_HP ) < LowestHP)
 		LowestHP = GetCurrentStat( eStat_HP );
 }
+
+// Begin Issue #903
+/// HL-Docs: feature:OverrideDamageRemovesReserveActionPoints; issue:903; tags:tactical
+/// The `OverrideDamageRemovesReserveActionPoints` event allows mods to override 
+/// the base game logic that determines that a Unit must lose their Reserve Action Points 
+/// when they take damage.
+///
+/// This event triggers after the information about this damage instance has been
+/// added to the `UnitState.DamageResults` array, so you can use that last entry
+/// to get any additional info about who damaged whom with what.
+///
+/// ```event
+/// EventID: OverrideDamageRemovesReserveActionPoints,
+/// EventData: [inout bool bDamageRemovesReserveActionPoints],
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: yes
+/// ```
+private function bool TriggerOverrideDamageRemovesReserveActionPointsEvent(XComGameState NewGameState)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideDamageRemovesReserveActionPoints';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = true;
+
+	`XEVENTMGR.TriggerEvent('OverrideDamageRemovesReserveActionPoints', Tuple, self, NewGameState);
+
+	return Tuple.Data[0].b;
+}
+// End Issue #903
 
 function OnUnitBledOut(XComGameState NewGameState, Object CauseOfDeath, const out StateObjectReference SourceStateObjectRef, optional const out EffectAppliedData EffectData)
 {
@@ -7907,6 +7948,22 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 			`XEVENTMGR.TriggerEvent('EffectBreakUnitConcealment', self, self, NewGameState);
 		}
 
+		// Start Issue #694
+		/// HL-Docs: feature:ItemAddedOrRemovedToSlot; issue:694; tags:
+		/// Triggers `ItemAddedToSlot` event when a unit adds an item to their inventory.
+		/// Triggers `ItemRemovedFromSlot` event when a unit removes an item from their inventory.
+		/// These events are perfect when relying on `X2ItemTemplate::OnEquippedFn` and `X2ItemTemplate::OnUnequippedFn` is not an option,
+		/// such as when you need to execute arbitrary code whenever any unit adds any item to their inventory.
+		///
+		/// ```event
+		/// EventID: ItemAddedToSlot,
+		/// EventData: XComGameState_Item,
+		/// EventSource: XComGameState_Unit,
+		/// NewGameState: yes
+		/// ```
+		`XEVENTMGR.TriggerEvent('ItemAddedToSlot', Item, self, NewGameState);
+		// End Issue #694
+
 		return true;
 	}
 	return false;
@@ -8272,6 +8329,18 @@ simulated function bool RemoveItemFromInventory(XComGameState_Item Item, optiona
 		}
 
 		Item.InventorySlot = eInvSlot_Unknown;
+
+		// Start Issue #694
+		/// HL-Docs: ref:ItemAddedOrRemovedToSlot
+		/// ```event
+		/// EventID: ItemRemovedFromSlot,
+		/// EventData: XComGameState_Item,
+		/// EventSource: XComGameState_Unit,
+		/// NewGameState: maybe
+		/// ```
+		`XEVENTMGR.TriggerEvent('ItemRemovedFromSlot', Item, self, ModifyGameState);
+		// End Issue #694
+
 		return true;
 	}
 	return false;
@@ -11176,7 +11245,56 @@ function ApplyInventoryLoadout(XComGameState ModifyGameState, optional name NonD
 		NewItem = EquipmentTemplate.CreateInstanceFromTemplate(ModifyGameState);
 		AddItemToInventory(NewItem, eInvSlot_Armor, ModifyGameState);
 	}
+
+	// Single line for Issue #800
+	/// HL-Docs: feature:PostInventoryLoadoutApplied; issue:800; tags:strategy
+	/// The `PostInventoryLoadoutApplied` event allows mods to make arbitrary changes to a Unit
+	/// after they have been equipped with a Loadout by `XComGameState_Unit::ApplyInventoryLoadout()`.
+	///
+	/// Normally this is done only once, shortly after the unit was created, but the
+	/// `ApplyInventoryLoadout()` may call itself to also equip the Required Loadout on the unit.
+	/// This means that if listeners intend to call `UnitState.ApplyInventoryLoadout()` themselves
+	/// to equip a replacement loadout, they should use `UnitState.HasLoadout()` to check 
+	/// if the replacement loadout was already equipped by previously triggered listener.
+	///
+	/// Note that the LoadoutName and LoadoutItems components of the Tuple will be empty
+	/// if `ApplyInventoryLoadout()` fails to find the loadout it was looking for.
+	///
+	///```event
+	/// EventID: PostInventoryLoadoutApplied,
+	/// EventData: [in name LoadoutName, in array<name> LoadoutItems],
+	/// EventSource: XComGameState_Unit (UnitState),
+	/// NewGameState: yes
+	///```
+	/// 
+	/// [Refer to this feature](../strategy/OnBestGearLoadoutApplied.md) for an event that triggers
+	/// every time the unit is equipped with best available infinite weapons and armor.
+	TriggerInventoryLoadoutApplied('PostInventoryLoadoutApplied', Loadout, ModifyGameState);
 }
+
+// Start Issue #800
+private function TriggerInventoryLoadoutApplied(name EventID, InventoryLoadout Loadout, XComGameState ModifyGameState)
+{
+	local XComLWTuple          Tuple;
+	local InventoryLoadoutItem LoadoutItem;
+	local array<name>          LoadoutItems;
+
+	foreach Loadout.Items(LoadoutItem)
+	{
+		LoadoutItems.AddItem(LoadoutItem.Item);
+	}
+	
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = EventID;
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVName;
+	Tuple.Data[0].n = Loadout.LoadoutName;
+	Tuple.Data[1].kind = XComLWTVArrayNames;
+	Tuple.Data[1].an = LoadoutItems;
+
+	`XEVENTMGR.TriggerEvent(EventID, Tuple, self, ModifyGameState);
+}
+// End Issue #800
 
 //  Called only when ranking up from rookie to squaddie. Applies items per configured loadout, safely removing
 //  items and placing them back into HQ's inventory.
@@ -11300,6 +11418,25 @@ function ApplySquaddieLoadout(XComGameState GameState, optional XComGameState_He
 		ItemState = ItemTemplate.CreateInstanceFromTemplate(GameState);
 		AddItemToInventory(ItemState, eInvSlot_Armor, GameState);
 	}
+
+	/// HL-Docs: ref:PostInventoryLoadoutApplied
+	/// ## PostSquaddieLoadoutApplied
+	/// The `PostSquaddieLoadoutApplied` event allows mods to make arbitrary changes to a Unit after
+	/// they have been equipped with a Squaddie Loadout by `XComGameState_Unit::ApplySquaddieLoadout()`.
+	///
+	/// Normally this function is called only when the unit is ranked up from a rookie to squaddie.
+	///
+	/// Note that the LoadoutName and LoadoutItems components of the Tuple will be empty
+	/// if `ApplySquaddieLoadout()` fails to find the loadout it was looking for.
+	///
+	///```event
+	/// EventID: PostSquaddieLoadoutApplied,
+	/// EventData: [in name LoadoutName, in array<name> LoadoutItems],
+	/// EventSource: XComGameState_Unit (UnitState),
+	/// NewGameState: yes
+	///```
+	// Single line for Issue #800
+	TriggerInventoryLoadoutApplied('PostSquaddieLoadoutApplied', Loadout, GameState);
 }
 
 //------------------------------------------------------
@@ -11368,12 +11505,14 @@ function ApplyBestGearLoadout(XComGameState NewGameState)
 	/// so if one of the selected items by that function cannot be equipped due to an override in CanAddItemToInventory_CH,
 	/// the inventory slot will remain empty. This event passes along the Unit State whenever this function is called,
 	/// so the mods can use their arbitrary conditions to decide what is the actual best gear loadout is for a unit.
-	/// ```unrealscript
-	/// ID: OnBestGearLoadoutApplied
-	/// Data: self (XCGS_Unit)
-	/// Source: self (XCGS_Unit)
+	///
+	/// ```event
+	/// EventID: OnBestGearLoadoutApplied,
+	/// EventData: XComGameState_Unit (UnitState),
+	/// EventSource: XComGameState_Unit,
 	/// NewGameState: yes
 	/// ```
+	///
 	/// ```unrealscript
 	/// //	This EventFn requires the Event Listener to use an ELD_Immediate deferral.
 	/// static function EventListenerReturn OnBestGearLoadoutApplied_Listener(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
@@ -13002,16 +13141,14 @@ function RankUpSoldier(XComGameState NewGameState, optional name SoldierClass, o
 /// If the `RankUpSoldier` function was called with a soldier class template name already specified, it means the game wanted to promote
 /// this soldier to a specific class (e.g. GTS rookie training, Psi Operative training or Commander's Choice). In that case, you can set up your Event Listener to not
 ///	have an effect on such a soldier.
-/// ```unrealscript
-/// EventID: FirstPromotionOverrideClass
-/// EventData: XComLWTuple {
-///     Data: [
-///       inout name SoldierClassTemplateName
-///     ]
-/// }
-///	EventSource: self (XComGameState_Unit)
+///
+/// ```event
+/// EventID: FirstPromotionOverrideClass,
+/// EventData: [ inout name SoldierClassTemplateName ],
+///	EventSource: XComGameState_Unit (FirstSquaddie),
 /// NewGameState: yes
 /// ```
+///
 ///	Example of an Event Listener Function:
 ///	```unrealscript
 ///	static function EventListenerReturn ListenerEventFunction(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
@@ -13221,6 +13358,19 @@ function SCATProgression GetSCATProgressionForAbility(name AbilityName)
 function bool ShowPromoteIcon()
 {
 	// Start Issue #631
+	/// HL-Docs: feature:OverrideShowPromoteIcon; issue:631; tags:strategy
+	/// The `OverrideShowPromoteIcon` event allows mods to determine 
+	/// whether a promotion icon for a particular soldier should be displayed or not.
+	/// This can be relevant for mods that add their own promotion mechanics for soldiers,
+	/// e.g. a psionic class that has to go on a few missions before they can be stuck into
+	/// a Psi Lab to get their promotion.
+	///
+	///```event
+	///EventID: OverrideShowPromoteIcon,
+	///EventData: [inout bool bShowPromotionIcon],
+	///EventSource: XComGameState_Unit (UnitState),
+	///NewGameState: none
+	///```
 	local XComLWTuple OverrideTuple;
 
 	OverrideTuple = new class'XComLWTuple';
@@ -15013,22 +15163,25 @@ function bool UnitIsValidForPhotobooth()
 /// of icon/name/description) in more dynamic ways. For example, *RPGOverhaul*
 /// has a single soldier class and the way it is displayed depends on selected
 /// skills and loadouts. There are three events with mostly self-explanatory names:
-/// ```unrealscript
-/// ID: SoldierClassIcon,
-/// Data: [inout string IconImagePath],
-/// Source: XCGS_Unit
+/// ```event
+/// EventID: SoldierClassIcon,
+/// EventData: [inout string IconImagePath],
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: none
 /// ```
 ///
-/// ```unrealscript
-/// ID: SoldierClassDisplayName,
-/// Data: [inout string DisplayName],
-/// Source: XCGS_Unit
+/// ```event
+/// EventID: SoldierClassDisplayName,
+/// EventData: [inout string DisplayName],
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: none
 /// ```
 ///
-/// ```unrealscript
-/// ID: SoldierClassSummary,
-/// Data: [inout string DisplaySummary],
-/// Source: XCGS_Unit
+/// ```event
+/// EventID: SoldierClassSummary,
+/// EventData: [inout string DisplaySummary],
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: none
 /// ```
 ///
 /// There is a sister feature [`DynamicSoldierRankDisplay`](./DynamicSoldierRankDisplay.md)
@@ -15103,22 +15256,25 @@ function String GetSoldierClassSummary()
 /// shows officer ranks for units with special officer abilities.
 /// There are three events with mostly self-explanatory names:
 ///
-/// ```unrealscript
-/// ID: SoldierRankName,
-/// Data: [in int Rank, inout string DisplayRankName],
-/// Source: XCGS_Unit
+/// ```event
+/// EventID: SoldierRankName,
+/// EventData: [in int Rank, inout string DisplayRankName],
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: none
 /// ```
 ///
-/// ```unrealscript
-/// ID: SoldierShortRankName,
-/// Data: [in int Rank, inout string DisplayShortRankName],
-/// Source: XCGS_Unit
+/// ```event
+/// EventID: SoldierShortRankName,
+/// EventData: [in int Rank, inout string DisplayShortRankName],
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: none
 /// ```
 ///
-/// ```unrealscript
-/// ID: SoldierRankIcon,
-/// Data: [in int Rank, inout string IconImagePath],
-/// Source: XCGS_Unit
+/// ```event
+/// EventID: SoldierRankIcon,
+/// EventData: [in int Rank, inout string IconImagePath],
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: none
 /// ```
 ///
 /// There is a sister feature [`DynamicSoldierClassDisplay`](./DynamicSoldierClassDisplay.md)
