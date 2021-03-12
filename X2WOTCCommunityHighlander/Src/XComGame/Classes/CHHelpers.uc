@@ -178,6 +178,21 @@ var config array<name> ClassesAllowPsiPCS;
 // Variable for Issue #724
 var config array<name> ValidReserveAPForUnitFlag;
 
+// Start Issue #855
+/// HL-Docs: feature:PlaceEvacZoneAbilityName; issue:855; tags:tactical
+/// Config variable (of type name) that allows mods to override the name of
+/// the ability used for placing/throwing evac zones in tactical missions.
+/// This is because the base game hard codes the ability name used for the
+/// controller's R3 button, which is bad if a mod (like LWOTC) replaces
+/// PlaceEvacZone with a different ability.
+///
+/// Note that this variable only affects the input system. If you want to
+/// replace the ability itself, you will still need to do the hard work of
+/// creating the new ability, giving it to soldiers, handling evac zone
+/// destruction, etc.
+var config name PlaceEvacZoneAbilityName;
+// End Issue #855
+
 // Variable for Issue #854
 var config float CameraRotationAngle;
 
@@ -808,3 +823,10 @@ static function CHHelpers GetCDO()
 	return CHHelpers(class'XComEngine'.static.GetClassDefaultObjectByName(default.Class.Name));
 }
 // End Issue #885
+
+// Start Issue #855
+static function name GetPlaceEvacZoneAbilityName()
+{
+	return default.PlaceEvacZoneAbilityName != '' ? default.PlaceEvacZoneAbilityName : 'PlaceEvacZone';
+}
+// End Issue #855

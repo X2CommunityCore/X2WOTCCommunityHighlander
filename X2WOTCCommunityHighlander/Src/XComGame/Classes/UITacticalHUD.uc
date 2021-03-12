@@ -522,7 +522,7 @@ simulated function UpdateSkyrangerButton()
 		AbilityState = XComGameState_Ability(`XCOMHISTORY.GetGameStateForObjectID(m_kAbilityHUD.m_arrAbilities[i].AbilityObjectRef.ObjectID));
 		AbilityTemplate = AbilityState.GetMyTemplate();
 
-		if (AbilityTemplate.DataName == 'PlaceEvacZone')
+		if (AbilityTemplate.DataName == class'CHHelpers'.static.GetPlaceEvacZoneAbilityName())  // Issue #855
 		{
 			bButtonVisible = AvailableActionInfo.AvailableCode == 'AA_Success' &&
 				(!`REPLAY.bInTutorial || `TUTORIAL.IsNextAbility(AbilityTemplate.DataName));
