@@ -716,16 +716,11 @@ function GiveRewards(XComGameState NewGameState)
 }
 
 // Start Issue #438, #810
-//
-// *Note* This is private to avoid potential problems with side effects
-// and non-idempotent listeners if other parts of the code (or mods) attempt
-// to use it themselves.
-//
 /// HL-Docs: feature:CovertAction_PreventGiveRewards; issue:438; tags:strategy
 /// Fires an event that allows listeners to prevent the covert action from
 /// awarding the action's rewards to the player. Note that if the `PreventGiveRewards`
 /// boolean is `true` then not only are the rewards not given, but the soldiers
-/// on the covert action get no XP or cohesion.
+/// on the covert action get no XP or cohesion. The results are saved and are used to adjust UI later.
 ///
 /// ```unrealscript
 /// EventID: CovertAction_PreventGiveRewards
@@ -2285,15 +2280,6 @@ simulated public function ActionRewardPopups()
 	local bool bPromoteReward;
 	local int idx;
 
-	// Start Issue #810
-	if (RewardsNotGivenOnCompletion)
-	{
-		// A mod or some other source prevented this reward from being
-		// given to the player, so don't display the popups.
-		return;
-	}
-	// End Issue #810
-
 	History = `XCOMHISTORY;
 
 	// Popups are triggered in backwards order of how they are presented to the player, since they get pushed onto the UI stack
@@ -2302,6 +2288,16 @@ simulated public function ActionRewardPopups()
 	{
 		TriggerNextCovertActionPopup();
 	}
+
+	// Start Issue #810
+	/// HL-Docs: ref:CovertAction_PreventGiveRewards; issue:810
+	if (RewardsNotGivenOnCompletion)
+	{
+		// A mod or some other source prevented this reward from being
+		// given to the player, so don't display the popups.
+		return;
+	}
+	// End Issue #810
 
 	// Display popups for Cost Slot rewards
 	for (idx = 0; idx < CostSlots.Length; idx++)
