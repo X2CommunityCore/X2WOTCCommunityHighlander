@@ -174,7 +174,7 @@ function UpdateData()
 				// Issue #810: Don't display XP and cohesion gain if rewards weren't
 				// given on completion of the covert action (since XP and cohesion are
 				// not granted in that case).
-				if (!Unit.bCaptured && !GetAction().RewardsNotGivenOnCompletion)
+				if (!Unit.bCaptured && !ActionState.RewardsNotGivenOnCompletion)
 				{
 					Value1 = m_strGainedXP; // Gained Experience
 					CohesionUnitNames = GetCohesionRewardUnits();

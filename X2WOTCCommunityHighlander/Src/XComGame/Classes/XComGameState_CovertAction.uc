@@ -56,7 +56,7 @@ var name									AmbushMissionSource; // The MissionSource of the Ambush for thi
 //
 // Note that this variable has no value until the covert action has been
 // completed.
-var bool									RewardsNotGivenOnCompletion;
+var privatewrite bool RewardsNotGivenOnCompletion;
 // End Issue #810
 
 struct CovertActionStaffSlot
