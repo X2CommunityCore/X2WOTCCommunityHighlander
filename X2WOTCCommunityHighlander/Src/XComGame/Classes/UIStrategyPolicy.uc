@@ -10,6 +10,61 @@
 class UIStrategyPolicy extends UIScreen
 	dependson(UIDialogueBox, UIStrategyPolicy_Card);
 
+/// HL-Docs: feature:UIStrategyPolicy_MiscEvents; issue:986; tags:strategy,ui
+/// `UIStrategyPolicy` is the screen that allows players to allocate
+/// resistance orders at end of "month". The Community Highlander adds
+/// the following events to that screen so mods have more options for
+/// modifying it without overriding it entirely.
+///
+/// See the tracking issue for background on why these events were
+/// added, and hence a potential use for them.
+///
+/// **Note** You'll need to look at the code for `UIStrategyPolicy` in
+/// order to understand when these events are fired, and hence which
+/// ones you'll need for your own customisations.
+///
+/// ```event
+/// EventID: UIStrategyPolicy_PreRefreshAllDecks,
+/// EventData: none,
+/// EventSource: UIStrategyPolicy (StrategyPolicy),
+/// NewGameState: none
+/// ```
+///
+/// ```event
+/// EventID: UIStrategyPolicy_PostRealizeColumn,
+/// EventData: UIList (Column),
+/// EventSource: UIStrategyPolicy (StrategyPolicy),
+/// NewGameState: none
+/// ```
+///
+/// ```event
+/// EventID: UIStrategyPolicy_PreSelect,
+/// EventData: UIStrategyPolicy_Card (TargetCard),
+/// EventSource: UIStrategyPolicy (StrategyPolicy),
+/// NewGameState: none
+/// ```
+///
+/// ```event
+/// EventID: UIStrategyPolicy_PreClearSelection,
+/// EventData: none,
+/// EventSource: UIStrategyPolicy (StrategyPolicy),
+/// NewGameState: none
+/// ```
+///
+/// ```event
+/// EventID: UIStrategyPolicy_DraggingStarted,
+/// EventData: none,
+/// EventSource: UIStrategyPolicy (StrategyPolicy),
+/// NewGameState: none
+/// ```
+///
+/// ```event
+/// EventID: UIStrategyPolicy_DraggingEnded,
+/// EventData: none,
+/// EventSource: UIStrategyPolicy (StrategyPolicy),
+/// NewGameState: none
+/// ```
+
 var localized string DeckTitle;
 var localized string WildCardColumnLabel;
 var localized string UnknownFactionColumnLabel;
@@ -364,6 +419,9 @@ function RefreshAllDecks()
 	local XComGameState_ResistanceFaction FactionState;
 	local array<StateObjectReference> HandCards, ListCards;
 	local int idx;
+
+	/// HL-Docs: ref:UIStrategyPolicy_MiscEvents
+	`XEVENTMGR.TriggerEvent('UIStrategyPolicy_PreRefreshAllDecks',, self);
 
 	ResHQ = GetResistanceHQ();
 	HandCards = ResHQ.GetHandCards();
@@ -852,6 +910,9 @@ function RealizeColumn(UIList Column, array<StateObjectReference> ColumnSlots, i
 	{
 		CreateLockedCard(Column, LockedSlotLabel);
 	}
+
+	/// HL-Docs: ref:UIStrategyPolicy_MiscEvents
+	`XEVENTMGR.TriggerEvent('UIStrategyPolicy_PostRealizeColumn', Column, self);
 }
 
 function XComGameState_StrategyCard GetCardState(StateObjectReference CardRef)
@@ -1226,12 +1287,18 @@ simulated function SelectCardInDeck(int newIndex)
 
 simulated function Select(UIStrategyPolicy_Card TargetCard)
 {
+	/// HL-Docs: ref:UIStrategyPolicy_MiscEvents
+	`XEVENTMGR.TriggerEvent('UIStrategyPolicy_PreSelect', TargetCard, self);
+
 	`XSTRATEGYSOUNDMGR.PlayPersistentSoundEvent("ResistanceOrders_CardMouseover");
 	MC.FunctionString("Select", string(TargetCard.MCPath));
 }
 
 simulated function ClearSelection()
 {
+	/// HL-Docs: ref:UIStrategyPolicy_MiscEvents
+	`XEVENTMGR.TriggerEvent('UIStrategyPolicy_PreClearSelection',, self);
+
 	MC.FunctionVoid("ClearSelection");
 }
 
@@ -1526,6 +1593,9 @@ function BeginDrag()
 		MC.FunctionVoid("BeginDrag");
 		bDragging = true;
 		HighlightPotentialDropSpots(true);
+
+		/// HL-Docs: ref:UIStrategyPolicy_MiscEvents
+		`XEVENTMGR.TriggerEvent('UIStrategyPolicy_DraggingStarted',, self);
 	}
 }
 
@@ -1537,6 +1607,9 @@ function EndDrag(bool bAnimate)
 		MC.FunctionBool("EndDrag", bAnimate);
 		bDragging = false;
 		HighlightPotentialDropSpots(false);
+
+		/// HL-Docs: ref:UIStrategyPolicy_MiscEvents
+		`XEVENTMGR.TriggerEvent('UIStrategyPolicy_DraggingEnded',, self);
 	}
 }
 
