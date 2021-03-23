@@ -127,6 +127,10 @@ static function X2Action AddActionToVisualizationTree(X2Action AddAction, out Vi
 		{
 			AddAction.Metadata.VisualizeActor = VisualizedInterface.FindOrCreateVisualizer();
 		}
+		else
+		{
+			AddAction.Metadata.VisualizeActor = none;
+		}
 	}
 
 	ActionMetadata.VisualizeActor = AddAction.Metadata.VisualizeActor;
