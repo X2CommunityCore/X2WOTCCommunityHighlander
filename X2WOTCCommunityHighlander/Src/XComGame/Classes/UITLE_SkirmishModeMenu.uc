@@ -1580,6 +1580,11 @@ simulated function SetSoldierGear()
 		mc.QueueString(equippedItem.GetMyTemplate().strImage);
 		mc.QueueString(equippedItem.GetMyTemplate().GetItemFriendlyNameNoStats());
 	}
+	else
+	{
+		mc.QueueString("");
+		mc.QueueString("");
+	}
 
 	equippedItem = m_CurrentSquad[m_SelectedSoldier].GetItemInSlot(eInvSlot_PrimaryWeapon, StartState, true);
 	mc.QueueString(m_strPrimaryLabel);//primary
@@ -1588,6 +1593,10 @@ simulated function SetSoldierGear()
 	{
 		mc.QueueString(equippedItem.GetMyTemplate().GetItemFriendlyNameNoStats());
 		//primary weapon image is handled in a different function to support the stack of weapon attachments
+	}
+	else
+	{
+		mc.QueueString("");
 	}
 
 	mc.QueueString(m_strSecondaryLabel);//secondary
@@ -1611,6 +1620,11 @@ simulated function SetSoldierGear()
 			mc.QueueString(equippedItem.GetMyTemplate().strImage);
 			mc.QueueString(equippedItem.GetMyTemplate().GetItemFriendlyNameNoStats());
 		}
+		else
+		{
+			mc.QueueString("");
+			mc.QueueString("");
+		}
 	}
 	
 
@@ -1627,6 +1641,11 @@ simulated function SetSoldierGear()
 	{
 		mc.QueueString(equippedItem.GetMyTemplate().strImage);
 		mc.QueueString(equippedItem.GetMyTemplate().GetItemFriendlyNameNoStats());
+	}
+	else
+	{
+		mc.QueueString("");
+		mc.QueueString("");
 	}
 
 	mc.EndOp();
