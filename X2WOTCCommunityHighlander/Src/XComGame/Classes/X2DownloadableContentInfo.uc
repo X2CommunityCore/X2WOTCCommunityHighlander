@@ -715,6 +715,51 @@ static function UnitPawnPostInitAnimTree(XComGameState_Unit UnitState, XComUnitP
 }
 /// End Issue #455
 
+// Start Issue #953
+/// HL-Docs: feature:ModifyMaxSquadSize; issue:953; tags:
+/// The DLC hook `ModifyMaxSquadSize` is called from `X2StrategyGameRulesetDataStructures:GetMaxSoldiersAllowedOnMission`. It gives
+/// mods a chance to modify the components that make up the maximum squad size:
+///
+/// * `MissionDefLimit`: `MaxBaseSize` was imposed by the mission definition
+/// * `MaxBaseSize`: Base max squad size
+/// * `SquadSizeUpgradeMod`: Modifier from GTS squad size purchases. `0` if `MissionDefLimit == true`
+/// * `SituationMod`: Modifiers from SITREPs and the intel purchase (network tower mission)
+/// * `SitRepMax`: Maximum squad size imposed by SITREPs. Will be `MaxInt` if no SITREP limits squad size
+///
+/// Example usage:
+///
+/// ```unrealscript
+/// static function ModifyMaxSquadSize(XComGameState_MissionSite MissionSite, bool MissionDefLimit, out int MaxBaseSize, out int SquadSizeUpgradeMod, out int SituationMod, out int SitRepMax)
+/// {
+/// 	local XComGameState_HeadquartersXCom XComHQ;
+/// 
+/// 	if (MissionDefLimit) return; // Mission definition imposes a maximum -- probably for a good reason
+/// 
+/// 	XComHQ = `XCOMHQ;
+/// 	if (`XCOMHISTORY.GetCurrentHistoryIndex() > -1 && XComHQ != none) // cargo-culted from original code
+///     {
+///     	if (XComHQ.SoldierUnlockTemplates.Find('SquadSizeIIIUnlock') != INDEX_NONE) { SquadSizeUpgradeMod += 1; }
+///     	if (XComHQ.SoldierUnlockTemplates.Find('SquadSizeIVUnlock') != INDEX_NONE) { SquadSizeUpgradeMod += 1; }
+///     }
+/// 
+/// 	if (MissionSite != none && MissionSite.GeneratedMission.Mission.MissionName == 'AssaultFortressLeadup')
+/// 	{
+/// 		// Leviathan gets four more soldiers because reasons
+/// 		SituationMod += 4;
+/// 	}
+/// }
+/// ```
+///
+/// The final max squad size will be calculated with the expression `Min(Max(1, MaxBaseSize + SquadSizeUpgradeMod + SituationMod), SitRepMax)`.
+///
+/// This hook is best combined with `GetValidFloorSpawnLocations` or `SPAWN_EXTRA_TILE` (TODO: Docs for these) in order to support
+/// large enough spawn points.
+static function ModifyMaxSquadSize(XComGameState_MissionSite MissionSite, bool MissionDefLimit, out int MaxBaseSize, out int SquadSizeUpgradeMod, out int SituationMod, out int SitRepMax)
+{
+	return;
+}
+// End Issue #953
+
 /// Start Issue #511
 /// <summary>
 /// Allowes mod to define dlc run order dependencies
