@@ -24,7 +24,7 @@ MarkDown pages, which `MkDocs` in turn renders to a web page.
 You can run the documentation tool locally by installing Python (recommended version 3.7)
 and running
 
-    python .\.scripts\make_docs.py .\X2WOTCCommunityHighlander\Src\ .\X2WOTCCommunityHighlander\Config\ --outdir .\target\ --docsdir .\docs_src\ --dumpelt .\X2WOTCCommunityHighlander\Src\X2WOTCCommunityHighlander\Classes\CHL_Event_Compiletest.uc
+    python .\.scripts\make_docs.py .\X2WOTCCommunityHighlander\Src\ .\X2WOTCCommunityHighlander\Config\ --outdir .\target\ --docsdir .\docs_src\ --dumpelt .\target\CHL_Event_Compiletest.uc
 
 or the `makeDocs` task in VS Code. This creates Markdown files for the documentation; rendering HTML documentation requires
 `MkDocs`:
@@ -178,8 +178,8 @@ static function EventListenerReturn OnOverridePromotionUIClass(Object EventData,
 }
 ```
 
-All generated listeners will be dumped into [CHL_Event_Compiletest.uc](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/X2WOTCCommunityHighlander/Classes/CHL_Event_Compiletest.uc),
-which will be excluded from normal compilation and only kept in "compiletest" tasks. CI automatically determines the changes your PR would make to that
+All generated listeners will be dumped into `CHL_Event_Compiletest.uc`,
+which will only be included in normal compilation in "compiletest" tasks. CI automatically determines the changes your PR would make to that
 file and posts a comment containing the diff for reviewers (and you). This comment will be updated whenever the PR is updated.
 
 If you provide a better example listener, you can simply opt out of the template with `` ```event,notemplate ``.
