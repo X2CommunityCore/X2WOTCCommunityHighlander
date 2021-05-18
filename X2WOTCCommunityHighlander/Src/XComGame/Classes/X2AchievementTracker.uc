@@ -756,7 +756,7 @@ static function FinalMissionOnSuccess()
 	{
 		`ONLINEEVENTMGR.UnlockAchievement(AT_OverthrowClassic); // Overthrow the aliens on Classic difficulty
 
-		if (!class'X2StrategyGameRulesetDataStructures'.static.HasSquadSizeUpgrade()) // Beat the game on Classic+ difficulty without buying a Squad Size upgrade
+		if (!HasIncreasedSquadSize()) // Beat the game on Classic+ difficulty without buying a Squad Size upgrade
 		{
 			`ONLINEEVENTMGR.UnlockAchievement(AT_WinGameClassicWithoutBuyingUpgrade);
 		}
@@ -824,6 +824,21 @@ static function FinalMissionOnSuccess()
 		class'X2TacticalGameRuleset'.static.ReleaseScriptLog("TLE Achievement Awarded: Complete Campaign with TLE");
 		`ONLINEEVENTMGR.UnlockAchievement(AT_CompleTLECampaign);
 	}
+}
+
+static function bool HasIncreasedSquadSize()
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'HasIncreasedSquadSize';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = class'X2StrategyGameRulesetDataStructures'.static.HasSquadSizeUpgrade();
+
+	`XEVENTMGR.TriggerEvent('HasIncreasedSquadSize', Tuple);
+
+	return Tuple.Data[0].b;
 }
 
 // This is called when a unit is skulljacked
