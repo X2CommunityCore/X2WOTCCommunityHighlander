@@ -44,8 +44,43 @@ function bool IsReactionFire(XComGameStateContext_Ability FiringAbilityContext)
 		bIsReactionFire = bIsReactionFire && !AbilityTemplate.IsMelee() && !Shooter.IsChosen();
 	}
 
-	return bIsReactionFire;
+	return TriggerOverrideReactionFireSlomo(bIsReactionFire, FiringAbilityContext);
 }
+
+// Start Issue #996
+/// HL-Docs: feature:OverrideReactionFireSlomo; issue:996; tags:tactical
+/// Normally cinematic slo-mo is automatically added to abilities that use `X2AbilityToHitCalc_StandardAim`
+/// (or its subclass) with `bReactionFire = true`, which will also modify the ability's hit chance.
+///
+/// The `OverrideReactionFireSlomo` event allows mods to add cinematic slo-mo to non-reaction abilities,
+/// and remove cinematic slo-mo from reaction abilities.
+///
+/// FiringAbilityContext can be used to access ability's Template Name: 
+/// `FiringAbilityContext.InputContext.AbilityTemplateName`.
+///
+/// ```event
+/// EventID: OverrideReactionFireSlomo,
+/// EventData: [inout bool bIsReactionFire, in XComGameStateContext_Ability FiringAbilityContext],
+/// EventSource: X2ReactionFireSequencer (ReactionFireSequencer),
+/// NewGameState: none
+/// ```
+private function bool TriggerOverrideReactionFireSlomo(const bool bIsReactionFire, const XComGameStateContext_Ability FiringAbilityContext)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideReactionFireSlomo';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].kind = XComLWTVBool;
+	OverrideTuple.Data[0].b = bIsReactionFire;  
+	OverrideTuple.Data[1].kind = XComLWTVObject;
+	OverrideTuple.Data[1].o = FiringAbilityContext; 
+
+	`XEVENTMGR.TriggerEvent('OverrideReactionFireSlomo', OverrideTuple, self);
+
+	return OverrideTuple.Data[0].b;
+}
+// End Issue #996
 
 /// <summary>
 /// Returns the target of this reaction fire sequence
