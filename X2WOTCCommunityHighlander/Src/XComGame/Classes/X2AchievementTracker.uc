@@ -842,12 +842,12 @@ static function FinalMissionOnSuccess()
 /// should check whatever they need to check and return the tuple value as `true` 
 /// if the achievement should be awarded, or `false` otherwise.
 /// 
-///```event
+/// ```event
 /// EventID: AllowNoSquadSizeUpgradeAchievement,
-/// EventData: Tuple[bool],
+/// EventData: [inout bool AllowAchievement],
 /// EventSource: none,
 /// NewGameState: none
-///```
+/// ```
 static function bool AllowNoSquadSizeUpgradeAchievement()
 {
 	local XComLWTuple Tuple;
