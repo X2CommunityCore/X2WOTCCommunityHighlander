@@ -196,6 +196,25 @@ var config name PlaceEvacZoneAbilityName;
 // Variable for Issue #854
 var config float CameraRotationAngle;
 
+// Start Issue #669
+//
+/// HL-Docs: feature:GrenadesRequiringUnitsOnTargetedTiles; issue:669; tags:tactical
+/// An array of grenade template names for which only units actually on
+/// painted tiles should be affected by that grenade. Main example is
+/// smoke, since only units on smoked tiles should get the effect.
+var config array<name> GrenadesRequiringUnitsOnTargetedTiles;
+
+/// HL-Docs: feature:DisableExtraLOSCheckForSmoke; issue:669; tags:tactical
+/// When true, this option fixes smoke so that it applies to all tiles that
+/// are highlighted in targeting (as per the Reliable Smoke mod).
+var config bool DisableExtraLOSCheckForSmoke;
+
+/// HL-Docs: feature:DisableExtraLOSCheckForPoison; issue:669; tags:tactical
+/// When true, this option fixes poison so that clouds of it apply to all
+/// tiles that are highlighted in targeting.
+var config bool DisableExtraLOSCheckForPoison;
+// End Issue #669
+
 // Start Issue #885
 enum EHLDelegateReturn
 {
