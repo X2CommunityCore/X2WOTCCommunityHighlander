@@ -6,38 +6,35 @@
         {
             "label": "Build (final release)",
             "type": "shell",
-            "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\build.ps1' -mod \"X2WOTCCommunityHighlander\" -srcDirectory '${workspaceRoot}' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}' -final_release",
+            "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\build.ps1' -srcDirectory '${workspaceRoot}' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}' -config final_release",
             "group": "build",
             "problemMatcher": []
         },
         {
-            "label": "Build (release)",
+            "label": "Build (cooked)",
             "type": "shell",
-            "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\build.ps1' -mod \"X2WOTCCommunityHighlander\" -srcDirectory '${workspaceRoot}' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}'",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
+            "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\build.ps1' -srcDirectory '${workspaceRoot}' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}' -config default",
+            "group": "build",
             "problemMatcher": []
         },
         {
             "label": "Build (debug)",
             "type": "shell",
-            "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\build.ps1' -mod \"X2WOTCCommunityHighlander\" -srcDirectory '${workspaceRoot}' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}' -debug",
+            "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\build.ps1' -srcDirectory '${workspaceRoot}' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}' -config debug",
             "group": "build",
             "problemMatcher": []
         },
         {
             "label": "Build (compiletest)",
             "type": "shell",
-            "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\build.ps1' -mod \"X2WOTCCommunityHighlander\" -srcDirectory '${workspaceRoot}' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}' -debug -include_compiletest",
+            "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\build.ps1' -srcDirectory '${workspaceRoot}' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}' -config compiletest",
             "group": "build",
             "problemMatcher": []
         },
         {
             "label": "Build for workshop stable version",
             "type": "shell",
-            "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\build.ps1' -mod \"X2WOTCCommunityHighlander\" -srcDirectory '${workspaceRoot}' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}' -final_release -stableModId",
+            "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\build.ps1' -srcDirectory '${workspaceRoot}' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}' -config stable",
             "group": "build",
             "problemMatcher": []
         },
@@ -56,13 +53,13 @@
         {
             "label": "updateVersions",
             "type": "shell",
-            "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\update_version.ps1' -ps '${workspaceRoot}\\VERSION.ps1' -srcDirectory '${workspaceRoot}'",
+            "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\update_version.ps1' -ps '${workspaceRoot}\\VERSION.ps1' -srcDirectory '${workspaceRoot}' -no_cache",
             "problemMatcher": []
         },
         {
             "label": "makeDocs",
             "type": "shell",
-            "command": "python .\\.scripts\\make_docs.py .\\X2WOTCCommunityHighlander\\Src .\\X2WOTCCommunityHighlander\\Config --outdir .\\target --docsdir .\\docs_src --dumpelt .\\X2WOTCCommunityHighlander\\Src\\X2WOTCCommunityHighlander\\Classes\\CHL_Event_Compiletest.uc",
+            "command": "python .\\.scripts\\make_docs.py .\\X2WOTCCommunityHighlander\\Src .\\X2WOTCCommunityHighlander\\Config --outdir .\\target --docsdir .\\docs_src --dumpelt .\\target\\CHL_Event_Compiletest.uc",
             "problemMatcher": []
         },
         {

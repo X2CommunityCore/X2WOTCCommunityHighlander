@@ -142,7 +142,7 @@ function OnProjectCompleted()
 ///    
 ///```event
 ///EventID: PsiProjectCompleted,
-///EventData: [in XCGS_Unit Unit, in string AbilityName],
+///EventData: [in XComGameState_Unit Unit, in string AbilityName],
 ///EventSource: XComGameState_HeadquartersProjectPsiTraining (PsiTrainingProject),
 ///NewGameState: none
 ///```
