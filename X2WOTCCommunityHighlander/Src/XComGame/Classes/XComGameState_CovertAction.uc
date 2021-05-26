@@ -724,9 +724,9 @@ function GiveRewards(XComGameState NewGameState)
 ///
 /// ```event
 /// EventID: CovertAction_PreventGiveRewards,
-/// EventData: Data: [ inout bool PreventGiveRewards ],
+/// EventData: [ inout bool PreventGiveRewards ],
 /// EventSource: XComGameState_CovertAction (CAState),
-/// NewGameState: no
+/// NewGameState: none
 /// ```
 private function bool TriggerPreventGiveRewards()
 {
