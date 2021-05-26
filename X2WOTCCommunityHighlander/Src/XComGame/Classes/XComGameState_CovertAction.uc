@@ -723,9 +723,9 @@ function GiveRewards(XComGameState NewGameState)
 /// on the covert action get no XP or cohesion. The results are saved and are used to adjust UI later.
 ///
 /// ```event
-/// EventID: CovertAction_PreventGiveRewards
-/// EventData: Data: [ inout bool PreventGiveRewards ]
-/// EventSource: XComGameState_CovertAction (CAState)
+/// EventID: CovertAction_PreventGiveRewards,
+/// EventData: Data: [ inout bool PreventGiveRewards ],
+/// EventSource: XComGameState_CovertAction (CAState),
 /// NewGameState: no
 /// ```
 private function bool TriggerPreventGiveRewards()
