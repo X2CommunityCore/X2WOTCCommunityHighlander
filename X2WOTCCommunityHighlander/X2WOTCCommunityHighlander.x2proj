@@ -637,6 +637,9 @@
     <Content Include="Src\XComGame\Classes\XComGameState_WorldRegion.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_XpManager.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComHeadquartersCamera.uc">
       <SubType>Content</SubType>
     </Content>
