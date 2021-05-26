@@ -186,7 +186,8 @@ function bool CanBeStartingRegion(XComGameState StartState)
 	{
 		RegionState = XComGameState_WorldRegion(StartState.GetGameStateForObjectID(LinkedRegions[idx].ObjectID));
 
-		if(RegionState != none && RegionState.Continent != Continent)
+		if(RegionState != none &&
+			!class'XComGameState_RegionLink'.static.TriggerOverrideAllowStartingRegionLink(StartState, self, RegionState) /* Issue #774 */)
 		{
 			return false;
 		}
