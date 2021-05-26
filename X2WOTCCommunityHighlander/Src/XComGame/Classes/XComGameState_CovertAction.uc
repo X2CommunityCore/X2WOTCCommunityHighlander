@@ -722,12 +722,10 @@ function GiveRewards(XComGameState NewGameState)
 /// boolean is `true` then not only are the rewards not given, but the soldiers
 /// on the covert action get no XP or cohesion. The results are saved and are used to adjust UI later.
 ///
-/// ```unrealscript
+/// ```event
 /// EventID: CovertAction_PreventGiveRewards
-/// EventData: XComLWTuple {
-///     Data: [ inout bool PreventGiveRewards ]
-/// }
-/// EventSource: XComGameState_CovertAction
+/// EventData: Data: [ inout bool PreventGiveRewards ]
+/// EventSource: XComGameState_CovertAction (CAState)
 /// NewGameState: no
 /// ```
 private function bool TriggerPreventGiveRewards()
