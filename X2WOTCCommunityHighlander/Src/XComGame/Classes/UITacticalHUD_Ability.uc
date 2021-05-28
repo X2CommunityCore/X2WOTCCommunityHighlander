@@ -64,9 +64,11 @@ simulated function UpdateData(int NewIndex, const out AvailableAction AvailableA
 	local bool ReloadHelpVisible;
 
 	// Start Issue #400
-	local string IconColor; 
+	local string BackgroundColor;
 	local bool IsObjectiveAbility;
 	// End Issue #400
+	// Single variable for Issue #749
+	local string ForegroundColor;
 
 	Index = NewIndex; 
 
@@ -128,6 +130,13 @@ simulated function UpdateData(int NewIndex, const out AvailableAction AvailableA
 	if (AbilityTemplate != None)
 	{
 		BattleDataState = XComGameState_BattleData(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
+
+		// Start Issue #749
+		// Deprecate Issue #400:
+		// Instead of calling Icon.EnableMouseAutomaticColor() with different colors right in the if() else switch() statement,
+		// store the foreground and icon colors in local variables, and call Icon.EnableMouseAutomaticColor() with them later, 
+		// after both override event triggers.
+
 		// Start Issue #400
 		//
 		// Add an event that allows listeners to override the ability's icon
@@ -135,36 +144,42 @@ simulated function UpdateData(int NewIndex, const out AvailableAction AvailableA
 		IsObjectiveAbility = BattleDataState.IsAbilityObjectiveHighlighted(AbilityTemplate);
 		if (IsObjectiveAbility || AbilityTemplate.AbilityIconColor != "")
 		{
-			IconColor = IsObjectiveAbility ? class'UIUtilities_Colors'.const.OBJECTIVEICON_HTML_COLOR : AbilityTemplate.AbilityIconColor;
-			TriggerOverrideAbilityIconColor(AbilityState, IsObjectiveAbility, IconColor);
-			Icon.EnableMouseAutomaticColor(IconColor, class'UIUtilities_Colors'.const.BLACK_HTML_COLOR);
+			BackgroundColor = IsObjectiveAbility ? class'UIUtilities_Colors'.const.OBJECTIVEICON_HTML_COLOR : AbilityTemplate.AbilityIconColor;
+			TriggerOverrideAbilityIconColor(AbilityState, IsObjectiveAbility, BackgroundColor);
 		}
 		else
 		{
 			switch(AbilityTemplate.AbilitySourceName)
 			{
 			case 'eAbilitySource_Perk':
-				Icon.EnableMouseAutomaticColor(class'UIUtilities_Colors'.const.PERK_HTML_COLOR, class'UIUtilities_Colors'.const.BLACK_HTML_COLOR);
+				BackgroundColor = class'UIUtilities_Colors'.const.PERK_HTML_COLOR;
 				break;
 
 			case 'eAbilitySource_Debuff':
-				Icon.EnableMouseAutomaticColor(class'UIUtilities_Colors'.const.BAD_HTML_COLOR, class'UIUtilities_Colors'.const.BLACK_HTML_COLOR);
+				BackgroundColor = class'UIUtilities_Colors'.const.BAD_HTML_COLOR;
 				break;
 
 			case 'eAbilitySource_Psionic':
-				Icon.EnableMouseAutomaticColor(class'UIUtilities_Colors'.const.PSIONIC_HTML_COLOR, class'UIUtilities_Colors'.const.BLACK_HTML_COLOR);
+				BackgroundColor = class'UIUtilities_Colors'.const.PSIONIC_HTML_COLOR;
 				break;
 
 			case 'eAbilitySource_Commander': 
-				Icon.EnableMouseAutomaticColor(class'UIUtilities_Colors'.const.GOOD_HTML_COLOR, class'UIUtilities_Colors'.const.BLACK_HTML_COLOR);
+				BackgroundColor = class'UIUtilities_Colors'.const.GOOD_HTML_COLOR;
 				break;
 		
 			case 'eAbilitySource_Item':
 			case 'eAbilitySource_Standard':
 			default:
-				Icon.EnableMouseAutomaticColor(class'UIUtilities_Colors'.const.NORMAL_HTML_COLOR, class'UIUtilities_Colors'.const.BLACK_HTML_COLOR);
+				BackgroundColor = class'UIUtilities_Colors'.const.NORMAL_HTML_COLOR;
 			}
 		}
+
+		ForegroundColor = class'UIUtilities_Colors'.const.BLACK_HTML_COLOR;
+
+		TriggerOverrideAbilityIconColorImproved(AbilityState, IsObjectiveAbility, BackgroundColor, ForegroundColor);
+
+		Icon.EnableMouseAutomaticColor(BackgroundColor, ForegroundColor);
+		// End Issue #749
 	}
 
 	// HOTKEY LABEL (pc only)
@@ -180,19 +195,21 @@ simulated function UpdateData(int NewIndex, const out AvailableAction AvailableA
 }
 
 // Start Issue #400
-//
-// Triggers an 'OverrideAbilityIconColor' event that allows listeners to override the
-// color of an ability icon.
-//
-// The event itself takes the form:
-//
-//   {
-//      ID: OverrideAbilityIconColor,
-//      Data: [in bool IsObjective, out string IconColor],
-//      Source: Ability
-//   }
-//
-static function TriggerOverrideAbilityIconColor(XComGameState_Ability Ability, bool IsObjective, out string IconColor)
+/// HL-Docs: feature:OverrideAbilityIconColor; issue:400; tags:tactical
+/// DEPRECATED - The `OverrideAbilityIconColor` event allows mods to override icon color
+/// for objective abilities or abilities that have `AbilityIconColor` property 
+/// set in their templates.
+/// 
+/// This event has been deprecated and should no longer be used. It is kept for
+/// backwards compatibility. Use [OverrideAbilityIconColorImproved](../tactical/OverrideAbilityIconColorImproved.md) instead.
+///
+/// ```event
+/// EventID: OverrideAbilityIconColor,
+/// EventData: [in bool IsObjective, inout string BackgroundColor],
+/// EventSource: XComGameState_Ability (AbilityState),
+/// NewGameState: none
+/// ```
+static final function TriggerOverrideAbilityIconColor(XComGameState_Ability Ability, bool IsObjective, out string IconColor)
 {
 	local XComLWTuple OverrideTuple;
 
@@ -209,6 +226,50 @@ static function TriggerOverrideAbilityIconColor(XComGameState_Ability Ability, b
 	IconColor = OverrideTuple.Data[1].s;
 }
 // End Issue #400
+
+// Start Issue #749
+/// HL-Docs: feature:OverrideAbilityIconColorImproved; issue:749; tags:tactical,compatibility
+/// The `OverrideAbilityIconColorImproved` event allows mods to override background and foreground 
+/// colors of ability icons. 
+/// The "background" color is the color of the icon itself, and normally varies depending on
+/// the `AbilitySourceName` property of the `X2AbilityTemplate`.
+/// The "foreground" color is normally always black.
+/// Default colors used by the game can be found in the `UIUtilities_Colors` class.
+///
+/// Performance note: this event gets triggered *a lot*, 
+/// so try to avoid complex computations in listeners to reduce the performance hit. 
+///
+/// ```event
+/// EventID: OverrideAbilityIconColorImproved,
+/// EventData: [in bool IsObjective, inout string BackgroundColor, inout string ForegroundColor],
+/// EventSource: XComGameState_Ability (AbilityState),
+/// NewGameState: none
+/// ```
+///
+/// ## Compatibility
+/// This event takes precedence over the deprecated event [OverrideAbilityIconColor](../tactical/OverrideAbilityIconColor.md),
+/// so any listener that changes ability icon colors will always overwrite any
+/// changes made by listeners of the deprecated event.
+static final function TriggerOverrideAbilityIconColorImproved(XComGameState_Ability Ability, bool IsObjective, out string BackgroundColor, out string ForegroundColor)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideAbilityIconColorImproved';
+	OverrideTuple.Data.Add(3);
+	OverrideTuple.Data[0].kind = XComLWTVBool;
+	OverrideTuple.Data[0].b = IsObjective;  
+	OverrideTuple.Data[1].kind = XComLWTVString;
+	OverrideTuple.Data[1].s = BackgroundColor; 
+	OverrideTuple.Data[2].kind = XComLWTVString;
+	OverrideTuple.Data[2].s = ForegroundColor;
+
+	`XEVENTMGR.TriggerEvent('OverrideAbilityIconColorImproved', OverrideTuple, Ability);
+
+	BackgroundColor = OverrideTuple.Data[1].s;
+	ForegroundColor = OverrideTuple.Data[2].s;
+}
+// End Issue #749
 
 simulated function OnMouseEvent(int cmd, array<string> args)
 {
