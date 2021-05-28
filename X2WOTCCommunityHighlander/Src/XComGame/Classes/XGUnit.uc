@@ -1502,6 +1502,40 @@ function name MaybeAddPersonalityToSpeech(Name nCharSpeech)
 
 	nPersonality = GameStateUnit.GetPersonalityTemplate().DataName;
 	// Start Issue #317
+	/// HL-Docs: feature:PersonalitySpeech; issue:317; tags:tactical,customization
+	/// The soldier speech system allows soldiers to use different voicelines
+	/// in some situations based on their attitude. For example, an "Intense" soldier 
+	/// will voice react differently to killing an enemy than a "Twitchy" one.
+	///
+	/// This behavior was hardcoded in the base game. Highlander replaces the original implementation
+	/// with the `PersonalitySpeech` config array that takes values from `XComGame.ini` config file.
+	/// This potentailly allows mods to replace the original personality speech patterns,
+	/// as well as add new patterns for new attitudes, if a mod manages to add any.
+	/// 
+	/// Example entry for the "By The Book" attitude:
+	///```ini
+	///[XComGame.CHHelpers]
+	///+PersonalitySpeech=( Personality="Personality_ByTheBook", \\
+	/// CharSpeeches = ( \\
+	///  (CharSpeech="Moving", PersonalityVariant=("Moving_BY_THE_BOOK")), \\
+	///  (CharSpeech="TargetKilled", PersonalityVariant=("TargetKilled_BY_THE_BOOK")), \\
+	///  (CharSpeech="Panic", PersonalityVariant=("Panic_BY_THE_BOOK")), \\
+	///  (CharSpeech="SoldierVIP", PersonalityVariant=("SoldierVIP_BY_THE_BOOK")), \\
+	///  (CharSpeech="UsefulVIP", PersonalityVariant=("UsefulVIP_BY_THE_BOOK")), \\
+	///  (CharSpeech="GenericVIP", PersonalityVariant=("GenericVIP_BY_THE_BOOK")), \\
+	///  (CharSpeech="HostileVIP", PersonalityVariant=("HostileVIP_BY_THE_BOOK")), \\
+	///  (CharSpeech="LootCaptured", PersonalityVariant=("LootCaptured_BY_THE_BOOK")), \\
+	///  (CharSpeech="HackWorkstation", PersonalityVariant=("HackWorkstation_BY_THE_BOOK")), \\
+	///  (CharSpeech="LootSpotted", PersonalityVariant=("LootSpotted_BY_THE_BOOK")), \\
+	///  (CharSpeech="TargetEliminated", PersonalityVariant=("TargetEliminated_BY_THE_BOOK")), \\
+	///  (CharSpeech="PickingUpBody", PersonalityVariant=("PickingUpBody_BY_THE_BOOK")) \\
+	/// ))
+	///```
+	/// Note: only one `PersonalitySpeech` entry per attitude will be taken into account, any others will be ignored.
+	/// If your mod wants to replace the original speech personality config with your own, 
+	/// you should copy the original entry to their own config exactly as it appears in the Highlander, 
+	/// and replace the `+` at the start of the entry with a `-`, which will remove the entry when your mod is loaded.
+	/// Then you can specify your own config entry for that attitude below.
 	Pidx=class'CHHelpers'.default.PersonalitySpeech.Find('Personality', nPersonality);
 	if (Pidx != INDEX_NONE)
 	{
