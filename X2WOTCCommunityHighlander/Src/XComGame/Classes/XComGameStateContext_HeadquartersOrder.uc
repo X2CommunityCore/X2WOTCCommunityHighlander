@@ -332,6 +332,22 @@ private function FireUnit(XComGameState AddToGameState, StateObjectReference Uni
 	class'X2StrategyGameRulesetDataStructures'.static.ResetAllBonds(AddToGameState, UnitState);
 	// REMOVE FIRED UNIT?
 	AddToGameState.RemoveStateObject(UnitReference.ObjectID);
+
+	// Issue #871
+	/// HL-Docs: feature:HeadquartersUnitFired; issue:871; tags:strategy
+	/// This event is triggered when an `XComGameStateContext_HeadquartersOrder` of
+	/// `eHeadquartersOrderType_FireStaff` type is submitted. The unit state in question
+	/// is already removed (`RemoveStateObject`) when the event is triggered.
+	///
+	/// Usually this happens when the player presses "DISMISS" in the armory menu.
+	///
+	/// ```event
+	/// EventID: HeadquartersUnitFired,
+	/// EventData: none,
+	/// EventSource: XComGameState_Unit (FiredUnit),
+	/// NewGameState: yes
+	/// ```
+	`XEVENTMGR.TriggerEvent('HeadquartersUnitFired',, UnitState, AddToGameState);
 }
 
 private function CompleteResearch(XComGameState AddToGameState, StateObjectReference TechReference)
