@@ -1654,6 +1654,15 @@ function EventListenerReturn HandleNeutralReactionsOnMovement(Object EventData, 
 			continue;
 		}
 
+		// Start Issue #666
+		//
+		// Let mods have their say on whether this civilian should run from MovedUnit.
+		if (!TriggerShouldCivilianRun(CivilianState, MovedUnit, bAIAttacksCivilians))
+		{
+			continue;
+		}
+		// End Issue #666
+
 		// Non-rescue behavior is kicked off here.
 		if( class'Helpers'.static.IsTileInRange(CivilianState.TileLocation, MovedToTile, MaxTileDistSq) 
 		   && VisibilityMgr.GetVisibilityInfo(MovedUnit.ObjectID, CivilianState.ObjectID, OutVisInfo)
@@ -1673,6 +1682,41 @@ function EventListenerReturn HandleNeutralReactionsOnMovement(Object EventData, 
 
 	return ELR_NoInterrupt;
 }
+
+// Start Issue #666
+/// HL-Docs: feature:ShouldCivilianRun; issue:666; tags:tactical
+/// Triggers a 'ShouldCivilianRun' event that allows listeners to determine whether
+/// neutrals should run in reaction to another unit moving by them. Returns `true`
+/// if the given neutral unit should run, `false` otherwise.
+///
+/// ```event
+/// EventID: ShouldCivilianRun,
+/// EventData: [in XComGameState_Unit MovedUnit, in bool AIAttacksCivilians, inout bool ShouldRun],
+/// EventSource: XComGameState_Unit (Civilian),
+/// NewGameState: none
+/// ```
+static function bool TriggerShouldCivilianRun(
+	XComGameState_Unit CivilianUnit,
+	XComGameState_Unit MovedUnit,
+	bool AIAttacksCivilians)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'ShouldCivilianRun';
+	Tuple.Data.Add(3);
+	Tuple.Data[0].kind = XComLWTVObject;
+	Tuple.Data[0].o = MovedUnit;
+	Tuple.Data[1].kind = XComLWTVBool;
+	Tuple.Data[1].b = AIAttacksCivilians;
+	Tuple.Data[2].kind = XComLWTVBool;
+	Tuple.Data[2].b = true;
+
+	`XEVENTMGR.TriggerEvent(Tuple.Id, Tuple, CivilianUnit);
+
+	return Tuple.Data[2].b;
+}
+// End Issue #666
 
 function EventListenerReturn HandleUnitDiedCache(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData) 
 {
