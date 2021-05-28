@@ -41,7 +41,7 @@ switch ($config)
     default { ThrowFailure "Unknown build configuration $config" }
 }
 
-#$builder.IncludeSrc("$srcDirectory\Components\DLC2CommunityHighlander\DLC2CommunityHighlander\Src")
+$builder.IncludeSrc("$srcDirectory\Components\DLC2CommunityHighlander\DLC2CommunityHighlander\Src")
 
 if (Test-Path "$srcDirectory\WorkshopID")
 {
