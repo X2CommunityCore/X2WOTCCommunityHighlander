@@ -1695,6 +1695,12 @@ static final operator(20) LinearColor - (LinearColor A, LinearColor B)
  */
 native(231) final static `{prevent_direct_calls} function LogInternal( coerce string S, optional name Tag );
 
+// CH-private addition: Log in release mode too. Only use in exceptional cases.
+final static function CHReleaseLog(coerce string S, optional name Tag)
+{
+	LogInternal(S, Tag);
+}
+
 /**
  * Same as calling LogInternal(SomeMsg, 'Warning');  This function should never be called directly - use the `warn macro instead, which has the following signature:
  *

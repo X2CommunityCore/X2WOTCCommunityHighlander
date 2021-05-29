@@ -233,6 +233,15 @@ var localized string LostNoiseMessage;
 var localized string FactionGroupNameWithPrefixFormat;
 var localized string FactionGroupNameWithSuffixFormat;
 
+// Start Issue #511
+/// HL-Docs: ref:DLCRunOrder
+var localized string RunOrderDiffGroupsConflict, RunOrderDiffGroupsConflict_INT;
+var localized string RunOrderDiffGroupsRedundant, RunOrderDiffGroupsRedundant_INT;
+var localized string RunOrderBefore, RunOrderBefore_INT;
+var localized string RunOrderAfter, RunOrderAfter_INT;
+var localized string RunOrderBeforeAfter, RunOrderBeforeAfter_INT;
+// End Issue #511
+
 defaultproperties
 {
 
