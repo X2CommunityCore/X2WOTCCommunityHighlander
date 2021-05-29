@@ -467,7 +467,19 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 
 					ModifyDamageValue(UpgradeTemplateBonusDamage, TargetUnit, AppliedDamageTypes);
 
-					UpgradeDamageValue.Damage += UpgradeTemplateBonusDamage.Damage;
+					//	Start Issue #896
+					/// HL-Docs: ref:Bugfixes; issue:896
+					///	Call the (hopefully) relevant delegate, if this weapon upgrade has it.
+					/// This makes the guaranteed damage on missed shots added by Stocks properly benefit from Insider Knowledge
+					if (WeaponUpgradeTemplate.GetBonusAmountFn != none)
+					{
+						UpgradeDamageValue.Damage += WeaponUpgradeTemplate.GetBonusAmountFn(WeaponUpgradeTemplate);
+					}
+					else
+					{
+						UpgradeDamageValue.Damage += UpgradeTemplateBonusDamage.Damage;
+					}
+					//	End Issue #896
 					UpgradeDamageValue.Spread += UpgradeTemplateBonusDamage.Spread;
 					UpgradeDamageValue.Crit += UpgradeTemplateBonusDamage.Crit;
 					UpgradeDamageValue.Pierce += UpgradeTemplateBonusDamage.Pierce;
@@ -804,7 +816,19 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 					if (UpgradeTemplateBonusDamage.Damage > 0) bHadAnyDamage = true;
 					bWasImmune = bWasImmune && ModifyDamageValue(UpgradeTemplateBonusDamage, kTarget, AppliedDamageTypes);
 
-					UpgradeDamageValue.Damage += UpgradeTemplateBonusDamage.Damage;
+					//	Start Issue #896
+					/// HL-Docs: ref:Bugfixes; issue:896
+					///	Call the (hopefully) relevant delegate, if this weapon upgrade has it.
+					/// This makes the guaranteed damage on missed shots added by Stocks properly benefit from Insider Knowledge
+					if (WeaponUpgradeTemplate.GetBonusAmountFn != none)
+					{
+						UpgradeDamageValue.Damage += WeaponUpgradeTemplate.GetBonusAmountFn(WeaponUpgradeTemplate);
+					}
+					else
+					{
+						UpgradeDamageValue.Damage += UpgradeTemplateBonusDamage.Damage;
+					}
+					//	End Issue #896
 					UpgradeDamageValue.Spread += UpgradeTemplateBonusDamage.Spread;
 					UpgradeDamageValue.Crit += UpgradeTemplateBonusDamage.Crit;
 					UpgradeDamageValue.Pierce += UpgradeTemplateBonusDamage.Pierce;
