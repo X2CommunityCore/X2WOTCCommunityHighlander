@@ -122,11 +122,13 @@ var config float DLCPartPackDefaultChance;
 var int m_iHairType;
 
 // temporary variable for soldier creation, used by TemplateMgr filter functions
-var protected TSoldier kSoldier;
-var protected X2BodyPartTemplate kTorsoTemplate;
-var protected name MatchCharacterTemplateForTorso;
-var protected name MatchArmorTemplateForTorso;
-var protected array<name> DLCNames; //List of DLC packs to pull parts from for the currently generating soldier.
+// Start unprotect variables for issue #783
+var /*protected*/ TSoldier kSoldier;
+var /*protected*/ X2BodyPartTemplate kTorsoTemplate;
+var /*protected*/ name MatchCharacterTemplateForTorso;
+var /*protected*/ name MatchArmorTemplateForTorso;
+var /*protected*/ array<name> DLCNames; //List of DLC packs to pull parts from for the currently generating soldier.
+// End unprotect variables for issue #783
 
 // Store a country name to be use in bios for soldiers that force a unique country
 var name BioCountryName;
@@ -138,6 +140,11 @@ var X2CharacterTemplate m_CharTemplate;
 
 // New variable for issue #397
 var config(Content) int iDefaultWeaponTint;
+
+// Start issue #783
+var XComGameState_Unit GenerateAppearanceForUnitState;
+var XComGameState GenerateAppearanceForGameState;
+// End issue #783
 
 function GenerateName( int iGender, name CountryName, out string strFirst, out string strLast, optional int iRace = -1 )
 {
@@ -294,10 +301,26 @@ function TSoldier CreateTSoldierFromUnit( XComGameState_Unit Unit, XComGameState
 {
 	local XComGameState_Item ArmorItem;
 	local name ArmorName;
+	// Variable for issue #783
+	local TSoldier CreatedTSoldier;
 
 	ArmorItem = Unit.GetItemInSlot(eInvSlot_Armor, UseGameState, true);
 	ArmorName = ArmorItem == none ? '' : ArmorItem.GetMyTemplateName();	
-	return CreateTSoldier( Unit.GetMyTemplateName(), EGender(Unit.kAppearance.iGender), Unit.kAppearance.nmFlag, Unit.kAppearance.iRace, ArmorName );
+
+	// Start issue #783
+	GenerateAppearanceForUnitState = Unit;
+	GenerateAppearanceForGameState = UseGameState;
+	
+	CreatedTSoldier = CreateTSoldier( Unit.GetMyTemplateName(), EGender(Unit.kAppearance.iGender), Unit.kAppearance.nmFlag, Unit.kAppearance.iRace, ArmorName );
+
+	// Blank the properties just in case this instance of the Character Generator will be used to also call CreateTSoldier() separately, 
+	// which would trigger the 'PostUnitAppearanceGenerated' event another time, but it would still pass the same Unit State and Game State from the time CreateTSoldierFromUnit()
+	// was called. So we blank them out to make sure we're not passing irrelevant information with the event.
+	GenerateAppearanceForUnitState = none;
+	GenerateAppearanceForGameState = none;
+
+	return CreatedTSoldier;
+	// End issue #783
 }
 
 delegate bool FilterCallback(X2BodyPartTemplate Template);
@@ -380,8 +403,27 @@ function TSoldier CreateTSoldier( optional name CharacterTemplateName, optional 
 
 	BioCountryName = kSoldier.nmCountry;
 
+	// Start issue #783
+	ModifyGeneratedUnitAppearance(CharacterTemplateName, eForceGender, nmCountry, iRace, ArmorName);
+	// End issue #783
+
 	return kSoldier;
 }
+
+// Start issue #783
+private function ModifyGeneratedUnitAppearance(optional name CharacterTemplateName, optional EGender eForceGender, optional name nmCountry = '', optional int iRace = -1, optional name ArmorName)
+{
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local int i;
+	
+	/// HL-Docs: ref:ModifyGeneratedUnitAppearance; issue:783
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	for (i = 0; i < DLCInfos.Length; i++)
+	{
+		DLCInfos[i].ModifyGeneratedUnitAppearance(self, CharacterTemplateName, eForceGender, nmCountry, iRace, ArmorName, GenerateAppearanceForUnitState, GenerateAppearanceForGameState);
+	}
+}
+// End issue #783
 
 static function Name GetLanguageByString(optional string strLanguage="")
 {
