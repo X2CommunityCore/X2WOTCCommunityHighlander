@@ -362,6 +362,41 @@ function bool CanBeLootedByUnit(XComGameState_Item LootItem, XComGameState_Unit 
 	return true;
 }
 
+// Start Issue #93
+/// HL-Docs: feature:NonWeaponUpgradeSlots; issue:93; tags:strategy
+/// Mods can add upgrade slots to items that are not based on X2WeaponTemplate
+/// by adding entries to `NonWeaponUpgradeSlots` config array in `XComGame.ini`, for example:
+/// ```unrealscript
+/// [XComGame.CHHelpers]
+/// +NonWeaponUpgradeSlots = (TemplateName = "KevlarArmor", NumUpgradeSlots = 1)
+/// +NonWeaponUpgradeSlots = (TemplateName = "PlatedArmor", NumUpgradeSlots = 2)
+/// +NonWeaponUpgradeSlots = (TemplateName = "PoweredArmor", NumUpgradeSlots = 3)
+/// ```
+/// Note that if several mods add config entries for the same item template, only the first one one will take effect.
+/// Which one counts as first will depend on the config load order.
+function int GetNumUpgradeSlots()
+{
+	local X2WeaponTemplate SelfAsWeaponTemplate;
+	local int idx;
+
+	SelfAsWeaponTemplate = X2WeaponTemplate(self);
+
+	if (SelfAsWeaponTemplate != none)
+	{
+		return SelfAsWeaponTemplate.NumUpgradeSlots;
+	}
+
+	idx = class'CHHelpers'.default.NonWeaponUpgradeSlots.Find('TemplateName', DataName);
+
+	if (idx != INDEX_NONE)
+	{
+		return class'CHHelpers'.default.NonWeaponUpgradeSlots[idx].NumUpgradeSlots;
+	}
+
+	return 0;
+}
+// End Issue #93
+
 DefaultProperties
 {
 	iItemSize=1;

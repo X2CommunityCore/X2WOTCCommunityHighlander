@@ -1120,7 +1120,7 @@ private static function UpdateUnitState( XComGameState StartState, XComGameState
 	PrimaryWeapon = UnitState.GetPrimaryWeapon( );
 	PrimaryWeapon = XComGameState_Item( StartState.GetGameStateForObjectID( PrimaryWeapon.ObjectID ) );
 	WeaponTemplate = X2WeaponTemplate( PrimaryWeapon.GetMyTemplate( ) );
-	if (WeaponTemplate.NumUpgradeSlots > 0)
+	if (PrimaryWeapon.GetNumUpgradeSlots() > 0) // Single line for Issue #93
 		PrimaryWeapon.WipeUpgradeTemplates( );
 
 	ItemManager = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
@@ -1155,7 +1155,7 @@ private static function UpdateUnitState( XComGameState StartState, XComGameState
 						SwapUtilityItem( StartState, UnitState, ItemName, 1 );
 					}
 				}
-				else if ((WeaponUpgradeTemplate != none) && (WeaponTemplate.NumUpgradeSlots > 0))
+				else if ((WeaponUpgradeTemplate != none) && (PrimaryWeapon.GetNumUpgradeSlots() > 0)) // Single line for Issue #93
 				{
 					WeaponUpgrades = PrimaryWeapon.GetMyWeaponUpgradeTemplateNames( );
 
@@ -1170,7 +1170,7 @@ private static function UpdateUnitState( XComGameState StartState, XComGameState
 
 					if (index == WeaponUpgrades.Length)
 					{
-						if (index < WeaponTemplate.NumUpgradeSlots)
+						if (index < PrimaryWeapon.GetNumUpgradeSlots()) // Single line for Issue #93
 						{
 							PrimaryWeapon.ApplyWeaponUpgradeTemplate( WeaponUpgradeTemplate );
 						}

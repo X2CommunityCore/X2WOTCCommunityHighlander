@@ -4651,6 +4651,26 @@ static function UpgradeItems(XComGameState NewGameState, name CreatorTemplateNam
 			if (!XComHQ.HasItem(UpgradeItemTemplate))
 			{
 				UpgradedItemState = UpgradeItemTemplate.CreateInstanceFromTemplate(NewGameState);
+				
+				/// HL-Docs: feature:ItemUpgraded; issue:289; tags:strategy
+				/// This is an event that allows mods to perform non-standard handling to item states
+				/// when they are upgraded to a new tier. It is fired up to four times during upgrading:
+				/// * When upgrading the infinite item, if any.
+				/// * When upgrading utility items, like grenades and medkits.
+				/// * When upgrading unequipped items that have attachments
+				/// * When upgrading equipped items that have attachments
+				///
+				/// Note: EventSource (BaseItem) will be `none` when the event is triggered by upgrading an infinite item.
+				/// This is because infinite items are created rather than upgraded.
+				/// ```event
+				/// EventID: ItemUpgraded,
+				/// EventData: XComGameState_Item (UpgradedItem),
+				/// EventSource: XComGameState_Item (BaseItem),
+				/// NewGameState: yes
+				/// ```
+				// Single line for Issue #289 - handle upgrades for infinite items
+				// There are three more event triggers with this EventID in this function.
+				`XEVENTMGR.TriggerEvent('ItemUpgraded', UpgradedItemState, none, NewGameState);
 				XComHQ.AddItemToHQInventory(UpgradedItemState);
 			}
 		}
@@ -4668,6 +4688,8 @@ static function UpgradeItems(XComGameState NewGameState, name CreatorTemplateNam
 					// Otherwise match the base items quantity
 					UpgradedItemState = UpgradeItemTemplate.CreateInstanceFromTemplate(NewGameState);
 					UpgradedItemState.Quantity = BaseItemState.Quantity;
+					// Single line for Issue #289 - handle upgrades for utility items like grenades and medkits
+					`XEVENTMGR.TriggerEvent('ItemUpgraded', UpgradedItemState, BaseItemState, NewGameState);
 
 					// Then add the upgrade item and remove all of the base items from the inventory
 					XComHQ.PutItemInInventory(NewGameState, UpgradedItemState);
@@ -4703,6 +4725,8 @@ static function UpgradeItems(XComGameState NewGameState, name CreatorTemplateNam
 							UpgradedItemState.ApplyWeaponUpgradeTemplate(WeaponUpgradeTemplate);
 						}
 					}
+					// Single line for Issue #289 - handle upgrades for unequipped items with attachments
+					`XEVENTMGR.TriggerEvent('ItemUpgraded', UpgradedItemState, InventoryItemState, NewGameState);
 
 					// Delete the old item, and add the new item to the inventory
 					NewGameState.RemoveStateObject(InventoryItemState.GetReference().ObjectID);
@@ -4747,6 +4771,8 @@ static function UpgradeItems(XComGameState NewGameState, name CreatorTemplateNam
 									UpgradedItemState.ApplyWeaponUpgradeTemplate(WeaponUpgradeTemplate);
 								}
 							}
+							// Single line for Issue #289 - handle upgrades for equipped items with attachments
+							`XEVENTMGR.TriggerEvent('ItemUpgraded', UpgradedItemState, InventoryItemState, NewGameState);
 
 							// Delete the old item
 							NewGameState.RemoveStateObject(InventoryItemState.GetReference().ObjectID);

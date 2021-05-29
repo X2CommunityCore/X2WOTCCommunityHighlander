@@ -207,7 +207,8 @@ simulated function PopulateUpgradePanel( int Index, X2LadderUpgradeTemplate Upgr
 					}
 					WeaponTemplate = X2WeaponTemplate(primaryWeaponItem.GetMyTemplate());
 
-					bAddLine = WeaponTemplate != none && WeaponTemplate.NumUpgradeSlots > 0 && ItemUpgradeTemplate.CanApplyUpgradeToWeapon(primaryWeaponItem);
+					// Single line for Issue #93
+					bAddLine = WeaponTemplate != none && primaryWeaponItem.GetNumUpgradeSlots() > 0 && ItemUpgradeTemplate.CanApplyUpgradeToWeapon(primaryWeaponItem);
 
 					//
 					ParamTag.StrValue0 = ClassTemplate.DisplayName;

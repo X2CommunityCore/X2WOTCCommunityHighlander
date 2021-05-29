@@ -1,13 +1,21 @@
 class CHHelpers extends Object config(Game);
 
-//issue #188 - creating a struct and usable array for modders
+//issue #188 - creating a struct and a usable array for modders
 struct TeamRequest
 {
 	var ETeam Team; //eTeam_One and eTeam_Two should be the only ones here.
 };
-
 var config array<TeamRequest> ModAddedTeams;
 //end issue #188
+
+// Start Issue #93
+struct UpgradeSlotHelper
+{
+	var name TemplateName; // Name of the non-X2WeaponTemplate to be assigned slots (X2WeaponTemplates have NumUpgradeSlots on the template)
+	var int NumUpgradeSlots; // The number of slots to assign
+};
+var config array<UpgradeSlotHelper> NonWeaponUpgradeSlots; // Issue #93 - configure upgrade slots for templates
+// End Issue #93
 
 var config int SPAWN_EXTRA_TILE; // Issue #18 - Add extra ini config
 var config int MAX_TACTICAL_AUTOSAVES; // Issue #53 - make configurable, only use if over 0
