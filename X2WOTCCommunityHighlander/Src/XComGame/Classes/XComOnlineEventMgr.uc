@@ -2751,6 +2751,9 @@ private event PreloadSaveGameData(byte LocalUserNum, bool Success, int GameNum, 
 	local bool bAnySuperSoldiers;
 	local name DLCName;
 
+	// Variable for issue #808
+	local array<X2DownloadableContentInfo> ExistingDLCInfos;
+
 	if(Success)
 	{
 		//Disable achievements if a super soldier is being used
@@ -2789,6 +2792,25 @@ private event PreloadSaveGameData(byte LocalUserNum, bool Success, int GameNum, 
 			{
 				DLCInfos[i].OnLoadedSavedGame();
 			}
+
+			// Start issue #808
+			/// HL-Docs: ref:OnLoadedSavedGameWithDLCExisting
+			
+			// Get all DLCInfos (there is no API to get only the existing ones)
+			ExistingDLCInfos = EventManager.GetDLCInfos(false);
+			
+			// Clear the new ones (otherwise we will call both OnLoadedSavedGame hooks)
+			for (i = 0; i < DLCInfos.Length; ++i)
+			{
+				ExistingDLCInfos.RemoveItem(DLCInfos[i]);
+			}
+			
+			// Invoke OnLoadedSavedGameWithDLCExisting
+			for (i = 0; i < ExistingDLCInfos.Length; ++i)
+			{
+				ExistingDLCInfos[i].OnLoadedSavedGameWithDLCExisting();
+			}
+			// End issue #808
 
 			// Add new DLCs to the list of required DLCs. Directly writing to the state object outside of a game state change is 
 			// unorthodox, but works for this situation

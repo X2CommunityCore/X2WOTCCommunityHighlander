@@ -754,3 +754,59 @@ static function UnitPawnPostInitAnimTree(XComGameState_Unit UnitState, XComUnitP
 static function ModifyGeneratedUnitAppearance(XGCharacterGenerator CharGen, const name CharacterTemplateName, const EGender eForceGender, const name nmCountry, const int iRace, const name ArmorName, XComGameState_Unit UnitState, XComGameState UseGameState)
 {}
 /// End Issue #783
+
+// Start issue #808
+/// HL-Docs: feature:OnLoadedSavedGameWithDLCExisting; issue:808; tags:
+/// When loading a save the game makes a distinction between "existing" and "new" mods/DLCs.
+/// The list of the "existing" mods is stored inside the save and is used as "source of truth" during the loading process.
+/// 
+/// First, the game checks if any of the "existing" mods are currently not active. If such exist, the player gets
+/// the "missing mods" popup.
+/// 
+/// Then, the game checks whether any of the currently active mods are not listed as "existing". Such
+/// mods are considered "new" and the `OnLoadedSavedGame` hook is called on their DLCInfos.
+/// 
+/// Finally, the "new" mods are marked as "existing" to prevent the previous step from occurring again the next
+/// time the same campaign is loaded and to facilitate the popup, should any of them be removed.
+/// 
+/// The above process misses an important aspect - what happens if the mod is "existing" but wants to make
+/// state changes before the save is loaded? An example use case would be adjusting existing campaigns due to
+/// updates in the mod code. `OnLoadedSavedGameWithDLCExisting` fills that gap - it is called on the "existing"
+/// mods every time a save is loaded.
+///
+/// Important note 1: `OnLoadedSavedGameWithDLCExisting` is exclusive with `OnLoadedSavedGame`. If the mod was just
+/// added (it is "new") then only `OnLoadedSavedGame` will be called. On subsequent loads of saves from that
+/// campaign (the mod is now "existing") only `OnLoadedSavedGameWithDLCExisting` will be called.
+/// 
+/// Important note 2: this (and the base game OnLoadedSavedGame) is called before the ruleset of the save is initialized.
+/// This is great as any state changes done here will be picked up automatically (no need to refresh anything anywhere),
+/// however it imposes several limitations:
+///
+/// 1. You cannot use `SubmitGameStateContext`/`SubmitGameState`. Use `XComGameStateHistory::AddGameStateToHistory` instead
+/// 2. Event listener templates should be assumed as not registered
+/// 3. In fact, due to (1), only `ELD_Immediate` listeners (that are registered on state objects) will be triggered.
+///    Therefore, you are advised to not trigger any events at all.
+///
+/// If the above is too limiting for your use case, consider using `OnLoadedSavedGameToStrategy`/`OnLoadedSavedGameToTactical`,
+/// which are called after the relevant listener templates are registered and most of the presentation has loaded.
+///
+/// Important note 3: in case the save is loaded mid-tactical, some strategy state objects will be **missing** from the history.
+/// This is intended behaviour and you must account for it when using this hook. You can read more about it here: 
+/// https://robojumper.github.io/too-real/history/#archived
+///
+/// Important note 4: the list of "existing" mods is not cleared when the mod is removed (in order to facilitate the popup).
+/// This means that add -> save -> remove -> load -> save -> add -> load will trigger `OnLoadedSavedGameWithDLCExisting`
+/// as the mod will be considered "existing". However, any state objects which are instances of class(es) added by the mod
+/// **will be gone** as they will fail to deserialize when the save is loaded without the mod active. The only exception to
+/// this is the "Remove Missing Mods" mod which removes the missing mods from the list of the "existing" ones. In that case,
+/// the mod will be considered "new" (again).
+///
+/// *While any mod can potentially manipulate that list, the "Remove Missing Mods" mod is currently the only known way of
+/// removing entries from said list*
+///
+/// Important note 5: the decision to consider a mod either "new" or "existing" is made using its `DLCName`.
+/// See [`ModDependencyCheck`](./ModDependencyCheck.md) for an explanation.
+static function OnLoadedSavedGameWithDLCExisting ()
+{
+}
+// End issue #808
