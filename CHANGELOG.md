@@ -8,10 +8,6 @@ No new changes should be added here. Documented features should be removed from 
 ### Mod/DLC Hooks
 - `GetDLCEventInfo` allows mods to add their own events for the Geoscape Event
   List (#112)
-- `CanWeaponApplyUpgrade` allows mods to restrict what upgrades can be applied
-  to a specific weapon (#260)
-- `ModifyEarnedSoldierAbilities` allows mods to add their own abilities to soldiers,
-  such as officer abilites (#409)
 
 ### Event Hooks
 - Triggers the event `OnArmoryMainMenuUpdate` that allows adding elements into
@@ -49,7 +45,6 @@ No new changes should be added here. Documented features should be removed from 
 - Triggers the event `OverrideSupplyLossStrings` to allow mods to override the text that is displayed for supplies
   lost in the monthly resistance report (#539)
 - Triggers the event `PostEndOfMonth` to notify mods that end-of-month processing has come to an end (#539)
-- Triggers the event `PsiProjectCompleted` to notify mods when a soldier has finished training in the psi labs (#534)
 - Triggers the event `OverrideNoCaEventMinMonths` to allow mods to force the UI to display no CA nag during first month
 - Triggers the event `CustomizeStatusStringsSeparate` in XComGameState_Unit::GetStatusStringsSeparate (#322)
 - Triggers the event `OverridePersonnelStatus` in UIUtilities_Strategy::GetPersonnelStatusStringParts. This
@@ -68,8 +63,6 @@ No new changes should be added here. Documented features should be removed from 
   other ways than just the tooltip and image (#537)
 - Triggers the event `MissionIconSetScanSite` to allow mods to customize a scan site's icon in other
   ways than just the tooltip and image (#537)
-- Triggers the event `OverrideShowPromoteIcon` to allow mods to override whether the promotion icon is
-  displayed for a given soldier or not (#631)
 - Triggers the event `SoldierListItem_ShouldDisplayMentalStatus` to allow mods to enable/disable display of mental status
   based on additional logic (#651)
 - Triggers the event `CovertActionStarted` to allow mods to react to it in a flexible manner
@@ -78,18 +71,10 @@ No new changes should be added here. Documented features should be removed from 
 - Triggers the event `CovertActionAllowCheckForProjectOverlap` to allow mods to forbid the "de-bunching" logic
   on CA start (#584)
 - Triggers the event `AllowActionToSpawnRandomly` to allow mods to prevent certain CAs from being randomly spawned (#594)
-- Triggers the event `OverrideRespecSoldierProjectPoints` to allow mods to customize how long it should
-  take to respec a given soldier (#624)
 - Triggers the event `OverrideScienceScore` to allow mods to override the XCOM HQ science score, for
   example to add their own bonuses or to remove scientists that are engaged in other activities.
-- Triggers the event `CanTechBeInspired` to allow mods to block techs from being inspired, even if they
-  meet the vanilla game's conditions for it (#633)
-- Triggers the event `OverrideNextRetaliationDisplay` to allow mods to customize and/or enable/disable "next retaliation"
-  display in `UIAdventOperations` (#667)
 - Triggers the event `CovertAction_AllowResActivityRecord` to allow mods to enable/disable "covert action completed"
   record for the monthly resistance report (#696)
-- Triggers the event `OverrideDarkEventCount` to allow mods to change the number of dark events in the monthly report (#711)
-- Triggers the event `SitRepCheckAdditionalRequirements` to allow mods to perform additional checks for sitrep eligibility for a mission (#561)
 - Triggers the event `OverrideAddChosenTacticalTagsToMission` to allow mods to override chosen spawning (#722)
 
 ### Modding Exposures
@@ -97,7 +82,6 @@ No new changes should be added here. Documented features should be removed from 
 - Remove `private` from `X2AIBTBehaviorTree.Behaviors` so that mods can change the behavior trees without
   overwriting all the necessary entries (#410)
 - Removed `protectedwrite` from `AcquiredTraits`, `PendingTraits`, and `CuredTraits` in `XComGameState_Unit`, allowing Traits to be modified by external sources (#681)
-- Added `X2CovertActionTemplate::bCanNeverBeRookie` to allow mods to forbid a CA from being marked as a rookie one (#695)
 
 ### Configuration
 - Allow disabling of Factions being initialized on startup by
@@ -158,33 +142,20 @@ No new changes should be added here. Documented features should be removed from 
 - `ModifyEnvironmentDamage` to modify environment damage (#200)
 - `OverrideKilledByExplosion` to allow mods to override the
   "was killed by explosion" flag (#202)
-- `OverrideUnitFocusUI` to allow mods to show their own "focus"
-  type using the Templar focus UI (#257)
 - Allow mods to have character templates to use custom base underlays instead of default 
   clerk underlays on the Avenger (#251)
 - `OverrideVictoriousPlayer` to allow override whether a mission was successful or not (#266)
 - `OverrideItemSoundRange` to allow overriding an item's sound range (#363)
 - `OverrideHackingScreenType` and `HackIn2D` to allow hacking using a 2D movie and using
   the Skulljack / ADVENT screen arbitrarily (#330)
-- `OverrideClipSize` to allow effects to modify weapon clip size (#393)
 - `PostMissionObjectivesSpawned` to allow for map manipulation before units are spawned  (#405)
 - Allow mods to override the number of objectives spawned for a mission via the new event
   `OverrideObjectiveSpawnCount`, which is triggered as the objective spawns are being
   selected by `XComTacticalMissionManager`. (#463)
-- `OverrideDisableReinforcementsFlare` allows mods to hide the reinforcements flare
-  so that players don't know exactly where reinforcements will be arriving (#448)
 - `OverrideReinforcementsAlert` allows mods to force the display of the reinforcements
   alert panel and also change its text and color (#449)
-- `AllowInteractHack` allows mods to prevent units from being able to hack `InteractiveObject`s (#564)
-- `OverrideEncounterZoneAnchorPoint` allows mods to override the anchor point used by XCOM 2
-  in determining patrol zones for pods (#500)
-- 'OverridePatrolBehavior' allows mods to disable the base game pod patrol logic if they
-  want to handle it themselves (#507)
 - 'DrawDebugLabels' allows mods to draw their own debug information on the canvas used by
   `XComTacticalController.DrawDebugLabels()` (#490)
-- `OverrideAbilityIconColor` provides a tuple with the same ID as the
-  event and data of the form `[bool IsObjective, string Color]` that allows
-  mods to override the color of soldier abilities in the tactical HUD (#400)
 - `OverrideBodyRecovery` allows mods to determine whether incapacitated soldiers are recovered
   at the end of a mission (which is only supported by full sweep missions with corpse retrieval
   in the base game) (#571)
@@ -197,13 +168,10 @@ No new changes should be added here. Documented features should be removed from 
 - Added ability to modify number of tactical auto-saves kept (#53)
 - Added ability to prevent ragdolls from ever turning off their physics, plus
   enable Chosen ragdolling (#41)
-- Added ability to customise both Burning and Poison bypassing shields when
-  applied to targets (#89)
 - Added ability to prevent multi-part missions counting as separate missions
   for will loss purposes (#44)
 - Added option to mitigate all weapon damage using armor instead of always taking at
   least 1 damage (#321)
-- Able to mark custom targeting methods as `RequiresTargetingActivation` for controller input (#476)
 
 ### Modding Exposures
 - Deprivatise variables to protected in XComIdleAnimationStateMachine to allow
@@ -227,12 +195,6 @@ No new changes should be added here. Documented features should be removed from 
 - Allow aliens and other teams to properly register non-XCOM unit locations to adjust their positions accordingly (#619)
 
 ### Fixes
-- Allow abilities that deal damage without a source weapon to still display
-  their damage with psi flyovers (Psi Bomb, mod abilities) (#326)
-- Make disorient reapply to disoriented units so that things like flashbangs can
-  still remove overwatch from disoriented units (#475)
-- Fix rocket targeting so that it isn't always unobstructed when the shooter has
-  a valid step-out tile (#617)
 - `MindControlLost` fires whenever a unit stops being mind controlled or hacked. The event
   passes the affected unit state as both event data and event source (#643)
 
@@ -248,8 +210,6 @@ No new changes should be added here. Documented features should be removed from 
 - `GetLocalizedCategory`added to allow inject custom weapon category localizations (#125)
 - `UpdateUIOnDifficultyChange` added to allow modders to modify the UI on the
   difficulty selection (UIShellDifficulty) (#148)
-- `GetNumUtilitySlotsOverride` and `GetNumHeavyWeaponSlotsOverride` added to allow mods to override the numer of available slots (#171)
-- `OverrideItemImage` added to conditionally change the loadout image of an item (#171)
 - `MatineeGetPawnFromSaveData` added to allow manipulation of the shell screen matinee (#240)
 - `UpdateWeaponAttachments` added to allow manipulation weapon attachments at runtime (#239)
 - `WeaponInitialized` added to conditionally change the weapon archetype on initialization (#245)
@@ -261,8 +221,6 @@ No new changes should be added here. Documented features should be removed from 
 - `AbilityTagExpandHandler_CH` expands vanilla AbilityTagExpandHandler to allow reflection
 
 ### Event Hooks
-- Triggers the event `OverrideHasHeavyWeapon` that allows to override the result of `XComGameState_Unit.HasHeavyWeapon` (#172)
-- `OverrideItemMinEquipped` added to allow mods to override the min number of equipped items in a slot (#171)
 - `AddConversation` added to allow mods to change narrative behavior before they are played (#204)
 - `OverrideRandomizeAppearance` added to allow mods to block updating appearance when switching armors (#299)
 
@@ -285,7 +243,6 @@ No new changes should be added here. Documented features should be removed from 
 - Unprotect `XComGameState_EvacZone::CenterLocation` & `XComGameState_EvacZone::Team` (#702)
 
 ### Improvements
-- Create a mod friendly way to manipulate loot tables (#8)
 - Allow enemies with assigned names to have them appear as their name, rather
   than a generic label. (#52)
 - Change UIUtilities_Colors.GetColorForFaction to use Faction template color as
@@ -303,10 +260,6 @@ No new changes should be added here. Documented features should be removed from 
   (#150)
 - Fix XGCharacterGenerator so it's actually possible to disable part packs for
   new soldiers (#154)
-- Alter XComGameState_Unit so it obeys part pack sliders when picking new armour
-  appearances. Use `CHHelpers.CosmeticDLCNamesUnaffectedByRoll` to remove the 
-  random roll from specific part names (#155)
-- `eInvSlot_HeavyWeapon` is now a multi-item slot (#171)
 - Improve performance by removing unnecessary calls to UpdateAllMeshMaterials (#186)
 - Adds ability to have weapon upgrades modify damage, and properly accounts for
   any damage upgrades in the UI. (#237)
@@ -325,7 +278,6 @@ No new changes should be added here. Documented features should be removed from 
   flag on `XComGameState_Unit`. This behavior is gated behind the new `CHHelpers.PreserveProxyUnitData`
   config variable. (#465)
 - Adds CustomDeathAnimationName property to X2Action_Death that allows overriding the default death animations (#488)
-- Allow PCS granting PsiOffense to be equiped by other classes than PsiOperative (#602)
 - Added Inventory Slots `eInvSlot_Wings` and `eInvSlot_ExtraBackpack`. (#678)
 
 ### Fixes
