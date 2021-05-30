@@ -29,7 +29,37 @@
     <Content Include="Config\XComUI.ini">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Localization\X2WOTCCommunityHighlander.chn">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\X2WOTCCommunityHighlander.cht">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\X2WOTCCommunityHighlander.deu">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\X2WOTCCommunityHighlander.esn">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\X2WOTCCommunityHighlander.fra">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Localization\X2WOTCCommunityHighlander.int">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\X2WOTCCommunityHighlander.ita">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\X2WOTCCommunityHighlander.jpn">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\X2WOTCCommunityHighlander.kor">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\X2WOTCCommunityHighlander.pol">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\X2WOTCCommunityHighlander.rus">
       <SubType>Content</SubType>
     </Content>
     <Content Include="ModPreview.jpg" />
@@ -837,7 +867,6 @@
     <SolutionRoot>$(MSBuildProjectDirectory)\..\</SolutionRoot>
     <ScriptsDir>$(SolutionRoot).scripts\</ScriptsDir>
     <BuildCommonRoot>$(ScriptsDir)X2ModBuildCommon\</BuildCommonRoot>
-
     <!-- Default and debug are handeled by the .targets automatically -->
     <BuildEntryConfig Condition=" '$(Configuration)' == 'Final release' ">final_release</BuildEntryConfig>
     <BuildEntryConfig Condition=" '$(Configuration)' == 'Compiletest' ">compiletest</BuildEntryConfig>

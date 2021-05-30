@@ -1,0 +1,6 @@
+[X2WOTCCH_ModDependencies]
+ModRequiredPopupTitle="Es fehlen BENÖTIGTE Modifikationen"
+ModRequired="Bitte AKTIVIERE die folgenden Modifikationen und starte dein Spiel neu um sicherzustellen, dass "%s" funktioniert:"
+ModIncompatiblePopupTitle="Es wurden INKOMPATIBLE Modifikationen entdeckt"
+ModIncompatible="Bitte DEAKTIVIERE die folgenden Modifikationen und starte dein Spiel neu um sicherzustellen, dass "%s" funktioniert:"
+DisablePopup="NICHT WIEDER ZEIGEN"

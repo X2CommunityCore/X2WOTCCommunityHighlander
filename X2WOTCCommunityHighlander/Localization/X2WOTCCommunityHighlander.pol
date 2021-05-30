@@ -1,0 +1,10 @@
+[X2WOTCCH_ModDependencies]
+ModRequiredPopupTitle="Brakuje WYMAGANYCH modów"
+ModRequired="Proszę AKTYWOWAĆ następujące mody I zrestartować grę, w przeciwnym wypadku %s nie będzie działał poprawnie:"
+ModIncompatiblePopupTitle="Znaleziono NIEKOMPATYBILNE mody"
+ModIncompatible="Proszę ZDEZAKTYWOWAĆ następujące mody I zrestartować grę, w przeciwnym wypadku %s nie będzie działał poprawnie:"
+DisablePopup="Wyłącz tę wiadomość"
+
+
+
+
