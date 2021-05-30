@@ -416,7 +416,7 @@ private function ModifyGeneratedUnitAppearance(optional name CharacterTemplateNa
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local int i;
 	
-	/// HL-Docs: ref:ModifyGeneratedUnitAppearance; issue:783
+	/// HL-Docs: ref:ModifyGeneratedUnitAppearance
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 	for (i = 0; i < DLCInfos.Length; i++)
 	{

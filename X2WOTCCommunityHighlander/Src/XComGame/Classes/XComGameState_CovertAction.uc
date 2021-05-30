@@ -2336,7 +2336,7 @@ simulated public function ActionRewardPopups()
 	}
 
 	// Start Issue #810
-	/// HL-Docs: ref:CovertAction_PreventGiveRewards; issue:810
+	/// HL-Docs: ref:CovertAction_PreventGiveRewards
 	if (RewardsNotGivenOnCompletion)
 	{
 		// A mod or some other source prevented this reward from being

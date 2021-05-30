@@ -355,7 +355,7 @@ static function GetNumUtilitySlotsOverride(out int NumUtilitySlots, XComGameStat
 /// To do so, simply interact with the `NumHeavySlots` argument by increasing,
 /// decreasing or setting its value directly.
 /// Note that this X2DLCInfo method is executed 
-/// after the [OverrideHasHeavyWeapon](../loadoutslots/OverrideHasHeavyWeapon.md) event, and may override its result.
+/// after the [OverrideHasHeavyWeapon](../strategy/OverrideHasHeavyWeapon.md) event, and may override its result.
 static function GetNumHeavyWeaponSlotsOverride(out int NumHeavySlots, XComGameState_Unit UnitState, XComGameState CheckGameState)
 {
 }
