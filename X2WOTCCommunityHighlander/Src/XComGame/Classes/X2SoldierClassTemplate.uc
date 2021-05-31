@@ -11,7 +11,7 @@ class X2SoldierClassTemplate extends X2DataTemplate
 	config(ClassData)
 	native(Core);
 
-var config protected array<SoldierClassRank> SoldierRanks;
+var config /*protected*/ array<SoldierClassRank> SoldierRanks; // Issue #1005 - unprotected
 var config array<SoldierClassWeaponType>    AllowedWeapons;
 var config array<name>						AllowedArmors;
 var config array<name>                      ExcludedAbilities;  //  Abilities that are not eligible to roll from AWC for this calss
