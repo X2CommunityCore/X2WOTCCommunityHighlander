@@ -13,6 +13,8 @@ struct ModDependencyData
 	var name SourceName; // The stored name of the mod in case user presses "ok, please ignore"
 	var CHPolarity Polarity; // Whether these mods are required and not installed, or incompatible but present
 	var array<string> Children; // The set of mods required by or incompatible with the cause
+
+	var CHLVersionStruct RequiredHighlanderVersion; // Issue #909
 };
 
 var localized string ModRequired;
@@ -20,6 +22,14 @@ var localized string ModIncompatible;
 var localized string ModRequiredPopupTitle;
 var localized string ModIncompatiblePopupTitle;
 var localized string DisablePopup;
+
+// Begin Issue #909
+var localized string ModRequiresNewerHighlanderVersionTitle;
+var localized string ModRequiresNewerHighlanderVersionText;
+var localized string CurrentHighlanderVersionTitle;
+var localized string RequiredHighlanderVersionTitle;
+var localized string ModRequiresNewerHighlanderVersionExtraText;
+// End Issue #909
 
 // Mods may install themselves as a fix mod that fixes an incompatibility
 // or a missing dependency (in case that mod provides functionality that
@@ -162,6 +172,55 @@ function array<ModDependencyData> GetModsWithEnabledIncompatibilities()
 
 	return ModsWithIncompats;
 }
+
+// Start Issue #909
+function array<ModDependencyData> GetModsThatRequireNewerCHLVersion()
+{
+	local CHModDependency DepInfo;
+	local CHLVersionStruct CurrentCHLVersion;
+	local ModDependencyData DepData;
+	local array<ModDependencyData> ModsThatRequireNewerCHLVersion;
+
+	GetCurrentCHLVersion(CurrentCHLVersion);
+
+	foreach self.DepInfos(DepInfo)
+	{
+		if (IsCurrentCHLVersionOlderThanRequired(CurrentCHLVersion, DepInfo.RequiredHighlanderVersion))
+		{
+			DepData.ModName = DepInfo.DisplayName;
+			DepData.SourceName = DepInfo.Name;
+			DepData.RequiredHighlanderVersion = DepInfo.RequiredHighlanderVersion;
+			ModsThatRequireNewerCHLVersion.AddItem(DepData);
+		}
+	}
+
+	return ModsThatRequireNewerCHLVersion;
+}
+
+static final function GetCurrentCHLVersion(out CHLVersionStruct CurrentCHLVersion)
+{
+	CurrentCHLVersion.MajorVersion = class'CHXComGameVersionTemplate'.default.MajorVersion;
+	CurrentCHLVersion.MinorVersion = class'CHXComGameVersionTemplate'.default.MinorVersion;
+	CurrentCHLVersion.PatchVersion = class'CHXComGameVersionTemplate'.default.PatchVersion;
+}
+
+static final function bool IsCurrentCHLVersionOlderThanRequired(const out CHLVersionStruct CurrentCHLVersion, const out CHLVersionStruct RequiredCHLVersion)
+{
+	if (CurrentCHLVersion.MajorVersion > RequiredCHLVersion.MajorVersion)
+		return false;
+
+	if (CurrentCHLVersion.MajorVersion < RequiredCHLVersion.MajorVersion)
+		return true;
+
+	if (CurrentCHLVersion.MinorVersion > RequiredCHLVersion.MinorVersion)
+		return false;
+
+	if (CurrentCHLVersion.MinorVersion < RequiredCHLVersion.MinorVersion)
+		return true;
+
+	return CurrentCHLVersion.PatchVersion < RequiredCHLVersion.PatchVersion;
+}
+// End Issue #909
 
 private function bool GetModDependencies(
 	CHModDependency DepInfo,

@@ -14,6 +14,13 @@ ModIncompatiblePopupTitle="detected INCOMPATIBLE mods"
 ModIncompatible="Please DEACTIVATE the following mods and restart or %s will not work properly:"
 DisablePopup="DO NOT SHOW ME THIS AGAIN"
 
+;    Issue #909
+ModRequiresNewerHighlanderVersionTitle = "MOD REQUIRES NEWER HIGHLANDER VERSION"
+ModRequiresNewerHighlanderVersionText = "Mod requires newer Highlander version:"
+CurrentHighlanderVersionTitle = "Installed Version:"
+RequiredHighlanderVersionTitle = "Required Version: "
+ModRequiresNewerHighlanderVersionExtraText = "Please update X2WOTCCommunityHighlander to the required version. Otherwise you may experience crashes and other malfunctions."
+
 [X2WOTCCH_UIScreenListener_ShellPopup]
 ErrorTitle="Mod Configuration Error"
 
