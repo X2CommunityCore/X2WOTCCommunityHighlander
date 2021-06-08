@@ -128,3 +128,30 @@ var config array<string> IgnoreIncompatibleMods;
 var config array<string> RequiredMods;
 var config array<string> IgnoreRequiredMods;
 var config string DisplayName;
+
+// Start Issue #909
+/// HL-Docs: feature:RequiredHighlanderVersion; issue:909; tags:compatibility
+/// Mods can specify the required Highlander version in the mod's `XComGame.ini`, e.g.:
+///```ini
+/// [DLCName CHModDependency]
+/// RequiredHighlanderVersion = (MajorVersion = 1, MinorVersion = 22, PatchVersion = 0)
+///```
+/// If the mod user has an older version of the Highlander installed, they will 
+/// see a popup warning when they start the game. 
+/// Note: this feature is disabled if the game is started without the `-review`
+/// launch argument. 
+struct CHLVersionStruct
+{
+	var int MajorVersion;
+	var int MinorVersion;
+	var int PatchVersion;
+
+	structdefaultproperties
+	{
+		MajorVersion = -1
+		MinorVersion = -1
+		PatchVersion = -1
+	}
+};
+var config CHLVersionStruct RequiredHighlanderVersion;
+// End Issue #909
