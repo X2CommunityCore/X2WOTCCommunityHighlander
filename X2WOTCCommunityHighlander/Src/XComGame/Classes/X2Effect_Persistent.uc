@@ -801,7 +801,7 @@ event string GetSpecialDamageMessageName() { return FriendlyName; }
 ///     if (Function'XComGame.X2Effect_Persistent.GetPreDefaultAttackingDamageModifier_CH' != none)
 ///     {
 ///         // Using the new hooks, so skip the old implementation
-///         return;
+///         return 0;
 ///     }
 ///
 ///     // Continue with old implementation here
