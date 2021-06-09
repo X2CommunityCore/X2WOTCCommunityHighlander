@@ -794,7 +794,20 @@ event string GetSpecialDamageMessageName() { return FriendlyName; }
 /// your effect has, so if you want your effects to work with older versions
 /// of the Community Highlander and setups without any Community Highlander at
 /// all, then you should guard the old damage modifier functions with a
-/// [check for Community Highlander version](../../misc/ComponentVersions/).
+/// check for these new functions, e.g.
+/// ```unrealscript
+/// function int GetAttackingDamageModifier(...)
+/// {
+///     if (Function'XComGame.X2Effect_Persistent.GetPreDefaultAttackingDamageModifier_CH' != none)
+///     {
+///         // Using the new hooks, so skip the old implementation
+///         return;
+///     }
+///
+///     // Continue with old implementation here
+///     ...
+/// }
+/// ```
 function float GetPreDefaultAttackingDamageModifier_CH(XComGameState_Effect EffectState, XComGameState_Unit SourceUnit, Damageable Target, XComGameState_Ability AbilityState, const out EffectAppliedData ApplyEffectParameters, float WeaponDamage, XComGameState NewGameState) { return 0.0; }
 function float GetPreDefaultDefendingDamageModifier_CH(XComGameState_Effect EffectState, XComGameState_Unit SourceUnit, XComGameState_Unit TargetUnit, XComGameState_Ability AbilityState, const out EffectAppliedData ApplyEffectParameters, float WeaponDamage, XComGameState NewGameState) { return 0.0; }
 function float GetPostDefaultAttackingDamageModifier_CH(XComGameState_Effect EffectState, XComGameState_Unit SourceUnit, Damageable Target, XComGameState_Ability AbilityState, const out EffectAppliedData ApplyEffectParameters, float WeaponDamage, XComGameState NewGameState) { return 0.0; }
