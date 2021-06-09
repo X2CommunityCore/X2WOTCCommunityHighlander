@@ -3229,6 +3229,77 @@ function bool BT_SetTargetStack( Name strAbility )
 	return false;
 }
 
+// Start Issue #1009
+/// HL-Docs: feature:SetPriorityTargetStack; issue:1009; tags:tactical
+/// This new behavior tree node will add only the priority target to
+/// the AI's target stack, if there is a priority target available.
+/// No other potential targets will be added. If there is no priority
+/// target, the target stack will be empty.
+///
+/// Example usage in XComAI.ini:
+/// ```ini
+/// +Behaviors=(BehaviorName=SelectPriorityTargetForStandardShot, NodeType=Sequence, \\
+///             Child[0]=SetPriorityTargetStack-StandardShot, Child[1]=SelectPriorityTarget, \\
+///             Child[2]=HasValidTarget-StandardShot)
+/// ```
+/// The above will ensure that the priority target is the only target
+/// that can possibly be selected for StandardShot.
+// (Copy of BT_SetTargetStack())
+function bool BT_SetPriorityTargetStack(name strAbility)
+{
+	local AvailableTarget kTarget;
+	local string DebugText;
+
+	DebugBTScratchText = "";
+	m_kBTCurrTarget.TargetID = INDEX_NONE;
+	m_kBTCurrAbility = FindAbilityByName(strAbility);
+	if (m_kBTCurrAbility.AbilityObjectRef.ObjectID > 0 && m_kBTCurrAbility.AvailableCode == 'AA_Success' && m_kBTCurrAbility.AvailableTargets.Length > 0)
+	{
+		m_strBTCurrAbility = strAbility;
+		foreach m_kBTCurrAbility.AvailableTargets(kTarget)
+		{
+			if (IsPriorityTarget(kTarget))  // Issue #1009: this is the only difference from BT_SetTargetStack()
+			{
+				m_arrBTTargetStack.AddItem(kTarget);
+				DebugText @= kTarget.PrimaryTarget.ObjectID;
+			}
+		}
+		`LogAIBT("SetPriorityTargetStack results- Added:"@DebugText);
+		return true;
+	}
+	if( m_kBTCurrAbility.AbilityObjectRef.ObjectID <= 0 )
+	{
+		`LogAIBT("SetPriorityTargetStack results- no Ability reference found: "$strAbility);
+	}
+	else if( m_kBTCurrAbility.AvailableCode != 'AA_Success' )
+	{
+		`LogAIBT("SetPriorityTargetStack results- Ability unavailable - AbilityCode == "$ m_kBTCurrAbility.AvailableCode);
+	}
+	else
+	{
+		`LogAIBT("SetPriorityTargetStack results- No targets available! ");
+	}
+	return false;
+}
+
+function bool IsPriorityTarget(AvailableTarget kTarget)
+{
+	local XComGameState_AIPlayerData PlayerData;
+	
+	if (m_kPlayer != None)
+	{
+		PlayerData = XComGameState_AIPlayerData(`XCOMHISTORY.GetGameStateForObjectID(m_kPlayer.GetAIDataID()));
+		if (PlayerData != None &&
+			PlayerData.PriorityTarget.ObjectID > 0 &&
+			PlayerData.PriorityTarget.ObjectID == kTarget.PrimaryTarget.ObjectID)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+// End Issue #1009
+
 // Add all known enemies to target stack.
 function bool BT_SetPotentialTargetStack(bool bVisibleOnly=false, bool bAllEnemy=false)
 {
