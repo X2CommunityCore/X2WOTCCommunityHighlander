@@ -402,6 +402,39 @@ function EndConstantProjectileEffects( )
 			Projectiles[ Index ].ParticleEffectComponent.OnSystemFinished = none;
 			Projectiles[ Index ].ParticleEffectComponent.DeactivateSystem( );
 			Projectiles[ Index ].ParticleEffectComponent.KillParticlesForced( );
+			// Start Issue #720
+			/// HL-Docs: feature:ProjectilePerformanceDrain; issue:720; tags:tactical
+			/// The game uses a global pool `WorldInfo.MyEmitterPool` to store Particle System Components (PSCs),
+			/// which helps optimize performance. When a PSC is no longer needed, it is returned to the pool 
+			/// so that it can be reused again later.
+			///
+			/// To return a PSC back to the pool, the `EmitterPool::OnParticleSystemFinished()` function must be called, 
+			/// which usually happens seamlessly - the pool sets the `ParticleSystemComponent::OnSystemFinished` delegate 
+			/// to the aforementioned function when the PSC is initially borrowed from the pool 
+			/// (via `EmitterPool::SpawnEmitter`).
+			///
+			/// However, `X2UnifiedProjectile` overwrites the `OnSystemFinished` delegate with its own one 
+			/// after borrowing the PSC from the pool, which means the `EmitterPool::OnParticleSystemFinished()`
+			/// is never called for these PSCs. 
+			///
+			/// As such, the pool is never made aware that those PSCs are ready for reuse and when a new PCS is requested, 
+			/// the pool has no choice but to simply create a new one, resulting in the pool getting bloated 
+			/// with all the PSCs ever spawned by `X2UnifiedProjectile`s.
+			///
+			/// This bloat leads to two observable effects: endlessly increasing RAM usage and a significant 
+			/// performance degradation. The more projectiles are fired over the course of a mission, the worse 
+			/// these effects become. Frequent use of the Suppression ability or Idle Suppression mod 
+			/// kick the problem into overdrive.
+			///
+			/// To address this bug, we manually call `WorldInfo.MyEmitterPool.OnParticleSystemFinished()` on PSCs 
+			/// in `X2UnifiedProjectile` when the projectile is done with them.
+			///
+			/// Mods that create Particle System Components using the Emitter Pool must carefully handle them the same way:
+			/// if the PSC's `OnSystemFinished` delegate is replaced, then `EmitterPool::OnParticleSystemFinished()` must
+			/// be called for this PSC manually when the PSC is no longer needed, otherwise the same "memory leak" 
+			/// will occur. This applies to all PSCs using the Emitter Pool, not just those in `X2UnifiedProjectile`.
+			WorldInfo.MyEmitterPool.OnParticleSystemFinished(Projectiles[ Index ].ParticleEffectComponent);
+			// End Issue #720
 			Projectiles[ Index ].ParticleEffectComponent = none;
 			Projectiles[ Index ].SourceAttachActor.SetPhysics( PHYS_None );
 			Projectiles[ Index ].TargetAttachActor.SetPhysics( PHYS_None );
@@ -1072,6 +1105,12 @@ function OnParticleSystemFinished(ParticleSystemComponent PSystem)
 	{
 		if (Element.ParticleEffectComponent == PSystem)
 		{
+			// Start Issue #720
+			/// HL-Docs: ref:ProjectilePerformanceDrain
+			// Allow the pool to reuse this Particle System's spot in the pool.
+			WorldInfo.MyEmitterPool.OnParticleSystemFinished(Element.ParticleEffectComponent);
+			// End Issue #720
+
 			Element.ParticleEffectComponent = none;
 			return;
 		}
@@ -2121,6 +2160,11 @@ state Executing
 				{
 					Projectiles[ Index ].ParticleEffectComponent.OnSystemFinished = none;
 					Projectiles[ Index ].ParticleEffectComponent.DeactivateSystem( );
+					// Start Issue #720
+					/// HL-Docs: ref:ProjectilePerformanceDrain
+					// Allow the pool to reuse this Particle System's spot in the pool.
+					WorldInfo.MyEmitterPool.OnParticleSystemFinished(Projectiles[ Index ].ParticleEffectComponent);
+					// End Issue #720
 					Projectiles[ Index ].ParticleEffectComponent = none;
 				}
 
@@ -2169,6 +2213,11 @@ state Executing
 				{
 					Projectiles[ Index ].ParticleEffectComponent.OnSystemFinished = none;
 					Projectiles[ Index ].ParticleEffectComponent.DeactivateSystem( );
+					// Start Issue #720
+					/// HL-Docs: ref:ProjectilePerformanceDrain
+					// Allow the pool to reuse this Particle System's spot in the pool.
+					WorldInfo.MyEmitterPool.OnParticleSystemFinished(Projectiles[ Index ].ParticleEffectComponent);
+					// End Issue #720
 					Projectiles[ Index ].ParticleEffectComponent = none;
 					//`RedScreen("Projectile " $ Index  $ " vfx for weapon " $ FireAction.SourceItemGameState.GetMyTemplateName() $ " still hasn't completed after 10 seconds past expected completion time");
 				}
