@@ -756,9 +756,10 @@ static function FinalMissionOnSuccess()
 	{
 		`ONLINEEVENTMGR.UnlockAchievement(AT_OverthrowClassic); // Overthrow the aliens on Classic difficulty
 
-		if (AllowNoSquadSizeUpgradeAchievement()) // Beat the game on Classic+ difficulty without buying a Squad Size upgrade
+		/// HL-Docs: ref:AllowNoSquadSizeUpgradeAchievement
+		if (AllowNoSquadSizeUpgradeAchievement()) // Issue #994
 		{
-			`ONLINEEVENTMGR.UnlockAchievement(AT_WinGameClassicWithoutBuyingUpgrade);
+			`ONLINEEVENTMGR.UnlockAchievement(AT_WinGameClassicWithoutBuyingUpgrade); // Beat the game on Classic+ difficulty without buying a Squad Size upgrade
 		}
 
 		TimeState = XComGameState_GameTime(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_GameTime'));
@@ -828,7 +829,7 @@ static function FinalMissionOnSuccess()
 
 // Start Issue #994
 /// HL-Docs: feature:AllowNoSquadSizeUpgradeAchievement; issue:994; tags:strategy 
-/// The The achievement "The Few and the Proud" requires the player to defeat the 
+/// The achievement "The Few and the Proud" requires the player to defeat the 
 /// aliens on Commander or Legend difficulty without increasing their squad size. 
 /// The default logic checks specifically for the GTS upgrades `SquadSizeIUnlock` 
 /// and `SquadSizeIIUnlock` and rewards the achievement if the player has neither 
