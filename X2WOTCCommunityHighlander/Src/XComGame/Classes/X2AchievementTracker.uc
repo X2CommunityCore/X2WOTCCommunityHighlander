@@ -756,7 +756,7 @@ static function FinalMissionOnSuccess()
 	{
 		`ONLINEEVENTMGR.UnlockAchievement(AT_OverthrowClassic); // Overthrow the aliens on Classic difficulty
 
-		if (!HasIncreasedSquadSize()) // Beat the game on Classic+ difficulty without buying a Squad Size upgrade
+		if (AllowNoSquadSizeUpgradeAchievement()) // Beat the game on Classic+ difficulty without buying a Squad Size upgrade
 		{
 			`ONLINEEVENTMGR.UnlockAchievement(AT_WinGameClassicWithoutBuyingUpgrade);
 		}
