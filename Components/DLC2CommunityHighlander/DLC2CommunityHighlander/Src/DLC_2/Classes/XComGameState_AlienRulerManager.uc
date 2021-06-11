@@ -460,7 +460,13 @@ function UpdateRulerSpawningData(XComGameState NewGameState, XComGameState_Missi
 			foreach ActiveAlienRulers(RulerRef)
 			{
 				// Make sure that the ruler is not waiting at a specific location
-				if (AlienRulerLocations.Find('RulerRef', RulerRef) == INDEX_NONE)
+				if (
+					AlienRulerLocations.Find('RulerRef', RulerRef) == INDEX_NONE
+
+					// Issue #791
+					/// HL-Docs: ref:AllowRulerOnMission
+					&& TriggerAllowRulerOnMission(NewGameState, RulerRef, MissionState)
+				)
 				{
 					// If the ruler is active and not at a specific location, it can appear on normal missions
 					UnitState = XComGameState_Unit(History.GetGameStateForObjectID(RulerRef.ObjectID));					
@@ -476,6 +482,38 @@ function UpdateRulerSpawningData(XComGameState NewGameState, XComGameState_Missi
 
 	RulerOnCurrentMission = EmptyRef;
 }
+
+// Start issue #791
+/// HL-Docs: feature:AllowRulerOnMission; issue:791; tags:strategy,dlc2
+/// Allows listeners to forbid a particular (or all) rulers from a particular `XComGameState_MissionSite`.
+//
+/// Be aware that the AlienRulerLocations system completely bypasses this check (doesn't trigger this event).
+///
+/// ```event
+/// EventID: AllowRulerOnMission,
+/// EventData: [
+///    inout bool bAllowRuler,
+///    in int RulerObjectID
+/// ],
+/// EventSource: XComGameState_MissionSite (MissionState),
+/// NewGameState: yes
+/// ```
+private function bool TriggerAllowRulerOnMission (XComGameState NewGameState, StateObjectReference RulerRef, XComGameState_MissionSite MissionState)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = true; // Default is allow all
+	Tuple.Data[1].kind = XComLWTVInt;
+	Tuple.Data[1].i = RulerRef.ObjectID;
+
+	`XEVENTMGR.TriggerEvent('AllowRulerOnMission', Tuple, MissionState, NewGameState);
+
+	return Tuple.Data[0].b;
+}
+// End issue #791
 
 //---------------------------------------------------------------------------------------
 // Check to see if the mission has any chosen tags active
