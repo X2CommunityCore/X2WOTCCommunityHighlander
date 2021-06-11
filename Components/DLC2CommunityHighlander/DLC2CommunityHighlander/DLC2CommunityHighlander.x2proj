@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Default" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Guid>047908e6-bbcb-4f06-a8e5-d898ab334efd</Guid>
+    <Name>DLC2CommunityHighlander</Name>
+    <Description>Highlander for Alien Hunters DLC</Description>
+    <SteamPublishID>0</SteamPublishID>
+    <AssemblyName>DLC2CommunityHighlander</AssemblyName>
+    <RootNamespace>DLC2CommunityHighlander</RootNamespace>
+    <ProjectGuid>{935C7FB1-58ED-425C-8295-6BD424AB0118}</ProjectGuid>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Localization" />
+    <Folder Include="Src\" />
+    <Folder Include="Src\DLC_2" />
+    <Folder Include="Src\DLC_2\Classes" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Localization\DLC_2.int">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="ReadMe.txt" />
+    <Content Include="ModPreview.jpg" />
+    <Content Include="Src\DLC_2\Classes\CHDLC2UIListener_Shell.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\DLC_2\Classes\CHDLC2Version.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\DLC_2\Classes\XComGameState_AlienRulerManager.uc">
+      <SubType>Content</SubType>
+    </Content>
+  </ItemGroup>
+  <PropertyGroup>
+    <SolutionRoot>$(MSBuildProjectDirectory)\..\</SolutionRoot>
+    <ScriptsDir>$(SolutionRoot).scripts\</ScriptsDir>
+    <BuildCommonRoot>$(SolutionRoot)\..\..\.scripts\X2ModBuildCommon\</BuildCommonRoot>
+  </PropertyGroup>
+  <Import Project="$(BuildCommonRoot)XCOM2.targets" />
+</Project>

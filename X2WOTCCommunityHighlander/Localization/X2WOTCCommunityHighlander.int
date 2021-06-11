@@ -20,3 +20,7 @@ CycleErrorText="Mods specified a cyclic run order:\n\n%FACTS\n...completing the 
 GroupErrorTitle="Conflicting Run Order data"
 GroupErrorText="Mods specified conflicting run order information:\n\n%FACTS\nThis behavior is specified, but may indicate a configuration error."
 BlameText="The following DLCIdentifiers provided config that lead to this problem: %BLAME\n\nPlease inform the respective mod authors about this problem."
+
+[X2WOTCCH_UIScreenListener_Shell_DLCIntro]
+strDLC2HLIntroduction_Title="Alien Hunters Community Highlander"
+strDLC2HLIntroduction_Body="Starting with X2WOTCCommunityHighlander v1.22.0 we are introducing a highlander for the Alien Hunters DLC.<br><br>Please install it to<br><Bullet/> Ensure correct behaviour of mods that depend on X2WOTCCommunityHighlander<br><Bullet/> Benefit from the bugfixes<br><br>You can find it on workshop under the \"Alien Hunters Community Highlander\" name (or just follow a link in X2WOTCCommunityHighlander's description)"
