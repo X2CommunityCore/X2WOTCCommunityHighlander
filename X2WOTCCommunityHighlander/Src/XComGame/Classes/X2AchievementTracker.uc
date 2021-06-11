@@ -756,9 +756,10 @@ static function FinalMissionOnSuccess()
 	{
 		`ONLINEEVENTMGR.UnlockAchievement(AT_OverthrowClassic); // Overthrow the aliens on Classic difficulty
 
-		if (!class'X2StrategyGameRulesetDataStructures'.static.HasSquadSizeUpgrade()) // Beat the game on Classic+ difficulty without buying a Squad Size upgrade
+		/// HL-Docs: ref:AllowNoSquadSizeUpgradeAchievement
+		if (AllowNoSquadSizeUpgradeAchievement()) // Issue #994
 		{
-			`ONLINEEVENTMGR.UnlockAchievement(AT_WinGameClassicWithoutBuyingUpgrade);
+			`ONLINEEVENTMGR.UnlockAchievement(AT_WinGameClassicWithoutBuyingUpgrade); // Beat the game on Classic+ difficulty without buying a Squad Size upgrade
 		}
 
 		TimeState = XComGameState_GameTime(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_GameTime'));
@@ -825,6 +826,44 @@ static function FinalMissionOnSuccess()
 		`ONLINEEVENTMGR.UnlockAchievement(AT_CompleTLECampaign);
 	}
 }
+
+// Start Issue #994
+/// HL-Docs: feature:AllowNoSquadSizeUpgradeAchievement; issue:994; tags:strategy 
+/// The achievement "The Few and the Proud" requires the player to defeat the 
+/// aliens on Commander or Legend difficulty without increasing their squad size. 
+/// The default logic checks specifically for the GTS upgrades `SquadSizeIUnlock` 
+/// and `SquadSizeIIUnlock` and rewards the achievement if the player has neither 
+/// upgrade purchased.
+/// 
+/// The event `AllowNoSquadSizeUpgradeAchievement` is triggered after the player 
+/// finishes the final mission, in X2AchievementTracker. It resides in a static 
+/// function, so there is no EventSource nor XComGameState passed. The EventData 
+/// that is passed contains a LWTuple with a single boolean value. The value is 
+/// initially set to the result of the default logic described above. Modders 
+/// should check whatever they need to check and return the tuple value as `true` 
+/// if the achievement should be awarded, or `false` otherwise.
+/// 
+/// ```event
+/// EventID: AllowNoSquadSizeUpgradeAchievement,
+/// EventData: [inout bool AllowAchievement],
+/// EventSource: none,
+/// NewGameState: none
+/// ```
+private static function bool AllowNoSquadSizeUpgradeAchievement()
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'AllowNoSquadSizeUpgradeAchievement';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = !class'X2StrategyGameRulesetDataStructures'.static.HasSquadSizeUpgrade();
+
+	`XEVENTMGR.TriggerEvent('AllowNoSquadSizeUpgradeAchievement', Tuple);
+
+	return Tuple.Data[0].b;
+}
+// End Issue #994
 
 // This is called when a unit is skulljacked
 static function OnUnitSkulljacked(XComGameState_Unit TargetUnit)
