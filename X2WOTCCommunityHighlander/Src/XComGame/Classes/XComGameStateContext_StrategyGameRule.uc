@@ -235,6 +235,13 @@ static function XComGameState CreateStrategyGameStart(
 		}
 	}
 
+	// Start Issue #971
+	//
+	// Clear out the campaign start listeners to ensure they don't hang around
+	// for longer than they're needed.
+	class'X2EventListenerTemplateManager'.static.UnRegisterAllListeners();
+	// End Issue #971
+
 	return StartState;
 }
 
