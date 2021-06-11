@@ -1616,6 +1616,9 @@ function AddProjectileVolley(AnimNotify_FireWeaponVolley Notify)
 /// The feature also introduces support for subclasses of X2UnifiedProjectile as custom projectile archetypes.
 /// If bPreventProjectileSpawning is set to true the projectile instance will NOT be spawned.
 ///
+/// If your subclass of `X2UnifiedProjectile` overrides any of the functions that handle Particle System Components,
+/// it's important to preserve changes implemented by Issue #720: [ProjectilePerformanceDrain](../tactical/ProjectilePerformanceDrain.md)
+///
 /// ```event
 /// EventID: OverrideProjectileInstance,
 /// EventData: [
