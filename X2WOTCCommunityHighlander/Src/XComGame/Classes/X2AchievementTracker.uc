@@ -849,7 +849,7 @@ static function FinalMissionOnSuccess()
 /// EventSource: none,
 /// NewGameState: none
 /// ```
-static function bool AllowNoSquadSizeUpgradeAchievement()
+private static function bool AllowNoSquadSizeUpgradeAchievement()
 {
 	local XComLWTuple Tuple;
 
