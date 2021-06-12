@@ -1141,7 +1141,7 @@ simulated function bool IsExplosiveDamage()
 }
 
 // Start Issue #923
-simulated private function int ApplyPreDefaultDamageModifierEffects(
+simulated protected function int ApplyPreDefaultDamageModifierEffects(
 	XComGameStateHistory History,
 	XComGameState_Unit SourceUnit,
 	Damageable Target,
@@ -1224,7 +1224,7 @@ simulated private function int ApplyPreDefaultDamageModifierEffects(
 	return CurrDamage;
 }
 
-simulated private function int ApplyPostDefaultDamageModifierEffects(
+simulated protected function int ApplyPostDefaultDamageModifierEffects(
 	XComGameStateHistory History,
 	XComGameState_Unit SourceUnit,
 	Damageable Target,
