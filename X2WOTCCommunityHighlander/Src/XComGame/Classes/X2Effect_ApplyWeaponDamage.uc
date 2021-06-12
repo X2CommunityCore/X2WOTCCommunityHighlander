@@ -1171,7 +1171,7 @@ simulated private function int ApplyPreDefaultDamageModifierEffects(
 
 			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
 			EffectTemplate = EffectState.GetX2Effect();
-			CurrDamage += EffectTemplate.GetPreDefaultAttackingDamageModifier_CH(EffectState, SourceUnit, Target, AbilityState, ApplyEffectParameters, CurrDamage, NewGameState);
+			CurrDamage += EffectTemplate.GetPreDefaultAttackingDamageModifier_CH(EffectState, SourceUnit, Target, AbilityState, ApplyEffectParameters, CurrDamage, self, NewGameState);
 			EffectDmg = Round(CurrDamage) - Round(OldDamage);
 			if (EffectDmg != 0)
 			{
@@ -1199,7 +1199,7 @@ simulated private function int ApplyPreDefaultDamageModifierEffects(
 
 			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
 			EffectTemplate = EffectState.GetX2Effect();
-			CurrDamage += EffectTemplate.GetPreDefaultDefendingDamageModifier_CH(EffectState, SourceUnit, TargetUnit, AbilityState, ApplyEffectParameters, CurrDamage, NewGameState);
+			CurrDamage += EffectTemplate.GetPreDefaultDefendingDamageModifier_CH(EffectState, SourceUnit, TargetUnit, AbilityState, ApplyEffectParameters, CurrDamage, self, NewGameState);
 			EffectDmg = Round(CurrDamage) - Round(OldDamage);
 			if (EffectDmg != 0)
 			{
@@ -1254,7 +1254,7 @@ simulated private function int ApplyPostDefaultDamageModifierEffects(
 
 			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
 			EffectTemplate = EffectState.GetX2Effect();
-			CurrDamage += EffectTemplate.GetPostDefaultAttackingDamageModifier_CH(EffectState, SourceUnit, Target, AbilityState, ApplyEffectParameters, CurrDamage, NewGameState);
+			CurrDamage += EffectTemplate.GetPostDefaultAttackingDamageModifier_CH(EffectState, SourceUnit, Target, AbilityState, ApplyEffectParameters, CurrDamage, self, NewGameState);
 			EffectDmg = Round(CurrDamage) - Round(OldDamage);
 			if (EffectDmg != 0)
 			{
@@ -1282,7 +1282,7 @@ simulated private function int ApplyPostDefaultDamageModifierEffects(
 
 			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
 			EffectTemplate = EffectState.GetX2Effect();
-			CurrDamage += EffectTemplate.GetPostDefaultDefendingDamageModifier_CH(EffectState, SourceUnit, TargetUnit, AbilityState, ApplyEffectParameters, CurrDamage, NewGameState);
+			CurrDamage += EffectTemplate.GetPostDefaultDefendingDamageModifier_CH(EffectState, SourceUnit, TargetUnit, AbilityState, ApplyEffectParameters, CurrDamage, self, NewGameState);
 			EffectDmg = Round(CurrDamage) - Round(OldDamage);
 			if (EffectDmg != 0)
 			{
