@@ -37,11 +37,15 @@ function SetProjectFocus(StateObjectReference FocusRef, optional XComGameState N
 		// Randomly choose a branch and ability from the starting two tiers of the Psi Op tree
 		iAbilityRank = `SYNC_RAND(2);
 		iAbilityBranch = `SYNC_RAND(2);
-		ProjectPointsRemaining = CalculatePointsToTrain(true);
+		// Issue #1016
+		/// HL-Docs: ref:OverridePsiTrainingProjectPoints
+		ProjectPointsRemaining = TriggerOverridePsiTrainingProjectPoints(UnitState, CalculatePointsToTrain(true));
 	}
 	else
 	{
-		ProjectPointsRemaining = CalculatePointsToTrain();
+		// Issue #1016
+		/// HL-Docs: ref:OverridePsiTrainingProjectPoints
+		ProjectPointsRemaining = TriggerOverridePsiTrainingProjectPoints(UnitState, CalculatePointsToTrain());
 	}
 
 	InitialProjectPoints = ProjectPointsRemaining;
@@ -90,6 +94,34 @@ function int CalculatePointsToTrain(optional bool bClassTraining = false)
 		return (XComHQ.GetPsiTrainingDays() + Round(XComHQ.GetPsiTrainingScalar() * float(RankDifference))) * XComHQ.XComHeadquarters_DefaultPsiTrainingWorkPerHour * 24;
 	}
 }
+
+// Start Issue #1016
+/// HL-Docs: feature:OverridePsiTrainingProjectPoints; issue:1016; tags:strategy
+/// Allows listeners to override psi training times.
+///
+/// ```event
+/// EventID: OverridePsiTrainingProjectPoints,
+/// EventData: [in XComGameState_Unit Unit, inout int ProjectPoints],
+/// EventSource: XComGameState_HeadquartersProjectPsiTraining (PsiTrainingProject),
+/// NewGameState: none
+/// ```
+private function int TriggerOverridePsiTrainingProjectPoints(XComGameState_Unit UnitState, int ProjectPoints)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverridePsiTrainingProjectPoints';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVObject;
+	Tuple.Data[0].o = UnitState;
+	Tuple.Data[1].kind = XComLWTVInt;
+	Tuple.Data[1].i = ProjectPoints;
+
+	`XEVENTMGR.TriggerEvent(Tuple.Id, Tuple, self);
+
+	return Tuple.Data[1].i;
+}
+// End Issue #1016
 
 //---------------------------------------------------------------------------------------
 function int CalculateWorkPerHour(optional XComGameState StartState = none, optional bool bAssumeActive = false)
