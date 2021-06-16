@@ -6,13 +6,13 @@ using System.Management.Automation;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
-public class InvokePowershellBuild : Task, ICancelableTask
+public class InvokePowershellTask : Task, ICancelableTask
 {
-    [Required] public string BuildEntryPs1 { get; set; }
+    [Required] public string EntryPs1 { get; set; }
     [Required] public string SolutionRoot { get; set; }
     [Required] public string SdkInstallPath { get; set; }
     [Required] public string GameInstallPath { get; set; }
-    [Required] public string BuildEntryConfig { get; set; }
+    [Required] public ITaskItem[] AdditionalArgs { get; set; }
 
     private PowerShell _ps;
 
@@ -33,11 +33,23 @@ public class InvokePowershellBuild : Task, ICancelableTask
             
             _ps
                 .AddStatement()
-                .AddCommand(BuildEntryPs1)
+                .AddCommand(EntryPs1)
                 .AddParameter("srcDirectory", TrimEndingDirectorySeparator(SolutionRoot))
                 .AddParameter("sdkPath", TrimEndingDirectorySeparator(SdkInstallPath))
-                .AddParameter("gamePath", TrimEndingDirectorySeparator(GameInstallPath))
-                .AddParameter("config", BuildEntryConfig);
+                .AddParameter("gamePath", TrimEndingDirectorySeparator(GameInstallPath));
+
+            foreach (ITaskItem Arg in AdditionalArgs)
+            {
+                string Val = Arg.GetMetadata("Value");
+                if (string.IsNullOrEmpty(Val))
+                {
+                    _ps.AddParameter(Arg.ItemSpec);
+                }
+                else
+                {
+                    _ps.AddParameter(Arg.ItemSpec, Val);
+                }
+            }
 
             BindStreamEntryCallback(_ps.Streams.Debug, record => LogOutput(record.ToString()));
             BindStreamEntryCallback(_ps.Streams.Information, record => LogOutput(record.ToString()));
