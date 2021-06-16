@@ -13,10 +13,10 @@
 /// one DLCName. Mods with the same DLCName can only be enabled or disabled together.
 /// The game stores the `DLCName` in the save file, and shows a warning upon attempting to load a save file
 /// when it had recorded a mod that's no longer enabled. DLCNames are case-insensitive.
-/// * **`DLCIdentifier`** is an identifier corresponding to a `X2DownloadableContentInfo` classes.
+/// * **`DLCIdentifier`** is an identifier corresponding to a `X2DownloadableContentInfo` class.
 /// Every mod has zero, one, or several `X2DownloadableContentInfo` classes, and the DLCIdentifier may be empty for
 /// any of them. This DLCIdentifier is used for some customization aspects (like part icons or slider names) and
-/// narrative content options (for the official DLCs). It's also used in CHL's Run Order (still need docs, sorry)
+/// narrative content options (for the official DLCs). It's also used in CHL's [Run Order](../misc/DLCRunOrder.md)
 /// since Run Order is all about `X2DownloadableContentInfo` classes. DLCIdentifiers are generally case-sensitive.
 ///
 /// In the default ModBuddy mod project, the mod has exactly one `X2DownloadableContentInfo` subclass
@@ -57,7 +57,7 @@
 /// `XCOM2RPGOverhaul`, we use that in the header.
 ///
 /// `DisplayName` is a human-readable name of the mod. This is used for the actual
-/// popup that says for example "&lt;DisplayName&gt; detected INCOMPATIBLE mods".
+/// popup that says for example "Musashis RPG Overhaul detected INCOMPATIBLE mods".
 ///
 /// `IncompatibleMods` is a list of DLCNames that should not be enabled together
 /// with this mod. For every mod with an enabled incompatible mod, there will be a popup
@@ -116,7 +116,7 @@
 /// and as such can't inform the dependency checker about their DisplayName.
 ///
 /// If the user presses "Do not show me this again", the Highlander will store the object
-/// name (DLCName or DLCIdentifier, depending on how the depencency checker found it in
+/// name (DLCName or DLCIdentifier, depending on how the dependency checker found it in
 /// the first place) of the mod that provides this data in a user config file
 /// (`%USERPROFILE%/Documents/My Games/XCOM 2 War of the Chosen/XComGame/Config/X2WOTCCommunityHighlander_NullConfig.ini`)
 /// and won't show this popup again.

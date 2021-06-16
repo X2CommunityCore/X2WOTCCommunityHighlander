@@ -218,7 +218,7 @@ function Update(float DeltaTime)
 }
 
 // Start Issue #669
-/// HL-Docs: ref:GrenadesRequiringUnitsOnTargetedTiles; issue:669
+/// HL-Docs: ref:GrenadesRequiringUnitsOnTargetedTiles
 // Removes any marked targets that aren't on one of the given tiles. This is
 // most useful for grenades that apply an effect to the world where a target
 // must be on an affected tile to get any buffs or penalties associated with

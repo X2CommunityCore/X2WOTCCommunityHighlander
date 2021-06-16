@@ -24,6 +24,7 @@ class Session:
         self.exit_code = 0
         self.doc_items = []
         self.templates = {}
+        self.documented_issues = []
 
     def err(self, msg: str):
         print(f"error: {msg}")
@@ -34,7 +35,7 @@ class Session:
         sys.exit(1)
 
 
-def parse_args(sess) -> (List[str], str, str, str):
+def parse_args(sess) -> (List[str], str, str, str, bool):
     parser = argparse.ArgumentParser(
         description='Generate HL docs from source files.')
     parser.add_argument('indirs',
@@ -54,6 +55,12 @@ def parse_args(sess) -> (List[str], str, str, str):
         dest='dump_elt',
         help='target compile test file for event listener templates')
 
+    parser.add_argument(
+        '--printissues',
+        dest='print_issues',
+        action='store_true',
+        help='print all documented issue numbers')
+
     args = parser.parse_args()
 
     if args.outdir and os.path.isfile(args.outdir):
@@ -66,10 +73,10 @@ def parse_args(sess) -> (List[str], str, str, str):
         if not os.path.isdir(indir):
             sess.fatal(f"Input directory {indir} does not exist or is file")
 
-    return args.indirs, args.outdir, args.docsdir, args.dump_elt
+    return args.indirs, args.outdir, args.docsdir, args.dump_elt, args.print_issues
 
 
-def link_to_source(ref: dict) -> str:
+def link_to_source(ref) -> str:
     start = ref.span[0] + 1
     end = ref.span[1]
     urlpath = ref.file.replace('\\', '/').replace('./', '')
@@ -112,7 +119,7 @@ def make_doc_item(sess, lines: List[str], file: str, span: (int, int),
         issue: int?,
         tags: [str],
         texts: [{text: str, file: str, span: (int, int), issue: int?}]
-    or
+    or Ref:
         ref: str,
         tags: [str],
         text: {text: str, file: str, span: (int, int), issue: int?}
@@ -158,6 +165,10 @@ def make_doc_item(sess, lines: List[str], file: str, span: (int, int),
     ref = Ref("\n".join(lines[1:]), file, span, item.get("issue"))
     if "ref" in item:
         item["text"] = ref
+        if item["ref"] != HL_FEATURE_FIX and ref.issue is not None:
+            sess.err(f"{file}:{span[0]+1}: invalid `issue` metadata in `ref`")
+            print(f"note: only `{HL_FEATURE_FIX}` refs have their own issues")
+            print(f"note: other refs inherit issue from their owning feature definition")
     else:
         item["texts"] = []
         item["texts"].append(ref)
@@ -410,7 +421,7 @@ def partition_items(sess) -> int:
     Partition the array and check for duplicates, returning the start index
     of the refs (where features end)
     """
-    def cmp_doc_item(doc_item: dict) -> (bool, str):
+    def cmp_doc_item(doc_item) -> (bool, str):
         return (not doc_item.is_feat(),
                 doc_item.feature if doc_item.is_feat() else doc_item.ref)
 
@@ -422,7 +433,7 @@ def partition_items(sess) -> int:
         if not it.is_feat():
             break
 
-        def make_loc(it: dict) -> str:
+        def make_loc(it) -> str:
             if it.texts:
                 file = it.texts[0].file
                 line = it.texts[0].span[0] + 1
@@ -451,7 +462,7 @@ def merge_doc_refs(sess, refs_start: int):
     refs = sess.doc_items[refs_start:]
 
     # sort refs for predictable order (by file name, then by line)
-    def cmp_ref(ref: dict) -> (str, int):
+    def cmp_ref(ref) -> (str, int):
         return (ref.text.file, ref.text.span[0])
 
     refs.sort(key=lambda r: cmp_ref(r))
@@ -475,7 +486,7 @@ def ensure_dir(dir):
                 raise
 
 
-def render_bugfix_page(item: dict, outdir: str):
+def render_bugfix_page(sess, item, outdir: str):
     feat_name = item.feature
     fname = os.path.join(outdir, feat_name + ".md")
     with open(fname, 'w') as file:
@@ -490,13 +501,14 @@ def render_bugfix_page(item: dict, outdir: str):
         file.write("\n\n")
         refs = sorted(item.texts, key=lambda r: r.issue)
         for ref in refs:
+            sess.documented_issues.append(ref.issue)
             file.write(
                 f"* {link_to_issue(ref.issue)} - {link_to_source(ref)}: ")
             file.write(ref.text)
             file.write("\n")
 
 
-def render_full_feature_page(item: dict, outdir: str):
+def render_full_feature_page(sess, item, outdir: str):
 
     if "strategy" in item.tags and not "tactical" in item.tags:
         folder = "strategy"
@@ -510,6 +522,7 @@ def render_full_feature_page(item: dict, outdir: str):
     item.__filepath = folder + "/" + item.feature + ".md"
     with open(fname, 'w') as file:
         print(f"ok: {fname}")
+        sess.documented_issues.append(item.issue)
         file.write(f"Title: {item.feature}\n\n")
         file.write(f"# {item.feature}\n\n")
         file.write(f"Tracking Issue: {link_to_issue(item.issue)}\n\n")
@@ -532,7 +545,7 @@ def render_full_feature_page(item: dict, outdir: str):
             file.write(f"* {link_to_source(ref)}\n")
 
 
-def record_tags(tag_lists: dict, item: dict):
+def record_tags(tag_lists: dict, item):
     if "strategy" in item.tags: item.tags.remove("strategy")
     if "tactical" in item.tags: item.tags.remove("tactical")
 
@@ -576,9 +589,9 @@ def render_docs(sess, outdir: str):
 
     for item in sess.doc_items:
         if item.feature == HL_FEATURE_FIX:
-            render_bugfix_page(item, outdir)
+            render_bugfix_page(sess, item, outdir)
         else:
-            render_full_feature_page(item, outdir)
+            render_full_feature_page(sess, item, outdir)
             record_tags(tag_lists, item)
 
     for tag, items in tag_lists.items():
@@ -620,7 +633,7 @@ def copytree(src, dst):
 def main():
     sess = Session()
 
-    indirs, outdir, docsdir, dump_elt = parse_args(sess)
+    indirs, outdir, docsdir, dump_elt, print_issues = parse_args(sess)
 
     generate_builtin_features(sess)
 
@@ -642,6 +655,10 @@ def main():
 
     if dump_elt is not None:
         dump_templates(sess, dump_elt)
+
+    if print_issues:
+        for issue in sorted(sess.documented_issues):
+            print(issue)
 
     if sess.exit_code != 0:
         print("note: the docs script found documentation errors")

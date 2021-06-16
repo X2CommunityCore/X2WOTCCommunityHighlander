@@ -1,15 +1,14 @@
 /// HL-Docs: feature:DLCRunOrder; issue:511; tags:compatibility
-/// The base game and Highlander have a number of "DLC hooks": Overridable
+/// The base game and Highlander have many "DLC hooks": Overridable
 /// functions in `X2DownloadableContentInfo` that the game calls for all mods
-/// in some order so that mods can to do something. The most ubiquitous hook
+/// in some order so that mods can do something. The most ubiquitous hook
 /// is `OnPostTemplatesCreated`, which allows mods to modify templates.
 ///
 /// Unfortunately, the order in which the DLC hooks of mods are executed
 /// ("run order") depends on load order, which is [not guaranteed][blog].
 /// However, run order can matter a lot. Consider a mod that creates copies
-/// of guns with different visuals, or duplicates secondary weapons to wield
-/// in the primary slot: These mods really want to run after mods that make
-/// changes to specific guns (i.e. stat changes for guns) so that the changes
+/// of guns with different visuals: This mod really wants to run after mods that
+/// make changes to specific guns (e.g. stat changes) so that the changes
 /// translate to the copies.
 ///
 /// The CHL Run Order system provides two ways for mods to specify their
@@ -28,8 +27,8 @@
 /// ```
 ///
 /// Since this system is all about DLC Hooks, the important identifier here is
-/// the `DLCIdentifier` of the `X2DownloadableContentInfo` class, of which a mod
-/// may have zero, one or more. The DLCIdentifier is *case-sensitive*.
+/// the `DLCIdentifier` corresponding to a `X2DownloadableContentInfo` class,
+/// of which a mod may have zero, one or more. The DLCIdentifier is *case-sensitive*.
 /// Run Order is about DLCInfos, not individual mods, and a mod may have an
 /// X2DLCInfo that runs before a certain other X2DLCInfo and another that runs
 /// after that other one.
