@@ -39,7 +39,18 @@
 
     <!-- Misc targets -->
     <Target Name="Clean">
-        <Error Text="Target Clean is not supported"/>
+        <ItemGroup>
+            <Args Include="modName">
+                <Value>$(SafeName)</Value>
+            </Args>
+        </ItemGroup>
+        <InvokePowershellTask
+            EntryPs1="$([System.IO.Path]::GetFullPath('$(BuildCommonRoot)clean.ps1'))"
+            SolutionRoot="$([System.IO.Path]::GetFullPath('$(SolutionRoot)'))"
+            SdkInstallPath="$([System.IO.Path]::GetFullPath('$(XCOM2_UserPath)..\\'))"
+            GameInstallPath="$([System.IO.Path]::GetFullPath('$(XCOM2_GamePath)..\\'))"
+            AdditionalArgs="@(Args)"
+        />
     </Target>
     <Target Name="ReBuild">
         <Error Text="Target ReBuild is not supported"/>
@@ -49,29 +60,33 @@
     <Target Name="Default">
         <!-- Uncomment if MSBuild insists that project is up to date -->
         <!-- <Exec Command="exit" /> -->
-
+        <ItemGroup>
+            <Args Include="config">
+                <Value>$(BuildEntryConfig)</Value>
+            </Args>
+        </ItemGroup>
         <!-- Clean up the \..\ from the paths - makes it easier to debug -->
-        <InvokePowershellBuild
-            BuildEntryPs1="$([System.IO.Path]::GetFullPath('$(BuildEntryPs1)'))"
+        <InvokePowershellTask
+            EntryPs1="$([System.IO.Path]::GetFullPath('$(BuildEntryPs1)'))"
             SolutionRoot="$([System.IO.Path]::GetFullPath('$(SolutionRoot)'))"
             SdkInstallPath="$([System.IO.Path]::GetFullPath('$(XCOM2_UserPath)..\\'))"
             GameInstallPath="$([System.IO.Path]::GetFullPath('$(XCOM2_GamePath)..\\'))"
-            BuildEntryConfig="$(BuildEntryConfig)"
+            AdditionalArgs="@(Args)"
         />
     </Target>
 
     <!-- Task definition -->
-    <UsingTask TaskName="InvokePowershellBuild" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <UsingTask TaskName="InvokePowershellTask" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
         <ParameterGroup>
-            <BuildEntryPs1 Required="true" />
+            <EntryPs1 Required="true" />
             <SolutionRoot Required="true" />
             <SdkInstallPath Required="true" />
             <GameInstallPath Required="true" />
-            <BuildEntryConfig Required="true" />
+            <AdditionalArgs ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="false" />
           </ParameterGroup>
         <Task>
             <Reference Include="System.Management.Automation" />
-            <Code Language="cs" Source="$(BuildCommonRoot)InvokePowershellBuild.cs" />
+            <Code Language="cs" Source="$(BuildCommonRoot)InvokePowershellTask.cs" />
         </Task>
     </UsingTask>
 </Project>

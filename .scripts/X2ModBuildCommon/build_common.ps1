@@ -8,18 +8,24 @@ $global:buildCommonSelfPath = split-path -parent $MyInvocation.MyCommand.Definit
 # list of all native script packages
 $global:nativescriptpackages = @("XComGame", "Core", "Engine", "GFxUI", "AkAudio", "GameFramework", "UnrealEd", "GFxUIEditor", "IpDrv", "OnlineSubsystemPC", "OnlineSubsystemLive", "OnlineSubsystemSteamworks", "OnlineSubsystemPSN")
 
+$global:invarCulture = [System.Globalization.CultureInfo]::InvariantCulture
+
 class BuildProject {
 	[string] $modNameCanonical
 	[string] $projectRoot
 	[string] $sdkPath
 	[string] $gamePath
 	[string] $contentOptionsJsonFilename
-	[int] $publishID = -1
+	[long] $publishID = -1
 	[bool] $debug = $false
 	[bool] $final_release = $false
 	[string[]] $include = @()
 	[string[]] $clean = @()
 	[object[]] $preMakeHooks = @()
+
+	# internals
+	[hashtable] $macroDefs = @{}
+	[object[]] $timings = @()
 
 	# lazily set
 	[string] $modSrcRoot
@@ -28,6 +34,7 @@ class BuildProject {
 	[string] $commandletHostPath
 	[string] $buildCachePath
 	[string] $modcookdir
+	[string] $makeFingerprintsPath
 	[string[]] $thismodpackages
 	[bool] $isHl
 	[bool] $cookHL
@@ -53,7 +60,7 @@ class BuildProject {
 		$this.contentOptionsJsonFilename = $filename
 	}
 
-	[void]SetWorkshopID([int] $publishID) {
+	[void]SetWorkshopID([long] $publishID) {
 		if ($publishID -le 0) { ThrowFailure "publishID must be >0" }
 		$this.publishID = $publishID
 	}
@@ -83,42 +90,85 @@ class BuildProject {
 
 	[void]InvokeBuild() {
 		try {
+			$fullStopwatch = [Diagnostics.Stopwatch]::StartNew()
 			$this._ConfirmPaths()
 			$this._SetupUtils()
 			$this._LoadContentOptions()
-			$this._ValidateProjectFiles()
-			$this._Clean()
-			$this._CopyModToSdk()
-			$this._ConvertLocalization()
-			$this._CopyToSrc()
-			$this._RunPreMakeHooks()
-			$this._RunMakeBase()
-			$this._RunMakeMod()
+			$this._PerformStep({ ($_)._CleanAdditional() }, "Cleaning", "Cleaned", "additional mods")
+			$this._PerformStep({ ($_)._CopyModToSdk() }, "Mirroring", "Mirrored", "mod to SDK")
+			$this._PerformStep({ ($_)._ConvertLocalization() }, "Converting", "Converted", "Localization UTF-8 -> UTF-16")
+			$this._PerformStep({ ($_)._CopyToSrc() }, "Populating", "Populated", "Development\Src folder")
+			$this._PerformStep({ ($_)._RunPreMakeHooks() }, "Running", "Ran", "Pre-Make hooks")
+			$this._PerformStep({ ($_)._CheckCleanCompiled() }, "Verifying", "Verified", "compiled script packages")
+			$this._PerformStep({ ($_)._RunMakeBase() }, "Compiling", "Compiled", "base-game script packages")
+			$this._PerformStep({ ($_)._RunMakeMod() }, "Compiling", "Compiled", "mod script packages")
+			$this._RecordCoreTimestamp()
 			if ($this.isHl) {
 				if (-not $this.debug) {
-					$this._RunCookHL()
+					$this._PerformStep({ ($_)._RunCookHL() }, "Cooking", "Cooked", "Highlander packages")
 				} else {
 					Write-Host "Skipping cooking as debug build"
 				}
 			}
-			$this._CopyScriptPackages()
+			$this._PerformStep({ ($_)._CopyScriptPackages() }, "Copying", "Copied", "compiled script packages")
 			
 			# The shader step needs to happen before cooking - precompiler gets confused by some inlined materials
-			$this._PrecompileShaders()
+			$this._PerformStep({ ($_)._PrecompileShaders() }, "Precompiling", "Precompiled", "shaders")
 	
-			$this._RunCookAssets()
+			$this._PerformStep({ ($_)._RunCookAssets() }, "Cooking", "Cooked", "mod assets")
 	
 			# Do this last as there is no need for it earlier - the cooker obviously has access to the game assets
 			# and precompiling shaders seems to do nothing (I assume they are included in the game's GlobalShaderCache)
-			$this._CopyMissingUncooked()
+			$this._PerformStep({ ($_)._CopyMissingUncooked() }, "Copying", "Copied", "requested uncooked packages")
 	
-			$this._FinalCopy()
-
-			SuccessMessage "*** SUCCESS! ***" $this.modNameCanonical
+			$this._PerformStep({ ($_)._FinalCopy() }, "Copying", "Copied", "built mod to game directory")
+			$fullStopwatch.Stop()
+			$this._ReportTimings($fullStopwatch)
+			SuccessMessage "*** SUCCESS! ($(FormatElapsed $fullStopwatch.Elapsed)) ***" $this.modNameCanonical
 		}
 		catch {
 			[System.Media.SystemSounds]::Hand.Play()
 			throw
+		}
+	}
+
+	[void]_PerformStep([scriptblock]$stepCallback, [string]$progressWord, [string]$completedWord, [string]$description) {
+		Write-Host "$($progressWord) $($description)..."
+		$sw = [Diagnostics.Stopwatch]::StartNew()
+
+		# HACK: Set $_ for $stepCallback with Foreach-Object on only one object
+		$this | ForEach-Object $stepCallback
+
+		$sw.Stop()
+
+		$record = [PSCustomObject]@{
+			Description = "$($progressWord) $($description)"
+			Seconds = $sw.Elapsed.TotalSeconds
+		}
+
+		$this.timings += $record
+
+		Write-Host -ForegroundColor DarkGreen "$($completedWord) $($description) in $(FormatElapsed $sw.Elapsed)"
+	}
+
+	[void]_ReportTimings([Diagnostics.Stopwatch]$fullStopwatch) {
+		if (-not [string]::IsNullOrEmpty($env:X2MBC_REPORT_TIMINGS)) {
+			$fullTime = $fullStopwatch.Elapsed.TotalSeconds
+			$accountedTime = $this.timings | Measure-Object -Sum -Property Seconds | Select-Object -ExpandProperty Sum
+			$this.timings += [PSCustomObject]@{
+				Description = "Total Duration"
+				Seconds = $fullTime
+			}
+			$this.timings += [PSCustomObject]@{
+				Description = "Unaccounted time"
+				Seconds = $fullTime - $accountedTime
+			}
+
+			$this.timings | Sort-Object -Descending -Property { $_.Seconds } | ForEach-Object {
+				$_ | Add-Member -NotePropertyName "Share" -NotePropertyValue ($_.Seconds / $fullTime).ToString("0.00%", $global:invarCulture)
+				$_.Seconds = $_.Seconds.ToString("0.00s", $global:invarCulture)
+				$_
+			} | Format-Table | Out-String | Write-Host
 		}
 	}
 
@@ -172,6 +222,21 @@ class BuildProject {
 		{
 			New-Item -ItemType "directory" -Path $this.buildCachePath
 		}
+
+		$this.makeFingerprintsPath = "$($this.sdkPath)\XComGame\lastBuildDetails.json"
+		$lastBuildDetails = if (Test-Path $this.makeFingerprintsPath) {
+			Get-Content $this.makeFingerprintsPath | ConvertFrom-Json
+		} else {
+			[PSCustomObject]@{}
+		}
+
+		@("buildMode", "globalsHash", "coreTimestamp") | ForEach-Object {
+			if(-not (Get-Member -InputObject $lastBuildDetails -name $_ -Membertype Properties)) {
+				$lastBuildDetails | Add-Member -NotePropertyName $_ -NotePropertyValue "unknown"
+			}
+		}
+
+		$lastBuildDetails | ConvertTo-Json | Set-Content -Path $this.makeFingerprintsPath
 	}
 
 	[void]_LoadContentOptions() {
@@ -253,67 +318,19 @@ class BuildProject {
 			New-Item "$($this.stagingPath)/CookedPCConsole" -ItemType Directory
 		}
 	}
-
-	# This function verifies that all project files in the mod subdirectories actually exist in the .x2proj file
-	# The exception are the Content files since those have no reason to be listed in the modbuddy project
-	[void]_ValidateProjectFiles()
-	{
-		Write-Host "Checking for missing entries in .x2proj file..."
-		$projFilepath = "$($this.modSrcRoot)\$($this.modNameCanonical).x2proj"
-		if(Test-Path $projFilepath)
-		{
-			$missingFiles = New-Object System.Collections.Generic.List[System.Object]
-			$projContent = Get-Content $projFilepath
-			# Loop through all files in subdirectories and fail the build if any filenames are missing inside the project file
-			Get-ChildItem $this.modSrcRoot -Directory | Get-ChildItem -File -Recurse |
-			ForEach-Object {
-
-				# This catches both [Mod]/Content/ and [Mod]/ContentForCook/
-				if ($_.FullName.Contains("$($this.modNameCanonical)\Content")) {
-					return
-				}
-
-				if ($projContent | Select-String -Pattern $_.Name) {
-					return
-				}
-
-				$missingFiles.Add($_.Name)
-			}
-
-			if ($missingFiles.Count -gt 0)
-			{
-				$strFiles = $missingFiles -join "`r`n`t"
-				ThrowFailure "Filenames missing in the .x2proj file:`n`t$strFiles"
-			}
-		}
-		else
-		{
-			ThrowFailure "The project file '$projFilepath' doesn't exist"
-		}
-	}
-
 	
-	[void]_Clean() {
-		Write-Host "Cleaning mod project at $($this.stagingPath)..."
-		if (Test-Path $this.stagingPath) {
-			Remove-Item $this.stagingPath -Recurse -WarningAction SilentlyContinue
-		}
-		Write-Host "Cleaned."
-
-		Write-Host "Cleaning additional mods..."
+	[void]_CleanAdditional() {
 		# clean
 		foreach ($modName in $this.clean) {
 			$cleanDir = "$($this.sdkPath)/XComGame/Mods/$($modName)"
-    		if (Test-Path $cleanDir) {
+			if (Test-Path $cleanDir) {
 				Write-Host "Cleaning $($modName)..."
 				Remove-Item -Recurse -Force $cleanDir
 			}
-    	}
-		Write-Host "Cleaned."
+		}
 	}
 
 	[void]_ConvertLocalization() {
-		Write-Host "Converting the localization file encoding..."
 		Get-ChildItem "$($this.stagingPath)\Localization" -Recurse -File | 
 		Foreach-Object {
 			$content = Get-Content $_.FullName -Encoding UTF8
@@ -327,6 +344,8 @@ class BuildProject {
 		Robocopy.exe "$($this.sdkPath)\Development\SrcOrig" "$($this.devSrcRoot)" *.uc *.uci $global:def_robocopy_args
 		Write-Host "Mirrored SrcOrig to Src."
 
+		$this._ParseMacroFile("$($this.devSrcRoot)\Core\Globals.uci")
+
 		# Copy dependencies
 		Write-Host "Copying dependency sources to Src..."
 		foreach ($depfolder in $this.include) {
@@ -337,28 +356,118 @@ class BuildProject {
 
 		# copying the mod's scripts to the script staging location
 		Write-Host "Copying the mod's sources to Src..."
-		$this._CopySrcFolder("$($this.stagingPath)\Src")
+		$this._CopySrcFolder("$($this.modSrcRoot)\Src")
 		Write-Host "Copied mod sources to Src."
 	}
 
 	[void]_CopySrcFolder([string] $includeDir) {
 		Copy-Item "$($includeDir)\*" "$($this.devSrcRoot)\" -Force -Recurse -WarningAction SilentlyContinue
-		if (Test-Path "$($includeDir)\extra_globals.uci") {
+		$extraGlobalsFile = "$($includeDir)\extra_globals.uci"
+		if (Test-Path $extraGlobalsFile) {
 			# append extra_globals.uci to globals.uci
-			Get-Content "$($includeDir)\extra_globals.uci" | Add-Content "$($this.devSrcRoot)\Core\Globals.uci"
+			"// Macros included from $($extraGlobalsFile)" | Add-Content "$($this.devSrcRoot)\Core\Globals.uci"
+			Get-Content $extraGlobalsFile | Add-Content "$($this.devSrcRoot)\Core\Globals.uci"
+
+			$this._ParseMacroFile($extraGlobalsFile)
+		}
+	}
+
+	[void]_ParseMacroFile([string]$file) {
+		$lines = Get-Content $file
+		# check for dupes
+		$redefine = $false
+		$lineNr = 1
+		foreach ($line in $lines) {
+			$defineMatch = $line | Select-String -Pattern '^\s*`define\s*([a-zA-Z][a-zA-Z0-9_]*)'
+			if ($null -ne $defineMatch -and $defineMatch.Matches.Success) {
+				[string]$macroName = $defineMatch.Matches.Groups[1]
+				$prevDef = $this.macroDefs[$macroName]
+				if ($null -ne $prevDef -and
+					-not $redefine -and
+					$prevDef.file -ne $file) {
+					Write-Host -ForegroundColor Red "Error: Implicit redefinition of macro $($macroName)"
+					$defineWord = if ($prevDef.redefine) { "redefined" } else { "defined" }
+					Write-Host "    Note: Previously $($defineWord) at $($prevDef.file)($($prevDef.lineNr))"
+					Write-Host "    Note: Implicitly redefined at $($file)($($lineNr))"
+					Write-Host "    Help: Rename the macro, or add ``// X2MBC-Redefine`` above to explicitly redefine and silence this warning."
+					ThrowFailure "Implicit macro redefinition."
+				}
+				$macroDef = [PSCustomObject]@{
+					file = $file
+					lineNr = $lineNr
+					redefine = $redefine
+				}
+				$this.macroDefs[$macroName] = $macroDef
+			} elseif ($line -match '^\s*`define') {
+				ThrowFailure "Unrecognized macro at $($file)($($line)). This is a bug in X2ModBuildCommon."
+			}
+
+			$redefine = $line -match "X2MBC-Redefine"
+			$lineNr += 1
 		}
 	}
 
 	[void]_RunPreMakeHooks() {
-		Write-Host "Invoking pre-Make hooks"
 		foreach ($hook in $this.preMakeHooks) {
 			$hook.Invoke()
 		}
 	}
 
+	[string]_GetCoreMtime() {
+		if (Test-Path "$($this.sdkPath)/XComGame/Script/Core.u") {
+			return Get-Item "$($this.sdkPath)/XComGame/Script/Core.u" | Select-Object -ExpandProperty LastWriteTime
+		} else {
+			return "missing"
+		}
+	}
+
+	[void]_CheckCleanCompiled() {
+		# #16: Switching between debug and release causes an error in the make commandlet if script packages aren't deleted.
+		# #20: Changes to Globals.uci aren't tracked by UCC, so we must delete script packages if Globals.uci changes.
+		$lastBuildDetails = Get-Content $this.makeFingerprintsPath | ConvertFrom-Json
+
+		$buildMode = if ($this.debug -eq $true) { "debug" } else { "release" }
+		$globalsHash = Get-FileHash "$($this.sdkPath)\Development\Src\Core\Globals.uci" | Select-Object -ExpandProperty Hash
+		$coreTimeStamp = $this._GetCoreMtime()
+
+		$rebuild = if ($lastBuildDetails.buildMode -ne $buildMode) {
+			Write-Host "Detected switch between debug and non-debug build."
+			$true
+		} elseif ($lastBuildDetails.coreTimestamp -ne $coreTimeStamp) {
+			Write-Host "Detected previous external rebuild."
+			$true
+		} elseif ($lastBuildDetails.globalsHash -ne $globalsHash) {
+			Write-Host "Detected change in macros (Globals.uci)."
+			$true
+		} else {
+			$false
+		}
+
+		# Order: Deleting first cannot cause an issue because the compiler will just rebuild.
+		if ($rebuild) {
+			Write-Host "Cleaning all compiled scripts from $($this.sdkPath)/XComGame/Script to avoid compiler error..."
+			Remove-Item "$($this.sdkPath)/XComGame/Script/*.u"
+			Write-Host "Cleaned."
+		}
+
+		$lastBuildDetails.buildMode = $buildMode
+		$lastBuildDetails.globalsHash = $globalsHash
+
+		# Similarly, recording the previous invocation fingerprints before the build is complete
+		# cannot cause an issue because the compiler will simply continue an interrupted build.
+		$lastBuildDetails | ConvertTo-Json | Set-Content -Path $this.makeFingerprintsPath
+	}
+
+	[void]_RecordCoreTimestamp() {
+		# Unfortunately, ModBuddy with Fxs' plugin can rebuild the packages under our nose.
+		# As a last resort, record the Core.u timestamp
+		$lastBuildDetails = Get-Content $this.makeFingerprintsPath | ConvertFrom-Json
+		$lastBuildDetails.coreTimestamp = $this._GetCoreMtime()
+		$lastBuildDetails | ConvertTo-Json | Set-Content -Path $this.makeFingerprintsPath
+	}
+
 	[void]_RunMakeBase() {
 		# build the base game scripts
-		Write-Host "Compiling base game scripts..."
 		$scriptsMakeArguments = "make -nopause -unattended"
 		if ($this.final_release -eq $true)
 		{
@@ -372,7 +481,6 @@ class BuildProject {
 		$handler = [MakeStdoutReceiver]::new($this.devSrcRoot, "$($this.modSrcRoot)\Src")
 		$handler.processDescr = "compiling base game scripts"
 		$this._InvokeEditorCmdlet($handler, $scriptsMakeArguments, 50)
-		Write-Host "Compiled base game scripts."
 
 		# If we build in final release, we must build the normal scripts too
 		if ($this.final_release -eq $true)
@@ -387,7 +495,6 @@ class BuildProject {
 
 	[void]_RunMakeMod() {
 		# build the mod's scripts
-		Write-Host "Compiling mod scripts..."
 		$scriptsMakeArguments = "make -nopause -mods $($this.modNameCanonical) $($this.stagingPath)"
 		if ($this.debug -eq $true)
 		{
@@ -396,7 +503,6 @@ class BuildProject {
 		$handler = [MakeStdoutReceiver]::new($this.devSrcRoot, "$($this.modSrcRoot)\Src")
 		$handler.processDescr = "compiling mod scripts"
 		$this._InvokeEditorCmdlet($handler, $scriptsMakeArguments, 50)
-		Write-Host "Compiled mod scripts."
 	}
 
 	[bool]_HasNativePackages() {
@@ -414,7 +520,6 @@ class BuildProject {
 
 	[void]_CopyScriptPackages() {
 		# copy packages to staging
-		Write-Host "Copying the compiled or cooked packages to staging..."
 		foreach ($name in $this.thismodpackages) {
 			if ($this.cookHL -and $global:nativescriptpackages.Contains($name))
 			{
@@ -427,10 +532,9 @@ class BuildProject {
 			{
 				# Or this is a non-native package
 				Copy-Item "$($this.sdkPath)\XComGame\Script\$name.u" "$($this.stagingPath)\Script" -Force -WarningAction SilentlyContinue
-				Write-Host "$($this.sdkPath)\XComGame\Script\$name.u"        
+				Write-Host "$($this.sdkPath)\XComGame\Script\$name.u"
 			}
 		}
-		Write-Host "Copied compiled and cooked script packages."
 	}
 
 	[void]_PrecompileShaders() {
@@ -589,6 +693,11 @@ class BuildProject {
 		try {
 			# Redirect all the cook output to our local cache
 			# This allows us to not recook everything when switching between projects (e.g. CHL)
+			# Ensure parent directory exists
+			$cookOutputParentDir = [io.path]::combine($this.sdkPath, 'XComGame', 'Published')
+			if (-not (Test-Path -Path $cookOutputParentDir)) {
+				New-Item -Path $cookOutputParentDir -Type Directory
+			}
 			New-Junction $cookOutputDir $projectCookCacheDir
 
 			# "Inject" our assets into the SDK to make them visible to the cooker
@@ -683,14 +792,14 @@ class BuildProject {
 		for ($i = 0; $i -lt $this.contentOptions.sfStandalone.Length; $i++) 
 		{
 			$package = $this.contentOptions.sfStandalone[$i];
-            $dest = [io.path]::Combine($stagingCookedDir, "${package}.upk");
+			$dest = [io.path]::Combine($stagingCookedDir, "${package}.upk");
 			
 			# Mod assets for some reason refuse to load with the _SF suffix
 			Copy-Item "$projectCookCacheDir\${package}_SF.upk" -Destination $dest
 		}
 
-        # No need for the ContentForCook directory anymore
-        Remove-Item "$($this.stagingPath)/ContentForCook" -Recurse
+		# No need for the ContentForCook directory anymore
+		Remove-Item "$($this.stagingPath)/ContentForCook" -Recurse
 
 		Write-Host "Assets cook completed"
 	}
@@ -796,8 +905,6 @@ class BuildProject {
 		# Cook it!
 		Write-Host "Invoking CookPackages (this may take a while)"
 		$this._InvokeEditorCmdlet($handler, $cook_args, 10)
-
-		Write-Host "Cooked native script packages."
 	}
 
 	[void]_CopyMissingUncooked() {
@@ -826,19 +933,9 @@ class BuildProject {
 	[void]_FinalCopy() {
 		$finalModPath = "$($this.gamePath)\XComGame\Mods\$($this.modNameCanonical)"
 
-		# Delete the actual game's mod's folder
-		# This ensures that files that were deleted in the project will also get deleted in the deployed version
-		if (Test-Path $finalModPath)
-		{
-			Write-Host "Deleting existing deployed mod folder"
-			Remove-Item $finalModPath -Force -Recurse
-		}
-
 		# copy all staged files to the actual game's mods folder
 		# TODO: Is the string interpolation required in the robocopy calls?
-		Write-Host "Copying all staging files to production..."
 		Robocopy.exe "$($this.stagingPath)" "$($finalModPath)" *.* $global:def_robocopy_args
-		Write-Host "Copied mod to game directory."
 	}
 
 	[void]_InvokeEditorCmdlet([StdoutReceiver] $receiver, [string] $makeFlags, [int] $sleepMsDuration) {
@@ -995,7 +1092,8 @@ class MakeStdoutReceiver : StdoutReceiver {
 			$pattern = [regex]::Escape($this.developmentDirectory)
 			# n.b. -Replace is case insensitive
 			$replacementTxt = $outtxt -Replace $pattern, $this.modSrcRoot
-			$outTxt = $replacementTxt -Replace $messagePattern, '$1:$2 : $3'
+			# this syntax works with both VS Code and ModBuddy
+			$outTxt = $replacementTxt -Replace $messagePattern, '$1($2) : $3'
 		}
 
 		$summPattern = "^(Success|Failure) - ([0-9]+) error\(s\), ([0-9]+) warning\(s\) \(([0-9]+) Unique Errors, ([0-9]+) Unique Warnings\)"
@@ -1112,16 +1210,22 @@ function ThrowFailure($message)
 
 function SuccessMessage($message, $modNameCanonical)
 {
-    [System.Media.SystemSounds]::Asterisk.Play()
-    Write-Host $message -ForegroundColor "Green"
-    Write-Host "$modNameCanonical ready to run." -ForegroundColor "Green"
+	[System.Media.SystemSounds]::Asterisk.Play()
+	Write-Host $message -ForegroundColor "Green"
+	Write-Host "$modNameCanonical ready to run." -ForegroundColor "Green"
+}
+
+function FormatElapsed($elapsed) {
+	return $elapsed.TotalSeconds.ToString("0.00s", $global:invarCulture)
 }
 
 function New-Junction ([string] $source, [string] $destination) {
+	Write-Host "Creating Junction: $source -> $destination"
 	&"$global:buildCommonSelfPath\junction.exe" -nobanner -accepteula "$source" "$destination"
 }
 
 function Remove-Junction ([string] $path) {
+	Write-Host "Removing Junction: $path"
 	&"$global:buildCommonSelfPath\junction.exe" -nobanner -accepteula -d "$path"
 }
 
@@ -1129,6 +1233,6 @@ function Remove-Junction ([string] $path) {
 # $process.Kill() works but we really need to kill the child as well, since it's the one which is actually doing work
 # Unfotunately, $process.Kill($true) does nothing 
 function KillProcessTree ([int] $ppid) {
-    Get-CimInstance Win32_Process | Where-Object { $_.ParentProcessId -eq $ppid } | ForEach-Object { KillProcessTree $_.ProcessId }
-    Stop-Process -Id $ppid
+	Get-CimInstance Win32_Process | Where-Object { $_.ParentProcessId -eq $ppid } | ForEach-Object { KillProcessTree $_.ProcessId }
+	Stop-Process -Id $ppid
 }

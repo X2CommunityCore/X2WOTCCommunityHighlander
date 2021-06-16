@@ -10,7 +10,6 @@ An improved XCOM 2 mod build system. The following (in no praticular order) are 
 * Full HL building: final release compiling and cooking of native script packages
 * Scriptable hooks in the build process
 * Conversion of localization file(s) encoding (UTF8 in the project for correct git merging and UTF16 for correct game loading)
-* Validation of `.x2proj` for cases when devs are using both ModBuddy and VSCode
 * Mod asset cooking (experimental)
 * Correct removal of files from the steamapps/XCOM2/WOTC/XComGame/Mods (built mod) when they are deleted from the project
 * Mod-defined global macros (without explicit `include`s and without messing with your `SrcOrig`)
@@ -30,12 +29,12 @@ Open a command line prompt (cmd or powershell, does not matter) in the `[modRoot
 your working tree is clean and run the following command:
 
 ```
-git subtree add --prefix .scripts/X2ModBuildCommon https://github.com/X2CommunityCore/X2ModBuildCommon main --squash
+git subtree add --prefix .scripts/X2ModBuildCommon https://github.com/X2CommunityCore/X2ModBuildCommon v1.1.0 --squash
 ```
 
 ### Your mod does not use git
-Download the source code of this repository from GitHub. Unzip it and place so that `build_commom.ps1` resides at
-`[modRoot]\.scripts\X2ModBuildCommon\build_common.ps1`.
+Download the source code of this repository from the latest release on the [Releases page](https://github.com/X2CommunityCore/X2ModBuildCommon/releases/latest).
+Unzip it and place so that `build_common.ps1` resides at `[modRoot]\.scripts\X2ModBuildCommon\build_common.ps1`.
 
 ## Ignoring the `BuildCache`
 The build system will create a `[modRoot]\BuildCache` folder which is used for various file-based operations (such
@@ -105,6 +104,12 @@ Replace it with following:
   <Import Project="$(BuildCommonRoot)XCOM2.targets" />
 ```
 
+Note that the build tool does not care about most of the `.x2proj` file and will
+copy and compile files not referenced by the project file without issuing warnings.
+Consider using a tool like [Xymanek/X2ProjectGenerator](https://github.com/Xymanek/X2ProjectGenerator)
+to automatically ensure the file list in ModBuddy accurately lists the files part of the project.
+
+
 ### VSCode
 
 > FIXME(#1): Rename variables to remove HL references?
@@ -122,7 +127,8 @@ two entries, adjusting paths as necessary.
 VS Code may tell you that the configuration settings are unknown. This is acceptable and can be ignored.
 
 Next up, you have to tell VS code about your build tasks. Create a folder `.vscode` next to the `.scripts` folder,
-and within it create a `tasks.json` file with the following content:
+and within it create a `tasks.json` file with the following content (replacing `MY_MOD_NAME` with the mod project
+name in the "Clean" task):
 
 ```json
 {
@@ -139,6 +145,13 @@ and within it create a `tasks.json` file with the following content:
             "label": "Build debug",
             "type": "shell",
             "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\build.ps1' -srcDirectory '${workspaceRoot}' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}' -config 'debug'",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Clean",
+            "type": "shell",
+            "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\clean.ps1' -modName 'MY_MOD_NAME' -srcDirectory '${workspaceRoot}' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}'",
             "group": "build",
             "problemMatcher": []
         }
@@ -164,7 +177,7 @@ If you don't use git, simply download the new version and overwrite the old file
 If you use git, run the same command as before, replacing `add` with `pull`:
 
 ```
-git subtree pull --prefix .scripts/X2ModBuildCommon https://github.com/X2CommunityCore/X2ModBuildCommon main --squash
+git subtree pull --prefix .scripts/X2ModBuildCommon https://github.com/X2CommunityCore/X2ModBuildCommon v1.1.0 --squash
 ```
 
 # Configuration options
