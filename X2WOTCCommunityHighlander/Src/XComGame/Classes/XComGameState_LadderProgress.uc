@@ -1009,6 +1009,7 @@ private static function UpdateUnitState( XComGameState StartState, XComGameState
 	local X2WeaponUpgradeTemplate WeaponUpgradeTemplate;
 	local name ItemName;
 	local XComGameState_Item PrimaryWeapon;
+	//local X2WeaponTemplate WeaponTemplate; // Deprecated by Issue #93
 	local array<name> WeaponUpgrades;
 	local int index;
 	local array<XComGameState_Item> BackpackItems;
@@ -1118,6 +1119,7 @@ private static function UpdateUnitState( XComGameState StartState, XComGameState
 
 	PrimaryWeapon = UnitState.GetPrimaryWeapon( );
 	PrimaryWeapon = XComGameState_Item( StartState.GetGameStateForObjectID( PrimaryWeapon.ObjectID ) );
+	//WeaponTemplate = X2WeaponTemplate( PrimaryWeapon.GetMyTemplate( ) ); // Deprecated by Issue #93; we're using weapon's Item State for the number of Upgrade Slots now.
 	if (PrimaryWeapon.GetNumUpgradeSlots() > 0) // Single line for Issue #93
 		PrimaryWeapon.WipeUpgradeTemplates( );
 
