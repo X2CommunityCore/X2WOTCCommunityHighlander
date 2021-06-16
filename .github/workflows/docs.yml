@@ -41,7 +41,7 @@ jobs:
         if [ $? -ne 0 ]
         then
           echo "master docs build broken?"
-          exit 0
+          exit 1
         fi
         git add -f ./target/CHL_Event_Compiletest.uc
 
@@ -51,7 +51,7 @@ jobs:
         if [ $? -ne 0 ]
         then
           echo "PR docs fail -- should be caught by build job"
-          exit 0
+          exit 1
         fi
 
         # Generate diff between master and PR merge
