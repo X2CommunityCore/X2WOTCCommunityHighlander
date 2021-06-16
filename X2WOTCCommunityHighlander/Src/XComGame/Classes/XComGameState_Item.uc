@@ -2420,7 +2420,6 @@ function bool IsMissionObjectiveItem()
 /// ```
 function int GetNumUpgradeSlots()
 {
-	local Object ThisObj;
 	local XComLWTuple Tuple;
 
 	Tuple = new class'XComLWTuple';
