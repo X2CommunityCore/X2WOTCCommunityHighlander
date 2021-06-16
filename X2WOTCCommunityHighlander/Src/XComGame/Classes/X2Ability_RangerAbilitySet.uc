@@ -784,6 +784,7 @@ static function X2AbilityTemplate RapidFire2()
 	Template.AddShooterEffectExclusions();
 
 	Template.AbilityTargetConditions.AddItem(default.LivingHostileTargetProperty);
+	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
 
 	Template.AddTargetEffect(class'X2Ability_GrenadierAbilitySet'.static.HoloTargetEffect());
 	Template.AssociatedPassives.AddItem('HoloTargeting');
