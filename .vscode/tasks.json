@@ -59,7 +59,7 @@
         {
             "label": "makeDocs",
             "type": "shell",
-            "command": "python .\\.scripts\\make_docs.py .\\X2WOTCCommunityHighlander\\Src .\\X2WOTCCommunityHighlander\\Config --outdir .\\target --docsdir .\\docs_src --dumpelt .\\target\\CHL_Event_Compiletest.uc",
+            "command": "python .\\.scripts\\make_docs.py --indirsfile .\\docs_directories.txt --outdir .\\target --docsdir .\\docs_src --dumpelt .\\target\\CHL_Event_Compiletest.uc",
             "problemMatcher": []
         },
         {

@@ -486,7 +486,7 @@ function UpdateRulerSpawningData(XComGameState NewGameState, XComGameState_Missi
 // Start issue #791
 /// HL-Docs: feature:AllowRulerOnMission; issue:791; tags:strategy,dlc2
 /// Allows listeners to forbid a particular (or all) rulers from a particular `XComGameState_MissionSite`.
-//
+///
 /// Be aware that the AlienRulerLocations system completely bypasses this check (doesn't trigger this event).
 ///
 /// ```event
