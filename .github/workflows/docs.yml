@@ -37,21 +37,21 @@ jobs:
         # Build base docs (master)
         git checkout ${{ github.base_ref }}
         mkdir target
-        python ./.scripts/make_docs.py ./X2WOTCCommunityHighlander/Src/ ./X2WOTCCommunityHighlander/Config/ --docsdir ./docs_src --dumpelt ./target/CHL_Event_Compiletest.uc
+        python ./.scripts/make_docs.py --indirsfile ./docs_directories.txt --docsdir ./docs_src --dumpelt ./target/CHL_Event_Compiletest.uc
         if [ $? -ne 0 ]
         then
           echo "master docs build broken?"
-          exit 0
+          exit 1
         fi
         git add -f ./target/CHL_Event_Compiletest.uc
 
         # Build PR merge docs
         git checkout ${{ github.sha }}
-        python ./.scripts/make_docs.py ./X2WOTCCommunityHighlander/Src/ ./X2WOTCCommunityHighlander/Config/ --docsdir ./docs_src --dumpelt ./target/CHL_Event_Compiletest.uc
+        python ./.scripts/make_docs.py --indirsfile ./docs_directories.txt --docsdir ./docs_src --dumpelt ./target/CHL_Event_Compiletest.uc
         if [ $? -ne 0 ]
         then
           echo "PR docs fail -- should be caught by build job"
-          exit 0
+          exit 1
         fi
 
         # Generate diff between master and PR merge
@@ -81,7 +81,7 @@ jobs:
       uses: actions/checkout@v2
     - name: Build Docs
       run: |
-        python ./.scripts/make_docs.py ./X2WOTCCommunityHighlander/Src/ ./X2WOTCCommunityHighlander/Config/ --outdir ./mkdocs --docsdir ./docs_src
+        python ./.scripts/make_docs.py --indirsfile ./docs_directories.txt --outdir ./mkdocs --docsdir ./docs_src
         pip install mkdocs
         cd mkdocs
         mkdocs build -d ../target

@@ -24,7 +24,7 @@ MarkDown pages, which `MkDocs` in turn renders to a web page.
 You can run the documentation tool locally by installing Python (recommended version 3.7)
 and running
 
-    python .\.scripts\make_docs.py .\X2WOTCCommunityHighlander\Src\ .\X2WOTCCommunityHighlander\Config\ --outdir .\target\ --docsdir .\docs_src\ --dumpelt .\target\CHL_Event_Compiletest.uc
+    python .\.scripts\make_docs.py --indirsfile .\docs_directories.txt --outdir .\target\ --docsdir .\docs_src\ --dumpelt .\target\CHL_Event_Compiletest.uc
 
 or the `makeDocs` task in VS Code. This creates Markdown files for the documentation; rendering HTML documentation requires
 `MkDocs`:
