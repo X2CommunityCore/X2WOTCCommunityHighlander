@@ -277,8 +277,8 @@ function XComGameState_Ability CreateInstanceFromTemplate(XComGameState NewGameS
 simulated private function bool AllTargetStylesNative()
 {
 	// The AbilityPassiveAOEStyle is never required by native code, so we don't have to check it here.
-	return (AbilityTargetStyle != none && CH_ClassIsNative(AbilityTargetStyle.Class))
-		&& (AbilityMultiTargetStyle != none && CH_ClassIsNative(AbilityMultiTargetStyle.Class));
+	return (AbilityTargetStyle == none || CH_ClassIsNative(AbilityTargetStyle.Class))
+		&& (AbilityMultiTargetStyle == none || CH_ClassIsNative(AbilityMultiTargetStyle.Class));
 }
 // End Issue #763
 
