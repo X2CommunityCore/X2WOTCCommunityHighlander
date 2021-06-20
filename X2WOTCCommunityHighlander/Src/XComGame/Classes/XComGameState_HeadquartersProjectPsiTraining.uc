@@ -97,7 +97,16 @@ function int CalculatePointsToTrain(optional bool bClassTraining = false)
 
 // Start Issue #1016
 /// HL-Docs: feature:OverridePsiTrainingProjectPoints; issue:1016; tags:strategy
-/// Allows listeners to override psi training times.
+/// Allows listeners to override psi training times by modifying the number of
+/// project points required.
+/// 
+/// The default rate of project points completed (work) per hour is given by
+/// `XComGameState_HeadquartersXCom.XComHeadquarters_DefaultPsiTrainingWorkPerHour`,
+/// which is 5 by default in XCOM 2 and WOTC. So to convert number of days to
+/// project points, multiply the work per hour by 24 and then by the number of
+/// days you want, e.g. WorkPerHour * 24 * 10 for a training time of 10 days.
+///
+/// Don't forget that the work per hour is increased by staffed scientists.
 ///
 /// ```event
 /// EventID: OverridePsiTrainingProjectPoints,
