@@ -707,9 +707,19 @@ event string GetSpecialDamageMessageName() { return FriendlyName; }
 /// final damage result will be independent of the order in which effects
 /// are applied.
 ///
+/// In summary: use these hooks to apply multiplicative damage modifiers
+/// such as percent-based increases and reductions. The pre-default hooks
+/// are for multipliers that should apply to just the calculated base
+/// damage, while the post-default hooks apply modifiers to the calculated
+/// damage after all the additive modifiers have been applied.
+///
+/// **Important** Your implementations of these functions should return the
+/// amount of damage your effect is adding or subtracting, **not** the overall
+/// damage. The value you return will be added to `CurrentDamage`.
+///
 /// ## Pre-default hooks
-/// The first step of the damage calculation involves working out the
-/// base damage. Once that's done, the "pre-default" hooks are applied.
+/// The "pre-default" hooks are applied immediately after the base damage
+/// has been calculated.
 /// This allows mods to apply damage modifiers based on the base damage
 /// before any flat damage modifiers are applied.
 ///
@@ -722,7 +732,7 @@ event string GetSpecialDamageMessageName() { return FriendlyName; }
 ///         Damageable Target,
 ///         XComGameState_Ability AbilityState,
 ///         const out EffectAppliedData ApplyEffectParameters,
-///         float WeaponDamage,
+///         float CurrentDamage,
 ///         XComGameState NewGameState)
 /// ```
 /// This next one is used for effects that are applied to the target
@@ -734,17 +744,13 @@ event string GetSpecialDamageMessageName() { return FriendlyName; }
 ///         XComGameState_Unit TargetUnit,
 ///         XComGameState_Ability AbilityState,
 ///         const out EffectAppliedData ApplyEffectParameters,
-///         float WeaponDamage,
+///         float CurrentDamage,
 ///         XComGameState NewGameState)
 /// ```
-/// The arguments are largely self explanatory, but note that `WeaponDamage`
-/// is a float, as is the return value. `WeaponDamage` is the current total
+/// The arguments are largely self explanatory, but note that `CurrentDamage`
+/// is a float, as is the return value. `CurrentDamage` is the current total
 /// damage, which is the base damage with any preceding damage modifiers
 /// already applied.
-///
-/// Your implementations of these functions should return the amount of
-/// damage your effect is adding or subtracting, **not** the overall damage.
-/// The value you return will be added to `WeaponDamage`.
 ///
 /// ## Post-default hooks
 /// Once the pre-default modifiers have been applied, the traditional (flat)
@@ -762,7 +768,7 @@ event string GetSpecialDamageMessageName() { return FriendlyName; }
 ///         Damageable Target,
 ///         XComGameState_Ability AbilityState,
 ///         const out EffectAppliedData ApplyEffectParameters,
-///         float WeaponDamage,
+///         float CurrentDamage,
 ///         XComGameState NewGameState)
 /// ```
 /// This next one is used for effects that are applied to the target
@@ -774,16 +780,12 @@ event string GetSpecialDamageMessageName() { return FriendlyName; }
 ///         XComGameState_Unit TargetUnit,
 ///         XComGameState_Ability AbilityState,
 ///         const out EffectAppliedData ApplyEffectParameters,
-///         float WeaponDamage,
+///         float CurrentDamage,
 ///         XComGameState NewGameState)
 /// ```
-/// The arguments are largely self explanatory, but note that `WeaponDamage`
-/// is a float, as is the return value. `WeaponDamage` is the current total
+/// The arguments are largely self explanatory, but note that `CurrentDamage`
+/// is a float, as is the return value. `CurrentDamage` is the current total
 /// damage.
-///
-/// Your implementations of these functions should return the amount of
-/// damage your effect is adding or subtracting, **not** the overall damage.
-/// The value you return will be added to `WeaponDamage`.
 ///
 /// ## Compatibility
 /// If you implement any of these functions in your own effects, they will do
@@ -808,10 +810,10 @@ event string GetSpecialDamageMessageName() { return FriendlyName; }
 ///     ...
 /// }
 /// ```
-function float GetPreDefaultAttackingDamageModifier_CH(XComGameState_Effect EffectState, XComGameState_Unit SourceUnit, Damageable Target, XComGameState_Ability AbilityState, const out EffectAppliedData ApplyEffectParameters, float WeaponDamage, X2Effect_ApplyWeaponDamage WeaponDamageEffect, XComGameState NewGameState) { return 0.0; }
-function float GetPreDefaultDefendingDamageModifier_CH(XComGameState_Effect EffectState, XComGameState_Unit SourceUnit, XComGameState_Unit TargetUnit, XComGameState_Ability AbilityState, const out EffectAppliedData ApplyEffectParameters, float WeaponDamage, X2Effect_ApplyWeaponDamage WeaponDamageEffect, XComGameState NewGameState) { return 0.0; }
-function float GetPostDefaultAttackingDamageModifier_CH(XComGameState_Effect EffectState, XComGameState_Unit SourceUnit, Damageable Target, XComGameState_Ability AbilityState, const out EffectAppliedData ApplyEffectParameters, float WeaponDamage, X2Effect_ApplyWeaponDamage WeaponDamageEffect, XComGameState NewGameState) { return 0.0; }
-function float GetPostDefaultDefendingDamageModifier_CH(XComGameState_Effect EffectState, XComGameState_Unit SourceUnit, XComGameState_Unit TargetUnit, XComGameState_Ability AbilityState, const out EffectAppliedData ApplyEffectParameters, float WeaponDamage, X2Effect_ApplyWeaponDamage WeaponDamageEffect, XComGameState NewGameState) { return 0.0; }
+function float GetPreDefaultAttackingDamageModifier_CH(XComGameState_Effect EffectState, XComGameState_Unit SourceUnit, Damageable Target, XComGameState_Ability AbilityState, const out EffectAppliedData ApplyEffectParameters, float CurrentDamage, X2Effect_ApplyWeaponDamage WeaponDamageEffect, XComGameState NewGameState) { return 0.0; }
+function float GetPreDefaultDefendingDamageModifier_CH(XComGameState_Effect EffectState, XComGameState_Unit SourceUnit, XComGameState_Unit TargetUnit, XComGameState_Ability AbilityState, const out EffectAppliedData ApplyEffectParameters, float CurrentDamage, X2Effect_ApplyWeaponDamage WeaponDamageEffect, XComGameState NewGameState) { return 0.0; }
+function float GetPostDefaultAttackingDamageModifier_CH(XComGameState_Effect EffectState, XComGameState_Unit SourceUnit, Damageable Target, XComGameState_Ability AbilityState, const out EffectAppliedData ApplyEffectParameters, float CurrentDamage, X2Effect_ApplyWeaponDamage WeaponDamageEffect, XComGameState NewGameState) { return 0.0; }
+function float GetPostDefaultDefendingDamageModifier_CH(XComGameState_Effect EffectState, XComGameState_Unit SourceUnit, XComGameState_Unit TargetUnit, XComGameState_Ability AbilityState, const out EffectAppliedData ApplyEffectParameters, float CurrentDamage, X2Effect_ApplyWeaponDamage WeaponDamageEffect, XComGameState NewGameState) { return 0.0; }
 // End Issue #923
 
 final event int CallModifyDamageFromDestructible(XComGameState_Destructible DestructibleState, int IncomingDamage, XComGameState_Unit TargetUnit, XComGameState_Effect EffectState)
