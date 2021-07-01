@@ -898,6 +898,7 @@ static function X2AbilityTemplate ChainShot2()
 	Template.AddShooterEffectExclusions();
 
 	Template.AbilityTargetConditions.AddItem(default.LivingHostileTargetProperty);
+	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
 
 	Template.AddTargetEffect(HoloTargetEffect());
 	Template.AssociatedPassives.AddItem('HoloTargeting');
