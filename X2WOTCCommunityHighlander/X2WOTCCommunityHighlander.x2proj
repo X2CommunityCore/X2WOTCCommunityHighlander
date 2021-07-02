@@ -29,7 +29,37 @@
     <Content Include="Config\XComUI.ini">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Localization\X2WOTCCommunityHighlander.chn">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\X2WOTCCommunityHighlander.cht">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\X2WOTCCommunityHighlander.deu">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\X2WOTCCommunityHighlander.esn">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\X2WOTCCommunityHighlander.fra">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Localization\X2WOTCCommunityHighlander.int">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\X2WOTCCommunityHighlander.ita">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\X2WOTCCommunityHighlander.jpn">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\X2WOTCCommunityHighlander.kor">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\X2WOTCCommunityHighlander.pol">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\X2WOTCCommunityHighlander.rus">
       <SubType>Content</SubType>
     </Content>
     <Content Include="ModPreview.jpg" />
@@ -470,6 +500,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2PathTargetPathingPawn.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2ReactionFireSequencer.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2SitRepEffectTemplate.uc">

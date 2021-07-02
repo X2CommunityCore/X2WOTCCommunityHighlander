@@ -1,0 +1,6 @@
+[X2WOTCCH_ModDependencies]
+ModRequiredPopupTitle="Non hai attivato le mod RICHIESTE"
+ModRequired="Per favore ATTIVA le seguenti mod e riavvia il gioco, oppure %s non funzionerà correttamente:"
+ModIncompatiblePopupTitle="Rilevate mod INCOMPATIBILI"
+ModIncompatible="Per favore DISATTIVA le seguenti mod e riavvia il gioco, oppure %s non funzionerà correttamente:"
+DisablePopup="NON MOSTRARE DI NUOVO"

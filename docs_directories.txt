@@ -1,0 +1,4 @@
+./X2WOTCCommunityHighlander/Config/
+./X2WOTCCommunityHighlander/Src/
+#./Components/DLC2CommunityHighlander/DLC2CommunityHighlander/Config/
+./Components/DLC2CommunityHighlander/DLC2CommunityHighlander/Src/

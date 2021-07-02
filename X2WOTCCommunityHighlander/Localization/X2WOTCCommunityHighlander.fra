@@ -1,0 +1,6 @@
+[X2WOTCCH_ModDependencies]
+ModRequiredPopupTitle="mods REQUIS manquants"
+ModRequired="Veuillez ACTIVER les mods suivants et redémarrer ou %s ne fonctionnera pas correctement: "
+ModIncompatiblePopupTitle="mods INCOMPATIBLES détectés"
+ModIncompatible="Veuillez DÉSACTIVER les mods suivants et redémarrer ou %s ne fonctionnera pas correctement: "
+DisablePopup="NE PLUS AFFICHER CE MESSAGE"

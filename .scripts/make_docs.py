@@ -1,4 +1,5 @@
 import argparse
+from itertools import chain
 import sys
 import os
 import shutil
@@ -40,7 +41,7 @@ def parse_args(sess) -> (List[str], str, str, str):
     parser.add_argument('indirs',
                         metavar='indir',
                         type=str,
-                        nargs='+',
+                        nargs='*',
                         help='input file directories')
     parser.add_argument('--outdir', dest='outdir', help='output directories')
 
@@ -54,6 +55,11 @@ def parse_args(sess) -> (List[str], str, str, str):
         dest='dump_elt',
         help='target compile test file for event listener templates')
 
+    parser.add_argument(
+        '--indirsfile',
+        dest='indirsfile',
+        help='text file of newline-separated directories for which to generate documentation')
+
     args = parser.parse_args()
 
     if args.outdir and os.path.isfile(args.outdir):
@@ -62,11 +68,23 @@ def parse_args(sess) -> (List[str], str, str, str):
     if not os.path.exists(args.docsdir) or os.path.isfile(args.docsdir):
         sess.fatal(f"Docs src dir {args.outdir} does not exist or is file")
 
-    for indir in args.indirs:
+    parsed_indirs = []
+    if args.indirsfile:
+        if not os.path.isfile(args.indirsfile):
+            sess.fatal(f"Docs input directory list file {args.indirsfile} does not exist or isn't file")
+        with open(args.indirsfile, 'r') as f:
+            parsed_indirs = filter(None, [l.strip() for l in f if not l.strip().startswith('#')])
+
+    indirs = []
+    for indir in chain(args.indirs, parsed_indirs):
         if not os.path.isdir(indir):
             sess.fatal(f"Input directory {indir} does not exist or is file")
+        indirs.append(indir)
 
-    return args.indirs, args.outdir, args.docsdir, args.dump_elt
+    if len(indirs) == 0:
+        sess.fatal(f"No input directories specified")
+
+    return indirs, args.outdir, args.docsdir, args.dump_elt
 
 
 def link_to_source(ref: dict) -> str:

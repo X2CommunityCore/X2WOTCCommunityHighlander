@@ -1,0 +1,6 @@
+[X2WOTCCH_ModDependencies]
+ModRequiredPopupTitle="前提MODがインストールされていません。"
+ModRequired="%sを正常に作動させるために、以下のMODをインストールし有効化してください："
+ModIncompatiblePopupTitle="互換性のないMODが検出されました、"
+ModIncompatible="%sを正常に作動させるために、以下のMODを無効化してください："
+DisablePopup="次回から表示しない"

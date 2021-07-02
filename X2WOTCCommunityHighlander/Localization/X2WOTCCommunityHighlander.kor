@@ -1,0 +1,6 @@
+[X2WOTCCH_ModDependencies]
+ModRequiredPopupTitle="필수 모드 누락"
+ModRequired="다음 모드를 활성화하시고 재시작 해주세요. 그렇지 않으면 %S 이(가) 제대로 작동하지 않습니다.:"
+ModIncompatiblePopupTitle="호환되지 않는 모드가 감지됨."
+ModIncompatible="다음 모드를 비활성화 하시고 재시작 해주세요. 그렇지 않으면 %S 이(가) 제대로 작동하지 않습니다.:"
+DisablePopup="다시 표시하지 않음."

@@ -384,6 +384,7 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 	local array<Name> AppliedDamageTypes;
 	local bool bDoesDamageIgnoreShields;
 	local DamageModifierInfo DamageModInfo;
+	local array<DamageModifierInfo> DamageMods; // Issue #923
 
 	MinDamagePreview = UpgradeTemplateBonusDamage;
 	MaxDamagePreview = UpgradeTemplateBonusDamage;
@@ -548,6 +549,13 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 	if (bAsPrimaryTarget)
 		TestEffectParams.AbilityInputContext.PrimaryTarget = TargetRef;
 
+	// Start Issue #923
+	MinDamagePreview.Damage = ApplyPreDefaultDamageModifierEffects(History, SourceUnit, TargetUnit, AbilityState, TestEffectParams, MinDamagePreview.Damage, DamageMods, false);
+	MoveDamageModItems(MinDamagePreview.BonusDamageInfo, DamageMods);
+	MaxDamagePreview.Damage = ApplyPreDefaultDamageModifierEffects(History, SourceUnit, TargetUnit, AbilityState, TestEffectParams, MaxDamagePreview.Damage, DamageMods, false);
+	MoveDamageModItems(MaxDamagePreview.BonusDamageInfo, DamageMods);
+	// End Issue #923
+
 	if (TargetUnit != none)
 	{
 		foreach TargetUnit.AffectedByEffects(EffectRef)
@@ -639,9 +647,17 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 				DamageModInfo.SourceEffectRef = EffectState.ApplyEffectParameters.EffectRef;
 				DamageModInfo.Value = EffectDmg;
 				MaxDamagePreview.BonusDamageInfo.AddItem(DamageModInfo);
-			}
+			}	
 		}
 	}
+
+	// Start Issue #923
+	MinDamagePreview.Damage = ApplyPostDefaultDamageModifierEffects(History, SourceUnit, TargetUnit, AbilityState, TestEffectParams, MinDamagePreview.Damage, DamageMods, false);
+	MoveDamageModItems(MinDamagePreview.BonusDamageInfo, DamageMods);
+	MaxDamagePreview.Damage = ApplyPostDefaultDamageModifierEffects(History, SourceUnit, TargetUnit, AbilityState, TestEffectParams, MaxDamagePreview.Damage, DamageMods, false);
+	MoveDamageModItems(MaxDamagePreview.BonusDamageInfo, DamageMods);
+	// End Issue #923
+
 	if (!bDoesDamageIgnoreShields)
 		AllowsShield += MaxDamagePreview.Damage;
 }
@@ -934,6 +950,10 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 
 	if( kSourceUnit != none)
 	{
+		// Start Issue #923
+		WeaponDamage = ApplyPreDefaultDamageModifierEffects(History, kSourceUnit, kTarget, kAbility, ApplyEffectParameters, WeaponDamage, SpecialDamageMessages,, NewGameState);
+		// End Issue #923
+
 		//  allow target effects that modify only the base damage
 		TargetUnit = XComGameState_Unit(kTarget);
 		if (TargetUnit != none)
@@ -1054,6 +1074,10 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 			}
 		}
 
+		// Start Issue #923
+		WeaponDamage = ApplyPostDefaultDamageModifierEffects(History, kSourceUnit, kTarget, kAbility, ApplyEffectParameters, WeaponDamage, SpecialDamageMessages,, NewGameState);
+		// End Issue #923
+
 		if (kTarget != none && !bIgnoreArmor)
 		{
 			ArmorMitigation = kTarget.GetArmorMitigation(ApplyEffectParameters.AbilityResultContext.ArmorMitigation);
@@ -1139,6 +1163,186 @@ simulated function bool IsExplosiveDamage()
 { 
 	return bExplosiveDamage; 
 }
+
+// Start Issue #923
+simulated protected function int ApplyPreDefaultDamageModifierEffects(
+	XComGameStateHistory History,
+	XComGameState_Unit SourceUnit,
+	Damageable Target,
+	XComGameState_Ability AbilityState,
+	const out EffectAppliedData ApplyEffectParameters,
+	int WeaponDamage,
+	out array<DamageModifierInfo> DamageMods,
+	optional bool CheckSpecialMessagesProperty = true,
+	optional XComGameState NewGameState)
+{
+	local XComGameState_Unit TargetUnit;
+	local XComGameState_Effect EffectState;
+	local X2Effect_Persistent EffectTemplate;
+	local StateObjectReference EffectRef;
+	local DamageModifierInfo ModifierInfo;
+	local float OldDamage, CurrDamage;
+	local int EffectDmg;
+
+	CurrDamage = WeaponDamage;
+
+	if (SourceUnit != none)
+	{
+		foreach SourceUnit.AffectedByEffects(EffectRef)
+		{
+			ModifierInfo.Value = 0;
+			OldDamage = CurrDamage;
+
+			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
+			EffectTemplate = EffectState.GetX2Effect();
+			CurrDamage += EffectTemplate.GetPreDefaultAttackingDamageModifier_CH(EffectState, SourceUnit, Target, AbilityState, ApplyEffectParameters, CurrDamage, self, NewGameState);
+			EffectDmg = Round(CurrDamage) - Round(OldDamage);
+			if (EffectDmg != 0)
+			{
+				`log("[CHL] Attacker effect" @ EffectTemplate.EffectName @ "adjusting damage by" @ (CurrDamage - OldDamage) $ ", new damage:" @ CurrDamage, true, 'XCom_HitRolls');
+
+				ModifierInfo.Value = EffectDmg;
+			}
+
+			if (ModifierInfo.Value != 0 && (!CheckSpecialMessagesProperty || EffectTemplate.bDisplayInSpecialDamageMessageUI))
+			{
+				ModifierInfo.SourceEffectRef = EffectState.ApplyEffectParameters.EffectRef;
+				ModifierInfo.SourceID = EffectRef.ObjectID;
+				DamageMods.AddItem(ModifierInfo);
+			}
+		}
+	}
+
+	TargetUnit = XComGameState_Unit(Target);
+	if (TargetUnit != none)
+	{
+		foreach TargetUnit.AffectedByEffects(EffectRef)
+		{
+			ModifierInfo.Value = 0;
+			OldDamage = CurrDamage;
+
+			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
+			EffectTemplate = EffectState.GetX2Effect();
+			CurrDamage += EffectTemplate.GetPreDefaultDefendingDamageModifier_CH(EffectState, SourceUnit, TargetUnit, AbilityState, ApplyEffectParameters, CurrDamage, self, NewGameState);
+			EffectDmg = Round(CurrDamage) - Round(OldDamage);
+			if (EffectDmg != 0)
+			{
+				`log("[CHL] Defender effect" @ EffectTemplate.EffectName @ "adjusting damage by" @ (CurrDamage - OldDamage) $ ", new damage:" @ CurrDamage, true, 'XCom_HitRolls');
+
+				ModifierInfo.Value = EffectDmg;
+			}
+
+			if (ModifierInfo.Value != 0 && (!CheckSpecialMessagesProperty || EffectTemplate.bDisplayInSpecialDamageMessageUI))
+			{
+				ModifierInfo.SourceEffectRef = EffectState.ApplyEffectParameters.EffectRef;
+				ModifierInfo.SourceID = EffectRef.ObjectID;
+				DamageMods.AddItem(ModifierInfo);
+			}
+		}
+	}
+
+	// Truncate rather than use `Round()` for consistency with how XCOM 2
+	// handles float -> int conversion in most cases. Note that this may
+	// result in the sum of the shot modifiers not adding up to the overall
+	// damage modifier, but damage is generally shown as a range anyway.
+	return CurrDamage;
+}
+
+simulated protected function int ApplyPostDefaultDamageModifierEffects(
+	XComGameStateHistory History,
+	XComGameState_Unit SourceUnit,
+	Damageable Target,
+	XComGameState_Ability AbilityState,
+	const out EffectAppliedData ApplyEffectParameters,
+	int WeaponDamage,
+	out array<DamageModifierInfo> DamageMods,
+	optional bool CheckSpecialMessagesProperty = true,
+	optional XComGameState NewGameState)
+{
+	local XComGameState_Unit TargetUnit;
+	local XComGameState_Effect EffectState;
+	local X2Effect_Persistent EffectTemplate;
+	local StateObjectReference EffectRef;
+	local DamageModifierInfo ModifierInfo;
+	local float OldDamage, CurrDamage;
+	local int EffectDmg;
+
+	CurrDamage = WeaponDamage;
+
+	if (SourceUnit != none)
+	{
+		foreach SourceUnit.AffectedByEffects(EffectRef)
+		{
+			ModifierInfo.Value = 0;
+			OldDamage = CurrDamage;
+
+			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
+			EffectTemplate = EffectState.GetX2Effect();
+			CurrDamage += EffectTemplate.GetPostDefaultAttackingDamageModifier_CH(EffectState, SourceUnit, Target, AbilityState, ApplyEffectParameters, CurrDamage, self, NewGameState);
+			EffectDmg = Round(CurrDamage) - Round(OldDamage);
+			if (EffectDmg != 0)
+			{
+				`log("[CHL] Attacker effect" @ EffectTemplate.EffectName @ "adjusting damage by" @ (CurrDamage - OldDamage) $ ", new damage:" @ CurrDamage, true, 'XCom_HitRolls');
+
+				ModifierInfo.Value = EffectDmg;
+			}
+
+			if (ModifierInfo.Value != 0 && (!CheckSpecialMessagesProperty || EffectTemplate.bDisplayInSpecialDamageMessageUI))
+			{
+				ModifierInfo.SourceEffectRef = EffectState.ApplyEffectParameters.EffectRef;
+				ModifierInfo.SourceID = EffectRef.ObjectID;
+				DamageMods.AddItem(ModifierInfo);
+			}
+		}
+	}
+
+	TargetUnit = XComGameState_Unit(Target);
+	if (TargetUnit != none)
+	{
+		foreach TargetUnit.AffectedByEffects(EffectRef)
+		{
+			ModifierInfo.Value = 0;
+			OldDamage = CurrDamage;
+
+			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
+			EffectTemplate = EffectState.GetX2Effect();
+			CurrDamage += EffectTemplate.GetPostDefaultDefendingDamageModifier_CH(EffectState, SourceUnit, TargetUnit, AbilityState, ApplyEffectParameters, CurrDamage, self, NewGameState);
+			EffectDmg = Round(CurrDamage) - Round(OldDamage);
+			if (EffectDmg != 0)
+			{
+				`log("[CHL] Defender effect" @ EffectTemplate.EffectName @ "adjusting damage by" @ (CurrDamage - OldDamage) $ ", new damage:" @ CurrDamage, true, 'XCom_HitRolls');
+
+				ModifierInfo.Value = EffectDmg;
+			}
+
+			if (ModifierInfo.Value != 0 && (!CheckSpecialMessagesProperty || EffectTemplate.bDisplayInSpecialDamageMessageUI))
+			{
+				ModifierInfo.SourceEffectRef = EffectState.ApplyEffectParameters.EffectRef;
+				ModifierInfo.SourceID = EffectRef.ObjectID;
+				DamageMods.AddItem(ModifierInfo);
+			}
+		}
+	}
+
+
+	// Truncate rather than use `Round()` for consistency with how XCOM 2
+	// handles float -> int conversion in most cases. Note that this may
+	// result in the sum of the shot modifiers not adding up to the overall
+	// damage modifier, but damage is generally shown as a range anyway.
+	return CurrDamage;
+}
+
+static private function MoveDamageModItems(out array<DamageModifierInfo> ToArray, out array<DamageModifierInfo> FromArray)
+{
+	local DamageModifierInfo DamageModInfo;
+
+	foreach FromArray(DamageModInfo)
+	{
+		ToArray.AddItem(DamageModInfo);
+	}
+	FromArray.Length = 0;
+}
+// End Issue #923
 
 simulated function AddX2ActionsForVisualization(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata, name EffectApplyResult)
 {
