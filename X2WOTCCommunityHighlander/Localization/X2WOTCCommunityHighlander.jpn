@@ -4,4 +4,3 @@ ModRequired="%sを正常に作動させるために、以下のMODをインス�
 ModIncompatiblePopupTitle="互換性のないMODが検出されました、"
 ModIncompatible="%sを正常に作動させるために、以下のMODを無効化してください："
 DisablePopup="次回から表示しない"
-
