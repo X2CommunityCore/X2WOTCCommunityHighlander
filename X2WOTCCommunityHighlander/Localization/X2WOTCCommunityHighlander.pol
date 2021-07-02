@@ -4,7 +4,3 @@ ModRequired="Proszę AKTYWOWAĆ następujące mody I zrestartować grę, w przec
 ModIncompatiblePopupTitle="Znaleziono NIEKOMPATYBILNE mody"
 ModIncompatible="Proszę ZDEZAKTYWOWAĆ następujące mody I zrestartować grę, w przeciwnym wypadku %s nie będzie działał poprawnie:"
 DisablePopup="Wyłącz tę wiadomość"
-
-
-
-
