@@ -1,0 +1,6 @@
+[X2WOTCCH_ModDependencies]
+ModRequiredPopupTitle="Отсутствуют НЕОБХОДИМЫЕ моды"
+ModRequired="Пожалуйста, АКТИВИРУЙТЕ указанные моды, иначе %s не будет работать:"
+ModIncompatiblePopupTitle="Обнаружены НЕСОВМЕСТИМЫЕ моды"
+ModIncompatible="Пожалуйста, ОТКЛЮЧИТЕ указанные моды, иначе %s не будет работать:"
+DisablePopup="ОТКЛЮЧИТЬ ЭТО СООБЩЕНИЕ"

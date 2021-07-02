@@ -1,0 +1,6 @@
+[X2WOTCCH_ModDependencies]
+ModRequiredPopupTitle="检测不到必要的Mod"
+ModRequired="请启用以下的Mod并重启游戏以确保%s正常运作:"
+ModIncompatiblePopupTitle="检测到不相容的Mods"
+ModIncompatible="请停用以下的Mod并重启游戏以确保%s正常运作:"
+DisablePopup="不要再显示此消息"
