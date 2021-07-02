@@ -28,8 +28,8 @@ static function array<X2DataTemplate> CreateTemplates()
 // AUTO-CODEGEN: Version-Info
 defaultproperties
 {
-    MajorVersion = 1;
-    MinorVersion = 21;
-    PatchVersion = 1;
-    Commit = "RC1";
+	MajorVersion = 1;
+	MinorVersion = 22;
+	PatchVersion = 0;
+	Commit = "";
 }

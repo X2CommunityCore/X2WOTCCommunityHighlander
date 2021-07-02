@@ -12,7 +12,6 @@ Write-Host "Sourcing $common"
 
 $builder = [BuildProject]::new("X2WOTCCommunityHighlander", $srcDirectory, $sdkPath, $gamePath)
 
-$dev = $false
 $compiletest = $false
 
 Write-Host "Configuration: $($config)"
@@ -21,16 +20,12 @@ switch ($config)
 {
     "debug" {
         $builder.EnableDebug()
-        $dev = $true
     }
     "compiletest" {
         $builder.EnableDebug()
         $compiletest = $true
-        $dev = $true
     }
-    "default" {
-        $dev = $true
-    }
+    "default" { }
     "final_release" {
         $builder.EnableFinalRelease()
     }
@@ -59,7 +54,7 @@ if (Test-Path "$srcDirectory\WorkshopID")
 }
 
 $builder.AddPreMakeHook({
-    if ($dev) {
+    if ($config -ne "stable") {
         Write-Host "Updating version and commit..."
         & "$srcDirectory\.scripts\update_version.ps1" -ps "$srcDirectory\VERSION.ps1" -srcDirectory "$sdkPath\Development\Src\" -use_commit
     } else {

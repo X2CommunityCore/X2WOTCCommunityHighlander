@@ -9,8 +9,8 @@ var string Commit;
 // AUTO-CODEGEN: Version-Info
 defaultproperties
 {
-    MajorVersion = 1;
-    MinorVersion = 20;
-    PatchVersion = 0;
-    Commit = "%COMMIT%";
+	MajorVersion = 1;
+	MinorVersion = 22;
+	PatchVersion = 0;
+	Commit = "";
 }
