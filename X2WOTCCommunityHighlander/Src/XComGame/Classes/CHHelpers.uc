@@ -247,13 +247,27 @@ struct ShouldDisplayMultiSlotItemInTacticalStruct
 		Priority = 50
 	}
 };
-
 var protectedwrite array<ShouldDisplayMultiSlotItemInStrategyStruct> ShouldDisplayMultiSlotItemInStrategyCallbacks;
 var protectedwrite array<ShouldDisplayMultiSlotItemInTacticalStruct> ShouldDisplayMultiSlotItemInTacticalCallbacks;
-
-delegate EHLDelegateReturn ShouldDisplayMultiSlotItemInStrategyDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, out int bDisplayItem, XComUnitPawn UnitPawn, optional XComGameState CheckGameState);
-delegate EHLDelegateReturn ShouldDisplayMultiSlotItemInTacticalDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, out int bDisplayItem, XGUnit UnitVisualizer, optional XComGameState CheckGameState);
 // End Issue #885
+
+// Start Issue #851
+struct OverrideHasHeightAdvantageStruct
+{
+	var delegate<OverrideHasHeightAdvantageDelegate> OverrideHasHeightAdvantageFn;
+	var int Priority;
+
+	structdefaultproperties
+	{
+		Priority = 50
+	}
+};
+var protectedwrite array<OverrideHasHeightAdvantageStruct> OverrideHasHeightAdvantageCallbacks;
+// End Issue #851
+
+delegate EHLDelegateReturn ShouldDisplayMultiSlotItemInStrategyDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, out int bDisplayItem, XComUnitPawn UnitPawn, optional XComGameState CheckGameState); // Issue #885
+delegate EHLDelegateReturn ShouldDisplayMultiSlotItemInTacticalDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, out int bDisplayItem, XGUnit UnitVisualizer, optional XComGameState CheckGameState); // Issue #885
+delegate EHLDelegateReturn OverrideHasHeightAdvantageDelegate(XComGameState_Unit Attacker, XComGameState_Unit TargetUnit, out int bHasHeightAdvantage); // Issue #851
 
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
@@ -596,36 +610,54 @@ static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
 
 // Start Issue #885
 /// HL-Docs: feature:DisplayMultiSlotItems; issue:885; tags:pawns
-/// This feature allows mods to allow items equipped in multi-item inventory slots to be visible on soldiers' bodies. 
+/// This feature allows mods to make items equipped in multi-item inventory slots visible on soldiers' bodies. 
 /// The vanilla behavior is that only the first item in the Utility Slot is visible on the soldier's body,
 /// and only in Tactical, but not in the Armory.
-/// Using this feature it's possible to show all items in all multi-slots, including Highlander-templated slots.
 ///
-/// There are two delegates:
-///
-/// ```unrealscript
-/// // Used to decide whether the specified item should be visible on specified unit in the Armory, Squad Select and Post Mission Sequence.
-/// delegate EHLDelegateReturn ShouldDisplayMultiSlotItemInStrategyDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, out int bDisplayItem, XComUnitPawn UnitPawn, optional XComGameState CheckGameState);
-/// // Same as above, but for Tactical.
-/// delegate EHLDelegateReturn ShouldDisplayMultiSlotItemInTacticalDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, out int bDisplayItem, XGUnit UnitVisualizer, optional XComGameState CheckGameState);
-/// ```
+/// With this feature it's possible to conditionally show all items in all multi-slots, including Highlander-templated slots.
+//  Highlander-templated slots, in addition to this feature, also need to have `NeedsPresEquip = true` to display in Tactical, 
+/// and `ShowOnCinematicPawns = true` to display in the Armory and Squad Select.
 ///
 /// ## How to use
 ///
-/// Delegates must be added to the `CHHelpers` ClassDefaultObject. Normally this is done in `OnPostTemplatesCreated`
-/// via `AddShouldDisplayMultiSlotItemInStrategyCallback` and `AddShouldDisplayMultiSlotItemInTacticalCallback`.
+/// Implement the following code in your `X2DownloadableContentInfo` class:
 ///
-/// **Warning:** Delegates must be bound to the ClassDefaultObject of your class, otherwise the game will hard crash 
-/// due to a garbage collection failure when transitioning between layers. Implementing your methods in a class 
-/// that `extends X2DownloadableContentInfo` will automatically handle this for you.
+/// ```unrealscript
+/// static event OnPostTemplatesCreated()
+/// {
+/// 	local CHHelpers CHHelpersObj;
+/// 
+/// 	CHHelpersObj = class'CHHelpers'.static.GetCDO();
+/// 	if (CHHelpersObj != none)
+/// 	{
+/// 		CHHelpersObj.AddShouldDisplayMultiSlotItemInStrategyCallback(ShouldDisplayMultiSlotItemInStrategy);
+/// 		CHHelpersObj.AddShouldDisplayMultiSlotItemInTacticalCallback(ShouldDisplayMultiSlotItemInTactical);
+/// 	}
+/// }
 ///
-/// Both delegates have the `out int bDisplayItem` argument. Set it to any value above zero to display the item on the soldier's body.
-/// Set to 0 to keep the item hidden. Highlander-templated slots also need to have `NeedsPresEquip=true` to display in Tactical, 
-/// and `ShowOnCinematicPawns=true` to display in the Armory and Squad Select.
+/// // To avoid crashes associated with garbage collection failure when transitioning between Tactical and Strategy,
+/// // these functions must be bound to the ClassDefaultObject of your class. Having these functions in a class that 
+/// // `extends X2DownloadableContentInfo` is the easiest way to ensure that.
 ///
-/// Both delegates should return `EHLDR_NoInterrupt` to allow subsequent delegates to run and potentially override the value you have
-/// assigned to `bDisplayItem`, or `EHLDR_InterruptDelegates` to not allow any subsequent delegates to run. A priority can be supplied
-/// to the `AddShouldDisplay...` functions, where a higher-priority callback runs earlier.
+/// // Determines whether the specified item should be visible on specified unit in the Armory, Squad Select and Post Mission Sequence.
+/// static private function EHLDelegateReturn ShouldDisplayMultiSlotItemInStrategy(XComGameState_Unit UnitState, XComGameState_Item ItemState, out int bDisplayItem, XComUnitPawn UnitPawn, optional XComGameState CheckGameState)
+/// {
+/// 	// Optionally modify bDisplayItem here. If `bDisplayItem` is `1`, the item will be visible.
+/// 	// If `bDisplayItem` is `0` it will not be visible.
+/// 
+/// 	// Return EHLDR_NoInterrupt or EHLDR_InterruptDelegates depending on 
+/// 	// if you want to allow other delegates to run after yours
+/// 	// and potentially modify bHasHeightAdvantage further.
+/// 	return EHLDR_NoInterrupt;
+/// }
+///
+/// // Determines whether the specified item should be visible on specified unit in Tactical.
+/// static private function bool ShouldDisplayMultiSlotItemInTactical(XComGameState_Unit UnitState, XComGameState_Item ItemState, out int bDisplayItem, XGUnit UnitVisualizer, optional XComGameState CheckGameState)
+/// {
+/// 	// Optionally modify bDisplayItem here.
+/// 	return EHLDR_NoInterrupt;
+/// }
+/// ```
 ///
 /// You can get the template name of the item in question from the provided ItemState by doing `ItemState.GetMyTemplateName()`, 
 /// and access its Inventory Slot as `ItemState.InventorySlot`.
@@ -649,57 +681,14 @@ static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
 /// ItemStates = UnitState.GetAllItemsInSlot(eInvSlot_Utility, CheckGameState);
 /// ```
 /// This is mostly relevant for multiplayer, as the pre-game setup doesn't have a History.
-///
-/// ## Example
-///
-/// Here's a simple example of a delegate pair that will display all items equipped in the Utility Slot in both Tactical and Strategy.
-/// This needs to go in a class that extends `X2DownloadableContentInfo`.
-/// ```unrealscript
-/// static event OnPostTemplatesCreated()
-/// {
-/// 	local CHHelpers CHHelpersObj;
-/// 
-/// 	CHHelpersObj = class'CHHelpers'.static.GetCDO();
-/// 	if (CHHelpersObj != none)
-/// 	{
-/// 		CHHelpersObj.AddShouldDisplayMultiSlotItemInStrategyCallback(ShouldDisplayMultiSlotItemInStrategyDelegate, 50);
-/// 		CHHelpersObj.AddShouldDisplayMultiSlotItemInTacticalCallback(ShouldDisplayMultiSlotItemInTacticalDelegate, 50);
-/// 	}
-/// }
-/// 
-/// static private function EHLDelegateReturn ShouldDisplayMultiSlotItemInStrategyDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, out int bDisplayItem, XComUnitPawn UnitPawn, optional XComGameState CheckGameState)
-/// {
-/// 	ShouldDisplayUtilitySlotItem(ItemState, bDisplayItem);
-/// 	// Return this to allow following Delegates to override the output of this delegate.
-/// 	return EHLDR_NoInterrupt;
-/// }
-/// 
-/// static private function bool ShouldDisplayMultiSlotItemInTacticalDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, out int bDisplayItem, XGUnit UnitVisualizer, optional XComGameState CheckGameState);
-/// {
-/// 	return ShouldDisplayUtilitySlotItem(ItemState, bDisplayItem);
-/// 	return EHLDR_NoInterrupt;
-/// }
-/// 
-/// static private function ShouldDisplayUtilitySlotItem(XComGameState_Item ItemState, out int bDisplayItem)
-/// {
-/// 	local X2EquipmentTemplate EqTemplate;
-/// 
-/// 	if (ItemState.InventorySlot == eInvSlot_Utility)
-/// 	{
-/// 		EqTemplate = X2EquipmentTemplate(ItemState.GetMyTemplate());
-/// 		if (EqTemplate != none && EqTemplate.iItemSize > 0)
-/// 		{
-/// 			bDisplayItem = 1;
-/// 		}
-/// 	}
-/// }
-/// ```
 
 /// HL-Docs: ref:DisplayMultiSlotItems
-// Strategy Layer
-// You can optionally specify callback Priority. Delegates with higher Priority value are executed first. Delegates with the same Priority are executed in the same order they were added to CHHelpers,
-// which would normally be the same as DLCRunOrder.
-// This function returns true if the delegate was successfully registered.
+/// Strategy Layer
+/// When adding a delegate, you can optionally specify Priority. 
+/// Delegates with higher Priority value are executed first. 
+/// Delegates with the same Priority are executed in the order they were added to CHHelpers,
+/// which would normally is the same as DLCRunOrder.
+/// This function returns true if the delegate was successfully registered.
 simulated function bool AddShouldDisplayMultiSlotItemInStrategyCallback(delegate<ShouldDisplayMultiSlotItemInStrategyDelegate> ShouldDisplayMultiSlotItemInStrategyFn, optional int Priority = 50)
 {
 	local ShouldDisplayMultiSlotItemInStrategyStruct NewShouldDisplayMultiSlotItemInStrategyCallback;
@@ -710,8 +699,8 @@ simulated function bool AddShouldDisplayMultiSlotItemInStrategyCallback(delegate
 	{
 		return false;
 	}
-
-	for (i = 0; i < ShouldDisplayMultiSlotItemInStrategyCallbacks.Length; i++)
+	// Cycle through the array of callbacks backwards
+	for (i = ShouldDisplayMultiSlotItemInStrategyCallbacks.Length - 1; i >= 0; i--)
 	{
 		// Do not allow registering the same delegate more than once.
 		if (ShouldDisplayMultiSlotItemInStrategyCallbacks[i].ShouldDisplayMultiSlotItemInStrategyFn == ShouldDisplayMultiSlotItemInStrategyFn)
@@ -719,11 +708,11 @@ simulated function bool AddShouldDisplayMultiSlotItemInStrategyCallback(delegate
 			return false;
 		}
 
-		// Remember the Index of the first member of the array of callbacks whose Priority is lower than the priority of the new Callback we intend to add.
-		// Thusly, Callbacks with higher Priority will be called first. Callbacks with the same priority will be called in order of their addition.
-		if (Priority > ShouldDisplayMultiSlotItemInStrategyCallbacks[i].Priority && !bPriorityIndexFound)
+		// Record the array index of the callback whose priority is higher or equal to the priority of the new callback,
+		// so that the new callback can be inserted right after it.
+		if (ShouldDisplayMultiSlotItemInStrategyCallbacks[i].Priority >= Priority && !bPriorityIndexFound)
 		{
-			PriorityIndex = i;
+			PriorityIndex = i + 1; // +1 so that InsertItem puts the new callback *after* this one. 
 
 			//	Need to assign the priority index only once so that highest priority delegates do not fall through to become 2nd last member of the array.
 			//	Keep cycling through the array so that the previous check for duplicate delegates can run for every currently registered delegate.
@@ -733,13 +722,14 @@ simulated function bool AddShouldDisplayMultiSlotItemInStrategyCallback(delegate
 
 	NewShouldDisplayMultiSlotItemInStrategyCallback.Priority = Priority;
 	NewShouldDisplayMultiSlotItemInStrategyCallback.ShouldDisplayMultiSlotItemInStrategyFn = ShouldDisplayMultiSlotItemInStrategyFn;
-
 	ShouldDisplayMultiSlotItemInStrategyCallbacks.InsertItem(PriorityIndex, NewShouldDisplayMultiSlotItemInStrategyCallback);
 
 	return true;
 }
 
-// Return true if the Callback was successfully deleted, return false otherwise.
+/// HL-Docs: ref:DisplayMultiSlotItems
+/// If necessary, it's possible to remove a delegate.
+/// Return true if the Callback was successfully deleted, return false otherwise.
 simulated function bool RemoveShouldDisplayMultiSlotItemInStrategyCallback(delegate<ShouldDisplayMultiSlotItemInStrategyDelegate> ShouldDisplayMultiSlotItemInStrategyFn)
 {
 	local int i;
@@ -781,28 +771,22 @@ simulated function bool AddShouldDisplayMultiSlotItemInTacticalCallback(delegate
 	local int i, PriorityIndex;
 	local bool bPriorityIndexFound;
 
-	if (ShouldDisplayMultiSlotItemInTacticalFn != none)
-	{
-		return false;
-	}
-
-	for (i = 0; i < ShouldDisplayMultiSlotItemInTacticalCallbacks.Length; i++)
+	for (i = ShouldDisplayMultiSlotItemInTacticalCallbacks.Length - 1; i >= 0; i--)
 	{
 		if (ShouldDisplayMultiSlotItemInTacticalCallbacks[i].ShouldDisplayMultiSlotItemInTacticalFn == ShouldDisplayMultiSlotItemInTacticalFn)
 		{
 			return false;
 		}
 
-		if (Priority > ShouldDisplayMultiSlotItemInTacticalCallbacks[i].Priority && !bPriorityIndexFound)
+		if (ShouldDisplayMultiSlotItemInTacticalCallbacks[i].Priority >= Priority && !bPriorityIndexFound)
 		{
-			PriorityIndex = i;
+			PriorityIndex = i + 1;
 			bPriorityIndexFound = true;
 		}
 	}
 
 	NewShouldDisplayMultiSlotItemInTacticalCallback.Priority = Priority;
 	NewShouldDisplayMultiSlotItemInTacticalCallback.ShouldDisplayMultiSlotItemInTacticalFn = ShouldDisplayMultiSlotItemInTacticalFn;
-
 	ShouldDisplayMultiSlotItemInTacticalCallbacks.InsertItem(PriorityIndex, NewShouldDisplayMultiSlotItemInTacticalCallback);
 
 	return true;
@@ -847,6 +831,85 @@ static function CHHelpers GetCDO()
 	return CHHelpers(class'XComEngine'.static.GetClassDefaultObjectByName(default.Class.Name));
 }
 // End Issue #885
+
+// Start Issue #851
+/// HL-Docs: ref:HasHeightAdvantageOverride
+/// You can optionally specify callback Priority. Delegates with higher Priority value are executed first. 
+/// Delegates with the same Priority are executed in the order they were added to CHHelpers,
+/// which would normally be the same as DLCRunOrder.
+/// This function returns true if the delegate was successfully registered.
+simulated function bool AddOverrideHasHeightAdvantageCallback(delegate<OverrideHasHeightAdvantageDelegate> OverrideHasHeightAdvantageFn, optional int Priority = 50)
+{
+	local OverrideHasHeightAdvantageStruct NewOverrideHasHeightAdvantageCallback;
+	local int i, PriorityIndex;
+	local bool bPriorityIndexFound;
+
+	if (OverrideHasHeightAdvantageFn == none)
+	{
+		return false;
+	}
+	// Cycle through the array of callbacks backwards
+	for (i = OverrideHasHeightAdvantageCallbacks.Length - 1; i >= 0; i--)
+	{
+		// Do not allow registering the same delegate more than once.
+		if (OverrideHasHeightAdvantageCallbacks[i].OverrideHasHeightAdvantageFn == OverrideHasHeightAdvantageFn)
+		{
+			return false;
+		}
+
+		// Record the array index of the callback whose priority is higher or equal to the priority of the new callback,
+		// so that the new callback can be inserted right after it.
+		if (OverrideHasHeightAdvantageCallbacks[i].Priority >= Priority && !bPriorityIndexFound)
+		{
+			PriorityIndex = i + 1; // +1 so that InsertItem puts the new callback *after* this one. 
+
+			//	Keep cycling through the array so that the previous check for duplicate delegates can run for every currently registered delegate.
+			bPriorityIndexFound = true;
+		}
+	}
+
+	NewOverrideHasHeightAdvantageCallback.Priority = Priority;
+	NewOverrideHasHeightAdvantageCallback.OverrideHasHeightAdvantageFn = OverrideHasHeightAdvantageFn;
+	OverrideHasHeightAdvantageCallbacks.InsertItem(PriorityIndex, NewOverrideHasHeightAdvantageCallback);
+
+	return true;
+}
+
+/// HL-Docs: ref:HasHeightAdvantageOverride
+/// Delegates can be removed, if necessary. Returns `true` if the delegate was successfully removed.
+simulated function bool RemoveOverrideHasHeightAdvantageCallback(delegate<OverrideHasHeightAdvantageDelegate> OverrideHasHeightAdvantageFn)
+{
+	local int i;
+
+	for (i = OverrideHasHeightAdvantageCallbacks.Length - 1; i >= 0; i--)
+	{
+		if (OverrideHasHeightAdvantageCallbacks[i].OverrideHasHeightAdvantageFn == OverrideHasHeightAdvantageFn)
+		{
+			OverrideHasHeightAdvantageCallbacks.Remove(i, 1);
+			return true;
+		}
+	}
+	return false;
+}
+
+// Called by XComGameState_Unit::HasHeightAdvantageOver()
+// This is an internal CHL API. It is not intended for use by mods and is not covered by Backwards Compatibility policy.
+simulated function TriggerOverrideHasHeightAdvantage(XComGameState_Unit Attacker, XComGameState_Unit TargetUnit, out int bHasHeightAdvantage)
+{
+	local delegate<OverrideHasHeightAdvantageDelegate> OverrideHasHeightAdvantageFn;
+	local int i;
+
+	for (i = 0; i < OverrideHasHeightAdvantageCallbacks.Length; i++)
+	{	
+		OverrideHasHeightAdvantageFn = OverrideHasHeightAdvantageCallbacks[i].OverrideHasHeightAdvantageFn;
+
+		if (OverrideHasHeightAdvantageFn(Attacker, TargetUnit, bHasHeightAdvantage) == EHLDR_InterruptDelegates)
+		{
+			break;
+		}
+	}
+}
+// End Issue #851
 
 // Start Issue #855
 static function name GetPlaceEvacZoneAbilityName()

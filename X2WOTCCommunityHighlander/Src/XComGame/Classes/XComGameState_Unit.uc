@@ -1108,12 +1108,82 @@ function bool EverHadTrait(name TraitTemplateName)
 simulated function bool HasHeightAdvantageOver(XComGameState_Unit OtherUnit, bool bAsAttacker)
 {
 	local int BonusZ;
+	// Local variable for Issue #851
+	local bool bHasHeightAdvantageOver;
 
 	if (bAsAttacker)
 		BonusZ = GetHeightAdvantageBonusZ();
 
-	return TileLocation.Z + BonusZ >= (OtherUnit.TileLocation.Z + class'X2TacticalGameRuleset'.default.UnitHeightAdvantage);
+	// Start Issue #851
+	bHasHeightAdvantageOver = TileLocation.Z + BonusZ >= (OtherUnit.TileLocation.Z + class'X2TacticalGameRuleset'.default.UnitHeightAdvantage);
+
+	return TriggerOverrideHasHeightAdvantage(bHasHeightAdvantageOver, OtherUnit, bAsAttacker);
+	// End Issue #851
 }
+
+// Start Issue #851
+/// HL-Docs: feature:HasHeightAdvantageOverride; issue:851; tags:tactical
+/// This feature allows mods to override whether a unit has height advantage over another unit, gaining various tactical benefits.
+///
+/// Normally this override would have been implemented as an event, but events in To Hit Chance Calculation logic can cause issues, 
+/// see [GetHitChanceEvents](../tactical/GetHitChanceEvents.md), so the delegates system is used instead.
+///
+/// ## How to use
+///
+/// Implement the following code in your mod's `X2DownloadableContentInfo` class:
+/// ```unrealscript
+/// static event OnPostTemplatesCreated()
+/// {
+/// 	local CHHelpers CHHelpersObj;
+/// 
+/// 	CHHelpersObj = class'CHHelpers'.static.GetCDO();
+/// 	if (CHHelpersObj != none)
+/// 	{
+/// 		CHHelpersObj.AddOverrideHasHeightAdvantageCallback(OverrideHasHeightAdvantage);
+/// 	}
+/// }
+///
+/// // To avoid crashes associated with garbage collection failure when transitioning between Tactical and Strategy,
+/// // this function must be bound to the ClassDefaultObject of your class. Having this function in a class that 
+/// // `extends X2DownloadableContentInfo` is the easiest way to ensure that.
+/// static private function EHLDelegateReturn OverrideHasHeightAdvantage(XComGameState_Unit Attacker, XComGameState_Unit TargetUnit, out int bHasHeightAdvantage)
+/// {
+/// 	// Optionally modify bHasHeightAdvantage here. 
+/// 	// `bHasHeightAdvantage` is `0` if the `Attacker` does not have height advantage over the `TargetUnit`,
+/// 	// and `1` if height advantage is present. 
+///		
+/// 	// Return EHLDR_NoInterrupt or EHLDR_InterruptDelegates depending on 
+/// 	// if you want to allow other delegates to run after yours
+/// 	// and potentially modify bHasHeightAdvantage further.
+/// 	return EHLDR_NoInterrupt;
+///}
+/// ```
+simulated private function bool TriggerOverrideHasHeightAdvantage(const bool bHasHeightAdvantage, XComGameState_Unit OtherUnit, bool bAsAttacker)
+{
+	local int bHasHeightAdvantageOverride;
+	local XComGameState_Unit Attacker;
+	local XComGameState_Unit TargetUnit;
+	local CHHelpers CHHelpersObj;
+
+	if (bAsAttacker)
+	{
+		Attacker = self;
+		TargetUnit = OtherUnit;
+	}
+	else
+	{
+		Attacker = OtherUnit;
+		TargetUnit = self;
+	}
+
+	bHasHeightAdvantageOverride = bHasHeightAdvantage ? 1 : 0;
+
+	CHHelpersObj = class'CHHelpers'.static.GetCDO();
+	CHHelpersObj.TriggerOverrideHasHeightAdvantage(Attacker, TargetUnit, bHasHeightAdvantageOverride);
+
+	return bHasHeightAdvantageOverride > 0;
+}
+// End Issue #851
 
 simulated function int GetHeightAdvantageBonusZ()
 {

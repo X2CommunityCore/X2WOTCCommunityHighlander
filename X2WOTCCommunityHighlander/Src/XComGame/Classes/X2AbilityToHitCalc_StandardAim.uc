@@ -318,6 +318,19 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 	local ECoverType NextTileOverCoverType;
 	local int TileDistance;
 
+	/// HL-Docs: feature:GetHitChanceEvents; issue:1031; tags:tactical
+	/// WARNING! Triggering events in `X2AbilityToHitCalc::GetHitChance()` and other functions called by this function
+	/// may freeze (hard hang) the game under certain circumstances.
+	///
+	/// In our experiments, the game would hang when the player used a moving melee ability when an event was triggered
+	/// in `UITacticalHUD_AbilityContainer::ConfirmAbility()`  right above the 
+	/// `XComPresentationLayer(Owner.Owner).PopTargetingStates();` line or anywhere further down the script trace,
+	/// while another event was also triggered in `GetHitChance()` or anywhere further down the script trace.
+	///
+	/// The game hangs while executing UI code, but it is the event in the To Hit Calculation logic that induces it.
+	/// The speculation is that triggering events in `GetHitChance()` somehow corrupts the event manager, or it
+	/// could be a threading issue.
+
 	`log("=" $ GetFuncName() $ "=", bDebugLog, 'XCom_HitRolls');
 
 	//  @TODO gameplay handle non-unit targets
