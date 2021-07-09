@@ -145,9 +145,7 @@ simulated function UpdateData(int NewIndex, const out AvailableAction AvailableA
 		if (IsObjectiveAbility || AbilityTemplate.AbilityIconColor != "")
 		{
 			BackgroundColor = IsObjectiveAbility ? class'UIUtilities_Colors'.const.OBJECTIVEICON_HTML_COLOR : AbilityTemplate.AbilityIconColor;
-
-			// Issue #1031 - temporarily disable the event trigger to prevent moving melee abilities from hard hanging the game.
-			//TriggerOverrideAbilityIconColor(AbilityState, IsObjectiveAbility, BackgroundColor);
+			TriggerOverrideAbilityIconColor(AbilityState, IsObjectiveAbility, BackgroundColor);
 		}
 		else
 		{
@@ -178,8 +176,7 @@ simulated function UpdateData(int NewIndex, const out AvailableAction AvailableA
 
 		ForegroundColor = class'UIUtilities_Colors'.const.BLACK_HTML_COLOR;
 
-		// Issue #1031 - temporarily disable the event trigger to prevent moving melee abilities from hard hanging the game.
-		//TriggerOverrideAbilityIconColorImproved(AbilityState, IsObjectiveAbility, BackgroundColor, ForegroundColor);
+		TriggerOverrideAbilityIconColorImproved(AbilityState, IsObjectiveAbility, BackgroundColor, ForegroundColor);
 
 		Icon.EnableMouseAutomaticColor(BackgroundColor, ForegroundColor);
 		// End Issue #749
