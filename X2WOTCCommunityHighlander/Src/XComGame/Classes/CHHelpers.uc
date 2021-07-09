@@ -615,10 +615,10 @@ static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
 /// and only in Tactical, but not in the Armory.
 ///
 /// With this feature it's possible to conditionally show all items in all multi-slots, including Highlander-templated slots.
-//  Highlander-templated slots, in addition to this feature, also need to have `NeedsPresEquip = true` to display in Tactical, 
+/// Highlander-templated slots, in addition to this feature, also need to have `NeedsPresEquip = true` to display in Tactical, 
 /// and `ShowOnCinematicPawns = true` to display in the Armory and Squad Select.
 ///
-/// ## How to use
+/// # How to use
 ///
 /// Implement the following code in your `X2DownloadableContentInfo` class:
 ///
@@ -628,11 +628,8 @@ static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
 /// 	local CHHelpers CHHelpersObj;
 /// 
 /// 	CHHelpersObj = class'CHHelpers'.static.GetCDO();
-/// 	if (CHHelpersObj != none)
-/// 	{
-/// 		CHHelpersObj.AddShouldDisplayMultiSlotItemInStrategyCallback(ShouldDisplayMultiSlotItemInStrategy);
-/// 		CHHelpersObj.AddShouldDisplayMultiSlotItemInTacticalCallback(ShouldDisplayMultiSlotItemInTactical);
-/// 	}
+/// 	CHHelpersObj.AddShouldDisplayMultiSlotItemInStrategyCallback(ShouldDisplayMultiSlotItemInStrategy);
+/// 	CHHelpersObj.AddShouldDisplayMultiSlotItemInTacticalCallback(ShouldDisplayMultiSlotItemInTactical);
 /// }
 ///
 /// // To avoid crashes associated with garbage collection failure when transitioning between Tactical and Strategy,
@@ -683,12 +680,16 @@ static function array<XComGameState_Player> GetEnemyPlayers( XGPlayer AIPlayer)
 /// This is mostly relevant for multiplayer, as the pre-game setup doesn't have a History.
 
 /// HL-Docs: ref:DisplayMultiSlotItems
-/// Strategy Layer
+/// # Delegate Priority
 /// When adding a delegate, you can optionally specify Priority. 
+///```unrealscript
+///CHHelpersObj.AddShouldDisplayMultiSlotItemInStrategyCallback(ShouldDisplayMultiSlotItemInStrategy, 45);
+///```
 /// Delegates with higher Priority value are executed first. 
 /// Delegates with the same Priority are executed in the order they were added to CHHelpers,
-/// which would normally is the same as DLCRunOrder.
-/// This function returns true if the delegate was successfully registered.
+/// which would normally is the same as [DLCRunOrder](../misc/DLCRunOrder.md).
+/// The "Add...Callback functions return `true` if the delegate was successfully registered.
+// Strategy Layer
 simulated function bool AddShouldDisplayMultiSlotItemInStrategyCallback(delegate<ShouldDisplayMultiSlotItemInStrategyDelegate> ShouldDisplayMultiSlotItemInStrategyFn, optional int Priority = 50)
 {
 	local ShouldDisplayMultiSlotItemInStrategyStruct NewShouldDisplayMultiSlotItemInStrategyCallback;
@@ -728,8 +729,13 @@ simulated function bool AddShouldDisplayMultiSlotItemInStrategyCallback(delegate
 }
 
 /// HL-Docs: ref:DisplayMultiSlotItems
+/// # Removing Delegates
 /// If necessary, it's possible to remove a delegate.
-/// Return true if the Callback was successfully deleted, return false otherwise.
+///```unrealscript
+///CHHelpersObj.RemoveShouldDisplayMultiSlotItemInStrategyCallback(ShouldDisplayMultiSlotItemInStrategy);
+///CHHelpersObj.RemoveShouldDisplayMultiSlotItemInTacticalCallback(ShouldDisplayMultiSlotItemInTactical);
+///```
+/// `Remove...Callback` functions will return `true` if the Callback was successfully deleted, return false otherwise.
 simulated function bool RemoveShouldDisplayMultiSlotItemInStrategyCallback(delegate<ShouldDisplayMultiSlotItemInStrategyDelegate> ShouldDisplayMultiSlotItemInStrategyFn)
 {
 	local int i;
@@ -763,7 +769,6 @@ simulated function bool ShouldDisplayMultiSlotItemInStrategy(XComGameState_Unit 
 	return bDisplayItem > 0;
 }
 
-/// HL-Docs: ref:DisplayMultiSlotItems
 // Tactical Layer
 simulated function bool AddShouldDisplayMultiSlotItemInTacticalCallback(delegate<ShouldDisplayMultiSlotItemInTacticalDelegate> ShouldDisplayMultiSlotItemInTacticalFn, optional int Priority = 50)
 {
@@ -834,10 +839,15 @@ static function CHHelpers GetCDO()
 
 // Start Issue #851
 /// HL-Docs: ref:HasHeightAdvantageOverride
-/// You can optionally specify callback Priority. Delegates with higher Priority value are executed first. 
+/// # Delegate Priority
+/// You can optionally specify callback Priority. 
+///```unrealscript
+///CHHelpersObj.AddOverrideHasHeightAdvantageCallback(OverrideHasHeightAdvantage, 45);
+///```
+/// Delegates with higher Priority value are executed first. 
 /// Delegates with the same Priority are executed in the order they were added to CHHelpers,
-/// which would normally be the same as DLCRunOrder.
-/// This function returns true if the delegate was successfully registered.
+/// which would normally be the same as [DLCRunOrder](../misc/DLCRunOrder.md).
+/// This function will return `true` if the delegate was successfully registered.
 simulated function bool AddOverrideHasHeightAdvantageCallback(delegate<OverrideHasHeightAdvantageDelegate> OverrideHasHeightAdvantageFn, optional int Priority = 50)
 {
 	local OverrideHasHeightAdvantageStruct NewOverrideHasHeightAdvantageCallback;
@@ -876,7 +886,12 @@ simulated function bool AddOverrideHasHeightAdvantageCallback(delegate<OverrideH
 }
 
 /// HL-Docs: ref:HasHeightAdvantageOverride
-/// Delegates can be removed, if necessary. Returns `true` if the delegate was successfully removed.
+/// # Removing Delegates
+/// If necessary, it's possible to remove a delegate.
+///```unrealscript
+///CHHelpersObj.RemoveOverrideHasHeightAdvantageCallback(OverrideHasHeightAdvantage);
+///```
+/// The function will return `true` if the Callback was successfully deleted, return false otherwise.
 simulated function bool RemoveOverrideHasHeightAdvantageCallback(delegate<OverrideHasHeightAdvantageDelegate> OverrideHasHeightAdvantageFn)
 {
 	local int i;
