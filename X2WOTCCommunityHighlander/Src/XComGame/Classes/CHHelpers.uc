@@ -220,6 +220,11 @@ var config bool DisableExtraLOSCheckForSmoke;
 var config bool DisableExtraLOSCheckForPoison;
 // End Issue #669
 
+// Issue #1008
+// Set to `true` to disable the behaviour where if the pod leader skips its
+// turn when scampering, the whole pod fails to scamper.
+var config bool DisableSkipGroupOnScamper;
+
 // Start Issue #885
 enum EHLDelegateReturn
 {
