@@ -1016,7 +1016,7 @@ static function bool IsCauseAbsoluteKnowledge( EAlertCause AlertCause )
 static function bool ShouldEnemyFactionsTriggerAlertsOutsidePlayerVision(EAlertCause AlertCause)
 {
 	local bool bResult;
-
+	local XComLWTuple OverrideTuple;
 	bResult = false;
 	switch( AlertCause )
 	{
@@ -1031,7 +1031,15 @@ static function bool ShouldEnemyFactionsTriggerAlertsOutsidePlayerVision(EAlertC
 		break;
 	}
 
-	return bResult;
+		OverrideTuple = new class'XComLWTuple';
+		OverrideTuple.Id = 'OverrideEnemyFactionsAlertsOutsideVision';
+		OverrideTuple.Data.Add(1);
+		OverrideTuple.Data[0].Kind = XComLWTVBool;
+		OverrideTuple.Data[0].b = bResult;
+	
+		`XEVENTMGR.TriggerEvent('OverrideEnemyFactionsAlertsOutsideVision', OverrideTuple);
+
+	return OverrideTuple.Data[0].b;
 }
 
 static function bool IsCauseAllowedForNonvisibleUnits(EAlertCause AlertCause)
