@@ -197,6 +197,16 @@ private static function XComGameState_Unit AddStrategyUnitToBoard(XComGameState_
 	// Must happen after unit is submitted, or it gets confused about when the unit is in play or not 
 	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Adding Reserve Unit Abilities");
 
+	// Start Issue #1029
+	/// HL-Docs: ref:Bugfixes; issue:1029
+	/// Units spawned from the Avenger would sometimes not be able to take actions
+	/// because their abilities weren't initialized properly. This is now fixed.
+	//
+	// Make sure we have a writeable copy of the unit state before initializing
+	// its abilities.
+	Unit = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', Unit.ObjectID));
+	// End Issue #1029
+
 	Rules.InitializeUnitAbilities(NewGameState, Unit);
 
 	// make the unit concealed, if they have Phantom
