@@ -1016,7 +1016,7 @@ static function bool IsCauseAbsoluteKnowledge( EAlertCause AlertCause )
 static function bool ShouldEnemyFactionsTriggerAlertsOutsidePlayerVision(EAlertCause AlertCause)
 {
 	local bool bResult;
-	local XComLWTuple OverrideTuple;
+
 	bResult = false;
 	switch( AlertCause )
 	{
@@ -1030,16 +1030,38 @@ static function bool ShouldEnemyFactionsTriggerAlertsOutsidePlayerVision(EAlertC
 		bResult = true;
 		break;
 	}
+	//Start Issue #1036
+	bResult = OverrideShouldEnemyFactionsTriggerAlertsOutsidePlayerVision(AlertCause, bResult);
+	//End Issue #1036
+	return bResult;
+}
 
-		OverrideTuple = new class'XComLWTuple';
-		OverrideTuple.Id = 'OverrideEnemyFactionsAlertsOutsideVision';
-		OverrideTuple.Data.Add(1);
-		OverrideTuple.Data[0].Kind = XComLWTVBool;
-		OverrideTuple.Data[0].b = bResult;
-	
-		`XEVENTMGR.TriggerEvent('OverrideEnemyFactionsAlertsOutsideVision', OverrideTuple);
+// Start Issue #1036
+/// HL-Docs: feature:OverrideEnemyFactionsAlertsOutsideVision; issue:1036; tags:tactical
+/// Fires an event that allows listeners to Override whether an Alert can be triggered by units 
+/// outside of XCOM's Vision.
+/// AlertCause Contains the Alert Value, while AllowThisCause boolean Determines if the alert is allowed.
+/// ```event
+/// EventID: OverrideEnemyFactionsAlertsOutsideVision,
+/// EventData: [ in int AlertCause, inout bool bResult],
+/// EventSource: none,
+/// NewGameState: none
+/// ```
+static function bool OverrideShouldEnemyFactionsTriggerAlertsOutsidePlayerVision(int AlertCause, bool AllowThisCause)
+{
+	local XComLWTuple OverrideTuple;
 
-	return OverrideTuple.Data[0].b;
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideEnemyFactionsAlertsOutsideVision';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].Kind = XComLWTVInt;
+	OverrideTuple.Data[0].i = AlertCause;
+	OverrideTuple.Data[1].Kind = XComLWTVBool;
+	OverrideTuple.Data[1].b = AllowThisCause;
+
+	`XEVENTMGR.TriggerEvent('OverrideEnemyFactionsAlertsOutsideVision', OverrideTuple);
+
+	return  OverrideTuple.Data[1].b;
 }
 
 static function bool IsCauseAllowedForNonvisibleUnits(EAlertCause AlertCause)
