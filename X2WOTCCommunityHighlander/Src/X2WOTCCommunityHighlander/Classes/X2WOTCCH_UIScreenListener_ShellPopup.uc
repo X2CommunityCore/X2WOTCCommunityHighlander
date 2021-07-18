@@ -13,9 +13,9 @@ var X2WOTCCH_ModDependencies DependencyChecker;
 
 var config array<string> HideGroupWarnings;
 
-var localized string CycleErrorTitle, CycleErrorText;
-var localized string GroupErrorTitle, GroupErrorText;
-var localized string BlameText;
+var localized string CycleErrorTitle, CycleErrorText, HardErrorText;
+var localized string GroupErrorTitle, GroupErrorText, PotentialErrorText;
+var localized string AdviceText, BlameText;
 
 event OnInit(UIScreen Screen)
 {
@@ -191,11 +191,16 @@ function string GetCycleText(CHDLCRunOrderDiagnostic Diag)
 	local string Fmt, BlameBuf;
 	local array<string> Facts;
 
+	JoinArray(Diag.Blame(), BlameBuf, ", ");
+
+	Fmt = default.HardErrorText;
+	Fmt @= Repl(default.AdviceText, "%BLAME", BlameBuf);
+	Fmt $= "\n\n";
+
 	Facts = Diag.FormatEdgeFacts();
 
-	Fmt = Repl(default.CycleErrorText, "%FACTS", MakeBulletList(Facts));
+	Fmt $= Repl(default.CycleErrorText, "%FACTS", MakeBulletList(Facts));
 	Fmt $= "\n\n";
-	JoinArray(Diag.Blame(), BlameBuf, ", ");
 	Fmt $= Repl(default.BlameText, "%BLAME", BlameBuf);
 
 	return Fmt;
@@ -210,7 +215,7 @@ simulated function GroupPopup(CHDLCRunOrderDiagnostic Diag)
 	CallbackData.Diag = Diag;
 
 	kDialogData.strTitle = default.GroupErrorTitle;
-	kDialogData.eType = eDialog_Warning;
+	kDialogData.eType = eDialog_Alert;
 	kDialogData.strText = GetGroupText(Diag);
 	kDialogData.fnCallbackEx = GroupPopupCB;
 	kDialogData.strAccept = class'X2WOTCCH_ModDependencies'.default.DisablePopup;
@@ -225,12 +230,17 @@ function string GetGroupText(CHDLCRunOrderDiagnostic Diag)
 	local string Fmt, BlameBuf;
 	local array<string> Facts;
 
+	JoinArray(Diag.Blame(), BlameBuf, ", ");
+
+	Fmt = default.PotentialErrorText;
+	Fmt @= Repl(default.AdviceText, "%BLAME", BlameBuf);
+	Fmt $= "\n\n";
+
 	Facts.AddItem(Diag.FormatSingleFact());
 	Facts.AddItem(Diag.FormatGroups());
 
-	Fmt = Repl(default.GroupErrorText, "%FACTS", MakeBulletList(Facts));
+	Fmt $= Repl(default.GroupErrorText, "%FACTS", MakeBulletList(Facts));
 	Fmt $= "\n\n";
-	JoinArray(Diag.Blame(), BlameBuf, ", ");
 	Fmt $= Repl(default.BlameText, "%BLAME", BlameBuf);
 	return Fmt;
 }

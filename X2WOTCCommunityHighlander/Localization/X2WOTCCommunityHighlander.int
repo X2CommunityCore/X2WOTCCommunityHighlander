@@ -15,11 +15,18 @@ ModIncompatible="Please DEACTIVATE the following mods and restart or %s will not
 DisablePopup="DO NOT SHOW ME THIS AGAIN"
 
 [X2WOTCCH_UIScreenListener_ShellPopup]
-CycleErrorTitle="Cycle in Run Order Detected"
-CycleErrorText="Mods specified a cyclic run order:\n\n%FACTS\n...completing the cycle. Until this is corrected, run order will be undefined."
+CycleErrorTitle="Cycle in Run Order detected"
 GroupErrorTitle="Conflicting Run Order data"
+
+HardErrorText="Things will behave unpredictably. Proceed at your own risk."
+PotentialErrorText="Things will behave predictably, but potentially not in the way the author intended."
+
+AdviceText="If you are a mod user, please forward this message to the authors of the following mods: %BLAME. Only they can fix the cause of the problem."
+
+CycleErrorText="Mods specified a cyclic run order:\n\n%FACTS\n...completing the cycle. Until this is corrected, run order will be undefined."
 GroupErrorText="Mods specified conflicting run order information:\n\n%FACTS\nThis behavior is specified, but may indicate a configuration error."
-BlameText="The following DLCIdentifiers provided config that lead to this problem: %BLAME\n\nPlease inform the respective mod authors about this problem."
+
+BlameText="The following DLCIdentifiers provided config that lead to this problem: %BLAME"
 
 [X2WOTCCH_UIScreenListener_Shell_DLCIntro]
 strDLC2HLIntroduction_Title="Alien Hunters Community Highlander"
