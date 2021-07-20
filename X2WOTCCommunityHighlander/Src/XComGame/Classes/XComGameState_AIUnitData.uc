@@ -1043,7 +1043,7 @@ static function bool ShouldEnemyFactionsTriggerAlertsOutsidePlayerVision(EAlertC
 /// AlertCause Contains the Alert Value, while AllowThisCause boolean Determines if the alert is allowed.
 /// ```event
 /// EventID: OverrideEnemyFactionsAlertsOutsideVision,
-/// EventData: [ in int AlertCause, inout bool bResult],
+/// EventData: [ in enum[EAlertCause] AlertCause, inout bool bResult],
 /// EventSource: none,
 /// NewGameState: none
 /// ```
