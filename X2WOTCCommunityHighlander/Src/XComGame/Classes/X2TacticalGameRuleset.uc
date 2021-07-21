@@ -122,8 +122,32 @@ function UpdateUnitAbility( XComGameState_Unit kUnit, name strAbilityName )
 	if (AbilityRef.ObjectID > 0)
 	{
 		kAbility = XComGameState_Ability(CachedHistory.GetGameStateForObjectID(AbilityRef.ObjectID));
-		kAbility.UpdateAbilityAvailability(kAction);
+		ProfileUpdateAbilityAvailability(kAbility, kAction);
 	}
+}
+
+// Only millisecond resolution, so only useful for identifying egregious cases
+/// HL-Docs: ref:CHProfiler
+simulated function ProfileUpdateAbilityAvailability(XComGameState_Ability kAbility, out AvailableAction kAction)
+{
+	local name AbilityTemplateName;
+	local int Year1, Month1, DayOfWeek1, Day1, Hour1, Min1, Sec1, MSec1;
+	local int Year2, Month2, DayOfWeek2, Day2, Hour2, Min2, Sec2, MSec2;
+
+	AbilityTemplateName = kAbility.GetMyTemplateName();
+	GetSystemTime(Year1, Month1, DayOfWeek1, Day1, Hour1, Min1, Sec1, MSec1);
+	kAbility.UpdateAbilityAvailability(kAction);
+	GetSystemTime(Year2, Month2, DayOfWeek2, Day2, Hour2, Min2, Sec2, MSec2);
+
+	// Handling all this properly would require accounting for leap years, different numbers of days in a month, etc.
+	// so we just say that this function cannot run for longer than 1 hour.
+	if (Hour1 != Hour2)
+	{
+		Min2 += 60;
+	}
+	Sec2 += (Min2 - Min1) * 60;
+	MSec2 += (Sec2 - Sec1) * 1000;
+	class'CHProfiler'.static.AddAbilityEvent(AbilityTemplateName, MSec2 - MSec1);
 }
 
 function UpdateAndAddUnitAbilities( out GameRulesCache_Unit kUnitCache, XComGameState_Unit kUnit, out array<int> CheckAvailableAbility, out array<int> UpdateAvailableIcon)
@@ -141,7 +165,14 @@ function UpdateAndAddUnitAbilities( out GameRulesCache_Unit kUnitCache, XComGame
 		kAbility = XComGameState_Ability(CachedHistory.GetGameStateForObjectID(kUnit.Abilities[i].ObjectID));
 		if (kAbility != none) //kAbility can be none if abilities are being added removed during dev
 		{
-			kAbility.UpdateAbilityAvailability(kAction);
+			if (class'CHProfiler'.default.bAbilityProfileEnabled)
+			{
+				ProfileUpdateAbilityAvailability(kAbility, kAction);
+			}
+			else
+			{
+				kAbility.UpdateAbilityAvailability(kAction);
+			}
 			kUnitCache.AvailableActions.AddItem(kAction);
 			kUnitCache.bAnyActionsAvailable = kUnitCache.bAnyActionsAvailable || kAction.AvailableCode == 'AA_Success';
 			if (kAction.eAbilityIconBehaviorHUD == eAbilityIconBehavior_HideIfOtherAvailable)
