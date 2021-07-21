@@ -147,7 +147,7 @@ simulated function ProfileUpdateAbilityAvailability(XComGameState_Ability kAbili
 	}
 	Sec2 += (Min2 - Min1) * 60;
 	MSec2 += (Sec2 - Sec1) * 1000;
-	class'CHProfiler'.static.AddAbilityEvent(AbilityTemplateName, MSec2 - MSec1);
+	class'CHProfiler'.static.AddAbilityTiming(AbilityTemplateName, MSec2 - MSec1);
 }
 
 function UpdateAndAddUnitAbilities( out GameRulesCache_Unit kUnitCache, XComGameState_Unit kUnit, out array<int> CheckAvailableAbility, out array<int> UpdateAvailableIcon)

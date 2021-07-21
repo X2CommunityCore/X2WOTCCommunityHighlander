@@ -40,17 +40,20 @@
 /// ![matplotlib ability profile](https://i.imgur.com/VHWJAqs.png)
 ///
 /// **The exact output format and the clock resolution are subject to change.**
-class CHProfiler extends Object;
+class CHProfiler extends Object config(CHProfiling);
 
-struct AbilityProfile
+struct AbilityEvents
 {
 	var name AbilityName;
-	var array<int> EventsMillis;
+	var array<int> Events;
 };
 
-var private array<AbilityProfile> Abilities;
+var private array<AbilityEvents> AbilityTimings;
 
 var privatewrite bool bAbilityProfileEnabled;
+
+var config privatewrite array<name> ExtendedProfileAbilityNames;
+var privatewrite bool bExtendedProfilingUnconditional;
 
 private static function CHProfiler GetCDO()
 {
@@ -58,27 +61,53 @@ private static function CHProfiler GetCDO()
 	return CHProfiler(FindObject("XComGame.Default__CHProfiler", class'CHProfiler'));
 }
 
-static function AddAbilityEvent(name AbilityName, int Millis)
+static function AddAbilityTiming(name AbilityName, int Millis)
 {
-	local int idx;
 	local CHProfiler Prof;
 
 	Prof = static.GetCDO();
-	idx = Prof.Abilities.Find('AbilityName', AbilityName);
+	AddAbilityEvent(Prof.AbilityTimings, AbilityName, Millis);
+}
+
+static private function AddAbilityEvent(out array<AbilityEvents> arr, name AbilityName, int Num)
+{
+	local int idx;
+
+	idx = arr.Find('AbilityName', AbilityName);
 	if (idx == INDEX_NONE)
 	{
-		idx = Prof.Abilities.Length;
-		Prof.Abilities.Add(1);
-		Prof.Abilities[idx].AbilityName = AbilityName;
+		idx = arr.Length;
+		arr.Add(1);
+		arr[idx].AbilityName = AbilityName;
 	}
-	Prof.Abilities[idx].EventsMillis.AddItem(Millis);
+	arr[idx].Events.AddItem(Num);
+}
+
+static function bool ShouldExtendedProfileActivity(name AbilityName)
+{
+	return default.bExtendedProfilingUnconditional || default.ExtendedProfileAbilityNames.Find(AbilityName) != INDEX_NONE;
+}
+
+static function EnableExtendedAbilityProfiling(name AbilityName)
+{
+	local CHProfiler Prof;
+
+	Prof = static.GetCDO();
+	if (string(AbilityName) ~= "all")
+	{
+		Prof.bExtendedProfilingUnconditional = true;
+	}
+	else
+	{
+		Prof.ExtendedProfileAbilityNames.AddItem(AbilityName);
+	}
 }
 
 static function ClearAbilityProfile()
 {
 	local CHProfiler Prof;
 	Prof = static.GetCDO();
-	Prof.Abilities.Length = 0;
+	Prof.AbilityTimings.Length = 0;
 }
 
 static function SetAbilityProfiling(bool bEnabled)
@@ -91,31 +120,39 @@ static function SetAbilityProfiling(bool bEnabled)
 static function DumpAbilityProfile()
 {
 	local CHProfiler Prof;
-	local string DataString;
-	local int idx, eidx;
 
 	Prof = static.GetCDO();
-	DataString = "";
+
+	class'X2TacticalGameRuleset'.static.ReleaseScriptLog("CHProfiler: Ability timings");
+	class'X2TacticalGameRuleset'.static.ReleaseScriptLog(FormatEvents(Prof.AbilityTimings));
+}
+
+static private function string FormatEvents(const out array<AbilityEvents> arr)
+{
+	local string DataString;
+	local int idx, eidx;
 	
-	for (idx = 0; idx < Prof.Abilities.Length; idx++)
+	DataString = "";
+	for (idx = 0; idx < arr.Length; idx++)
 	{
-		DataString $= Prof.Abilities[idx].AbilityName;
+		DataString $= arr[idx].AbilityName;
 		DataString $= ":";
 
-		for (eidx = 0; eidx < Prof.Abilities[idx].EventsMillis.Length; eidx++)
+		for (eidx = 0; eidx < arr[idx].Events.Length; eidx++)
 		{
-			DataString $= Prof.Abilities[idx].EventsMillis[eidx];
+			DataString $= arr[idx].Events[eidx];
 
-			if (eidx != Prof.Abilities[idx].EventsMillis.Length - 1)
+			if (eidx != arr[idx].Events.Length - 1)
 			{
 				DataString $= ",";
 			}
 		}
 
-		if (idx != Prof.Abilities.Length - 1)
+		if (idx != arr.Length - 1)
 		{
 			DataString $= ";";
 		}
 	}
-	class'X2TacticalGameRuleset'.static.ReleaseScriptLog(DataString);
+
+	return DataString;
 }
