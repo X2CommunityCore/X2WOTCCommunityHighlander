@@ -118,3 +118,8 @@ exec function CHLEndAbilityProfiling()
 		`warn("XComGame replacement with CHProfiler missing");
 	}
 }
+
+exec function CHLEcho(string Msg)
+{
+	`log(Msg, , 'X2WOTCCommunityHighlander');
+}

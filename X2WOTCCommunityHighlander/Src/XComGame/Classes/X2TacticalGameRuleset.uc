@@ -649,6 +649,7 @@ simulated function bool GetGameRulesCache_Unit(StateObjectReference UnitStateRef
 		}
 	}
 
+	ReleaseScriptLog("CHL GetGameRulesCache_Unit race debugging: START " $ kUnit.ObjectID $ ", IsDoingLatentSubmission: " $ IsDoingLatentSubmission());
 	// build the cache data
 	OutCacheData.UnitObjectRef = kUnit.GetReference();
 	OutCacheData.LastUpdateHistoryIndex = CurrentHistoryIndex;
@@ -680,6 +681,7 @@ simulated function bool GetGameRulesCache_Unit(StateObjectReference UnitStateRef
 	{
 		UnitsCache[ExistingCacheIndex] = OutCacheData;
 	}
+	ReleaseScriptLog("CHL GetGameRulesCache_Unit race debugging: END " $ kUnit.ObjectID $ ", IsDoingLatentSubmission: " $ IsDoingLatentSubmission());
 
 	return true;
 }
