@@ -833,7 +833,8 @@ simulated function bool ShouldDisplayMultiSlotItemInTactical(XComGameState_Unit 
 
 static function CHHelpers GetCDO()
 {
-	return CHHelpers(class'XComEngine'.static.GetClassDefaultObjectByName(default.Class.Name));
+	// This is hot code, so use an optimized function here
+	return CHHelpers(FindObject("XComGame.Default__CHHelpers", class'CHHelpers'));
 }
 // End Issue #885
 
