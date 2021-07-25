@@ -13,8 +13,9 @@ var X2WOTCCH_ModDependencies DependencyChecker;
 
 var config array<string> HideGroupWarnings;
 
-var localized string CycleErrorTitle, CycleErrorText, HardErrorText;
-var localized string GroupErrorTitle, GroupErrorText, PotentialErrorText;
+var localized string ErrorTitle;
+var localized string CycleErrorText, HardErrorText;
+var localized string GroupErrorText, PotentialErrorText;
 var localized string AdviceText, BlameText;
 
 event OnInit(UIScreen Screen)
@@ -178,7 +179,7 @@ simulated function CyclePopup(CHDLCRunOrderDiagnostic Diag)
 {
 	local TDialogueBoxData kDialogData;
 
-	kDialogData.strTitle = default.CycleErrorTitle;
+	kDialogData.strTitle = default.ErrorTitle;
 	kDialogData.eType = eDialog_Warning;
 	kDialogData.strText = GetCycleText(Diag);
 	kDialogData.strCancel = class'UIUtilities_Text'.default.m_strGenericAccept;
@@ -193,8 +194,9 @@ function string GetCycleText(CHDLCRunOrderDiagnostic Diag)
 
 	JoinArray(Diag.Blame(), BlameBuf, ", ");
 
-	Fmt = default.HardErrorText;
-	Fmt @= Repl(default.AdviceText, "%BLAME", BlameBuf);
+	Fmt = Repl(default.AdviceText, "%BLAME", BlameBuf);
+	Fmt $= "\n";
+	Fmt $= default.HardErrorText;
 	Fmt $= "\n\n";
 
 	Facts = Diag.FormatEdgeFacts();
@@ -214,7 +216,7 @@ simulated function GroupPopup(CHDLCRunOrderDiagnostic Diag)
 	CallbackData = new class'X2WOTCCH_DialogCallbackData';
 	CallbackData.Diag = Diag;
 
-	kDialogData.strTitle = default.GroupErrorTitle;
+	kDialogData.strTitle = default.ErrorTitle;
 	kDialogData.eType = eDialog_Alert;
 	kDialogData.strText = GetGroupText(Diag);
 	kDialogData.fnCallbackEx = GroupPopupCB;
@@ -232,8 +234,9 @@ function string GetGroupText(CHDLCRunOrderDiagnostic Diag)
 
 	JoinArray(Diag.Blame(), BlameBuf, ", ");
 
-	Fmt = default.PotentialErrorText;
-	Fmt @= Repl(default.AdviceText, "%BLAME", BlameBuf);
+	Fmt = Repl(default.AdviceText, "%BLAME", BlameBuf);
+	Fmt $= "\n";
+	Fmt $= default.PotentialErrorText;
 	Fmt $= "\n\n";
 
 	Facts.AddItem(Diag.FormatSingleFact());
