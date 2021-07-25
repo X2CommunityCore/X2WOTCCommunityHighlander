@@ -5402,7 +5402,7 @@ simulated state EndTacticalGame
 		XComHQ = XComGameState_HeadquartersXCom(CachedHistory.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
 		MissionState = XComGameState_MissionSite(CachedHistory.GetGameStateForObjectID(XComHQ.MissionRef.ObjectID));
 
-		if (MissionState.GetMissionSource().DataName == 'MissionSource_LostAndAbandoned')
+		if (MissionState != none && MissionState.GetMissionSource().DataName == 'MissionSource_LostAndAbandoned') // Issue #324 - added a 'none' check for MissionState.
 		{
 			return true;
 		}

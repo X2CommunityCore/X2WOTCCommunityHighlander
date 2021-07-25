@@ -2180,7 +2180,12 @@ static function FirstMissionComplete(XComGameState NewGameState, XComGameState_O
 			PowerCore.TriggerNeedsAttention();
 		}
 	}
-	`HQPRES.m_kFacilityGrid.UpdateData();
+
+	// Issue #324 - Add a "none check" to prevent a log warning.
+	if (`HQPRES.m_kFacilityGrid != none)
+	{
+		`HQPRES.m_kFacilityGrid.UpdateData();
+	}
 }
 
 // #######################################################################################

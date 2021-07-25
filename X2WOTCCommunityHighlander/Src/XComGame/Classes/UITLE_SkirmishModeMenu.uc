@@ -1630,11 +1630,27 @@ simulated function SetSoldierGear()
 
 	utilItems = m_CurrentSquad[m_SelectedSoldier].GetAllItemsInSlot(eInvSlot_Utility, StartState, , true);
 	mc.QueueString(m_strUtilLabel);//util 1
-	mc.QueueString(utilItems[0].GetMyTemplate().strImage);
-	mc.QueueString(utilItems[0].GetMyTemplate().GetItemFriendlyNameNoStats());
-	mc.QueueString(utilItems[1].GetMyTemplate().strImage);// util 2 and 3
-	mc.QueueString(utilItems[1].GetMyTemplate().GetItemFriendlyNameNoStats());
-
+	// Start Issue #324 - add Length checks.
+	if (utilItems.Length > 0)
+	{
+		mc.QueueString(utilItems[0].GetMyTemplate().strImage);
+		mc.QueueString(utilItems[0].GetMyTemplate().GetItemFriendlyNameNoStats());
+	}
+	else
+	{
+		mc.QueueString("");
+		mc.QueueString("");
+	}
+	if (utilItems.Length > 1)
+	{
+		mc.QueueString(utilItems[1].GetMyTemplate().strImage);// util 2 and 3
+		mc.QueueString(utilItems[1].GetMyTemplate().GetItemFriendlyNameNoStats());
+	}
+	else
+	{
+		mc.QueueString("");
+		mc.QueueString("");
+	}
 	equippedItem = m_CurrentSquad[m_SelectedSoldier].GetItemInSlot(eInvSlot_GrenadePocket, StartState, true);
 	//Issue #295 - Add a 'none' check before accessing equippedItem
 	if (equippedItem != none)

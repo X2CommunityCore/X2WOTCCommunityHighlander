@@ -440,7 +440,7 @@ function ClearList()
 {
 	local int i;
 
-	for( i = Items.length; i > -1; i-- )
+	for( i = Items.length - 1; i > -1; i-- ) // Issue #324 - correctly using Length - 1 now.
 	{
 		Items[i].Remove();
 	}

@@ -50,7 +50,8 @@ function string GetObjectiveText(int TextLine)
 	ActiveQuestItem = MissionManager.GetQuestItemTemplateForMissionType(MissionType);
 	QuestItemTemplate = X2QuestItemTemplate(class'X2ItemTemplateManager'.static.GetItemTemplateManager().FindItemTemplate(ActiveQuestItem));
 
-	if (ConsoleObjectiveTextPools[TextLine] == "" || 
+	if (ConsoleObjectiveTextPools.Length <= TextLine || // Issue #324 - add a length check to prevent 'out of bounds' warning.
+		ConsoleObjectiveTextPools[TextLine] == "" || 
 		`XPROFILESETTINGS == none ? true : !`ISCONTROLLERACTIVE)
 	{
 		ObjText = ObjectiveTextPools[TextLine];

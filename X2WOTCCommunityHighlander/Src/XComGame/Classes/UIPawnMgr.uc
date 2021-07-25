@@ -305,7 +305,10 @@ simulated function AssociateWeaponPawnInternal(int CosmeticSlot, Actor WeaponPaw
 		if (PawnStore[StoreIdx].Weapons[CosmeticSlot] != none)
 		{
 			PreviousItem = XGInventoryItem(PawnStore[StoreIdx].Weapons[CosmeticSlot]);
-			OwningPawn.DetachItem(XComWeapon(PreviousItem.m_kEntity).Mesh);
+			if (PreviousItem != none && PreviousItem.m_kEntity != none) // Issue #324 - add 'none' checks to prevent log warnings.
+			{
+				OwningPawn.DetachItem(XComWeapon(PreviousItem.m_kEntity).Mesh);
+			}
 			PawnStore[StoreIdx].Weapons[CosmeticSlot].Destroy();
 		}
 		PawnStore[StoreIdx].Weapons[CosmeticSlot] = WeaponPawn;
@@ -594,8 +597,12 @@ simulated function DestroyPawns(int StoreIdx, out array<PawnInfo> PawnStore)
 	// Added variable for Issue #885
 	local int i;
 
-	PawnStore[StoreIdx].Pawn.Destroy();
-	PawnStore[StoreIdx].Pawn = none;
+	if (PawnStore[StoreIdx].Pawn != none) // Issue #324 - add a 'none' check to prevent a log warning.
+	{
+		PawnStore[StoreIdx].Pawn.Destroy();
+		PawnStore[StoreIdx].Pawn = none;
+	}
+
 	for ( idx = 0; idx < PawnStore[StoreIdx].Cosmetics.Length; ++idx )
 	{
 		if (PawnStore[StoreIdx].Cosmetics[idx].Pawn != none)

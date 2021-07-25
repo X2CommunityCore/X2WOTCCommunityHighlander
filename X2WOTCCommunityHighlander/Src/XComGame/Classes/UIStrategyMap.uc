@@ -1855,7 +1855,10 @@ simulated function OnLoseFocus()
 	HideMissionButtons();
 	HideDarkEventsButton();
 	NavBar.ClearButtonHelp(); //removed ForceClearButtonHelp() - JTA 2016/6/20
-	CenteredNavHelp.Hide();
+	if (CenteredNavHelp != none) // Issue #324 - add a 'none' check to prevent a log warning.
+	{
+		CenteredNavHelp.Hide();
+	}
 	HideTooltip();
 	Movie.Pres.m_kEventNotices.Deactivate();
 

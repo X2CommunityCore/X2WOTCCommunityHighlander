@@ -1541,7 +1541,10 @@ function AddProjectileVolley(AnimNotify_FireWeaponVolley Notify)
 			}
 
 			//Create weapon default projectile
-			SpawnAndConfigureNewProjectile(WeaponEntity.DefaultProjectileTemplate, Notify, AbilityContext, WeaponEntity);
+			if (WeaponEntity.DefaultProjectileTemplate != none) // Issue #324
+			{
+				SpawnAndConfigureNewProjectile(WeaponEntity.DefaultProjectileTemplate, Notify, AbilityContext, WeaponEntity);
+			}
 
 			//Create projectile actors associated with weapon upgrades
 			SourceItemGameState = XComGameState_Item(History.GetGameStateForObjectID(InputContext.ItemObject.ObjectID));
@@ -1550,7 +1553,10 @@ function AddProjectileVolley(AnimNotify_FireWeaponVolley Notify)
 				WeaponAttachments = SourceItemGameState.GetWeaponAttachments();
 				for (Index = 0; Index < WeaponAttachments.Length; ++Index)
 				{
-					SpawnAndConfigureNewProjectile(Actor(WeaponAttachments[Index].LoadedProjectileTemplate), Notify, AbilityContext, WeaponEntity);
+					if (Actor(WeaponAttachments[Index].LoadedProjectileTemplate) != none) // Issue #324
+					{
+						SpawnAndConfigureNewProjectile(Actor(WeaponAttachments[Index].LoadedProjectileTemplate), Notify, AbilityContext, WeaponEntity);
+					}
 				}
 			}
 
@@ -1687,9 +1693,12 @@ private function SpawnAndConfigureNewProjectile(Actor ProjectileTemplate,
 	NewProjectile = Spawn(class<X2UnifiedProjectile>(ProjectileTemplate.class),self, , , , ProjectileTemplate);
 	// End Issue #829
 
-	NewProjectile.ConfigureNewProjectile(CurrentFireAction, InVolleyNotify, AbilityContext, InSourceWeapon);
+	if (NewProjectile != none) // Issue #324
+	{
+		NewProjectile.ConfigureNewProjectile(CurrentFireAction, InVolleyNotify, AbilityContext, InSourceWeapon);
 
-	NewProjectile.GotoState('Executing');
+		NewProjectile.GotoState('Executing');
+	}
 	if (CurrentFireAction != none)
 	{
 		CurrentFireAction.AddProjectileVolley(NewProjectile);

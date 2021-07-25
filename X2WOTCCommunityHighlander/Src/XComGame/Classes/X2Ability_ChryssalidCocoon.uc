@@ -441,7 +441,12 @@ static function X2AbilityTemplate CreateSpawnChryssalidAbilityMP( )
 	foreach Template.AbilityTargetEffects( TargetEffect )
 	{
 		SpawnEffect = X2Effect_SpawnChryssalid( TargetEffect );
-		SpawnEffect.UnitToSpawnName = 'ChryssalidMP';
+
+		// Issue #324 - Prevent "accessed none" log warnings by performing "none checks" for SpawnEffect.
+		if (SpawnEffect != none)
+		{
+			SpawnEffect.UnitToSpawnName = 'ChryssalidMP';
+		}
 	}
 
 	return Template;

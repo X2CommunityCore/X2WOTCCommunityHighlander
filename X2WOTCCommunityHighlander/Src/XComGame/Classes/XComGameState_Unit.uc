@@ -2730,13 +2730,19 @@ event RequestResources(out array<string> ArchetypesToLoad)
 		if(kAppearance.nmPawn != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("Pawn", kAppearance.nmPawn);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324 - Prevent "accessed none" log warnings by performing "none checks" for BodyPartTemplate.
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if (kAppearance.nmTorso != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("Torso", kAppearance.nmTorso);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		UnderlayName = kAppearance.nmTorso_Underlay;
@@ -2746,109 +2752,163 @@ event RequestResources(out array<string> ArchetypesToLoad)
 		if (UnderlayName != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("Torso", UnderlayName);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if (kAppearance.nmTorsoDeco != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("TorsoDeco", kAppearance.nmTorsoDeco);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if(kAppearance.nmHead != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("Head", kAppearance.nmHead);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 				
 		if(kAppearance.nmHelmet != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("Helmets", kAppearance.nmHelmet);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 				
 		if(kAppearance.nmFacePropLower != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("FacePropsLower", kAppearance.nmFacePropLower);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if(kAppearance.nmHaircut != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("Hair", kAppearance.nmHaircut);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if(kAppearance.nmBeard != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("Beards", kAppearance.nmBeard);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if(kAppearance.nmFacePropUpper != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("FacePropsUpper", kAppearance.nmFacePropUpper);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if(kAppearance.nmArms != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("Arms", kAppearance.nmArms);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if (kAppearance.nmArms_Underlay != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("Arms", kAppearance.nmArms_Underlay);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if (kAppearance.nmLeftArm != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("LeftArm", kAppearance.nmLeftArm);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if (kAppearance.nmRightArm != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("RightArm", kAppearance.nmRightArm);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if (kAppearance.nmLeftArmDeco != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("LeftArmDeco", kAppearance.nmLeftArmDeco);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if (kAppearance.nmRightArmDeco != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("RightArmDeco", kAppearance.nmRightArmDeco);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if (kAppearance.nmLeftForearm != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("LeftForearm", kAppearance.nmLeftForearm);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if (kAppearance.nmRightForearm != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("RightForearm", kAppearance.nmRightForearm);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if(kAppearance.nmLegs != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("Legs", kAppearance.nmLegs);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if (kAppearance.nmLegs_Underlay != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("Legs", kAppearance.nmLegs_Underlay);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		/*if (kAppearance.nmThighs != '') - Potential problems with cloth
@@ -2860,55 +2920,82 @@ event RequestResources(out array<string> ArchetypesToLoad)
 		if (kAppearance.nmShins != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("Shins", kAppearance.nmShins);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if(kAppearance.nmEye != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("Eyes", kAppearance.nmEye);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if(kAppearance.nmTeeth != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("Teeth", kAppearance.nmTeeth);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if(kAppearance.nmPatterns != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("Patterns", kAppearance.nmPatterns);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if(kAppearance.nmWeaponPattern != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("Patterns", kAppearance.nmWeaponPattern);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if(kAppearance.nmTattoo_LeftArm != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("Tattoos", kAppearance.nmTattoo_LeftArm);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if(kAppearance.nmTattoo_RightArm != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("Tattoos", kAppearance.nmTattoo_RightArm);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if(kAppearance.nmScars != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("Scars", kAppearance.nmScars);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if (kAppearance.nmFacePaint != '')
 		{
 			BodyPartTemplate = PartManager.FindUberTemplate("Facepaint", kAppearance.nmFacePaint);
-			ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			if (BodyPartTemplate != none) // Issue #324
+			{
+				ArchetypesToLoad.AddItem(BodyPartTemplate.ArchetypeName);
+			}
 		}
 
 		if (kAppearance.nmFlag != '')

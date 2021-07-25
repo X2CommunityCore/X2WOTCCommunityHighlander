@@ -5566,7 +5566,10 @@ reliable client function ReachedFacilityTransition()
 												   //<workshop> RESOURCE_HEADER_DISPLAYING_IN_GEOSCAPE_FIX kmartinez 2016-06-15
 												   //INS:
 												   // We're updating the resources here, because we don't display them unless we're done transitioning.(kmartinez)
-	m_kAvengerHUD.UpdateResources();
+	if (m_kAvengerHUD != none) // Issue #324 - add a 'none' check to prevent log warning.
+	{
+		m_kAvengerHUD.UpdateResources();
+	}
 	`HQPRES.GetUIComm().RefreshAnchorListener();
 	//</workshop>
 }

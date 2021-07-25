@@ -470,11 +470,34 @@ simulated function BuildMenu()
 		LinkMechaList.bAnimateOnInit = false;
 		LinkMechaList.InitListItem();
 		LinkMechaList.SetWidgetType(EUILineItemType_Checkbox);
+
 		// bsg-jrebar (5/9/17): On controller, we do this by item, instead of by panel
 		if(`ISCONTROLLERACTIVE)
-			LinkMechaList.UpdateDataCheckbox(SecondWaveDescriptions[OptionIndex], "", CampaignSettingsStateObject.IsSecondWaveOptionEnabled(SecondWaveOptions[OptionIndex].ID), , OnAdvancedOptionsClicked);
+		{
+			// Start Issue #324 - Prevent "accessed none" log warnings by performing "none checks" for CampaignSettingsStateObject.
+			if (CampaignSettingsStateObject != none)
+			{
+				LinkMechaList.UpdateDataCheckbox(SecondWaveDescriptions[OptionIndex], "", CampaignSettingsStateObject.IsSecondWaveOptionEnabled(SecondWaveOptions[OptionIndex].ID), , OnAdvancedOptionsClicked);
+			}
+			else
+			{
+				LinkMechaList.UpdateDataCheckbox(SecondWaveDescriptions[OptionIndex], "", false, , OnAdvancedOptionsClicked);
+			}
+			// End Issue #324
+		}
 		else
-			LinkMechaList.UpdateDataCheckbox(SecondWaveDescriptions[OptionIndex], "", CampaignSettingsStateObject.IsSecondWaveOptionEnabled(SecondWaveOptions[OptionIndex].ID), );
+		{
+			// Start Issue #324
+			if (CampaignSettingsStateObject != none)
+			{
+				LinkMechaList.UpdateDataCheckbox(SecondWaveDescriptions[OptionIndex], "", CampaignSettingsStateObject.IsSecondWaveOptionEnabled(SecondWaveOptions[OptionIndex].ID), );
+			}
+			else
+			{
+				LinkMechaList.UpdateDataCheckbox(SecondWaveDescriptions[OptionIndex], "", false, );
+			}
+			// End Issue #324
+		}
 		//bsg-jrebar (5/9/17): end
 		
 		// Set the checkbox ready only bool directly so that we still see the check mark box (actually, it's still enabled, but the m_SecondWaveList.OnItemClicked is what will toggle the checkbox
@@ -870,12 +893,18 @@ simulated public function OnDifficultyConfirm(UIButton ButtonControl)
 		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Changing User-Selected Difficulty to " $ m_iSelectedDifficulty);
 		
 		CampaignSettingsStateObject = XComGameState_CampaignSettings(History.GetSingleGameStateObjectForClass(class'XComGameState_CampaignSettings'));
-		CampaignSettingsStateObject = XComGameState_CampaignSettings(NewGameState.ModifyStateObject(class'XComGameState_CampaignSettings', CampaignSettingsStateObject.ObjectID));
-		CampaignSettingsStateObject.SetDifficulty(
-			m_iSelectedDifficulty, 
-			TacticalPercent, 
-			StrategyPercent, 
-			GameLengthPercent, m_bIsPlayingGame);
+
+		// Start Issue #324 - Prevent "accessed none" log warnings by performing "none checks" for CampaignSettingsStateObject.
+		if (CampaignSettingsStateObject != none)
+		{
+			CampaignSettingsStateObject = XComGameState_CampaignSettings(NewGameState.ModifyStateObject(class'XComGameState_CampaignSettings', CampaignSettingsStateObject.ObjectID));
+			CampaignSettingsStateObject.SetDifficulty(
+				m_iSelectedDifficulty, 
+				TacticalPercent, 
+				StrategyPercent, 
+				GameLengthPercent, m_bIsPlayingGame);
+		}
+		// End Issue #324
 		AddSecondWaveOptionsToCampaignSettings(CampaignSettingsStateObject);
 
 		`GAMERULES.SubmitGameState(NewGameState);
@@ -921,20 +950,25 @@ simulated public function OnDifficultyConfirm(UIButton ButtonControl)
 			CampaignSettingsStateObject = XComGameState_CampaignSettings(History.GetSingleGameStateObjectForClass(class'XComGameState_CampaignSettings'));
 
 			//Since we just created the start state above, the settings object is still writable so just update it with the settings from the new campaign dialog
-			CampaignSettingsStateObject.SetStartTime(StrategyStartState.TimeStamp);
-
-			//See if we came from the dev strategy shell. If so, set the dev shell options...		
-			if(DevStrategyShell != none)
+			// Start Issue #324 - Prevent "accessed none" log warnings by performing "none checks" for CampaignSettingsStateObject.
+			if (CampaignSettingsStateObject != none)
 			{
-				CampaignSettingsStateObject.bCheatStart = DevStrategyShell.m_bCheatStart;
-				CampaignSettingsStateObject.bSkipFirstTactical = DevStrategyShell.m_bSkipFirstTactical;
-			}
+				CampaignSettingsStateObject.SetStartTime(StrategyStartState.TimeStamp);
+			
+				//See if we came from the dev strategy shell. If so, set the dev shell options...		
+				if(DevStrategyShell != none)
+				{
+					CampaignSettingsStateObject.bCheatStart = DevStrategyShell.m_bCheatStart;
+					CampaignSettingsStateObject.bSkipFirstTactical = DevStrategyShell.m_bSkipFirstTactical;
+				}
 
-			CampaignSettingsStateObject.SetDifficulty(m_iSelectedDifficulty, TacticalPercent, StrategyPercent, GameLengthPercent);
-			CampaignSettingsStateObject.SetIronmanEnabled(m_bIronmanFromShell);
+				CampaignSettingsStateObject.SetDifficulty(m_iSelectedDifficulty, TacticalPercent, StrategyPercent, GameLengthPercent);
+				CampaignSettingsStateObject.SetIronmanEnabled(m_bIronmanFromShell);
+			}
+			// End Issue #324
 
 			// on Debug Strategy Start, disable the intro movies on the first objective
-			if(CampaignSettingsStateObject.bCheatStart)
+			if(CampaignSettingsStateObject != none && CampaignSettingsStateObject.bCheatStart) // Issue #324 - added a "none" check for CampaignSettingsStateObject.
 			{
 				foreach StrategyStartState.IterateByClassType(class'XComGameState_Objective', ObjectiveState)
 				{
@@ -1016,11 +1050,19 @@ function AddSecondWaveOptionsToCampaignSettings(XComGameState_CampaignSettings C
 		CheckedBox = UIMechaListItem(m_SecondWaveList.GetItem(OptionIndex)).Checkbox;
 		if( CheckedBox.bChecked )
 		{
-			CampaignSettingsStateObject.AddSecondWaveOption(SecondWaveOptions[OptionIndex].ID);
+			// Issue #324 - Prevent "accessed none" log warnings by performing "none checks" for CampaignSettingsStateObject.
+			if (CampaignSettingsStateObject != none)
+			{
+				CampaignSettingsStateObject.AddSecondWaveOption(SecondWaveOptions[OptionIndex].ID);
+			}
 		}
 		else
 		{
-			CampaignSettingsStateObject.RemoveSecondWaveOption(SecondWaveOptions[OptionIndex].ID);
+			// Issue #324 - Prevent "accessed none" log warnings by performing "none checks" for CampaignSettingsStateObject.
+			if (CampaignSettingsStateObject != none)
+			{
+				CampaignSettingsStateObject.RemoveSecondWaveOption(SecondWaveOptions[OptionIndex].ID);
+			}
 		}
 	}
 }

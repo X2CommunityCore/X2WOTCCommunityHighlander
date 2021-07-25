@@ -536,7 +536,12 @@ function name GetVoiceFromCountryAndGender(name CountryName, int iGender)
 	BodyPartFilter.Set(EGender(iGender), ECharacterRace(0), ''); //Just picking voice, only need gender
 	VoiceTemplate = PartTemplateManager.GetRandomUberTemplate("Voice", BodyPartFilter, BodyPartFilter.FilterByGenderAndCharacterAndNonSpecialized);
 
-	return VoiceTemplate.DataName;
+	// Issue #324 - Prevent "accessed none" log warning by performing "none check" for VoiceTemplate.
+	if (VoiceTemplate != none)
+	{
+		return VoiceTemplate.DataName;
+	}
+	return '';
 }
 
 function name GetVoiceFromCountryAndGenderAndCharacter(name CountryName, int Gender, name CharacterTemplateName)
@@ -568,8 +573,12 @@ function name GetVoiceFromCountryAndGenderAndCharacter(name CountryName, int Gen
 	{
 		VoiceTemplate = FilteredVoiceTemplates[`SYNC_RAND( FilteredVoiceTemplates.Length )];
 	}	
-
-	return VoiceTemplate.DataName;
+	// Issue #324 - Prevent "accessed none" log warning by performing "none check" for VoiceTemplate.
+	if (VoiceTemplate != none)
+	{
+		return VoiceTemplate.DataName;
+	}
+	return '';
 }
 
 function int ChooseHairColor( const out TAppearance kAppearance, int iNumBaseOptions )

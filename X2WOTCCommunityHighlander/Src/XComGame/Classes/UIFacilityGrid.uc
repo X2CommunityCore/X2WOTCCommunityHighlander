@@ -562,9 +562,13 @@ simulated function OnReceiveFocus()
 		{
 			//if we have only 4, then let's add
 			if(shortcutRoomIndices.Length == 4)
+			{
 				shortcutRoomIndices.AddItem(ShadowChamberIndex);
-			else
+			}	
+			else if (shortcutRoomIndices.Length > 0) // Issue #324 - Prevent "out of bounds" log warning by performing array length check.
+			{
 				shortcutRoomIndices[shortcutRoomIndices.Length - 1] = ShadowChamberIndex;
+			}
 		}
 		else
 		{

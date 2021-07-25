@@ -845,7 +845,7 @@ function SetVictoriousPlayer(XComGameState_Player Winner, bool bWinnerIsLocal)
 		{
 			MissionSource = MissionState.GetMissionSource();
 
-			if(MissionSource.WasMissionSuccessfulFn != none)
+			if(MissionSource != none && MissionSource.WasMissionSuccessfulFn != none) // Issue #324 - added a 'none' check for MissionSource
 			{
 				bLocalPlayerWon = MissionSource.WasMissionSuccessfulFn(self);
 			}

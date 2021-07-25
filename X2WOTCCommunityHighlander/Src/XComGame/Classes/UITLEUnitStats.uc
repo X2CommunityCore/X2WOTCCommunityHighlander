@@ -390,12 +390,26 @@ simulated function PopulateSoldierGear( XComGameState_Unit Unit, optional XComGa
 
 	equippedItem = Unit.GetItemInSlot(eInvSlot_Armor, NewCheckGameState, true);
 	mc.QueueString(class'UITLE_SkirmishModeMenu'.default.m_strArmorLabel);//armor
-	mc.QueueString(equippedItem.GetMyTemplate().strImage);
-	mc.QueueString(equippedItem.GetMyTemplate().GetItemFriendlyNameNoStats());
-
+	if (equippedItem != none) // Issue #324
+	{
+		mc.QueueString(equippedItem.GetMyTemplate().strImage);
+		mc.QueueString(equippedItem.GetMyTemplate().GetItemFriendlyNameNoStats());
+	}
+	else
+	{
+		mc.QueueString("");
+		mc.QueueString("");
+	}
 	equippedItem = Unit.GetItemInSlot(eInvSlot_PrimaryWeapon, NewCheckGameState, true);
 	mc.QueueString(class'UITLE_SkirmishModeMenu'.default.m_strPrimaryLabel);//primary
-	mc.QueueString(equippedItem.GetMyTemplate().GetItemFriendlyNameNoStats());
+	if (equippedItem != none) // Issue #324
+	{
+		mc.QueueString(equippedItem.GetMyTemplate().GetItemFriendlyNameNoStats());
+	}
+	else
+	{
+		mc.QueueString("");
+	}
 
 	mc.QueueString(class'UITLE_SkirmishModeMenu'.default.m_strSecondaryLabel);//secondary
 
@@ -412,8 +426,16 @@ simulated function PopulateSoldierGear( XComGameState_Unit Unit, optional XComGa
 	{
 
 		equippedItem = Unit.GetItemInSlot(eInvSlot_SecondaryWeapon, NewCheckGameState, true);
-		mc.QueueString(equippedItem.GetMyTemplate().strImage);
-		mc.QueueString(equippedItem.GetMyTemplate().GetItemFriendlyNameNoStats());
+		if (equippedItem != none) // Issue #324
+		{
+			mc.QueueString(equippedItem.GetMyTemplate().strImage);
+			mc.QueueString(equippedItem.GetMyTemplate().GetItemFriendlyNameNoStats());
+		}
+		else
+		{
+			mc.QueueString("");
+			mc.QueueString("");
+		}
 	}
 
 	utilItems = Unit.GetAllItemsInSlot(eInvSlot_Utility, NewCheckGameState, , true);
@@ -424,8 +446,16 @@ simulated function PopulateSoldierGear( XComGameState_Unit Unit, optional XComGa
 	mc.QueueString(utilItems[1].GetMyTemplate().GetItemFriendlyNameNoStats());
 
 	equippedItem = Unit.GetItemInSlot(eInvSlot_GrenadePocket, NewCheckGameState, true);
-	mc.QueueString(equippedItem.GetMyTemplate().strImage);
-	mc.QueueString(equippedItem.GetMyTemplate().GetItemFriendlyNameNoStats());
+	if (equippedItem != none) // Issue #324
+	{
+		mc.QueueString(equippedItem.GetMyTemplate().strImage);
+		mc.QueueString(equippedItem.GetMyTemplate().GetItemFriendlyNameNoStats());
+	}
+	else
+	{
+		mc.QueueString("");
+		mc.QueueString("");
+	}
 
 	mc.EndOp();
 
@@ -448,8 +478,10 @@ simulated function PopulateSoldierGear( XComGameState_Unit Unit, optional XComGa
 
 	mc.BeginFunctionOp("SetPrimaryWeapon");
 	equippedItem = Unit.GetItemInSlot(eInvSlot_PrimaryWeapon, NewCheckGameState, true);
-	weaponImages = equippedItem.GetWeaponPanelImages();
-
+	if (equippedItem != none) // Issue #324
+	{
+		weaponImages = equippedItem.GetWeaponPanelImages();
+	}
 	for (i = 0; i < weaponImages.Length; i++)
 	{
 		mc.QueueString(weaponImages[i]);

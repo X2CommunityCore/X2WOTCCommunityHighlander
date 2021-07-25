@@ -176,6 +176,8 @@ public function PopulateData(optional XComGameState_Unit Unit, optional StateObj
 	local XComGameState_ResistanceFaction FactionState;
 	local bool bShouldShowWill;
 
+	local StackedUIIconData EmptyIconInfo;
+
 	History = `XCOMHISTORY;
 	CheckGameState = NewCheckGameState;
 
@@ -241,7 +243,17 @@ public function PopulateData(optional XComGameState_Unit Unit, optional StateObj
 		// End Issue #106, #408
 	}
 
-	SetFactionIcon(FactionState.GetFactionIcon());
+	// Start Issue #324
+	// Prevent "accessed none" log warning if the soldier does not belong to a resistance faction.
+	if (FactionState != none)
+	{
+		SetFactionIcon(FactionState.GetFactionIcon());
+	}
+	else
+	{
+		SetFactionIcon(EmptyIconInfo);
+	}
+	// End Issue #324
 
 	// Get Unit base stats and any stat modifications from abilities
 	Will = string(int(Unit.GetCurrentStat(eStat_Will)) + Unit.GetUIStatFromAbilities(eStat_Will)) $ "/" $ string(int(Unit.GetMaxStat(eStat_Will)));
