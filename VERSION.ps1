@@ -6,7 +6,7 @@ defaultproperties
 {
 	MajorVersion = 1;
 	MinorVersion = 22;
-	PatchVersion = 0;
+	PatchVersion = 3;
 	Commit = "%COMMIT%";
 }
 '@
