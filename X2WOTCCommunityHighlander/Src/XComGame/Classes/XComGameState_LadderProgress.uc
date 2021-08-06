@@ -920,32 +920,35 @@ private static function SwapItem( XComGameState StartState, XComGameState_Unit U
 
 		ExistingItem = UnitState.GetItemInSlot( WorkingSlot );
 
-		//Issue #295 - Move the 'none' check for ExistingItem above ExistingItem.GetMyTemplate()
+		// Start Issues #295 and #1051
+		// Rework this function to get rid of the 'accessed none' log warnings.
 		if (ExistingItem != none)
 		{
-			if (ExistingItem.GetMyTemplate() != EquipmentTemplate)
-			{
-				`assert( UnitState.CanRemoveItemFromInventory( ExistingItem, StartState ) );
-
-				// Issue #295 - Purge Item State and add new item to inventory only if we successfully unequipped the Existing Item
-				if (UnitState.RemoveItemFromInventory( ExistingItem, StartState ))
-				{
-					`XCOMHISTORY.PurgeObjectIDFromStartState( ExistingItem.ObjectID, false ); // don't refresh the cache every time, we'll do that once after removing all items from all units
-	
-					ItemInstance = EquipmentTemplate.CreateInstanceFromTemplate( StartState );
-					UnitState.AddItemToInventory( ItemInstance, WorkingSlot, StartState );
-				}
-			}
-			else
-			{
-				// propagate this item through to the next start state
+			if (ExistingItem.GetMyTemplate() == EquipmentTemplate)
+			{	
+				// Desired item already equipped on unit.
+				// Propagate this item through to the next start state and exit function.
 				ExistingItem = XComGameState_Item( StartState.ModifyStateObject( class'XComGameState_Item', ExistingItem.ObjectID ) );
 
 				// reset the reference to the cosmetic unit: A) that unit won't be coming along in the transfers, B) and we'll create new ones at the start of the map anyway
 				if (ExistingItem.CosmeticUnitRef.ObjectID > 0)
+				{
 					ExistingItem.CosmeticUnitRef.ObjectID = -1;
+				}
+				return;
+			}
+			else
+			{
+				`assert( UnitState.CanRemoveItemFromInventory( ExistingItem, StartState ) );
+
+				UnitState.RemoveItemFromInventory( ExistingItem, StartState );
+				`XCOMHISTORY.PurgeObjectIDFromStartState( ExistingItem.ObjectID, false ); // don't refresh the cache every time, we'll do that once after removing all items from all units
 			}
 		}
+
+		ItemInstance = EquipmentTemplate.CreateInstanceFromTemplate( StartState );
+		UnitState.AddItemToInventory( ItemInstance, WorkingSlot, StartState );
+		// End Issue #295 and #1051
 	}
 }
 
