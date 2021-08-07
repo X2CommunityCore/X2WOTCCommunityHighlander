@@ -490,7 +490,9 @@ private function BuildPlayerTurnBeginVisualization()
 	ActionMetadata.StateObject_NewState = ActionMetadata.StateObject_OldState;
 	ActionMetadata.VisualizeActor = History.GetVisualizer(PlayerRef.ObjectID);
 
-	if( class'XComGameState_Unit'.static.GetEngagedChosen() == None && XGUnit(class'XComGameState_Unit'.static.GetEngagedChosen().GetVisualizer()).IsVisible() )
+	// Issue #1054 - fix the if() check so that it can actually succeed.
+	//if( class'XComGameState_Unit'.static.GetEngagedChosen() == None && XGUnit(class'XComGameState_Unit'.static.GetEngagedChosen().GetVisualizer()).IsVisible() )
+	if( class'XComGameState_Unit'.static.GetEngagedChosen() != None && XGUnit(class'XComGameState_Unit'.static.GetEngagedChosen().GetVisualizer()).IsVisible() )
 	{
 		class'X2Action_BeginTurnSignals'.static.AddBeginTurnSignalsToBlock(self);
 	}
