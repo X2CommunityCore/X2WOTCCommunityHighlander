@@ -1043,11 +1043,11 @@ static function bool ShouldEnemyFactionsTriggerAlertsOutsidePlayerVision(EAlertC
 /// use this event to allow enemy pods to activate one another outside of XCOM
 /// vision for a given set of alert causes.
 ///
-/// Return `true` in `bResult` if the alert cause can be triggered in such
-/// situations. Leave `bResult` untouched to retain the default behavior.
+/// Return `true` in `AllowThisCause` if the alert cause can be triggered in such
+/// situations. Leave `AllowThisCause` untouched to retain the default behavior.
 /// ```event
 /// EventID: OverrideEnemyFactionsAlertsOutsideVision,
-/// EventData: [ in enum[EAlertCause] AlertCause, inout bool bResult],
+/// EventData: [ in enum[EAlertCause] AlertCause, inout bool AllowThisCause],
 /// EventSource: none,
 /// NewGameState: none
 /// ```
