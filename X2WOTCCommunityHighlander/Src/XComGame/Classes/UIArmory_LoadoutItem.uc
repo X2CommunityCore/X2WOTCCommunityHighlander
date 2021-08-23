@@ -60,7 +60,12 @@ simulated function UIArmory_LoadoutItem InitLoadoutItem(XComGameState_Item Item,
 			}
 			else
 			{
-				SetCount(class'UIUtilities_Strategy'.static.GetXComHQ().GetNumItemInInventory(ItemTemplate.DataName));
+				// Start Issue #1065
+				/// HL-Docs: ref:Bugfixes; issue:1065
+				/// `UIArmory_LoadoutItem` now shows the correct stack counts for modified finite items.
+				// SetCount(class'UIUtilities_Strategy'.static.GetXComHQ().GetNumItemInInventory(ItemTemplate.DataName));
+				SetCount(Item.Quantity);
+				// End Issue #1065
 			}
 		}
 	}
