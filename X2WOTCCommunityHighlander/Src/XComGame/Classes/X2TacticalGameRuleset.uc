@@ -3044,6 +3044,11 @@ Begin:
 
 	ReleaseScriptLog("X2TacticalGameRuleset: Finished Map Streaming");
 
+	// Create the manager here since
+	// (1) we will 100% need it
+	// (2) better it happens during a loading screen/transion map than when it's time for first projectile to start its death countdown
+	class'CHEmitterPoolDelayedReturner'.static.GetSingleton();
+
 	if(bShowDropshipInteriorWhileGeneratingMap)
 	{
 		WorldInfo.bContinueToSeamlessTravelDestination = false;
@@ -3695,6 +3700,11 @@ Begin:
 	//Start Issue #647
 	UpdateDLCLoadingTacticalGame();
 	//End Issue #647
+
+	// Create the manager here since
+	// (1) we will 100% need it
+	// (2) better it happens during a loading screen/transion map than when it's time for first projectile to start its death countdown
+	class'CHEmitterPoolDelayedReturner'.static.GetSingleton();
 
 	//Movie handline - for both the tutorial and normal loading
 	while(class'XComEngine'.static.IsAnyMoviePlaying() && !class'XComEngine'.static.IsLoadingMoviePlaying())

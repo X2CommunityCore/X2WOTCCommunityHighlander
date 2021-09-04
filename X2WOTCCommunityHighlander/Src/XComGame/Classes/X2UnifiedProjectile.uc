@@ -2163,7 +2163,8 @@ state Executing
 					// Start Issue #720
 					/// HL-Docs: ref:ProjectilePerformanceDrain
 					// Allow the pool to reuse this Particle System's spot in the pool.
-					WorldInfo.MyEmitterPool.OnParticleSystemFinished(Projectiles[ Index ].ParticleEffectComponent);
+					//WorldInfo.MyEmitterPool.OnParticleSystemFinished(Projectiles[ Index ].ParticleEffectComponent);
+					class'CHEmitterPoolDelayedReturner'.static.GetSingleton().AddCountdown(Projectiles[ Index ].ParticleEffectComponent, 60);
 					// End Issue #720
 					Projectiles[ Index ].ParticleEffectComponent = none;
 				}
@@ -2216,7 +2217,8 @@ state Executing
 					// Start Issue #720
 					/// HL-Docs: ref:ProjectilePerformanceDrain
 					// Allow the pool to reuse this Particle System's spot in the pool.
-					WorldInfo.MyEmitterPool.OnParticleSystemFinished(Projectiles[ Index ].ParticleEffectComponent);
+					//WorldInfo.MyEmitterPool.OnParticleSystemFinished(Projectiles[ Index ].ParticleEffectComponent);
+					class'CHEmitterPoolDelayedReturner'.static.GetSingleton().AddCountdown(Projectiles[ Index ].ParticleEffectComponent, 60);
 					// End Issue #720
 					Projectiles[ Index ].ParticleEffectComponent = none;
 					//`RedScreen("Projectile " $ Index  $ " vfx for weapon " $ FireAction.SourceItemGameState.GetMyTemplateName() $ " still hasn't completed after 10 seconds past expected completion time");
