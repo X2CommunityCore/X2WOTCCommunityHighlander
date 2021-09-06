@@ -63,7 +63,13 @@ event Tick (float DeltaTime)
 
 		if (CurrentPending[i].TimeLeft < 0)
 		{
-			WorldInfo.MyEmitterPool.OnParticleSystemFinished(CurrentPending[i].PSC);
+			// This check should never be needed, but guard against potential crashes
+			// (nullref dereference in native code) just to be safe
+			if (CurrentPending[i].PSC != none)
+			{
+				WorldInfo.MyEmitterPool.OnParticleSystemFinished(CurrentPending[i].PSC);
+			}
+			
 			CurrentPending.Remove(i, 1);
 		}
 	}
