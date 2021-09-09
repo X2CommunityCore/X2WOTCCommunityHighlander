@@ -2164,7 +2164,7 @@ state Executing
 					/// HL-Docs: ref:ProjectilePerformanceDrain
 					// Allow the pool to reuse this Particle System's spot in the pool.
 					//WorldInfo.MyEmitterPool.OnParticleSystemFinished(Projectiles[ Index ].ParticleEffectComponent);
-					class'CHEmitterPoolDelayedReturner'.static.GetSingleton().AddCountdown(Projectiles[ Index ].ParticleEffectComponent, 60);
+					DelayedReturnToPoolPSC(Projectiles[ Index ].ParticleEffectComponent);
 					// End Issue #720
 					Projectiles[ Index ].ParticleEffectComponent = none;
 				}
@@ -2218,7 +2218,7 @@ state Executing
 					/// HL-Docs: ref:ProjectilePerformanceDrain
 					// Allow the pool to reuse this Particle System's spot in the pool.
 					//WorldInfo.MyEmitterPool.OnParticleSystemFinished(Projectiles[ Index ].ParticleEffectComponent);
-					class'CHEmitterPoolDelayedReturner'.static.GetSingleton().AddCountdown(Projectiles[ Index ].ParticleEffectComponent, 60);
+					DelayedReturnToPoolPSC(Projectiles[ Index ].ParticleEffectComponent);
 					// End Issue #720
 					Projectiles[ Index ].ParticleEffectComponent = none;
 					//`RedScreen("Projectile " $ Index  $ " vfx for weapon " $ FireAction.SourceItemGameState.GetMyTemplateName() $ " still hasn't completed after 10 seconds past expected completion time");
@@ -2272,6 +2272,19 @@ state Executing
 	}
 
 Begin:
+}
+
+private static function DelayedReturnToPoolPSC (ParticleSystemComponent PSC)
+{
+	local float Delay;
+	local int i;
+
+	Delay = 60;
+
+	i = class'CHHelpers'.default.ProjectileParticleSystemExpirationOverrides.Find('ParticleSystemPathName', PathName(PSC.Template));
+	if (i != INDEX_NONE) Delay = class'CHHelpers'.default.ProjectileParticleSystemExpirationOverrides[i].ExpiryTime;
+
+	class'CHEmitterPoolDelayedReturner'.static.GetSingleton().AddCountdown(PSC, Delay);
 }
 
 DefaultProperties
