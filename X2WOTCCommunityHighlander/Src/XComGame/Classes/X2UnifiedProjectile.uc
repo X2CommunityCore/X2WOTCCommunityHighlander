@@ -440,8 +440,8 @@ function EndConstantProjectileEffects( )
 			/// +ProjectileParticleSystemExpirationOverrides=(ParticleSystemPathName="SomePackage.P_SomeParticleSystem", ExpiryTime=120)
 			/// ```
 			///
-			/// `ParticleSystemPathName` | The full path to your ParticleSystem (what you configure with emitters in the editor)
-			/// `ExpiryTime` | Time in seconds to pass between the projectile being done with the system and its return to the pool
+			/// | `ParticleSystemPathName` | The full path to your ParticleSystem (what you configure with emitters in the editor) |
+			/// | `ExpiryTime` | Time in seconds to pass between the projectile being done with the system and its return to the pool |
 			///
 			/// Mods that create Particle System Components using the Emitter Pool must carefully handle them the same way:
 			/// if the PSC's `OnSystemFinished` delegate is replaced, then `EmitterPool::OnParticleSystemFinished()` must
