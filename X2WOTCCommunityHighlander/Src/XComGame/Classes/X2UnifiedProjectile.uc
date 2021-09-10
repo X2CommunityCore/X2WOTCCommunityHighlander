@@ -440,6 +440,8 @@ function EndConstantProjectileEffects( )
 			/// +ProjectileParticleSystemExpirationOverrides=(ParticleSystemPathName="SomePackage.P_SomeParticleSystem", ExpiryTime=120)
 			/// ```
 			///
+			/// | Property | Value |
+			/// | -------- | ----- |
 			/// | `ParticleSystemPathName` | The full path to your ParticleSystem (what you configure with emitters in the editor) |
 			/// | `ExpiryTime` | Time in seconds to pass between the projectile being done with the system and its return to the pool |
 			///
