@@ -429,6 +429,20 @@ function EndConstantProjectileEffects( )
 			/// To address this bug, we manually call `WorldInfo.MyEmitterPool.OnParticleSystemFinished()` on PSCs 
 			/// in `X2UnifiedProjectile` when the projectile is done with them.
 			///
+			/// **Compability note**: some particle systems cannot be returned directly after the projectile is done with the
+			/// particle system - doing so destoys trails/smoke/effects that dissipate over time (e.g. rocket trails). To
+			/// address this issue, we delay the return to pool (and the forced destruction of any remaining particles) by
+			/// 1 minute. If this is not enough for your particle system, you can override the behaviour in `XComGame.ini`.
+			/// Here's an example/template:
+			///
+			/// ```ini
+			/// [XComGame.CHHelpers]
+			/// +ProjectileParticleSystemExpirationOverrides=(ParticleSystemPathName="SomePackage.P_SomeParticleSystem", ExpiryTime=120)
+			/// ```
+			///
+			/// `ParticleSystemPathName` | The full path to your ParticleSystem (what you configure with emitters in the editor)
+			/// `ExpiryTime` | Time in seconds to pass between the projectile being done with the system and its return to the pool
+			///
 			/// Mods that create Particle System Components using the Emitter Pool must carefully handle them the same way:
 			/// if the PSC's `OnSystemFinished` delegate is replaced, then `EmitterPool::OnParticleSystemFinished()` must
 			/// be called for this PSC manually when the PSC is no longer needed, otherwise the same "memory leak" 
@@ -2163,6 +2177,7 @@ state Executing
 					// Start Issue #720
 					/// HL-Docs: ref:ProjectilePerformanceDrain
 					// Allow the pool to reuse this Particle System's spot in the pool.
+					// Cannot return to pool directly - doing so destoys trails/smoke/effects that dissipate over time.
 					//WorldInfo.MyEmitterPool.OnParticleSystemFinished(Projectiles[ Index ].ParticleEffectComponent);
 					DelayedReturnToPoolPSC(Projectiles[ Index ].ParticleEffectComponent);
 					// End Issue #720
@@ -2217,6 +2232,7 @@ state Executing
 					// Start Issue #720
 					/// HL-Docs: ref:ProjectilePerformanceDrain
 					// Allow the pool to reuse this Particle System's spot in the pool.
+					// Cannot return to pool directly - doing so destoys trails/smoke/effects that dissipate over time.
 					//WorldInfo.MyEmitterPool.OnParticleSystemFinished(Projectiles[ Index ].ParticleEffectComponent);
 					DelayedReturnToPoolPSC(Projectiles[ Index ].ParticleEffectComponent);
 					// End Issue #720
@@ -2274,11 +2290,14 @@ state Executing
 Begin:
 }
 
+// Start Issue #720
+/// HL-Docs: ref:ProjectilePerformanceDrain
 private static function DelayedReturnToPoolPSC (ParticleSystemComponent PSC)
 {
 	local float Delay;
 	local int i;
 
+	// The default is 1 minute
 	Delay = 60;
 
 	i = class'CHHelpers'.default.ProjectileParticleSystemExpirationOverrides.Find('ParticleSystemPathName', PathName(PSC.Template));
@@ -2286,6 +2305,7 @@ private static function DelayedReturnToPoolPSC (ParticleSystemComponent PSC)
 
 	class'CHEmitterPoolDelayedReturner'.static.GetSingleton().AddCountdown(PSC, Delay);
 }
+// End Issue #720
 
 DefaultProperties
 {

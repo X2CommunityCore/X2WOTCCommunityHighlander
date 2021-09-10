@@ -1,5 +1,6 @@
 // INTERNAL CHL CLASS!
 // Not covered by BC and should NOT be used/referenced by mods.
+// First implemented for Issue #720
 class CHEmitterPoolDelayedReturner extends Actor config(Dummy);
 
 // Marked as config so that we can assign to it directly without grabbing the CDO

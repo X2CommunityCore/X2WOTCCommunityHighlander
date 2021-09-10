@@ -220,12 +220,15 @@ var config bool DisableExtraLOSCheckForSmoke;
 var config bool DisableExtraLOSCheckForPoison;
 // End Issue #669
 
+// Start Issue #720
+/// HL-Docs: ref:ProjectilePerformanceDrain
 struct ProjectileParticleSystemExpirationOverride
 {
 	var string ParticleSystemPathName;
 	var float ExpiryTime;
 };
 var config array<ProjectileParticleSystemExpirationOverride> ProjectileParticleSystemExpirationOverrides;
+// End Issue #720
 
 // Start Issue #885
 enum EHLDelegateReturn

@@ -3044,10 +3044,13 @@ Begin:
 
 	ReleaseScriptLog("X2TacticalGameRuleset: Finished Map Streaming");
 
+	// Start Issue #720
 	// Create the manager here since
 	// (1) we will 100% need it
 	// (2) better it happens during a loading screen/transion map than when it's time for first projectile to start its death countdown
+	/// HL-Docs: ref:ProjectilePerformanceDrain
 	class'CHEmitterPoolDelayedReturner'.static.GetSingleton();
+	// End Issue #720
 
 	if(bShowDropshipInteriorWhileGeneratingMap)
 	{
@@ -3701,10 +3704,13 @@ Begin:
 	UpdateDLCLoadingTacticalGame();
 	//End Issue #647
 
+	// Start Issue #720
 	// Create the manager here since
 	// (1) we will 100% need it
 	// (2) better it happens during a loading screen/transion map than when it's time for first projectile to start its death countdown
+	/// HL-Docs: ref:ProjectilePerformanceDrain
 	class'CHEmitterPoolDelayedReturner'.static.GetSingleton();
+	// End Issue #720
 
 	//Movie handline - for both the tutorial and normal loading
 	while(class'XComEngine'.static.IsAnyMoviePlaying() && !class'XComEngine'.static.IsLoadingMoviePlaying())
