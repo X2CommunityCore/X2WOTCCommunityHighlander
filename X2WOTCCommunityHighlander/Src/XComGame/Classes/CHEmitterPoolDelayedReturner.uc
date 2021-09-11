@@ -30,8 +30,7 @@ static function CHEmitterPoolDelayedReturner GetSingleton ()
 	if (Instance == none)
 	{
 		// Log any instantiation, to make sure it happens once per layer(/map) load
-		`log("Instantiating" @ default.Class.Name,, 'CHL');
-		`log(GetScriptTrace(),, 'CHL');
+		`log("Instantiating singleton." @ GetScriptTrace(),, default.Class.Name);
 
 		Instance = class'WorldInfo'.static.GetWorldInfo().Spawn(class'CHEmitterPoolDelayedReturner');
 		default.SingletonPath = PathName(Instance);
@@ -48,6 +47,8 @@ function AddCountdown (ParticleSystemComponent PSC, float TimeUntilReturn)
 	Countdown.TimeLeft = TimeUntilReturn;
 
 	CurrentPending.AddItem(Countdown);
+
+	//`log("Added countdown" @ `showvar(TimeUntilReturn) @ `showvar(PathName(PSC.Template)),, Class.Name);
 }
 
 //////////////////////
@@ -65,10 +66,15 @@ event Tick (float DeltaTime)
 		if (CurrentPending[i].TimeLeft < 0)
 		{
 			// This check should never be needed, but guard against potential crashes
-			// (nullref dereference in native code) just to be safe
+			// (null pointer dereference in native code) just to be safe
 			if (CurrentPending[i].PSC != none)
 			{
+				//`log("Returning to pool" @ `showvar(PathName(CurrentPending[i].PSC.Template)),, Class.Name);
 				WorldInfo.MyEmitterPool.OnParticleSystemFinished(CurrentPending[i].PSC);
+			}
+			else
+			{
+				`Redscreen(Class.Name @ "attempted to return a PSC but it was none. This is not dangerous but can be indicative of other problems. Please inform the CHL team and provide your mod list and a description of the last couple minutes of your gameplay");
 			}
 			
 			CurrentPending.Remove(i, 1);
