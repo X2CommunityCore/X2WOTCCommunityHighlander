@@ -9988,8 +9988,11 @@ simulated function SkipTurn( optional string DebugLogText="" )
 	RefreshUnitCache();
 	if (UnitState.NumAllActionPoints() != 0)
 	{
+		/// HL-Docs: ref:Bugfixes; issue:1008
+		/// Entire pods no longer fail to scamper if the pod leader skips its turn,
+		/// for example if it's immobilized.
 		// If unrevealed, the entire group skips its turn.  Fixes assert with group movement, after group leader skips its move.
-		if( StartedTurnUnrevealed() )
+		if( StartedTurnUnrevealed() && /* Issue #1008 */ !m_kPlayer.IsScampering(UnitState.ObjectID) )
 		{
 			SkipGroupTurn();
 		}
