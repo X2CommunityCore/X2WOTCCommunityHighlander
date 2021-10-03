@@ -111,6 +111,7 @@ enum EInventorySlot
 	eInvSlot_TacticalGadget,
 	eInvSlot_MZAux,
 	eInvSlot_TemplateMaster,
+	eInvSlot_ViperMAW,
 
 	// Marker slot, don't use
 	eInvSlot_END_TEMPLATED_SLOTS,
