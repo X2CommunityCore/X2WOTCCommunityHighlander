@@ -450,6 +450,7 @@ function EndConstantProjectileEffects( )
 			/// be called for this PSC manually when the PSC is no longer needed, otherwise the same "memory leak" 
 			/// will occur. This applies to all PSCs using the Emitter Pool, not just those in `X2UnifiedProjectile`.
 			WorldInfo.MyEmitterPool.OnParticleSystemFinished(Projectiles[ Index ].ParticleEffectComponent);
+			CancelDelayedReturnToPoolPSC(Projectiles[ Index ].ParticleEffectComponent);
 			// End Issue #720
 			Projectiles[ Index ].ParticleEffectComponent = none;
 			Projectiles[ Index ].SourceAttachActor.SetPhysics( PHYS_None );
@@ -1113,21 +1114,36 @@ function FireProjectileInstance(int Index)
 	}
 }
 
+// Issue #720, #1076: switching this from foreach to for loop.
+// Since a foreach loop creates a copy (and ProjectileElementInstance is a struct)
+// the `ParticleEffectComponent = none` assignment was being "lost".
+// In vanilla game this made no difference, since the PSCs were never returned
+// to the pool, but with the #720 fixes, it can be disasterous: we return
+// the PSC to the pool here, then it's used for something else and then we
+// (the rest of X2UP) manipulate the transform/parameters of the PSC and/or
+// return it again, causing visual issues (or outright killing) the other effect
+// that is now using the PSC
 function OnParticleSystemFinished(ParticleSystemComponent PSystem)
 {
-	local ProjectileElementInstance Element;
+	//local ProjectileElementInstance Element;
+	local int i;
 
-	foreach Projectiles(Element)
+	//foreach Projectiles(Element)
+	for (i = 0; i < Projectiles.Length; i++)
 	{
-		if (Element.ParticleEffectComponent == PSystem)
+		//if (Element.ParticleEffectComponent == PSystem)
+		if (Projectiles[i].ParticleEffectComponent == PSystem)
 		{
 			// Start Issue #720
 			/// HL-Docs: ref:ProjectilePerformanceDrain
 			// Allow the pool to reuse this Particle System's spot in the pool.
-			WorldInfo.MyEmitterPool.OnParticleSystemFinished(Element.ParticleEffectComponent);
+			//WorldInfo.MyEmitterPool.OnParticleSystemFinished(Element.ParticleEffectComponent);
+			WorldInfo.MyEmitterPool.OnParticleSystemFinished(Projectiles[i].ParticleEffectComponent);
+			CancelDelayedReturnToPoolPSC(Projectiles[i].ParticleEffectComponent);
 			// End Issue #720
 
-			Element.ParticleEffectComponent = none;
+			//Element.ParticleEffectComponent = none;
+			Projectiles[i].ParticleEffectComponent = none;
 			return;
 		}
 	}
@@ -2306,6 +2322,13 @@ private static function DelayedReturnToPoolPSC (ParticleSystemComponent PSC)
 	if (i != INDEX_NONE) Delay = class'CHHelpers'.default.ProjectileParticleSystemExpirationOverrides[i].ExpiryTime;
 
 	class'CHEmitterPoolDelayedReturner'.static.GetSingleton().AddCountdown(PSC, Delay);
+}
+
+// It's theoretically possible that we schedule a return, but then the particle system finishes,
+// forcing an instant return to the pool. In that case we need to cancel the timer.
+private static function CancelDelayedReturnToPoolPSC (ParticleSystemComponent PSC)
+{
+	class'CHEmitterPoolDelayedReturner'.static.GetSingleton().TryRemoveCountdown(PSC);
 }
 // End Issue #720
 
