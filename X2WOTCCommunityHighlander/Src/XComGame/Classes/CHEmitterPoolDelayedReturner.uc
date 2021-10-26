@@ -66,7 +66,14 @@ function AddCountdown (ParticleSystemComponent PSC, float TimeUntilReturn)
 
 	if (WorldInfo.MyEmitterPool.ActiveComponents.Find(PSC) == INDEX_NONE)
 	{
-		`LocalReportBadCall("Adding a countdown for" @ PathName(PSC.Template) @ "it's not in MyEmitterPool.ActiveComponents. Refusing to return this PSC!");
+		`LocalReportBadCall("Adding a countdown for" @ PathName(PSC.Template) @ "but it's not in MyEmitterPool.ActiveComponents. Refusing to return this PSC!");
+		`RedScreen(strInformCHL);
+		return;
+	}
+
+	if (PSC.OnSystemFinished != none)
+	{
+		`LocalReportBadCall("Adding a countdown for" @ PathName(PSC.Template) @ "but OnSystemFinished != none. Refusing to return this PSC!");
 		`RedScreen(strInformCHL);
 		return;
 	}
@@ -75,6 +82,7 @@ function AddCountdown (ParticleSystemComponent PSC, float TimeUntilReturn)
 	Countdown.TimeLeft = TimeUntilReturn;
 	Countdown.TemplatePath = PathName(PSC.Template);
 
+	PSC.OnSystemFinished = OnParticleSystemFinished;
 	CurrentPending.AddItem(Countdown);
 
 	`LocalTrace("Added countdown" @ `showvar(TimeUntilReturn) @ `showvar(PathName(PSC.Template)),, Class.Name);
@@ -98,6 +106,28 @@ function TryRemoveCountdown (ParticleSystemComponent PSC)
 /// Internal logic ///
 //////////////////////
 
+private function OnParticleSystemFinished (ParticleSystemComponent PSC)
+{
+	local int i;
+
+	i = FindCountdown(PSC);
+
+	if (i == INDEX_NONE) return;
+
+	CurrentPending.Remove(i, 1);
+
+	if (!VerifyReturnValid(i))
+	{
+		`LocalReportDanger("Failed validation!" @ strInformCHL);
+		return;
+	}
+
+	CurrentPending[i].PSC.OnSystemFinished = none;
+	
+	`LocalTrace("Returning to pool due to OnParticleSystemFinished" @ `showvar(PathName(CurrentPending[i].PSC.Template)));
+	WorldInfo.MyEmitterPool.OnParticleSystemFinished(CurrentPending[i].PSC);
+}
+
 private function int FindCountdown (ParticleSystemComponent PSC)
 {
 	return CurrentPending.Find('PSC', PSC);
@@ -120,6 +150,8 @@ event Tick (float DeltaTime)
 			{
 				if (VerifyReturnValid(i))
 				{
+					CurrentPending[i].PSC.OnSystemFinished = none;
+
 					`LocalTrace("Returning to pool" @ `showvar(PathName(CurrentPending[i].PSC.Template)));
 					WorldInfo.MyEmitterPool.OnParticleSystemFinished(CurrentPending[i].PSC);
 				}
