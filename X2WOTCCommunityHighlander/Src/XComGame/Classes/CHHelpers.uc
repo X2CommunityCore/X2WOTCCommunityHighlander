@@ -228,6 +228,9 @@ struct ProjectileParticleSystemExpirationOverride
 	var float ExpiryTime;
 };
 var config array<ProjectileParticleSystemExpirationOverride> ProjectileParticleSystemExpirationOverrides;
+
+// Intended for debugging and personal configuration - not covered by BC!
+var config float ProjectileParticleSystemExpirationDefaultOverride;
 // End Issue #720
 
 // Start Issue #885

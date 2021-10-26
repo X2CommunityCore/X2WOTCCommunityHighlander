@@ -2318,6 +2318,11 @@ private static function DelayedReturnToPoolPSC (ParticleSystemComponent PSC)
 	// The default is 1 minute
 	Delay = 60;
 
+	if (class'CHHelpers'.default.ProjectileParticleSystemExpirationDefaultOverride >= 5)
+	{
+		Delay = class'CHHelpers'.default.ProjectileParticleSystemExpirationDefaultOverride;
+	}
+
 	i = class'CHHelpers'.default.ProjectileParticleSystemExpirationOverrides.Find('ParticleSystemPathName', PathName(PSC.Template));
 	if (i != INDEX_NONE) Delay = class'CHHelpers'.default.ProjectileParticleSystemExpirationOverrides[i].ExpiryTime;
 
