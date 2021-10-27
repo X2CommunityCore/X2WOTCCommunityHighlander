@@ -114,11 +114,14 @@ private function OnParticleSystemFinished (ParticleSystemComponent PSC)
 
 	if (i == INDEX_NONE) return;
 
-	CurrentPending.Remove(i, 1);
-
 	if (!VerifyReturnValid(i))
 	{
 		`LocalReportDanger("Failed validation!" @ strInformCHL);
+
+		// Something went wrong - cancel the countdown for this PSC.
+		// This will likely allow the pool to leak, but it's better than breaking random visuals
+		CurrentPending.Remove(i, 1);
+
 		return;
 	}
 
@@ -126,6 +129,8 @@ private function OnParticleSystemFinished (ParticleSystemComponent PSC)
 	
 	`LocalTrace("Returning to pool due to OnParticleSystemFinished" @ `showvar(PathName(CurrentPending[i].PSC.Template)));
 	WorldInfo.MyEmitterPool.OnParticleSystemFinished(CurrentPending[i].PSC);
+
+	CurrentPending.Remove(i, 1);
 }
 
 private function int FindCountdown (ParticleSystemComponent PSC)
