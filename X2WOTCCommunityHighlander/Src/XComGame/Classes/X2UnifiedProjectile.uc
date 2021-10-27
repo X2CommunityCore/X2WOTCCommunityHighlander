@@ -445,6 +445,12 @@ function EndConstantProjectileEffects( )
 			/// | `ParticleSystemPathName` | The full path to your ParticleSystem (what you configure with emitters in the editor) |
 			/// | `ExpiryTime` | Time in seconds to pass between the projectile being done with the system and its return to the pool |
 			///
+			/// Keep in mind that the above time (either the 1 min default or the override) is the max allowed delay - if 
+			/// a particle system finishes (and reports so by calling `PSC.OnSystemFinished`), the delay will be aborted 
+			/// and the PSC will be instantly returned to the pool. As such, there is no need/reason to manually set lower
+			/// expiration times than the default - just make sure that your particle system is properly configured in
+			/// the editor.
+			///
 			/// Mods that create Particle System Components using the Emitter Pool must carefully handle them the same way:
 			/// if the PSC's `OnSystemFinished` delegate is replaced, then `EmitterPool::OnParticleSystemFinished()` must
 			/// be called for this PSC manually when the PSC is no longer needed, otherwise the same "memory leak" 
