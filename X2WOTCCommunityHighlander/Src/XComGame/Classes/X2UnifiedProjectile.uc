@@ -2334,11 +2334,19 @@ private static function DelayedReturnToPoolPSC (ParticleSystemComponent PSC)
 	class'CHEmitterPoolDelayedReturner'.static.GetSingleton().AddCountdown(PSC, Delay);
 }
 
-// It's theoretically possible that we schedule a return, but then the particle system finishes,
-// forcing an instant return to the pool. In that case we need to cancel the timer.
+// This is a very extreme backup handler - we should never need to do this,
+// since the PSC reference is always nulled out after calling DelayedReturnToPoolPSC
 private static function CancelDelayedReturnToPoolPSC (ParticleSystemComponent PSC)
 {
-	class'CHEmitterPoolDelayedReturner'.static.GetSingleton().TryRemoveCountdown(PSC);
+	local bool bRemoved;
+	
+	bRemoved = class'CHEmitterPoolDelayedReturner'.static.GetSingleton().TryRemoveCountdown(PSC);
+
+	if (bRemoved)
+	{
+		`RedScreen("CHL:" @ GetFuncName() @ "was successfull - this should never happen!" @ `showvar(PathName(PSC.Template)) @ GetScriptTrace());
+		`RedScreen(class'CHEmitterPoolDelayedReturner'.default.strInformCHL);
+	}
 }
 // End Issue #720
 

@@ -23,7 +23,7 @@ var private array<CHEPDR_Countdown> CurrentPending;
 `define LocalTrace(msg)
 //`define LocalTrace(msg) `log(`msg,, Class.Name)
 
-var private const string strInformCHL;
+var const string strInformCHL;
 
 ////////////////////
 /// External API ///
@@ -90,7 +90,7 @@ function AddCountdown (ParticleSystemComponent PSC, float TimeUntilReturn)
 }
 
 // Remove the countdown if it exists, otherwise do nothing
-function TryRemoveCountdown (ParticleSystemComponent PSC)
+function bool TryRemoveCountdown (ParticleSystemComponent PSC)
 {
 	local int i;
 
@@ -99,7 +99,10 @@ function TryRemoveCountdown (ParticleSystemComponent PSC)
 	if (i != INDEX_NONE)
 	{
 		CurrentPending.Remove(i, 1);
+		return true;
 	}
+
+	return false;
 }
 
 //////////////////////
