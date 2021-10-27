@@ -2315,16 +2315,21 @@ private static function DelayedReturnToPoolPSC (ParticleSystemComponent PSC)
 	local float Delay;
 	local int i;
 
-	// The default is 1 minute
-	Delay = 60;
+	i = class'CHHelpers'.default.ProjectileParticleSystemExpirationOverrides.Find('ParticleSystemPathName', PathName(PSC.Template));
 
-	if (class'CHHelpers'.default.ProjectileParticleSystemExpirationDefaultOverride >= 5)
+	if (i != INDEX_NONE)
+	{
+		Delay = class'CHHelpers'.default.ProjectileParticleSystemExpirationOverrides[i].ExpiryTime;
+	}
+	else if (class'CHHelpers'.default.ProjectileParticleSystemExpirationDefaultOverride >= 5)
 	{
 		Delay = class'CHHelpers'.default.ProjectileParticleSystemExpirationDefaultOverride;
 	}
-
-	i = class'CHHelpers'.default.ProjectileParticleSystemExpirationOverrides.Find('ParticleSystemPathName', PathName(PSC.Template));
-	if (i != INDEX_NONE) Delay = class'CHHelpers'.default.ProjectileParticleSystemExpirationOverrides[i].ExpiryTime;
+	else
+	{
+		// The default is 1 minute
+		Delay = 60;
+	}
 
 	class'CHEmitterPoolDelayedReturner'.static.GetSingleton().AddCountdown(PSC, Delay);
 }
