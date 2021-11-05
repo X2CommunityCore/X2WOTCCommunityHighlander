@@ -1129,6 +1129,11 @@ static function bool AreUpgradesEmpowered()
 {
 	local XComGameState_HeadquartersXCom XComHQ;
 
-	XComHQ = XComGameState_HeadquartersXCom(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
-	return XComHQ.bEmpoweredUpgrades;
+	// Start Issue #1086
+	// Pass "true" as second argument to GetSingleGameStateObjectForClass() to prevent the redscreen and log warning if XComHQ doesn't exist.
+	XComHQ = XComGameState_HeadquartersXCom(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom', true));
+
+	// Add "none" check for XComHQ before accessing bEmpoweredUpgrades.
+	return XComHQ != none && XComHQ.bEmpoweredUpgrades;
+	// End Issue #1086
 }
