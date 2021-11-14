@@ -96,9 +96,11 @@ var protected X2SimpleBodyPartFilter BodyPartFilter;
 var privatewrite StateObjectReference UnitRef;
 var privatewrite XComGameState_Unit Unit;
 var privatewrite XComGameState_Unit UpdatedUnitState;
-var /*privatewrite*/ XComGameState_Item PrimaryWeapon;
+// Start Issue #1089, unprivate
+var /*privatewrite*/ XComGameState_Item PrimaryWeapon; 
 var /*privatewrite*/ XComGameState_Item SecondaryWeapon;
 var /*privatewrite*/ XComGameState_Item TertiaryWeapon;
+// End Issue #1089
 var privatewrite XComUnitPawn CosmeticUnit;
 
 var privatewrite XGCharacterGenerator CharacterGenerator;
