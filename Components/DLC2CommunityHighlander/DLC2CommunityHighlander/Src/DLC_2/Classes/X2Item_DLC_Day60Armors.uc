@@ -61,15 +61,22 @@ static function SetIcarusSuitArmorTint(XComGameState_Item ItemState, XComGameSta
 	
 	if (ArmorTemplate != none)
 	{
-		XComHQ = XComGameState_HeadquartersXCom(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
-		EquipNarrativeMoment = XComNarrativeMoment(`CONTENT.RequestGameArchetype(ArmorTemplate.EquipNarrative));
-
-		// If the armor intro for this armor hasn't been played yet, set the appearance for this armor
-		if (XComHQ.CanPlayArmorIntroNarrativeMoment(EquipNarrativeMoment))
+		/// HL-Docs: ref:Bugfixes; issue:1090
+		/// Prevent log warnings and redscreens when Alien Hunters armor is equipped in the Shell, e.g. Character Pool.
+		/// Alien Hunters armor uses OnEquippedFn delegates to alter soldier appearance when the player equips them for the first time.
+		/// The "is first time" check is done using XComHQ, which doesn't exist in the Shell.
+		XComHQ = XComGameState_HeadquartersXCom(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom', true)); // Issue #1090 - Allow XComHQ to be 'none'
+		if (XComHQ != none) // Issue #1090 - 'none' check XComHQ before accessing it.
 		{
-			UnitState.kAppearance.iArmorTint = 72;
-			UnitState.kAppearance.iArmorTintSecondary = 85;
-			UnitState.kAppearance.nmPatterns = 'Pat_Nothing';
+			EquipNarrativeMoment = XComNarrativeMoment(`CONTENT.RequestGameArchetype(ArmorTemplate.EquipNarrative));
+
+			// If the armor intro for this armor hasn't been played yet, set the appearance for this armor
+			if (XComHQ.CanPlayArmorIntroNarrativeMoment(EquipNarrativeMoment))
+			{
+				UnitState.kAppearance.iArmorTint = 72;
+				UnitState.kAppearance.iArmorTintSecondary = 85;
+				UnitState.kAppearance.nmPatterns = 'Pat_Nothing';
+			}
 		}
 	}
 }
@@ -145,15 +152,18 @@ static function SetRageSuitArmorTint(XComGameState_Item ItemState, XComGameState
 
 	if (ArmorTemplate != none)
 	{
-		XComHQ = XComGameState_HeadquartersXCom(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
-		EquipNarrativeMoment = XComNarrativeMoment(`CONTENT.RequestGameArchetype(ArmorTemplate.EquipNarrative));
-
-		// If the armor intro for this armor hasn't been played yet, set the appearance for this armor
-		if (XComHQ.CanPlayArmorIntroNarrativeMoment(EquipNarrativeMoment))
+		XComHQ = XComGameState_HeadquartersXCom(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom', true)); // Issue #1090 - Allow XComHQ to be 'none'
+		if (XComHQ != none) // Issue #1090 - 'none' check XComHQ before accessing it.
 		{
-			UnitState.kAppearance.iArmorTint = 72;
-			UnitState.kAppearance.iArmorTintSecondary = 95;
-			UnitState.kAppearance.nmPatterns = 'Pat_Nothing';
+			EquipNarrativeMoment = XComNarrativeMoment(`CONTENT.RequestGameArchetype(ArmorTemplate.EquipNarrative));
+
+			// If the armor intro for this armor hasn't been played yet, set the appearance for this armor
+			if (XComHQ.CanPlayArmorIntroNarrativeMoment(EquipNarrativeMoment))
+			{
+				UnitState.kAppearance.iArmorTint = 72;
+				UnitState.kAppearance.iArmorTintSecondary = 95;
+				UnitState.kAppearance.nmPatterns = 'Pat_Nothing';
+			}
 		}
 	}
 }
@@ -231,15 +241,18 @@ static function SetSerpentSuitArmorTint(XComGameState_Item ItemState, XComGameSt
 
 	if (ArmorTemplate != none)
 	{
-		XComHQ = XComGameState_HeadquartersXCom(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
-		EquipNarrativeMoment = XComNarrativeMoment(`CONTENT.RequestGameArchetype(ArmorTemplate.EquipNarrative));
-
-		// If the armor intro for this armor hasn't been played yet, set the appearance for this armor
-		if (XComHQ.CanPlayArmorIntroNarrativeMoment(EquipNarrativeMoment))
+		XComHQ = XComGameState_HeadquartersXCom(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom', true)); // Issue #1090 - Allow XComHQ to be 'none'
+		if (XComHQ != none) // Issue #1090 - 'none' check XComHQ before accessing it.
 		{
-			UnitState.kAppearance.iArmorTint = 84;
-			UnitState.kAppearance.iArmorTintSecondary = 96;
-			UnitState.kAppearance.nmPatterns = 'DLC_60_Patterns_E';
+			EquipNarrativeMoment = XComNarrativeMoment(`CONTENT.RequestGameArchetype(ArmorTemplate.EquipNarrative));
+
+			// If the armor intro for this armor hasn't been played yet, set the appearance for this armor
+			if (XComHQ.CanPlayArmorIntroNarrativeMoment(EquipNarrativeMoment))
+			{
+				UnitState.kAppearance.iArmorTint = 84;
+				UnitState.kAppearance.iArmorTintSecondary = 96;
+				UnitState.kAppearance.nmPatterns = 'DLC_60_Patterns_E';
+			}
 		}
 	}
 }
