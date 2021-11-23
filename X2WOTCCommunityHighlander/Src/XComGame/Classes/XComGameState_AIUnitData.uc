@@ -1051,7 +1051,7 @@ static function bool ShouldEnemyFactionsTriggerAlertsOutsidePlayerVision(EAlertC
 /// EventSource: none,
 /// NewGameState: none
 /// ```
-static function bool TriggerOverrideEnemyFactionsAlertsOutsideVision(EAlertCause AlertCause, bool AllowThisCause)
+static private function bool TriggerOverrideEnemyFactionsAlertsOutsideVision(EAlertCause AlertCause, bool AllowThisCause)
 {
 	local XComLWTuple OverrideTuple;
 
