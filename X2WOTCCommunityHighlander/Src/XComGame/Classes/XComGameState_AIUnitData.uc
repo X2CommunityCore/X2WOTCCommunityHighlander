@@ -1030,8 +1030,42 @@ static function bool ShouldEnemyFactionsTriggerAlertsOutsidePlayerVision(EAlertC
 		bResult = true;
 		break;
 	}
-
+	//Start Issue #1036
+	bResult = TriggerOverrideEnemyFactionsAlertsOutsideVision(AlertCause, bResult);
+	//End Issue #1036
 	return bResult;
+}
+
+// Start Issue #1036
+/// HL-Docs: feature:OverrideEnemyFactionsAlertsOutsideVision; issue:1036; tags:tactical
+/// Fires an event that allows listeners to override whether a given alert cause
+/// can be triggered by AI units outside of XCOM's vision. For example, you could
+/// use this event to allow enemy pods to activate one another outside of XCOM
+/// vision for a given set of alert causes.
+///
+/// Return `true` in `AllowThisCause` if the alert cause can be triggered in such
+/// situations. Leave `AllowThisCause` untouched to retain the default behavior.
+/// ```event
+/// EventID: OverrideEnemyFactionsAlertsOutsideVision,
+/// EventData: [ in enum[EAlertCause] AlertCause, inout bool AllowThisCause],
+/// EventSource: none,
+/// NewGameState: none
+/// ```
+static private function bool TriggerOverrideEnemyFactionsAlertsOutsideVision(EAlertCause AlertCause, bool AllowThisCause)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideEnemyFactionsAlertsOutsideVision';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].Kind = XComLWTVInt;
+	OverrideTuple.Data[0].i = AlertCause;
+	OverrideTuple.Data[1].Kind = XComLWTVBool;
+	OverrideTuple.Data[1].b = AllowThisCause;
+
+	`XEVENTMGR.TriggerEvent('OverrideEnemyFactionsAlertsOutsideVision', OverrideTuple);
+
+	return OverrideTuple.Data[1].b;
 }
 
 static function bool IsCauseAllowedForNonvisibleUnits(EAlertCause AlertCause)
