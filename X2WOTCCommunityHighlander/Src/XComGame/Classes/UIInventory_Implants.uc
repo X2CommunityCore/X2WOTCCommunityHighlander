@@ -126,14 +126,10 @@ function int SortItemsTier(XComGameState_Item A, XComGameState_Item B)
 /// EventSource: XComGameState_Unit (UnitState),
 /// NewGameState: none
 /// ```
-simulated private function bool CanEquipImplant_Default(StateObjectReference ImplantRef)
-{
-	local XComGameState_Unit Unit;
-	local XComGameState_Item Implant, ImplantToRemove;
+simulated private function bool CanEquipImplant_Default(XComGameState_Item Implant, XComGameState_Unit Unit)
+{	
+	local XComGameState_Item ImplantToRemove;
 	local array<XComGameState_Item> EquippedImplants;
-	
-	Implant = XComGameState_Item(History.GetGameStateForObjectID(ImplantRef.ObjectID));
-	Unit = UIArmory_MainMenu(Movie.Pres.ScreenStack.GetScreen(class'UIArmory_MainMenu')).GetUnit();
 	
 	EquippedImplants = Unit.GetAllItemsInSlot(eInvSlot_CombatSim);
 
@@ -159,10 +155,10 @@ simulated function bool CanEquipImplant(StateObjectReference ImplantRef)
 	Implant = XComGameState_Item(History.GetGameStateForObjectID(ImplantRef.ObjectID));
 	Unit = UIArmory_MainMenu(Movie.Pres.ScreenStack.GetScreen(class'UIArmory_MainMenu')).GetUnit();	
 	
-	return TriggerOverrideCanEquipImplant(CanEquipImplant_Default(ImplantRef), Implant, Unit);
+	return TriggerOverrideCanEquipImplant(CanEquipImplant_Default(Implant, Unit), Implant, Unit);
 }
 
-private function bool TriggerOverrideCanEquipImplant(const bool CanEquipImplant, const XComGameState_Item Implant, const XComGameState_Unit Unit)
+private function bool TriggerOverrideCanEquipImplant(bool CanEquipImplant, XComGameState_Item Implant, XComGameState_Unit Unit)
 {
 	local XComLWTuple OverrideTuple;	
 
