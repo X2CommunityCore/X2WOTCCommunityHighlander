@@ -112,19 +112,21 @@ function int SortItemsTier(XComGameState_Item A, XComGameState_Item B)
 // Start Issue #1094
 /// HL-Docs: feature:OverrideCanEquipImplant; issue:1094; tags:strategy
 /// In the original `CanEquipImplant` function, an implant (PCS) can only be equipped if:
-/// 1) The unit has no PCS equipped
-/// 1) If a PCS is already equipped on the unit, the first stat on the new PCS must be higher than the equipped PCS
-/// 2) If both conditions are satisfied and the PCS has a Psi stat, only Psi Operatives can equip the PCS
+///
+/// * The unit has no PCS equipped OR
+/// * The type of the first stat on the new PCS is different from the one on the equipped PCS OR
+/// * The value of the first stat on the new PCS is higher than on the equipped PCS
+/// * Additionally, if the type of the first stat on the new PCS is Psi, the unit must be a Psi Operative
 ///
 /// The `OverrideCanEquipImplant` event allows mods to override above behaviour with arbitrary logic.
 ///
 /// ```event
 /// EventID: OverrideCanEquipImplant,
-/// EventData: [inout bool CanEquipImplant, in XComGameState_Item Implant, in XComGameState_Unit Unit],
-/// EventSource: UIInventory_Implants (Screen),
+/// EventData: [inout bool CanEquipImplant, in XComGameState_Item Implant],
+/// EventSource: XComGameState_Unit (UnitState),
 /// NewGameState: none
 /// ```
-simulated function bool CanEquipImplant_Default(StateObjectReference ImplantRef)
+simulated private function bool CanEquipImplant_Default(StateObjectReference ImplantRef)
 {
 	local XComGameState_Unit Unit;
 	local XComGameState_Item Implant, ImplantToRemove;
@@ -166,15 +168,13 @@ private function bool TriggerOverrideCanEquipImplant(const bool CanEquipImplant,
 
 	OverrideTuple = new class'XComLWTuple';
 	OverrideTuple.Id = 'OverrideCanEquipImplant';
-	OverrideTuple.Data.Add(3);
+	OverrideTuple.Data.Add(2);
 	OverrideTuple.Data[0].kind = XComLWTVBool;
 	OverrideTuple.Data[0].b = CanEquipImplant;  
 	OverrideTuple.Data[1].kind = XComLWTVObject;
-	OverrideTuple.Data[1].o = Implant;
-	OverrideTuple.Data[2].kind = XComLWTVObject;
-	OverrideTuple.Data[2].o = Unit; 
+	OverrideTuple.Data[1].o = Implant;	
 
-	`XEVENTMGR.TriggerEvent('OverrideCanEquipImplant', OverrideTuple, self);
+	`XEVENTMGR.TriggerEvent('OverrideCanEquipImplant', OverrideTuple, Unit);
 
 	return OverrideTuple.Data[0].b;
 }
