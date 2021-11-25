@@ -128,7 +128,7 @@ simulated function bool CanEquipImplant_Default(StateObjectReference ImplantRef)
 {
 	local XComGameState_Unit Unit;
 	local XComGameState_Item Implant, ImplantToRemove;
-	local array<XComGameState_Item> EquippedImplants;		
+	local array<XComGameState_Item> EquippedImplants;
 	
 	Implant = XComGameState_Item(History.GetGameStateForObjectID(ImplantRef.ObjectID));
 	Unit = UIArmory_MainMenu(Movie.Pres.ScreenStack.GetScreen(class'UIArmory_MainMenu')).GetUnit();
