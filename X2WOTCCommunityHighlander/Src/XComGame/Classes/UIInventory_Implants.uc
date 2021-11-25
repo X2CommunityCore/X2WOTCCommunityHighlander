@@ -109,11 +109,26 @@ function int SortItemsTier(XComGameState_Item A, XComGameState_Item B)
 	}
 }
 
-simulated function bool CanEquipImplant(StateObjectReference ImplantRef)
+// Start Issue #1094
+/// HL-Docs: feature:OverrideCanEquipImplant; issue:1094; tags:strategy
+/// In the original `CanEquipImplant` function, an implant (PCS) can only be equipped if:
+/// 1) The unit has no PCS equipped
+/// 1) If a PCS is already equipped on the unit, the first stat on the new PCS must be higher than the equipped PCS
+/// 2) If both conditions are satisfied and the PCS has a Psi stat, only Psi Operatives can equip the PCS
+///
+/// The `OverrideCanEquipImplant` event allows mods to override above behaviour with arbitrary logic.
+///
+/// ```event
+/// EventID: OverrideCanEquipImplant,
+/// EventData: [inout bool CanEquipImplant, in XComGameState_Item Implant, in XComGameState_Unit Unit],
+/// EventSource: UIInventory_Implants (Screen),
+/// NewGameState: none
+/// ```
+simulated function bool CanEquipImplant_Default(StateObjectReference ImplantRef)
 {
 	local XComGameState_Unit Unit;
 	local XComGameState_Item Implant, ImplantToRemove;
-	local array<XComGameState_Item> EquippedImplants;
+	local array<XComGameState_Item> EquippedImplants;		
 	
 	Implant = XComGameState_Item(History.GetGameStateForObjectID(ImplantRef.ObjectID));
 	Unit = UIArmory_MainMenu(Movie.Pres.ScreenStack.GetScreen(class'UIArmory_MainMenu')).GetUnit();
@@ -133,6 +148,37 @@ simulated function bool CanEquipImplant(StateObjectReference ImplantRef)
 
 	return class'UIUtilities_Strategy'.static.GetStatBoost(Implant).StatType != eStat_PsiOffense || Unit.IsPsiOperative();
 }
+
+simulated function bool CanEquipImplant(StateObjectReference ImplantRef)
+{
+	local XComGameState_Unit Unit;
+	local XComGameState_Item Implant;	
+	
+	Implant = XComGameState_Item(History.GetGameStateForObjectID(ImplantRef.ObjectID));
+	Unit = UIArmory_MainMenu(Movie.Pres.ScreenStack.GetScreen(class'UIArmory_MainMenu')).GetUnit();	
+	
+	return TriggerOverrideCanEquipImplant(CanEquipImplant_Default(ImplantRef), Implant, Unit);
+}
+
+private function bool TriggerOverrideCanEquipImplant(const bool CanEquipImplant, const XComGameState_Item Implant, const XComGameState_Unit Unit)
+{
+	local XComLWTuple OverrideTuple;	
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideCanEquipImplant';
+	OverrideTuple.Data.Add(3);
+	OverrideTuple.Data[0].kind = XComLWTVBool;
+	OverrideTuple.Data[0].b = CanEquipImplant;  
+	OverrideTuple.Data[1].kind = XComLWTVObject;
+	OverrideTuple.Data[1].o = Implant;
+	OverrideTuple.Data[2].kind = XComLWTVObject;
+	OverrideTuple.Data[2].o = Unit; 
+
+	`XEVENTMGR.TriggerEvent('OverrideCanEquipImplant', OverrideTuple, self);
+
+	return OverrideTuple.Data[0].b;
+}
+// End Issue #1094
 
 simulated function SelectedItemChanged(UIList ContainerList, int ItemIndex)
 {
