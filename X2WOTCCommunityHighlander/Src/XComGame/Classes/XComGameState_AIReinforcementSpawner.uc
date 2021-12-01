@@ -604,34 +604,12 @@ function BuildVisualizationForSpawnerCreation(XComGameState VisualizeGameState)
 	local XGUnit TempXGUnit;
 	local bool bUnitHasSpokenVeryRecently;
 	local X2Action_PlaySoundAndFlyOver SoundAndFlyOver;
-	local XComLWTuple OverrideDisableFlareTuple;  // Issue #448
 
 	ContentManager = `CONTENT;
 	History = `XCOMHISTORY;
 	AISpawnerState = XComGameState_AIReinforcementSpawner(History.GetGameStateForObjectID(ObjectID));
-	
-	// Start Issue #448
-	/// HL-Docs: feature:OverrideDisableReinforcementsFlare; issue:448; tags:tactical
-	/// The `OverrideDisableReinforcementsFlare` event allows mods to disable the visuals
-	/// for the particle effects (red flare or purple psionic gate in base game)
-	/// that indicate the location of incoming enemy reinforcements, 
-	/// as well as other visualization associated with it, such as camera panning.
-	///    
-	///```event
-	/// EventID: OverrideDisableReinforcementsFlare,
-	/// EventData: [inout bool bDisableFlare],
-	/// EventSource: XComGameState_AIReinforcementSpawner (AISpawnerState),
-	/// NewGameState: none
-	///```
-	OverrideDisableFlareTuple = new class'XComLWTuple';
-	OverrideDisableFlareTuple.Id = 'OverrideDisableReinforcementsFlare';
-	OverrideDisableFlareTuple.Data.Add(1);
-	OverrideDisableFlareTuple.Data[0].kind = XComLWTVBool;
-	OverrideDisableFlareTuple.Data[0].b = false;  // Default to *not* disabling the flare (vanilla WOTC behavior)
 
-	`XEVENTMGR.TriggerEvent('OverrideDisableReinforcementsFlare', OverrideDisableFlareTuple, AISpawnerState);
-
-	if (!OverrideDisableFlareTuple.Data[0].b)
+	if (!TriggerOverrideDisableReinforcementsFlare(AISpawnerState))  // Issue #448: added this condition
 	{
 		RevealAreaAction = X2Action_RevealArea(class'X2Action_RevealArea'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
 		RevealAreaAction.TargetLocation = AISpawnerState.SpawnInfo.SpawnLocation;
@@ -660,7 +638,6 @@ function BuildVisualizationForSpawnerCreation(XComGameState VisualizeGameState)
 		ActionMetadata.StateObject_OldState = AISpawnerState;
 		ActionMetadata.StateObject_NewState = AISpawnerState;
 	}
-	// End Issue #448
 
 	// Add a track to one of the x-com soldiers, to say a line of VO (e.g. "Alien reinforcements inbound!").
 	foreach History.IterateByClassType( class'XComGameState_Unit', UnitIterator )
@@ -683,6 +660,37 @@ function BuildVisualizationForSpawnerCreation(XComGameState VisualizeGameState)
 	}
 
 }
+
+// Start Issue #448
+/// HL-Docs: feature:OverrideDisableReinforcementsFlare; issue:448; tags:tactical
+/// The `OverrideDisableReinforcementsFlare` event allows mods to disable the visuals
+/// for the particle effects (red flare or purple psionic gate in base game)
+/// that indicate the location of incoming enemy reinforcements,
+/// as well as other visualization associated with it, such as camera panning.
+///
+/// Returns `true` if the reinforcements flare should be disabled.
+///
+///```event
+/// EventID: OverrideDisableReinforcementsFlare,
+/// EventData: [inout bool bDisableFlare],
+/// EventSource: XComGameState_AIReinforcementSpawner (AISpawnerState),
+/// NewGameState: none
+///```
+private function bool TriggerOverrideDisableReinforcementsFlare(XComGameState_AIReinforcementSpawner AISpawnerState)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideDisableReinforcementsFlare';
+	OverrideTuple.Data.Add(1);
+	OverrideTuple.Data[0].kind = XComLWTVBool;
+	OverrideTuple.Data[0].b = false;  // Default to *not* disabling the flare (vanilla WOTC behavior)
+
+	`XEVENTMGR.TriggerEvent(OverrideTuple.Id, OverrideTuple, AISpawnerState);
+
+	return OverrideTuple.Data[0].b;
+}
+// End Issue #448
 
 function BuildVisualizationForSpawnerDestruction(XComGameState VisualizeGameState)
 {
@@ -828,6 +836,15 @@ function AppendAdditionalSyncActions( out VisualizationActionMetadata ActionMeta
 	{
 		return; // we've completed the reinforcement and the effect was stopped
 	}
+
+	// Start Issue #448 (addendum)
+	// This fixes the issue where reinforcement flares were still visible when
+	// loading a save.
+	if (TriggerOverrideDisableReinforcementsFlare(self))
+	{
+		return;
+	}
+	// End Issue #448
 
 	RevealAreaAction = X2Action_RevealArea(class'X2Action_RevealArea'.static.AddToVisualizationTree(ActionMetadata, GetParentGameState().GetContext() ) );
 	RevealAreaAction.TargetLocation = SpawnInfo.SpawnLocation;
