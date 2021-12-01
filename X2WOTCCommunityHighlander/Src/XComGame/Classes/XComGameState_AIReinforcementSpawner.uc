@@ -837,14 +837,14 @@ function AppendAdditionalSyncActions( out VisualizationActionMetadata ActionMeta
 		return; // we've completed the reinforcement and the effect was stopped
 	}
 
-	// Start Issue #448 (addendum)
+	// Start Issue #1097
 	// This fixes the issue where reinforcement flares were still visible when
 	// loading a save.
 	if (TriggerOverrideDisableReinforcementsFlare(self))
 	{
 		return;
 	}
-	// End Issue #448
+	// End Issue #1097
 
 	RevealAreaAction = X2Action_RevealArea(class'X2Action_RevealArea'.static.AddToVisualizationTree(ActionMetadata, GetParentGameState().GetContext() ) );
 	RevealAreaAction.TargetLocation = SpawnInfo.SpawnLocation;
