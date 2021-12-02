@@ -24,7 +24,7 @@ var config bool NO_MINIMUM_DAMAGE;
 // Issue #743
 var config bool ARMOR_BEFORE_SHIELD;
 // Issue #1099
-var config bool TRUNCTUATE_DIFFERENCE_INSTEAD_OF_RESULT;
+var config bool TRUNCATE_DIFFERENCE_INSTEAD_OF_RESULT;
 
 // These values are extra amount an ability may add or apply directly
 var WeaponDamageValue EffectDamageValue;
@@ -1250,7 +1250,7 @@ simulated protected function int ApplyPreDefaultDamageModifierEffects(
 	// damage modifier, but damage is generally shown as a range anyway.
 			
 	//Handle the option with the possibility of trunctuating the difference rather than result
-	if(default.TRUNCTUATE_DIFFERENCE_INSTEAD_OF_RESULT)
+	if(default.TRUNCATE_DIFFERENCE_INSTEAD_OF_RESULT)
 	{
 		Difference = CurrDamage - WeaponDamage;
 		CurrDamage = WeaponDamage + Difference;	
@@ -1343,7 +1343,7 @@ simulated protected function int ApplyPostDefaultDamageModifierEffects(
 	// damage modifier, but damage is generally shown as a range anyway.
 
 	//Handle the option with the possibility of trunctuating the difference rather than result
-	if(default.TRUNCTUATE_DIFFERENCE_INSTEAD_OF_RESULT)
+	if(default.TRUNCATE_DIFFERENCE_INSTEAD_OF_RESULT)
 	{
 		Difference = CurrDamage - WeaponDamage;
 		CurrDamage = WeaponDamage + Difference;	

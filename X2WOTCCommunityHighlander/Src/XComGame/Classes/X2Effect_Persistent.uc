@@ -715,7 +715,7 @@ event string GetSpecialDamageMessageName() { return FriendlyName; }
 /// would be 1. That's a 50% reduction compared to the 10% reduction based on
 /// the floating-point numbers, which is excessive.
 ///
-/// Because of this, you may want to use the TRUNCTUATE_DIFFERENCE_INSTEAD_OF_RESULT configuration
+/// Because of this, you may want to use the TRUNCATE_DIFFERENCE_INSTEAD_OF_RESULT configuration
 /// variable to change the behavior. Setting it to `true` will result in the
 /// *difference* between the original damage value and the final floating-point
 /// result being truncated. So now reducing 2 damage by 0.2 would result in
