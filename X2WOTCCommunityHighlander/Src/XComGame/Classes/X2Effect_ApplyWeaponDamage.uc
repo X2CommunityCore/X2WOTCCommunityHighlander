@@ -23,6 +23,8 @@ var array<name> HideVisualizationOfResultsAdditional;
 var config bool NO_MINIMUM_DAMAGE;
 // Issue #743
 var config bool ARMOR_BEFORE_SHIELD;
+// Issue #1099
+var config bool TRUNCTUATE_DIFFERENCE_INSTEAD_OF_RESULT;
 
 // These values are extra amount an ability may add or apply directly
 var WeaponDamageValue EffectDamageValue;
@@ -1183,6 +1185,7 @@ simulated protected function int ApplyPreDefaultDamageModifierEffects(
 	local DamageModifierInfo ModifierInfo;
 	local float OldDamage, CurrDamage;
 	local int EffectDmg;
+	local int Difference;
 
 	CurrDamage = WeaponDamage;
 
@@ -1245,6 +1248,14 @@ simulated protected function int ApplyPreDefaultDamageModifierEffects(
 	// handles float -> int conversion in most cases. Note that this may
 	// result in the sum of the shot modifiers not adding up to the overall
 	// damage modifier, but damage is generally shown as a range anyway.
+			
+	//Handle the option with the possibility of trunctuating the difference rather than result
+	if(default.TRUNCTUATE_DIFFERENCE_INSTEAD_OF_RESULT)
+	{
+		Difference = CurrDamage - WeaponDamage;
+		CurrDamage = WeaponDamage + Difference;	
+	}
+
 	return CurrDamage;
 }
 
@@ -1266,6 +1277,7 @@ simulated protected function int ApplyPostDefaultDamageModifierEffects(
 	local DamageModifierInfo ModifierInfo;
 	local float OldDamage, CurrDamage;
 	local int EffectDmg;
+	local int Difference;
 
 	CurrDamage = WeaponDamage;
 
@@ -1329,6 +1341,14 @@ simulated protected function int ApplyPostDefaultDamageModifierEffects(
 	// handles float -> int conversion in most cases. Note that this may
 	// result in the sum of the shot modifiers not adding up to the overall
 	// damage modifier, but damage is generally shown as a range anyway.
+
+	//Handle the option with the possibility of trunctuating the difference rather than result
+	if(default.TRUNCTUATE_DIFFERENCE_INSTEAD_OF_RESULT)
+	{
+		Difference = CurrDamage - WeaponDamage;
+		CurrDamage = WeaponDamage + Difference;	
+	}
+
 	return CurrDamage;
 }
 

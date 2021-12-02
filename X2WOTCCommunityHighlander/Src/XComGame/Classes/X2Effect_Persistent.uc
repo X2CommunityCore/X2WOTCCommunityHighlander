@@ -713,6 +713,11 @@ event string GetSpecialDamageMessageName() { return FriendlyName; }
 /// damage, while the post-default hooks apply modifiers to the calculated
 /// damage after all the additive modifiers have been applied.
 ///
+/// Since version 1.420 There is a possibility of trunctuating the damage difference rather than result by setting 
+/// the config variable TRUNCTUATE_DIFFERENCE_INSTEAD_OF_RESULT to true, 
+/// making the behaviour closer to how vanilla damage modifiers function. The biggest difference between these two options
+/// is that %Damage reduction becomes a lot stronger with result trunctuation, because it gets rounded in its favor.
+///
 /// **Important** Your implementations of these functions should return the
 /// amount of damage your effect is adding or subtracting, **not** the overall
 /// damage. The value you return will be added to `CurrentDamage`.
