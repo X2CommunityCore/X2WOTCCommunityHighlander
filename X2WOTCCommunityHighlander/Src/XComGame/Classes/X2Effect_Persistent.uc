@@ -707,16 +707,25 @@ event string GetSpecialDamageMessageName() { return FriendlyName; }
 /// final damage result will be independent of the order in which effects
 /// are applied.
 ///
+/// As the final damage result is a floating point number, it gets converted
+/// to an integer as the last step. By default, the final damage result itself
+/// is truncated, so final damage of 1.8 would be 1 and 3.2 would be 3.
+/// However, this can lead to awkward results when small numbers are involved.
+/// For example, if an initial 2 damage were reduced to 1.8, the final damage
+/// would be 1. That's a 50% reduction compared to the 10% reduction based on
+/// the floating-point numbers, which is excessive.
+///
+/// Because of this, you may want to use the TRUNCTUATE_DIFFERENCE_INSTEAD_OF_RESULT configuration
+/// variable to change the behavior. Setting it to `true` will result in the
+/// *difference* between the original damage value and the final floating-point
+/// result being truncated. So now reducing 2 damage by 0.2 would result in
+/// a final damage of 2, i.e. 0% damage reduction.
+///
 /// In summary: use these hooks to apply multiplicative damage modifiers
 /// such as percent-based increases and reductions. The pre-default hooks
 /// are for multipliers that should apply to just the calculated base
 /// damage, while the post-default hooks apply modifiers to the calculated
 /// damage after all the additive modifiers have been applied.
-///
-/// Since version 1.420 There is a possibility of trunctuating the damage difference rather than result by setting 
-/// the config variable TRUNCTUATE_DIFFERENCE_INSTEAD_OF_RESULT to true, 
-/// making the behaviour closer to how vanilla damage modifiers function. The biggest difference between these two options
-/// is that %Damage reduction becomes a lot stronger with result trunctuation, because it gets rounded in its favor.
 ///
 /// **Important** Your implementations of these functions should return the
 /// amount of damage your effect is adding or subtracting, **not** the overall
