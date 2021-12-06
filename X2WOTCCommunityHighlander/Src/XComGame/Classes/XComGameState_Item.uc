@@ -1533,9 +1533,9 @@ simulated function string AddStatModifier(bool bAddCommaSeparator, string Label,
 	if(bAddCommaSeparator) Result $= ", ";
 	Result $= Label;
 	if(bSymbolOnRight)
-		Result @= Value $ (Value >= 0 ? "+" : "");
+		Result @= Value $ (Value >= 0 ? "+" : "");	//Issue #1101 - Weapon Upgrade with negative stat modifier shows as "--x"
 	else
-		Result @= (Value >= 0 ? "+" : "") $ Value;
+		Result @= (Value >= 0 ? "+" : "") $ Value;	//Issue #1101 - Weapon Upgrade with negative stat modifier shows as "--x"
 	Result = class'UIUtilities_Text'.static.GetColoredText(Result $ PostFix, ColorState);
 	Result = class'UIUtilities_Text'.static.FormatCommaSeparatedNouns(Result);
 	return Result;
