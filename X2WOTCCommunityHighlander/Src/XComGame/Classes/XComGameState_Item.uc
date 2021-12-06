@@ -1532,9 +1532,9 @@ simulated function string AddStatModifier(bool bAddCommaSeparator, string Label,
 	local string Result;
 	if(bAddCommaSeparator) Result $= ", ";
 	Result $= Label;
-	if(bSymbolOnRight)		
+	if(bSymbolOnRight)
 		Result @= Value $ (Value >= 0 ? "+" : "");
-	else		
+	else
 		Result @= (Value >= 0 ? "+" : "") $ Value;
 	Result = class'UIUtilities_Text'.static.GetColoredText(Result $ PostFix, ColorState);
 	Result = class'UIUtilities_Text'.static.FormatCommaSeparatedNouns(Result);
