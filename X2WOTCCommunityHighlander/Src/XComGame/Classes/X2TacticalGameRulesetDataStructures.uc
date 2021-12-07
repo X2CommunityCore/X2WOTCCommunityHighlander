@@ -112,6 +112,9 @@ enum EInventorySlot
 	eInvSlot_MZAux,
 	eInvSlot_TemplateMaster,
 	eInvSlot_ViperMAW,
+	eInvSlot_SparkComputer,
+	eInvSlot_SparkActuator,
+	eInvSlot_SparkModule,
 
 	// Marker slot, don't use
 	eInvSlot_END_TEMPLATED_SLOTS,
