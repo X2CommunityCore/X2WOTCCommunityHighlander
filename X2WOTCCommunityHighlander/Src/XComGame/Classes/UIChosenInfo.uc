@@ -147,7 +147,9 @@ simulated function RefreshDisplay()
 		if (ChosenStrengths[i].AbilityRevealEvent == '' || SelectedChosen.RevealedChosenTraits.Find(ChosenStrengths[i].DataName) != INDEX_NONE)
 		{
 			AbilityTemplate = ChosenStrengths[i];
-			AS_SetStrengthData(i, AbilityTemplate.IconImage, AbilityTemplate.LocFriendlyName, AbilityTemplate.LocLongDescription);
+			/// HL-Docs: ref:Bugfixes; issue:1096
+			/// Chosen strengths and weaknesses now evaluate ability tags, so they are displayed correctly
+			AS_SetStrengthData(i, AbilityTemplate.IconImage, AbilityTemplate.LocFriendlyName, /* Issue #1096 */ `XEXPAND.ExpandString(AbilityTemplate.LocLongDescription));
 		}
 		else
 		{
@@ -165,7 +167,8 @@ simulated function RefreshDisplay()
 		if (ChosenWeaknesses[i].AbilityRevealEvent == '' || SelectedChosen.RevealedChosenTraits.Find(ChosenWeaknesses[i].DataName) != INDEX_NONE)
 		{
 			AbilityTemplate = ChosenWeaknesses[i];
-			AS_SetWeaknessData(i, AbilityTemplate.IconImage, AbilityTemplate.LocFriendlyName, AbilityTemplate.LocLongDescription);
+			/// HL-Docs: ref:Bugfixes; issue:1096
+			AS_SetWeaknessData(i, AbilityTemplate.IconImage, AbilityTemplate.LocFriendlyName, /* Issue #1096 */ `XEXPAND.ExpandString(AbilityTemplate.LocLongDescription));
 		}
 		else
 		{
