@@ -943,3 +943,33 @@ static function name GetPlaceEvacZoneAbilityName()
 	return default.PlaceEvacZoneAbilityName != '' ? default.PlaceEvacZoneAbilityName : 'PlaceEvacZone';
 }
 // End Issue #855
+
+// Start Issue #1084
+// This helper function is covered by Backwards Compatibility policy and is safe for use in mods.
+static final function array<TTile> GetTilesAdjacentToTile(const TTile SourceTile)
+{	
+	local array<TTile> AdjacentTiles;
+	local TTile AdjacentTile;
+	
+	AdjacentTile = SourceTile;
+	AdjacentTile.X--;
+	AdjacentTile.Y--;
+	AdjacentTiles.AddItem(AdjacentTile);
+	AdjacentTile.X++;
+	AdjacentTiles.AddItem(AdjacentTile);
+	AdjacentTile.X++;
+	AdjacentTiles.AddItem(AdjacentTile);
+	AdjacentTile.Y++;
+	AdjacentTiles.AddItem(AdjacentTile);
+	AdjacentTile.Y++;
+	AdjacentTiles.AddItem(AdjacentTile);
+	AdjacentTile.X--;
+	AdjacentTiles.AddItem(AdjacentTile);
+	AdjacentTile.X--;
+	AdjacentTiles.AddItem(AdjacentTile);
+	AdjacentTile.Y--;
+	AdjacentTiles.AddItem(AdjacentTile);
+
+	return AdjacentTiles;
+}
+// End Issue #1084

@@ -155,6 +155,18 @@ simulated function UpdateMeleeTarget(XComGameState_BaseObject Target)
 
 	if(class'X2AbilityTarget_MovingMelee'.static.SelectAttackTile(UnitState, Target, AbilityTemplate, PossibleTiles))
 	{
+		// Start Issue #1084
+		// The native `class'X2AbilityTarget_MovingMelee'.static.SelectAttackTile` function
+		// gives only one possible attack tile for adjacent targets, so we use our own
+		// script logic to add more possible attack tiles for adjacent targets.
+		// If there's only one possible melee attack tile and the unit is standing on it,
+		// then the target is directly adjacent.
+		if (PossibleTiles.Length == 1 && UnitState.TileLocation == PossibleTiles[0])
+		{
+			UpdatePossibleTilesForAdjacentTarget(Target);
+		}
+		// End Issue #1084
+
 		// build a path to the default (best) tile
 		//<workshop> Francois' Smooth Cursor AMS 2016/04/07
 		//WAS:
@@ -183,6 +195,61 @@ simulated function UpdateMeleeTarget(XComGameState_BaseObject Target)
 	DoUpdatePuckVisuals(PossibleTiles[0], Target.GetVisualizer(), AbilityTemplate);
 	//</workshop>
 }
+
+// Start Issue #1084
+// This is an internal CHL API. It is not intended for use by mods and is not covered by Backwards Compatibility policy.
+private function UpdatePossibleTilesForAdjacentTarget(XComGameState_BaseObject Target)
+{
+	local array<TTile>               TilesForMeleeAttack;
+	local TTile                      AssociatedTile;
+	local array<TTile>               AdjacentTiles;
+	local TTile                      AdjacentTile;
+	local XComGameState_Unit         TargetUnit;
+	local XComGameState_Destructible TargetObject;
+	local XComDestructibleActor      DestructibleActor;
+	
+	TargetUnit = XComGameState_Unit(Target);
+	if (TargetUnit != none)
+	{
+		// Note: FindTilesForMeleeAttack() supports only attackers of UnitSize = 1.
+		class'Helpers'.static.FindTilesForMeleeAttack(TargetUnit, TilesForMeleeAttack);
+
+		// FindTilesForMeleeAttack() will never contain the tile the attacker is already standing on,
+		// so add it manually.
+		TilesForMeleeAttack.AddItem(PossibleTiles[0]);
+		PossibleTiles = TilesForMeleeAttack;
+	}
+	else
+	{
+		TargetObject = XComGameState_Destructible(Target);
+		if (TargetObject == none)
+			return;
+
+		DestructibleActor = XComDestructibleActor(TargetObject.GetVisualizer());
+		if (DestructibleActor == none)
+			return;
+	
+		// AssociatedTiles is the array of tiles occupied by the destructible object.
+		// In theory, every tile from that array can be targeted by a melee attack
+		foreach DestructibleActor.AssociatedTiles(AssociatedTile)
+		{
+			AdjacentTiles = class'CHHelpers'.static.GetTilesAdjacentToTile(AssociatedTile);
+
+			// There is no FindTilesForMeleeAttack() equivalent for non-unit targets, so we have to manually test each potential attack tile.
+			foreach AdjacentTiles(AdjacentTile)
+			{
+				if (class'Helpers'.static.FindTileInList(AdjacentTile, PossibleTiles) != INDEX_NONE)
+					continue;
+
+				if (class'X2AbilityTarget_MovingMelee'.static.IsValidAttackTile(UnitState, AdjacentTile, AssociatedTile, ActiveCache))
+				{	
+					PossibleTiles.AddItem(AdjacentTile);
+				}
+			}
+		}
+	}
+}
+// End Issue #1084
 
 // override the tick. Rather than do the normal path update stuff, we just want to see if the user has pointed the mouse
 // at any of our other possible tiles
@@ -252,11 +319,25 @@ simulated event Tick(float DeltaTime)
 		{
 			foreach PossibleTiles(PossibleTile)
 			{
-				if(PossibleTile == CursorTile)
+				if(PossibleTile == CursorTile || 
+				   // Start Issue #1084
+				   // If the cursor is hovering above the tile occupied by a unit, the CursorTile.Z is increased by 1,
+				   // so the direct comparison "PossibleTile == CursorTile" will always fail.
+				   // So for the possible attack tile occupied by the attacker unit, we compare to cursor's Z location - 1.
+				   PossibleTile == UnitState.TileLocation && CursorTile.X == PossibleTile.X && PossibleTile.Y == CursorTile.Y && PossibleTile.Z == CursorTile.Z - 1
+				   // End issue #1084
+				   )
 				{
 					AbilityTemplate = AbilityState.GetMyTemplate();
-					RebuildPathingInformation(CursorTile, TargetVisualizer, AbilityTemplate, InvalidTile);
-					LastDestinationTile = CursorTile;
+
+					// Start Issue #1084
+					// Use PossibleTile instead of CursorTile to properly handle the case 
+					// when the cursor hovers over the tile occupied by the attacker unit.
+					//RebuildPathingInformation(CursorTile, TargetVisualizer, AbilityTemplate, InvalidTile);
+					//LastDestinationTile = CursorTile;
+					RebuildPathingInformation(PossibleTile, TargetVisualizer, AbilityTemplate, InvalidTile);
+					LastDestinationTile = PossibleTile;
+					// End Issue #1084
 					TargetingMethod.TickUpdatedDestinationTile(LastDestinationTile);
 					break;
 				}
