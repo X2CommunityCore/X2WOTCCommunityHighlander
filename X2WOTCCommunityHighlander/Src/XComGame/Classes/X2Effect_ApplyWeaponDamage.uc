@@ -1250,7 +1250,7 @@ simulated protected function int ApplyPreDefaultDamageModifierEffects(
 	// damage modifier, but damage is generally shown as a range anyway.
 			
 	//Handle the option with the possibility of trunctuating the difference rather than result
-	if(default.TRUNCATE_DIFFERENCE_INSTEAD_OF_RESULT)
+	if(class'X2Effect_ApplyWeaponDamage'.default.TRUNCATE_DIFFERENCE_INSTEAD_OF_RESULT)
 	{
 		Difference = CurrDamage - WeaponDamage;
 		CurrDamage = WeaponDamage + Difference;	
@@ -1343,7 +1343,7 @@ simulated protected function int ApplyPostDefaultDamageModifierEffects(
 	// damage modifier, but damage is generally shown as a range anyway.
 
 	//Handle the option with the possibility of trunctuating the difference rather than result
-	if(default.TRUNCATE_DIFFERENCE_INSTEAD_OF_RESULT)
+	if(class'X2Effect_ApplyWeaponDamage'.default.TRUNCATE_DIFFERENCE_INSTEAD_OF_RESULT)
 	{
 		Difference = CurrDamage - WeaponDamage;
 		CurrDamage = WeaponDamage + Difference;	
