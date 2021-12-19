@@ -53,7 +53,7 @@
         />
     </Target>
     <Target Name="ReBuild">
-        <Error Text="Target ReBuild is not supported"/>
+        <CallTarget Targets="Clean;Default"/>
     </Target>
 
     <!-- The actual build -->
