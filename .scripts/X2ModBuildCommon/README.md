@@ -29,7 +29,7 @@ Open a command line prompt (cmd or powershell, does not matter) in the `[modRoot
 your working tree is clean and run the following command:
 
 ```
-git subtree add --prefix .scripts/X2ModBuildCommon https://github.com/X2CommunityCore/X2ModBuildCommon v1.1.0 --squash
+git subtree add --prefix .scripts/X2ModBuildCommon https://github.com/X2CommunityCore/X2ModBuildCommon v1.2.0 --squash
 ```
 
 ### Your mod does not use git
@@ -80,7 +80,14 @@ switch ($config)
 $builder.InvokeBuild()
 ```
 
-Replace `YourProjectName` with the internal mod name (e.g. the name of your `.XCOM_sln` file without the extension)
+Replace `YourProjectName` with the mod project name (e.g. the name of your `.XCOM_sln` file without the extension).
+
+If you're transitioning an existing mod to X2ModBuildCommon, this advice might come too late, but we recommend that
+the project name contain only ASCII alphabetic characters, numbers and underscores (matching the regular expression `^[A-Za-z][A-Za-z0-9_]*$`).
+The ModBuddy project generator lets you create projects with a large variety of characters that will break the ModBuddy
+build already (like brackets and dashes), but spaces and semicolons are allowed and work fine with the Firaxis ModBuddy plugin.
+`X2ModBuildCommon` will do its best to support project names with spaces, but it's historically been a common source of bugs
+and you may run into fewer of them if you keep your mod name simple.
 
 ## IDE integration
 At this point your mod is actually ready for building but invoking the powershell script with all the arguments each time manually
@@ -154,6 +161,11 @@ name in the "Clean" task):
             "command": "powershell.exe –NonInteractive –ExecutionPolicy Unrestricted -file '${workspaceRoot}\\.scripts\\clean.ps1' -modName 'MY_MOD_NAME' -srcDirectory '${workspaceRoot}' -sdkPath '${config:xcom.highlander.sdkroot}' -gamePath '${config:xcom.highlander.gameroot}'",
             "group": "build",
             "problemMatcher": []
+        },
+        {
+            "label": "Full rebuild",
+            "dependsOrder": "sequence",
+            "dependsOn": ["Clean", "Build"]
         }
     ]
 }
@@ -177,7 +189,7 @@ If you don't use git, simply download the new version and overwrite the old file
 If you use git, run the same command as before, replacing `add` with `pull`:
 
 ```
-git subtree pull --prefix .scripts/X2ModBuildCommon https://github.com/X2CommunityCore/X2ModBuildCommon v1.1.0 --squash
+git subtree pull --prefix .scripts/X2ModBuildCommon https://github.com/X2CommunityCore/X2ModBuildCommon v1.2.0 --squash
 ```
 
 # Configuration options
@@ -292,7 +304,7 @@ Assuming the file is named `ContentOptions.json`:
 $builder.SetContentOptionsJsonFilename("ContentOptions.json")
 ```
 
-Four options are avaliable: `missingUncooked`, `sfStandalone`, `sfMaps`, `sfCollectionMaps`. Omitting an option (or the file entirely)
+Four options are available: `missingUncooked`, `sfStandalone`, `sfMaps`, `sfCollectionMaps`. Omitting an option (or the file entirely)
 is treated the same as setting it to an empty array
 
 ### Including missing uncooked
