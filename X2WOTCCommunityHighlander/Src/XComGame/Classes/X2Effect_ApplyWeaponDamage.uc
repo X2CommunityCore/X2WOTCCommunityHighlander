@@ -1249,8 +1249,9 @@ simulated protected function int ApplyPreDefaultDamageModifierEffects(
 	// result in the sum of the shot modifiers not adding up to the overall
 	// damage modifier, but damage is generally shown as a range anyway.
 			
-	//Handle the option with the possibility of trunctuating the difference rather than result
-	if(class'X2Effect_ApplyWeaponDamage'.default.TRUNCATE_DIFFERENCE_INSTEAD_OF_RESULT)
+	// Truncate the change in damage rather than the final damage itself if
+	// this setting is enabled.
+	if (class'X2Effect_ApplyWeaponDamage'.default.TRUNCATE_DIFFERENCE_INSTEAD_OF_RESULT)
 	{
 		Difference = CurrDamage - WeaponDamage;
 		CurrDamage = WeaponDamage + Difference;	
@@ -1342,8 +1343,9 @@ simulated protected function int ApplyPostDefaultDamageModifierEffects(
 	// result in the sum of the shot modifiers not adding up to the overall
 	// damage modifier, but damage is generally shown as a range anyway.
 
-	//Handle the option with the possibility of trunctuating the difference rather than result
-	if(class'X2Effect_ApplyWeaponDamage'.default.TRUNCATE_DIFFERENCE_INSTEAD_OF_RESULT)
+	// Truncate the change in damage rather than the final damage itself if
+	// this setting is enabled.
+	if (class'X2Effect_ApplyWeaponDamage'.default.TRUNCATE_DIFFERENCE_INSTEAD_OF_RESULT)
 	{
 		Difference = CurrDamage - WeaponDamage;
 		CurrDamage = WeaponDamage + Difference;	
