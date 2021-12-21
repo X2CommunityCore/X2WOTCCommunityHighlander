@@ -24,7 +24,7 @@ var config bool NO_MINIMUM_DAMAGE;
 // Issue #743
 var config bool ARMOR_BEFORE_SHIELD;
 // Issue #1099
-var config bool TRUNCATE_DIFFERENCE_INSTEAD_OF_RESULT;
+var config bool TRUNCATE_FINAL_DAMAGE_MODIFIER;
 
 // These values are extra amount an ability may add or apply directly
 var WeaponDamageValue EffectDamageValue;
@@ -1251,7 +1251,7 @@ simulated protected function int ApplyPreDefaultDamageModifierEffects(
 			
 	// Truncate the change in damage rather than the final damage itself if
 	// this setting is enabled.
-	if (class'X2Effect_ApplyWeaponDamage'.default.TRUNCATE_DIFFERENCE_INSTEAD_OF_RESULT)
+	if (class'X2Effect_ApplyWeaponDamage'.default.TRUNCATE_FINAL_DAMAGE_MODIFIER)
 	{
 		Difference = CurrDamage - WeaponDamage;
 		CurrDamage = WeaponDamage + Difference;	
@@ -1345,7 +1345,7 @@ simulated protected function int ApplyPostDefaultDamageModifierEffects(
 
 	// Truncate the change in damage rather than the final damage itself if
 	// this setting is enabled.
-	if (class'X2Effect_ApplyWeaponDamage'.default.TRUNCATE_DIFFERENCE_INSTEAD_OF_RESULT)
+	if (class'X2Effect_ApplyWeaponDamage'.default.TRUNCATE_FINAL_DAMAGE_MODIFIER)
 	{
 		Difference = CurrDamage - WeaponDamage;
 		CurrDamage = WeaponDamage + Difference;	
