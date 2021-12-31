@@ -510,6 +510,62 @@ simulated function PlayHitEffects(float Damage, Actor InstigatedBy, vector HitLo
 	}
 }
 
+/// HL-Docs: feature:OverrideMetaHitEffect; issue:1116; tags:tactical
+/// Allows listeners to override the default behavior of XComUnitPawn.PlayMetaHitEffect.
+/// Meta Hit Effects are intended to communicate the overall effect of the attack,
+/// and include things like blood gushing out of the unit.
+/// If `OverrideMetaHitEffect` is set to `true`, the default behavior is omitted,
+/// and no meta hit effect is played.
+///
+/// ```event
+/// EventID: OverrideMetaHitEffect,
+/// EventData: [
+///     out bool OverrideMetaHitEffect,
+///     inout vector HitLocation,
+///     inout name DamageTypeName,
+///     inout vector Momentum,
+///     in bool bIsUnitRuptured,
+///     inout enum[EAbilityHitResult] HitResult,
+/// ],
+/// EventSource: XComUnitPawn (Pawn),
+/// NewGameState: none
+/// ```
+simulated private function bool TriggerOnOverrideMetaHitEffect(
+	out vector HitLocation,
+	out name DamageTypeName,
+	out vector Momentum,
+	bool bIsUnitRuptured,
+	out EAbilityHitResult HitResult
+)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideMetaHitEffect';
+	Tuple.Data.Add(6);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = false; // Override default hit effects
+	Tuple.Data[1].kind = XComLWTVVector;
+	Tuple.Data[1].v = HitLocation;
+	Tuple.Data[2].kind = XComLWTVName;
+	Tuple.Data[2].n = DamageTypeName;
+	Tuple.Data[3].kind = XComLWTVVector;
+	Tuple.Data[3].v = Momentum;
+	Tuple.Data[4].kind = XComLWTVBool;
+	Tuple.Data[4].b = bIsUnitRuptured;
+	Tuple.Data[5].kind = XComLWTVInt;
+	Tuple.Data[5].i = HitResult;
+
+	`XEVENTMGR.TriggerEvent('OverrideMetaHitEffect', Tuple, self);
+
+	HitLocation = Tuple.Data[1].v;
+	DamageTypeName = Tuple.Data[2].n;
+	Momentum = Tuple.Data[3].v;
+	HitResult = EAbilityHitResult(Tuple.Data[5].i);
+
+	return Tuple.Data[0].b;
+}
+
 // The Meta Hit Effect is played once per shot (and NOT for every individual projectile), and
 // is useful for showing an "overall" effect of the shot.  mdomowicz 2015_04_30
 simulated function PlayMetaHitEffect(vector HitLocation, name DamageTypeName, vector Momentum, bool bIsUnitRuptured, EAbilityHitResult HitResult= eHit_Success, optional TraceHitInfo ThisHitInfo )
@@ -519,6 +575,13 @@ simulated function PlayMetaHitEffect(vector HitLocation, name DamageTypeName, ve
 	local vector HitNormal;
 	local DamageTypeHitEffectContainer DamageContainer;
 	local XComPerkContentShared kPerkContent;
+
+	// Start Issue #1116
+	if (TriggerOnOverrideHitEffects(HitLocation, DamageTypeName, Momentum, bIsUnitRuptured, HitResult))
+	{
+		return;
+	}
+	// End Issue #1116
 
 	// The HitNormal used to have noise applied, via "* 0.5 * VRand();", but S.Jameson requested 
 	// that it be removed, since he can add noise with finer control via the editor.  mdomowicz 2015_07_06
