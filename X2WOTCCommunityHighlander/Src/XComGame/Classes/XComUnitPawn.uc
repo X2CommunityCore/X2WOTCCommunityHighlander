@@ -577,7 +577,7 @@ simulated function PlayMetaHitEffect(vector HitLocation, name DamageTypeName, ve
 	local XComPerkContentShared kPerkContent;
 
 	// Start Issue #1116
-	if (TriggerOnOverrideHitEffects(HitLocation, DamageTypeName, Momentum, bIsUnitRuptured, HitResult))
+	if (TriggerOnOverrideMetaHitEffect(HitLocation, DamageTypeName, Momentum, bIsUnitRuptured, HitResult))
 	{
 		return;
 	}
