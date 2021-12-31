@@ -388,24 +388,26 @@ simulated function DamageTypeHitEffectContainer GetDamageTypeHitEffectContainer(
 /// EventData: [
 ///     out bool OverrideHitEffect,
 ///     inout float Damage,
-///     inout Actor InstigatedBy,
+///     in Actor InstigatedBy,
 ///     inout vector HitLocation,
 ///     inout name DamageTypeName,
 ///     inout vector Momentum,
-///     inout bool bIsUnitRuptured,
+///     in bool bIsUnitRuptured,
 ///     inout enum[EAbilityHitResult] HitResult,
 /// ],
 /// EventSource: XComUnitPawn (Pawn),
 /// NewGameState: none
 /// ```
 simulated private function bool TriggerOnOverrideHitEffects(
-	float Damage,
+	// Start Issue #1114 - make some of the function arguments 'out'.
+	out float Damage,
 	Actor InstigatedBy,
-	vector HitLocation,
-	name DamageTypeName,
-	vector Momentum,
+	out vector HitLocation,
+	out name DamageTypeName,
+	out vector Momentum,
 	bool bIsUnitRuptured,
-	EAbilityHitResult HitResult
+	out EAbilityHitResult HitResult
+	// End Issue #1114
 )
 {
 	local XComLWTuple Tuple;
@@ -431,6 +433,14 @@ simulated private function bool TriggerOnOverrideHitEffects(
 	Tuple.Data[7].i = HitResult;
 
 	`XEVENTMGR.TriggerEvent('OverrideHitEffects', Tuple, self);
+
+	// Start Issue #1114 - update function arguments from Tuple.
+	Damage = Tuple.Data[1].f;
+	HitLocation = Tuple.Data[3].v;
+	DamageTypeName = Tuple.Data[4].n;
+	Momentum = Tuple.Data[5].v;
+	HitResult = EAbilityHitResult(Tuple.Data[7].i);
+	// End Issue #1114
 
 	return Tuple.Data[0].b;
 }
