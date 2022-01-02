@@ -482,6 +482,11 @@ simulated function array<string> GetImportList()
 		SelectedPool.PoolFileName = SelectedFilename;
 		SelectedPool.LoadCharacterPool();
 		ImportablePoolsLoaded.AddItem(SelectedPool);
+
+		/// HL-Docs: ref:Bugfixes; issue:1118
+		/// LoadCharacterPool() may alter PoolFileName in certain conditions.
+		// Single line for Issue #1118
+		SelectedFilename = SelectedPool.PoolFileName;
 	}
 
 	foreach SelectedPool.CharacterPool(PoolUnit)
