@@ -1343,22 +1343,53 @@ function DisplayNewStrategyCardPopups()
 	local StateObjectReference CardRef;
 	local int idx;
 
-	if (NewPlayableCards.Length > 0)
+	//Issue #1126
+	if(ShouldDisplayNewCardPopUps())
 	{
-		// Queue popups for each new card received
-		foreach NewPlayableCards(CardRef, idx)
+		if (NewPlayableCards.Length > 0)
 		{
-			// Only play the "new card" VO on the last card added to the stack, which will be the first card displayed to the player
-			`HQPRES.UIStrategyCardReceived(CardRef, (idx == NewPlayableCards.Length - 1));
-		}
+			// Queue popups for each new card received
+			foreach NewPlayableCards(CardRef, idx)
+			{
+				// Only play the "new card" VO on the last card added to the stack, which will be the first card displayed to the player
+				`HQPRES.UIStrategyCardReceived(CardRef, (idx == NewPlayableCards.Length - 1));
+			}
 
-		// Then clear the new playable card array since the player has now seen the info about them
-		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Clear New Faction Cards Array");
-		FactionState = XComGameState_ResistanceFaction(NewGameState.ModifyStateObject(class'XComGameState_ResistanceFaction', ObjectID));
-		FactionState.NewPlayableCards.Length = 0;
-		`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
+			// Then clear the new playable card array since the player has now seen the info about them
+			NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Clear New Faction Cards Array");
+			FactionState = XComGameState_ResistanceFaction(NewGameState.ModifyStateObject(class'XComGameState_ResistanceFaction', ObjectID));
+			FactionState.NewPlayableCards.Length = 0;
+			`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
+		}
 	}
 }
+
+// Start issue #1126
+/// HL-Docs: feature:UIPopups_DisplayNewCardPopups; issue:1126; tags:strategy,ui
+/// Allows overriding whether the new resistance order cards pop ups will be displayed.
+/// Default: Popups for new cards will be shown.
+///
+/// ```event
+/// EventID: UIPopups_DisplayNewCardPopups,
+/// EventData: [inout bool ShouldShow],
+/// EventSource: XComGameState_ResistanceFaction,
+/// NewGameState: none
+/// ```
+simulated protected function bool ShouldDisplayNewCardPopUps()
+{
+   local XComLWTuple Tuple;
+
+   Tuple = new class'XComLWTuple';
+   Tuple.Id = 'UIPopups_DisplayNewCardPopups';
+   Tuple.Data.Add(1);
+   Tuple.Data[0].kind = XComLWTVBool;
+   Tuple.Data[0].b = true;
+
+   `XEVENTMGR.TriggerEvent('UIPopups_DisplayNewCardPopups', Tuple, self, none);
+
+	return Tuple.Data[0].b;
+}
+// End issue #1126
 
 //#############################################################################################
 //----------------  RESISTANCE MODE  ----------------------------------------------------------
