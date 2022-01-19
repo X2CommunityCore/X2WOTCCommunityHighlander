@@ -3670,6 +3670,9 @@ function RollForTrainingCenterAbilities()
 				EligibleAbilities.Remove(RemIdx, 1);
 		}
 
+		// Single line for Issue #815
+		EligibleAbilities = TriggerOverrideEligibleTrainingCenterAbilities(EligibleAbilities);
+
 		if (EligibleAbilities.Length > 0)
 		{
 			// Set up the array of possible ranks the soldier can purchase abilities
@@ -3691,6 +3694,107 @@ function RollForTrainingCenterAbilities()
 		}
 	}
 }
+
+// Start Issue #815
+/// HL-Docs: feature:OverrideEligibleTrainingCenterAbilities; issue:815; tags:strategy
+/// The `OverrideEligibleTrainingCenterAbilities` event allows mods to make arbitrary changes
+/// to the list of eligible Training Center abilities generated for each unit.
+///
+/// Typical use case would be making specific abilities eligible or inelegible based on 
+/// arbitrary conditions, like soldier class weapon restrictions.
+/// This event does not trigger for soldiers that do not have a "true" XCOM row, 
+/// like Faction Heroes that use custom RandomAbilityDecks instead.
+///
+/// Since sending an `SoldierClassAbilityType` struct with the tuple is impossible, 
+/// the event tuple contains three parallel arrays: with ability template names,
+/// their inventory slots and their utility categories for abilities assigned
+/// to utility items.
+///
+/// When modifying these arrays it is absolutely critical that the arrays remain parallel,
+/// or you will end up breaking the list.
+/// To prevent that, it's highly recommended you take advantage of two helper functions: 
+/// `RebuildSoldierClassAbilityTypeArray` and `SplitSoldierClassAbilityTypeArray`.
+/// For example:
+/// ```unrealscript
+/// static function EventListenerReturn OnOverrideEligibleTrainingCenterAbilities(Object EventData, Object EventSource, XComGameState NewGameState, Name EventID, Object CallbackObject)
+/// {
+///     local XComGameState_Unit             UnitState;
+///     local XComLWTuple                    Tuple;
+///     local array<name>                    AbilityNames;
+///     local array<int>                     ApplyToWeaponSlots;
+///     local array<name>                    UtilityCats;
+///     local array<SoldierClassAbilityType> EligibleAbilities;
+///
+///     Tuple = XComLWTuple(EventData);
+///     UnitState = XComGameState_Unit(EventSource);
+///
+///     // Rebuild the EligibleAbilities array from the Tuple.
+///     AbilityNames = Tuple.Data[0].an;
+///     ApplyToWeaponSlots = Tuple.Data[1].ai;
+///     UtilityCats = Tuple.Data[2].an;
+///     EligibleAbilities = class'CHHelpers'.static.RebuildSoldierClassAbilityTypeArray(AbilityNames, ApplyToWeaponSlots, UtilityCats);
+///
+///     // Your code here: modify EligibleAbilities as you please.
+/// 
+///     // Split the modified EligibleAbilities into parallel arrays and pass it back to the Tuple.
+///     // This function will automaticaly wipe the contents of the 'out' arrays.
+///     class'CHHelpers'.static.SplitSoldierClassAbilityTypeArray(EligibleAbilities, AbilityNames, ApplyToWeaponSlots, UtilityCats);
+///     Tuple.Data[0].an = AbilityNames;
+///     Tuple.Data[1].ai = ApplyToWeaponSlots;
+///     Tuple.Data[2].an = UtilityCats;
+///
+///     return ELR_NoInterrupt;
+/// }
+/// ```
+/// ```event,notemplate
+/// EventID: OverrideEligibleTrainingCenterAbilities,
+/// EventData: [inout array<name> AbilityNames, inout array<int> ApplyToWeaponSlots, inout array<name> UtilityCats],
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: yes
+/// ```
+private function array<SoldierClassAbilityType> TriggerOverrideEligibleTrainingCenterAbilities(array<SoldierClassAbilityType> EligibleAbilities)
+{
+	local array<name>   AbilityNames;
+	local array<int>    ApplyToWeaponSlots;
+	local array<name>   UtilityCats;
+	local XComLWTuple   Tuple;
+	local XComGameState NewGameState;
+
+	class'CHHelpers'.static.SplitSoldierClassAbilityTypeArray(EligibleAbilities, AbilityNames, ApplyToWeaponSlots, UtilityCats);
+	
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideEligibleTrainingCenterAbilities';
+	Tuple.Data.Add(3);
+	Tuple.Data[0].kind = XComLWTVArrayNames;
+	Tuple.Data[0].an = AbilityNames;
+	Tuple.Data[1].kind = XComLWTVArrayInts;
+	Tuple.Data[1].ai = ApplyToWeaponSlots;
+	Tuple.Data[2].kind = XComLWTVArrayNames;
+	Tuple.Data[2].an = UtilityCats;
+
+	NewGameState = GetParentGameState();
+	if (NewGameState.HistoryIndex > -1 && NewGameState != `XCOMHISTORY.GetStartState())
+	{
+		`Redscreen("CHL Warning: XCGS_Unit::RollForTrainingCenterAbilities was called from a Unit State that came from history, THIS WILL CAUSE BUGS");
+		`Redscreen("Make sure that the unit state comes from a pending gamestate before calling this function");
+		`Redscreen(GetScriptTrace());
+
+		// Can't trigger events on submitted states.
+		// This will probably break listeners, but it's the fault of the caller anyway
+		NewGameState = none;
+	}
+
+	`XEVENTMGR.TriggerEvent(Tuple.Id, Tuple, self, NewGameState);
+
+	AbilityNames = Tuple.Data[0].an;
+	ApplyToWeaponSlots = Tuple.Data[1].ai;
+	UtilityCats = Tuple.Data[2].an;
+
+	EligibleAbilities = class'CHHelpers'.static.RebuildSoldierClassAbilityTypeArray(AbilityNames, ApplyToWeaponSlots, UtilityCats);
+
+	return EligibleAbilities;
+}
+// End Issue #815
 
 function bool NeedsAWCAbilityPopup()
 {
