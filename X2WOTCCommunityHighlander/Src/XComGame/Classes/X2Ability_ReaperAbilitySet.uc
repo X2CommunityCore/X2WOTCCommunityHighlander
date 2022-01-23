@@ -793,7 +793,7 @@ static function X2AbilityTemplate HomingMineDetonation()
 	local X2Condition_UnitProperty					UnitPropertyCondition;
 	local X2Effect_ApplyWeaponDamage				WeaponDamage;
 	local X2Effect_HomingMineDamage					MineDamage;
-	local X2Condition_AbilityProperty				ShrapnelCondition;	
+	//local X2Condition_AbilityProperty				ShrapnelCondition;	// Issue #1131 - removed unnecessary condition.
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'HomingMineDetonation');
 	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_HomingMine";
@@ -830,10 +830,21 @@ static function X2AbilityTemplate HomingMineDetonation()
 	WeaponDamage = new class'X2Effect_ApplyWeaponDamage';
 	WeaponDamage.bExplosiveDamage = true;
 	WeaponDamage.bIgnoreBaseDamage = true;
-	WeaponDamage.EnvironmentalDamageAmount = default.HomingShrapnelEnvironmentDamage;
-	ShrapnelCondition = new class'X2Condition_AbilityProperty';
-	ShrapnelCondition.OwnerHasSoldierAbilities.AddItem('Shrapnel');
-	WeaponDamage.TargetConditions.AddItem(ShrapnelCondition);
+	// Start Issue #1131
+	/// HL-Docs: ref:Bugfixes; issue:1131
+	/// A Target Condition on an X2Effect cannot be used to decide whether 
+	/// environmental damage should apply or not,
+	/// because environmental damage is not triggered against any specific target,
+	/// so there's nothing to check the condition against.
+	/// The bugfix moves the condition logic into X2Effect_HomingMineDamage.
+	/// This effect's condition is removed and the effect itself is neutered.
+	/// The effect is left on the ability template to maintain the number of
+	/// effects the same.
+	//WeaponDamage.EnvironmentalDamageAmount = default.HomingShrapnelEnvironmentDamage;
+	//ShrapnelCondition = new class'X2Condition_AbilityProperty';
+	//ShrapnelCondition.OwnerHasSoldierAbilities.AddItem('Shrapnel');
+	//WeaponDamage.TargetConditions.AddItem(ShrapnelCondition);
+	// End Issue #1131
 	Template.AddMultiTargetEffect(WeaponDamage);
 
 	Template.AbilityTriggers.AddItem(new class'X2AbilityTrigger_Placeholder');
