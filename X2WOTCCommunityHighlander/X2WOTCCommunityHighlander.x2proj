@@ -397,6 +397,9 @@
     <Content Include="Src\XComGame\Classes\UITacticalHUD_SoldierInfo.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UITacticalQuickLaunch_UnitSlot.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UITLE_ChallengeModeMenu.uc">
       <SubType>Content</SubType>
     </Content>
