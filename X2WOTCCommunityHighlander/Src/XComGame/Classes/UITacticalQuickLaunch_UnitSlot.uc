@@ -471,11 +471,13 @@ simulated function name PopulateItemDropdown(UIDropdown kDropdown, name nCurrent
 			continue;
 		if( X2EquipmentTemplate(kEquipmentTemplate) != none &&
 			X2EquipmentTemplate(kEquipmentTemplate).iItemSize > 0 &&  // xpad is only item with size 0, that is always equipped
-			((X2EquipmentTemplate(kEquipmentTemplate).InventorySlot == eEquipmentType) || (X2EquipmentTemplate(kEquipmentTemplate).InventorySlot == eInvSlot_Utility && eEquipmentType == eInvSlot_GrenadePocket)))
+			((X2EquipmentTemplate(kEquipmentTemplate).InventorySlot == eEquipmentType) || (X2EquipmentTemplate(kEquipmentTemplate).InventorySlot == eInvSlot_Utility && eEquipmentType == eInvSlot_GrenadePocket))
+			// Single Line for Issue #1057 - allow any primary or secondary weapon so that IsWeaponAllowedByClass_CH() can decide which weapons to show.
+			|| (kEquipmentTemplate.IsA('X2WeaponTemplate') && (eEquipmentType == eInvSlot_PrimaryWeapon || eEquipmentType == eInvSlot_SecondaryWeapon)))
 		{
 			if (kSoldierClassTemplate != None && kEquipmentTemplate.IsA('X2WeaponTemplate'))
 			{
-				if (!kSoldierClassTemplate.IsWeaponAllowedByClass(X2WeaponTemplate(kEquipmentTemplate)))
+				if (!kSoldierClassTemplate.IsWeaponAllowedByClass_CH(X2WeaponTemplate(kEquipmentTemplate), eEquipmentType))
 				{
 					if (nCurrentEquipped == kEquipmentTemplate.DataName)
 						nCurrentEquipped = '';

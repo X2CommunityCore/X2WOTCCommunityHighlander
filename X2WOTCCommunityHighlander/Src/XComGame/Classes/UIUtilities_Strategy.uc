@@ -1310,6 +1310,32 @@ simulated static function X2SoldierClassTemplate GetAllowedClassForWeapon(X2Weap
 	}
 }
 
+// Start Issue #1057
+/// HL-Docs: ref:IsWeaponAllowedByClass
+///
+/// # GetAllowedClassForWeapon_CH()
+///
+/// Similarly to `IsWeaponAllowedByClass_CH()`, a `GetAllowedClassForWeapon_CH()` function was created
+/// to find a soldier class template of a class that is allowed to use a weapon of the specified template
+/// in the specified inventory slot, rather than in the slot specified in the weapon template itself.
+/// 
+/// # Compatibility
+///
+/// For the sake of consistency, it is preferable that mods call `GetAllowedClassForWeapon_CH()` rather than `GetAllowedClassForWeapon()` whenever possible.
+simulated static final function X2SoldierClassTemplate GetAllowedClassForWeapon_CH(X2WeaponTemplate WeaponTemplate, optional EInventorySlot InventorySlot)
+{
+	local X2DataTemplate DataTemplate;
+	local X2SoldierClassTemplate SoldierClassTemplate;
+	
+	foreach class'X2SoldierClassTemplateManager'.static.GetSoldierClassTemplateManager().IterateTemplates(DataTemplate, none)
+	{
+		SoldierClassTemplate = X2SoldierClassTemplate(DataTemplate);
+		if(SoldierClassTemplate.IsWeaponAllowedByClass_CH(WeaponTemplate, InventorySlot))
+			return SoldierClassTemplate;
+	}
+}
+// End Issue #1057
+
 simulated static function X2SoldierClassTemplate GetAllowedClassForArmor(X2ArmorTemplate ArmorTemplate)
 {
 	local X2DataTemplate DataTemplate;

@@ -753,9 +753,10 @@ simulated function string GetDisabledReason(XComGameState_Item Item, EInventoryS
 	if(WeaponTemplate != none)
 	{
 		SoldierClassTemplate = UpdatedUnit.GetSoldierClassTemplate();
-		if(SoldierClassTemplate != none && !SoldierClassTemplate.IsWeaponAllowedByClass(WeaponTemplate))
+		if(SoldierClassTemplate != none && !SoldierClassTemplate.IsWeaponAllowedByClass_CH(WeaponTemplate, SelectedSlot)) // Issue #1057 - call IsWeaponAllowedByClass_CH() instead of the original.
 		{
-			AllowedSoldierClassTemplate = class'UIUtilities_Strategy'.static.GetAllowedClassForWeapon(WeaponTemplate);
+			// Issue #1057 - call GetAllowedClassForWeapon_CH() instead of the original.
+			AllowedSoldierClassTemplate = class'UIUtilities_Strategy'.static.GetAllowedClassForWeapon_CH(WeaponTemplate, SelectedSlot);
 			if(AllowedSoldierClassTemplate == none)
 			{
 				DisabledReason = m_strMissingAllowedClass;
