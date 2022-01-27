@@ -8077,7 +8077,7 @@ simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate,
 		{
 			if (IsSoldier() && WeaponTemplate != none)
 			{
-				if (!GetSoldierClassTemplate().IsWeaponAllowedByClass(WeaponTemplate))
+				if (!GetSoldierClassTemplate().IsWeaponAllowedByClass_CH(WeaponTemplate, Slot)) // Issue #1057 - call IsWeaponAllowedByClass_CH() instead of the original.
 					return false;
 			}
 
@@ -12142,7 +12142,8 @@ function array<X2WeaponTemplate> GetBestPrimaryWeaponTemplates()
 			WeaponTemplate = X2WeaponTemplate(ItemState.GetMyTemplate());
 
 			if (WeaponTemplate != none && WeaponTemplate.bInfiniteItem && (BestWeaponTemplate == none || (BestWeaponTemplates.Find(WeaponTemplate) == INDEX_NONE && WeaponTemplate.Tier >= BestWeaponTemplate.Tier)) && 
-				WeaponTemplate.InventorySlot == eInvSlot_PrimaryWeapon && GetSoldierClassTemplate().IsWeaponAllowedByClass(WeaponTemplate))
+				/*WeaponTemplate.InventorySlot == eInvSlot_PrimaryWeapon &&*/ // Issue #1057 - Do not check inventory slot on the template, let IsWeaponAllowedByClass_CH() decide whether the weapon is allowed.
+				GetSoldierClassTemplate().IsWeaponAllowedByClass_CH(WeaponTemplate, eInvSlot_PrimaryWeapon)) // Issue #1057 - call IsWeaponAllowedByClass_CH() instead of the original.
 			{
 				BestWeaponTemplate = WeaponTemplate;
 				BestWeaponTemplates.AddItem(BestWeaponTemplate);
@@ -12199,7 +12200,8 @@ function array<X2WeaponTemplate> GetBestSecondaryWeaponTemplates()
 			WeaponTemplate = X2WeaponTemplate(ItemState.GetMyTemplate());
 
 			if(WeaponTemplate != none && WeaponTemplate.bInfiniteItem && (BestWeaponTemplate == none || (BestWeaponTemplates.Find(WeaponTemplate) == INDEX_NONE && WeaponTemplate.Tier >= BestWeaponTemplate.Tier)) &&
-				WeaponTemplate.InventorySlot == eInvSlot_SecondaryWeapon && GetSoldierClassTemplate().IsWeaponAllowedByClass(WeaponTemplate))
+				/*WeaponTemplate.InventorySlot == eInvSlot_SecondaryWeapon && */ // Issue #1057 - Do not check inventory slot on the template, let IsWeaponAllowedByClass_CH() decide whether the weapon is allowed.
+				GetSoldierClassTemplate().IsWeaponAllowedByClass_CH(WeaponTemplate, eInvSlot_SecondaryWeapon)) // Issue #1057 - call IsWeaponAllowedByClass_CH() instead of the original.
 			{
 				BestWeaponTemplate = WeaponTemplate;
 				BestWeaponTemplates.AddItem(BestWeaponTemplate);
@@ -12248,7 +12250,7 @@ function array<X2WeaponTemplate> GetBestHeavyWeaponTemplates()
 
 			if(HeavyWeaponTemplate != none && HeavyWeaponTemplate.bInfiniteItem && (BestHeavyWeaponTemplate == none || 
 				(BestHeavyWeaponTemplates.Find(HeavyWeaponTemplate) == INDEX_NONE && HeavyWeaponTemplate.Tier >= BestHeavyWeaponTemplate.Tier)) &&
-				HeavyWeaponTemplate.InventorySlot == eInvSlot_HeavyWeapon && GetSoldierClassTemplate().IsWeaponAllowedByClass(HeavyWeaponTemplate))
+				HeavyWeaponTemplate.InventorySlot == eInvSlot_HeavyWeapon && GetSoldierClassTemplate().IsWeaponAllowedByClass_CH(HeavyWeaponTemplate, eInvSlot_HeavyWeapon)) // Issue #1057 - call IsWeaponAllowedByClass_CH() instead of the original.
 			{
 				BestHeavyWeaponTemplate = HeavyWeaponTemplate;
 				BestHeavyWeaponTemplates.AddItem(BestHeavyWeaponTemplate);
