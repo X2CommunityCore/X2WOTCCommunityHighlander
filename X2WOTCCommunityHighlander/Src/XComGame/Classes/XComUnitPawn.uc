@@ -378,21 +378,28 @@ simulated function DamageTypeHitEffectContainer GetDamageTypeHitEffectContainer(
 }
 
 /// HL-Docs: feature:OverrideHitEffects; issue:825; tags:tactical
-/// Allows listeners to override the default behavior of XComUnitPawn.PlayHitEffects
-/// This is especially useful for preventing the hardcoded templar fx for 
-/// eHit_Parry, eHit_Reflect and eHit_Deflect which play for any abilities that utilizing these hit results.
-/// If OverrideHitEffect is set to true the PlayHitEffects function will return early and the default behavior is ommited.
+/// Allows listeners to change behavior of `XComUnitPawn::PlayHitEffects()`.
+/// Listeners can set `OverrideHitEffect` to `true`, 
+/// and then the default behavior will be omitted entirely,
+/// and no hit effect will be played.
+///
+/// Alternatively, listeners can modify the parameters passed with the Tuple 
+/// to modify the default behavior.
+///
+/// For example, this listener can be used to prevent Templar purple hit effects
+/// from playing for any attack that has the hit result eHit_Parry, 
+/// eHit_Reflect or eHit_Deflect.
 ///
 /// ```event
 /// EventID: OverrideHitEffects,
 /// EventData: [
-///     out bool OverrideHitEffect,
+///     inout bool OverrideHitEffect,
 ///     inout float Damage,
 ///     in Actor InstigatedBy,
 ///     inout vector HitLocation,
 ///     inout name DamageTypeName,
 ///     inout vector Momentum,
-///     in bool bIsUnitRuptured,
+///     inout bool bIsUnitRuptured,
 ///     inout enum[EAbilityHitResult] HitResult,
 /// ],
 /// EventSource: XComUnitPawn (Pawn),
@@ -405,7 +412,7 @@ simulated private function bool TriggerOnOverrideHitEffects(
 	out vector HitLocation,
 	out name DamageTypeName,
 	out vector Momentum,
-	bool bIsUnitRuptured,
+	out int iIsUnitRuptured,
 	out EAbilityHitResult HitResult
 	// End Issue #1114
 )
@@ -428,7 +435,7 @@ simulated private function bool TriggerOnOverrideHitEffects(
 	Tuple.Data[5].kind = XComLWTVVector;
 	Tuple.Data[5].v = Momentum;
 	Tuple.Data[6].kind = XComLWTVBool;
-	Tuple.Data[6].b = bIsUnitRuptured;
+	Tuple.Data[6].b = iIsUnitRuptured != 0;
 	Tuple.Data[7].kind = XComLWTVInt;
 	Tuple.Data[7].i = HitResult;
 
@@ -439,6 +446,7 @@ simulated private function bool TriggerOnOverrideHitEffects(
 	HitLocation = Tuple.Data[3].v;
 	DamageTypeName = Tuple.Data[4].n;
 	Momentum = Tuple.Data[5].v;
+	iIsUnitRuptured = Tuple.Data[6].b ? 1 : 0;
 	HitResult = EAbilityHitResult(Tuple.Data[7].i);
 	// End Issue #1114
 
@@ -454,12 +462,15 @@ simulated function PlayHitEffects(float Damage, Actor InstigatedBy, vector HitLo
 	local XComPerkContentShared kPerkContent;
 	local DamageTypeHitEffectContainer DamageContainer;
 	local XGUnit SourceUnit;
+	local int iIsUnitRuptured; // Variable for Issue #825
 
 	// Start Issue #825
-	if (TriggerOnOverrideHitEffects(Damage, InstigatedBy, HitLocation, DamageTypeName, Momentum, bIsUnitRuptured, HitResult))
+	iIsUnitRuptured = bIsUnitRuptured ? 1 : 0;
+	if (TriggerOnOverrideHitEffects(Damage, InstigatedBy, HitLocation, DamageTypeName, Momentum, iIsUnitRuptured, HitResult))
 	{
 		return;
 	}
+	bIsUnitRuptured = iIsUnitRuptured != 0;
 	// End Issue #825
 
 	// The HitNormal used to have noise applied, via "* 0.5 * VRand();", but S.Jameson requested 
