@@ -197,7 +197,6 @@ simulated function UpdateMeleeTarget(XComGameState_BaseObject Target)
 }
 
 // Start Issue #1084
-// This is an internal CHL API. It is not intended for use by mods and is not covered by Backwards Compatibility policy.
 private function UpdatePossibleTilesForAdjacentTarget(XComGameState_BaseObject Target)
 {
 	local array<TTile>               TilesForMeleeAttack;
@@ -223,11 +222,18 @@ private function UpdatePossibleTilesForAdjacentTarget(XComGameState_BaseObject T
 	{
 		TargetObject = XComGameState_Destructible(Target);
 		if (TargetObject == none)
+		{
+			`LOG(self.Class.Name @ GetFuncName() @ ":: WARNING, target is not a unit and not a destructible object! Its class is:" @ Target.Class.Name @ ", unable to detect additional tiles to melee attack from. Attacking unit:" @ UnitState.GetFullName());
 			return;
+		}
 
 		DestructibleActor = XComDestructibleActor(TargetObject.GetVisualizer());
 		if (DestructibleActor == none)
+		if (TargetObject == none)
+		{
+			`LOG(self.Class.Name @ GetFuncName() @ ":: WARNING, no visualizer found for destructible object with ID:" @ TargetObject.ObjectID @ ", unable to detect additional tiles to melee attack from. Attacking unit:" @ UnitState.GetFullName());
 			return;
+		}
 	
 		// AssociatedTiles is the array of tiles occupied by the destructible object.
 		// In theory, every tile from that array can be targeted by a melee attack

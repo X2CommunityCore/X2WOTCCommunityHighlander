@@ -945,7 +945,6 @@ static function name GetPlaceEvacZoneAbilityName()
 // End Issue #855
 
 // Start Issue #1084
-// This helper function is covered by Backwards Compatibility policy and is safe for use in mods.
 static final function array<TTile> GetTilesAdjacentToTile(const TTile SourceTile)
 {	
 	local array<TTile> AdjacentTiles;
@@ -955,18 +954,25 @@ static final function array<TTile> GetTilesAdjacentToTile(const TTile SourceTile
 	AdjacentTile.X--;
 	AdjacentTile.Y--;
 	AdjacentTiles.AddItem(AdjacentTile);
+
 	AdjacentTile.X++;
 	AdjacentTiles.AddItem(AdjacentTile);
+
 	AdjacentTile.X++;
 	AdjacentTiles.AddItem(AdjacentTile);
+
 	AdjacentTile.Y++;
 	AdjacentTiles.AddItem(AdjacentTile);
+
 	AdjacentTile.Y++;
 	AdjacentTiles.AddItem(AdjacentTile);
+
 	AdjacentTile.X--;
 	AdjacentTiles.AddItem(AdjacentTile);
+
 	AdjacentTile.X--;
 	AdjacentTiles.AddItem(AdjacentTile);
+
 	AdjacentTile.Y--;
 	AdjacentTiles.AddItem(AdjacentTile);
 
