@@ -327,7 +327,7 @@ simulated event Tick(float DeltaTime)
 			{
 				if(PossibleTile == CursorTile || 
 				   // Start Issue #1084
-				   // If the cursor is hovering above the tile occupied by a unit, the CursorTile.Z is increased by 1,
+				   // If the cursor is hovering above the tile occupied by the unit, the CursorTile.Z is increased by 1,
 				   // so the direct comparison "PossibleTile == CursorTile" will always fail.
 				   // So for the possible attack tile occupied by the attacker unit, we compare to cursor's Z location - 1.
 				   (PossibleTile == UnitState.TileLocation && CursorTile.X == PossibleTile.X && PossibleTile.Y == CursorTile.Y && PossibleTile.Z == CursorTile.Z - 1)
