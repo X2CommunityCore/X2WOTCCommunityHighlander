@@ -199,9 +199,9 @@ simulated function UpdateMeleeTarget(XComGameState_BaseObject Target)
 // Start Issue #1084
 private function UpdatePossibleTilesForAdjacentTarget(XComGameState_BaseObject Target)
 {
-	local array<TTile>               TilesForMeleeAttack;
-	local TTile                      AssociatedTile;
-	local array<TTile>               AdjacentTiles;
+	local array<TTile>               TargetTiles; // Array of tiles occupied by the target; these tiles can be attacked by melee.
+	local TTile                      TargetTile;
+	local array<TTile>               AdjacentTiles;	// Array of tiles adjacent to Target Tiles; the attacking unit can move to these tiles to attack.
 	local TTile                      AdjacentTile;
 	local XComGameState_Unit         TargetUnit;
 	local XComGameState_Destructible TargetObject;
@@ -210,13 +210,7 @@ private function UpdatePossibleTilesForAdjacentTarget(XComGameState_BaseObject T
 	TargetUnit = XComGameState_Unit(Target);
 	if (TargetUnit != none)
 	{
-		// Note: FindTilesForMeleeAttack() supports only attackers of UnitSize = 1.
-		class'Helpers'.static.FindTilesForMeleeAttack(TargetUnit, TilesForMeleeAttack);
-
-		// FindTilesForMeleeAttack() will never contain the tile the attacker is already standing on,
-		// so add it manually.
-		TilesForMeleeAttack.AddItem(PossibleTiles[0]);
-		PossibleTiles = TilesForMeleeAttack;
+		GatherTilesOccupiedByUnit(TargetUnit, TargetTiles);
 	}
 	else
 	{
@@ -229,29 +223,104 @@ private function UpdatePossibleTilesForAdjacentTarget(XComGameState_BaseObject T
 
 		DestructibleActor = XComDestructibleActor(TargetObject.GetVisualizer());
 		if (DestructibleActor == none)
-		if (TargetObject == none)
 		{
 			`LOG(self.Class.Name @ GetFuncName() @ ":: WARNING, no visualizer found for destructible object with ID:" @ TargetObject.ObjectID @ ", unable to detect additional tiles to melee attack from. Attacking unit:" @ UnitState.GetFullName());
 			return;
 		}
-	
+
 		// AssociatedTiles is the array of tiles occupied by the destructible object.
-		// In theory, every tile from that array can be targeted by a melee attack
-		foreach DestructibleActor.AssociatedTiles(AssociatedTile)
+	    // In theory, every tile from that array can be targeted by a melee attack.
+		TargetTiles = DestructibleActor.AssociatedTiles;
+	}
+
+	// Collect non-duplicate tiles around every Target Tile to see which tiles we can attack from.
+	GatherTilesAdjacentToTiles(TargetTiles, AdjacentTiles);
+
+	foreach TargetTiles(TargetTile)
+	{
+		foreach AdjacentTiles(AdjacentTile)
 		{
-			AdjacentTiles = class'CHHelpers'.static.GetTilesAdjacentToTile(AssociatedTile);
-
-			// There is no FindTilesForMeleeAttack() equivalent for non-unit targets, so we have to manually test each potential attack tile.
-			foreach AdjacentTiles(AdjacentTile)
-			{
-				if (class'Helpers'.static.FindTileInList(AdjacentTile, PossibleTiles) != INDEX_NONE)
-					continue;
-
-				if (class'X2AbilityTarget_MovingMelee'.static.IsValidAttackTile(UnitState, AdjacentTile, AssociatedTile, ActiveCache))
-				{	
-					PossibleTiles.AddItem(AdjacentTile);
-				}
+			if (class'Helpers'.static.FindTileInList(AdjacentTile, PossibleTiles) != INDEX_NONE)
+				continue;		
+				
+			if (class'X2AbilityTarget_MovingMelee'.static.IsValidAttackTile(UnitState, AdjacentTile, TargetTile, ActiveCache))
+			{	
+				PossibleTiles.AddItem(AdjacentTile);
 			}
+		}
+	}
+}
+
+private function GatherTilesOccupiedByUnit(const XComGameState_Unit TargetUnit, out array<TTile> OccupiedTiles)
+{	
+	local XComWorldData      WorldData;
+	local array<TilePosPair> TilePosPairs;
+	local TilePosPair        TilePair;
+	local vector             Minimum;
+	local vector             Maximum;
+	local float              UnitSize;
+	local array<StateObjectReference> UnitsOnTile;
+	
+	WorldData = `XWORLD;
+	UnitSize = WorldData.WORLD_StepSize * (TargetUnit.UnitSize - 1);
+
+	Minimum = WorldData.GetPositionFromTileCoordinates(TargetUnit.TileLocation);
+	Maximum = Minimum;
+	
+	Minimum.X -= UnitSize;
+	Minimum.Y -= UnitSize;
+
+	Maximum.X += UnitSize;
+	Maximum.Y += UnitSize;
+	Maximum.Z += WorldData.WORLD_FloorHeight * (TargetUnit.UnitHeight - 1);
+
+	WorldData.CollectTilesInBox(TilePosPairs, Minimum, Maximum);
+
+	foreach TilePosPairs(TilePair)
+	{
+		UnitsOnTile = WorldData.GetUnitsOnTile(TilePair.Tile);
+		if (UnitsOnTile.Find('ObjectID', TargetUnit.ObjectID) != INDEX_NONE)
+		{
+			OccupiedTiles.AddItem(TilePair.Tile);
+		}
+	}
+}
+
+private function GatherTilesAdjacentToTiles(out array<TTile> TargetTiles, out array<TTile> AdjacentTiles)
+{	
+	local XComWorldData      WorldData;
+	local array<TilePosPair> TilePosPairs;
+	local TilePosPair        TilePair;
+	local TTile              TargetTile;
+	local vector             Minimum;
+	local vector             Maximum;
+	
+	WorldData = `XWORLD;
+
+	// Collect a 3x3 box of tiles around every target tile, excluding duplicates.
+	// Melee attacks can happen diagonally upwards or downwards too,
+	// so collecting tiles on the same Z level would not be enough.
+	foreach TargetTiles(TargetTile)
+	{
+		Minimum = WorldData.GetPositionFromTileCoordinates(TargetTile);
+		Maximum = Minimum;
+
+		Minimum.X -= WorldData.WORLD_StepSize;
+		Minimum.Y -= WorldData.WORLD_StepSize;
+		Minimum.Z -= WorldData.WORLD_FloorHeight;
+
+		Maximum.X += WorldData.WORLD_StepSize;
+		Maximum.Y += WorldData.WORLD_StepSize;
+		Maximum.Z += WorldData.WORLD_FloorHeight;
+
+		WorldData.CollectTilesInBox(TilePosPairs, Minimum, Maximum);
+
+		foreach TilePosPairs(TilePair)
+		{
+			if (class'Helpers'.static.FindTileInList(TilePair.Tile, AdjacentTiles) != INDEX_NONE)
+				continue;
+
+			AdjacentTiles.AddItem(TilePair.Tile);
 		}
 	}
 }
