@@ -161,7 +161,7 @@ simulated function UpdateMeleeTarget(XComGameState_BaseObject Target)
 		// script logic to add more possible attack tiles for adjacent targets.
 		// If there's only one possible melee attack tile and the unit is standing on it,
 		// then the target is directly adjacent.
-		if (PossibleTiles.Length == 1 && UnitState.TileLocation == PossibleTiles[0])
+		if (UnitState.UnitSize == 1 && PossibleTiles.Length == 1 && UnitState.TileLocation == PossibleTiles[0])
 		{
 			UpdatePossibleTilesForAdjacentTarget(Target);
 		}
