@@ -256,33 +256,16 @@ private function GatherTilesOccupiedByUnit(const XComGameState_Unit TargetUnit, 
 	local XComWorldData      WorldData;
 	local array<TilePosPair> TilePosPairs;
 	local TilePosPair        TilePair;
-	local vector             Minimum;
-	local vector             Maximum;
-	local float              UnitSize;
-	local array<StateObjectReference> UnitsOnTile;
+	local Box                VisibilityExtents;
+
+	TargetUnit.GetVisibilityExtents(VisibilityExtents);
 	
 	WorldData = `XWORLD;
-	UnitSize = WorldData.WORLD_StepSize * (TargetUnit.UnitSize - 1);
-
-	Minimum = WorldData.GetPositionFromTileCoordinates(TargetUnit.TileLocation);
-	Maximum = Minimum;
-	
-	Minimum.X -= UnitSize;
-	Minimum.Y -= UnitSize;
-
-	Maximum.X += UnitSize;
-	Maximum.Y += UnitSize;
-	Maximum.Z += WorldData.WORLD_FloorHeight * (TargetUnit.UnitHeight - 1);
-
-	WorldData.CollectTilesInBox(TilePosPairs, Minimum, Maximum);
+	WorldData.CollectTilesInBox(TilePosPairs, VisibilityExtents.Min, VisibilityExtents.Max);
 
 	foreach TilePosPairs(TilePair)
 	{
-		UnitsOnTile = WorldData.GetUnitsOnTile(TilePair.Tile);
-		if (UnitsOnTile.Find('ObjectID', TargetUnit.ObjectID) != INDEX_NONE)
-		{
-			OccupiedTiles.AddItem(TilePair.Tile);
-		}
+		OccupiedTiles.AddItem(TilePair.Tile);
 	}
 }
 
