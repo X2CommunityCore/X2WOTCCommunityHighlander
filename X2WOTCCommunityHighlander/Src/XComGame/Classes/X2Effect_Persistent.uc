@@ -707,6 +707,11 @@ event string GetSpecialDamageMessageName() { return FriendlyName; }
 /// final damage result will be independent of the order in which effects
 /// are applied.
 ///
+/// Currently, the difference between the original damage value and 
+/// the modified damage value is truncated. That allows the following behavior: 
+///
+/// If the modified damage is lower than the original, it is effectively rounded up.
+/// If higher, it is rounded down.
 /// In summary: use these hooks to apply multiplicative damage modifiers
 /// such as percent-based increases and reductions. The pre-default hooks
 /// are for multipliers that should apply to just the calculated base

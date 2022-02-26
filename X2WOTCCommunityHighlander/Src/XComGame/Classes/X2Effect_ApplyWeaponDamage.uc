@@ -1183,6 +1183,7 @@ simulated protected function int ApplyPreDefaultDamageModifierEffects(
 	local DamageModifierInfo ModifierInfo;
 	local float OldDamage, CurrDamage;
 	local int EffectDmg;
+	local int Difference;
 
 	CurrDamage = WeaponDamage;
 
@@ -1245,6 +1246,14 @@ simulated protected function int ApplyPreDefaultDamageModifierEffects(
 	// handles float -> int conversion in most cases. Note that this may
 	// result in the sum of the shot modifiers not adding up to the overall
 	// damage modifier, but damage is generally shown as a range anyway.
+			
+	// Issue #1099
+	// Truncate the change in damage rather than the final damage itself.
+
+	Difference = CurrDamage - WeaponDamage;
+	CurrDamage = WeaponDamage + Difference;	
+
+
 	return CurrDamage;
 }
 
@@ -1266,6 +1275,7 @@ simulated protected function int ApplyPostDefaultDamageModifierEffects(
 	local DamageModifierInfo ModifierInfo;
 	local float OldDamage, CurrDamage;
 	local int EffectDmg;
+	local int Difference;
 
 	CurrDamage = WeaponDamage;
 
@@ -1329,6 +1339,14 @@ simulated protected function int ApplyPostDefaultDamageModifierEffects(
 	// handles float -> int conversion in most cases. Note that this may
 	// result in the sum of the shot modifiers not adding up to the overall
 	// damage modifier, but damage is generally shown as a range anyway.
+
+	// Issue #1099
+	// Truncate the change in damage rather than the final damage itself.
+
+	Difference = CurrDamage - WeaponDamage;
+	CurrDamage = WeaponDamage + Difference;	
+
+
 	return CurrDamage;
 }
 
