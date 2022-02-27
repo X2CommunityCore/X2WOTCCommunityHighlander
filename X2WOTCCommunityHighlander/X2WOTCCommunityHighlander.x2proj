@@ -427,6 +427,9 @@
     <Content Include="Src\XComGame\Classes\UIUtilities_Colors.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2AbilityTrigger_EndOfMove.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2AchievementTracker.uc">
       <SubType>Content</SubType>
     </Content>
