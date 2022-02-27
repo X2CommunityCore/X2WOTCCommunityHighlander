@@ -14102,7 +14102,12 @@ simulated function array<string> GetUISummary_UnitStatusIcons()
 	{
 		EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
 		Persist = EffectState.GetX2Effect();
-		if( Persist.bDisplayInUI && Persist.IsEffectCurrentlyRelevant(EffectState, self) )
+
+		/// HL-Docs: ref:Bugfixes; issue:1120
+		/// Add the effect's status icon only if it's not empty.
+		if (Persist.bDisplayInUI &&
+			Persist.StatusIcon != "" && // Single line for Issue #1120
+			Persist.IsEffectCurrentlyRelevant(EffectState, self))
 		{
 			List.AddItem(Persist.StatusIcon);
 		}
