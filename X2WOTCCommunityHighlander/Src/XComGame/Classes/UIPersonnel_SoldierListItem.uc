@@ -23,18 +23,19 @@ simulated function InitListItem(StateObjectReference initUnitRef)
 	local string UnitLoc, status, statusTimeLabel, statusTimeValue, classIcon, rankIcon, flagIcon, mentalStatus;	
 	local int iTimeNum;
 	local X2SoldierClassTemplate SoldierClass;
-	local XComGameState_ResistanceFaction FactionState;
+	//local XComGameState_ResistanceFaction FactionState; //Issue #1134, not needed
 	local SoldierBond BondData;
 	local StateObjectReference BondmateRef;
 	local XComGameState_Unit Bondmate;
 	local int BondLevel; 
+	local StackedUIIconData StackedClassIcon; // Variable for issue #1134
 
 	local StackedUIIconData EmptyIconInfo; // Single variable for Issue #295
 	
 	Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitRef.ObjectID));
 	
 	SoldierClass = Unit.GetSoldierClassTemplate();
-	FactionState = Unit.GetResistanceFaction();
+	//FactionState = Unit.GetResistanceFaction(); //Issue #1134, not needed
 
 	class'UIUtilities_Strategy'.static.GetPersonnelStatusSeparate(Unit, status, statusTimeLabel, statusTimeValue);
 	mentalStatus = "";
@@ -129,16 +130,19 @@ simulated function InitListItem(StateObjectReference initUnitRef)
 					BondLevel);
 	// End Issue #106, #408
 
-	//Issue #295 - Add a 'none' check before accessing FactionState
-	if (FactionState != none)
+	//Issue #295 - Add a 'none' check before accessing FactionState --> Issue #1134 replaces this fix
+	// Start Issue #1134
+	StackedClassIcon = Unit.GetStackedClassIcon();
+	if (StackedClassIcon.Images.Length > 0)
 	{
-		AS_SetFactionIcon(FactionState.GetFactionIcon());
+		AS_SetFactionIcon(StackedClassIcon);
 	}
 	else
 	{
 		// Preserve backwards compatibility in case AS_SetFactionIcon() is overridden via an MCO.
 		AS_SetFactionIcon(EmptyIconInfo);
 	}
+	// End Issue #1134
 }
 
 // Start issue #651

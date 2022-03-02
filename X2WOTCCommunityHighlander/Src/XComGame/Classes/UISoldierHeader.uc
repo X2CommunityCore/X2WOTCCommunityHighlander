@@ -173,8 +173,9 @@ public function PopulateData(optional XComGameState_Unit Unit, optional StateObj
 	local XComGameState_Item TmpItem;
 	local XComGameStateHistory History;
 	local string StatusValue, StatusLabel, StatusDesc, StatusTimeLabel, StatusTimeValue, DaysValue;
-	local XComGameState_ResistanceFaction FactionState;
+	//local XComGameState_ResistanceFaction FactionState; //Issue #1134, not needed
 	local bool bShouldShowWill;
+	local StackedUIIconData StackedClassIcon; // Variable for issue #1134
 
 	History = `XCOMHISTORY;
 	CheckGameState = NewCheckGameState;
@@ -189,7 +190,7 @@ public function PopulateData(optional XComGameState_Unit Unit, optional StateObj
 
 	SoldierClass = Unit.GetSoldierClassTemplate();
 
-	FactionState = Unit.GetResistanceFaction();
+	//FactionState = Unit.GetResistanceFaction(); //Issue #1134, not needed
 
 	flagIcon  = (Unit.IsSoldier() && !bHideFlag) ? Unit.GetCountryTemplate().FlagImage : "";
 	// Start Issue #408
@@ -241,7 +242,11 @@ public function PopulateData(optional XComGameState_Unit Unit, optional StateObj
 		// End Issue #106, #408
 	}
 
-	SetFactionIcon(FactionState.GetFactionIcon());
+	// Start Issue #1134
+	StackedClassIcon = Unit.GetStackedClassIcon();
+	if (StackedClassIcon.Images.Length > 0)
+		SetFactionIcon(StackedClassIcon);
+	// End Issue #1134
 
 	// Get Unit base stats and any stat modifications from abilities
 	Will = string(int(Unit.GetCurrentStat(eStat_Will)) + Unit.GetUIStatFromAbilities(eStat_Will)) $ "/" $ string(int(Unit.GetMaxStat(eStat_Will)));

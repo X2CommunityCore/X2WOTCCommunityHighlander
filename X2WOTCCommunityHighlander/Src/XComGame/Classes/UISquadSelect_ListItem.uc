@@ -141,7 +141,8 @@ simulated function UpdateData(optional int Index = -1, optional bool bDisableEdi
 	local X2AbilityTemplateManager AbilityTemplateManager;
 	local SoldierBond BondData;
 	local StateObjectReference BondmateRef;
-	local XComGameState_ResistanceFaction FactionState;
+	//local XComGameState_ResistanceFaction FactionState; //Issue #1134, not needed
+	local StackedUIIconData StackedClassIcon; // Variable for issue #1134
 
 	// Variables for Issue #118
 	local CHUIItemSlotEnumerator En;
@@ -200,7 +201,7 @@ simulated function UpdateData(optional int Index = -1, optional bool bDisableEdi
 	//	if( Navigator.SelectedIndex == -1 )
 //			Navigator.SelectFirstAvailable();
 
-		FactionState = Unit.GetResistanceFaction();
+		//FactionState = Unit.GetResistanceFaction(); //Issue #1134, not needed
 
 		// Issue #118 Start
 		En = class'CHUIItemSlotEnumerator'.static.CreateEnumerator(Unit, , , true /* UseUnlockHints */);
@@ -325,14 +326,17 @@ simulated function UpdateData(optional int Index = -1, optional bool bDisableEdi
 			AS_SetUnitWill(-1, "");
 		}
 
-		if( FactionState == none )
+		// Start Issue #1134
+		StackedClassIcon = Unit.GetStackedClassIcon();
+		if (StackedClassIcon.Images.Length > 0)
 		{
-			MC.FunctionVoid("clearUnitFactionIcon");
+			AS_SetFactionIcon(StackedClassIcon);
 		}
 		else
 		{
-			AS_SetFactionIcon(FactionState.GetFactionIcon());
+			MC.FunctionVoid("clearUnitFactionIcon");
 		}
+		// End Issue #1134
 
 		if(Unit.BelowReadyWillState())
 		{

@@ -2855,9 +2855,10 @@ simulated function BuildTrainingCompleteAlert(string TitleLabel)
 	local array<SoldierClassAbilityType> AbilityTree;
 	local X2AbilityTemplateManager AbilityTemplateManager;
 	local XGParamTag kTag;
-	local XComGameState_ResistanceFaction FactionState;
+	//local XComGameState_ResistanceFaction FactionState; //Issue #1134, not needed
 	local int i;
 	local string AbilityIcon, AbilityName, AbilityDescription, ClassIcon, ClassName, RankName;
+	local StackedUIIconData StackedClassIcon; // Variable for issue #1134
 	
 	if( LibraryPanel == none )
 	{
@@ -2873,7 +2874,7 @@ simulated function BuildTrainingCompleteAlert(string TitleLabel)
 	// End Issue #106
 	RankName = Caps(UnitState.GetSoldierRankName()); // Issue #408
 	
-	FactionState = UnitState.GetResistanceFaction();
+	//FactionState = UnitState.GetResistanceFaction(); //Issue #1134, not needed
 
 	kTag = XGParamTag(`XEXPANDCONTEXT.FindTag("XGParam"));
 	kTag.StrValue0 = "";
@@ -2932,8 +2933,11 @@ simulated function BuildTrainingCompleteAlert(string TitleLabel)
 		Button1.DisableNavigation();
 	}
 
-	if (FactionState != none)
-		SetFactionIcon(FactionState.GetFactionIcon());
+	// Start Issue #1134
+	StackedClassIcon = UnitState.GetStackedClassIcon();
+	if (StackedClassIcon.Images.Length > 0)
+		SetFactionIcon(StackedClassIcon);
+	// End Issue #1134
 }
 
 //bsg-crobinson (5.17.17): Realize the buttons need to be in a different place for this alert
@@ -3603,10 +3607,11 @@ simulated function BuildNewStaffAvailableAlert()
 	local XComGameState_HeadquartersRoom Room;
 	local XComGameState_FacilityXCom Facility;
 	local array<XComGameState_StaffSlot> arrStaffSlots;
-	local XComGameState_ResistanceFaction FactionState;
+	//local XComGameState_ResistanceFaction FactionState; //Issue #1134, not needed
 	local string StaffAvailableTitle, StaffAvailableStr, StaffBonusStr, UnitTypeIcon;
 	local float BonusAmt;
 	local bool bWoundRecovery;
+	local StackedUIIconData StackedClassIcon; // Variable for issue #1134
 
 	if( LibraryPanel == none )
 	{
@@ -3619,8 +3624,8 @@ simulated function BuildNewStaffAvailableAlert()
 		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(DisplayPropertySet, 'UnitRef')));
 	bWoundRecovery = class'X2StrategyGameRulesetDataStructures'.static.GetDynamicBoolProperty(DisplayPropertySet, 'WoundRecovery');
 	arrStaffSlots = XCOMHQ().GetAllEmptyStaffSlotsForUnit(UnitState);
-
-	FactionState = UnitState.GetResistanceFaction();
+	
+	//FactionState = UnitState.GetResistanceFaction(); //Issue #1134, not needed
 
 	// First set up the string describing the inherent bonus of the new staff member
 	if (UnitState.IsScientist())
@@ -3719,9 +3724,11 @@ simulated function BuildNewStaffAvailableAlert()
 	Button2.DisableNavigation(); 
 	Button2.Hide();
 
-	if(FactionState != none)
-		SetFactionIcon(FactionState.GetFactionIcon());
-
+	// Start Issue #1134
+	StackedClassIcon = UnitState.GetStackedClassIcon();
+	if (StackedClassIcon.Images.Length > 0)
+		SetFactionIcon(StackedClassIcon);
+	// End Issue #1134
 }
 
 simulated function BuildStaffInfoAlert()

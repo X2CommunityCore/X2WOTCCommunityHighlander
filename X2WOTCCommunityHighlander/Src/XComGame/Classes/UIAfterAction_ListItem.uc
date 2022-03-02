@@ -63,13 +63,14 @@ simulated function UpdateData(optional StateObjectReference UnitRef)
 	local XComGameState_Unit Unit, Bondmate;
 	local SoldierBond BondData;
 	local StateObjectReference BondmateRef;
-	local XComGameState_ResistanceFaction FactionState;
+	//local XComGameState_ResistanceFaction FactionState; //Issue #1134, not needed
+	local StackedUIIconData StackedClassIcon; // Variable for issue #1134
 
 	UnitReference = UnitRef;
 
 	Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitRef.ObjectID));
-	
-	FactionState = Unit.GetResistanceFaction();
+
+	//FactionState = Unit.GetResistanceFaction(); //Issue #1134, not needed
 
 	if(Unit.bCaptured)
 	{
@@ -154,7 +155,11 @@ simulated function UpdateData(optional StateObjectReference UnitRef)
 		AS_SetUnitWill(-1, "");
 	}
 
-	AS_SetFactionIcon(FactionState.GetFactionIcon());
+	// Start Issue #1134
+	StackedClassIcon = Unit.GetStackedClassIcon();
+	if (StackedClassIcon.Images.Length > 0)
+		AS_SetFactionIcon(StackedClassIcon);
+	// End Issue #1134
 
 	EnableNavigation(); // bsg-nlong (1.24.17): We will always want navigation now that the bond icon is a thing
 	if( bCanPromote )

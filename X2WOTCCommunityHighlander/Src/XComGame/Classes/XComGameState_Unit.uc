@@ -15465,6 +15465,64 @@ private function XComLWTuple TriggerSoldierRankEvent(const int Rank, const name 
 }
 // End Issue #408
 
+// Start Issue #1134
+/// HL-Docs: feature:OverrideStackedClassIcon; issue:1134; tags:ui
+/// Function to return the current unit's stacked class icon.
+///
+/// Stacked class icons are generated for faction hero units by default.
+/// Mods may want to manipulate the way a soldier's stacked class icon
+/// is displayed in more dynamic ways, or even add a stacked icon to a non-hero class.
+///
+/// For example, when using custom hero classes such as the Skirmisher Heavy, 
+/// it would be nice to see a custom class image in the soldier list,
+/// promotion screen, and in the tactical UI.
+///
+/// There is one event:
+///
+/// ```event
+/// EventID: OverrideStackedClassIcon,
+/// EventData: [inout array<string> Images, inout bool bInvertImage],
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: none
+/// ```
+///
+/// Due to the irregularities of how StackedUIIconData is consumed, strings applied to
+/// the Images array should not start with `img:///`.
+function StackedUIIconData GetStackedClassIcon()
+{
+    local int idx;
+    local XComLWTuple Tuple;
+    local XComGameState_ResistanceFaction FactionState;
+    local StackedUIIconData CustomIcon;
+
+    FactionState = GetResistanceFaction();
+    if(FactionState != none)
+    {
+        CustomIcon = FactionState.GetFactionIcon();
+    }
+
+    Tuple = new class'XComLWTuple';
+    Tuple.Id = 'OverrideStackedClassIcon';
+    Tuple.Data.Add(2);
+
+    Tuple.Data[0].kind = XComLWTVArrayStrings;
+    Tuple.Data[0].as = CustomIcon.Images;
+    Tuple.Data[1].kind = XComLWTVBool;
+    Tuple.Data[1].b = CustomIcon.bInvert;
+
+    `XEVENTMGR.TriggerEvent('OverrideStackedClassIcon', Tuple, self, none);
+
+    CustomIcon.bInvert = Tuple.Data[1].b;
+    CustomIcon.Images.Length = 0;
+    for(idx = 0; idx < Tuple.Data[0].as.Length; idx++)
+    {
+        CustomIcon.Images.AddItem(Repl(Tuple.Data[0].as[idx], "img:///", ""));
+    }
+
+    return CustomIcon;
+}
+// End Issue #1134
+
 // Start Issue #171
 // Sets the eStat_UtilityItems of the unit and returns it.
 function int RealizeItemSlotsCount(XComGameState CheckGameState)

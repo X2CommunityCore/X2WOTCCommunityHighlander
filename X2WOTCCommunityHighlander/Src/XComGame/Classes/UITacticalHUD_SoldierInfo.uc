@@ -231,14 +231,15 @@ simulated function SetStats( XGUnit kActiveUnit )
 	local float aimPercent;
 	local array<UISummary_UnitEffect> BonusEffects, PenaltyEffects; 
 	local X2SoldierClassTemplateManager SoldierTemplateManager;
-	local XComGameState_ResistanceFaction FactionState;
+	//local XComGameState_ResistanceFaction FactionState; //Issue #1134, not needed
 	local StateObjectReference BondmateRef;
 	local SoldierBond BondInfo;
 	local XComGameState_HeadquartersXCom XComHQ;
+	local StackedUIIconData StackedClassIcon; // Variable for issue #1134
 
 	StateUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(kActiveUnit.ObjectID));
-
-	FactionState = StateUnit.GetResistanceFaction();
+	
+	//FactionState = StateUnit.GetResistanceFaction(); //Issue #1134, not needed
 
 	if( StateUnit.GetMyTemplateName() == 'AdvPsiWitchM2' )
 	{
@@ -287,7 +288,11 @@ simulated function SetStats( XGUnit kActiveUnit )
 	showPenalty = (PenaltyEffects.length > 0);
 
 	AS_SetStats(charName, charNickname, charRank, charClass, isLeader, isLeveledUp, aimPercent, showBonus, showPenalty);
-	if (FactionState != none) AS_SetFactionIcon(FactionState.GetFactionIcon());
+	// Start Issue #1134
+	StackedClassIcon = StateUnit.GetStackedClassIcon();
+	if (StackedClassIcon.Images.Length > 0)
+		AS_SetFactionIcon(StackedClassIcon);
+	// End Issue #1134
 
 	if( StateUnit.HasSoldierBond(BondmateRef, BondInfo) )
 	{
