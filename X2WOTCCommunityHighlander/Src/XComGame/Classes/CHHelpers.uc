@@ -946,3 +946,51 @@ static function name GetPlaceEvacZoneAbilityName()
 	return default.PlaceEvacZoneAbilityName != '' ? default.PlaceEvacZoneAbilityName : 'PlaceEvacZone';
 }
 // End Issue #855
+
+// Start Issue #815
+static final function SplitSoldierClassAbilityTypeArray(const out array<SoldierClassAbilityType> EligibleAbilities, out array<name> AbilityNames, out array<int> ApplyToWeaponSlots, out array<name> UtilityCats)
+{
+	local SoldierClassAbilityType AbilityType;
+
+	AbilityNames.Length = 0;
+	ApplyToWeaponSlots.Length = 0;
+	UtilityCats.Length = 0;
+
+	foreach EligibleAbilities(AbilityType)
+	{
+		AbilityNames.AddItem(AbilityType.AbilityName);
+		ApplyToWeaponSlots.AddItem(AbilityType.ApplyToWeaponSlot);
+		UtilityCats.AddItem(AbilityType.UtilityCat);
+	}
+}
+
+static final function array<SoldierClassAbilityType> RebuildSoldierClassAbilityTypeArray(const out array<name> AbilityNames, const out array<int> ApplyToWeaponSlots, const out array<name> UtilityCats)
+{
+	local array<SoldierClassAbilityType> AbilityTypes;
+	local SoldierClassAbilityType AbilityType;
+	local int i;
+
+	if (AbilityNames.Length != ApplyToWeaponSlots.Length || 
+		AbilityNames.Length != UtilityCats.Length || 
+		ApplyToWeaponSlots.Length != UtilityCats.Length)
+	{
+		`Redscreen("CHL Warning: CHHelpers::RebuildSoldierClassAbilityTypeArray was given arrays of different lengts as arguments, THIS WILL CAUSE BUGS");
+		`Redscreen("AbilityNames:" @ AbilityNames.Length @ ", ApplyToWeaponSlots:" @ ApplyToWeaponSlots.Length @ ", UtilityCats:" @ UtilityCats.Length);
+		`Redscreen("Make sure that the arrays have the same number of members before calling this function.");
+		`Redscreen(GetScriptTrace());
+	}
+
+	i = 0;
+	while (i < AbilityNames.Length && i < ApplyToWeaponSlots.Length && i < UtilityCats.Length)
+	{
+		AbilityType.AbilityName = AbilityNames[i];
+		AbilityType.ApplyToWeaponSlot = EInventorySlot(ApplyToWeaponSlots[i]);
+		AbilityType.UtilityCat = UtilityCats[i];
+
+		AbilityTypes.AddItem(AbilityType);
+		i++;
+	}
+
+	return AbilityTypes;
+}
+// End Issue #815
