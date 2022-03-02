@@ -9,6 +9,7 @@ class X2WOTCCH_UIScreenListener_ShellPopup
 
 var config array<name> HideIncompatibleModWarnings;
 var config array<name> HideRequiredModWarnings;
+var config array<name> HideRequiredNewerCHLVersionWarnings; // Issue #909
 var X2WOTCCH_ModDependencies DependencyChecker;
 
 var config array<string> HideGroupWarnings;
@@ -29,6 +30,7 @@ event OnInit(UIScreen Screen)
 			DependencyChecker.Init();
 			Screen.SetTimer(2.5f, false, nameof(IncompatibleModsPopups), self);
 			Screen.SetTimer(2.6f, false, nameof(RequiredModsPopups), self);
+			Screen.SetTimer(2.65f, false, nameof(ModsRequireNewerCHLVersionPopups), self); // Issue #909
 		}
 		Screen.SetTimer(2.7f, false, nameof(RunOrderPopups), self);
 	}
@@ -95,6 +97,93 @@ simulated function RequiredModsPopups()
 		}
 	}
 }
+
+// Begin Issue #909
+simulated function ModsRequireNewerCHLVersionPopups()
+{
+	local TDialogueBoxData kDialogData;
+	local array<ModDependencyData> ModsNeedNewerCHL;
+	local ModDependencyData Mod;
+	local X2WOTCCH_DialogCallbackData CallbackData;
+	local string strCurrentVersion;
+	local string strRequiredVersion;
+
+	ModsNeedNewerCHL = DependencyChecker.GetModsThatRequireNewerCHLVersion();
+	strCurrentVersion = GetCurrentCHLVersionColoredText();
+	
+	foreach ModsNeedNewerCHL(Mod)
+	{
+		if (HideRequiredNewerCHLVersionWarnings.Find(Mod.SourceName) == INDEX_NONE)
+		{
+			CallbackData = new class'X2WOTCCH_DialogCallbackData';
+			CallbackData.DependencyData = Mod;
+
+			strRequiredVersion = GetRequiredCHLVersionColoredText(Mod.RequiredHighlanderVersion);
+
+			kDialogData.strTitle = class'X2WOTCCH_ModDependencies'.default.ModRequiresNewerHighlanderVersionTitle;
+			kDialogData.eType = eDialog_Warning;
+			kDialogData.strText = GetRequireNewerCHLVersionPopupText(Mod, strCurrentVersion, strRequiredVersion);
+			kDialogData.fnCallbackEx = RequireNewerCHLVersionCB;
+			kDialogData.strAccept = class'X2WOTCCH_ModDependencies'.default.DisablePopup;
+			kDialogData.strCancel = class'UIUtilities_Text'.default.m_strGenericAccept;
+			kDialogData.xUserData = CallbackData;
+			
+			`LOG(kDialogData.strText,, 'X2WOTCCommunityHighlander');
+
+			`PRESBASE.UIRaiseDialog(kDialogData);
+		}
+	}
+}
+static private function string GetRequireNewerCHLVersionPopupText(const out ModDependencyData Mod, string strCurrentVersion, string strRequiredVersion)
+{
+	local string strModDisplayName;
+
+	strModDisplayName = Mod.ModName != "" ? Mod.ModName : string(Mod.SourceName);
+
+	return strModDisplayName @ class'X2WOTCCH_ModDependencies'.default.ModRequiresNewerHighlanderVersionText $ "\n" $ 
+		   strCurrentVersion $ 
+		   strRequiredVersion $ "\n\n" $
+		   class'X2WOTCCH_ModDependencies'.default.ModRequiresNewerHighlanderVersionExtraText;
+}
+static private function string GetCurrentCHLVersionColoredText()
+{
+	local CHLVersionStruct CHLVersion;
+	local string strVersionText;
+
+	class'X2WOTCCH_ModDependencies'.static.GetCurrentCHLVersion(CHLVersion);
+
+	strVersionText = CHLVersion.MajorVersion $ "." $ CHLVersion.MinorVersion $ "." $ CHLVersion.PatchVersion;
+
+	return class'X2WOTCCH_ModDependencies'.default.CurrentHighlanderVersionTitle @ class'UIUtilities_Text'.static.GetColoredText(strVersionText, eUIState_Bad) $ "\n";
+}
+static private function string GetRequiredCHLVersionColoredText(const out CHLVersionStruct CHLVersion)
+{
+	local string strVersionText;
+
+	strVersionText = CHLVersion.MajorVersion $ "." $ CHLVersion.MinorVersion $ "." $ CHLVersion.PatchVersion;
+
+	return class'X2WOTCCH_ModDependencies'.default.RequiredHighlanderVersionTitle @ class'UIUtilities_Text'.static.GetColoredText(strVersionText, eUIState_Good);
+}
+
+simulated function RequireNewerCHLVersionCB(Name eAction, UICallbackData xUserData)
+{
+	local X2WOTCCH_DialogCallbackData CallbackData;
+
+	if (eAction == 'eUIAction_Accept')
+	{
+		CallbackData = X2WOTCCH_DialogCallbackData(xUserData);
+		HideRequiredNewerCHLVersionWarnings.AddItem(CallbackData.DependencyData.SourceName);
+
+		`PRESBASE.PlayUISound(eSUISound_MenuSelect);
+
+		self.SaveConfig();
+	}
+	else
+	{
+		`PRESBASE.PlayUISound(eSUISound_MenuSelect);
+    }
+}
+// End Issue #909
 
 simulated function IncompatibleModsCB(Name eAction, UICallbackData xUserData)
 {
