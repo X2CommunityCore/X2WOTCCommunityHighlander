@@ -133,6 +133,7 @@ simulated function PopulateData()
 	local XComGameState_ResistanceFaction FactionState;
 	local XComGameState_HeadquartersXCom XComHQ;
 	local XComGameState NewGameState;
+	local StackedUIIconData StackedClassIcon; // Variable for issue #1134
 	
 	Unit = GetUnit();
 	ClassTemplate = Unit.GetSoldierClassTemplate();
@@ -186,7 +187,11 @@ simulated function PopulateData()
 
 	AS_SetRank(rankIcon);
 	AS_SetClass(classIcon);
-	AS_SetFaction(FactionState.GetFactionIcon());
+	// Start Issue #1134
+	StackedClassIcon = Unit.GetStackedClassIcon();
+	if (StackedClassIcon.Images.Length > 0)
+		AS_SetFaction(StackedClassIcon);
+	// End Issue #1134
 
 	AS_SetHeaderData(Caps(FactionState.GetFactionTitle()), Caps(Unit.GetName(eNameType_FullNick)), HeaderString, m_strSharedAPLabel, m_strSoldierAPLabel);
 	AS_SetAPData(GetSharedAbilityPoints(), Unit.AbilityPoints);
