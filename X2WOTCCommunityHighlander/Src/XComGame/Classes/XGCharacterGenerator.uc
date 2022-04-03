@@ -399,9 +399,17 @@ function TSoldier CreateTSoldier( optional name CharacterTemplateName, optional 
 
 	SetVoice(CharacterTemplateName, nmCountry);
 	SetAttitude();
-	GenerateName( kSoldier.kAppearance.iGender, kSoldier.nmCountry, kSoldier.strFirstName, kSoldier.strLastName, kSoldier.kAppearance.iRace );
 
-	BioCountryName = kSoldier.nmCountry;
+	// Start Issue #1140
+	// Pass nmCountry to GenerateName and BioCountryName instead of kSoldier.nmCountry.
+	// This is done to fix the bug caused by #783, which refactored XGCharacterGenerator classes for faction heroes,
+	// which resulted in using their faction countries to generate character name and biography as opposed to using
+	// a random country, like they did before #783 was implemented.
+	GenerateName( kSoldier.kAppearance.iGender, nmCountry, kSoldier.strFirstName, kSoldier.strLastName, kSoldier.kAppearance.iRace );
+	//GenerateName( kSoldier.kAppearance.iGender, kSoldier.nmCountry, kSoldier.strFirstName, kSoldier.strLastName, kSoldier.kAppearance.iRace );
+	BioCountryName = nmCountry;
+	//BioCountryName = kSoldier.nmCountry;
+	// End Issue #1140
 
 	// Start issue #783
 	ModifyGeneratedUnitAppearance(CharacterTemplateName, eForceGender, nmCountry, iRace, ArmorName);
