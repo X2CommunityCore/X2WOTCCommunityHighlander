@@ -1236,7 +1236,7 @@ static function IssueHeadquartersOrder(const out HeadquartersOrderInputContext U
 /// EventID: OverrideInjuryClearingFatigueBehavior,
 /// EventData: [inout bool ShouldOverride],
 /// EventSource: XComGameState_Unit,
-/// NewGameState: XComGameState
+/// NewGameState: yes
 /// ```
 static private function bool OverrideInjuryClearingFatigueBehavior(XComGameState NewGameState, XComGameState_Unit Unit)
 {
