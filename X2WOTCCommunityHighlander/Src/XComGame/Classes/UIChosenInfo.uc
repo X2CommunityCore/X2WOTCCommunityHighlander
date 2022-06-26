@@ -149,7 +149,7 @@ simulated function RefreshDisplay()
 			AbilityTemplate = ChosenStrengths[i];
 			/// HL-Docs: ref:Bugfixes; issue:1096
 			/// Chosen strengths and weaknesses now evaluate ability tags, so they are displayed correctly
-			AS_SetStrengthData(i, AbilityTemplate.IconImage, AbilityTemplate.LocFriendlyName, /* Issue #1096 */ `XEXPAND.ExpandString(AbilityTemplate.LocLongDescription));
+			AS_SetStrengthData(i, AbilityTemplate.IconImage, AbilityTemplate.LocFriendlyName, /* Issue #1096 */ AbilityTemplate.GetMyLongDescription());
 		}
 		else
 		{
@@ -168,7 +168,7 @@ simulated function RefreshDisplay()
 		{
 			AbilityTemplate = ChosenWeaknesses[i];
 			/// HL-Docs: ref:Bugfixes; issue:1096
-			AS_SetWeaknessData(i, AbilityTemplate.IconImage, AbilityTemplate.LocFriendlyName, /* Issue #1096 */ `XEXPAND.ExpandString(AbilityTemplate.LocLongDescription));
+			AS_SetWeaknessData(i, AbilityTemplate.IconImage, AbilityTemplate.LocFriendlyName, /* Issue #1096 */ AbilityTemplate.GetMyLongDescription());
 		}
 		else
 		{
