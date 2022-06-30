@@ -15697,10 +15697,10 @@ private function SetOverKillUnitValue(int OverKillDamage)
 
 
 // Start Issue #1150
-// Fires an event that allows mods to override whether a soldier should get a negative traitafter the mission.
-// 
-// The event that's fired takes the form:
-//
+/// HL-Docs: feature:OverrideNegativeTraitRoll; issue:1150; tags:strategy
+/// Fires an event that allows mods to override whether a soldier should get a negative trait after the mission.
+/// Default: Vanilla Behavior will be used.
+///
 /// ```event
 /// EventID: OverrideNegativeTraitRoll,
 /// EventData: [inout bool ShouldRollNegativeTrait],
