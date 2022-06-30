@@ -15720,7 +15720,7 @@ private function bool OverrideNegativeTraitRoll(
 	OverrideTuple.Data[0].kind = XComLWTVBool;
 	OverrideTuple.Data[0].b = ShouldRollNegativeTrait;
 
-	`XEVENTMGR.TriggerEvent('OverrideNegativeTraitRoll', OverrideTuple, this, NewGameState);
+	`XEVENTMGR.TriggerEvent('OverrideNegativeTraitRoll', OverrideTuple, self, NewGameState);
 
 	return OverrideTuple.Data[0].b;
 }
