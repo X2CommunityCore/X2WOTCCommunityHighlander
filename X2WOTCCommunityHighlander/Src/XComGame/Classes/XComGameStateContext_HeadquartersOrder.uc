@@ -1228,7 +1228,7 @@ static function IssueHeadquartersOrder(const out HeadquartersOrderInputContext U
 
 
 // Start issue #1148
-/// HL-Docs: feature:UIPopups_DisplayNewCardPopups; issue:1126; tags:strategy
+/// HL-Docs: feature:OverrideInjuryClearingFatigueBehavior; issue:1126; tags:strategy
 /// Allows overriding The game's behavior regarding Removing Fatigue on Healing
 /// Default: Vanilla behavior will be used.
 ///
