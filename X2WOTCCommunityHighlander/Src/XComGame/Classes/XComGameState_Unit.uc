@@ -904,6 +904,7 @@ function bool RollForNegativeTrait(XComGameState NewGameState)
 	local int RollValue, WillPercentMark, HealthPercentMark;
 	local array<name> ValidTraits, GenericTraits;
 	local name TraitName;
+	local bool ShouldAcquireTrait;
 
 	// TODO: @mnauta - possibly pre-roll this value on mission start
 	RollValue = `SYNC_RAND(200);
@@ -912,8 +913,11 @@ function bool RollForNegativeTrait(XComGameState NewGameState)
 	HealthPercentMark = (100 - int((GetCurrentStat(eStat_HP) / GetMaxStat(eStat_HP)) * 100.0f));
 	ValidTraits.Length = 0;
 	
+	//Issue #1150
+	ShouldAcquireTrait = CanAcquireTrait(false) && RollValue < (WillPercentMark + HealthPercentMark);
+	
 	// Roll to see if they should gain a trait
-	if(CanAcquireTrait(false) && RollValue < (WillPercentMark + HealthPercentMark))
+	if(OverrideNegativeTraitRoll(ShouldAcquireTrait, NewGameState))
 	{
 		// Check for pending traits first (triggered in mission)
 		foreach PendingTraits(TraitName)
@@ -15690,6 +15694,37 @@ private function SetOverKillUnitValue(int OverKillDamage)
 	SetUnitFloatValue('OverKillDamage', -OverkillDamage, eCleanup_BeginTactical);
 }
 //	End issue #805
+
+
+// Start Issue #1150
+// Fires an event that allows mods to override whether a soldier should get a negative traitafter the mission.
+// 
+// The event that's fired takes the form:
+//
+/// ```event
+/// EventID: OverrideNegativeTraitRoll,
+/// EventData: [inout bool ShouldRollNegativeTrait],
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: yes
+/// ```
+//
+private function bool OverrideNegativeTraitRoll(
+	bool ShouldRollNegativeTrait,
+	XComGameState NewGameState)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideNegativeTraitRoll';
+	OverrideTuple.Data.Add(1);
+	OverrideTuple.Data[0].kind = XComLWTVBool;
+	OverrideTuple.Data[0].b = ShouldRollNegativeTrait;
+
+	`XEVENTMGR.TriggerEvent('OverrideNegativeTraitRoll', OverrideTuple, this, NewGameState);
+
+	return OverrideTuple.Data[0].b;
+}
+// End Issue #1150
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // cpptext
