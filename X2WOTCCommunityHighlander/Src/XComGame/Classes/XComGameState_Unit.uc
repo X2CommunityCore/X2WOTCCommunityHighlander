@@ -904,7 +904,7 @@ function bool RollForNegativeTrait(XComGameState NewGameState)
 	local int RollValue, WillPercentMark, HealthPercentMark;
 	local array<name> ValidTraits, GenericTraits;
 	local name TraitName;
-	local bool ShouldAcquireTrait;
+	local bool ShouldAcquireTrait; // Variable for issue #1150
 
 	// TODO: @mnauta - possibly pre-roll this value on mission start
 	RollValue = `SYNC_RAND(200);
