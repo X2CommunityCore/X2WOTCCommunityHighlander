@@ -913,11 +913,13 @@ function bool RollForNegativeTrait(XComGameState NewGameState)
 	HealthPercentMark = (100 - int((GetCurrentStat(eStat_HP) / GetMaxStat(eStat_HP)) * 100.0f));
 	ValidTraits.Length = 0;
 	
-	//Issue #1150
-	ShouldAcquireTrait = CanAcquireTrait(false) && RollValue < (WillPercentMark + HealthPercentMark);
+	// Start Issue #1150
+	// Roll to see if they should gain a trait
+	ShouldAcquireTrait = CanAcquireTrait(false) && RollValue < (WillPercentMark + HealthPercentMark); // Vanilla logic
+	ShouldAcquireTrait = OverrideNegativeTraitRoll(ShouldAcquireTrait, NewGameState);
 	
 	// Roll to see if they should gain a trait
-	if(OverrideNegativeTraitRoll(ShouldAcquireTrait, NewGameState))
+	if(ShouldAcquireTrait)
 	{
 		// Check for pending traits first (triggered in mission)
 		foreach PendingTraits(TraitName)
@@ -954,6 +956,36 @@ function bool RollForNegativeTrait(XComGameState NewGameState)
 
 	return false;
 }
+
+// Start Issue #1150
+/// HL-Docs: feature:OverrideNegativeTraitRoll; issue:1150; tags:strategy
+/// Fires an event that allows mods to override whether a soldier should get a negative trait after the mission.
+/// Default: Vanilla Behavior will be used.
+///
+/// ```event
+/// EventID: OverrideNegativeTraitRoll,
+/// EventData: [inout bool ShouldRollNegativeTrait],
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: yes
+/// ```
+//
+private function bool OverrideNegativeTraitRoll(
+	bool ShouldRollNegativeTrait,
+	XComGameState NewGameState)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideNegativeTraitRoll';
+	OverrideTuple.Data.Add(1);
+	OverrideTuple.Data[0].kind = XComLWTVBool;
+	OverrideTuple.Data[0].b = ShouldRollNegativeTrait;
+
+	`XEVENTMGR.TriggerEvent('OverrideNegativeTraitRoll', OverrideTuple, self, NewGameState);
+
+	return OverrideTuple.Data[0].b;
+}
+// End Issue #1150
 
 function RecoverFromTraits()
 {
@@ -15694,37 +15726,6 @@ private function SetOverKillUnitValue(int OverKillDamage)
 	SetUnitFloatValue('OverKillDamage', -OverkillDamage, eCleanup_BeginTactical);
 }
 //	End issue #805
-
-
-// Start Issue #1150
-/// HL-Docs: feature:OverrideNegativeTraitRoll; issue:1150; tags:strategy
-/// Fires an event that allows mods to override whether a soldier should get a negative trait after the mission.
-/// Default: Vanilla Behavior will be used.
-///
-/// ```event
-/// EventID: OverrideNegativeTraitRoll,
-/// EventData: [inout bool ShouldRollNegativeTrait],
-/// EventSource: XComGameState_Unit (UnitState),
-/// NewGameState: yes
-/// ```
-//
-private function bool OverrideNegativeTraitRoll(
-	bool ShouldRollNegativeTrait,
-	XComGameState NewGameState)
-{
-	local XComLWTuple OverrideTuple;
-
-	OverrideTuple = new class'XComLWTuple';
-	OverrideTuple.Id = 'OverrideNegativeTraitRoll';
-	OverrideTuple.Data.Add(1);
-	OverrideTuple.Data[0].kind = XComLWTVBool;
-	OverrideTuple.Data[0].b = ShouldRollNegativeTrait;
-
-	`XEVENTMGR.TriggerEvent('OverrideNegativeTraitRoll', OverrideTuple, self, NewGameState);
-
-	return OverrideTuple.Data[0].b;
-}
-// End Issue #1150
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // cpptext
