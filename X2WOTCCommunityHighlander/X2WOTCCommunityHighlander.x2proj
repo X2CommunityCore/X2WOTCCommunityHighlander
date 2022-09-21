@@ -832,6 +832,9 @@
     <Content Include="Src\XComGame\Classes\XComTacticalMissionManager.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComTacticalSoundManager.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComUnitPawn.uc">
       <SubType>Content</SubType>
     </Content>
