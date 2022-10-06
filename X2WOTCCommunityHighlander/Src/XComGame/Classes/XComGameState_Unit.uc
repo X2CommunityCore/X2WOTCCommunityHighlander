@@ -920,6 +920,7 @@ function bool RollForNegativeTrait(XComGameState NewGameState)
 	
 	// Roll to see if they should gain a trait
 	if(ShouldAcquireTrait)
+	// End Issue #1150
 	{
 		// Check for pending traits first (triggered in mission)
 		foreach PendingTraits(TraitName)
