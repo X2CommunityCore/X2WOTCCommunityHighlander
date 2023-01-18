@@ -9954,7 +9954,7 @@ static function SuperConcealmentRollVisualization(XComGameState VisualizeGameSta
 		LookAtAction.LookAtActor = ActionMetadata.VisualizeActor;
 		LookAtAction.BlockUntilActorOnScreen = true;
 		LookAtAction.LookAtDuration = class'X2Ability_ReaperAbilitySet'.default.ShadowRollCameraDelay;
-		LookAtAction.TargetZoomAfterArrival = -0.4f;
+		LookAtAction.TargetZoomAfterArrival = class'CHHelpers'.default.SuperConcealmentRoll_TargetZoomAfterArrival; // Issue #1157 - make this value configurable
 
 		// Jwats: Then update the UI
 		UpdateUIAction = X2Action_UpdateUI(class'X2Action_UpdateUI'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, LookAtAction));

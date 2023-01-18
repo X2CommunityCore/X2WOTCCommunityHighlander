@@ -278,6 +278,8 @@ struct OverrideHasHeightAdvantageStruct
 var protectedwrite array<OverrideHasHeightAdvantageStruct> OverrideHasHeightAdvantageCallbacks;
 // End Issue #851
 
+var config(UI) float SuperConcealmentRoll_TargetZoomAfterArrival; // Issue #1157
+
 delegate EHLDelegateReturn ShouldDisplayMultiSlotItemInStrategyDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, out int bDisplayItem, XComUnitPawn UnitPawn, optional XComGameState CheckGameState); // Issue #885
 delegate EHLDelegateReturn ShouldDisplayMultiSlotItemInTacticalDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, out int bDisplayItem, XGUnit UnitVisualizer, optional XComGameState CheckGameState); // Issue #885
 delegate EHLDelegateReturn OverrideHasHeightAdvantageDelegate(XComGameState_Unit Attacker, XComGameState_Unit TargetUnit, out int bHasHeightAdvantage); // Issue #851
