@@ -21,7 +21,7 @@ var protected const config float MaximumInterpolationZoomPerSecond;   // in perc
 var protected const config float LocationInterpolationRampUpDuration; // in seconds, total time to go from standstill to full interpolation speed
 var protected const config float RotationInterpolationRampUpDuration; // in seconds, total time to go from standstill to full interpolation speed
 var protected const config float ZoomInterpolationRampUpDuration;
-var protected const config float ZoomedDistanceFromCursor;
+var /*protected*/ protectedwrite const config float ZoomedDistanceFromCursor; // Issue #1157 - unprotect this value.
 var protected const config float DistanceFromCursor;
 var const config bool UseSwoopyCam;
 

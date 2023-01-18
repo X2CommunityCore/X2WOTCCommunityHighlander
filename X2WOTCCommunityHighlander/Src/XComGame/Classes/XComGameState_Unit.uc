@@ -9991,7 +9991,8 @@ static function SuperConcealmentRollVisualization(XComGameState VisualizeGameSta
 		LookAtAction.LookAtActor = ActionMetadata.VisualizeActor;
 		LookAtAction.BlockUntilActorOnScreen = true;
 		LookAtAction.LookAtDuration = class'X2Ability_ReaperAbilitySet'.default.ShadowRollCameraDelay;
-		LookAtAction.TargetZoomAfterArrival = -0.4f;
+		// Issue #1157 - adjust zoom-in distance by the maximum camera zoom-out value. 2600 is the default base game value.
+		LookAtAction.TargetZoomAfterArrival = -0.4f * 2600.0f / class'X2Camera_LookAt'.default.ZoomedDistanceFromCursor;
 
 		// Jwats: Then update the UI
 		UpdateUIAction = X2Action_UpdateUI(class'X2Action_UpdateUI'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, LookAtAction));
