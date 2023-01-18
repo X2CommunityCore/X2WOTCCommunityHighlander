@@ -14,9 +14,9 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/setup-python@v1
+    - uses: actions/setup-python@v4
       with:
-        python-version: '3.6'
+        python-version: '3.x'
     - name: Checkout
       uses: actions/checkout@v2
     - name: Download artifacts
