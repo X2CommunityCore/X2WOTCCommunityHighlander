@@ -997,7 +997,7 @@ static final function array<SoldierClassAbilityType> RebuildSoldierClassAbilityT
 
 /// HL-Docs: ref:ConsiderAlliesforSoundAlerts
 // start issue #620
-// Copied from XComGameState_Unit::GetEnemiesInRange, except will include all units on the alien team within
+// Copied from XComGameState_Unit::GetEnemiesInRange, except will include all units within
 // the specified range.
 static function GetUnitsInRange(TTile kLocation, int nMeters, out array<StateObjectReference> OutEnemies)
 {
@@ -1016,7 +1016,7 @@ static function GetUnitsInRange(TTile kLocation, int nMeters, out array<StateObj
 	foreach History.IterateByClassType(class'XComGameState_Unit', kUnit)
 	{
 		Team = kUnit.GetTeam();
-		if( Team != eTeam_Xcom && Team != eTeam_Neutral && kUnit.IsAlive() )
+		if( Team != eTeam_Neutral && kUnit.IsAlive() )
 		{
 			vLoc = `XWORLD.GetPositionFromTileCoordinates(kUnit.TileLocation);
 			UnitHearingRadius = kUnit.GetCurrentStat(eStat_HearingRadius);
