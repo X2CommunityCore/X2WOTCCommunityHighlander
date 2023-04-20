@@ -9667,7 +9667,18 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 					GetKeystoneVisibilityLocation(SoundTileLocation);
 				}
 
-				GetEnemiesInRange(SoundTileLocation, SoundRange, Enemies);
+				/// HL-Docs: feature:ConsiderAlliesforSoundAlerts; issue:620; tags:tactical
+				/// use our CHhelpers function GetUnitsInRange
+				/// Gather the units in sound range of this weapon to include sound from allied weapon fire.
+				/// By default the base game code only checks for sound from enemy units
+				/// But it makes sense that sound can be heard from anyone firing a weapon, not just enemies
+				/// Note that this will not have any affect unless a mod has turned on
+				/// yellow alerts in ShouldEnemyFactionsTriggerAlertsOutsidePlayerVision in XComGameState_AIUnitData
+				/// Since by default alert data is not recorded for sound outside of XCom's vision 
+				// start issue #620
+				// GetEnemiesInRange(SoundTileLocation, SoundRange, Enemies); 
+				class'CHHelpers'.static.GetUnitsInRange(SoundTileLocation, SoundRange, Enemies);
+				// end issue #620
 
 				`LogAI("Weapon sound @ Tile("$SoundTileLocation.X$","@SoundTileLocation.Y$","@SoundTileLocation.Z$") - Found"@Enemies.Length@"enemies in range ("$SoundRange$" meters)");
 				foreach Enemies(EnemyRef)

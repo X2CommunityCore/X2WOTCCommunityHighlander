@@ -994,3 +994,44 @@ static final function array<SoldierClassAbilityType> RebuildSoldierClassAbilityT
 	return AbilityTypes;
 }
 // End Issue #815
+
+/// HL-Docs: ref:ConsiderAlliesforSoundAlerts
+// start issue #620
+// Copied from XComGameState_Unit::GetEnemiesInRange, except will include all units on the alien team within
+// the specified range.
+static function GetUnitsInRange(TTile kLocation, int nMeters, out array<StateObjectReference> OutEnemies)
+{
+	local vector vCenter, vLoc;
+	local float fDistSq;
+	local XComGameState_Unit kUnit;
+	local XComGameStateHistory History;
+	local eTeam Team;
+	local float AudioDistanceRadius, UnitHearingRadius, RadiiSumSquared;
+
+	History = `XCOMHISTORY;
+	vCenter = `XWORLD.GetPositionFromTileCoordinates(kLocation);
+	AudioDistanceRadius = `METERSTOUNITS(nMeters);
+	fDistSq = Square(AudioDistanceRadius);
+
+	foreach History.IterateByClassType(class'XComGameState_Unit', kUnit)
+	{
+		Team = kUnit.GetTeam();
+		if( Team != eTeam_Xcom && Team != eTeam_Neutral && kUnit.IsAlive() )
+		{
+			vLoc = `XWORLD.GetPositionFromTileCoordinates(kUnit.TileLocation);
+			UnitHearingRadius = kUnit.GetCurrentStat(eStat_HearingRadius);
+
+			RadiiSumSquared = fDistSq;
+			if( UnitHearingRadius != 0 )
+			{
+				RadiiSumSquared = Square(AudioDistanceRadius + UnitHearingRadius);
+			}
+
+			if( VSizeSq(vLoc - vCenter) < RadiiSumSquared )
+			{
+				OutEnemies.AddItem(kUnit.GetReference());
+			}
+		}
+	}
+}
+// end issue #620
