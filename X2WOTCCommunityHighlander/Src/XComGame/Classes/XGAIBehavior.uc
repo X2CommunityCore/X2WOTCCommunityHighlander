@@ -6588,6 +6588,7 @@ function bool HasKnowledgeOfXCom()
     GetAllKnownEnemyStates(KnownEnemies);
     foreach KnownEnemies(EnemyState)
     {
+		/// HL-Docs: ref::ConsiderAllEnemyPlayers
 		// issue #619 - this is a bit of a fun workaround: this function is only used when an enemy is checking their flanked status 
 		// OR if a unit should priortize the lost
 		// so by changing this behaviour, we automatically get the MP teams to properly consider their flank status,
@@ -7190,6 +7191,7 @@ function UpdateSightRange()
         GetAllKnownEnemyStates(XComList);
         foreach XComList(EnemyState)
         {
+			/// HL-Docs: ref::ConsiderAllEnemyPlayers
 			// start issue #619 - add our MP teams to this check
             if( (EnemyState.GetTeam() == eTeam_XCom || EnemyState.GetTeam() == eTeam_Resistance ||
             EnemyState.GetTeam() == eTeam_One || EnemyState.GetTeam() == eTeam_Two) &&

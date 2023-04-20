@@ -761,7 +761,14 @@ function GetAbsoluteKnowledgeUnitList( out array<StateObjectReference> arrKnownU
  
     if( AIPlayer != None && AIPlayer.bAIHasKnowledgeOfAllUnconcealedXCom )
     {
-		// start issue #619: use our CHhelpers function to check *all* enemies of a unit
+		/// HL-Docs: feature:ConsiderAllEnemyPlayers; issue:619; tags:tactical
+		/// use our CHhelpers function to check *all* enemies of a unit
+		/// With the introduction of ETeam_Resistance, ETeam_Lost, ETeam_One and ETeam_Two
+		/// Fireaxis failed to consider them as valid enemies to each other and ETeam_Alien
+		/// This enhancement allows them to move to better positioning in tactical
+		/// And in ```XComGameState_XGAIBehavior.uc``` ```HasKnowledgeOfXCom()``` and ```UpdateSightRange()```
+		/// are modified to avoid flanking positions
+		// start issue #619
         EnemyPlayers = class'CHHelpers'.static.GetEnemyPlayers(AIPlayer);
         foreach EnemyPlayers(EnemyPlayerState)
         {
@@ -1070,20 +1077,20 @@ static private function bool TriggerOverrideEnemyFactionsAlertsOutsideVision(EAl
 
 static function bool IsCauseAllowedForNonvisibleUnits(EAlertCause AlertCause)
 {
+	/// HL-Docs: feature:OverrideAllowedAlertCause; issue:510; tags:tactical
+	/// This function allows mods to use these alert causes to change alert levels to yellow
+	/// Listeners can set `AllowThisCause` to `true` to allow this AlertCause
+	/// ```event
+	/// EventID: OverrideAllowedAlertCause,
+	/// EventData: [
+	///     in int AlertCause,
+	///     inout bool AllowThisCause,
+	/// ],
+	/// EventSource: none,
+	/// NewGameState: none
+	/// ```
+
 	// Start Issue #510
-	//
-	// Allow mods to override whether the given cause is allowed for
-	// units outside of XCOM's vision. This allows them to enable
-	// sound-based and other yellow alert activations.
-	//
-	// This event takes the form:
-	//
-	// {
-	//    ID: OverrideAllowedAlertCause,
-	//    Data: [in int AlertCause, inout bool AllowThisCause]
-	// }
-	//
-	// Note that there is no event source in this case.
 	local XComLWTuple OverrideTuple;
 
 	OverrideTuple = new class'XComLWTuple';
