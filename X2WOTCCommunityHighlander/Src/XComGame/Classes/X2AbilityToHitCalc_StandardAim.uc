@@ -362,8 +362,9 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 		AddModifier(100, AbilityTemplate.LocFriendlyName, m_ShotBreakdown, eHit_Success, bDebugLog);
 	}
 
-	AddModifier(BuiltInHitMod, AbilityTemplate.LocFriendlyName, m_ShotBreakdown, eHit_Success, bDebugLog);
-	AddModifier(BuiltInCritMod, AbilityTemplate.LocFriendlyName, m_ShotBreakdown, eHit_Crit, bDebugLog);
+	// Issue #346: AddModifier(BuiltIn...Mod) block moved later in method.
+	/// HL-Docs: ref:Bugfixes; issue:346
+	/// Prevent `X2AbilityToHitCalc_StandardAim` from applying BuiltInHitMod and BuiltInCritMod against non-units.
 
 	if (UnitState != none && TargetState == none)
 	{
@@ -374,6 +375,11 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 	}
 	else if (UnitState != none && TargetState != none)
 	{				
+		// Start Issue #346: Block moved from earlier.
+		AddModifier(BuiltInHitMod, AbilityTemplate.LocFriendlyName, m_ShotBreakdown, eHit_Success, bDebugLog);
+		AddModifier(BuiltInCritMod, AbilityTemplate.LocFriendlyName, m_ShotBreakdown, eHit_Crit, bDebugLog);
+		// End Issue #346
+
 		if (!bIndirectFire)
 		{
 			// StandardAim (with direct fire) will require visibility info between source and target (to check cover). 
