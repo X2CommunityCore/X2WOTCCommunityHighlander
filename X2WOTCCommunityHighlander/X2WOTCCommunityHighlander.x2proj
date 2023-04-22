@@ -754,9 +754,6 @@
     <Content Include="Src\XComGame\Classes\XComUnitPawnNativeBase.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\XComGame\Classes\XGAIPatrolGroup.uc">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Src\XComGame\Classes\XGBase.uc">
       <SubType>Content</SubType>
     </Content>
