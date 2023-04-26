@@ -1082,10 +1082,7 @@ static function bool IsCauseAllowedForNonvisibleUnits(EAlertCause AlertCause)
 	/// Listeners can set `AllowThisCause` to `true` to allow this AlertCause
 	/// ```event
 	/// EventID: OverrideAllowedAlertCause,
-	/// EventData: [
-	///     in int AlertCause,
-	///     inout bool AllowThisCause,
-	/// ],
+	/// EventData: [in int AlertCause, inout bool AllowThisCause],
 	/// EventSource: none,
 	/// NewGameState: none
 	/// ```
