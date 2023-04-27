@@ -125,6 +125,7 @@ function bool CheckForOverrideDestination(out vector CurrDestination, int Object
 	local XComGameState_AIUnitData AIData;
 	local int AIDataID;
 	local AlertData AlertData;
+
 	History = `XCOMHISTORY;
 	Unit = XComGameState_Unit(History.GetGameStateForObjectID(ObjectID));
 	AIDataID = Unit.GetAIUnitDataID();
@@ -135,7 +136,10 @@ function bool CheckForOverrideDestination(out vector CurrDestination, int Object
 		{
 			if( AlertData.AlertCause == eAC_ThrottlingBeacon ||
 				AlertData.AlertCause == eAC_MapwideAlert_Hostile ||
-				AlertData.AlertCause == eAC_MapwideAlert_Peaceful)
+				AlertData.AlertCause == eAC_MapwideAlert_Peaceful ||
+			// Start Issue #718
+				TriggerOverridePatrolDestination(AlertData.AlertCause))
+			// End Issue #718
 			{
 				CurrDestination = `XWORLD.GetPositionFromTileCoordinates(AlertData.AlertLocation);
 				return true;
@@ -144,6 +148,34 @@ function bool CheckForOverrideDestination(out vector CurrDestination, int Object
 	}
 	return false;
 }
+// Start Issue #718
+/// HL-Docs: feature:OverridePatrolDestination; issue:718; tags:tactical
+/// Allow mods to override patrol locations from other alert data causes
+/// Listeners can set `AllowThisCause` to `true` to allow this AlertCause
+/// ```event
+/// EventID: OverridePatrolDestination,
+/// EventData: [ in int AlertCause, inout bool AllowThisCause],
+/// EventSource: none,
+/// NewGameState: none
+/// ```
+private function bool TriggerOverridePatrolDestination(EAlertCause AlertCause)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverridePatrolDestination';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].Kind = XComLWTVInt;
+	OverrideTuple.Data[0].i = AlertCause;
+	OverrideTuple.Data[1].Kind = XComLWTVBool;
+	OverrideTuple.Data[1].b = false;
+
+	`XEVENTMGR.TriggerEvent('OverridePatrolDestination', OverrideTuple);
+
+	return OverrideTuple.Data[1].b ;
+}
+// End Issue #718
+
 //------------------------------------------------------------------------------------------------
 function vector GetNextDestination( XGUnit kUnit )
 {
