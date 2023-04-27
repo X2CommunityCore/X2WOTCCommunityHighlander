@@ -180,6 +180,9 @@ var config int NoiseAlertSoundRange;
 var config array<name> AdditionalAIBTActionPointTypes;
 // End Issue #510
 
+// variable for issue #620
+var config bool bConsiderAlliesforSoundAlerts;
+
 // Variable for Issue #724
 var config array<name> ValidReserveAPForUnitFlag;
 
@@ -994,3 +997,14 @@ static final function array<SoldierClassAbilityType> RebuildSoldierClassAbilityT
 	return AbilityTypes;
 }
 // End Issue #815
+
+/// HL-Docs: ref:ConsiderAlliesforSoundAlerts
+// start issue #620
+static function bool ConsiderAlliesforSoundAlerts()
+{
+	if(default.bConsiderAlliesforSoundAlerts)
+	{
+		return true;
+	}
+}
+// end issue #620
