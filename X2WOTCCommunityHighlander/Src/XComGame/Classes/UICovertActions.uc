@@ -463,7 +463,9 @@ simulated function RefreshNavigation()
 	//bsg-jneal (3.10.17): add edit loadout navhelp if on an editable soldier
 	if( `ISCONTROLLERACTIVE && bIsSelectingSlots && SlotContainer.ActionSlots.Length > 0)
 	{
-		if( SlotContainer.ActionSlots[Navigator.SelectedIndex].CanEditLoadout() )
+		/// HL-Docs: ref:Bugfixes; issue:1035
+		/// Use `SlotContainer.Navigator.SelectedIndex` instead of `Navigator.SelectedIndex` to allow controller users editing all soldiers' loadouts.
+		if( SlotContainer.ActionSlots[SlotContainer.Navigator.SelectedIndex].CanEditLoadout() )
 		{
 			NavHelp.AddLeftHelp(class'UICovertActionStaffSlot'.default.m_strEditLoadout, class'UIUtilities_Input'.static.GetGamepadIconPrefix() $ class'UIUtilities_Input'.const.ICON_Y_TRIANGLE);
 		}
@@ -1022,9 +1024,13 @@ function EditSoldierLoadout()
 	// only edit loadout if action slot allows
 	if(bIsSelectingSlots && SlotContainer.ActionSlots.Length > 0)
 	{
-		if( SlotContainer.ActionSlots[Navigator.SelectedIndex].CanEditLoadout() )
+		/// HL-Docs: ref:Bugfixes; issue:1035
+		/// Use `SlotContainer.Navigator.SelectedIndex` instead of `Navigator.SelectedIndex` to allow controller users editing all soldiers' loadouts.
+		if( SlotContainer.ActionSlots[SlotContainer.Navigator.SelectedIndex].CanEditLoadout() )
 		{
-			SlotContainer.ActionSlots[Navigator.SelectedIndex].HandleClick("theButton2");
+			/// HL-Docs: ref:Bugfixes; issue:1035
+			/// Use `SlotContainer.Navigator.SelectedIndex` instead of `Navigator.SelectedIndex` to allow controller users editing all soldiers' loadouts.
+			SlotContainer.ActionSlots[SlotContainer.Navigator.SelectedIndex].HandleClick("theButton2");
 		}
 	}
 }
