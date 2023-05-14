@@ -1249,6 +1249,10 @@ simulated function array<string> GetWeaponPanelImages()
 	local delegate<X2TacticalGameRulesetDataStructures.CheckUpgradeStatus> ValidateAttachmentFn;
 	local bool bUpgradeImageFound;
 
+	// Variables for Issue #962
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local XComGameState_Unit UnitState;
+
 	GetMyTemplate();
 	if (m_ItemTemplate.IsA('X2WeaponTemplate'))
 	{
@@ -1310,6 +1314,16 @@ simulated function array<string> GetWeaponPanelImages()
 		else if( X2WeaponTemplate(m_ItemTemplate).WeaponPanelImage != "" )
 			Images.AddItem(X2WeaponTemplate(m_ItemTemplate).WeaponPanelImage);
 	}
+
+	// Start Issue #962
+	/// HL-Docs: ref:OverrideItemImage_Improved
+	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(OwnerStateObject.ObjectID));
+	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	for(i = 0; i < DLCInfos.Length; ++i)
+	{
+		DLCInfos[i].OverrideItemImage_Improved(Images, InventorySlot, m_ItemTemplate, UnitState, self);
+	}
+	// End Issue #962
 
 	return Images; 
 }

@@ -321,9 +321,9 @@ static private function bool CanAddItemToInventory(out int bCanAddItem, const EI
 //end Issue #50
 
 // Start Issue #962
-/// HL-Docs: feature:OverrideItemImage_Improved; issue:962; tags:strategy
-/// The `OverrideItemImage_Improved` X2DLCInfo method is called from `UIArmory_Loadout`.
-/// It allows mods to conditionally override items' inventory image. 
+/// HL-Docs: feature:OverrideItemImage_Improved; issue:962; tags:
+/// The `OverrideItemImage_Improved` X2DLCInfo method is called from `XComGameState_Item::GetWeaponPanelImages()`.
+/// It allows mods to conditionally override item's inventory image. 
 /// It can be used to replace the original image entirely
 /// or to overlay an additional icon on top of it to mark the specific item.
 /// To do so replace the contents of the `imagePath` array or add more image paths to it.
@@ -334,7 +334,7 @@ static function OverrideItemImage_Improved(out array<string> imagePath, const EI
 // End Issue #962
 
 // Start Issue #171
-/// Calls to override item image shown in UIArmory_Loadout
+/// Calls to override item image shown in UI.
 /// For example it allows you to show multiple grenades on grenade slot for someone with heavy ordnance
 /// Just change the value of imagePath
 static function OverrideItemImage(out array<string> imagePath, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, XComGameState_Unit UnitState)
