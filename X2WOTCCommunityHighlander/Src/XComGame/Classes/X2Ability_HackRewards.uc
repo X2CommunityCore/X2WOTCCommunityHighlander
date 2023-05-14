@@ -323,7 +323,7 @@ static function X2AbilityTemplate SKULLOuch()
 
 	Listener = new class'X2AbilityTrigger_EventListener';
 	Listener.ListenerData.Deferral = ELD_OnStateSubmitted;
-	Listener.ListenerData.EventFn = class'XComGameState_Ability'.static.AbilityTriggerEventListener_Self;
+	Listener.ListenerData.EventFn = static.AbilityTriggerEventListener_HackReward; // Issue #990
 	Listener.ListenerData.EventID = class'X2HackRewardTemplateManager'.default.HackAbilityEventName;
 	Listener.ListenerData.Filter = eFilter_None;
 	Template.AbilityTriggers.AddItem(Listener);
@@ -464,7 +464,7 @@ static function ApplyEffectsToTemplate(X2AbilityTemplate Template, EffectTargetS
 	else
 	{
 		Template.AbilityTargetStyle = default.SelfTarget;
-		Listener.ListenerData.EventFn = class'XComGameState_Ability'.static.AbilityTriggerEventListener_Self;
+		Listener.ListenerData.EventFn = static.AbilityTriggerEventListener_HackReward; // Issue #990
 	}
 	Listener.ListenerData.EventID = class'X2HackRewardTemplateManager'.default.HackAbilityEventName;
 	Listener.ListenerData.Filter = eFilter_None;
@@ -576,7 +576,7 @@ static function X2AbilityTemplate HackRewardIntegratedComms()
 	Listener = new class'X2AbilityTrigger_EventListener';
 	Listener.ListenerData.Deferral = ELD_OnStateSubmitted;
 	Template.AbilityTargetStyle = default.SelfTarget;
-	Listener.ListenerData.EventFn = class'XComGameState_Ability'.static.AbilityTriggerEventListener_Self;
+	Listener.ListenerData.EventFn = static.AbilityTriggerEventListener_HackReward; // Issue #990
 	Listener.ListenerData.EventID = class'X2HackRewardTemplateManager'.default.HackAbilityEventName;
 	Listener.ListenerData.Filter = eFilter_None;
 	Template.AbilityTriggers.AddItem(Listener);
@@ -618,7 +618,7 @@ static function X2AbilityTemplate HackRewardDisguisedSignals()
 	Listener = new class'X2AbilityTrigger_EventListener';
 	Listener.ListenerData.Deferral = ELD_OnStateSubmitted;
 	Template.AbilityTargetStyle = default.SelfTarget;
-	Listener.ListenerData.EventFn = class'XComGameState_Ability'.static.AbilityTriggerEventListener_Self;
+	Listener.ListenerData.EventFn = static.AbilityTriggerEventListener_HackReward; // Issue #990
 	Listener.ListenerData.EventID = class'X2HackRewardTemplateManager'.default.HackAbilityEventName;
 	Listener.ListenerData.Filter = eFilter_None;
 	Template.AbilityTriggers.AddItem(Listener);
@@ -731,3 +731,21 @@ static function X2AbilityTemplate BuildDamageImmunityAbility(Name TemplateName, 
 
 	return Template;
 }
+
+// Start Issue #990
+/// HL-Docs: ref:Bugfixes; issue:990
+/// Trigger the hack reward ability only if it's present in the Game State.
+/// This prevents hack rewards from being granted multiple times.
+static private function EventListenerReturn AbilityTriggerEventListener_HackReward(Object EventData, Object EventSource, XComGameState GameState, name InEventID, Object CallbackData)
+{
+    local XComGameState_Ability AbilityState;
+		
+	AbilityState = XComGameState_Ability(CallbackData);
+	if (AbilityState != none && GameState.GetGameStateForObjectID(AbilityState.ObjectID) != none)
+	{
+		AbilityState.AbilityTriggerAgainstSingleTarget(AbilityState.OwnerStateObject, false);
+	}	
+
+    return ELR_NoInterrupt;
+}
+// End Issue #990
