@@ -1611,8 +1611,9 @@ function AddProjectileVolley(AnimNotify_FireWeaponVolley Notify)
 	}
 }
 
+// Start Issue #829
 /// HL-Docs: feature:OverrideProjectileInstance; issue:829; tags:tactical
-/// Allows listeners to override the parameters of SpawnAndConfigureNewProjectile
+/// Allows listeners to override the parameters of SpawnAndConfigureNewProjectile.
 /// The feature also introduces support for subclasses of X2UnifiedProjectile as custom projectile archetypes.
 /// If bPreventProjectileSpawning is set to true the projectile instance will NOT be spawned.
 ///
@@ -1623,9 +1624,9 @@ function AddProjectileVolley(AnimNotify_FireWeaponVolley Notify)
 /// EventID: OverrideProjectileInstance,
 /// EventData: [
 ///     out bool bPreventProjectileSpawning,
-///     in Actor ProjectileTemplate,
-///     in AnimNotify_FireWeaponVolley InVolleyNotify,
-///     in XComWeapon InSourceWeapon,
+///     inout Actor ProjectileTemplate,
+///     inout AnimNotify_FireWeaponVolley InVolleyNotify,
+///     inout XComWeapon InSourceWeapon,
 ///     inout X2Action_Fire CurrentFireAction,
 ///     in XGUnitNativeBase Unit
 /// ],
@@ -1638,16 +1639,13 @@ private function bool TriggerOverrideProjectileInstance(Actor ProjectileTemplate
 												XComWeapon InSourceWeapon)
 {
 	local XComLWTuple Tuple;
-	local bool bPreventProjectileSpawning;
-
-	bPreventProjectileSpawning = false;
 
 	Tuple = new class'XComLWTuple';
 	Tuple.Id = 'OverrideProjectileInstance';
 	Tuple.Data.Add(6);
 
 	Tuple.Data[0].Kind = XComLWTVBool;
-	Tuple.Data[0].b = bPreventProjectileSpawning;
+	Tuple.Data[0].b = false;
 
 	Tuple.Data[1].Kind = XComLWTVObject;
 	Tuple.Data[1].o = ProjectileTemplate;
@@ -1666,10 +1664,14 @@ private function bool TriggerOverrideProjectileInstance(Actor ProjectileTemplate
 
 	`XEVENTMGR.TriggerEvent(Tuple.Id, Tuple, AbilityContext);
 
+	ProjectileTemplate = Actor(Tuple.Data[1].o);
+	InVolleyNotify = AnimNotify_FireWeaponVolley(Tuple.Data[2].o);
+	InSourceWeapon = XComWeapon(Tuple.Data[3].o);
 	CurrentFireAction = X2Action_Fire(Tuple.Data[4].o);
 
-	return bPreventProjectileSpawning;
+	return Tuple.Data[0].b;
 }
+// End Issue #829
 
 private function SpawnAndConfigureNewProjectile(Actor ProjectileTemplate,
 												AnimNotify_FireWeaponVolley InVolleyNotify,
