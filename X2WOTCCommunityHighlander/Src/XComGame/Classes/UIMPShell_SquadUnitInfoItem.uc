@@ -129,7 +129,8 @@ simulated function UpdateData(optional int Index = -1, optional bool bDisableEdi
 					class'UIUtilities_Text'.static.GetColoredText(Caps(RankStr), eUIState_Normal, 22),
 					class'UIUtilities_Text'.static.GetColoredText(m_kEditUnit.IsChampionClass() ? "" : Caps(m_kEditUnit.GetMPCharacterTemplate().DisplayName), eUIState_Header, 26),
 					m_kEditUnit.GetMPCharacterTemplate().IconImage, 
-					m_kEditUnit.GetSoldierRank() > 0 ? class'UIUtilities_Image'.static.GetRankIcon(m_kEditUnit.GetSoldierRank(), m_kEditUnit.GetSoldierClassTemplateName()) : "", "", "");
+					// Single line for Issue #408 - use CHL method to get Soldier Rank Icon.
+					m_kEditUnit.GetSoldierRank() > 0 ? m_kEditUnit.GetSoldierRankIcon(m_kEditUnit.GetRank()) : "", "", "");
 		}
 		else
 		{

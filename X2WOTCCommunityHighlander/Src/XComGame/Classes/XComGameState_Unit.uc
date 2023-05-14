@@ -5286,21 +5286,21 @@ function string GetMPName( ENameType eType )
 		return strFirstName @ strLastName;
 		break;
 	case eNameType_Rank:
-		return `GET_RANK_STR(m_SoldierRank, m_MPCharacterTemplateName);
+		return GetSoldierRankName(GetRank()); // Issue #408
 		break;
 	case eNameType_RankLast:
-		return `GET_RANK_ABBRV(m_SoldierRank, m_MPCharacterTemplateName) @ strLastName;
+		return GetSoldierShortRankName(GetRank()) @ strLastName; // Issue #408
 		break;
 	case eNameType_RankFull:
-		return `GET_RANK_ABBRV( m_SoldierRank, m_MPCharacterTemplateName ) @ strFirstName @ strLastName;
+		return GetSoldierShortRankName(GetRank()) @ strFirstName @ strLastName; // Issue #408
 		break;
 	case eNameType_FullNick:
 		if(IsSoldier())
 		{
 			if(strNickName != "")
-				return `GET_RANK_ABBRV( m_SoldierRank, m_MPCharacterTemplateName ) @ strFirstName @ OpenQuote $ SanitizeQuotes(strNickName) $CloseQuote @ strLastName;
+				return GetSoldierShortRankName(GetRank()) @ strFirstName @ OpenQuote $ SanitizeQuotes(strNickName) $CloseQuote @ strLastName; // Issue #408
 			else
-				return `GET_RANK_ABBRV( m_SoldierRank, m_MPCharacterTemplateName ) @ strFirstName @ strLastName;
+				return GetSoldierShortRankName(GetRank()) @ strFirstName @ strLastName; // Issue #408
 		}
 		else
 		{

@@ -131,9 +131,12 @@ simulated function UpdateData(XComGameState_Unit Unit, XComGameState CheckGameSt
 	}
 
 	MC.QueueString(SoldierClass.IconImage); //Class Icon Image
-	MC.QueueString(class'UIUtilities_Image'.static.GetRankIcon(Unit.GetRank(), Unit.GetSoldierClassTemplateName())); //Rank image
-	MC.QueueString(class'X2ExperienceConfig'.static.GetRankName(Unit.GetSoldierRank(), Unit.GetSoldierClassTemplateName()));
-	
+
+	// Start Issue #408 - use CHL method to get Soldier Rank Name and Icon.
+	MC.QueueString(Unit.GetSoldierRankIcon(Unit.GetRank())); //Rank image
+	MC.QueueString(Unit.GetSoldierRankName(Unit.GetRank()));
+	// End Issue #408
+
 	if (LadderData.LadderIndex < 10)
 	{
 		MC.QueueString(class'XComGameState_LadderProgress'.static.GetUnitName(m_CurrentIndex, LadderData.LadderIndex)); //Unit Name

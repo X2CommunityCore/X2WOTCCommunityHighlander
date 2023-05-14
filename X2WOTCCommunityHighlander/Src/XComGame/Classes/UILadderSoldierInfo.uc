@@ -202,7 +202,8 @@ simulated function SetSoldierImage( int UIIndex, int SoldierIndex, XComGameState
 	}
 
 	MC.QueueString(UnitState.GetSoldierClassTemplate().IconImage); //Class Icon Image
-	MC.QueueString(class'UIUtilities_Image'.static.GetRankIcon(UnitState.GetRank(), UnitState.GetSoldierClassTemplateName())); //Rank image
+	// Single line for Issue #408 - use CHL method to get Soldier Rank Icon.
+	MC.QueueString(UnitState.GetSoldierRankIcon(UnitState.GetRank())); //Rank image
 	
 	if (LadderData.LadderIndex < 10)
 	{

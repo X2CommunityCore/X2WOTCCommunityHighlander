@@ -68,7 +68,8 @@ simulated function OnPersonnelSelected(StaffUnitInfo UnitInfo)
 
 	LocTag = XGParamTag(`XEXPANDCONTEXT.FindTag("XGParam"));
 	LocTag.StrValue0 = Unit.GetName(eNameType_RankFull);
-	LocTag.StrValue1 = class'X2ExperienceConfig'.static.GetRankName((Unit.GetRank() + 1 + XComHQ.BonusTrainingRanks), '');
+	// Single line for Issue #408 - use CHL method to get Soldier Rank Name.
+	LocTag.StrValue1 = Unit.GetSoldierRankName(Unit.GetRank() + 1 + XComHQ.BonusTrainingRanks);
 
 	CallbackData = new class'UICallbackData_StateObjectReference';
 	CallbackData.ObjectRef = Unit.GetReference();
