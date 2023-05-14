@@ -13708,8 +13708,9 @@ function array<int> GetPCSRanks()
 		ValidRanks.AddItem(0);
 	}
 
-	// Does not matter which class we grab, all should have same combat sim stats
-	SoldierClassTemplate = class'X2SoldierClassTemplateManager'.static.GetSoldierClassTemplateManager().FindSoldierClassTemplate('Ranger');
+	/// HL-Docs: ref:Bugfixes; issue:1073
+	/// Get the unit's own Soldier Class Template rather than using Ranger's for all classes.
+	SoldierClassTemplate = GetSoldierClassTemplate();
 
 	for(RankIndex = 0; RankIndex < SoldierClassTemplate.GetMaxConfiguredRank(); RankIndex++)
 	{
