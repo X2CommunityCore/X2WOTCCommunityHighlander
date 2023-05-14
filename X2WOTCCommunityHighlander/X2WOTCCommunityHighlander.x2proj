@@ -235,6 +235,9 @@
     <Content Include="Src\XComGame\Classes\UIChoosePsiAbility.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIChosenInfo.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIChosenMissionSummary.uc">
       <SubType>Content</SubType>
     </Content>
