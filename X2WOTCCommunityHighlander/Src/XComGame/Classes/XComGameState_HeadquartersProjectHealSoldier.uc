@@ -77,6 +77,12 @@ function int GetWoundPoints(XComGameState_Unit UnitState, optional int MinimumPo
 	local float HealthPercent;
 
 	HealthPercent = (UnitState.GetCurrentStat(eStat_HP) / UnitState.GetBaseStat(eStat_HP)) * 100.0;
+
+	/// HL-Docs: ref:Bugfixes; issue:1171
+	/// Round the `HealthPercent` value to prevent it landing above `MaxHealthPercent` of one Wound Severity,
+	/// but below `MinHealthPercent` of the next one, making the code fail to select a Wound Severity at all.
+	HealthPercent = Round(HealthPercent);
+
 	WoundSeverities = GetWoundSeverities();
 
 	for(idx = 0; idx < WoundSeverities.Length; idx++)
