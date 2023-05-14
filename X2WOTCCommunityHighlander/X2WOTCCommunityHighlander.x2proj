@@ -256,6 +256,9 @@
     <Content Include="Src\XComGame\Classes\UICustomize_SkirmisherHead.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIFacility_AcademySlot.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIHackingScreen.uc">
       <SubType>Content</SubType>
     </Content>
@@ -268,6 +271,9 @@
     <Content Include="Src\XComGame\Classes\UIImageChip.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UILadderSoldierInfo.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UILadderUpgradeScreen.uc">
       <SubType>Content</SubType>
     </Content>
@@ -278,6 +284,12 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIMission_AlienFacility.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIMPShell_SquadUnitInfoItem.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UIMPSquadSelect_ListItem.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UINarrativeMgr.uc">
@@ -398,6 +410,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UITacticalQuickLaunch_UnitSlot.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UITLEUnitStats.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UITLE_ChallengeModeMenu.uc">
