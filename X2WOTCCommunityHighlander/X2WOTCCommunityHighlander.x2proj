@@ -436,6 +436,9 @@
     <Content Include="Src\XComGame\Classes\X2Ability_ReaperAbilitySet.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Ability_HackRewards.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2AchievementTracker.uc">
       <SubType>Content</SubType>
     </Content>
