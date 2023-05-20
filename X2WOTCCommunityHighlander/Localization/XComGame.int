@@ -22,3 +22,7 @@ RunOrderBeforeAfter_INT="%FID wants to run before %SID and %SID wants to run aft
 [XComGame.UICustomize_Head]
 [UICustomize_Head]
 m_strChangeFace="Use a different face to edit this option"
+
+[CHHelpers]
+; Issue #817
+m_strFramerateSmoothingDisabledReason = "Framerate Smoothing is disabled by Highlander to allow other mods to work properly. If you previously enabled it, delete this file: \"..\\Documents\\my games\\XCOM2 War of the Chosen\\XComGame\\Config\\XComEngine.ini\" once and restart the game."

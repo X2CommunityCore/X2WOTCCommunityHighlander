@@ -233,6 +233,9 @@ var config array<ProjectileParticleSystemExpirationOverride> ProjectileParticleS
 var config float ProjectileParticleSystemExpirationDefaultOverride;
 // End Issue #720
 
+// Variable for Issue #817 - put the string here, as UIOptionsPCScreen is native and cannot have new variables.
+var localized string m_strFramerateSmoothingDisabledReason;
+
 // Start Issue #885
 enum EHLDelegateReturn
 {
