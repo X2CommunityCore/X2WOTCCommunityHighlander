@@ -1,0 +1,3 @@
+[CHHelpers]
+; Issue #817
+m_strFramerateSmoothingDisabledReason = "La fonctionnalité de lissage de la fréquence d'images est désactivée par Highlander pour permettre le bon fonctionnement des autres mods. Si vous l'avez activée précédemment, veuillez supprimer ce fichier : \"..\\Documents\\my games\\XCOM2 War of the Chosen\\XComGame\\Config\\XComEngine.ini\" une fois et redémarrer le jeu."

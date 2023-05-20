@@ -1,0 +1,3 @@
+[CHHelpers]
+; Issue #817
+m_strFramerateSmoothingDisabledReason = "Wygładzanie klatek jest wyłączone przez Highlandera aby inne mody mogły poprawnie działać. Jeśli wcześniej je włączyłeś, usuń ten plik: \"..\\Documents\\my games\\XCOM2 War of the Chosen\\XComGame\\Config\\XComEngine.ini\" raz oraz zrestartuj grę."
