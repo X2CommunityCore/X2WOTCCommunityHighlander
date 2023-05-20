@@ -1,0 +1,3 @@
+[CHHelpers]
+; Issue #817
+m_strFramerateSmoothingDisabledReason = "帧率平滑功能已被 Highlander 禁用，以确保其他 Mod 的正常工作。如果您之前启用了它，请删除此文件：\"..\\Documents\\my games\\XCOM2 War of the Chosen\\XComGame\\Config\\XComEngine.ini\"，然后重新启动游戏。"

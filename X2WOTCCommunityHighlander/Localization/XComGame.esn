@@ -1,0 +1,3 @@
+[CHHelpers]
+; Issue #817
+m_strFramerateSmoothingDisabledReason = "El suavizado de la frecuencia de fotogramas está desactivado por Highlander para permitir que otros mods funcionen correctamente. Si lo habías activado previamente, elimina este archivo: \"..\\Documents\\my games\\XCOM2 War of the Chosen\\XComGame\\Config\\XComEngine.ini\" una vez y reinicia el juego."
