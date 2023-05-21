@@ -47,7 +47,7 @@ function GenerateName(int iGender, name CountryName, out string strFirst, out st
 	local X2SoldierClassTemplateManager ClassMgr;
 	local X2SoldierClassTemplate ClassTemplate;
 
-	super.GenerateName(iGender, CountryName, strFirst, strLast, iRace);
+	super.GenerateName(kSoldier.kAppearance.iGender, kSoldier.nmCountry, kSoldier.strFirstName, kSoldier.strLastName, kSoldier.kAppearance.iRace);
 
 	ClassMgr = class'X2SoldierClassTemplateManager'.static.GetSoldierClassTemplateManager();
 	ClassTemplate = ClassMgr.FindSoldierClassTemplate('Reaper');
