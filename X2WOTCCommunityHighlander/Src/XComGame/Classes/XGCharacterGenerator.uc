@@ -373,7 +373,8 @@ function TSoldier CreateTSoldier( optional name CharacterTemplateName, optional 
 		nmCountry = PickOriginCountry();
 	
 	SetCountry(nmCountry);
-	SetRace(iRace);
+	//SetRace(iRace);
+	SetRace_CH(iRace, nmCountry); // Issue #1140 - use randomly generated country to generate unit's race.
 	SetGender(eForceGender);
 	kSoldier.iRank = 0;
 	
@@ -399,9 +400,17 @@ function TSoldier CreateTSoldier( optional name CharacterTemplateName, optional 
 
 	SetVoice(CharacterTemplateName, nmCountry);
 	SetAttitude();
-	GenerateName( kSoldier.kAppearance.iGender, kSoldier.nmCountry, kSoldier.strFirstName, kSoldier.strLastName, kSoldier.kAppearance.iRace );
 
-	BioCountryName = kSoldier.nmCountry;
+	// Start Issue #1140
+	// Pass nmCountry to GenerateName and BioCountryName instead of kSoldier.nmCountry.
+	// This is done to fix the bug caused by #783, which refactored XGCharacterGenerator classes for faction heroes,
+	// which resulted in using their faction countries to generate character name and biography as opposed to using
+	// a random country, like they did before #783 was implemented.
+	GenerateName( kSoldier.kAppearance.iGender, nmCountry, kSoldier.strFirstName, kSoldier.strLastName, kSoldier.kAppearance.iRace );
+	//GenerateName( kSoldier.kAppearance.iGender, kSoldier.nmCountry, kSoldier.strFirstName, kSoldier.strLastName, kSoldier.kAppearance.iRace );
+	BioCountryName = nmCountry;
+	//BioCountryName = kSoldier.nmCountry;
+	// End Issue #1140
 
 	// Start issue #783
 	ModifyGeneratedUnitAppearance(CharacterTemplateName, eForceGender, nmCountry, iRace, ArmorName);
@@ -667,6 +676,17 @@ function SetRace(int iRace)
 	else
 		kSoldier.kAppearance.iRace = iRace;
 }
+
+// Start Issue #1140
+// Add a function that will set unit's race based on nmCountry given as a function argument rather than on kSoldier.nmCountry.
+function SetRace_CH(int iRace, name nmCountry)
+{
+	if (iRace == -1)
+		kSoldier.kAppearance.iRace = GetRandomRaceByCountry(nmCountry);
+	else
+		kSoldier.kAppearance.iRace = iRace;
+}
+// End Issue #1140
 
 function SetGender(EGender eForceGender)
 {

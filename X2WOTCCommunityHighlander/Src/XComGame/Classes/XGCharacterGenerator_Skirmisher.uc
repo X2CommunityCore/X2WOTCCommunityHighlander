@@ -40,7 +40,7 @@ function GenerateName( int iGender, name CountryName, out string strFirst, out s
 	local X2SoldierClassTemplateManager ClassMgr;
 	local X2SoldierClassTemplate ClassTemplate;
 
-	super.GenerateName( kSoldier.kAppearance.iGender, kSoldier.nmCountry, kSoldier.strFirstName, kSoldier.strLastName, kSoldier.kAppearance.iRace );
+	super.GenerateName(iGender, CountryName, strFirst, strLast, iRace);
 
 	ClassMgr = class'X2SoldierClassTemplateManager'.static.GetSoldierClassTemplateManager();
 	ClassTemplate = ClassMgr.FindSoldierClassTemplate('Skirmisher');
