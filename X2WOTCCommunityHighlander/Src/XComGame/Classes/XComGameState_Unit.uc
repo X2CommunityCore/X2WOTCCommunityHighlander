@@ -904,6 +904,7 @@ function bool RollForNegativeTrait(XComGameState NewGameState)
 	local int RollValue, WillPercentMark, HealthPercentMark;
 	local array<name> ValidTraits, GenericTraits;
 	local name TraitName;
+	local bool ShouldAcquireTrait; // Variable for issue #1150
 
 	// TODO: @mnauta - possibly pre-roll this value on mission start
 	RollValue = `SYNC_RAND(200);
@@ -912,8 +913,14 @@ function bool RollForNegativeTrait(XComGameState NewGameState)
 	HealthPercentMark = (100 - int((GetCurrentStat(eStat_HP) / GetMaxStat(eStat_HP)) * 100.0f));
 	ValidTraits.Length = 0;
 	
+	// Start Issue #1150
 	// Roll to see if they should gain a trait
-	if(CanAcquireTrait(false) && RollValue < (WillPercentMark + HealthPercentMark))
+	ShouldAcquireTrait = CanAcquireTrait(false) && RollValue < (WillPercentMark + HealthPercentMark); // Vanilla logic
+	ShouldAcquireTrait = OverrideNegativeTraitRoll(ShouldAcquireTrait, NewGameState);
+	
+	// Roll to see if they should gain a trait
+	if(ShouldAcquireTrait)
+	// End Issue #1150
 	{
 		// Check for pending traits first (triggered in mission)
 		foreach PendingTraits(TraitName)
@@ -950,6 +957,36 @@ function bool RollForNegativeTrait(XComGameState NewGameState)
 
 	return false;
 }
+
+// Start Issue #1150
+/// HL-Docs: feature:OverrideNegativeTraitRoll; issue:1150; tags:strategy
+/// Fires an event that allows mods to override whether a soldier should get a negative trait after the mission.
+/// Default: Vanilla Behavior will be used.
+///
+/// ```event
+/// EventID: OverrideNegativeTraitRoll,
+/// EventData: [inout bool ShouldRollNegativeTrait],
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: yes
+/// ```
+//
+private function bool OverrideNegativeTraitRoll(
+	bool ShouldRollNegativeTrait,
+	XComGameState NewGameState)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideNegativeTraitRoll';
+	OverrideTuple.Data.Add(1);
+	OverrideTuple.Data[0].kind = XComLWTVBool;
+	OverrideTuple.Data[0].b = ShouldRollNegativeTrait;
+
+	`XEVENTMGR.TriggerEvent('OverrideNegativeTraitRoll', OverrideTuple, self, NewGameState);
+
+	return OverrideTuple.Data[0].b;
+}
+// End Issue #1150
 
 function RecoverFromTraits()
 {
