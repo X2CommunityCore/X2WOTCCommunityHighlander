@@ -101,8 +101,7 @@ simulated function ApplyEffectToWorld(const out EffectAppliedData ApplyEffectPar
 			}
 
 			// Start Issue #1031
-			/// HL-Docs: ref:Bugfixes; issue:1131
-			/// Increase environmental damage if this effect is applied by a Homing Mine Detonation and the owner has the Shrapnel ability.
+			// Increase environmental damage if this effect is applied by a Homing Mine Detonation and the owner has the Shrapnel ability.
 			if (AbilityContext.InputContext.AbilityTemplateName == 'HomingMineDetonation' &&
 				SourceStateObject.HasSoldierAbility('Shrapnel'))
 			{
