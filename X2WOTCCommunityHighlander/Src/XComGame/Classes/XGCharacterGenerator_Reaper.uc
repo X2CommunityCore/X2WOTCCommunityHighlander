@@ -26,34 +26,23 @@ function X2CharacterTemplate SetCharacterTemplate(name CharacterTemplateName, na
 	return class'X2CharacterTemplateManager'.static.GetCharacterTemplateManager().FindCharacterTemplate('ReaperSoldier');
 }
 
-// Start issue #783
-// Normally this function calls the super.CreateTSoldier, and then manually sets the country and nickname.
-// In order to make the DLC hook for this issue more compatible with resistance faction soldiers,
-// this functionality has been moved into SetCountry() and GenerateName() methods which will be called by super.CreateTSoldier.
 function TSoldier CreateTSoldier(optional name CharacterTemplateName, optional EGender eForceGender, optional name nmCountry = '', optional int iRace = -1, optional name ArmorName)
-{
-	kSoldier = super.CreateTSoldier('ReaperSoldier', eForceGender, nmCountry, iRace, ArmorName);
-	return kSoldier;
-}
-
-function SetCountry(name nmCountry)
-{
-	kSoldier.nmCountry = 'Country_Reaper';
-	kSoldier.kAppearance.nmFlag = kSoldier.nmCountry; // needs to be copied here for pawns -- jboswell
-}
-
-function GenerateName(int iGender, name CountryName, out string strFirst, out string strLast, optional int iRace = -1)
 {
 	local X2SoldierClassTemplateManager ClassMgr;
 	local X2SoldierClassTemplate ClassTemplate;
 
-	super.GenerateName(kSoldier.kAppearance.iGender, kSoldier.nmCountry, kSoldier.strFirstName, kSoldier.strLastName, kSoldier.kAppearance.iRace);
-
+	kSoldier = super.CreateTSoldier('ReaperSoldier', eForceGender, nmCountry, iRace, ArmorName);
+	SetCountry('Country_Reaper');
 	ClassMgr = class'X2SoldierClassTemplateManager'.static.GetSoldierClassTemplateManager();
 	ClassTemplate = ClassMgr.FindSoldierClassTemplate('Reaper');
 	kSoldier.strNickName = GenerateNickname(ClassTemplate, kSoldier.kAppearance.iGender);
+
+	// Start issue #783
+	ModifyGeneratedUnitAppearance(CharacterTemplateName, eForceGender, nmCountry, iRace, ArmorName);
+	// End issue #783
+
+	return kSoldier;
 }
-// End issue #783
 
 function SetRace(int iRace)
 {

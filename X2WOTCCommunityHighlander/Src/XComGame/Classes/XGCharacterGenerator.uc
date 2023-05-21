@@ -411,7 +411,7 @@ function TSoldier CreateTSoldier( optional name CharacterTemplateName, optional 
 }
 
 // Start issue #783
-private function ModifyGeneratedUnitAppearance(optional name CharacterTemplateName, optional EGender eForceGender, optional name nmCountry = '', optional int iRace = -1, optional name ArmorName)
+final protected function ModifyGeneratedUnitAppearance(optional name CharacterTemplateName, optional EGender eForceGender, optional name nmCountry = '', optional int iRace = -1, optional name ArmorName)
 {
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local int i;
