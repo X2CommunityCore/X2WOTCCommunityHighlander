@@ -326,6 +326,10 @@ function EvaluateTacticalMusicState()
 	//Get the game state representing the local player
 	LocalPlayerState = XComGameState_Player(History.GetGameStateForObjectID(Ruleset.GetLocalClientPlayerObjectID()));
 
+	//Start event for #1153
+	LocalPlayerState = TriggerFinalizePlayerStateForTacticalMusic(LocalPlayerState);
+	//End event for #1153
+
 	//Sync our internally tracked count of alerted enemies with the state of the game
 	NumAlertedEnemiesPrevious = NumAlertedEnemies;
 	NumAlertedEnemies = 0;
@@ -419,6 +423,35 @@ function EvaluateTacticalMusicState()
 	{
 		bFirstEvalOnLoad = false;
 	}
+}
+
+// Start Issue #1153
+/// HL-Docs: feature:FinalizePlayerStateForTacticalMusic; issue:1153; tags:tactical
+/// Determines the next music cue for changing music during tactical engagements.
+///
+/// This determination is done by looking at multiple factors such as enemy
+/// alert level and how many units XCom can see. To do this, it requires knowledge
+/// of which player team is active.
+///
+/// To allow for better compatibility between mods which manage player activity
+/// and mods which manage sound options, there is one event which will allow 
+/// to override the player state or it's parameters.
+///
+/// ```event
+/// EventID: FinalizePlayerStateForTacticalMusic,
+/// EventData: XComGameState_Player (LocalPlayerState),
+/// EventSource: XComTacticalSoundManager (SoundManager),
+/// NewGameState: none
+/// ```
+private function XComGameState_Player TriggerFinalizePlayerStateForTacticalMusic(XComGameState_Player LocalPlayerState)
+{
+	local XComGameState_Player EventData;
+
+	EventData = LocalPlayerState;
+
+	`XEVENTMGR.TriggerEvent('FinalizePlayerStateForTacticalMusic', EventData, self, none);
+
+	return EventData;
 }
 
 event OnActiveUnitChanged(XComGameState_Unit NewActiveUnit)
