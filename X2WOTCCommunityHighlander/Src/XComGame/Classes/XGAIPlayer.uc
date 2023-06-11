@@ -897,7 +897,9 @@ simulated function GatherUnitsToMove()
 		//
 		// Issue #510 - Removed the DecisionStartHistoryIndex check as it prevents pod leaders from using
 		// any reflex actions they may have been granted.
-		if(bDead || UnitState.bRemovedFromPlay || UnitState.NumAllActionPoints() == 0) // || kBehavior == None || kBehavior.DecisionStartHistoryIndex > kAIPlayerData.m_iLastEndTurnHistoryIndex)
+		// Issue #1193 - Added IsIncapacitated check to skip units in group who are either Unconcious or Bleeding out
+		// as the AI processing hangs here until timeout and so the whole group gets skipped.
+		if(bDead || UnitState.bRemovedFromPlay || UnitState.NumAllActionPoints() == 0 || UnitState.IsIncapacitated()) // || kBehavior == None || kBehavior.DecisionStartHistoryIndex > kAIPlayerData.m_iLastEndTurnHistoryIndex)
 		{
 			continue;
 		}
