@@ -2647,13 +2647,16 @@ function EndTacticalHealthMod()
 	local float HealthPercent, NewHealth, SWHeal;
 	local int RoundedNewHealth, HealthLost, NewMissingHP;
 
-	HealthLost = HighestHP - LowestHP;
-
-	if (LowestHP > 0 && `SecondWaveEnabled('BetaStrike'))  // Immediately Heal 1/2 Damage
+	HealthLost = HighestHP - LowestHP;	
+	/// HL-Docs: feature:BetaStrikeEndTacticalHeal; issue:917; tags:
+	if (LowestHP > 0 && `SecondWaveEnabled('BetaStrike'))  // Immediately Heal 1/2 Damage 
 	{
-		SWHeal = FFloor( HealthLost / 2 );
-		LowestHP += SWHeal;
-		HealthLost -= SWHeal;
+		if  (!class'CHHelpers'.default.bDisableBetaStrikePostMissionHealing)
+			{
+				SWHeal = FFloor( HealthLost / 2 );
+				LowestHP += SWHeal;
+				HealthLost -= SWHeal;
+			}
 	}
 
 	// If Dead or never injured, return
