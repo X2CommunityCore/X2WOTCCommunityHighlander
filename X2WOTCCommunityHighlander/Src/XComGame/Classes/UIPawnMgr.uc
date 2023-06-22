@@ -594,6 +594,10 @@ simulated function DestroyPawns(int StoreIdx, out array<PawnInfo> PawnStore)
 	// Added variable for Issue #885
 	local int i;
 
+	// Start Issue #1192 - Add call to StopSounds to remove sound effects for destroyed pawns.
+	PawnStore[StoreIdx].Pawn.StopSounds();
+	// End Issue #1192
+
 	PawnStore[StoreIdx].Pawn.Destroy();
 	PawnStore[StoreIdx].Pawn = none;
 	for ( idx = 0; idx < PawnStore[StoreIdx].Cosmetics.Length; ++idx )
@@ -637,6 +641,10 @@ simulated function ReleasePawnInternal(Actor referrer, int UnitRef, out array<Pa
 {
 	local int PawnInfoIndex;
 
+	// Added variables for Issue #1192
+	local XComUnitPawn CosmeticPawn;
+	local int CosmeticPawnIndex;
+
 	PawnInfoIndex = PawnStore.Find('PawnRef', UnitRef);
 	if (PawnInfoIndex == -1)
 	{
@@ -644,15 +652,49 @@ simulated function ReleasePawnInternal(Actor referrer, int UnitRef, out array<Pa
 	}
 	else if(bForce) // don't remove the entry from the array to preserve the Referrers
 	{
+
+		// Start Issue #1192 - gremlin/bit section
+		CosmeticPawn = GetCosmeticPawn(eInvSlot_SecondaryWeapon, UnitRef);
+
+		//use similar code to rest of function, but for the Cosmetic pawn
+		if (CosmeticPawn!= none)
+		{
+			CosmeticPawnIndex = PawnStore.Find('PawnRef', CosmeticPawn.ObjectId);
+
+			if (CosmeticPawnIndex!= -1)
+			{
+				DestroyPawns(CosmeticPawnIndex, PawnStore);
+				PawnStore[CosmeticPawnIndex].bPawnRemoved = true;
+			}
+		}
+		// End issue #1192
+
 		PawnStore[PawnInfoIndex].Referrers.RemoveItem(referrer);
 		DestroyPawns(PawnInfoIndex, PawnStore);
 		PawnStore[PawnInfoIndex].bPawnRemoved = true;
 	}
 	else
-	{		
+	{
 		PawnStore[PawnInfoIndex].Referrers.RemoveItem(referrer);
 		if(PawnStore[PawnInfoIndex].Referrers.Length == 0)
 		{
+
+			// Start Issue #1192 - gremlin/bit section - repeat of above code but in other part of if/else block
+			CosmeticPawn = GetCosmeticPawn(eInvSlot_SecondaryWeapon, UnitRef);
+
+			//use similar code to rest of function, but for the Cosmetic pawn
+			if (CosmeticPawn!= none)
+			{
+				CosmeticPawnIndex = PawnStore.Find('PawnRef', CosmeticPawn.ObjectId);
+
+				if (CosmeticPawnIndex!= -1)
+				{
+				DestroyPawns(CosmeticPawnIndex, PawnStore);
+					PawnStore[CosmeticPawnIndex].bPawnRemoved = true;
+				}
+			}
+			// End issue #1192
+
 			DestroyPawns(PawnInfoIndex, PawnStore);
 			PawnStore.Remove(PawnInfoIndex, 1);
 		}
