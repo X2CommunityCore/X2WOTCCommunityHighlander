@@ -625,6 +625,9 @@
     <Content Include="Src\XComGame\Classes\X2StrategyElement_XpackStaffSlots.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2StrategyGameRulesetDataStructures.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2StrategyGame_SimCombat.uc">
       <SubType>Content</SubType>
     </Content>
