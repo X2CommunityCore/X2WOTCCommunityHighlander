@@ -29,6 +29,39 @@
     <Content Include="Config\XComUI.ini">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Localization\DLC_3.chn">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\DLC_3.cht">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\DLC_3.deu">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\DLC_3.esn">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\DLC_3.fra">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\DLC_3.int">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\DLC_3.ita">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\DLC_3.jpn">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\DLC_3.kor">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\DLC_3.pol">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\DLC_3.rus">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Localization\X2WOTCCommunityHighlander.chn">
       <SubType>Content</SubType>
     </Content>
