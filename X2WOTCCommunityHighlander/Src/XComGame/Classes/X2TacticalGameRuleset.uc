@@ -2974,7 +2974,7 @@ Begin:
 			sleep(0.0f);
 		}
 
-		MarkPlotUsed();
+		//MarkPlotUsed(); // Tedster - commented out for Issue #1082
 
 		`log("CreateTacticalGame: Dropship loaded");
 		
@@ -2999,6 +2999,10 @@ Begin:
 		//Will stop the HQ launch music if it is still playing ( which it should be, if we seamless traveled )
 		`XTACTICALSOUNDMGR.StopHQMusicEvent();
 	}
+
+	// Start Issue #1082 - Move the MarkPlotUsed call outside of the if block so that missions that don't show the dropship interior are also handled
+	MarkPlotUsed();
+	// End Issue #1082
 
 	//Generate the map and wait for it to complete
 	GenerateMap();
