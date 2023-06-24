@@ -899,7 +899,7 @@ simulated function GatherUnitsToMove()
 		// any reflex actions they may have been granted.
 		// Issue #1193 - Added IsIncapacitated check to skip units in group who are either Unconcious or Bleeding out
 		// as the AI processing hangs here until timeout and so the whole group gets skipped.
-		if(bDead || UnitState.bRemovedFromPlay || UnitState.NumAllActionPoints() == 0 || UnitState.IsIncapacitated()) // || kBehavior == None || kBehavior.DecisionStartHistoryIndex > kAIPlayerData.m_iLastEndTurnHistoryIndex)
+		if(bDead || UnitState.bRemovedFromPlay || UnitState.NumAllActionPoints() == 0 || UnitState.IsUnconscious() || UnitState.IsBleedingOut()) // || kBehavior == None || kBehavior.DecisionStartHistoryIndex > kAIPlayerData.m_iLastEndTurnHistoryIndex)
 		{
 			continue;
 		}
