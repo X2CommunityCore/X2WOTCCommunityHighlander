@@ -317,8 +317,22 @@ private static function array<X2SabotageTemplate> GetValidSabotageTypes()
 
 //---------------------------------------------------------------------------------------
 static private function int GetSabotageChance(XComGameState_AdventChosen ChosenState)
-{
-	return `ScaleStrategyArrayInt(default.SabotageChance);
+{	
+	// Variables for Issue #1182
+	local XComGameState_HeadquartersXCom XComHQ;
+	local int DefenseMatrixSabotageChanceModifier;
+	
+	// Start Issue #1182
+	/// HL-Docs: ref:Bugfixes; issue:1182
+	/// Make Defense Matrix properly reduce the chance of Chosen sabotage.
+	XComHQ = XComGameState_HeadquartersXCom(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom', true));
+	if (XComHQ != none)
+	{
+		DefenseMatrixSabotageChanceModifier = XComHQ.SabotageChanceModifier;
+	}
+	
+	return `ScaleStrategyArrayInt(class'X2StrategyElement_XpackChosenActions'.default.SabotageChance) + DefenseMatrixSabotageChanceModifier;
+	// End Issue #1182
 }
 
 //---------------------------------------------------------------------------------------
