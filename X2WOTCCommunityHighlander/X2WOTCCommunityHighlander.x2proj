@@ -628,6 +628,9 @@
     <Content Include="Src\XComGame\Classes\X2StatusEffects.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2StrategyElement_XpackChosenActions.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2StrategyElement_XpackStaffSlots.uc">
       <SubType>Content</SubType>
     </Content>
