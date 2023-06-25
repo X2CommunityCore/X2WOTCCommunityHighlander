@@ -286,6 +286,9 @@
     <Content Include="Src\XComGame\Classes\UICustomize_SkirmisherHead.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIFacilityGrid_FacilityOverlay.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIFacility_AcademySlot.uc">
       <SubType>Content</SubType>
     </Content>
