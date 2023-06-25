@@ -1624,8 +1624,9 @@ static function string GetDateString(TDateTime kDateTime, optional bool bShortFo
 		Lang = GetLanguage();
 
 		kTag.StrValue1 = "/";
-
-		if  ( Lang == "FRA" || Lang == "ITA" || Lang == "ESN")
+		/// HL-Docs: feature:EuroDateOverride; issue:1191; tags:
+		/// Add config option to force Euro date style with INT localisation
+		if  (Lang == "FRA" || Lang == "ITA" || Lang == "ESN" || class'CHHelpers'.default.bForceEuroDateStrings)
 		{
 			bEuroStyleDate = true;
 		}
