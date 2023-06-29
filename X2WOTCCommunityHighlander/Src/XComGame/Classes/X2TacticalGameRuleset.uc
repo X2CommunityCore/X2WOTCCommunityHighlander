@@ -2974,7 +2974,9 @@ Begin:
 			sleep(0.0f);
 		}
 
-		//MarkPlotUsed(); // Tedster - commented out for Issue #1082
+		/// HL-Docs: ref:Bugfixes; issue:1082
+		/// MarkPlotUsed() - commented out original call and moved it outside of the if() statement
+		
 
 		`log("CreateTacticalGame: Dropship loaded");
 		
@@ -3000,9 +3002,9 @@ Begin:
 		`XTACTICALSOUNDMGR.StopHQMusicEvent();
 	}
 
-	// Start Issue #1082 - Move the MarkPlotUsed call outside of the if block so that missions that don't show the dropship interior are also handled
+	// Issue #1082 - moved outside the if() statement.
 	MarkPlotUsed();
-	// End Issue #1082
+
 
 	//Generate the map and wait for it to complete
 	GenerateMap();
