@@ -122,6 +122,21 @@ protected function FinalizeHitChance(out ShotBreakdown m_ShotBreakdown, bool bDe
 			FinalGraze = Round(GrazeScale);
 			m_ShotBreakdown.ResultTable[eHit_Success] -= FinalGraze;
 			m_ShotBreakdown.ResultTable[eHit_Graze] = FinalGraze;
+
+			// Start Issue #1200
+			/// HL-Docs: ref:Bugfixes; issue:1200
+			/// Make Dodge apply to Crit Chance as well in situations where combined Dodge and Crit are enough to push Hit Chance below zero.
+			if (m_ShotBreakdown.ResultTable[eHit_Success] < 0)
+			{
+				m_ShotBreakdown.ResultTable[eHit_Crit] += m_ShotBreakdown.ResultTable[eHit_Success];
+				m_ShotBreakdown.ResultTable[eHit_Success] = 0;
+
+				if (m_ShotBreakdown.ResultTable[eHit_Crit] < 0)
+				{
+					m_ShotBreakdown.ResultTable[eHit_Crit] = 0;
+				}
+			}
+			// End Issue #1200
 		}
 		else
 		{
