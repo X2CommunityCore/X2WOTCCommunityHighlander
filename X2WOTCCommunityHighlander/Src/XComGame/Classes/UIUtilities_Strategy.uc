@@ -142,6 +142,44 @@ static function XComGameState_BlackMarket GetBlackMarket()
 	return BlackMarketState;
 }
 
+// Start Issue #1218
+/// HL-Docs: feature:OverrideStrategyCostString; issue:1218; tags:strategy,ui
+/// Fires an event that allows mods to override the strategy layer cost strings.
+/// Default: Vanilla behavior will be used.
+///
+/// ```event
+/// EventID: OverrideStrategyCostString,
+/// EventData: [
+/// 	in name ItemTemplateName,
+///		in int Quantity,
+///		in bool IsResourceCost,
+/// 	inout string CostString
+/// ],
+/// EventSource: none,
+/// NewGameState: none
+/// ```
+private static function TriggerOverrideStrategyCostString(ArtifactCost ArtifactCost, bool IsResourceCost, out String CostString)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideStrategyCostString';
+	OverrideTuple.Data.Add(4);
+	OverrideTuple.Data[0].kind = XComLWTVName;
+	OverrideTuple.Data[0].n = ArtifactCost.ItemTemplateName;
+	OverrideTuple.Data[1].kind = XComLWTVInt;
+	OverrideTuple.Data[1].i = ArtifactCost.Quantity;
+	OverrideTuple.Data[2].kind = XComLWTVBool;
+	OverrideTuple.Data[2].b = IsResourceCost;
+	OverrideTuple.Data[3].kind = XComLWTVString;
+	OverrideTuple.Data[3].s = CostString;
+
+	`XEVENTMGR.TriggerEvent('OverrideStrategyCostString', OverrideTuple);
+
+	CostString = OverrideTuple.Data[3].s;
+}
+// End Issue #1218
+
 static function String GetStrategyCostString(StrategyCost StratCost, array<StrategyCostScalar> CostScalars, optional float DiscountPercent)
 {
 	local int iResource, iArtifact, Quantity;
@@ -163,7 +201,12 @@ static function String GetStrategyCostString(StrategyCost StratCost, array<Strat
 			strArtifactCost = class'UIUtilities_Text'.static.GetColoredText(strArtifactCost, eUIState_Bad);
 		}
 		else
+		{
 			strArtifactCost = class'UIUtilities_Text'.static.GetColoredText(strArtifactCost, eUIState_Good);
+		}
+
+		// Issue #1218
+		TriggerOverrideStrategyCostString(ScaledStratCost.ArtifactCosts[iArtifact], false, strArtifactCost);
 
 		if (iArtifact < ScaledStratCost.ArtifactCosts.Length - 1)
 		{
@@ -194,7 +237,12 @@ static function String GetStrategyCostString(StrategyCost StratCost, array<Strat
 			strResourceCost = class'UIUtilities_Text'.static.GetColoredText(strResourceCost, eUIState_Bad);
 		}
 		else
+		{
 			strResourceCost = class'UIUtilities_Text'.static.GetColoredText(strResourceCost, eUIState_Good);
+		}
+
+		// Issue #1218
+		TriggerOverrideStrategyCostString(ScaledStratCost.ResourceCosts[iResource], true, strResourceCost);
 
 		if (iResource < ScaledStratCost.ResourceCosts.Length - 1)
 		{
