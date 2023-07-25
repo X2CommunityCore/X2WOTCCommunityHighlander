@@ -56,7 +56,8 @@ simulated function BuildScreen()
 		NewStrength = ChosenStrengths[ChosenStrengths.Length - 1];
 		strStrengthName = NewStrength.LocFriendlyName;
 		strStrengthIcon = NewStrength.IconImage;
-		strStrengthDesc = NewStrength.LocLongDescription;
+		/// HL-Docs: ref:Bugfixes; issue:1096
+		strStrengthDesc = NewStrength.GetMyLongDescription();
 
 		strWeaknessName = "";
 		strWeaknessIcon = "";

@@ -52,7 +52,8 @@ simulated function OnInit()
 			{
 				if( ChosenStrengths[i].AbilityRevealEvent == '' || ChosenUnitState.RevealedChosenTraits.Find(ChosenStrengths[i].DataName) != INDEX_NONE )
 				{
-					SetStrengthData(i, ChosenStrengths[i].IconImage, ChosenStrengths[i].LocFriendlyName, ChosenStrengths[i].LocLongDescription);
+					/// HL-Docs: ref:Bugfixes; issue:1096
+					SetStrengthData(i, ChosenStrengths[i].IconImage, ChosenStrengths[i].LocFriendlyName, ChosenStrengths[i].GetMyLongDescription());
 				}
 				else
 				{
@@ -65,7 +66,8 @@ simulated function OnInit()
 			{
 				if( ChosenWeaknesses[i].AbilityRevealEvent == '' || ChosenUnitState.RevealedChosenTraits.Find(ChosenWeaknesses[i].DataName) != INDEX_NONE )
 				{
-					SetWeaknessData(i, ChosenWeaknesses[i].IconImage, ChosenWeaknesses[i].LocFriendlyName, ChosenWeaknesses[i].LocLongDescription, ChosenUnitState.bIgnoreWeaknesses);
+					/// HL-Docs: ref:Bugfixes; issue:1096
+					SetWeaknessData(i, ChosenWeaknesses[i].IconImage, ChosenWeaknesses[i].LocFriendlyName, ChosenWeaknesses[i].GetMyLongDescription(), ChosenUnitState.bIgnoreWeaknesses);
 				}
 				else
 				{
