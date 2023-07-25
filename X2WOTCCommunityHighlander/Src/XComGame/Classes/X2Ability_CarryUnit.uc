@@ -301,6 +301,9 @@ static function X2DataTemplate PutDownUnit()
 	// Special effects that get removed when being put down
 
 	SkipExclusions.AddItem(default.CarryUnitEffectName);
+	/// HL-Docs: ref:Bugfixes; issue:1223
+	/// Added a skip exclusion for burning status so units can set down other carried units when they are on fire
+	SkipExclusions.AddItem(class'X2StatusEffects'.default.BurningName);
 	Template.AddShooterEffectExclusions(SkipExclusions);
 
 	Template.bLimitTargetIcons = true; //When selected, show only the unit we can put down, rather than typical targets
