@@ -649,13 +649,21 @@ function bool TargetEffectsDealDamage( XComGameState_Item SourceWeapon, XComGame
 
 	if (bUseLaunchedGrenadeEffects)
 	{
-		GrenadeTemplate = X2GrenadeTemplate( SourceWeapon.GetLoadedAmmoTemplate( Ability ) );
-		MultiTargetEffects = GrenadeTemplate.LaunchedGrenadeEffects;
+		// Issue #324 - none-check SourceWeapon to prevent log warnings.
+		if (SourceWeapon != none)
+		{
+			GrenadeTemplate = X2GrenadeTemplate( SourceWeapon.GetLoadedAmmoTemplate( Ability ) );
+			MultiTargetEffects = GrenadeTemplate.LaunchedGrenadeEffects;
+		}
 	}
 	else if (bUseThrownGrenadeEffects)
 	{
-		GrenadeTemplate = X2GrenadeTemplate( SourceWeapon.GetMyTemplate( ) );
-		MultiTargetEffects = GrenadeTemplate.ThrownGrenadeEffects;
+		// Issue #324 - none-check SourceWeapon to prevent log warnings.
+		if (SourceWeapon != none)
+		{
+			GrenadeTemplate = X2GrenadeTemplate( SourceWeapon.GetMyTemplate( ) );
+			MultiTargetEffects = GrenadeTemplate.ThrownGrenadeEffects;
+		}
 	}
 	else
 	{

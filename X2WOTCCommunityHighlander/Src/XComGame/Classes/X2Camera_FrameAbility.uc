@@ -142,7 +142,8 @@ private function CreateFramingCamera()
 
 
 		// if the unit will move, only track him. Otherwise the floor might be cutout from under him
-		MidpointCamera.OnlyCutDownForActors = AbilityToFrame.InputContext.MovementPaths.Length > 0;
+		// Issue #324 - none check 'AbilityToFrame' to prevent log warnings.
+		MidpointCamera.OnlyCutDownForActors = AbilityToFrame != none && AbilityToFrame.InputContext.MovementPaths.Length > 0;
 
 		MidpointCamera.LookAtDuration = 2000; // we never want this to pop
 		MidpointCamera.UpdateWhenInactive = true;

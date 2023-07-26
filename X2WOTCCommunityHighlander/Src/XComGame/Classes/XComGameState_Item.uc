@@ -298,10 +298,19 @@ function CreateCosmeticItemUnit(XComGameState NewGameState)
 
 		//Force the appearance to use the soldier's settings
 		CosmeticUnit = XComGameState_Unit(NewGameState.GetGameStateForObjectID(CosmeticUnitRef.ObjectID));
-		CosmeticUnit.kAppearance.nmPatterns = OwningUnitState.kAppearance.nmWeaponPattern;
-		CosmeticUnit.kAppearance.iArmorTint = OwningUnitState.kAppearance.iWeaponTint;
-		CosmeticUnit.kAppearance.iArmorTintSecondary = OwningUnitState.kAppearance.iArmorTintSecondary;
-		XGUnit(CosmeticUnit.GetVisualizer()).GetPawn().SetAppearance(CosmeticUnit.kAppearance);
+		// Issue #324 - none-check CosmeticUnit to prevent a log warning.
+		if (CosmeticUnit != none)
+		{
+			CosmeticUnit.kAppearance.nmPatterns = OwningUnitState.kAppearance.nmWeaponPattern;
+			CosmeticUnit.kAppearance.iArmorTint = OwningUnitState.kAppearance.iWeaponTint;
+			CosmeticUnit.kAppearance.iArmorTintSecondary = OwningUnitState.kAppearance.iArmorTintSecondary;
+
+			// Issue #324 - additional none-checks.
+			if (XGUnit(CosmeticUnit.GetVisualizer()) != none && XGUnit(CosmeticUnit.GetVisualizer()).GetPawn() != none)
+			{
+				XGUnit(CosmeticUnit.GetVisualizer()).GetPawn().SetAppearance(CosmeticUnit.kAppearance);
+			}
+		}
 
 		if (OwningUnitState.GetMyTemplate().OnCosmeticUnitCreatedFn != None)
 		{
