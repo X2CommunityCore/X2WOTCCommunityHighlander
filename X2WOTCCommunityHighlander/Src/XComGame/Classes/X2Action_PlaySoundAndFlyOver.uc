@@ -71,7 +71,20 @@ Begin:
 		if(FlyOverMessage != "")
 		{
 			ActorLocation = (Unit != none) ? Unit.GetLocation() : Metadata.VisualizeActor.Location;
-			ActorObjectID = (X2VisualizerInterface(Metadata.VisualizeActor) != none) ? Metadata.StateObject_NewState.GetReference() : ActorObjectID;
+
+			// Start Issue #324 - refactor the code to prevent 'accessed none' log warnings.
+			if (X2VisualizerInterface(Metadata.VisualizeActor) != none)
+			{
+				if (Metadata.StateObject_NewState != none)
+				{
+					ActorObjectID = Metadata.StateObject_NewState.GetReference();
+				}
+				else
+				{
+					ActorObjectID.ObjectID = 0;
+				}
+			}
+			// End Issue #324
 
 			if(FlyoverVisibilityTeam == eTeam_None)
 			{

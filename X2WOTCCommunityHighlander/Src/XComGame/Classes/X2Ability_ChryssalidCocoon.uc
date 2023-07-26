@@ -441,7 +441,13 @@ static function X2AbilityTemplate CreateSpawnChryssalidAbilityMP( )
 	foreach Template.AbilityTargetEffects( TargetEffect )
 	{
 		SpawnEffect = X2Effect_SpawnChryssalid( TargetEffect );
-		SpawnEffect.UnitToSpawnName = 'ChryssalidMP';
+
+		// Issue #324 - add a none-check for SpawnEffect to prevent a log warning.
+		if (SpawnEffect != none)
+		{
+			SpawnEffect.UnitToSpawnName = 'ChryssalidMP';
+		}
+
 	}
 
 	return Template;
