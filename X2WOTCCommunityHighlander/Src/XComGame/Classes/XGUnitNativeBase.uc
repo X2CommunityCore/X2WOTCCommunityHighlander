@@ -1135,7 +1135,8 @@ event OnActionCompleted()
 	//Re-activate the idle state machine if there are either no more track actions OR we are not part of any
 	//currently active running block
 	CurrentAction = `XCOMVISUALIZATIONMGR.GetCurrentActionForVisualizer(self);
-	if( CurrentAction == None || CurrentAction.bCompleted == true )
+	// Issue #42 - Do not go to idle if the current action is interrupted.
+	if( CurrentAction == None || CurrentAction.bCompleted && !CurrentAction.bInterrupted)
 	{		
 		//Schedule a check in the future to see whether we should resume our idle state. We check a short time in the future
 		//because back to back visualization states look better without brief attempts to go idle
@@ -1150,7 +1151,8 @@ function TimedGoToIdle()
 
 	CurrentAction = `XCOMVISUALIZATIONMGR.GetCurrentActionForVisualizer(self);
 	ShouldResume = (IsAlive() || GetIsAliveInVisualizer()) && !GetVisualizedGameState().IsIncapacitated();
-	if( (CurrentAction == None || CurrentAction.bCompleted == true) && ShouldResume )
+	// Issue #42 - Do not go to idle if the current action is interrupted.
+	if( (CurrentAction == None || CurrentAction.bCompleted && !CurrentAction.bInterrupted) && ShouldResume )
 	{
 		IdleStateMachine.Resume();
 		ResetWeaponsToDefaultSockets();
