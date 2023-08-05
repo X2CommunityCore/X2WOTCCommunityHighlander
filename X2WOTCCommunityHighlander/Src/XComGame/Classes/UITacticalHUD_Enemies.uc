@@ -478,20 +478,15 @@ function RefreshShine(optional bool bMoveAbovePercent = false)
 	}
 }
 
-// Start Issue #1233 if inheritors of this class still call this function, use a slightly less efficient, but still faster version
 simulated function int SortEnemies(StateObjectReference ObjectA, StateObjectReference ObjectB)
 {
 	local XComGameState_Destructible DestructibleTargetA, DestructibleTargetB;
 	local XComGameStateHistory History;
 	local int HitChanceA, HitChanceB;
-	local StateObjectReferenceHitChange ObjectAHitChange;
-	local StateObjectReferenceHitChange ObjectBHitChange;
 
-	ObjectAHitChange = m_arrTargetsUnsorted[m_arrTargetsUnsorted.Find('Object', ObjectA)];
-	ObjectBHitChange = m_arrTargetsUnsorted[m_arrTargetsUnsorted.Find('Object', ObjectB)];
-
-	DestructibleTargetA = XComGameState_Destructible(ObjectAHitChange.GameState);
-	DestructibleTargetB = XComGameState_Destructible(ObjectBHitChange.GameState);
+	History = `XCOMHISTORY; 
+	DestructibleTargetA = XComGameState_Destructible(History.GetGameStateForObjectID(ObjectA.ObjectID));
+	DestructibleTargetB = XComGameState_Destructible(History.GetGameStateForObjectID(ObjectB.ObjectID));
 
 	//Push the destructible enemies to the back of the list.
 	if( DestructibleTargetA != none && DestructibleTargetB == none ) 
@@ -504,7 +499,9 @@ simulated function int SortEnemies(StateObjectReference ObjectA, StateObjectRefe
 	}
 
 	// push lower-hit chance targets back
-	if( ObjectAHitChange.HitChance < ObjectBHitChange.HitChance )
+	HitChanceA = GetHitChanceForObjectRef(ObjectA);
+	HitChanceB = GetHitChanceForObjectRef(ObjectB);
+	if( HitChanceA < HitChanceB )
 	{
 		return -1;
 	}
@@ -512,7 +509,7 @@ simulated function int SortEnemies(StateObjectReference ObjectA, StateObjectRefe
 	return 1;
 }
 
-// hot path, use cached values only
+// Start Issue #1233 hot path, use cached values only
 simulated function int SortEnemiesImproved(StateObjectReferenceHitChange ObjectA, StateObjectReferenceHitChange ObjectB)
 {
 	local XComGameState_Destructible DestructibleTargetA, DestructibleTargetB;
