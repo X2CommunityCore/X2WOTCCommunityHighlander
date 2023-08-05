@@ -9,6 +9,17 @@
 
 class UITacticalHUD_Enemies extends UIPanel implements(X2VisualizationMgrObserverInterface);
 
+// Start Issue #1233 wrapper for sort delegate
+struct StateObjectReferenceHitChange
+{
+	var StateObjectReference Object;
+	var XComGameState_BaseObject GameState;
+	var int HitChance;
+};
+
+var array<StateObjectReferenceHitChange> m_arrTargetsUnsorted;
+// End Issue #1233
+
 var Actor m_kTargetActor;
 var array<StateObjectReference> m_arrTargets;
 var array<StateObjectReference> m_arrCurrentlyAffectable;
@@ -306,6 +317,7 @@ simulated function UpdateVisibleEnemies(int HistoryIndex)
 	local int i;
 	local XComGameState_Ability CurrentAbilityState;
 	local X2AbilityTemplate AbilityTemplate;
+	local StateObjectReferenceHitChange TargetWrapper;
 
 	m_arrSSEnemies.length = 0;
 	m_arrCurrentlyAffectable.length = 0;
@@ -350,7 +362,32 @@ simulated function UpdateVisibleEnemies(int HistoryIndex)
 		
 		iNumVisibleEnemies = m_arrTargets.Length;
 
-		m_arrTargets.Sort(SortEnemies);
+		// Start Issue #1233 cache some expensive calls and use that in our custom sort delegate
+		
+		//m_arrTargets.Sort(SortEnemies);
+
+		m_arrTargetsUnsorted.Length = 0;
+		
+		for (i = 0; i < iNumVisibleEnemies; ++i)
+		{			
+			TargetWrapper.Object = m_arrTargets[i];
+			TargetWrapper.HitChance = GetHitChanceForObjectRef(TargetWrapper.Object);
+			TargetWrapper.GameState = History.GetGameStateForObjectID(TargetWrapper.Object.ObjectID);
+
+			m_arrTargetsUnsorted.AddItem(TargetWrapper);
+		}
+	
+		// use our improved sort delegate
+		m_arrTargetsUnsorted.Sort(SortEnemiesImproved);
+
+		m_arrTargets.Length = 0;
+		for (i = 0; i < iNumVisibleEnemies; ++i)
+		{
+			m_arrTargets.AddItem(m_arrTargetsUnsorted[i].Object);
+		}
+		
+		// End Issue #1233
+
 		UpdateVisuals(HistoryIndex);
 	}
 }
@@ -441,15 +478,20 @@ function RefreshShine(optional bool bMoveAbovePercent = false)
 	}
 }
 
+// Start Issue #1233 if inheritors of this class still call this function, use a slightly less efficient, but still faster version
 simulated function int SortEnemies(StateObjectReference ObjectA, StateObjectReference ObjectB)
 {
 	local XComGameState_Destructible DestructibleTargetA, DestructibleTargetB;
 	local XComGameStateHistory History;
 	local int HitChanceA, HitChanceB;
+	local StateObjectReferenceHitChange ObjectAHitChange;
+	local StateObjectReferenceHitChange ObjectBHitChange;
 
-	History = `XCOMHISTORY; 
-	DestructibleTargetA = XComGameState_Destructible(History.GetGameStateForObjectID(ObjectA.ObjectID));
-	DestructibleTargetB = XComGameState_Destructible(History.GetGameStateForObjectID(ObjectB.ObjectID));
+	ObjectAHitChange = m_arrTargetsUnsorted[m_arrTargetsUnsorted.Find('Object', ObjectA)];
+	ObjectBHitChange = m_arrTargetsUnsorted[m_arrTargetsUnsorted.Find('Object', ObjectB)];
+
+	DestructibleTargetA = XComGameState_Destructible(ObjectAHitChange.GameState);
+	DestructibleTargetB = XComGameState_Destructible(ObjectBHitChange.GameState);
 
 	//Push the destructible enemies to the back of the list.
 	if( DestructibleTargetA != none && DestructibleTargetB == none ) 
@@ -462,15 +504,41 @@ simulated function int SortEnemies(StateObjectReference ObjectA, StateObjectRefe
 	}
 
 	// push lower-hit chance targets back
-	HitChanceA = GetHitChanceForObjectRef(ObjectA);
-	HitChanceB = GetHitChanceForObjectRef(ObjectB);
-	if( HitChanceA < HitChanceB )
+	if( ObjectAHitChange.HitChance < ObjectBHitChange.HitChance )
 	{
 		return -1;
 	}
 
 	return 1;
 }
+
+// hot path, use cached values only
+simulated function int SortEnemiesImproved(StateObjectReferenceHitChange ObjectA, StateObjectReferenceHitChange ObjectB)
+{
+	local XComGameState_Destructible DestructibleTargetA, DestructibleTargetB;
+
+	DestructibleTargetA = XComGameState_Destructible(ObjectA.GameState);
+	DestructibleTargetB = XComGameState_Destructible(ObjectB.GameState);
+
+	//Push the destructible enemies to the back of the list.
+	if( DestructibleTargetA != none && DestructibleTargetB == none ) 
+	{
+		return -1;
+	}
+	if( DestructibleTargetB != none && DestructibleTargetA == none ) 
+	{
+		return 1;
+	}
+
+	// push lower-hit chance targets back
+	if( ObjectA.HitChance < ObjectB.HitChance )
+	{
+		return -1;
+	}
+
+	return 1;
+}
+// End Issue #1233
 
 simulated function RefreshSelectedEnemy(optional bool bUpdateVisibleTargets, optional bool bShowHitPercentage = true)
 {
