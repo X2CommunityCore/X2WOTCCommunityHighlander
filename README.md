@@ -200,8 +200,10 @@ Build the mod through ModBuddy, as usual. The Highlander mod can be loaded uncoo
 with the following command (in the command prompt):
 
 ```
-"%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\Binaries\Win64\Launcher\ModLauncherWPF.exe" -allowconsole -log -autodebug -noseekfreeloading
+"%STEAMLIBRARY%\steamapps\common\XCOM 2\Binaries\Win64\Launcher\ModLauncherWPF.exe" -allowconsole -log -autodebug -noseekfreeloading
 ```
+
+You can also use Alternative Mod Launcher with the same launch arguments.
 
 If all goes well, the XCOM Launcher will run. Enable X2WOTCCommunityHighlander and start the game.
 

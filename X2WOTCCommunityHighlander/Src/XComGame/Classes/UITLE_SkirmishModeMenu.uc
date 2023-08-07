@@ -2272,9 +2272,7 @@ simulated function OnClickGrenadePocket()
 simulated function UpdateDataSoldierRank()
 {
 	local int i, MaxRank;
-	local name SoldierClassTemplateName;
 
-	SoldierClassTemplateName = m_CurrentSquad[m_SelectedSoldier].GetSoldierClassTemplateName();
 	MaxRank = `GET_MAX_RANK;
 
 	for (i = 0; i < MaxRank - 1; ++i)

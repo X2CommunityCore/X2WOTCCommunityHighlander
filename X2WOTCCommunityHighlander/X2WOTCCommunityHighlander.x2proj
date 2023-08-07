@@ -26,6 +26,9 @@
     <Content Include="Config\XComGameCore.ini">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Config\XComPlots.ini">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Config\XComUI.ini">
       <SubType>Content</SubType>
     </Content>

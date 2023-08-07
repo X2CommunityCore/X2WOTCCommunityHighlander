@@ -7499,7 +7499,14 @@ function GeneratedMissionData GetGeneratedMissionData(int MissionID)
 		{
 			GeneratedMission.BattleOpName = class'XGMission'.static.GenerateOpName(false);
 		}
-		arrGeneratedMissionData.AddItem(GeneratedMission);
+		
+		/// HL-Docs: ref:Bugfixes; issue:1188
+		/// Add a none-check for `MissionState` before adding the generated mission entry to the array
+		/// to avoid bloating it with empty entries.
+		if (MissionState != none)
+		{
+			arrGeneratedMissionData.AddItem(GeneratedMission);
+		}
 	}
 	else
 	{
