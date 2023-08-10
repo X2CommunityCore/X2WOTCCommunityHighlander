@@ -2974,7 +2974,9 @@ Begin:
 			sleep(0.0f);
 		}
 
-		MarkPlotUsed();
+		/// HL-Docs: ref:Bugfixes; issue:1082
+		/// MarkPlotUsed() - commented out original call and moved it outside of the if() statement
+		
 
 		`log("CreateTacticalGame: Dropship loaded");
 		
@@ -2999,6 +3001,10 @@ Begin:
 		//Will stop the HQ launch music if it is still playing ( which it should be, if we seamless traveled )
 		`XTACTICALSOUNDMGR.StopHQMusicEvent();
 	}
+
+	// Issue #1082 - moved outside the if() statement.
+	MarkPlotUsed();
+
 
 	//Generate the map and wait for it to complete
 	GenerateMap();
