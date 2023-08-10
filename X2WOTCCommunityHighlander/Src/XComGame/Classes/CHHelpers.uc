@@ -201,6 +201,9 @@ var config name PlaceEvacZoneAbilityName;
 // Variable for Issue #854
 var config float CameraRotationAngle;
 
+// Variable for Issue #917
+var config bool bDisableBetaStrikePostMissionHealing;
+
 // Start Issue #669
 //
 /// HL-Docs: feature:GrenadesRequiringUnitsOnTargetedTiles; issue:669; tags:tactical
