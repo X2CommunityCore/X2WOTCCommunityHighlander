@@ -770,6 +770,16 @@ static function X2AbilityTemplate PistolOverwatchShotHelper(X2AbilityTemplate	Te
 	TargetVisibilityCondition.bRequireGameplayVisible = true;
 	TargetVisibilityCondition.bRequireBasicVisibility = true;
 	TargetVisibilityCondition.bDisablePeeksOnMovement = true; //Don't use peek tiles for over watch shots	
+
+	// Start Issue #1195
+	/// HL-Docs: ref:Bugfixes; issue:1195
+	/// Allow Return Fire shots to respond to enemy attacks if the enemy is in cover that requires a step out.
+	if (Template.DataName == 'PistolReturnFire')
+	{
+		TargetVisibilityCondition.bDisablePeeksOnMovement = false;
+	}
+	// End Issue #1195
+
 	Template.AbilityTargetConditions.AddItem(TargetVisibilityCondition);
 
 	Template.AbilityTargetConditions.AddItem(new class'X2Condition_EverVigilant');
