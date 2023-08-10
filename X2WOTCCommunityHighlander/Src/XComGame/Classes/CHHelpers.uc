@@ -223,6 +223,9 @@ var config bool DisableExtraLOSCheckForSmoke;
 var config bool DisableExtraLOSCheckForPoison;
 // End Issue #669
 
+// Variable for Issue #1191
+var config bool bForceEuroDateStrings;
+
 // Start Issue #720
 /// HL-Docs: ref:ProjectilePerformanceDrain
 struct ProjectileParticleSystemExpirationOverride

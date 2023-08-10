@@ -26,6 +26,9 @@
     <Content Include="Config\XComGameCore.ini">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Config\XComPlots.ini">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Config\XComUI.ini">
       <SubType>Content</SubType>
     </Content>
@@ -478,6 +481,9 @@
     <Content Include="Src\XComGame\Classes\UIUtilities_Colors.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Ability_CarryUnit.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Ability_ReaperAbilitySet.uc">
       <SubType>Content</SubType>
     </Content>
@@ -622,7 +628,13 @@
     <Content Include="Src\XComGame\Classes\X2StatusEffects.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2StrategyElement_XpackChosenActions.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2StrategyElement_XpackStaffSlots.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2StrategyGameRulesetDataStructures.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2StrategyGame_SimCombat.uc">
