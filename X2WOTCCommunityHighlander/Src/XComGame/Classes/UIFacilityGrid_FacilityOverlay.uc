@@ -1341,25 +1341,37 @@ function array<EUIStaffIconType> GetStaffIconData(XComGameState_FacilityXCom Fac
 
 function array<EUIStaffIconType> GetStaffIconDataForClearingSlots()
 {
-	local int i, numSlotsFilled, numSlotsEmpty;
+	local int i;
 	local array<EUIStaffIconType> NewIcons;
 	local XComGameState_HeadquartersRoom Room;
+	
+	// Variable for Issue #1181 
+	local XComGameState_StaffSlot BuildSlot;
 
 	Room = GetRoom();
 
-	//------------------------------------------------
-	numSlotsFilled = Room.GetNumFilledBuildSlots();
-	for( i = 0; i < numSlotsFilled; i++ )
+	// Start Issue #1181
+	/// HL-Docs: ref:Bugfixes; issue:1181
+	/// Make facility staff icons correctly display which staff slots are filled.
+	if (Room != none)
 	{
-		NewIcons.AddItem(eUIFG_Engineer);
+		for (i = 0; i < Room.BuildSlots.Length; ++i)
+		{
+			BuildSlot = Room.GetBuildSlot(i);
+			if (BuildSlot == none)
+				continue;
+			
+			if (BuildSlot.IsSlotFilled())
+			{
+				NewIcons.AddItem(eUIFG_Engineer);
+			}
+			else
+			{
+				NewIcons.AddItem(eUIFG_EngineerEmpty);
+			}
+		}
 	}
-	//------------------------------------------------
-	numSlotsEmpty = Room.GetNumEmptyBuildSlots();
-	for( i = 0; i < numSlotsEmpty; i++ )
-	{
-		NewIcons.AddItem(eUIFG_EngineerEmpty);
-	}
-	//------------------------------------------------
+	// End Issue #1181
 	return NewIcons;
 }
 
