@@ -1,16 +1,17 @@
 class X2Condition_RevivalProtocolAP extends X2Condition;
 
+// Start Issue# 1235
+/// This condition is used for determining the conditions under which revival protocol and restorative mist
+/// grant action points to units - this condition is necessarily different to the targetting conditions used in X2Condition_RevivialProtocol
+/// Specifically, disoriented units should not be granted extra action points when revival protocol is used on them.
+/// Action points will also be restored to other friendly units who are now valid targets for the protocols.
+
 event name CallMeetsCondition(XComGameState_BaseObject kTarget)
 {
 	local XComGameState_Unit TargetUnit;
 
-    // This condition applies to the effect, so we can assume the target is a unit.
-    // In other words, we are relying on the ability targeting ensuring that the
-    // target is valid for Revival Protocol.
-    TargetUnit = XComGameState_Unit(kTarget);
-
-    // Only allow action points to be restored for units that aren't disoriented
-    // (stunned is handled by X2Effect_StunRecover).
+	TargetUnit = XComGameState_Unit(kTarget);
+	 
 	if (TargetUnit.IsPanicked() || TargetUnit.IsUnconscious() || TargetUnit.IsDazed())
         return 'AA_Success';
 
@@ -31,8 +32,10 @@ event name CallMeetsConditionWithSource(XComGameState_BaseObject kTarget, XComGa
 	if (SourceUnit == none || TargetUnit == none)
 		return 'AA_NotAUnit';
 
-	if (!SourceTeam.IsEnemyPlayer(TargetTeam)) //this will catch eTeam_Resistance in addition to XCOM
+	if (!SourceTeam.IsEnemyPlayer(TargetTeam))
 		return 'AA_Success';
 
 	return 'AA_UnitIsHostile';
 }
+
+// End Issue #1235

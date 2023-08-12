@@ -17,8 +17,8 @@ event name CallMeetsCondition(XComGameState_BaseObject kTarget)
 
 	if (!TargetUnit.GetMyTemplate().bCanBeRevived || TargetUnit.IsBeingCarried() )
 		return 'AA_UnitIsImmune';
-
-	if (TargetUnit.IsPanicked() || TargetUnit.IsUnconscious() || TargetUnit.IsDisoriented() || TargetUnit.IsDazed())
+	// Add stunned condition for Issue #1235
+		if (TargetUnit.IsPanicked() || TargetUnit.IsUnconscious() || TargetUnit.IsDisoriented() || TargetUnit.IsDazed() || TargetUnit.IsStunned())
 		return 'AA_Success';
 
 	return 'AA_UnitIsNotImpaired';
@@ -27,15 +27,24 @@ event name CallMeetsCondition(XComGameState_BaseObject kTarget)
 event name CallMeetsConditionWithSource(XComGameState_BaseObject kTarget, XComGameState_BaseObject kSource)
 {
 	local XComGameState_Unit SourceUnit, TargetUnit;
+	// Start Issue #1235
+	/// Add XCGS_Players for source and target teams
+	local XComGameState_Player SourceTeam, TargetTeam;
 
 	SourceUnit = XComGameState_Unit(kSource);
 	TargetUnit = XComGameState_Unit(kTarget);
 
+	/// Get source & target teams
+	SourceTeam = XComGameState_Player(`XCOMHISTORY.GetGameStateForObjectID(SourceUnit.GetAssociatedPlayerID()));
+	TargetTeam = XComGameState_Player(`XCOMHISTORY.GetGameStateForObjectID(TargetUnit.GetAssociatedPlayerID()));
+
 	if (SourceUnit == none || TargetUnit == none)
 		return 'AA_NotAUnit';
 
-	if (SourceUnit.ControllingPlayer == TargetUnit.ControllingPlayer)
+	/// If the source team is not an enemy of the target team then revival protocol can target them
+	if (!SourceTeam.IsEnemyPlayer(TargetTeam))
 		return 'AA_Success';
+	// End Issue #1235
 
 	return 'AA_UnitIsHostile';
 }
