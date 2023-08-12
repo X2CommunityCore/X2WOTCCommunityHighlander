@@ -712,6 +712,7 @@ static function X2AbilityTemplate RevivalProtocol()
 	local X2AbilityCost_ActionPoints        ActionPointCost;
 	local X2AbilityCost_Charges             ChargeCost;
 	local X2AbilityCharges                  Charges;
+	local X2Effect_RestoreActionPoints		RestoreAPEffect;	
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'RevivalProtocol');
 
@@ -733,10 +734,15 @@ static function X2AbilityTemplate RevivalProtocol()
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
 	Template.AddShooterEffectExclusions();
 
-	Template.AbilityTargetConditions.AddItem(new class'X2Condition_RevivalProtocol');
-
+	//Call recover from stun
+	Template.AddTargetEffect(class'X2StatusEffects'.static.CreateStunRecoverEffect());
+	
 	Template.AddTargetEffect(RemoveAdditionalEffectsForRevivalProtocolAndRestorativeMist());
-	Template.AddTargetEffect(new class'X2Effect_RestoreActionPoints');      //  put the unit back to full actions
+	Template.AbilityTargetConditions.AddItem(new class'X2Condition_RevivalProtocol');
+	
+	RestoreAPEffect = new class'X2Effect_RestoreActionPoints';      //  put the unit back to full actions
+	RestoreAPEffect.TargetConditions.AddItem(new class'X2Condition_RevivalProtocolAP');
+	Template.AddTargetEffect(RestoreAPEffect);
 
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
 
@@ -1213,11 +1219,13 @@ static function X2AbilityTemplate RestorativeMist()
 	Template.AddMultiTargetEffect(MedikitHeal);	
 
 	RestoreEffect = new class'X2Effect_RestoreActionPoints';
-	RestoreEffect.TargetConditions.AddItem(new class'X2Condition_RevivalProtocol');
+	RestoreEffect.TargetConditions.AddItem(new class'X2Condition_RevivalProtocolAP');
 	Template.AddMultiTargetEffect(RestoreEffect);
 
 	Template.AddMultiTargetEffect(RemoveAdditionalEffectsForRevivalProtocolAndRestorativeMist());
-	
+	// Call Stun Recover
+	Template.AddMultiTargetEffect(class'X2StatusEffects'.static.CreateStunRecoverEffect());
+
 	//Typical path to build gamestate, but a (very crazy) special-case visualization
 	Template.BuildNewGameStateFn = SendGremlinToOwnerLocation_BuildGameState;
 	Template.BuildVisualizationFn = GremlinRestoration_BuildVisualization;
@@ -2106,6 +2114,8 @@ static function X2Effect_RemoveEffects RemoveAdditionalEffectsForRevivalProtocol
 	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.ObsessedName);
 	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.BerserkName);
 	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.ShatteredName);
+	//Remove stunned
+	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.StunnedName);
 
 	foreach class'X2Ability_DefaultAbilitySet'.default.MedikitHealEffectTypes(HealType)
 	{

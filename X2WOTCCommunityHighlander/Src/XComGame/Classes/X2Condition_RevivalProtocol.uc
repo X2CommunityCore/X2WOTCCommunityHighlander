@@ -17,8 +17,8 @@ event name CallMeetsCondition(XComGameState_BaseObject kTarget)
 
 	if (!TargetUnit.GetMyTemplate().bCanBeRevived || TargetUnit.IsBeingCarried() )
 		return 'AA_UnitIsImmune';
-
-	if (TargetUnit.IsPanicked() || TargetUnit.IsUnconscious() || TargetUnit.IsDisoriented() || TargetUnit.IsDazed())
+	//Revival protocol can target stunned units
+		if (TargetUnit.IsPanicked() || TargetUnit.IsUnconscious() || TargetUnit.IsDisoriented() || TargetUnit.IsDazed() || TargetUnit.IsStunned())
 		return 'AA_Success';
 
 	return 'AA_UnitIsNotImpaired';
@@ -27,14 +27,19 @@ event name CallMeetsCondition(XComGameState_BaseObject kTarget)
 event name CallMeetsConditionWithSource(XComGameState_BaseObject kTarget, XComGameState_BaseObject kSource)
 {
 	local XComGameState_Unit SourceUnit, TargetUnit;
+	local XComGameState_Player SourceTeam, TargetTeam;
 
 	SourceUnit = XComGameState_Unit(kSource);
 	TargetUnit = XComGameState_Unit(kTarget);
 
+	SourceTeam = XComGameState_Player(`XCOMHISTORY.GetGameStateForObjectID(SourceUnit.GetAssociatedPlayerID()));
+	TargetTeam = XComGameState_Player(`XCOMHISTORY.GetGameStateForObjectID(TargetUnit.GetAssociatedPlayerID()));
+
 	if (SourceUnit == none || TargetUnit == none)
 		return 'AA_NotAUnit';
 
-	if (SourceUnit.ControllingPlayer == TargetUnit.ControllingPlayer)
+	//Revival protocol can now target resistance forces
+	if (!SourceTeam.IsEnemyPlayer(TargetTeam))
 		return 'AA_Success';
 
 	return 'AA_UnitIsHostile';
