@@ -2647,13 +2647,16 @@ function EndTacticalHealthMod()
 	local float HealthPercent, NewHealth, SWHeal;
 	local int RoundedNewHealth, HealthLost, NewMissingHP;
 
-	HealthLost = HighestHP - LowestHP;
-
-	if (LowestHP > 0 && `SecondWaveEnabled('BetaStrike'))  // Immediately Heal 1/2 Damage
+	HealthLost = HighestHP - LowestHP;	
+	/// HL-Docs: feature:BetaStrikeEndTacticalHeal; issue:917; tags:
+	if (LowestHP > 0 && `SecondWaveEnabled('BetaStrike'))  // Immediately Heal 1/2 Damage 
 	{
-		SWHeal = FFloor( HealthLost / 2 );
-		LowestHP += SWHeal;
-		HealthLost -= SWHeal;
+		if  (!class'CHHelpers'.default.bDisableBetaStrikePostMissionHealing)
+			{
+				SWHeal = FFloor( HealthLost / 2 );
+				LowestHP += SWHeal;
+				HealthLost -= SWHeal;
+			}
 	}
 
 	// If Dead or never injured, return
@@ -4198,7 +4201,7 @@ function bool HasHeavyWeapon(optional XComGameState CheckGameState)
 	/// HL-Docs: feature:OverrideHasHeavyWeapon; issue:172; tags:loadoutslots,strategy
 	/// The `OverrideHasHeavyWeapon` event allows mods to override the base game logic
 	/// that determines whether a Unit has a Heavy Weapon Slot or not.
-	/// Keep in mind the [GetNumHeavyWeaponSlotsOverride()](../loadoutslots/GetNumHeavyWeaponSlotsOverride.md) X2DLCInfo method may override
+	/// Keep in mind the [GetNumHeavyWeaponSlotsOverride()](../strategy/GetNumHeavyWeaponSlotsOverride.md) X2DLCInfo method may override
 	/// this later.
 	///
 	/// ```event

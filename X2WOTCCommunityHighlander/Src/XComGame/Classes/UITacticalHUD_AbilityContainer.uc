@@ -610,6 +610,9 @@ simulated public function bool ConfirmAbility( optional AvailableAction Availabl
 	local array<TTile>                  PathTiles;
 	local string                        ConfirmSound;
 
+	// Single variable for Issue #324
+	local AvailableTarget               EmptyAdditionalTarget;
+
 	ResetMouse();
 
 	//return if the current selection on release does not match the same option that was selected on press
@@ -633,7 +636,18 @@ simulated public function bool ConfirmAbility( optional AvailableAction Availabl
 	if( TargetingMethod != none )
 	{
 		TargetingMethod.GetTargetLocations(TargetLocations);
-		AdditionalTarget = AvailableActionInfo.AvailableTargets[TargetIndex];
+
+		// Start Issue #324 - refactor code to prevent an "out of bounds" log warning.
+		if (AvailableActionInfo.AvailableTargets.Length > TargetIndex)
+		{
+			AdditionalTarget = AvailableActionInfo.AvailableTargets[TargetIndex];
+		}
+		else
+		{
+			AdditionalTarget = EmptyAdditionalTarget;
+		}
+		// End Issue #324
+
 		if( TargetingMethod.GetAdditionalTargets(AdditionalTarget) )
 		{
 			//	overwrite target to include data from GetAdditionalTargets

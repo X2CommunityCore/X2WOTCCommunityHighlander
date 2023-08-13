@@ -201,6 +201,9 @@ var config name PlaceEvacZoneAbilityName;
 // Variable for Issue #854
 var config float CameraRotationAngle;
 
+// Variable for Issue #917
+var config bool bDisableBetaStrikePostMissionHealing;
+
 // Start Issue #669
 //
 /// HL-Docs: feature:GrenadesRequiringUnitsOnTargetedTiles; issue:669; tags:tactical
@@ -219,6 +222,9 @@ var config bool DisableExtraLOSCheckForSmoke;
 /// tiles that are highlighted in targeting.
 var config bool DisableExtraLOSCheckForPoison;
 // End Issue #669
+
+// Variable for Issue #1191
+var config bool bForceEuroDateStrings;
 
 // Start Issue #720
 /// HL-Docs: ref:ProjectilePerformanceDrain

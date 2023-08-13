@@ -319,7 +319,8 @@ simulated function CheckForTutorialMoments(XComGameState_Unit UnitState)
 			if (XComHQ != none)
 			{
 				MissionState = XComGameState_MissionSite(History.GetGameStateForObjectID(XComHQ.MissionRef.ObjectID));
-				if (!XComHQ.bHasSeenTacticalTutorialTargetPreview && MissionState.GetMissionSource().DataName == 'MissionSource_GuerillaOp')
+				// Issue #324 - add a none-check for MissionState to prevent a log warning.
+				if (!XComHQ.bHasSeenTacticalTutorialTargetPreview && MissionState != none && MissionState.GetMissionSource().DataName == 'MissionSource_GuerillaOp')
 				{
 					NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Trigger Event: Tactical Tutorial Target Preview");
 					XComHQ = XComGameState_HeadquartersXCom(NewGameState.ModifyStateObject(class'XComGameState_HeadquartersXCom', XComHQ.ObjectID));
