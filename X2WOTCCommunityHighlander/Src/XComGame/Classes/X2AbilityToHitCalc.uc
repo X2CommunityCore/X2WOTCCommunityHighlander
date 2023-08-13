@@ -125,8 +125,11 @@ protected function FinalizeHitChance(out ShotBreakdown m_ShotBreakdown, bool bDe
 			// Start Issue #1200
 			/// HL-Docs: ref:Bugfixes; issue:1200
 			/// Make Dodge apply to Hit and Crit equally to fix Dodge increasing Miss chance.
+
 			//GrazeScale *= float(m_ShotBreakdown.FinalHitChance);
 			//FinalGraze = Round(GrazeScale);
+
+			// Use rounding to prevent the resulting chances from not adding up to 100.
 			DodgeModifier = Round(m_ShotBreakdown.ResultTable[eHit_Success] * GrazeScale);
 			m_ShotBreakdown.ResultTable[eHit_Success] -= DodgeModifier;
 			FinalGraze += DodgeModifier;
