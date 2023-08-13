@@ -81,6 +81,9 @@ protected function FinalizeHitChance(out ShotBreakdown m_ShotBreakdown, bool bDe
 	local delegate<OverrideFinalHitChance> OverrideFn;
 	// End Issue #555
 
+	// Variable for Issue #1200
+	local int DodgeModifier;
+
 	// Start Issue #555
 	OverrideHitChanceCalc = false;
 	foreach OverrideFinalHitChanceFns(OverrideFn)
@@ -124,11 +127,13 @@ protected function FinalizeHitChance(out ShotBreakdown m_ShotBreakdown, bool bDe
 			/// Make Dodge apply to Hit and Crit equally to fix Dodge increasing Miss chance.
 			//GrazeScale *= float(m_ShotBreakdown.FinalHitChance);
 			//FinalGraze = Round(GrazeScale);
-			FinalGraze += m_ShotBreakdown.ResultTable[eHit_Success] * GrazeScale;
-			m_ShotBreakdown.ResultTable[eHit_Success] -= m_ShotBreakdown.ResultTable[eHit_Success] * GrazeScale;
+			DodgeModifier = Round(m_ShotBreakdown.ResultTable[eHit_Success] * GrazeScale);
+			m_ShotBreakdown.ResultTable[eHit_Success] -= DodgeModifier;
+			FinalGraze += DodgeModifier;
 
-			FinalGraze += m_ShotBreakdown.ResultTable[eHit_Crit] * GrazeScale;
-			m_ShotBreakdown.ResultTable[eHit_Crit] -= m_ShotBreakdown.ResultTable[eHit_Crit] * GrazeScale;
+			DodgeModifier = Round(m_ShotBreakdown.ResultTable[eHit_Crit] * GrazeScale);
+			m_ShotBreakdown.ResultTable[eHit_Crit] -= DodgeModifier;
+			FinalGraze += DodgeModifier;
 
 			m_ShotBreakdown.ResultTable[eHit_Graze] = FinalGraze;
 			// End Issue #1200
