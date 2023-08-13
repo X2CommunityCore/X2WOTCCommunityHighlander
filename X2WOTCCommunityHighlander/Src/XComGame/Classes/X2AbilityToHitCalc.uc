@@ -118,10 +118,20 @@ protected function FinalizeHitChance(out ShotBreakdown m_ShotBreakdown, bool bDe
 		if (m_ShotBreakdown.FinalHitChance < 100)
 		{
 			GrazeScale = float(m_ShotBreakdown.ResultTable[eHit_Graze]) / 100.0f;
-			GrazeScale *= float(m_ShotBreakdown.FinalHitChance);
-			FinalGraze = Round(GrazeScale);
-			m_ShotBreakdown.ResultTable[eHit_Success] -= FinalGraze;
+
+			// Start Issue #1200
+			/// HL-Docs: ref:Bugfixes; issue:1200
+			/// Make Dodge apply to Hit and Crit equally to fix Dodge increasing Miss chance.
+			//GrazeScale *= float(m_ShotBreakdown.FinalHitChance);
+			//FinalGraze = Round(GrazeScale);
+			FinalGraze += m_ShotBreakdown.ResultTable[eHit_Success] * GrazeScale;
+			m_ShotBreakdown.ResultTable[eHit_Success] -= m_ShotBreakdown.ResultTable[eHit_Success] * GrazeScale;
+
+			FinalGraze += m_ShotBreakdown.ResultTable[eHit_Crit] * GrazeScale;
+			m_ShotBreakdown.ResultTable[eHit_Crit] -= m_ShotBreakdown.ResultTable[eHit_Crit] * GrazeScale;
+
 			m_ShotBreakdown.ResultTable[eHit_Graze] = FinalGraze;
+			// End Issue #1200
 		}
 		else
 		{
