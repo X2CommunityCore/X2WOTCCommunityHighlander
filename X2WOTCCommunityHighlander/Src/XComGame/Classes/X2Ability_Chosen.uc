@@ -1566,6 +1566,8 @@ static function XComGameState ChosenDefeatedEscape_BuildGameState(XComGameStateC
 	return NewGameState;
 }
 
+/// HL-Docs: ref:Bugfixes; issue:496
+/// Fix the timeout during Chosen death teleport visualization by refactoring ChosenDefeatedEscape_BuildVisualization.
 simulated function ChosenDefeatedEscape_BuildVisualization(XComGameState VisualizeGameState)
 {
 	local XComGameStateHistory History;
@@ -1575,9 +1577,17 @@ simulated function ChosenDefeatedEscape_BuildVisualization(XComGameState Visuali
 	local XComGameState_Ability Ability;
 	local X2AbilityTemplate AbilityTemplate;
 	local X2Action_PlaySoundAndFlyOver SoundAndFlyover;
-	local X2Action_PlayAnimation PlayAnimation;
-	local XGUnit Unit;
-	local XComUnitPawn UnitPawn;
+
+	// Start Issue #496
+	// Remove unnecessary variables
+	//local X2Action_PlayAnimation PlayAnimation; 
+	//local XGUnit Unit;
+	//local XComUnitPawn UnitPawn;
+
+	// Add the new variable.
+	local X2Action_TimedWait TimedWaitAction;
+	// End Issue #496
+	
 	local X2Action_PlayMessageBanner MessageAction;
 	local XGParamTag kTag;
 	local X2Action_PlayEffect EffectAction;
@@ -1608,29 +1618,38 @@ simulated function ChosenDefeatedEscape_BuildVisualization(XComGameState Visuali
 	LookAtAction.CameraTag = 'ChosenDefeatedEscape';
 
 	SoundAndFlyOver = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded));
-	SoundAndFlyOver.SetSoundAndFlyOverParameters(None, AbilityTemplate.LocFlyOverText, '', eColor_Bad);
-	
-	if( ActionMetadata.VisualizeActor != None )
-	{
-		Unit = XGUnit(ActionMetadata.VisualizeActor);
-		if( Unit != None )
-		{
-			UnitPawn = Unit.GetPawn();
-			if( UnitPawn != None )
-			{
-				PlayAnimation = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded));
-				PlayAnimation.Params.AnimName = Ability.GetFireAnimationName(UnitPawn, false, false, vector(UnitPawn.Rotation), vector(UnitPawn.Rotation), true, 0);
-			}
-		}
-	}
+	SoundAndFlyOver.SetSoundAndFlyOverParameters(None, AbilityTemplate.LocFlyOverText, '', eColor_Bad);	
 
-	EffectAction = X2Action_PlayEffect(class'X2Action_PlayEffect'.static.AddToVisualizationTree(ActionMetadata, Context, false, PlayAnimation));
+	// Issue #496 - comment out unnecessary PlayAnimation action.
+	//if( ActionMetadata.VisualizeActor != None )
+	//{
+	//	Unit = XGUnit(ActionMetadata.VisualizeActor);
+	//	if( Unit != None )
+	//	{
+	//		UnitPawn = Unit.GetPawn();
+	//		if( UnitPawn != None )
+	//		{
+	//			PlayAnimation = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded));
+	//			PlayAnimation.Params.AnimName = Ability.GetFireAnimationName(UnitPawn, false, false, vector(UnitPawn.Rotation), vector(UnitPawn.Rotation), true, 0);
+	//		}
+	//	}
+	//}
+
+	// Issue #496 - Add a delay before the Chosen death animation starts playing and the teleport visualization starts.
+	TimedWaitAction = X2Action_TimedWait(class'X2Action_TimedWait'.static.AddToVisualizationTree(ActionMetadata, Context));
+	TimedWaitAction.DelayTimeSec = 2.0f;
+
+	EffectAction = X2Action_PlayEffect(class'X2Action_PlayEffect'.static.AddToVisualizationTree(ActionMetadata, Context, false, TimedWaitAction));
 	EffectAction.EffectName = "FX_Chosen_Teleport.P_Chosen_Teleport_Out_w_Sound";
 	EffectAction.EffectLocation = ActionMetadata.VisualizeActor.Location;
-	EffectAction.bWaitForCompletion = true;
 
-	DelayAction = X2Action_Delay(class'X2Action_Delay'.static.AddToVisualizationTree(ActionMetadata, Context, false, PlayAnimation));
-	DelayAction.Duration = 0.25;
+	// Issue #496 - the particle system used by this action fails to complete naturally, and will eventually time out anyway.
+	// Force the immediate timeout so that visualization can proceed immediately and without warnings.
+	EffectAction.ForceImmediateTimeout();
+
+	// Issue #496 - use the Effect Action instead of defunct Play Animation as the parent for Delay Action.
+	DelayAction = X2Action_Delay(class'X2Action_Delay'.static.AddToVisualizationTree(ActionMetadata, Context, false, EffectAction));
+	DelayAction.Duration = 0.25f;
 
 	class'X2Action_RemoveUnit'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, DelayAction);
 
@@ -1639,8 +1658,12 @@ simulated function ChosenDefeatedEscape_BuildVisualization(XComGameState Visuali
 	LookAtAction.CameraTag = 'ChosenDefeatedEscape';
 	//****************************************************************************************
 
+	// Issue #496 - insert a delay between the death teleport particle effect and the Chosen narrative action.
+	TimedWaitAction = X2Action_TimedWait(class'X2Action_TimedWait'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded));
+	TimedWaitAction.DelayTimeSec = 1.75f;
+
 	// Trigger the Chosen's narrative line after they leave
-	class'XComGameState_NarrativeManager'.static.BuildVisualizationForDynamicNarrative(VisualizeGameState, true, 'ChosenTacticalEscape', ActionMetadata.LastActionAdded);
+	class'XComGameState_NarrativeManager'.static.BuildVisualizationForDynamicNarrative(VisualizeGameState, true, 'ChosenTacticalEscape', TimedWaitAction); // Issue #496 - use the TimedWaitAction as parent. 
 
 	kTag = XGParamTag(`XEXPANDCONTEXT.FindTag("XGParam"));
 	ChosenTemplate = XComGameState_Unit(ActionMetadata.StateObject_NewState).GetChosenGameState().GetMyTemplate();
