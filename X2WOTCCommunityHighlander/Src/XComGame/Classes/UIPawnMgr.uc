@@ -259,6 +259,54 @@ simulated function XComUnitPawn GetCosmeticPawnInternal(out array<PawnInfo> Pawn
 	return PawnStore[StoreIdx].Cosmetics[CosmeticSlot].Pawn;
 }
 
+/// Start issue #1108 - new function to destroy cosmetic pawns.  INTERNAL CHL API, not covered by BC policy.
+simulated final function bool DestroyCosmeticPawn_CH(int CosmeticSlot, int UnitRef, bool bUsePhotoboothPawns = false)
+{
+	local int PawnInfoIndex;
+
+	if (bUsePhotoboothPawns)
+	{
+		PawnInfoIndex = PhotoboothPawns.Find('PawnRef', UnitRef);
+		if (PawnInfoIndex != -1)
+		{
+			return DestroyCosmeticPawnInternal_CH(PhotoboothPawns, CosmeticSlot, PawnInfoIndex);
+		}
+	}
+	else
+	{
+		PawnInfoIndex = Pawns.Find('PawnRef', UnitRef);
+		if (PawnInfoIndex != -1)
+		{
+			return DestroyCosmeticPawnInternal_CH(Pawns, CosmeticSlot, PawnInfoIndex);
+		}
+
+		PawnInfoIndex = CinematicPawns.Find('PawnRef', UnitRef);
+		if (PawnInfoIndex != -1)
+		{
+			return DestroyCosmeticPawnInternal_CH(CinematicPawns, CosmeticSlot, PawnInfoIndex);
+		}
+	}
+
+	return false;
+}
+
+// Helper function used by DestroyCosmeticPawn_CH. Also internal only, and not covered by BC policy.
+simulated final function bool DestroyCosmeticPawnInternal_CH(out array<PawnInfo> PawnStore, int CosmeticSlot, int StoreIdx)
+{
+	local bool bSuccess;
+
+	if (CosmeticSlot >= PawnStore[StoreIdx].Cosmetics.Length)
+		return false;
+
+	PawnStore[StoreIdx].Cosmetics[CosmeticSlot].Pawn.StopSounds();
+	bSuccess = PawnStore[StoreIdx].Cosmetics[CosmeticSlot].Pawn.Destroy();
+	PawnStore[StoreIdx].Cosmetics[CosmeticSlot].Pawn = none;
+	PawnStore[StoreIdx].Cosmetics[CosmeticSlot].ArchetypePawn = None;
+
+	return bSuccess;
+}
+// End issue #1108
+
 simulated function AssociateWeaponPawn(int CosmeticSlot, Actor WeaponPawn, int UnitRef,  XComUnitPawn OwningPawn, bool bUsePhotoboothPawns = false)
 {
 	local int PawnInfoIndex;
