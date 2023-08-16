@@ -853,9 +853,9 @@ static function CompleteUnitHealing(XComGameState AddToGameState, StateObjectRef
 				CostScalars.Length = 0;
 				XComHQ.RefundStrategyCost(AddToGameState, class'X2StrategyElement_XpackFacilities'.default.BoostSoldierCost, CostScalars);
 			}
-
+			//Issue #1148
 			// Set Unit to ready if needed
-			if (NewUnitState.GetMentalState() != eMentalState_Ready)
+			if (NewUnitState.GetMentalState() != eMentalState_Ready && !OverrideInjuryClearingFatigueBehavior(AddToGameState, NewUnitState))
 			{
 				foreach History.IterateByClassType(class'XComGameState_HeadquartersProjectRecoverWill', WillProject)
 				{
@@ -1225,3 +1225,31 @@ static function IssueHeadquartersOrder(const out HeadquartersOrderInputContext U
 
 	`GAMERULES.SubmitGameStateContext(NewOrderContext);
 }
+
+
+// Start issue #1148
+/// HL-Docs: feature:OverrideInjuryClearingFatigueBehavior; issue:1126; tags:strategy
+/// Allows overriding The game's behavior regarding Removing Fatigue on Healing
+/// Default: Vanilla behavior will be used.
+///
+/// ```event
+/// EventID: OverrideInjuryClearingFatigueBehavior,
+/// EventData: [inout bool ShouldOverride],
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: yes
+/// ```
+static private function bool OverrideInjuryClearingFatigueBehavior(XComGameState NewGameState, XComGameState_Unit Unit)
+{
+   local XComLWTuple Tuple;
+
+   Tuple = new class'XComLWTuple';
+   Tuple.Id = 'OverrideInjuryClearingFatigueBehavior';
+   Tuple.Data.Add(1);
+   Tuple.Data[0].kind = XComLWTVBool;
+   Tuple.Data[0].b = false;
+
+   `XEVENTMGR.TriggerEvent('OverrideInjuryClearingFatigueBehavior', Tuple, Unit, NewGameState);
+
+	return Tuple.Data[0].b;
+}
+// End issue #1148

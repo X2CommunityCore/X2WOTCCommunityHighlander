@@ -205,6 +205,9 @@ var config name PlaceEvacZoneAbilityName;
 // Variable for Issue #854
 var config float CameraRotationAngle;
 
+// Variable for Issue #917
+var config bool bDisableBetaStrikePostMissionHealing;
+
 // Start Issue #669
 //
 /// HL-Docs: feature:GrenadesRequiringUnitsOnTargetedTiles; issue:669; tags:tactical
@@ -224,6 +227,9 @@ var config bool DisableExtraLOSCheckForSmoke;
 var config bool DisableExtraLOSCheckForPoison;
 // End Issue #669
 
+// Variable for Issue #1191
+var config bool bForceEuroDateStrings;
+
 // Start Issue #720
 /// HL-Docs: ref:ProjectilePerformanceDrain
 struct ProjectileParticleSystemExpirationOverride
@@ -236,6 +242,9 @@ var config array<ProjectileParticleSystemExpirationOverride> ProjectileParticleS
 // Intended for debugging and personal configuration - not covered by BC!
 var config float ProjectileParticleSystemExpirationDefaultOverride;
 // End Issue #720
+
+// Variable for Issue #817 - put the string here, as UIOptionsPCScreen is native and cannot have new variables.
+var localized string m_strFramerateSmoothingDisabledReason;
 
 // Start Issue #885
 enum EHLDelegateReturn

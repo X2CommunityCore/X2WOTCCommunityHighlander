@@ -359,11 +359,15 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 	else if (bIndirectFire)
 	{
 		m_ShotBreakdown.HideShotBreakdown = true;
-		AddModifier(100, AbilityTemplate.LocFriendlyName, m_ShotBreakdown, eHit_Success, bDebugLog);
+
+		/// HL-Docs: ref:Bugfixes; issue:1213
+		/// Treat bIndirectFire same as bGuaranteedHit for the purposes of hit chance modifiers.
+		super.AddModifier(100, AbilityTemplate.LocFriendlyName, m_ShotBreakdown, eHit_Success, bDebugLog);
 	}
 
-	AddModifier(BuiltInHitMod, AbilityTemplate.LocFriendlyName, m_ShotBreakdown, eHit_Success, bDebugLog);
-	AddModifier(BuiltInCritMod, AbilityTemplate.LocFriendlyName, m_ShotBreakdown, eHit_Crit, bDebugLog);
+	// Issue #346: AddModifier(BuiltIn...Mod) block moved later in method.
+	/// HL-Docs: ref:Bugfixes; issue:346
+	/// Prevent `X2AbilityToHitCalc_StandardAim` from applying BuiltInHitMod and BuiltInCritMod against non-units.
 
 	if (UnitState != none && TargetState == none)
 	{
@@ -374,6 +378,11 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 	}
 	else if (UnitState != none && TargetState != none)
 	{				
+		// Start Issue #346: Block moved from earlier.
+		AddModifier(BuiltInHitMod, AbilityTemplate.LocFriendlyName, m_ShotBreakdown, eHit_Success, bDebugLog);
+		AddModifier(BuiltInCritMod, AbilityTemplate.LocFriendlyName, m_ShotBreakdown, eHit_Crit, bDebugLog);
+		// End Issue #346
+
 		if (!bIndirectFire)
 		{
 			// StandardAim (with direct fire) will require visibility info between source and target (to check cover). 
@@ -870,7 +879,9 @@ function int GetModifiedHitChanceForCurrentDifficulty(XComGameState_Player Insti
 
 protected function AddModifier(const int ModValue, const string ModReason, out ShotBreakdown m_ShotBreakdown, EAbilityHitResult ModType = eHit_Success, bool bDebugLog = false)
 {
-	if (bGuaranteedHit || m_ShotBreakdown.SpecialGuaranteedHit != '')
+	/// HL-Docs: ref:Bugfixes; issue:1213
+	/// Treat bIndirectFire same as bGuaranteedHit for the purposes of hit chance modifiers.
+	if (bGuaranteedHit || m_ShotBreakdown.SpecialGuaranteedHit != '' || bIndirectFire)
 	{
 		if (ModType != eHit_Crit)             //  for a guaranteed hit, the only possible modifier is to allow for crit
 			return;

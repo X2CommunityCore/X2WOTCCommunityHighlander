@@ -138,8 +138,6 @@ simulated function UIArmory_LoadoutItem SetImage(XComGameState_Item Item, option
 	local int i;
 	local bool bUpdate;
 	local array<string> NewImages;
-	// Issue #171 variables
-	local array<X2DownloadableContentInfo> DLCInfos;
 
 	if(Item == none)
 	{
@@ -148,15 +146,6 @@ simulated function UIArmory_LoadoutItem SetImage(XComGameState_Item Item, option
 	}
 
 	NewImages = Item.GetWeaponPanelImages();
-
-	// Start Issue #171
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
-	for(i = 0; i < DLCInfos.Length; ++i)
-	{
-		// Single line for Issue #962 - pass on Item State.
-		DLCInfos[i].OverrideItemImage_Improved(NewImages, EquipmentSlot, ItemTemplate, UIArmory(Screen).GetUnit(), Item);
-	}
-	// End Issue #171
 
 	bUpdate = false;
 	for( i = 0; i < NewImages.Length; i++ )

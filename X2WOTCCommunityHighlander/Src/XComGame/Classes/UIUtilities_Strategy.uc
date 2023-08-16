@@ -142,6 +142,44 @@ static function XComGameState_BlackMarket GetBlackMarket()
 	return BlackMarketState;
 }
 
+// Start Issue #1218
+/// HL-Docs: feature:OverrideStrategyCostString; issue:1218; tags:strategy,ui
+/// Fires an event that allows mods to override the strategy layer cost strings.
+/// Default: Vanilla behavior will be used.
+///
+/// ```event
+/// EventID: OverrideStrategyCostString,
+/// EventData: [
+/// 	in name ItemTemplateName,
+///		in int Quantity,
+///		in bool IsResourceCost,
+/// 	inout string CostString
+/// ],
+/// EventSource: none,
+/// NewGameState: none
+/// ```
+private static function TriggerOverrideStrategyCostString(ArtifactCost ArtifactCost, bool IsResourceCost, out String CostString)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideStrategyCostString';
+	OverrideTuple.Data.Add(4);
+	OverrideTuple.Data[0].kind = XComLWTVName;
+	OverrideTuple.Data[0].n = ArtifactCost.ItemTemplateName;
+	OverrideTuple.Data[1].kind = XComLWTVInt;
+	OverrideTuple.Data[1].i = ArtifactCost.Quantity;
+	OverrideTuple.Data[2].kind = XComLWTVBool;
+	OverrideTuple.Data[2].b = IsResourceCost;
+	OverrideTuple.Data[3].kind = XComLWTVString;
+	OverrideTuple.Data[3].s = CostString;
+
+	`XEVENTMGR.TriggerEvent('OverrideStrategyCostString', OverrideTuple);
+
+	CostString = OverrideTuple.Data[3].s;
+}
+// End Issue #1218
+
 static function String GetStrategyCostString(StrategyCost StratCost, array<StrategyCostScalar> CostScalars, optional float DiscountPercent)
 {
 	local int iResource, iArtifact, Quantity;
@@ -163,7 +201,12 @@ static function String GetStrategyCostString(StrategyCost StratCost, array<Strat
 			strArtifactCost = class'UIUtilities_Text'.static.GetColoredText(strArtifactCost, eUIState_Bad);
 		}
 		else
+		{
 			strArtifactCost = class'UIUtilities_Text'.static.GetColoredText(strArtifactCost, eUIState_Good);
+		}
+
+		// Issue #1218
+		TriggerOverrideStrategyCostString(ScaledStratCost.ArtifactCosts[iArtifact], false, strArtifactCost);
 
 		if (iArtifact < ScaledStratCost.ArtifactCosts.Length - 1)
 		{
@@ -194,7 +237,12 @@ static function String GetStrategyCostString(StrategyCost StratCost, array<Strat
 			strResourceCost = class'UIUtilities_Text'.static.GetColoredText(strResourceCost, eUIState_Bad);
 		}
 		else
+		{
 			strResourceCost = class'UIUtilities_Text'.static.GetColoredText(strResourceCost, eUIState_Good);
+		}
+
+		// Issue #1218
+		TriggerOverrideStrategyCostString(ScaledStratCost.ResourceCosts[iResource], true, strResourceCost);
 
 		if (iResource < ScaledStratCost.ResourceCosts.Length - 1)
 		{
@@ -1309,6 +1357,32 @@ simulated static function X2SoldierClassTemplate GetAllowedClassForWeapon(X2Weap
 			return SoldierClassTemplate;
 	}
 }
+
+// Start Issue #1057
+/// HL-Docs: ref:IsWeaponAllowedByClass
+///
+/// # GetAllowedClassForWeapon_CH()
+///
+/// Similarly to `IsWeaponAllowedByClass_CH()`, a `GetAllowedClassForWeapon_CH()` function was created
+/// to find a soldier class template of a class that is allowed to use a weapon of the specified template
+/// in the specified inventory slot, rather than in the slot specified in the weapon template itself.
+/// 
+/// # Compatibility
+///
+/// For the sake of consistency, it is preferable that mods call `GetAllowedClassForWeapon_CH()` rather than `GetAllowedClassForWeapon()` whenever possible.
+simulated static final function X2SoldierClassTemplate GetAllowedClassForWeapon_CH(X2WeaponTemplate WeaponTemplate, optional EInventorySlot InventorySlot)
+{
+	local X2DataTemplate DataTemplate;
+	local X2SoldierClassTemplate SoldierClassTemplate;
+	
+	foreach class'X2SoldierClassTemplateManager'.static.GetSoldierClassTemplateManager().IterateTemplates(DataTemplate, none)
+	{
+		SoldierClassTemplate = X2SoldierClassTemplate(DataTemplate);
+		if(SoldierClassTemplate.IsWeaponAllowedByClass_CH(WeaponTemplate, InventorySlot))
+			return SoldierClassTemplate;
+	}
+}
+// End Issue #1057
 
 simulated static function X2SoldierClassTemplate GetAllowedClassForArmor(X2ArmorTemplate ArmorTemplate)
 {

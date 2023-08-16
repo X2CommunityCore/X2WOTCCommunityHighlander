@@ -411,12 +411,12 @@ function TSoldier CreateTSoldier( optional name CharacterTemplateName, optional 
 }
 
 // Start issue #783
-private function ModifyGeneratedUnitAppearance(optional name CharacterTemplateName, optional EGender eForceGender, optional name nmCountry = '', optional int iRace = -1, optional name ArmorName)
+final protected function ModifyGeneratedUnitAppearance(optional name CharacterTemplateName, optional EGender eForceGender, optional name nmCountry = '', optional int iRace = -1, optional name ArmorName)
 {
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local int i;
 	
-	/// HL-Docs: ref:ModifyGeneratedUnitAppearance; issue:783
+	/// HL-Docs: ref:ModifyGeneratedUnitAppearance
 	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 	for (i = 0; i < DLCInfos.Length; i++)
 	{

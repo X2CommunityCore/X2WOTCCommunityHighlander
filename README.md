@@ -200,8 +200,10 @@ Build the mod through ModBuddy, as usual. The Highlander mod can be loaded uncoo
 with the following command (in the command prompt):
 
 ```
-"%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\Binaries\Win64\Launcher\ModLauncherWPF.exe" -allowconsole -log -autodebug -noseekfreeloading
+"%STEAMLIBRARY%\steamapps\common\XCOM 2\Binaries\Win64\Launcher\ModLauncherWPF.exe" -allowconsole -log -autodebug -noseekfreeloading
 ```
+
+You can also use Alternative Mod Launcher with the same launch arguments.
 
 If all goes well, the XCOM Launcher will run. Enable X2WOTCCommunityHighlander and start the game.
 
@@ -219,3 +221,28 @@ new functions or variables, it will crash Vanilla XCOM 2, guaranteed.
 
 If your mod uses the methods or functions provided by Long War 2's Highlander,
 things should still work fine.
+
+## Recruiting Maintainers
+
+We are currently recruiting maintainers.
+
+The Community Highlander mod is the backbone of the XCOM 2 modding community, providing essential functionality that powers many of the most popular mods, but it cannot evolve without active maintainers, which means new mods are unable to get the functionality they need into the Highlander.
+
+So we are looking to recruit as many maintainers as possible.
+
+### Required qualifications
+
+* Experience making XCOM 2 mods and coding in Unreal Script.
+* Being familiar with Git or at least willingness to learn using it.
+* Perfectionism and attention to detail.
+* Knowledge of different XCOM 2 systems, such as visualization, state code, effects, and history, is welcome, but not a hard requirement.
+
+### Responsibilities
+
+* Reviewing Pull Requests and suggesting changes to ensure compliance with Highlander's requirements and guidelines.
+* Updating the workshop version of Highlander when enough Pull Requests are approved.
+
+### Compensation
+
+* A sense of pride and accomplishment associated with doing useful things for hundreds of thousands of people.
+* First row seat to contributing your own changes to the Highlander.

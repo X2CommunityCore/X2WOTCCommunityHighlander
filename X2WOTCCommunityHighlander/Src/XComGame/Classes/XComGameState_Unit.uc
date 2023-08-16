@@ -904,6 +904,7 @@ function bool RollForNegativeTrait(XComGameState NewGameState)
 	local int RollValue, WillPercentMark, HealthPercentMark;
 	local array<name> ValidTraits, GenericTraits;
 	local name TraitName;
+	local bool ShouldAcquireTrait; // Variable for issue #1150
 
 	// TODO: @mnauta - possibly pre-roll this value on mission start
 	RollValue = `SYNC_RAND(200);
@@ -912,8 +913,14 @@ function bool RollForNegativeTrait(XComGameState NewGameState)
 	HealthPercentMark = (100 - int((GetCurrentStat(eStat_HP) / GetMaxStat(eStat_HP)) * 100.0f));
 	ValidTraits.Length = 0;
 	
+	// Start Issue #1150
 	// Roll to see if they should gain a trait
-	if(CanAcquireTrait(false) && RollValue < (WillPercentMark + HealthPercentMark))
+	ShouldAcquireTrait = CanAcquireTrait(false) && RollValue < (WillPercentMark + HealthPercentMark); // Vanilla logic
+	ShouldAcquireTrait = OverrideNegativeTraitRoll(ShouldAcquireTrait, NewGameState);
+	
+	// Roll to see if they should gain a trait
+	if(ShouldAcquireTrait)
+	// End Issue #1150
 	{
 		// Check for pending traits first (triggered in mission)
 		foreach PendingTraits(TraitName)
@@ -950,6 +957,36 @@ function bool RollForNegativeTrait(XComGameState NewGameState)
 
 	return false;
 }
+
+// Start Issue #1150
+/// HL-Docs: feature:OverrideNegativeTraitRoll; issue:1150; tags:strategy
+/// Fires an event that allows mods to override whether a soldier should get a negative trait after the mission.
+/// Default: Vanilla Behavior will be used.
+///
+/// ```event
+/// EventID: OverrideNegativeTraitRoll,
+/// EventData: [inout bool ShouldRollNegativeTrait],
+/// EventSource: XComGameState_Unit (UnitState),
+/// NewGameState: yes
+/// ```
+//
+private function bool OverrideNegativeTraitRoll(
+	bool ShouldRollNegativeTrait,
+	XComGameState NewGameState)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideNegativeTraitRoll';
+	OverrideTuple.Data.Add(1);
+	OverrideTuple.Data[0].kind = XComLWTVBool;
+	OverrideTuple.Data[0].b = ShouldRollNegativeTrait;
+
+	`XEVENTMGR.TriggerEvent('OverrideNegativeTraitRoll', OverrideTuple, self, NewGameState);
+
+	return OverrideTuple.Data[0].b;
+}
+// End Issue #1150
 
 function RecoverFromTraits()
 {
@@ -2610,13 +2647,16 @@ function EndTacticalHealthMod()
 	local float HealthPercent, NewHealth, SWHeal;
 	local int RoundedNewHealth, HealthLost, NewMissingHP;
 
-	HealthLost = HighestHP - LowestHP;
-
-	if (LowestHP > 0 && `SecondWaveEnabled('BetaStrike'))  // Immediately Heal 1/2 Damage
+	HealthLost = HighestHP - LowestHP;	
+	/// HL-Docs: feature:BetaStrikeEndTacticalHeal; issue:917; tags:
+	if (LowestHP > 0 && `SecondWaveEnabled('BetaStrike'))  // Immediately Heal 1/2 Damage 
 	{
-		SWHeal = FFloor( HealthLost / 2 );
-		LowestHP += SWHeal;
-		HealthLost -= SWHeal;
+		if  (!class'CHHelpers'.default.bDisableBetaStrikePostMissionHealing)
+			{
+				SWHeal = FFloor( HealthLost / 2 );
+				LowestHP += SWHeal;
+				HealthLost -= SWHeal;
+			}
 	}
 
 	// If Dead or never injured, return
@@ -4161,7 +4201,7 @@ function bool HasHeavyWeapon(optional XComGameState CheckGameState)
 	/// HL-Docs: feature:OverrideHasHeavyWeapon; issue:172; tags:loadoutslots,strategy
 	/// The `OverrideHasHeavyWeapon` event allows mods to override the base game logic
 	/// that determines whether a Unit has a Heavy Weapon Slot or not.
-	/// Keep in mind the [GetNumHeavyWeaponSlotsOverride()](../loadoutslots/GetNumHeavyWeaponSlotsOverride.md) X2DLCInfo method may override
+	/// Keep in mind the [GetNumHeavyWeaponSlotsOverride()](../strategy/GetNumHeavyWeaponSlotsOverride.md) X2DLCInfo method may override
 	/// this later.
 	///
 	/// ```event
@@ -5249,21 +5289,21 @@ function string GetMPName( ENameType eType )
 		return strFirstName @ strLastName;
 		break;
 	case eNameType_Rank:
-		return `GET_RANK_STR(m_SoldierRank, m_MPCharacterTemplateName);
+		return GetSoldierRankName(GetRank()); // Issue #408
 		break;
 	case eNameType_RankLast:
-		return `GET_RANK_ABBRV(m_SoldierRank, m_MPCharacterTemplateName) @ strLastName;
+		return GetSoldierShortRankName(GetRank()) @ strLastName; // Issue #408
 		break;
 	case eNameType_RankFull:
-		return `GET_RANK_ABBRV( m_SoldierRank, m_MPCharacterTemplateName ) @ strFirstName @ strLastName;
+		return GetSoldierShortRankName(GetRank()) @ strFirstName @ strLastName; // Issue #408
 		break;
 	case eNameType_FullNick:
 		if(IsSoldier())
 		{
 			if(strNickName != "")
-				return `GET_RANK_ABBRV( m_SoldierRank, m_MPCharacterTemplateName ) @ strFirstName @ OpenQuote $ SanitizeQuotes(strNickName) $CloseQuote @ strLastName;
+				return GetSoldierShortRankName(GetRank()) @ strFirstName @ OpenQuote $ SanitizeQuotes(strNickName) $CloseQuote @ strLastName; // Issue #408
 			else
-				return `GET_RANK_ABBRV( m_SoldierRank, m_MPCharacterTemplateName ) @ strFirstName @ strLastName;
+				return GetSoldierShortRankName(GetRank()) @ strFirstName @ strLastName; // Issue #408
 		}
 		else
 		{
@@ -8181,7 +8221,7 @@ simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate,
 		{
 			if (IsSoldier() && WeaponTemplate != none)
 			{
-				if (!GetSoldierClassTemplate().IsWeaponAllowedByClass(WeaponTemplate))
+				if (!GetSoldierClassTemplate().IsWeaponAllowedByClass_CH(WeaponTemplate, Slot)) // Issue #1057 - call IsWeaponAllowedByClass_CH() instead of the original.
 					return false;
 			}
 
@@ -9971,7 +10011,8 @@ static function SuperConcealmentRollVisualization(XComGameState VisualizeGameSta
 		LookAtAction.LookAtActor = ActionMetadata.VisualizeActor;
 		LookAtAction.BlockUntilActorOnScreen = true;
 		LookAtAction.LookAtDuration = class'X2Ability_ReaperAbilitySet'.default.ShadowRollCameraDelay;
-		LookAtAction.TargetZoomAfterArrival = -0.4f;
+		// Issue #1157 - adjust zoom-in distance by the maximum camera zoom-out value. 2600 is the default base game value.
+		LookAtAction.TargetZoomAfterArrival = -0.4f * 2600.0f / class'X2Camera_LookAt'.default.ZoomedDistanceFromCursor;
 
 		// Jwats: Then update the UI
 		UpdateUIAction = X2Action_UpdateUI(class'X2Action_UpdateUI'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, LookAtAction));
@@ -12304,7 +12345,8 @@ function array<X2WeaponTemplate> GetBestPrimaryWeaponTemplates()
 			WeaponTemplate = X2WeaponTemplate(ItemState.GetMyTemplate());
 
 			if (WeaponTemplate != none && WeaponTemplate.bInfiniteItem && (BestWeaponTemplate == none || (BestWeaponTemplates.Find(WeaponTemplate) == INDEX_NONE && WeaponTemplate.Tier >= BestWeaponTemplate.Tier)) && 
-				WeaponTemplate.InventorySlot == eInvSlot_PrimaryWeapon && GetSoldierClassTemplate().IsWeaponAllowedByClass(WeaponTemplate))
+				/*WeaponTemplate.InventorySlot == eInvSlot_PrimaryWeapon &&*/ // Issue #1057 - Do not check inventory slot on the template, let IsWeaponAllowedByClass_CH() decide whether the weapon is allowed.
+				GetSoldierClassTemplate().IsWeaponAllowedByClass_CH(WeaponTemplate, eInvSlot_PrimaryWeapon)) // Issue #1057 - call IsWeaponAllowedByClass_CH() instead of the original.
 			{
 				BestWeaponTemplate = WeaponTemplate;
 				BestWeaponTemplates.AddItem(BestWeaponTemplate);
@@ -12361,7 +12403,8 @@ function array<X2WeaponTemplate> GetBestSecondaryWeaponTemplates()
 			WeaponTemplate = X2WeaponTemplate(ItemState.GetMyTemplate());
 
 			if(WeaponTemplate != none && WeaponTemplate.bInfiniteItem && (BestWeaponTemplate == none || (BestWeaponTemplates.Find(WeaponTemplate) == INDEX_NONE && WeaponTemplate.Tier >= BestWeaponTemplate.Tier)) &&
-				WeaponTemplate.InventorySlot == eInvSlot_SecondaryWeapon && GetSoldierClassTemplate().IsWeaponAllowedByClass(WeaponTemplate))
+				/*WeaponTemplate.InventorySlot == eInvSlot_SecondaryWeapon && */ // Issue #1057 - Do not check inventory slot on the template, let IsWeaponAllowedByClass_CH() decide whether the weapon is allowed.
+				GetSoldierClassTemplate().IsWeaponAllowedByClass_CH(WeaponTemplate, eInvSlot_SecondaryWeapon)) // Issue #1057 - call IsWeaponAllowedByClass_CH() instead of the original.
 			{
 				BestWeaponTemplate = WeaponTemplate;
 				BestWeaponTemplates.AddItem(BestWeaponTemplate);
@@ -12410,7 +12453,7 @@ function array<X2WeaponTemplate> GetBestHeavyWeaponTemplates()
 
 			if(HeavyWeaponTemplate != none && HeavyWeaponTemplate.bInfiniteItem && (BestHeavyWeaponTemplate == none || 
 				(BestHeavyWeaponTemplates.Find(HeavyWeaponTemplate) == INDEX_NONE && HeavyWeaponTemplate.Tier >= BestHeavyWeaponTemplate.Tier)) &&
-				HeavyWeaponTemplate.InventorySlot == eInvSlot_HeavyWeapon && GetSoldierClassTemplate().IsWeaponAllowedByClass(HeavyWeaponTemplate))
+				HeavyWeaponTemplate.InventorySlot == eInvSlot_HeavyWeapon && GetSoldierClassTemplate().IsWeaponAllowedByClass_CH(HeavyWeaponTemplate, eInvSlot_HeavyWeapon)) // Issue #1057 - call IsWeaponAllowedByClass_CH() instead of the original.
 			{
 				BestHeavyWeaponTemplate = HeavyWeaponTemplate;
 				BestHeavyWeaponTemplates.AddItem(BestHeavyWeaponTemplate);
@@ -13766,8 +13809,9 @@ function array<int> GetPCSRanks()
 		ValidRanks.AddItem(0);
 	}
 
-	// Does not matter which class we grab, all should have same combat sim stats
-	SoldierClassTemplate = class'X2SoldierClassTemplateManager'.static.GetSoldierClassTemplateManager().FindSoldierClassTemplate('Ranger');
+	/// HL-Docs: ref:Bugfixes; issue:1073
+	/// Get the unit's own Soldier Class Template rather than using Ranger's for all classes.
+	SoldierClassTemplate = GetSoldierClassTemplate();
 
 	for(RankIndex = 0; RankIndex < SoldierClassTemplate.GetMaxConfiguredRank(); RankIndex++)
 	{

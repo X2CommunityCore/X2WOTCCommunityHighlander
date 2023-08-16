@@ -333,9 +333,39 @@ function string GetLocalizedCategory()
 	case 'heal':        return class'XGLocalizedData'.default.UtilityCatHeal;
 	case 'psidefense':	return class'XGLocalizedData'.default.UtilityCatPsiDefense;
 	case 'skulljack':	return class'XGLocalizedData'.default.UtilityCatSkulljack;
-	default:            return class'XGLocalizedData'.default.UtilityCatUnknown;
+	default:            return TriggerGetLocalizedItemCategory(); // Issue #1112
 	}
 }
+
+// Start Issue #1112
+/// HL-Docs: feature:GetLocalizedItemCategory; issue:1112; tags:
+/// Triggers `GetLocalizedItemCategory` event that can be used by mods
+/// to localize their new item categories.
+///
+/// ```event
+/// EventID: GetLocalizedItemCategory,
+/// EventData: [
+///     out string CategoryLocale
+/// ],
+/// EventSource: X2ItemTemplate (ItemTemplate),
+/// NewGameState: none
+/// ```
+private function string TriggerGetLocalizedItemCategory()
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'GetLocalizedItemCategory';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVString;
+	Tuple.Data[0].s = class'XGLocalizedData'.default.UtilityCatUnknown;
+
+	`XEVENTMGR.TriggerEvent(Tuple.Id, Tuple, self, none);
+
+	return Tuple.Data[0].s;
+}
+// End Issue #1112
+
 function array<int> GetItemStats()
 {
 	local array<int> Stats; 
