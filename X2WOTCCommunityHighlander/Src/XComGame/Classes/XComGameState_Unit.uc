@@ -9676,7 +9676,7 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 				/// yellow alerts in ShouldEnemyFactionsTriggerAlertsOutsidePlayerVision in XComGameState_AIUnitData
 				/// Since by default alert data is not recorded for sound outside of XCom's vision 
 				// start issue #620
-				if( class'CHHelpers'.static.ConsiderAlliesforSoundAlerts() )
+				if( class'CHHelpers'.default.bConsiderAlliesforSoundAlerts )
 				{
 					GetUnitsInRange(SoundTileLocation, SoundRange, Enemies);
 				}
