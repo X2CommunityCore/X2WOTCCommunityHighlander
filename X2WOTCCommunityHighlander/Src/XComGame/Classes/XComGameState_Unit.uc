@@ -10882,7 +10882,7 @@ function GetUnitsInRangeOnTeam(ETeam Team, TTile kLocation, int nMeters, out arr
 // start issue #620
 // Copied from XComGameState_Unit::GetEnemiesInRange, except will include all units within
 // the specified range.
-private function GetUnitsInRange(TTile kLocation, int nMeters, out array<StateObjectReference> OutEnemies)
+private function GetUnitsInRange(TTile kLocation, int nMeters, out array<StateObjectReference> OutUnits)
 {
 	local vector vCenter, vLoc;
 	local float fDistSq;
@@ -10912,7 +10912,7 @@ private function GetUnitsInRange(TTile kLocation, int nMeters, out array<StateOb
 
 			if( VSizeSq(vLoc - vCenter) < RadiiSumSquared )
 			{
-				OutEnemies.AddItem(kUnit.GetReference());
+				OutUnits.AddItem(kUnit.GetReference());
 			}
 		}
 	}
