@@ -129,15 +129,22 @@ function BTRunCompletePreExecute()
 	super.BTRunCompletePreExecute();
 	if( !m_kPlayer.bCiviliansTargetedByAliens )
 	{
-		// Yell before moving.
-		YellAction = FindAbilityByName('Yell');
-		if( YellAction.AbilityObjectRef.ObjectID > 0 && YellAction.AvailableCode == 'AA_Success' )
+
+		/// HL-Docs: feature:CiviliansPreMoveYell; issue:717; tags:
+		/// Add config option to disable the civilian pre-move "Yell", useful for AI modification mods.
+		if(!class'CHHelpers'.default.bDisableCivilianPreMoveYell)
 		{
-			if( YellAction.AvailableTargets.Length == 0 )
+			// Existing code moved inside of new if block.
+			// Yell before moving.
+			YellAction = FindAbilityByName('Yell');
+			if( YellAction.AbilityObjectRef.ObjectID > 0 && YellAction.AvailableCode == 'AA_Success' )
 			{
-				TargetIndex = INDEX_NONE;
+				if( YellAction.AvailableTargets.Length == 0 )
+				{
+					TargetIndex = INDEX_NONE;
+				}
+				class'XComGameStateContext_Ability'.static.ActivateAbility(YellAction, TargetIndex);
 			}
-			class'XComGameStateContext_Ability'.static.ActivateAbility(YellAction, TargetIndex);
 		}
 	}
 }
