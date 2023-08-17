@@ -180,7 +180,6 @@ var config int NoiseAlertSoundRange;
 var config array<name> AdditionalAIBTActionPointTypes;
 // End Issue #510
 
-/// HL-Docs: ref:ConsiderAlliesforSoundAlerts
 // variable for issue #620
 var config bool bConsiderAlliesforSoundAlerts;
 
