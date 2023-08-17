@@ -1,0 +1,3 @@
+[CHHelpers]
+; Issue #817
+m_strFramerateSmoothingDisabledReason = "フレームレートのスムージングは他のModが正常に動作するために、Highlanderによって無効化されました。以前に有効にした場合は、このファイルを1回だけ削除して、ゲームを再起動してください：\"..\\Documents\\my games\\XCOM2 War of the Chosen\\XComGame\\Config\\XComEngine.ini\""

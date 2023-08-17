@@ -86,7 +86,16 @@ simulated function Actor CreateEntity(optional XComGameState_Item ItemState=none
 		WeaponTemplate = X2WeaponTemplate(InternalWeaponState.GetMyTemplate());
 		if (WeaponTemplate != none)
 		{
-			strArchetype = WeaponTemplate.DetermineGameArchetypeForUnit(InternalWeaponState, UnitState, XComHumanPawn(kOwner).m_kAppearance);
+			// Start Issue #324 - none-check kOwner to prevent a log warning.
+			if (XComHumanPawn(kOwner) != none)
+			{
+				strArchetype = WeaponTemplate.DetermineGameArchetypeForUnit(InternalWeaponState, UnitState, XComHumanPawn(kOwner).m_kAppearance);
+			}
+			else
+			{
+				strArchetype = WeaponTemplate.DetermineGameArchetypeForUnit(InternalWeaponState, UnitState);
+			}
+			// End Issue #324
 			Template = XComWeapon(`CONTENT.RequestGameArchetype(strArchetype));
 		}
 		WeaponAttachments = InternalWeaponState.GetWeaponAttachments();

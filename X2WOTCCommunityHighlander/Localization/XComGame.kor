@@ -1,0 +1,3 @@
+[CHHelpers]
+; Issue #817
+m_strFramerateSmoothingDisabledReason = "프레임 소프트웨어는 타 모드와의 호환성을 위해 Highlander에 의해 비활성화되었습니다. 이전에 활성화한 경우, 이 파일을 1회 삭제하고 게임을 재시작하세요: \"..\\Documents\\my games\\XCOM2 War of the Chosen\\XComGame\\Config\\XComEngine.ini\""

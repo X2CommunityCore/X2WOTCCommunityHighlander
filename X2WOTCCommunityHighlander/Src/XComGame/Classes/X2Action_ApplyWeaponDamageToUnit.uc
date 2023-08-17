@@ -1073,7 +1073,10 @@ Begin:
 					UnitPawn.PlayHitEffects(m_iDamage, DamageDealer, m_vHitLocation, DamageTypeName, m_vMomentum, bIsUnitRuptured, HitResult);
 				}
 
-				Unit.ResetWeaponsToDefaultSockets();
+				if (ShouldResetWeaponsToDefaultSockets()) // Issue #42
+				{
+					Unit.ResetWeaponsToDefaultSockets();
+				}
 				AnimParams.AnimName = ComputeAnimationToPlay(OverrideAnimEffectString);
 
 				if( AnimParams.AnimName != '' )
@@ -1128,7 +1131,11 @@ Begin:
 				}
 				else
 				{
-					Unit.ResetWeaponsToDefaultSockets();
+				    
+				    if (ShouldResetWeaponsToDefaultSockets()) // Issue #42
+					{
+					    Unit.ResetWeaponsToDefaultSockets();
+					}
 
 					if( Unit.IsTurret() )  //@TODO - rmcfall/jbouscher - this selection may need to eventually be based on other factors, such as the current state of the unit
 					{
@@ -1247,6 +1254,24 @@ Begin:
 
 	CompleteAction();
 }
+
+// Start Issue #42
+/// HL-Docs: ref:Bugfixes; issue:42
+/// Prevent X2Action_ApplyWeaponDamageToUnit from resetting unit's weapons to default sockets if the unit is interrupted.
+final protected function bool ShouldResetWeaponsToDefaultSockets()
+{
+	local XComGameState_Unit AnimatedUnitState;
+
+	// Always reset weapons to default sockets if the unit is killed, the death action does not do that.
+	AnimatedUnitState = XComGameState_Unit(self.Metadata.StateObject_NewState);
+	if (AnimatedUnitState != none && AnimatedUnitState.IsDead())
+	{
+		return true;
+	}
+
+	return self.StateChangeContext.HistoryIndexInterruptedBySelf == 0;
+}
+// End Issue #42
 
 DefaultProperties
 {

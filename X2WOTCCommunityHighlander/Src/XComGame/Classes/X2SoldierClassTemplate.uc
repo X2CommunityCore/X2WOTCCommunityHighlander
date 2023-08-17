@@ -147,6 +147,50 @@ function bool IsWeaponAllowedByClass(X2WeaponTemplate WeaponTemplate)
 	return false;
 }
 
+// Start Issue #1057
+/// HL-Docs: feature:IsWeaponAllowedByClass; issue:1057; tags:strategy,compatibility
+/// When the game needs to determine whether a weapon with particular category
+/// can be used by a particular soldier class, it calls the `IsWeaponAllowedByClass()` function, 
+/// which checks whether the weapon is allowed in the inventory slot specified in the Weapon Template.
+///
+/// This is a problem, because there are other Highlander features
+/// that allow equipping items in slots other than the one specified in the Weapon Template,
+/// such as using secondary weapons as primaries or equipping them into special sidearm slots.
+/// 
+/// To address this issue, this feature introduces a new function: `IsWeaponAllowedByClass_CH()`,
+/// which checks whether the weapon is allowed in the inventory slot given to the function as an argument.
+///
+/// # Compatibility
+///
+/// For the sake of consistency, it is preferable that mods call `IsWeaponAllowedByClass_CH()` rather than `IsWeaponAllowedByClass()` whenever possible.
+final function bool IsWeaponAllowedByClass_CH(X2WeaponTemplate WeaponTemplate, optional EInventorySlot InventorySlot = eInvSlot_Unknown)
+{
+	local SoldierClassWeaponType AllowedWeapon;
+
+	if (InventorySlot == eInvSlot_Unknown)
+	{
+		return IsWeaponAllowedByClass(WeaponTemplate);
+	}
+	
+	switch(InventorySlot)
+	{
+	case eInvSlot_PrimaryWeapon: break;
+	case eInvSlot_SecondaryWeapon: break;
+	default:
+		return true;
+	}
+
+	foreach AllowedWeapons(AllowedWeapon)
+	{
+		if (AllowedWeapon.WeaponType == WeaponTemplate.WeaponCat && AllowedWeapon.SlotType == InventorySlot)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+// End Issue #1057
+
 function bool IsArmorAllowedByClass(X2ArmorTemplate ArmorTemplate)
 {
 	local int i;

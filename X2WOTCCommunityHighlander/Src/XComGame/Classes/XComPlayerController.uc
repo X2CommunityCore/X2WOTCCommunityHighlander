@@ -1608,7 +1608,8 @@ function StartDropshipNarrative()
 	GeneratedMission = class'UIUtilities_Strategy'.static.GetXComHQ().GetGeneratedMissionData(BattleData.m_iMissionID);
 	MissionTemplate = class'X2MissionTemplateManager'.static.GetMissionTemplateManager().FindMissionTemplate(GeneratedMission.Mission.MissionName);	
 
-	if(MissionTemplate.PreMissionNarratives.Length > 0 && !BattleData.DirectTransferInfo.IsDirectMissionTransfer)
+	// Issue #324 - none-check MissionTemplate to prevent a log warning.
+	if(MissionTemplate != none && MissionTemplate.PreMissionNarratives.Length > 0 && !BattleData.DirectTransferInfo.IsDirectMissionTransfer)
 	{
 		if (GeneratedMission.Mission.MissionName == 'ChosenStrongholdShort' || GeneratedMission.Mission.MissionName == 'ChosenStrongholdLong')
 		{

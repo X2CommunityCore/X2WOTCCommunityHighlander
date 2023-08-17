@@ -1163,7 +1163,8 @@ simulated function UpdateGeneralMissionInfoPanel()
 		}
 
 		MC.QueueString(SoldierClass.IconImage); //Class Icon Image
-		MC.QueueString(class'UIUtilities_Image'.static.GetRankIcon(UnitState.GetRank(), UnitState.GetSoldierClassTemplateName())); //Rank image
+		// Single line for Issue #408 - use CHL method to get Soldier Rank Icon.
+		MC.QueueString(UnitState.GetSoldierRankIcon(UnitState.GetRank())); //Rank image
 		MC.QueueString(UnitState.GetFullName()); //Unit Name
 		MC.QueueString(class'UIUtilities_Text'.static.CapsCheckForGermanScharfesS(SoldierClass.DisplayName)); //Class Name
 		MC.EndOp();
@@ -1395,8 +1396,12 @@ simulated function UpdateDataSoldierData()
 	mc.BeginFunctionOp("SetSoldierData");
 	mc.QueueString("");
 	mc.QueueString(m_CurrentSquad[m_SelectedSoldier].GetSoldierClassTemplate().IconImage);
-	mc.QueueString(class'UIUtilities_Image'.static.GetRankIcon(m_CurrentSquad[m_SelectedSoldier].GetSoldierRank(), m_CurrentSquad[m_SelectedSoldier].GetSoldierClassTemplateName()));
-	mc.QueueString(class'X2ExperienceConfig'.static.GetRankName(m_CurrentSquad[m_SelectedSoldier].GetSoldierRank(), m_CurrentSquad[m_SelectedSoldier].GetSoldierClassTemplateName()));
+
+	// Start Issue #408 - use CHL method to get Soldier Rank Name and Icon.
+	mc.QueueString(m_CurrentSquad[m_SelectedSoldier].GetSoldierRankIcon(m_CurrentSquad[m_SelectedSoldier].GetRank()));
+	mc.QueueString(m_CurrentSquad[m_SelectedSoldier].GetSoldierRankName(m_CurrentSquad[m_SelectedSoldier].GetRank()));
+	// End Issue #408
+
 	mc.QueueString(m_CurrentSquad[m_SelectedSoldier].GetFullName()); //Unit Name
 	mc.QueueString(m_CurrentSquad[m_SelectedSoldier].GetSoldierClassTemplate().DisplayName); //Class Name
 	mc.EndOp();
@@ -2267,15 +2272,14 @@ simulated function OnClickGrenadePocket()
 simulated function UpdateDataSoldierRank()
 {
 	local int i, MaxRank;
-	local name SoldierClassTemplateName;
 
-	SoldierClassTemplateName = m_CurrentSquad[m_SelectedSoldier].GetSoldierClassTemplateName();
 	MaxRank = `GET_MAX_RANK;
 
 	for (i = 0; i < MaxRank - 1; ++i)
 	{
 		GetListItem(i).EnableNavigation();
-		GetListItem(i).UpdateDataValue( `GET_RANK_STR(i + 1, SoldierClassTemplateName), "", , , OnClickSoldierRank );
+		// Single line for Issue #408 - use CHL method to get Soldier Rank Name.
+		GetListItem(i).UpdateDataValue( m_CurrentSquad[m_SelectedSoldier].GetSoldierRankName(i + 1), "", , , OnClickSoldierRank );
 	}
 }
 

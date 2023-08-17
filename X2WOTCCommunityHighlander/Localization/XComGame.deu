@@ -1,0 +1,3 @@
+[CHHelpers]
+; Issue #817
+m_strFramerateSmoothingDisabledReason = "Die Funktion zur Glättung der Bildrate wurde von Highlander deaktiviert, um anderen Mods ordnungsgemäß zu funktionieren. Wenn Sie diese Funktion zuvor aktiviert haben, löschen Sie bitte diese Datei: \"..\\Documents\\my games\\XCOM2 War of the Chosen\\XComGame\\Config\\XComEngine.ini\" einmalig und starten Sie das Spiel neu."

@@ -1541,6 +1541,9 @@ function SetVideoTabSelected()
 	m_arrMechaItems[ePCTabVideo_FRSmoothing].UpdateDataCheckbox(m_strVideoLabel_FRSmoothingToggle, "", GetCurrentFRSmoothingToggle(), UpdateFRSmoothing);
 	m_arrMechaItems[ePCTabVideo_FRSmoothing].BG.SetTooltipText(m_strVideoLabel_FRSmoothingToggle_Desc, , , 10, , , , 0.0f);
 	
+	/// HL-Docs: ref:Bugfixes; issue:817
+	/// Disable the Framerate Smoothing option, as it's known to break Mod Class Overrides.
+	m_arrMechaItems[ePCTabVideo_FRSmoothing].SetDisabled(true, class'CHHelpers'.default.m_strFramerateSmoothingDisabledReason);
 }
 
 public function SpinnerUpdated(UIListItemSpinner spinnerControl, int direction)
