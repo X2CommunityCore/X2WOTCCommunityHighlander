@@ -8485,9 +8485,6 @@ simulated function bool RemoveItemFromInventory(XComGameState_Item Item, optiona
 	local X2ArmorTemplate ArmorTemplate;
 	local int RemoveIndex;
 
-	// Variable for Issue #1108
-	local UIPawnMgr PawnMgr;
-
 	if (CanRemoveItemFromInventory(Item, ModifyGameState))
 	{				
 		RemoveIndex = InventoryItems.Find('ObjectID', Item.ObjectID);
@@ -8512,15 +8509,14 @@ simulated function bool RemoveItemFromInventory(XComGameState_Item Item, optiona
 			{
 				`RedScreen("Attempt to remove item" @ Item.GetMyTemplateName() @ "properly may have failed due to OnUnequippedFn -jbouscher @gameplay");
 			}
-		}		
+		}	
+		
+		/// HL-Docs: ref:Bugfixes; issue:1108
+		/// If there is a cosmetic pawn associated with the unequipped item item, remove it.
+		`PRESBASE.GetUIPawnMgr().DestroyCosmeticPawn_CH(Item.InventorySlot, self.ObjectID);
 
 		if (RemoveIndex != INDEX_NONE)
 		{
-			// Start Issue #1108
-			// Remove Cosmetic Unit when the item is removed, using newly created function in UIPawnMgr.
-			PawnMgr = `HQPRES.GetUIPawnMgr();
-			PawnMgr.DestroyCosmeticPawn_CH(Item.InventorySlot, self.ObjectID);
-			// End Issue #1108
 			InventoryItems.Remove(RemoveIndex, 1);
 		}
 

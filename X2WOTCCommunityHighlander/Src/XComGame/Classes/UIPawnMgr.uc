@@ -259,7 +259,8 @@ simulated function XComUnitPawn GetCosmeticPawnInternal(out array<PawnInfo> Pawn
 	return PawnStore[StoreIdx].Cosmetics[CosmeticSlot].Pawn;
 }
 
-/// Start issue #1108 - new function to destroy cosmetic pawns.  INTERNAL CHL API, not covered by BC policy.
+// Start issue #1108
+// Destroy a cosmetic pawn associated with a particular inventory slot on a particular unit, if there is one.
 simulated final function bool DestroyCosmeticPawn_CH(int CosmeticSlot, int UnitRef, bool bUsePhotoboothPawns = false)
 {
 	local int PawnInfoIndex;
@@ -290,8 +291,7 @@ simulated final function bool DestroyCosmeticPawn_CH(int CosmeticSlot, int UnitR
 	return false;
 }
 
-// Helper function used by DestroyCosmeticPawn_CH. Also internal only, and not covered by BC policy.
-simulated final function bool DestroyCosmeticPawnInternal_CH(out array<PawnInfo> PawnStore, int CosmeticSlot, int StoreIdx)
+simulated private function bool DestroyCosmeticPawnInternal_CH(out array<PawnInfo> PawnStore, int CosmeticSlot, int StoreIdx)
 {
 	local bool bSuccess;
 
