@@ -3113,7 +3113,7 @@ function bool ClickToPath()
 	History = `XCOMHISTORY;
 
 	ActiveUnitState = XComGameState_Unit(History.GetGameStateForObjectID(GetActiveUnit().ObjectID));
-	AbilityState = class'X2AbilityTrigger_EndOfMove'.static.GetAvailableEndOfMoveAbilityForUnit(ActiveUnitState);
+	AbilityState = class'X2AbilityTrigger_EndOfMove'.static.GetAvailableEndOfMoveAbilityForUnit_CH(ActiveUnitState, PathingPawn.LastTargetObject); // Issue #1138
 	if(AbilityState != none 
 		&& PathingPawn.LastTargetObject != none
 		&& `TACTICALRULES.GetGameRulesCache_Unit(ActiveUnitState.GetReference(), UnitCache))
