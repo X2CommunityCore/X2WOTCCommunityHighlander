@@ -8509,10 +8509,16 @@ simulated function bool RemoveItemFromInventory(XComGameState_Item Item, optiona
 			{
 				`RedScreen("Attempt to remove item" @ Item.GetMyTemplateName() @ "properly may have failed due to OnUnequippedFn -jbouscher @gameplay");
 			}
-		}		
+		}	
+		
+		/// HL-Docs: ref:Bugfixes; issue:1108
+		/// If there is a cosmetic pawn associated with the unequipped item item, remove it.
+		`PRESBASE.GetUIPawnMgr().DestroyCosmeticPawn_CH(Item.InventorySlot, self.ObjectID);
 
 		if (RemoveIndex != INDEX_NONE)
+		{
 			InventoryItems.Remove(RemoveIndex, 1);
+		}
 
 		Item.OwnerStateObject.ObjectID = 0;
 

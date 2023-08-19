@@ -259,6 +259,54 @@ simulated function XComUnitPawn GetCosmeticPawnInternal(out array<PawnInfo> Pawn
 	return PawnStore[StoreIdx].Cosmetics[CosmeticSlot].Pawn;
 }
 
+// Start issue #1108
+// Destroy a cosmetic pawn associated with a particular inventory slot on a particular unit, if there is one.
+simulated final function bool DestroyCosmeticPawn_CH(int CosmeticSlot, int UnitRef, bool bUsePhotoboothPawns = false)
+{
+	local int PawnInfoIndex;
+
+	if (bUsePhotoboothPawns)
+	{
+		PawnInfoIndex = PhotoboothPawns.Find('PawnRef', UnitRef);
+		if (PawnInfoIndex != -1)
+		{
+			return DestroyCosmeticPawnInternal_CH(PhotoboothPawns, CosmeticSlot, PawnInfoIndex);
+		}
+	}
+	else
+	{
+		PawnInfoIndex = Pawns.Find('PawnRef', UnitRef);
+		if (PawnInfoIndex != -1)
+		{
+			return DestroyCosmeticPawnInternal_CH(Pawns, CosmeticSlot, PawnInfoIndex);
+		}
+
+		PawnInfoIndex = CinematicPawns.Find('PawnRef', UnitRef);
+		if (PawnInfoIndex != -1)
+		{
+			return DestroyCosmeticPawnInternal_CH(CinematicPawns, CosmeticSlot, PawnInfoIndex);
+		}
+	}
+
+	return false;
+}
+
+simulated private function bool DestroyCosmeticPawnInternal_CH(out array<PawnInfo> PawnStore, int CosmeticSlot, int StoreIdx)
+{
+	local bool bSuccess;
+
+	if (CosmeticSlot >= PawnStore[StoreIdx].Cosmetics.Length)
+		return false;
+
+	PawnStore[StoreIdx].Cosmetics[CosmeticSlot].Pawn.StopSounds();
+	bSuccess = PawnStore[StoreIdx].Cosmetics[CosmeticSlot].Pawn.Destroy();
+	PawnStore[StoreIdx].Cosmetics[CosmeticSlot].Pawn = none;
+	PawnStore[StoreIdx].Cosmetics[CosmeticSlot].ArchetypePawn = None;
+
+	return bSuccess;
+}
+// End issue #1108
+
 simulated function AssociateWeaponPawn(int CosmeticSlot, Actor WeaponPawn, int UnitRef,  XComUnitPawn OwningPawn, bool bUsePhotoboothPawns = false)
 {
 	local int PawnInfoIndex;
