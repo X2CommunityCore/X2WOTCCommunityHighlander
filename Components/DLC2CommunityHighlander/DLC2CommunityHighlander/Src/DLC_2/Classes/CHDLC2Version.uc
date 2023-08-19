@@ -10,7 +10,7 @@ var string Commit;
 defaultproperties
 {
 	MajorVersion = 1;
-	MinorVersion = 25;
+	MinorVersion = 26;
 	PatchVersion = 0;
 	Commit = "";
 }
