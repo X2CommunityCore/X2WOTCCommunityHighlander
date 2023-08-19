@@ -180,6 +180,9 @@ var config int NoiseAlertSoundRange;
 var config array<name> AdditionalAIBTActionPointTypes;
 // End Issue #510
 
+// variable for issue #620
+var config bool bConsiderAlliesforSoundAlerts;
+
 // Variable for Issue #724
 var config array<name> ValidReserveAPForUnitFlag;
 

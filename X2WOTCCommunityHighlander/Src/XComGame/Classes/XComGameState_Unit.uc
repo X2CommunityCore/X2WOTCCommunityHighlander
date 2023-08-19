@@ -9707,7 +9707,22 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 					GetKeystoneVisibilityLocation(SoundTileLocation);
 				}
 
-				GetEnemiesInRange(SoundTileLocation, SoundRange, Enemies);
+				// Start Issue #620
+				/// HL-Docs: feature:ConsiderAlliesforSoundAlerts; issue:620; tags:tactical
+				/// Normally units firing weapons alert only their enemies.
+				/// This feature allows units to alert their allies as well when they fire.
+				/// Note that this will not have any effect unless a mod has turned on
+				/// yellow alerts in `XComGameState_AIUnitData::ShouldEnemyFactionsTriggerAlertsOutsidePlayerVision()`,
+				/// since by default alert data is not recorded for sounds outside of XCom's vision.
+				if (class'CHHelpers'.default.bConsiderAlliesforSoundAlerts)
+				{
+					GetUnitsInRange(SoundTileLocation, SoundRange, Enemies);
+				}
+				else
+				{
+					GetEnemiesInRange(SoundTileLocation, SoundRange, Enemies);
+				}
+				// End Issue #620
 
 				`LogAI("Weapon sound @ Tile("$SoundTileLocation.X$","@SoundTileLocation.Y$","@SoundTileLocation.Z$") - Found"@Enemies.Length@"enemies in range ("$SoundRange$" meters)");
 				foreach Enemies(EnemyRef)
@@ -10901,6 +10916,47 @@ function GetUnitsInRangeOnTeam(ETeam Team, TTile kLocation, int nMeters, out arr
 	}
 }
 // End Issue #510
+
+// Start Issue #620
+/// HL-Docs: ref:ConsiderAlliesforSoundAlerts
+// Copied from XComGameState_Unit::GetEnemiesInRange(), except will include all units within
+// the specified range.
+private function GetUnitsInRange(TTile kLocation, int nMeters, out array<StateObjectReference> OutUnits)
+{
+	local vector vCenter, vLoc;
+	local float fDistSq;
+	local XComGameState_Unit kUnit;
+	local XComGameStateHistory History;
+	local eTeam Team;
+	local float AudioDistanceRadius, UnitHearingRadius, RadiiSumSquared;
+
+	History = `XCOMHISTORY;
+	vCenter = `XWORLD.GetPositionFromTileCoordinates(kLocation);
+	AudioDistanceRadius = `METERSTOUNITS(nMeters);
+	fDistSq = Square(AudioDistanceRadius);
+
+	foreach History.IterateByClassType(class'XComGameState_Unit', kUnit)
+	{
+		Team = kUnit.GetTeam();
+		if( Team != eTeam_Neutral && kUnit.IsAlive() )
+		{
+			vLoc = `XWORLD.GetPositionFromTileCoordinates(kUnit.TileLocation);
+			UnitHearingRadius = kUnit.GetCurrentStat(eStat_HearingRadius);
+
+			RadiiSumSquared = fDistSq;
+			if( UnitHearingRadius != 0 )
+			{
+				RadiiSumSquared = Square(AudioDistanceRadius + UnitHearingRadius);
+			}
+
+			if( VSizeSq(vLoc - vCenter) < RadiiSumSquared )
+			{
+				OutUnits.AddItem(kUnit.GetReference());
+			}
+		}
+	}
+}
+// End Issue #620
 
 native function float GetConcealmentDetectionDistance(const ref XComGameState_Unit DetectorUnit);
 
