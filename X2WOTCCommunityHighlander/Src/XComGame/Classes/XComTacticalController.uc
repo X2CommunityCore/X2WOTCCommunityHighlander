@@ -1017,7 +1017,15 @@ function DrawDebugLabels(Canvas kCanvas)
 		// Start Issue #490
 		//
 		// Allow mods to draw their own debug labels to the screen.
-		`XEVENTMGR.TriggerEvent('DrawDebugLabels', kCanvas, self);
+
+		// Start Issue #1245
+		//
+		// Skip triggering events when building game state. Doing so seems to degrade the performance of X2EventManager
+		if (!`XCOMGAME.GameRuleset.BuildingLatentGameState)
+		{
+			`XEVENTMGR.TriggerEvent('DrawDebugLabels', kCanvas, self);
+		}
+		// End Issue #1245
 		// End Issue #490
 	}
 }
