@@ -512,7 +512,7 @@ simulated /* protected */ function bool CanUnitMeleeFromMove(XComGameState_BaseO
 
 	// find the unit's default melee ability
 	UnitState = XComGameState_Unit(History.GetGameStateForObjectID(LastActiveUnit.ObjectID));
-	MeleeAbility = class'X2AbilityTrigger_EndOfMove'.static.GetAvailableEndOfMoveAbilityForUnit(UnitState);
+	MeleeAbility = class'X2AbilityTrigger_EndOfMove'.static.GetAvailableEndOfMoveAbilityForUnit_CH(UnitState, TargetObject); // Issue #1138
 	if(MeleeAbility == none)
 	{
 		return false;

@@ -293,9 +293,24 @@ struct OverrideHasHeightAdvantageStruct
 var protectedwrite array<OverrideHasHeightAdvantageStruct> OverrideHasHeightAdvantageCallbacks;
 // End Issue #851
 
+// Start Issue #1138
+struct PrioritizeRightClickMeleeStruct
+{
+	var delegate<PrioritizeRightClickMeleeDelegate> PrioritizeRightClickMeleeFn;
+	var int Priority;
+
+	structdefaultproperties
+	{
+		Priority = 50
+	}
+};
+var protectedwrite array<PrioritizeRightClickMeleeStruct> PrioritizeRightClickMeleeCallbacks;
+// End Issue #1138
+
 delegate EHLDelegateReturn ShouldDisplayMultiSlotItemInStrategyDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, out int bDisplayItem, XComUnitPawn UnitPawn, optional XComGameState CheckGameState); // Issue #885
 delegate EHLDelegateReturn ShouldDisplayMultiSlotItemInTacticalDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, out int bDisplayItem, XGUnit UnitVisualizer, optional XComGameState CheckGameState); // Issue #885
 delegate EHLDelegateReturn OverrideHasHeightAdvantageDelegate(XComGameState_Unit Attacker, XComGameState_Unit TargetUnit, out int bHasHeightAdvantage); // Issue #851
+delegate EHLDelegateReturn PrioritizeRightClickMeleeDelegate(XComGameState_Unit UnitState, out XComGameState_Ability PrioritizedMeleeAbility, optional XComGameState_BaseObject TargetObject); // Issue #1138
 
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
@@ -954,6 +969,95 @@ simulated function TriggerOverrideHasHeightAdvantage(XComGameState_Unit Attacker
 	}
 }
 // End Issue #851
+
+// Start Issue #1138
+/// HL-Docs: ref:PrioritizeRightClickMelee
+/// # Delegate Priority
+/// You can optionally specify callback Priority. The default Priority is 50.
+///```unrealscript
+///CHHelpersObj.AddPrioritizeRightClickMeleeCallback(PrioritizeRightClickMelee, 45);
+///```
+/// Delegates with higher Priority value are executed first. 
+/// Delegates with the same Priority are executed in the order they were added to CHHelpers,
+/// which would normally be the same as [DLCRunOrder](../misc/DLCRunOrder.md).
+/// This function will return `true` if the delegate was successfully registered.
+simulated final function bool AddPrioritizeRightClickMeleeCallback(delegate<PrioritizeRightClickMeleeDelegate> PrioritizeRightClickMeleeFn, optional int Priority = 50)
+{
+	local PrioritizeRightClickMeleeStruct NewPrioritizeRightClickMeleeCallback;
+	local int i, PriorityIndex;
+	local bool bPriorityIndexFound;
+
+	if (PrioritizeRightClickMeleeFn == none)
+	{
+		return false;
+	}
+	// Cycle through the array of callbacks backwards
+	for (i = PrioritizeRightClickMeleeCallbacks.Length - 1; i >= 0; i--)
+	{
+		// Do not allow registering the same delegate more than once.
+		if (PrioritizeRightClickMeleeCallbacks[i].PrioritizeRightClickMeleeFn == PrioritizeRightClickMeleeFn)
+		{
+			return false;
+		}
+
+		// Record the array index of the callback whose priority is higher or equal to the priority of the new callback,
+		// so that the new callback can be inserted right after it.
+		if (PrioritizeRightClickMeleeCallbacks[i].Priority >= Priority && !bPriorityIndexFound)
+		{
+			PriorityIndex = i + 1; // +1 so that InsertItem puts the new callback *after* this one. 
+
+			//	Keep cycling through the array so that the previous check for duplicate delegates can run for every currently registered delegate.
+			bPriorityIndexFound = true;
+		}
+	}
+
+	NewPrioritizeRightClickMeleeCallback.Priority = Priority;
+	NewPrioritizeRightClickMeleeCallback.PrioritizeRightClickMeleeFn = PrioritizeRightClickMeleeFn;
+	PrioritizeRightClickMeleeCallbacks.InsertItem(PriorityIndex, NewPrioritizeRightClickMeleeCallback);
+
+	return true;
+}
+
+/// HL-Docs: ref:PrioritizeRightClickMelee
+/// # Removing Delegates
+/// If necessary, use this function to remove a delegate.
+///```unrealscript
+///CHHelpersObj.RemovePrioritizeRightClickMeleeCallback(PrioritizeRightClickMelee);
+///```
+/// The function will return `true` if the Callback was successfully deleted, return `false` otherwise.
+simulated final function bool RemovePrioritizeRightClickMeleeCallback(delegate<PrioritizeRightClickMeleeDelegate> PrioritizeRightClickMeleeFn)
+{
+	local int i;
+
+	for (i = PrioritizeRightClickMeleeCallbacks.Length - 1; i >= 0; i--)
+	{
+		if (PrioritizeRightClickMeleeCallbacks[i].PrioritizeRightClickMeleeFn == PrioritizeRightClickMeleeFn)
+		{
+			PrioritizeRightClickMeleeCallbacks.Remove(i, 1);
+			return true;
+		}
+	}
+	return false;
+}
+
+// Called by X2AbilityTrigger_EndOfMove::GetAvailableEndOfMoveAbilityForUnit()
+// This is an internal CHL API. It is not intended for use by mods and is not covered by Backwards Compatibility policy.
+simulated final function TriggerPrioritizeRightClickMelee(XComGameState_Unit UnitState, out XComGameState_Ability PrioritizedMeleeAbility, optional XComGameState_BaseObject TargetObject)
+{
+	local delegate<PrioritizeRightClickMeleeDelegate> PrioritizeRightClickMeleeFn;
+	local int i;
+
+	for (i = 0; i < PrioritizeRightClickMeleeCallbacks.Length; i++)
+	{	
+		PrioritizeRightClickMeleeFn = PrioritizeRightClickMeleeCallbacks[i].PrioritizeRightClickMeleeFn;
+
+		if (PrioritizeRightClickMeleeFn(UnitState, PrioritizedMeleeAbility, TargetObject) == EHLDR_InterruptDelegates)
+		{
+			break;
+		}
+	}
+}
+// End Issue #1138
 
 // Start Issue #855
 static function name GetPlaceEvacZoneAbilityName()
