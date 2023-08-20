@@ -245,6 +245,9 @@ var config float ProjectileParticleSystemExpirationDefaultOverride;
 // Variable for Issue #817 - put the string here, as UIOptionsPCScreen is native and cannot have new variables.
 var localized string m_strFramerateSmoothingDisabledReason;
 
+// Variable added Issue #1245 - enables the triggering of the DrawDebugLabels CHL event
+var config bool bDrawDebugLabels;
+
 // Start Issue #885
 enum EHLDelegateReturn
 {
