@@ -124,13 +124,14 @@ simulated function UpdateResources()
 
 	CurrentScreen = `SCREENSTACK.GetCurrentScreen();
 
-	switch( CurrentScreen.Class )
+	// Start Issue #361: replaced 'switch' on CurrentScreen.Class to 'if' wih casting checks to support MCOs
+	if (UIFacilityGrid(CurrentScreen) != none)
 	{
-	case class'UIFacilityGrid':
 		UpdateDefaultResources();
 		UpdateStaff();
-		break;
-	case class'UIStrategyMap':
+	}
+	else if (UIStrategyMap(CurrentScreen) != none)
+	{
 		UpdateMonthlySupplies();
 		UpdateSupplies();
 		UpdateIntel();
@@ -139,8 +140,9 @@ simulated function UpdateResources()
 		UpdateScientistScore();
 		UpdateEngineerScore();
 		UpdateResContacts();
-		break;
-	case class'UIBlackMarket_Buy':
+	}
+	else if (UIBlackMarket_Buy(CurrentScreen) != none)
+	{
 		UpdateMonthlySupplies();
 		UpdateSupplies();
 		UpdateIntel();
@@ -148,73 +150,83 @@ simulated function UpdateResources()
 		UpdateAlienAlloys();
 		UpdateScientistScore();
 		UpdateEngineerScore();
-		break;
-	case class'UIBlackMarket_Sell':
+	}
+	else if (UIBlackMarket_Sell(CurrentScreen) != none)
+	{
 		UpdateMonthlySupplies();
 		UpdateSupplies();
-		break;
-	case class'UIResistanceGoods':
+	}
+	else if (UIResistanceGoods(CurrentScreen) != none)
+	{
 		UpdateMonthlySupplies();
 		UpdateSupplies();
 		UpdateScientistScore();
 		UpdateEngineerScore();
-		break;
-	case class'UIAdventOperations':
+	}
+	else if (UIAdventOperations(CurrentScreen) != none)
+	{
 		UpdateMonthlySupplies();
 		UpdateSupplies();
 		UpdateIntel();
-		break;
-	case class'UIChooseProject':
+	}
+	else if (UIChooseProject(CurrentScreen) != none)
+	{
 		UpdateMonthlySupplies();
 		UpdateSupplies();
 		UpdateEleriumCores();
 		UpdateEleriumCrystals();
 		UpdateAlienAlloys();
 		UpdateEngineerScore();
-		break;
-	case class'UIOfficerTrainingSchool':
-	case class'UIRecruitSoldiers':
+	}
+	else if (UIOfficerTrainingSchool(CurrentScreen) != none || UIRecruitSoldiers(CurrentScreen) != none)
+	{
 		UpdateMonthlySupplies();
 		UpdateSupplies();
-		break;
-	case class'UIBuildFacilities':
-	case class'UIChooseFacility':
+	}
+	else if (UIBuildFacilities(CurrentScreen) != none || UIChooseFacility(CurrentScreen) != none)
+	{
 		UpdateMonthlySupplies();
 		UpdateSupplies();
 		UpdatePower();
-		break;
-	case class'UIFacilityUpgrade':
-	case class'UIChooseUpgrade':
+	}
+	else if (UIFacilityUpgrade(CurrentScreen) != none || UIChooseUpgrade(CurrentScreen) != none)
+	{
 		UpdateMonthlySupplies();
 		UpdateSupplies();
 		UpdateEleriumCrystals();
 		UpdateAlienAlloys();
 		UpdatePower();
-		break;
-	case class'UIInventory_BuildItems':
+	}
+	else if (UIInventory_BuildItems(CurrentScreen) != none)
+	{
 		UpdateMonthlySupplies();
 		UpdateSupplies();
 		UpdateEleriumCrystals();
 		UpdateAlienAlloys();
 		UpdateEngineerScore();
-		break;
-	case class'UIChooseResearch':
+	}
+	else if (UIChooseResearch(CurrentScreen) != none)
+	{
 		UpdateIntel();
 		UpdateEleriumCrystals();
 		UpdateAlienAlloys();
 		UpdateScientistScore();
 		UpdateEngineerScore();
-		break;
-	case class'UIFacility_Labs':
+	}
+	else if (UIFacility_Labs(CurrentScreen) != none)
+	{
 		UpdateScientistScore();
-		break;
-	case class'UIFacility_PowerGenerator':
+	}
+	else if (UIFacility_PowerGenerator(CurrentScreen) != none)
+	{
 		UpdatePower();
-		break;
-	case class'UIFacility_ResistanceComms':
+	}
+	else if (UIFacility_ResistanceComms(CurrentScreen) != none)
+	{
 		UpdateResContacts();
-		break;
-	case class'UIAlert':		
+	}
+	else if (UIAlert(CurrentScreen) != none)
+	{
 		if (UIAlert(CurrentScreen).eAlertName == 'eAlert_Contact')
 		{
 			UpdateIntel();
@@ -227,17 +239,19 @@ simulated function UpdateResources()
 		{
 			HideResources();
 		}
-		break;
-	case class'UICovertActions':
+	}
+	else if (UICovertActions(CurrentScreen) != none)
+	{
 		UpdateSupplies();
 		UpdateIntel();
 		UpdateAlienAlloys();
 		UpdateEleriumCrystals();
-		break;
-	default:
-		HideResources();
-		break;
 	}
+	else
+	{
+		HideResources();
+	}
+	// End Issue #361
 
 	// Issue #174 Start
 	// Add event hook. Mods should register for this event with an ELD_Immediate listener (for example using CHEventListenerTemplate)
