@@ -1777,7 +1777,8 @@ function DLCAppendSockets()
 	local SkeletalMesh SkelMesh;
 	local string SkeletalMeshString;
 
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('DLCAppendSockets');
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
 		SkeletalMeshString = DLCInfos[i].DLCAppendSockets(self);
@@ -3762,7 +3763,8 @@ simulated exec function UpdateAnimations()
 
 	if (UnitState != none)
 	{
-		DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+		// Issue #212 use CHDLCHookManager
+		DLCInfos = `DLCHOOKMGR.GetDLCInfos('UpdateAnimations');
 		for(i = 0; i < DLCInfos.Length; ++i)
 		{
 			CustomAnimSets.Length = 0;

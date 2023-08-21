@@ -1502,7 +1502,8 @@ simulated function SetupDropshipMatinee()
 			UnitPawn = Unit.CreatePawn(self, ZeroVector, ZeroRotation);
 
 			// Start Issue #388
-			DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+			// Issue #212 use CHDLCHookManager
+			DLCInfos = `DLCHOOKMGR.GetDLCInfos('LoadingScreenOverrideTransitionMap');
 			for(i = 0; i < DLCInfos.Length; ++i)
 			{
 				if (DLCInfos[i].LoadingScreenOverrideTransitionMap(, Unit))
@@ -2013,7 +2014,8 @@ exec function TransferToNewMission(string MissionType, array<StateObjectReferenc
 	}
 
 	// give mods/dlcs a chance to modify the transfer state
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('ModifyTacticalTransferStartState');
 	foreach DLCInfos(DLCInfo)
 	{
 		DLCInfo.ModifyTacticalTransferStartState(StartState);

@@ -256,7 +256,8 @@ function MissionIntroDefinition GetActiveMissionIntroDefinition()
 
 	MissionIntro = GetActiveMissionIntroDefinition_Default(OverrideType, OverrideTag);
 
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('UseAlternateMissionIntroDefinition');
 	for (i = 0; i < DLCInfos.Length; ++i)
 	{
 		if(DLCInfos[i].UseAlternateMissionIntroDefinition(ActiveMission, OverrideType, OverrideTag, MissionIntro))

@@ -3938,7 +3938,8 @@ function array<SoldierClassAbilityType> GetEarnedSoldierAbilities()
 	// For example, the Officer Pack can use this to attach learned officer
 	// abilities to the unit and those abilities will automatically be reflected
 	// in various UI elements.
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('ModifyEarnedSoldierAbilities');
 	foreach DLCInfos(DLCInfo)
 	{
 		DLCInfo.ModifyEarnedSoldierAbilities(EarnedAbilities, self);
@@ -5063,7 +5064,8 @@ function array<AbilitySetupData> GatherUnitAbilitiesForInit(optional XComGameSta
 		}
 	}
 
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('FinalizeUnitAbilitiesForInit');
 	foreach DLCInfos(DLCInfo)
 	{
 		DLCInfo.FinalizeUnitAbilitiesForInit(self, arrData, StartState, PlayerState, bMultiplayerDisplay);
@@ -8198,7 +8200,8 @@ simulated function bool CanAddItemToInventory(const X2ItemTemplate ItemTemplate,
 	local array<XComGameState_Item> Items;
 
 	// Start Issue #50 and #114: inventory hook
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('CanAddItemToInventory_CH_Improved');
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
 		if(DLCInfos[i].CanAddItemToInventory_CH_Improved(bCanAddItem, Slot, ItemTemplate, Quantity, self, CheckGameState, BlankString, Item))
@@ -15755,7 +15758,8 @@ function int RealizeItemSlotsCount(XComGameState CheckGameState)
 		NumUtility += 1.0f;
 	}
 
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('GetNumUtilitySlotsOverride');
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
 		DLCInfos[i].GetNumUtilitySlotsOverride(NumUtility, ArmorItem, self, CheckGameState);
@@ -15774,7 +15778,8 @@ function int GetNumHeavyWeapons(optional XComGameState CheckGameState)
 
 	NumHeavy = HasHeavyWeapon(CheckGameState) ? 1 : 0;
 
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('GetNumHeavyWeaponSlotsOverride');
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
 		DLCInfos[i].GetNumHeavyWeaponSlotsOverride(NumHeavy, self, CheckGameState);

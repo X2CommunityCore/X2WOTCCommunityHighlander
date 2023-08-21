@@ -273,7 +273,6 @@ simulated function ExitPostMissionSequence()
 	local XComGameState_HeadquartersXCom XComHQ;
 	local XComGameState_HeadquartersResistance ResistanceHQ;
 	local X2EventManager EventManager;
-	local XComOnlineEventMgr OnlineEventManager;
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local XComGameState_CampaignSettings SettingsState;
 	local int i;
@@ -340,8 +339,9 @@ simulated function ExitPostMissionSequence()
 	SettingsState = XComGameState_CampaignSettings(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_CampaignSettings'));
 	`XENGINE.m_kPhotoManager.FillPropagandaTextureArray(ePWM_Campaign, SettingsState.GameIndex);
 
-	OnlineEventManager = `ONLINEEVENTMGR;
-	DLCInfos = OnlineEventManager.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('OnExitPostMissionSequence');
+
 	for (i = 0; i < DLCInfos.Length; ++i)
 	{
 		DLCInfos[i].OnExitPostMissionSequence();
@@ -1165,7 +1165,6 @@ function FirstFacilityCameraPanComplete()
 	local XComGameState NewGameState;
 	local StateObjectReference EmptyRef;
 	local XComGameState_MissionSite MissionState;
-	local XComOnlineEventMgr EventManager;
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local int i;
 
@@ -1199,8 +1198,8 @@ function FirstFacilityCameraPanComplete()
 	OnMissionSelected(MissionState, false);
 
 	// Once the first facility camera pan is completed and mission blades are displayed, queue up any DLC specific alerts
-	EventManager = `ONLINEEVENTMGR;
-	DLCInfos = EventManager.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('OnPostFacilityDoomVisualization');
 	for (i = 0; i < DLCInfos.Length; ++i)
 	{
 		DLCInfos[i].OnPostFacilityDoomVisualization();
@@ -2688,7 +2687,6 @@ simulated function UIMission_AlienFacility(XComGameState_MissionSite Mission, op
 simulated static function DoomAlertCB(Name eAction, out DynamicPropertySet AlertData, optional bool bInstant = false)
 {
 	local XComGameState_MissionSite MissionSite;
-	local XComOnlineEventMgr EventManager;
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local int i;
 
@@ -2700,8 +2698,8 @@ simulated static function DoomAlertCB(Name eAction, out DynamicPropertySet Alert
 	}
 
 	// Always push any DLC specific alerts, doesn't matter if the player views the facility mission blades or not
-	EventManager = `ONLINEEVENTMGR;
-	DLCInfos = EventManager.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('OnPostFacilityDoomVisualization');
 	for (i = 0; i < DLCInfos.Length; ++i)
 	{
 		DLCInfos[i].OnPostFacilityDoomVisualization();

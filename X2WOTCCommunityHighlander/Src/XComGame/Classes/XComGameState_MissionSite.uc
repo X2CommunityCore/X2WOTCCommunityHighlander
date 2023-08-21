@@ -183,7 +183,8 @@ function bool CacheSelectedMissionData(int ForceLevel, int AlertLevel)
 
 				// Start Issue #136
 				//LWS: Added hook to allow post-creation adjustment of instantiated encounter info
-				DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+				// Issue #212 use CHDLCHookManager
+				DLCInfos = `DLCHOOKMGR.GetDLCInfos('PostEncounterCreation');
 				for(i = 0; i < DLCInfos.Length; ++i)
 				{
 					DLCInfos[i].PostEncounterCreation(NewEncounter.SelectedEncounterName, NewEncounter.EncounterSpawnInfo, ForceLevel, AlertLevel, self);
@@ -534,7 +535,8 @@ function SetMissionData(X2RewardTemplate MissionReward, bool bUseSpecifiedLevelS
 	}
 
 	// Start Issue #157
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('PostSitRepCreation');
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
 		DLCInfos[i].PostSitRepCreation(GeneratedMission, self);

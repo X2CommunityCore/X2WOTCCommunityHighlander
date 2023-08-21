@@ -5761,12 +5761,11 @@ simulated function name GetNextTurnPhase(name CurrentState, optional name Defaul
 //Start issue #647
 function UpdateDLCLoadingTacticalGame()
 {
-	local XComOnlineEventMgr EventManager;
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local int i;
 
-	EventManager = `ONLINEEVENTMGR;
-	DLCInfos = EventManager.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('OnLoadedSavedGameToTactical');
 	for (i = 0; i < DLCInfos.Length; ++i)
 	{
 		DLCInfos[i].OnLoadedSavedGameToTactical();
