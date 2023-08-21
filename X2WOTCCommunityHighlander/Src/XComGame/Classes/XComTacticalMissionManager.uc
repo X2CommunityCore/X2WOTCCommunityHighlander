@@ -1745,23 +1745,22 @@ function bool ValidateTier2HackRewards(string CardLabel, Object ValidationData)
 	HackRewardTemplate = HackRewardTemplateManager.FindHackRewardTemplate(Name(CardLabel));
 
 	// Issue #324 - none-check HackRewardTemplate to prevent a log warning.
-	if (HackRewardTemplate != none)
+	if (HackRewardTemplate == none) return false;
+	
+	if( !HackRewardTemplate.bIsTier2Reward )
 	{
-		if( !HackRewardTemplate.bIsTier2Reward )
-		{
-			return false;
-		}
+		return false;
+	}
 
-		if (BuildingChallengeMission && HackRewardTemplate.bIsStrategyReward)
-		{
-			return false;
-		}
+	if (BuildingChallengeMission && HackRewardTemplate.bIsStrategyReward)
+	{
+		return false;
+	}
 
-		// TODO: add additional validation for strategy requirements
-		if( !HackRewardTemplate.IsHackRewardCurrentlyPossible() )
-		{
-			return false;
-		}
+	// TODO: add additional validation for strategy requirements
+	if( !HackRewardTemplate.IsHackRewardCurrentlyPossible() )
+	{
+		return false;
 	}
 
 	return true;
@@ -1776,31 +1775,30 @@ function bool ValidateTier1HackRewards(string CardLabel, Object ValidationData)
 	HackRewardTemplate = HackRewardTemplateManager.FindHackRewardTemplate(Name(CardLabel));
 
 	// Issue #324 - none-check HackRewardTemplate to prevent a log warning.
-	if (HackRewardTemplate != none)
+	if (HackRewardTemplate == none) return false;
+
+	if( !HackRewardTemplate.bIsTier1Reward )
 	{
-		if( !HackRewardTemplate.bIsTier1Reward )
+		return false;
+	}
+
+	if( HackRewardTemplate.LinkedReward != '' )
+	{
+		if( HackRewardTemplate.bPairWithLinkedReward == (HackRewardTemplate.LinkedReward != LastSelectedRewardName) )
 		{
 			return false;
 		}
+	}
 
-		if( HackRewardTemplate.LinkedReward != '' )
-		{
-			if( HackRewardTemplate.bPairWithLinkedReward == (HackRewardTemplate.LinkedReward != LastSelectedRewardName) )
-			{
-				return false;
-			}
-		}
+	if (BuildingChallengeMission && HackRewardTemplate.bIsStrategyReward)
+	{
+		return false;
+	}
 
-		if (BuildingChallengeMission && HackRewardTemplate.bIsStrategyReward)
-		{
-			return false;
-		}
-
-		// TODO: add additional validation for strategy requirements
-		if( !HackRewardTemplate.IsHackRewardCurrentlyPossible() )
-		{
-			return false;
-		}
+	// TODO: add additional validation for strategy requirements
+	if( !HackRewardTemplate.IsHackRewardCurrentlyPossible() )
+	{
+		return false;
 	}
 
 	return true;
