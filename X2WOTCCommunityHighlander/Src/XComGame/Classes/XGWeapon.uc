@@ -38,7 +38,8 @@ simulated function DLCInfoInit(optional XComGameState_Item ItemState=none)
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local X2DownloadableContentInfo DLCInfo;
 
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('WeaponInitialized');
 	foreach DLCInfos(DLCInfo)
 	{
 		DLCInfo.WeaponInitialized(self, XComWeapon(m_kEntity), ItemState);
@@ -222,7 +223,8 @@ simulated function DLCInfoAddSockets(XComWeapon Weapon, XComGameState_Item ItemS
 	local X2DownloadableContentInfo DLCInfo;
 	local array<SkeletalMeshSocket> NewSockets;
 
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('DLCAppendWeaponSockets');
 	foreach DLCInfos(DLCInfo)
 	{
 		DLCInfo.DLCAppendWeaponSockets(NewSockets, Weapon, ItemState);
@@ -381,7 +383,8 @@ simulated function DLCInfoUpdateWeaponMaterial(MeshComponent MeshComp)
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local X2DownloadableContentInfo DLCInfo;
 
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('UpdateWeaponMaterial');
 	foreach DLCInfos(DLCInfo)
 	{
 		DLCInfo.UpdateWeaponMaterial(self, MeshComp);

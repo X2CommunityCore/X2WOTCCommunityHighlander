@@ -417,7 +417,8 @@ final protected function ModifyGeneratedUnitAppearance(optional name CharacterTe
 	local int i;
 	
 	/// HL-Docs: ref:ModifyGeneratedUnitAppearance
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('ModifyGeneratedUnitAppearance');
 	for (i = 0; i < DLCInfos.Length; i++)
 	{
 		DLCInfos[i].ModifyGeneratedUnitAppearance(self, CharacterTemplateName, eForceGender, nmCountry, iRace, ArmorName, GenerateAppearanceForUnitState, GenerateAppearanceForGameState);

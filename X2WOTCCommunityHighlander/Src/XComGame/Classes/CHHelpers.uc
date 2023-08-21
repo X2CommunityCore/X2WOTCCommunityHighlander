@@ -590,7 +590,8 @@ static function UpdateTransitionMap()
 	local int i;
 	local string OverrideMapName;
 
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('LoadingScreenOverrideTransitionMap');
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
 		DLCInfos[i].LoadingScreenOverrideTransitionMap(OverrideMapName);
