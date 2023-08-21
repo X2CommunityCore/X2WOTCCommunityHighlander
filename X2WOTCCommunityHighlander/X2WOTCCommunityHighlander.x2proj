@@ -868,6 +868,9 @@
     <Content Include="Src\XComGame\Classes\XComHQPresentationLayer.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComHQPresentationLayerBase.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComHumanPawn.uc">
       <SubType>Content</SubType>
     </Content>
@@ -1025,6 +1028,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComPresentationLayer.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComPresentationLayerBase.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XGAIPlayer.uc">
