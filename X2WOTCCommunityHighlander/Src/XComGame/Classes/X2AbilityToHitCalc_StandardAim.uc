@@ -359,10 +359,7 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 	else if (bIndirectFire)
 	{
 		m_ShotBreakdown.HideShotBreakdown = true;
-
-		/// HL-Docs: ref:Bugfixes; issue:1213
-		/// Treat bIndirectFire same as bGuaranteedHit for the purposes of hit chance modifiers.
-		super.AddModifier(100, AbilityTemplate.LocFriendlyName, m_ShotBreakdown, eHit_Success, bDebugLog);
+		AddModifier(100, AbilityTemplate.LocFriendlyName, m_ShotBreakdown, eHit_Success, bDebugLog);
 	}
 
 	// Issue #346: AddModifier(BuiltIn...Mod) block moved later in method.
@@ -879,9 +876,7 @@ function int GetModifiedHitChanceForCurrentDifficulty(XComGameState_Player Insti
 
 protected function AddModifier(const int ModValue, const string ModReason, out ShotBreakdown m_ShotBreakdown, EAbilityHitResult ModType = eHit_Success, bool bDebugLog = false)
 {
-	/// HL-Docs: ref:Bugfixes; issue:1213
-	/// Treat bIndirectFire same as bGuaranteedHit for the purposes of hit chance modifiers.
-	if (bGuaranteedHit || m_ShotBreakdown.SpecialGuaranteedHit != '' || bIndirectFire)
+	if (bGuaranteedHit || m_ShotBreakdown.SpecialGuaranteedHit != '')
 	{
 		if (ModType != eHit_Crit)             //  for a guaranteed hit, the only possible modifier is to allow for crit
 			return;
