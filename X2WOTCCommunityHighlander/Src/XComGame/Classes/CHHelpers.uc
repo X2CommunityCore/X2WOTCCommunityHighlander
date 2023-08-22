@@ -245,8 +245,9 @@ var config float ProjectileParticleSystemExpirationDefaultOverride;
 // Variable for Issue #817 - put the string here, as UIOptionsPCScreen is native and cannot have new variables.
 var localized string m_strFramerateSmoothingDisabledReason;
 
-// Variable added Issue #717 - allow disabling the civilian pre-move yell
+// Variables added Issue #717 - allow disabling the civilian pre-move yell
 var config bool bDisableCivilianPreMoveYell;
+var config bool bDisableYellRedAlert;
 
 // Start Issue #885
 enum EHLDelegateReturn

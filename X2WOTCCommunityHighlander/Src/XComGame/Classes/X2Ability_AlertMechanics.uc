@@ -322,7 +322,10 @@ static function X2AbilityTemplate AddYellAbility()
 	Template.AbilityToHitCalc = ChanceToActivate;
 
 	//Effect on a successful test is adding the red alert persistent effect to the unit
-	AddRedAlertEffects(Template, true);
+
+	/// HL-Docs: feature:YellRedAlert; issue:717; tags:
+	/// Add config option to the "Yell" ability applying a RedAlert effect to nearby units.  
+	AddRedAlertEffects(Template, !(class'CHHelpers'.default.bDisableYellRedAlert));
 
 	//Trigger on player input.
 	InputTrigger = new class'X2AbilityTrigger_PlayerInput';
@@ -331,10 +334,15 @@ static function X2AbilityTemplate AddYellAbility()
 	SingleTarget = new class'X2AbilityTarget_Self';
 	Template.AbilityTargetStyle = SingleTarget;
 
-	MultiTarget = new class'X2AbilityMultiTarget_Radius';
-	MultiTarget.fTargetRadius = 27;
-	MultiTarget.bIgnoreBlockingCover = true;
-	Template.AbilityMultiTargetStyle = MultiTarget;
+	// Start Issue #717 - if red alert multitargeteffect is disabled, remove adding the multitargetingstyle as well.
+	if(!(class'CHHelpers'.default.bDisableYellRedAlert))
+	{
+		MultiTarget = new class'X2AbilityMultiTarget_Radius';
+		MultiTarget.fTargetRadius = 27;
+		MultiTarget.bIgnoreBlockingCover = true;
+		Template.AbilityMultiTargetStyle = MultiTarget;
+	}
+	// End issue #717
 
 	Template.AbilitySourceName = 'eAbilitySource_Standard';
 	Template.eAbilityIconBehaviorHUD = EAbilityIconBehavior_NeverShow;
