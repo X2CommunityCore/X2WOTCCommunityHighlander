@@ -1707,7 +1707,9 @@ function SelectHackRewards(Name RewardDeck, Name NegativeRewardDeck, out array<N
 
 	// if the Tier 2 reward has an accompanying Tier 1 variant, select that as well
 	HackRewardTemplate = HackRewardTemplateManager.FindHackRewardTemplate(LastSelectedRewardName);
-	if( HackRewardTemplate.bPairWithLinkedReward && HackRewardTemplate.LinkedReward != '' )
+
+	// Issue #324 - none-check HackRewardTemplate to prevent a log warning.
+	if( HackRewardTemplate != none && HackRewardTemplate.bPairWithLinkedReward && HackRewardTemplate.LinkedReward != '' )
 	{
 		RewardList.InsertItem(0, HackRewardTemplate.LinkedReward);
 	}
@@ -1720,7 +1722,8 @@ function SelectHackRewards(Name RewardDeck, Name NegativeRewardDeck, out array<N
 	}
 
 	// always mark the linked reward card as used
-	if( HackRewardTemplate.LinkedReward != '' )
+	// Issue #324 - none-check HackRewardTemplate to prevent a log warning.
+	if( HackRewardTemplate != none && HackRewardTemplate.LinkedReward != '' )
 	{
 		CardManager.MarkCardUsed(RewardDeck, string(HackRewardTemplate.LinkedReward));
 	}
@@ -1740,6 +1743,10 @@ function bool ValidateTier2HackRewards(string CardLabel, Object ValidationData)
 
 	HackRewardTemplateManager = class'X2HackRewardTemplateManager'.static.GetHackRewardTemplateManager();
 	HackRewardTemplate = HackRewardTemplateManager.FindHackRewardTemplate(Name(CardLabel));
+
+	// Issue #324 - none-check HackRewardTemplate to prevent a log warning.
+	if (HackRewardTemplate == none)
+		return false;
 
 	if( !HackRewardTemplate.bIsTier2Reward )
 	{
@@ -1767,6 +1774,10 @@ function bool ValidateTier1HackRewards(string CardLabel, Object ValidationData)
 	
 	HackRewardTemplateManager = class'X2HackRewardTemplateManager'.static.GetHackRewardTemplateManager();
 	HackRewardTemplate = HackRewardTemplateManager.FindHackRewardTemplate(Name(CardLabel));
+
+	// Issue #324 - none-check HackRewardTemplate to prevent a log warning.
+	if (HackRewardTemplate == none)
+		return false;
 
 	if( !HackRewardTemplate.bIsTier1Reward )
 	{
