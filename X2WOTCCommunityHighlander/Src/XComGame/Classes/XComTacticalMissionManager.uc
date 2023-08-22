@@ -1707,9 +1707,7 @@ function SelectHackRewards(Name RewardDeck, Name NegativeRewardDeck, out array<N
 
 	// if the Tier 2 reward has an accompanying Tier 1 variant, select that as well
 	HackRewardTemplate = HackRewardTemplateManager.FindHackRewardTemplate(LastSelectedRewardName);
-
-	// Issue #324 - none-check HackRewardTemplate to prevent a log warning.
-	if(HackRewardTemplate != none && HackRewardTemplate.bPairWithLinkedReward && HackRewardTemplate.LinkedReward != '' )
+	if( HackRewardTemplate.bPairWithLinkedReward && HackRewardTemplate.LinkedReward != '' )
 	{
 		RewardList.InsertItem(0, HackRewardTemplate.LinkedReward);
 	}
@@ -1722,8 +1720,7 @@ function SelectHackRewards(Name RewardDeck, Name NegativeRewardDeck, out array<N
 	}
 
 	// always mark the linked reward card as used
-	// Issue #324 - none-check HackRewardTemplate to prevent a log warning.
-	if(HackRewardTemplate != none && HackRewardTemplate.LinkedReward != '' )
+	if( HackRewardTemplate.LinkedReward != '' )
 	{
 		CardManager.MarkCardUsed(RewardDeck, string(HackRewardTemplate.LinkedReward));
 	}
@@ -1744,24 +1741,20 @@ function bool ValidateTier2HackRewards(string CardLabel, Object ValidationData)
 	HackRewardTemplateManager = class'X2HackRewardTemplateManager'.static.GetHackRewardTemplateManager();
 	HackRewardTemplate = HackRewardTemplateManager.FindHackRewardTemplate(Name(CardLabel));
 
-	// Issue #324 - none-check HackRewardTemplate to prevent a log warning.
-	if (HackRewardTemplate != none)
+	if( !HackRewardTemplate.bIsTier2Reward )
 	{
-		if( !HackRewardTemplate.bIsTier2Reward )
-		{
-			return false;
-		}
+		return false;
+	}
 
-		if (BuildingChallengeMission && HackRewardTemplate.bIsStrategyReward)
-		{
-			return false;
-		}
+	if (BuildingChallengeMission && HackRewardTemplate.bIsStrategyReward)
+	{
+		return false;
+	}
 
-		// TODO: add additional validation for strategy requirements
-		if( !HackRewardTemplate.IsHackRewardCurrentlyPossible() )
-		{
-			return false;
-		}
+	// TODO: add additional validation for strategy requirements
+	if( !HackRewardTemplate.IsHackRewardCurrentlyPossible() )
+	{
+		return false;
 	}
 
 	return true;
@@ -1775,32 +1768,28 @@ function bool ValidateTier1HackRewards(string CardLabel, Object ValidationData)
 	HackRewardTemplateManager = class'X2HackRewardTemplateManager'.static.GetHackRewardTemplateManager();
 	HackRewardTemplate = HackRewardTemplateManager.FindHackRewardTemplate(Name(CardLabel));
 
-	// Issue #324 - none-check HackRewardTemplate to prevent a log warning.
-	if (HackRewardTemplate != none)
+	if( !HackRewardTemplate.bIsTier1Reward )
 	{
-		if( !HackRewardTemplate.bIsTier1Reward )
+		return false;
+	}
+
+	if( HackRewardTemplate.LinkedReward != '' )
+	{
+		if( HackRewardTemplate.bPairWithLinkedReward == (HackRewardTemplate.LinkedReward != LastSelectedRewardName) )
 		{
 			return false;
 		}
+	}
 
-		if( HackRewardTemplate.LinkedReward != '' )
-		{
-			if( HackRewardTemplate.bPairWithLinkedReward == (HackRewardTemplate.LinkedReward != LastSelectedRewardName) )
-			{
-				return false;
-			}
-		}
+	if (BuildingChallengeMission && HackRewardTemplate.bIsStrategyReward)
+	{
+		return false;
+	}
 
-		if (BuildingChallengeMission && HackRewardTemplate.bIsStrategyReward)
-		{
-			return false;
-		}
-
-		// TODO: add additional validation for strategy requirements
-		if( !HackRewardTemplate.IsHackRewardCurrentlyPossible() )
-		{
-			return false;
-		}
+	// TODO: add additional validation for strategy requirements
+	if( !HackRewardTemplate.IsHackRewardCurrentlyPossible() )
+	{
+		return false;
 	}
 
 	return true;
