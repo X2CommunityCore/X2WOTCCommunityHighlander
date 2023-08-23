@@ -8720,6 +8720,12 @@ simulated function bool HasLoadout(name LoadoutName, optional XComGameState Chec
 	{
 		foreach Loadout.Items(LoadoutItem)
 		{
+			// Issue #1253 skip non-existing items, so that it not fails the HasLoadout test if the item template does not exist
+			if (ItemTemplateManager.FindItemTemplate(LoadoutItem.Item) == none)
+			{
+				continue;
+			}
+
 			if(!HasItemOfTemplateType(LoadoutItem.Item, CheckGameState))
 			{
 				return false;
