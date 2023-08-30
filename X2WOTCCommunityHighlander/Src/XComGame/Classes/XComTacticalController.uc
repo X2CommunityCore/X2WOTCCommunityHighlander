@@ -1015,12 +1015,18 @@ function DrawDebugLabels(Canvas kCanvas)
 		}
 			
 		// Start Issue #490
-		//
-		// Allow mods to draw their own debug labels to the screen.
-
-		/// HL-Docs: feature:DrawDebugLabels; issue:1245; tags:tactical
-		/// Add config option to enable triggering the DrawDebugLabels CHL event
-
+		/// HL-Docs: feature:DrawDebugLabels; issue:490; tags:tactical
+		/// Allow mods to draw their own debug labels to the screen. Make sure to set 'bDrawDebugLabels = true'
+		/// in XComGame.ini for this event to start triggering.
+		///
+		/// ```event
+		/// EventID: DrawDebugLabels,
+		/// EventData: Canvas (kCanvas),
+		/// EventSource: XComTacticalController (TacticalController),
+		/// NewGameState: none
+		/// ```
+		
+		// Start Issue #1245
 		// Skip triggering events when building game state. Doing so seems to degrade the performance of X2EventManager
 		if (class'CHHelpers'.default.bDrawDebugLabels && !`GAMERULES.BuildingLatentGameState)
 		{
