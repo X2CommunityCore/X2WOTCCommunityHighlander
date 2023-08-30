@@ -9,15 +9,15 @@
 
 class UITacticalHUD_Enemies extends UIPanel implements(X2VisualizationMgrObserverInterface);
 
-// Start Issue #1233 wrapper for sort delegate
-struct StateObjectReferenceHitChange
+// Start Issue #1233 wrapper for enemy targets sort delegate
+struct StateObjectReferenceHitChance
 {
 	var StateObjectReference Object;
 	var XComGameState_BaseObject GameState;
 	var int HitChance;
 };
 
-var array<StateObjectReferenceHitChange> m_arrTargetsUnsorted;
+var array<StateObjectReferenceHitChance> m_arrTargetsUnsorted;
 // End Issue #1233
 
 var Actor m_kTargetActor;
@@ -317,7 +317,7 @@ simulated function UpdateVisibleEnemies(int HistoryIndex)
 	local int i;
 	local XComGameState_Ability CurrentAbilityState;
 	local X2AbilityTemplate AbilityTemplate;
-	local StateObjectReferenceHitChange TargetWrapper;
+	local StateObjectReferenceHitChance TargetWrapper;
 
 	m_arrSSEnemies.length = 0;
 	m_arrCurrentlyAffectable.length = 0;
@@ -362,11 +362,9 @@ simulated function UpdateVisibleEnemies(int HistoryIndex)
 		
 		iNumVisibleEnemies = m_arrTargets.Length;
 
-		// Start Issue #1233 cache some expensive calls and use that in our custom sort delegate
+		// Start Issue #1233 cache some expensive calls and use that in our custom sort delegate	
 		
-		//m_arrTargets.Sort(SortEnemies);
-
-		m_arrTargetsUnsorted.Length = 0;
+		m_arrTargetsUnsorted.Length = iNumVisibleEnemies;
 		
 		for (i = 0; i < iNumVisibleEnemies; ++i)
 		{			
@@ -374,18 +372,18 @@ simulated function UpdateVisibleEnemies(int HistoryIndex)
 			TargetWrapper.HitChance = GetHitChanceForObjectRef(TargetWrapper.Object);
 			TargetWrapper.GameState = History.GetGameStateForObjectID(TargetWrapper.Object.ObjectID);
 
-			m_arrTargetsUnsorted.AddItem(TargetWrapper);
+			m_arrTargetsUnsorted[i] = TargetWrapper;
 		}
 	
 		// use our improved sort delegate
 		m_arrTargetsUnsorted.Sort(SortEnemiesImproved);
 
-		m_arrTargets.Length = 0;
+		m_arrTargets.Length = iNumVisibleEnemies;
 		for (i = 0; i < iNumVisibleEnemies; ++i)
 		{
-			m_arrTargets.AddItem(m_arrTargetsUnsorted[i].Object);
+			m_arrTargets[i] = m_arrTargetsUnsorted[i].Object;
 		}
-		
+
 		// End Issue #1233
 
 		UpdateVisuals(HistoryIndex);
@@ -510,7 +508,7 @@ simulated function int SortEnemies(StateObjectReference ObjectA, StateObjectRefe
 }
 
 // Start Issue #1233 hot path, use cached values only
-simulated function int SortEnemiesImproved(StateObjectReferenceHitChange ObjectA, StateObjectReferenceHitChange ObjectB)
+simulated function int SortEnemiesImproved(StateObjectReferenceHitChance ObjectA, StateObjectReferenceHitChance ObjectB)
 {
 	local XComGameState_Destructible DestructibleTargetA, DestructibleTargetB;
 
