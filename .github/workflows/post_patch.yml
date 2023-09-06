@@ -18,7 +18,7 @@ jobs:
       with:
         python-version: '3.x'
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Download artifacts
       id: check-diff
       shell: bash {0}
@@ -28,16 +28,16 @@ jobs:
         python ./.scripts/extract_diff.py ${{ github.event.workflow_run.artifacts_url }} ${{ secrets.GITHUB_TOKEN }}
         if [ $? -eq 0 ]
         then
-          echo "::set-output name=has-diff::true"
-          echo "::set-output name=pr-number::$(cat pr_number.txt)"
+          echo "has-diff=true" >> $GITHUB_OUTPUT
+          echo "pr-number=$(cat pr_number.txt)" >> $GITHUB_OUTPUT
           body=$(cat msg.txt)
           body="${body//'%'/'%25'}"
           body="${body//$'\n'/'%0A'}"
           body="${body//$'\r'/'%0D'}" 
-          echo "::set-output name=body::$body"
+          echo "body=$body" >> $GITHUB_OUTPUT
         fi;
     - name: Find existing comment
-      uses: peter-evans/find-comment@v1
+      uses: peter-evans/find-comment@v2
       id: find-comment
       if: ${{ steps.check-diff.outputs.has-diff }}
       with:
@@ -45,7 +45,7 @@ jobs:
         body-includes: GHA-event-listeners-diff
     - name: Create PR comment
       if: ${{ steps.check-diff.outputs.has-diff }}
-      uses: peter-evans/create-or-update-comment@v1
+      uses: peter-evans/create-or-update-comment@v3
       with:
         edit-mode: replace
         issue-number: ${{ steps.check-diff.outputs.pr-number }}
