@@ -102,7 +102,7 @@ jobs:
         name: docs-html
         path: target
     - name: Deploy
-      uses: crazy-max/ghaction-github-pages@v2
+      uses: crazy-max/ghaction-github-pages@v4
       with:
         target_branch: gh-pages
         build_dir: target # The folder the action should deploy.
