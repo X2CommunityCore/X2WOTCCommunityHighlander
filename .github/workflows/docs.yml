@@ -10,7 +10,7 @@ jobs:
       with:
         python-version: '3.x'
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Test docs script
       run: |
         cd test/docs
@@ -25,7 +25,7 @@ jobs:
       with:
         python-version: '3.x'
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: '0'
     - name: Find generated event templates
@@ -61,7 +61,7 @@ jobs:
         then
           echo "Difference found"
           cat tmp_art/new_contents.diff
-          echo "::set-output name=has-diff::true"
+          echo "has-diff=true" >> $GITHUB_OUTPUT
           echo $PR_NUMBER > tmp_art/pr_number.txt
         fi
     - name: Upload the diff
@@ -78,7 +78,7 @@ jobs:
       with:
         python-version: '3.x'
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Build Docs
       run: |
         python ./.scripts/make_docs.py --indirsfile ./docs_directories.txt --outdir ./mkdocs --docsdir ./docs_src
