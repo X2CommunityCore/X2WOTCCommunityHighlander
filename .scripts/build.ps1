@@ -69,7 +69,7 @@ if ($compiletest) {
     $builder.AddPreMakeHook({
         Write-Host "Including CHL_Event_Compiletest"
         # n.b. this copies from the `target` directory where it is generated into, see tasks.json
-        Copy-Item "..\target\CHL_Event_Compiletest.uc" "$sdkPath\Development\Src\X2WOTCCommunityHighlander\Classes\" -Force -WarningAction SilentlyContinue
+        Copy-Item ".\target\CHL_Event_Compiletest.uc" "$sdkPath\Development\Src\X2WOTCCommunityHighlander\Classes\" -Force -WarningAction SilentlyContinue
     })
 }
 

@@ -294,7 +294,10 @@ def make_listener_template(sess, spec: dict) -> str:
                     else:
                         unwraps += f"\t{name} = Tuple.Data[{idx}].{tup_prop};\n"
                 else:
-                    unwraps += f"\t{name} = {tup_type}(Tuple.Data[{idx}].o);\n"
+                    if tup_type.lower() == "object":
+                        unwraps += f"\t{name} = Tuple.Data[{idx}].o;\n"
+                    else:
+                        unwraps += f"\t{name} = {tup_type}(Tuple.Data[{idx}].o);\n"
 
             if inoutness.is_out():
                 if tup_prop:
