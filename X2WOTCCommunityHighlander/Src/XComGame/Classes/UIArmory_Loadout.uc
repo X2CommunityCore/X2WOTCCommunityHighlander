@@ -746,7 +746,6 @@ simulated function string GetDisabledReason(XComGameState_Item Item, EInventoryS
 	
 	ItemTemplate = Item.GetMyTemplate();
 	UpdatedUnit = GetUnit();
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
 	
 	// Disable the weapon cannot be equipped by the current soldier class
 	WeaponTemplate = X2WeaponTemplate(ItemTemplate);
@@ -841,6 +840,8 @@ simulated function string GetDisabledReason(XComGameState_Item Item, EInventoryS
 	//start of Issue #50: add hook to UI to show disabled reason, if possible
 	//start of Issue #114: added ItemState of what's being looked at for more expansive disabling purposes
 	//issue #127: hook now fires all the time instead of a specific use case scenario
+	// Issue #212: use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('CanAddItemToInventory_CH_Improved');
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
 		if(!DLCInfos[i].CanAddItemToInventory_CH_Improved(UnusedOutInt, SelectedSlot, ItemTemplate, Item.Quantity, UpdatedUnit, , DLCReason, Item))

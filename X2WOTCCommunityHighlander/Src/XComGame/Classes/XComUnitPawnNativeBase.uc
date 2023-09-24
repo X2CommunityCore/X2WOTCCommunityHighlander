@@ -708,7 +708,8 @@ simulated function DLCInfoPostInitAnimTree(SkeletalMeshComponent SkelComp)
 		UnitState = Unit.GetVisualizedGameState();
 	}
 
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('UnitPawnPostInitAnimTree');
 	foreach DLCInfos(DLCInfo)
 	{
 		DLCInfo.UnitPawnPostInitAnimTree(UnitState, self, SkelComp);

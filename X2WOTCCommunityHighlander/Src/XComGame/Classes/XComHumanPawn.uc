@@ -970,7 +970,8 @@ simulated function UpdateMeshMaterials(MeshComponent MeshComp, optional bool bAt
 		}
 
 		/// HL-Docs: ref:UpdateHumanPawnMeshComponent
-		DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+		// Issue #212 use CHDLCHookManager
+		DLCInfos = `DLCHOOKMGR.GetDLCInfos('UpdateHumanPawnMeshComponent');
 		for(i = 0; i < DLCInfos.Length; ++i)
 		{
 			DLCInfos[i].UpdateHumanPawnMeshComponent(UnitState, self, MeshComp);

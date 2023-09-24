@@ -615,7 +615,8 @@ simulated function UpdateDifficulty(UICheckbox CheckboxControl)
 	}
 
 	//start Issue #148
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('UpdateUIOnDifficultyChange');
 	foreach DLCInfos(DLCInfo)
 	{
 		DLCInfo.UpdateUIOnDifficultyChange(self);
@@ -881,7 +882,8 @@ simulated public function OnDifficultyConfirm(UIButton ButtonControl)
 		`GAMERULES.SubmitGameState(NewGameState);
 		
 		// Perform any DLC-specific difficulty updates
-		DLCInfos = EventManager.GetDLCInfos(false);
+		// Issue #212 use CHDLCHookManager
+		DLCInfos = `DLCHOOKMGR.GetDLCInfos('OnDifficultyChanged');
 		for (idx = 0; idx < DLCInfos.Length; ++idx)
 		{
 			DLCInfos[idx].OnDifficultyChanged();

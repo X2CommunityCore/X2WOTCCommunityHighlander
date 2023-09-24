@@ -267,7 +267,8 @@ event Init()
 	LiveClient = `FXSLIVE;
 
 	// Start issue #412
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('OnPreCreateTemplates');
 	foreach DLCInfos(DLCInfo)
 	{
 		DLCInfo.OnPreCreateTemplates();

@@ -463,13 +463,12 @@ function UpdateResistance()
 
 function UpdateDLCs()
 {
-	local XComOnlineEventMgr EventManager;
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local int i;
 	
 	// Update each DLC
-	EventManager = `ONLINEEVENTMGR;
-	DLCInfos = EventManager.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('UpdateDLC');
 	for (i = 0; i < DLCInfos.Length; ++i)
 	{
 		DLCInfos[i].UpdateDLC();

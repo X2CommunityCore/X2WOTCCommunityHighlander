@@ -79,7 +79,6 @@ static function SimCombat()
 	local int NumAlive;
 	local bool bTacticalSuccess, bStrategySuccess, bTriadSuccess;
 	local array<StateObjectReference> Enemies;
-	local XComOnlineEventMgr EventManager;
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local int i;
 
@@ -100,8 +99,8 @@ static function SimCombat()
 
 	class'XComGameStateContext_StrategyGameRule'.static.SquadTacticalToStrategyTransfer();
 
-	EventManager = `ONLINEEVENTMGR;
-	DLCInfos = EventManager.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('OnPostMission');
 	for (i = 0; i < DLCInfos.Length; ++i)
 	{
 		DLCInfos[i].OnPostMission();
@@ -276,7 +275,6 @@ static function InitializeMission(out TSimCombatSummaryData SummaryData)
 	local XComGameState_Player CivilianPlayerState;
 	local XComGameState_Player ResistancePlayerState;
 	local XComGameState_GameTime TimeState;
-	local XComOnlineEventMgr EventManager;
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local int i;
 
@@ -290,8 +288,8 @@ static function InitializeMission(out TSimCombatSummaryData SummaryData)
 	XComHQ.AddMissionTacticalTags(MissionState);
 	MissionData = XComHQ.GetGeneratedMissionData(XComHQ.MissionRef.ObjectID);
 
-	EventManager = `ONLINEEVENTMGR;
-		DLCInfos = EventManager.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('OnPreMission');
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
 		DLCInfos[i].OnPreMission(NewGameState, MissionState);
@@ -325,8 +323,8 @@ static function InitializeMission(out TSimCombatSummaryData SummaryData)
 	SummaryData.MissionType = class'X2MissionTemplateManager'.static.GetMissionTemplateManager().GetMissionDisplayName(MissionData.Mission.MissionName);
 	SummaryData.MissionLocation = MissionState.GetWorldRegion().GetMyTemplate().DisplayName;
 
-	EventManager = `ONLINEEVENTMGR;
-	DLCInfos = EventManager.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('OnPreMission');
 	for (i = 0; i < DLCInfos.Length; ++i)
 	{
 		DLCInfos[i].OnPreMission(NewGameState, MissionState);

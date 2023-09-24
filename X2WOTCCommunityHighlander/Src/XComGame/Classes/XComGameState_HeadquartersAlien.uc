@@ -1423,7 +1423,6 @@ function BuildAlienFacility(XComGameState NewGameState)
 	local XComGameState_MissionSite MissionState;
 	local X2MissionSourceTemplate MissionSource;
 	local XComGameState_WorldRegion RegionState;
-	local XComOnlineEventMgr EventManager;
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local int i;
 
@@ -1460,8 +1459,8 @@ function BuildAlienFacility(XComGameState NewGameState)
 		class'XComGameState_HeadquartersResistance'.static.RecordResistanceActivity(NewGameState, 'ResAct_AvatarProgress', MissionState.Doom);
 
 		// Let DLC perform any necessary updates after creating a facility
-		EventManager = `ONLINEEVENTMGR;
-		DLCInfos = EventManager.GetDLCInfos(false);
+		// Issue #212 use CHDLCHookManager
+		DLCInfos = `DLCHOOKMGR.GetDLCInfos('OnPostAlienFacilityCreated');
 		for (i = 0; i < DLCInfos.Length; ++i)
 		{
 			DLCInfos[i].OnPostAlienFacilityCreated(NewGameState, MissionState.GetReference());

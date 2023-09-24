@@ -7547,7 +7547,8 @@ function GetDLCInfoEvents(out array<HQEvent> arrEvents)
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local X2DownloadableContentInfo DLCInfo;
 	
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('GetDLCEventInfo');
 	foreach DLCInfos(DLCInfo)
 	{
 		jEvents.Length = 0; //this is to prevent stale data from previous DLCInfos from being kept

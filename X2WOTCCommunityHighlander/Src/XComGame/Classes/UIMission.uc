@@ -495,7 +495,6 @@ simulated function UpdateMissionSchedules()
 {
 	local XComGameState NewGameState;
 	local XComGameState_MissionSite MissionState;
-	local XComOnlineEventMgr EventManager;
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local bool bSpawnUpdateFromDLC;
 	local int i;
@@ -503,8 +502,8 @@ simulated function UpdateMissionSchedules()
 	if (ShouldUpdateMissionSpawningInfo())
 	{
 		// Check for update to spawning from DLC
-		EventManager = `ONLINEEVENTMGR;
-		DLCInfos = EventManager.GetDLCInfos(false);
+		// Issue #212 use CHDLCHookManager
+		DLCInfos = `DLCHOOKMGR.GetDLCInfos('UpdateMissionSpawningInfo');
 		bSpawnUpdateFromDLC = false;
 		for (i = 0; i < DLCInfos.Length; ++i)
 		{
@@ -544,13 +543,12 @@ simulated function UpdateMissionSchedules()
 
 simulated function bool ShouldUpdateMissionSpawningInfo()
 {
-	local XComOnlineEventMgr EventManager;
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local int i;
 
 	// Check to see if any DLC requires schedule updates
-	EventManager = `ONLINEEVENTMGR;
-	DLCInfos = EventManager.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('ShouldUpdateMissionSpawningInfo');
 	for (i = 0; i < DLCInfos.Length; ++i)
 	{
 		if (DLCInfos[i].ShouldUpdateMissionSpawningInfo(MissionRef))
@@ -740,7 +738,6 @@ simulated function String GetObjectiveString()
 
 simulated function String GetMissionDescString()
 {
-	local XComOnlineEventMgr EventManager;
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local string MissionDesc, AdditionalDesc;
 	local int i;
@@ -748,8 +745,8 @@ simulated function String GetMissionDescString()
 	MissionDesc = m_strFlavorText;
 
 	// Check to see if any DLC makes any modifications to 
-	EventManager = `ONLINEEVENTMGR;
-	DLCInfos = EventManager.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('GetAdditionalMissionDesc');
 	for (i = 0; i < DLCInfos.Length; ++i)
 	{
 		AdditionalDesc = DLCInfos[i].GetAdditionalMissionDesc(MissionRef);

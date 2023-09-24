@@ -107,7 +107,6 @@ static function XComGameState CreateStrategyGameStart(
 	local XComGameStateHistory History;
 	local XComGameStateContext_StrategyGameRule StrategyStartContext;
 	local Engine LocalGameEngine;
-	local XComOnlineEventMgr EventManager;
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local int i;
 	local int Seed;
@@ -227,8 +226,8 @@ static function XComGameState CreateStrategyGameStart(
 	if( bSetupDLCContent )
 	{
 		// Let the DLC / Mods hook the creation of a new campaign
-		EventManager = `ONLINEEVENTMGR;
-		DLCInfos = EventManager.GetDLCInfos(false);
+		// Issue #212 use CHDLCHookManager
+		DLCInfos = `DLCHOOKMGR.GetDLCInfos('InstallNewCampaign');
 		for(i = 0; i < DLCInfos.Length; ++i)
 		{
 			DLCInfos[i].InstallNewCampaign(StartState);
@@ -337,7 +336,6 @@ static function XComGameState CreateStrategyGameStartFromTactical()
 /// </summary>
 static function CompleteStrategyFromTacticalTransfer()
 {
-	local XComOnlineEventMgr EventManager;
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local int i;
 	
@@ -361,8 +359,8 @@ static function CompleteStrategyFromTacticalTransfer()
 	UpdateChosen();
 	SquadTacticalToStrategyTransfer();
 	
-	EventManager = `ONLINEEVENTMGR;
-	DLCInfos = EventManager.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('OnPostMission');
 	for (i = 0; i < DLCInfos.Length; ++i)
 	{
 		DLCInfos[i].OnPostMission();

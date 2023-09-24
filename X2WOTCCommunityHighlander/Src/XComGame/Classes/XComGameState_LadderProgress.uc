@@ -580,7 +580,8 @@ static function ProceedToNextRung( )
 	History.UpdateStateObjectCache( );
 
 	// give mods/dlcs a chance to modify the transfer state
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('ModifyTacticalTransferStartState');
 	foreach DLCInfos(DLCInfo)
 	{
 		DLCInfo.ModifyTacticalTransferStartState(StartState);

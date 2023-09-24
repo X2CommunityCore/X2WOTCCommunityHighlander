@@ -57,7 +57,8 @@ function GetValidFloorLocations(out array<Vector> FloorPoints, float SpawnSizeOv
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local int i;
 
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('GetValidFloorSpawnLocations');
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
 		if(DLCInfos[i].GetValidFloorSpawnLocations(FloorPoints, SpawnSizeOverride, self))
