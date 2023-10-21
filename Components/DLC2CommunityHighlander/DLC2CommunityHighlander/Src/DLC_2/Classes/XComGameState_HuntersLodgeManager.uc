@@ -34,6 +34,9 @@ function CalcKillCount(optional XComGameState StartState = none)
 	local XComGameState_HeadquartersXCom XComHQ;
 	local XComGameState_CampaignSettings CampaignSettings;
 	local XComGameState_AlienRulerManager RulerMgr;
+
+	// Variable for Issue #379
+	local XComGameState_AdventChosen ChosenState;
 	
 	if( bDebugVis )
 	{
@@ -166,11 +169,37 @@ function CalcKillCount(optional XComGameState StartState = none)
 			bShowViperArmor = XComHQ.IsTechResearched('SerpentSuit');
 			bShowArchonArmor = XComHQ.IsTechResearched('IcarusArmor');
 
-			bShowChosenAssassin = (XComHQ.HasItemByName('ChosenAssassinShotgun') || XComHQ.HasItemByName('ChosenShotgun_Schematic'));
-			bShowChosenHunter = (XComHQ.HasItemByName('ChosenHunterSniperRifle') || XComHQ.HasItemByName('ChosenSniperRifle_Schematic'));
-			bShowChosenWarlock = (XComHQ.HasItemByName('ChosenWarlockRifle') || XComHQ.HasItemByName('ChosenRifle_Schematic'));
+			// Start Issue #379 - move implementation out of the if() statement.
+			//bShowChosenAssassin = (XComHQ.HasItemByName('ChosenAssassinShotgun') || XComHQ.HasItemByName('ChosenShotgun_Schematic'));
+			//bShowChosenHunter = (XComHQ.HasItemByName('ChosenHunterSniperRifle') || XComHQ.HasItemByName('ChosenSniperRifle_Schematic'));
+			//bShowChosenWarlock = (XComHQ.HasItemByName('ChosenWarlockRifle') || XComHQ.HasItemByName('ChosenRifle_Schematic'));
+			// End Issue #379
 		}
 	}
+
+	// Start Issue #379
+	/// HL-Docs: ref:Bugfixes; issue:379
+	/// Check if the Chosen is defeated to determine whether the Hunter's Lodge should display their trophy,
+	/// rather than checking if XCOM has researched their weapons.
+	foreach History.IterateByClassType(class'XComGameState_AdventChosen', ChosenState)
+	{
+		`LOG("Chosen:" @ ChosenState.GetMyTemplateName() @ "defeated:" @ ChosenState.bDefeated,, 'IRITEST');
+		switch (ChosenState.GetMyTemplateName())
+		{
+			case 'Chosen_Assassin':
+				bShowChosenAssassin = ChosenState.bDefeated;
+				break;
+			case 'Chosen_Hunter':
+				bShowChosenHunter = ChosenState.bDefeated;
+				break;
+			case 'Chosen_Warlock':
+				bShowChosenWarlock = ChosenState.bDefeated;
+				break;
+			default:
+				break;
+		}
+	}
+	// End Issue #379
 }
 
 function DoDebugVis()
