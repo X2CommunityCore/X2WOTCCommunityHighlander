@@ -351,7 +351,9 @@ static function X2WeaponTemplate ShredstormCannon()
 	Template.iRadius = default.SHREDSTORMCANNON_RADIUS;
 	Template.PointsToComplete = 0;
 
-	Template.PointsToComplete = default.SHREDSTORMCANNON_IENVIRONMENTDAMAGE;
+	/// HL-Docs: ref:Bugfixes; issue:1262
+	/// Remove build time from the Shredstorm Cannon.
+	//Template.PointsToComplete = default.SHREDSTORMCANNON_IENVIRONMENTDAMAGE;
 	Template.TradingPostValue = default.SHREDSTORMCANNON_TRADINGPOSTVALUE;
 	
 	Template.InventorySlot = eInvSlot_HeavyWeapon;
