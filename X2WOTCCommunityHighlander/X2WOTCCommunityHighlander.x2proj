@@ -102,10 +102,16 @@
     <Content Include="Config\XComGame.ini" />
     <Content Include="Config\XComGameData.ini" />
     <Content Include="Localization\XComGame.int" />
+    <Content Include="ModPreviewBeta.jpg">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ModPreviewLinux.jpg">
       <SubType>Content</SubType>
     </Content>
     <Content Include="ModPreviewWindows.jpg">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="ReadMe.txt">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\Core\Classes\CHCoreVersion.uc">
@@ -278,6 +284,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UIChosenReveal.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\UICovertActions.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\UICovertActionStaffSlot.uc">
