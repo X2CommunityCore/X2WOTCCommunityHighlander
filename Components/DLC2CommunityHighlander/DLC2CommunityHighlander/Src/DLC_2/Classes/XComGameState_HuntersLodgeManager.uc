@@ -183,7 +183,6 @@ function CalcKillCount(optional XComGameState StartState = none)
 	/// rather than checking if XCOM has researched their weapons.
 	foreach History.IterateByClassType(class'XComGameState_AdventChosen', ChosenState)
 	{
-		`LOG("Chosen:" @ ChosenState.GetMyTemplateName() @ "defeated:" @ ChosenState.bDefeated,, 'IRITEST');
 		switch (ChosenState.GetMyTemplateName())
 		{
 			case 'Chosen_Assassin':
