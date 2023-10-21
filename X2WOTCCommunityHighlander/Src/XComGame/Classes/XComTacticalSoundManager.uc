@@ -457,7 +457,7 @@ private function XComGameState_Player TriggerFinalizePlayerStateForTacticalMusic
 
 	`XEVENTMGR.TriggerEvent(Tuple.Id, Tuple, self, none);
 
-	return Tuple.Data[0].o;
+	return XComGameState_Player(Tuple.Data[0].o);
 }
 // End Issue #1153
 
