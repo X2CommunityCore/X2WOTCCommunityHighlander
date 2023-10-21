@@ -747,8 +747,9 @@ simulated function UpdateCustomization(UIPanel DummyParam)
 	// WEAPON PATTERN (VETERAN ONLY)
 	//-----------------------------------------------------------------------------------------
 
-	GetCustomizeItem(i++).UpdateDataValue(class'UICustomize_Props'.default.m_strWeaponPattern,
-		class'UIUtilities_Text'.static.GetColoredText(GetWeaponPatternDisplay(UpdatedWeapon.WeaponAppearance.nmWeaponPattern), eUIState_Normal, FontSize), CustomizeWeaponPattern);
+	/// HL-Docs: ref:Bugfixes; issue:880
+	/// Remove unnecessary text coloring from the weapon pattern value text.
+	GetCustomizeItem(i++).UpdateDataValue(class'UICustomize_Props'.default.m_strWeaponPattern, GetWeaponPatternDisplay(UpdatedWeapon.WeaponAppearance.nmWeaponPattern), CustomizeWeaponPattern);
 	
 	CustomizeList.SetPosition(CustomizationListX, CustomizationListY - CustomizeList.ShrinkToFit() - CustomizationListYPadding);
 
