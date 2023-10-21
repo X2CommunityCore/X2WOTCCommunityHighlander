@@ -435,7 +435,7 @@ function EvaluateTacticalMusicState()
 ///
 /// To allow for better compatibility between mods which manage player activity
 /// and mods which manage sound options, there is one event which will allow 
-/// to override the player state or it's parameters.
+/// to override the player state or its parameters.
 ///
 /// ```event
 /// EventID: FinalizePlayerStateForTacticalMusic,
