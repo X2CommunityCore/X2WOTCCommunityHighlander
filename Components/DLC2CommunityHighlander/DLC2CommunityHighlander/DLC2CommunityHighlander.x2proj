@@ -33,6 +33,9 @@
     <Content Include="Src\DLC_2\Classes\XComGameState_AlienRulerManager.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\DLC_2\Classes\XComGameState_HuntersLodgeManager.uc">
+      <SubType>Content</SubType>
+    </Content>
   </ItemGroup>
   <PropertyGroup>
     <SolutionRoot>$(MSBuildProjectDirectory)\..\</SolutionRoot>
