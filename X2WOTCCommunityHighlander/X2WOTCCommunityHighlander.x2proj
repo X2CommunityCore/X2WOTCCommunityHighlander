@@ -598,6 +598,9 @@
     <Content Include="Src\XComGame\Classes\X2Item_DefaultUpgrades.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Item_HeavyWeapons.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2MeleePathingPawn.uc">
       <SubType>Content</SubType>
     </Content>
