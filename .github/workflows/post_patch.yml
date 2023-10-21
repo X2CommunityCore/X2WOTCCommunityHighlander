@@ -30,11 +30,6 @@ jobs:
         then
           echo "has-diff=true" >> $GITHUB_OUTPUT
           echo "pr-number=$(cat pr_number.txt)" >> $GITHUB_OUTPUT
-          body=$(cat msg.txt)
-          body="${body//'%'/'%25'}"
-          body="${body//$'\n'/'%0A'}"
-          body="${body//$'\r'/'%0D'}" 
-          echo "body=$body" >> $GITHUB_OUTPUT
         fi;
     - name: Find existing comment
       uses: peter-evans/find-comment@v2
@@ -50,4 +45,4 @@ jobs:
         edit-mode: replace
         issue-number: ${{ steps.check-diff.outputs.pr-number }}
         comment-id: ${{ steps.find-comment.outputs.comment-id }}
-        body: ${{ steps.check-diff.outputs.body }}
+        body-file: msg.txt
