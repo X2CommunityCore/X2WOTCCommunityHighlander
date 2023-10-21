@@ -492,7 +492,7 @@ function UpdateRulerSpawningData(XComGameState NewGameState, XComGameState_Missi
 /// ```event
 /// EventID: AllowRulerOnMission,
 /// EventData: [
-///    inout bool bAllowRuler,
+///    inout bool bAllowRulerTempFormattingTestDoNotMerge,
 ///    in int RulerObjectID
 /// ],
 /// EventSource: XComGameState_MissionSite (MissionState),
