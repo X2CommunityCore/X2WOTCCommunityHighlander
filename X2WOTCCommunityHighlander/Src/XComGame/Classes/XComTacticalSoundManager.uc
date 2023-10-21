@@ -435,24 +435,31 @@ function EvaluateTacticalMusicState()
 ///
 /// To allow for better compatibility between mods which manage player activity
 /// and mods which manage sound options, there is one event which will allow 
-/// to override the player state or it's parameters.
+/// to override the player state or its parameters.
 ///
 /// ```event
 /// EventID: FinalizePlayerStateForTacticalMusic,
-/// EventData: XComGameState_Player (LocalPlayerState),
+/// EventData: [
+///     inout XComGameState_Player PlayerState
+/// ],
 /// EventSource: XComTacticalSoundManager (SoundManager),
 /// NewGameState: none
 /// ```
 private function XComGameState_Player TriggerFinalizePlayerStateForTacticalMusic(XComGameState_Player LocalPlayerState)
 {
-	local XComGameState_Player EventData;
+	local XComLWTuple Tuple;
 
-	EventData = LocalPlayerState;
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'FinalizePlayerStateForTacticalMusic';
+	Tuple.Data.Add(1);
+	Tuple.Data[0].kind = XComLWTVObject;
+	Tuple.Data[0].o = LocalPlayerState;
 
-	`XEVENTMGR.TriggerEvent('FinalizePlayerStateForTacticalMusic', EventData, self, none);
+	`XEVENTMGR.TriggerEvent(Tuple.Id, Tuple, self, none);
 
-	return EventData;
+	return Tuple.Data[0].o;
 }
+// End Issue #1153
 
 event OnActiveUnitChanged(XComGameState_Unit NewActiveUnit)
 {
