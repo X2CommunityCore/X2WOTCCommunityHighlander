@@ -200,7 +200,16 @@ function Init()
 		}
 	}
 	// End Issue #326
-
+	
+	/// HL-Docs: feature:OverRideWeaponBaseDamageForFlyover; issue:1274; tags:tactical
+	/// This feature allows modders to specify a boolean value inside X2Effect_ApplyWeaponDamage 
+	/// which will force the damage flyover to use the damage type of the damage effect applied instead
+	/// of the base damage of the weapon. This allows normal weapons to use the Psi flyover, for example
+	if (X2Effect_ApplyWeaponDamage(OriginatingEffect).bIgnoreWeaponBaseDamageTypeForFlyover)
+		{
+		DamageTypeName = X2Effect_ApplyWeaponDamage(OriginatingEffect).EffectDamageValue.DamageType;
+		}
+	
 	bWasHit = false;
 	IsKnockback = false;
 	m_vHitLocation = UnitPawn.GetHeadshotLocation();

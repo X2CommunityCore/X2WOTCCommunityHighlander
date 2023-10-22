@@ -19,6 +19,8 @@ var bool    bIgnoreArmor;
 var bool	bBypassSustainEffects;
 var array<name> HideVisualizationOfResultsAdditional;
 
+// Issue #1274
+var bool	bIgnoreWeaponBaseDamageTypeForFlyover;
 // Issue #321
 var config bool NO_MINIMUM_DAMAGE;
 // Issue #743
