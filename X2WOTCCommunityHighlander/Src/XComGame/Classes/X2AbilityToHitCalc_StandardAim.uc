@@ -679,6 +679,12 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 		}
 	}
 
+	/// HL-Docs: feature:GetAdditionalHitModifiers; issue:1271; tags:tactical
+	/// This feature adds a method that can be used by subclasses to apply
+	/// additional hit modifiers without having to override and copy paste
+	/// the entire `GetHitChance()` function.
+	GetAdditionalHitModifiers_CH(kAbility, kTarget, m_ShotBreakdown, bDebugLog);
+
 	//  Final multiplier based on end Success chance
 	if (bReactionFire && !bGuaranteedHit)
 	{
@@ -1025,6 +1031,10 @@ function ECoverType NextTileOverCoverInSameDirection(const out TTile SourceTile,
 
 	return BestCover;
 }
+
+/// HL-Docs: ref:GetAdditionalHitModifiers;
+/// Override this method in subclasses to apply additional hit modifiers.
+function GetAdditionalHitModifiers_CH(XComGameState_Ability kAbility, AvailableTarget kTarget, optional out ShotBreakdown m_ShotBreakdown, optional bool bDebugLog = false) {}
 
 DefaultProperties
 {
