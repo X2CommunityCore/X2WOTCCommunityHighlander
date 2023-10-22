@@ -1032,7 +1032,7 @@ function ECoverType NextTileOverCoverInSameDirection(const out TTile SourceTile,
 	return BestCover;
 }
 
-/// HL-Docs: ref:GetAdditionalHitModifiers;
+/// HL-Docs: ref:GetAdditionalHitModifiers
 /// Override this method in subclasses to apply additional hit modifiers.
 function GetAdditionalHitModifiers_CH(XComGameState_Ability kAbility, AvailableTarget kTarget, optional out ShotBreakdown m_ShotBreakdown, optional bool bDebugLog = false) {}
 
