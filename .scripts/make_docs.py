@@ -145,8 +145,18 @@ def make_doc_item(sess, lines: List[str], file: str, span: Tuple[int, int],
     """
     item = {}
     # first line: meta info
-    for pair in lines[0].split(';'):
-        k, v = pair.strip().split(':')
+    first_line = lines[0].strip()
+    if first_line.endswith(';'):
+        first_line = first_line[:-1]
+    for pair in first_line.split(';'):
+        if pair == "":
+            sess.err(f"{file}:{span[0]+1}: too many semicolons in {HL_DOCS_KEYWORD} line")
+            continue
+        kvs = pair.strip().split(':')
+        if len(kvs) != 2:
+            sess.err(f"{file}:{span[0]+1}: not a key-value pair in {HL_DOCS_KEYWORD} line (expected key:value, got {pair})")
+            continue
+        k, v = kvs
         if k in item:
             sess.err(f"{file}:{span[0]+1}: duplicate key `{k}`")
         if k == "feature" or k == "ref":

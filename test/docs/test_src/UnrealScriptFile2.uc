@@ -95,6 +95,15 @@ class UnrealScriptFile2 extends Object;
 /// NewGameState: none,
 /// ```
 
+/// HL-Docs: feature:TrailingSemi;
+/// Trailing semicolons are allowed
+
+/// HL-Docs: feature;NotAKVP; issue:777
+/// Semicolon instead of colon...
+
+/// HL-Docs: feature:ILikeSemicolons;;; issue:53
+/// Deny this for aesthetic reasons
+
 function Abc()
 {
 	/// HL-Docs: feature:IffyInclude; issue:9; tags:
