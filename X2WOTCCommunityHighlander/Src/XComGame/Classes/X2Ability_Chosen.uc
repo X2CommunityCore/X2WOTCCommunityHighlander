@@ -1766,6 +1766,11 @@ static function X2AbilityTemplate CreateChosenLowProfile()
 	CoveringEffect.bOnlyDuringEnemyTurn = true;
 	CoveringEffect.bUseMultiTargets = false;
 	CoveringEffect.bSelfTargeting = true;
+
+	/// HL-Docs: ref:Bugfixes; issue:1276
+	/// Limit Chosen Low Profile to one trigger per turn.
+	CoveringEffect.MaxPointsPerTurn = 1;
+
 	CoveringEffect.EffectName = 'ChosenLowProfileWatchEffect';
 	CoveringEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage, , , Template.AbilitySourceName);
 	Template.AddTargetEffect(CoveringEffect);
@@ -1782,7 +1787,9 @@ static function X2DataTemplate CreateChosenLowProfileTrigger()
 	local X2AbilityTemplate Template;
 	local X2Condition_UnitEffects ExcludeEffectsCondition;
 	local X2Effect_PersistentStatChange LowProfileEffect;
-	local X2Effect_RemoveEffects RemoveEffects;
+
+	// Issue #1276 - Comment out unnecessary local variable.
+	//local X2Effect_RemoveEffects RemoveEffects;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'ChosenLowProfileTrigger');
 	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.str_lowprofile";
@@ -1800,9 +1807,14 @@ static function X2DataTemplate CreateChosenLowProfileTrigger()
 	ExcludeEffectsCondition.AddExcludeEffect('ChosenLowProfileBoost', 'AA_DuplicateEffectIgnored');
 	Template.AbilityShooterConditions.AddItem(ExcludeEffectsCondition);
 
-	RemoveEffects = new class'X2Effect_RemoveEffects';
-	RemoveEffects.EffectNamesToRemove.AddItem('ChosenLowProfileWatchEffect');
-	Template.AddShooterEffect(RemoveEffects);
+	// Start Issue #1276
+	/// HL-Docs: ref:Bugfixes; issue:1276
+	/// Comment out the effect that removes the Covering Fire effect responsible for triggering the Chosen Low Profile defense bonus ability,
+	/// so it can trigger more than once per mission.
+	//RemoveEffects = new class'X2Effect_RemoveEffects';
+	//RemoveEffects.EffectNamesToRemove.AddItem('ChosenLowProfileWatchEffect');
+	//Template.AddShooterEffect(RemoveEffects);
+	// End Issue #1276
 
 	LowProfileEffect = new class'X2Effect_PersistentStatChange';
 	LowProfileEffect.EffectName = 'ChosenLowProfileBoost';
