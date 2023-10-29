@@ -660,6 +660,16 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 
 	if (!bDoesDamageIgnoreShields)
 		AllowsShield += MaxDamagePreview.Damage;
+
+	// Start Issue #1281
+	/// HL-Docs: ref:Bugfixes; issue:1281
+	/// If the effect ignores all armor, max out the Pierce value in the Damage Preview so it will show up on the unit flag damage preview.
+	if (bIgnoreArmor)
+	{
+		MinDamagePreview.Pierce = MaxInt;
+		MaxDamagePreview.Pierce = MaxInt;
+	}
+	// End Issue #1281
 }
 
 simulated function ApplyFalloff( out int WeaponDamage, Damageable Target, XComGameState_Item kSourceItem, XComGameState_Ability kAbility, XComGameState NewGameState )
