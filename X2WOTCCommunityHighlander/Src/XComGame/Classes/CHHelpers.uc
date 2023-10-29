@@ -248,6 +248,9 @@ var localized string m_strFramerateSmoothingDisabledReason;
 // Variable for Issue #1245 - enables the triggering of the DrawDebugLabels CHL event
 var config bool bDrawDebugLabels;
 
+// Variable for Issue #599 - 0-100 chance of using a character pool character when CP is in Mixed mode.
+var config int iMixedCharacterPoolChance;
+
 // Start Issue #885
 enum EHLDelegateReturn
 {
