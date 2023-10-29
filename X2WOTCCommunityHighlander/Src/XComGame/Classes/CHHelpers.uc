@@ -251,6 +251,9 @@ var config bool bDrawDebugLabels;
 // Variable for Issue #599 - 0-100 chance of using a character pool character when CP is in Mixed mode.
 var config int iMixedCharacterPoolChance;
 
+// Variable for Issue #579 - makes UIUnitFlagManager use ability's minimum damage rather than maximum damage for the preview.
+var config bool bUseMinDamageForUnitFlagPreview;
+
 // Start Issue #885
 enum EHLDelegateReturn
 {

@@ -648,23 +648,49 @@ simulated function SetAbilityDamagePreview(UIUnitFlag kFlag, XComGameState_Abili
 	FlagUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(kFlag.StoredObjectID));
 	shieldPoints = FlagUnit != none ? int(FlagUnit.GetCurrentStat(eStat_ShieldHP)) : 0;
 
-	possibleHPDamage = MaxDamageValue.Damage;
-	possibleShieldDamage = 0;
-
-	// MaxHP contains extra HP points given by shield
-	if( shieldPoints > 0 && AllowedShield > 0 )
+	// Start Issue #579
+	/// HL-Docs: feature:UseMinDamageForUnitFlagPreview; issue:579; tags:tactical,ui
+	/// Allows using ability's minimum damage rather than max damage for the unit flag damage preview.
+	if (class'CHHelpers'.default.bUseMinDamageForUnitFlagPreview)
 	{
-		possibleShieldDamage = min(shieldPoints, MaxDamageValue.Damage);
-		possibleShieldDamage = min(possibleShieldDamage, AllowedShield);
-		possibleHPDamage = MaxDamageValue.Damage - possibleShieldDamage;
+		possibleHPDamage = MinDamageValue.Damage;
+		possibleShieldDamage = 0;
+
+		// MaxHP contains extra HP points given by shield
+		if( shieldPoints > 0 && AllowedShield > 0 )
+		{
+			possibleShieldDamage = min(shieldPoints, MinDamageValue.Damage);
+			possibleShieldDamage = min(possibleShieldDamage, AllowedShield);
+			possibleHPDamage = MinDamageValue.Damage - possibleShieldDamage;
+		}
+
+		if( possibleHPDamage > 0 && !AbilityState.DamageIgnoresArmor() && FlagUnit != none )
+			possibleHPDamage -= max(0, FlagUnit.GetArmorMitigationForUnitFlag() - MinDamageValue.Pierce);
+
+		kFlag.SetShieldPointsPreview(possibleShieldDamage);
+		kFlag.SetHitPointsPreview(possibleHPDamage);
+		kFlag.SetArmorPointsPreview(MinDamageValue.Shred, MinDamageValue.Pierce);
 	}
+	else // End Issue #579
+	{
+		possibleHPDamage = MaxDamageValue.Damage;
+		possibleShieldDamage = 0;
 
-	if( possibleHPDamage > 0 && !AbilityState.DamageIgnoresArmor() && FlagUnit != none )
-		possibleHPDamage -= max(0, FlagUnit.GetArmorMitigationForUnitFlag() - MaxDamageValue.Pierce);
+		// MaxHP contains extra HP points given by shield
+		if( shieldPoints > 0 && AllowedShield > 0 )
+		{
+			possibleShieldDamage = min(shieldPoints, MaxDamageValue.Damage);
+			possibleShieldDamage = min(possibleShieldDamage, AllowedShield);
+			possibleHPDamage = MaxDamageValue.Damage - possibleShieldDamage;
+		}
 
-	kFlag.SetShieldPointsPreview(possibleShieldDamage);
-	kFlag.SetHitPointsPreview(possibleHPDamage);
-	kFlag.SetArmorPointsPreview(MaxDamageValue.Shred, MaxDamageValue.Pierce);
+		if( possibleHPDamage > 0 && !AbilityState.DamageIgnoresArmor() && FlagUnit != none )
+			possibleHPDamage -= max(0, FlagUnit.GetArmorMitigationForUnitFlag() - MaxDamageValue.Pierce);
+
+		kFlag.SetShieldPointsPreview(possibleShieldDamage);
+		kFlag.SetHitPointsPreview(possibleHPDamage);
+		kFlag.SetArmorPointsPreview(MaxDamageValue.Shred, MaxDamageValue.Pierce);
+	}
 }
 
 simulated function LockFlagToReticle(bool bShouldLock, UITargetingReticle kReticle, StateObjectReference ObjectRef)
