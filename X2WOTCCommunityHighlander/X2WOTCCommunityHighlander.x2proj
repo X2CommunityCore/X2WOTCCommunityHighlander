@@ -478,6 +478,9 @@
     <Content Include="Src\XComGame\Classes\UIUnitFlag.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIUnitFlagManager.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIUtilities_Image.uc">
       <SubType>Content</SubType>
     </Content>
