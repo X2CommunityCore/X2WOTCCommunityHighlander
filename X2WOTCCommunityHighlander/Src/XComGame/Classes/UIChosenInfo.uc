@@ -52,6 +52,11 @@ simulated function OnInit()
 	RefreshDisplay();
 
 	`HQPRES.m_kAvengerHUD.NavHelp.AddContinueButton(OnContinue);
+
+	/// HL-Docs: ref:Bugfixes; issue:952
+	/// Focus the top Chosen button when the screen is opened.
+	MC.ChildFunctionVoid("button_" $ CurrentChosenIndex, "onReceiveFocus");
+
 	MC.FunctionVoid("AnimateIn");
 }
 
@@ -423,7 +428,9 @@ simulated function SelectChosen(int iChosen)
 		SelectedChosen = AllActiveChosen[iChosen];
 		MC.ChildFunctionVoid("button_" $ CurrentChosenIndex, "onLoseFocus");
 		CurrentChosenIndex = iChosen;
-		MC.ChildFunctionVoid("button_" $ CurrentChosenIndex, "onReceieveFocus");
+		/// HL-Docs: ref:Bugfixes; issue:952
+		/// Fix typo in the MC function call.
+		MC.ChildFunctionVoid("button_" $ CurrentChosenIndex, "onReceiveFocus");
 		RefreshDisplay();
 	}
 	//bsg-crobinson (5.10.17): end
