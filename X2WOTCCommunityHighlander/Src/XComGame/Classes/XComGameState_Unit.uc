@@ -7998,6 +7998,9 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 	local array<name> DLCNames; //issue #155 addition
 	local XComLWTuple Tuple; //issue #299 addition
 
+	// Variable for Issue #609
+	local X2WeaponTemplate WeaponTemplate;
+
 	ItemTemplate = Item.GetMyTemplate();
 	
 	// issue #114: pass along item state when possible
@@ -8160,6 +8163,38 @@ function bool AddItemToInventory(XComGameState_Item Item, EInventorySlot Slot, X
 		{
 			`XEVENTMGR.TriggerEvent('EffectBreakUnitConcealment', self, self, NewGameState);
 		}
+
+		// Start Issue #609
+		/// HL-Docs: ref:Bugfixes; issue:609
+		/// Apply weapon customization from soldier appearance when equipping weapons.
+		switch (Slot)
+		{
+			// Being conservative and applying weapon customization only to first three weapon slots,
+			// same as ApplyBestGearLoadout()
+			case eInvSlot_PrimaryWeapon:
+			case eInvSlot_SecondaryWeapon:
+			case eInvSlot_TertiaryWeapon:
+				if (!Item.HasBeenModified())
+				{
+					WeaponTemplate = X2WeaponTemplate(ItemTemplate);
+					if (WeaponTemplate != none)
+					{
+						if (WeaponTemplate.bUseArmorAppearance)
+						{
+							Item.WeaponAppearance.iWeaponTint = kAppearance.iArmorTint;
+						}
+						else
+						{
+							Item.WeaponAppearance.iWeaponTint = kAppearance.iWeaponTint;
+						}
+						Item.WeaponAppearance.nmWeaponPattern = kAppearance.nmWeaponPattern;
+					}
+				}
+				break;
+			default:
+				break;
+		}
+		// End Issue #609
 
 		// Start Issue #694
 		/// HL-Docs: feature:ItemAddedOrRemovedToSlot; issue:694; tags:
