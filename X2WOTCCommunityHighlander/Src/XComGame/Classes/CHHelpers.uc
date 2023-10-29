@@ -254,6 +254,10 @@ var config int iMixedCharacterPoolChance;
 // Variable for Issue #579 - makes UIUnitFlagManager use ability's minimum damage rather than maximum damage for the preview.
 var config bool bUseMinDamageForUnitFlagPreview;
 
+// Variable for Issue #1228 - disables Aim Assist.
+var config bool bDisableAimAssist;
+
+
 // Start Issue #885
 enum EHLDelegateReturn
 {
