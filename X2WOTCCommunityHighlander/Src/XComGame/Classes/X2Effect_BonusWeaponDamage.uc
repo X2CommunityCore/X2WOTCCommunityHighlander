@@ -23,16 +23,21 @@ function int GetAttackingDamageModifier(XComGameState_Effect EffectState, XComGa
 	if (!class'XComGameStateContext_Ability'.static.IsHitResultHit(AppliedData.AbilityResultContext.HitResult) || CurrentDamage == 0)
 		return 0;
 
-	// only limit this when actually applying damage (not previewing)
-	if( NewGameState != none )
-	{
+	// Start Issue #612
+	/// HL-Docs: ref:Bugfixes; issue:612
+	/// Comment out check for NewGameState so that the bonus weapon damage doesn't show on the damage preview
+	/// if it's not going to be added to the actual attack later.
+	// // only limit this when actually applying damage (not previewing)
+	//if( NewGameState != none )
+	//{
+	// End Issue #612
 		//	only add the bonus damage when the damage effect is applying the weapon's base damage
 		DamageEffect = X2Effect_ApplyWeaponDamage(class'X2Effect'.static.GetX2Effect(AppliedData.EffectRef));
 		if( DamageEffect == none || DamageEffect.bIgnoreBaseDamage )
 		{
 			return 0;
 		}
-	}
+	//} // Commented out for Issue #612
 
 	if( AbilityState.SourceWeapon == EffectState.ApplyEffectParameters.ItemStateObjectRef )
 	{
