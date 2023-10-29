@@ -823,6 +823,15 @@ function int GetModifiedHitChanceForCurrentDifficulty(XComGameState_Player Insti
 	local XComGameState_Unit Unit;
 	local ETeam TargetTeam;
 
+	// Start Issue #1228
+	/// HL-Docs: feature:DisableAimAssist; issue:1228; tags:tactical
+	/// This feature adds a config variable that acts as a master switch for disabling all instances of Aim Assist.
+	if (class'CHHelpers'.default.bDisableAimAssist) 
+	{
+		return BaseHitChance;
+	}
+	// End Issue #1228
+
 	ModifiedHitChance = BaseHitChance;
 
 	History = `XCOMHISTORY;
