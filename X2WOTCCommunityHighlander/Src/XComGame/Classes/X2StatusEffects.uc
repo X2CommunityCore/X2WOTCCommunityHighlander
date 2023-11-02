@@ -2485,8 +2485,8 @@ static function X2Effect_Persistent CreateUltrasonicLureTargetStatusEffect()
 
 	UltrasonicLureTargetEffect = new class'X2Effect_Persistent';
 	UltrasonicLureTargetEffect.EffectName = default.UltrasonicLureName;
-	UltrasonicLureTargetEffect.DuplicateResponse = eDupe_Ignore;
-	UltrasonicLureTargetEffect.BuildPersistentEffect(default.ULTRASONICLURE_TURNS,, true);
+	UltrasonicLureTargetEffect.DuplicateResponse = eDupe_Ignore;	
+	UltrasonicLureTargetEffect.BuildPersistentEffect(default.ULTRASONICLURE_TURNS,, true,,eGameRule_PlayerTurnBegin); //Issue #1286 - Add tick on start of player turn
 	UltrasonicLureTargetEffect.SetDisplayInfo(ePerkBuff_Passive, default.UltrasonicLureFriendlyName, default.UltrasonicLureFriendlyDesc, "img:///UILibrary_PerkIcons.UIPerk_mark" );
 	UltrasonicLureTargetEffect.bRemoveWhenTargetDies = true;
 	return UltrasonicLureTargetEffect;
