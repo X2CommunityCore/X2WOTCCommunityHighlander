@@ -408,6 +408,11 @@ static function X2AbilityTemplate Justice()
 	UnitPropertyCondition.ExcludeNonHumanoidAliens = true;
 	UnitPropertyCondition.ExcludeFriendlyToSource = true;
 	UnitPropertyCondition.RequireWithinMinRange = true;
+
+	/// HL-Docs: ref:Bugfixes; issue:1293
+	/// Allow Justice to target enemies Mind Controlled by XCOM
+	UnitPropertyCondition.TreatMindControlledSquadmateAsHostile = true;
+
 	Template.AbilityTargetConditions.AddItem(UnitPropertyCondition);
 
 	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
@@ -678,6 +683,11 @@ static function X2AbilityTemplate SkirmisherVengeance()
 	UnitPropertyCondition.ExcludeAlien = false;
 	UnitPropertyCondition.ExcludeFriendlyToSource = true;
 	UnitPropertyCondition.RequireWithinMinRange = true;
+
+	/// HL-Docs: ref:Bugfixes; issue:1293
+	/// Allow Wrath to target enemies Mind Controlled by XCOM
+	UnitPropertyCondition.TreatMindControlledSquadmateAsHostile = true;
+
 	Template.AbilityTargetConditions.AddItem(UnitPropertyCondition);
 
 	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
@@ -801,6 +811,11 @@ static function X2AbilityTemplate Whiplash()
 	Template.AddShooterEffectExclusions();
 
 	UnitPropertyCondition = new class'X2Condition_UnitProperty';
+
+	/// HL-Docs: ref:Bugfixes; issue:1293
+	/// Allow Whiplash to target enemies Mind Controlled by XCOM
+	UnitPropertyCondition.TreatMindControlledSquadmateAsHostile = true;
+
 	Template.AbilityTargetConditions.AddItem(UnitPropertyCondition);
 
 	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
@@ -814,6 +829,7 @@ static function X2AbilityTemplate Whiplash()
 
 	WeaponDamageEffect = new class'X2Effect_ApplyWeaponDamage';
 	WeaponDamageEffect.EffectDamageValue = default.WHIPLASH_BASEDAMAGE;
+
 	Template.AddTargetEffect(WeaponDamageEffect);
 
 	// Jwats: Double damage for robotic
@@ -823,6 +839,11 @@ static function X2AbilityTemplate Whiplash()
 	UnitPropertyCondition = new class'X2Condition_UnitProperty';
 	UnitPropertyCondition.ExcludeRobotic = false;
 	UnitPropertyCondition.ExcludeOrganic = true;
+
+	/// HL-Docs: ref:Bugfixes; issue:1293
+	/// Make enemies Mind Controlled by XCOM eligible for Whiplash's bonus damage
+	UnitPropertyCondition.TreatMindControlledSquadmateAsHostile = true;
+
 	WeaponDamageEffect.TargetConditions.AddItem(UnitPropertyCondition);
 	Template.AddTargetEffect(WeaponDamageEffect);
 
