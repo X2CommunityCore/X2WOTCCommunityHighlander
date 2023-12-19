@@ -583,6 +583,9 @@
     <Content Include="Src\XComGame\Classes\X2Effect_LaserSight.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Effect_Pillar.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2EncyclopediaTemplate.uc">
       <SubType>Content</SubType>
     </Content>
