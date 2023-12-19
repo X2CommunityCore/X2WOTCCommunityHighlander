@@ -2486,8 +2486,12 @@ static function X2Effect_Persistent CreateUltrasonicLureTargetStatusEffect()
 	UltrasonicLureTargetEffect = new class'X2Effect_Persistent';
 	UltrasonicLureTargetEffect.EffectName = default.UltrasonicLureName;
 	UltrasonicLureTargetEffect.DuplicateResponse = eDupe_Ignore;
-	UltrasonicLureTargetEffect.BuildPersistentEffect(default.ULTRASONICLURE_TURNS,, true);
-	UltrasonicLureTargetEffect.SetDisplayInfo(ePerkBuff_Passive, default.UltrasonicLureFriendlyName, default.UltrasonicLureFriendlyDesc, "img:///UILibrary_PerkIcons.UIPerk_mark" );
+	// Start Issue #1286
+	/// HL-Docs: ref:Bugfixes; issue:1286
+	/// Keep lure effect alive when source dies, tick on turn begin. Adjust icon and displayinfo to display as debuff rather than passive.
+	UltrasonicLureTargetEffect.BuildPersistentEffect(default.ULTRASONICLURE_TURNS,false,false,,eGameRule_PlayerTurnBegin); 
+	UltrasonicLureTargetEffect.SetDisplayInfo(ePerkBuff_Penalty, default.UltrasonicLureFriendlyName, default.UltrasonicLureFriendlyDesc, "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_ultrasoniclure" ); 
+	// End Issue #1286
 	UltrasonicLureTargetEffect.bRemoveWhenTargetDies = true;
 	return UltrasonicLureTargetEffect;
 }
