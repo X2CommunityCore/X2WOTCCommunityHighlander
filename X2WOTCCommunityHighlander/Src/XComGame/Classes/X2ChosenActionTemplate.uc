@@ -100,7 +100,10 @@ function bool CanPerformAction(XComGameState_AdventChosen ChosenState, array<XCo
 
 	foreach AllChosen(Chosen)
 	{
-		ICooldown = ChosenState.GetMonthsSinceAction(DataName);
+		/// HL-docs: ref: Bugfixes; issue: 1296
+		/// Swap ChosenState for Chosen to use the variable populated by the ForEach loop and check each chosen instead of checking the same chosen each iteration of the loop.
+		// ICooldown = ChosenState.GetMonthsSinceAction(DataName);
+		ICooldown = Chosen.GetMonthsSinceAction(DataName);
 
 		if(ICooldown > 0 && (ICooldown < GCooldown || GCooldown <= 0))
 		{
