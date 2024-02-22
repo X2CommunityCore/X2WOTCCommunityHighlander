@@ -1,39 +1,99 @@
 # X2WOTCCommunityHighlander
 
-Welcome to the X2WOTCCommunityHighlander Github project. This is where the work happens.
+Welcome to the X2 WOTC Community Highlander Github project. This is where the work happens.
 
-[Download the latest release](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/releases)
+* [Download the latest release](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/releases)
 
-[View Highlander documentation](https://x2communitycore.github.io/X2WOTCCommunityHighlander/)
+* [View Highlander documentation](https://x2communitycore.github.io/X2WOTCCommunityHighlander/)
 
 ## What version are we at?
 
-There are two published Steam versions: One infrequently updated
-[stable](https://steamcommunity.com/workshop/filedetails/?id=1134256495) version that matches the
-[latest GitHub release](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/releases)
-has been tested a fair amount, and a [beta](https://steamcommunity.com/sharedfiles/filedetails/?id=1796402257)
-version that is updated more frequently with changes from the master branch. The main menu text
-tells you which commit the beta version is based on.
+We maintain two versions of the Highlander, published on the Steam Workshop: 
+
+* [Stable](https://steamcommunity.com/workshop/filedetails/?id=1134256495) version that matches the
+[latest GitHub release](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/releases) and has been tested a fair amount.
+* [Beta](https://steamcommunity.com/sharedfiles/filedetails/?id=1796402257)
+version that is updated more frequently with changes from the master branch.
+
+When using the Beta version, the Highlander's version in the lower right corner of the game's main menu will tell you which commit the beta version is based on.
 
 ## What IS the X2WOTCCommunityHighlander?
 
-A **Highlander** replaces the XComGame package. That means it replaces the code of the Vanilla
-game, without requiring any ModClassOverrides to do so. As implied by the name,
-there can only be one Highlander. Therefore, it's important to make a highlander address
-as many modding use-cases as possible, and incorporate bugfixes that
-would otherwise require class overrides to implement.
+Highlander replaces the game's main script package - XComGame. This allows the Highlander to alter portions of the game's code without using any [ModClassOverrides](https://www.reddit.com/r/xcom2mods/wiki/index/mod_class_overrides) to incorporate bugfixes and various ways for other mods to interact with the game's code without needing to use MCOs themselves, which would be bad for compatibility.
 
-The original X2CommunityHighlander is an extension of the Long War 2 Highlander, which was built by the hard-working Pavonis
-Interactive team.
+In other words, the purpose of the Highlander is to fix bugs and to improve compatibility between other mods.
 
-The X2WOTCCommunityHighlander provides a Highlander for the XCOM 2 expansion *War of the Chosen*.
+As implied by the name, there can be only one Highlander. Therefore, it's important for the Highlander to address as many modding use-cases as possible, and incorporate bugfixes that would otherwise require Class Overrides to implement.
 
+The original X2CommunityHighlander is an extension of the Long War 2 Highlander, which was built by the hard-working Pavonis Interactive team.
 
-## Development
+The X2WOTCCommunityHighlander provides a Highlander for the XCOM 2 *War of the Chosen* expansion.
+
+## How does it work?
+
+As a mod user, you can simply use Highlander as any other mod. 
+
+As a modmaker and a potential contributor to the Highlander, learning the following could be beneficial. XComGame replacements can be loaded successfully into XCOM 2 only in one of two ways:
+
+1. As a cooked package (a .upk file). This is how the unmodified vanilla game works, and this is the way normally used by the Highlander.
+2. With the `-noseekfreeloading` switch, which is designed for debugging purposes.
+
+You can learn more details from Abe Clancy's [excellent post on the Nexus Forums](https://forums.nexusmods.com/index.php?/topic/3868395-highlander-mods-modding-native-classes-and-core-packages-xcomgameupk-etc/).
+
+## Building Against Highlander
+
+### When is it necessary?
+
+Building against Highlander is necessary when your mod intends to call a specific function or use a class that exists only in the Highlander, such as [CHEventListenerTemplate](https://x2communitycore.github.io/X2WOTCCommunityHighlander/misc/CHEventListenerTemplate/) or [XComGameState_Unit::HasAbilityFromAnySource\(\)](https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/46c31a87e1ceef4d654138b9b33f70f21a895f96/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComGameState_Unit.uc#L3918).
+
+If the game attempts to execute code that uses these classes/functions, and the Highlander mod is not active, the game will hard crash, so Highlander will become a hard requirement for your mod.
+
+If you build your mod against the Highlander, but don't use any of its features, your mod will not have Highlander as a hard requirement, so there are no downsides to building your mod against the Highlander in this regard.
+
+Building against Highlander is NOT necessary if your mod:
+
+* Implements X2DownloadableContentInfo methods that exist only in Highlander, such as [AbilityTagExpandHandler_CH](https://www.reddit.com/r/xcom2mods/wiki/index/localization#wiki_abilitytagexpandhandler_ch) or [CanAddItemToInventory_CH_Improved](https://www.reddit.com/r/xcom2mods/wiki/wotc_modding/canadditemtoinventory_ch_improved).
+* Sets values for configuration variables that exist only in Highlander, such as [DLC Run Order](https://www.reddit.com/r/xcom2mods/wiki/index/dlcrunorder) or [Required/Incompatible Mods](https://www.reddit.com/r/xcom2mods/wiki/index/hlrequiredmods).
+
+Highlander will still be required for your mod to work properly, but you don't need to build your mod against it.
+
+### How to build your mod against the Highlander?
+
+You need to replace the source code in the XCOM 2 SDK with the source code of the Highlander. Here's how:
+
+1) [Subscribe to Highlander](https://steamcommunity.com/sharedfiles/filedetails/?id=1134256495), if you haven't already.
+
+2) Close the Modbuddy, if it's open.
+
+3) Locate the SDK folder that contains the source code: 
+
+`..\steamapps\common\XCOM 2 War of the Chosen SDK\Development\`
+
+4) Delete the `Src` folder. Yes, really.
+
+5) Make a backup of the `SrcOrig` folder.
+
+6) Locate the Highlander source code folder: 
+
+`..\steamapps\workshop\content\268500\1134256495\Src\`
+
+7) Copy the contents of Highlander's `Src` folder into the `SrcOrig` in the SDK source code folder, overriding duplicate files.
+
+From here: `..\steamapps\workshop\content\268500\1134256495\Src\`
+
+To here: `..\steamapps\common\XCOM 2 War of the Chosen SDK\Development\SrcOrig\`
+
+8) [The result should look like this.](https://i.imgur.com/qa728WK.jpg)
+
+Done. Now your mods can take full advantage of Highlander's features.
+
+## Highlander Development
+
+Highlander is a community project and everybody is welcome to contribute. Feel free to file a Pull Request for any of the open Issues and wait for a maintainer to review and merge it. You can also file new Issues.
 
 ### Discussion channel
 
-For the most part, discussion happens in a [Discord channel](https://discordapp.com/invite/vvsXvs3). It's our platform of choice for lengthy discussions that don't fit GitHub issues.
+For the most part, discussion happens in the #highlander [Discord channel](https://discordapp.com/invite/vvsXvs3) of the XCOM 2 modmaking Discord server. It is our platform of choice for lengthy discussions that don't fit GitHub issues.
 
 ### Code style
 
@@ -92,29 +152,20 @@ be published via GitHub Pages (at [https://x2communitycore.github.io/X2WOTCCommu
 That online documentation also has [instructions](https://x2communitycore.github.io/X2WOTCCommunityHighlander/#documentation-for-the-documentation-tool) for how to write your documentation
 and run the documentation tool.
 
-## Building
+### Building the Highlander
 
-XComGame replacements, like this highlander, can only be loaded successfully into XCOM 2 in one of two ways:
+1. Make sure you have the full content SDK installed (`full_content` branch in Properties->Betas->`full_content`). This requires about 90 GB of disk space.
+2. The custom version of the [X2ModBuildCommon](https://github.com/X2CommunityCore/X2ModBuildCommon) built into Highlander's mod project requires Git, so make sure you have Git installed. You can download the Git installer from the [official website](https://git-scm.com/downloads). Note that Git embedded into some of the Git GUI apps like Source Tree is not enough, it must be a separate Git installation.
 
-1. As a cooked package (a .upk file). This is how the unmodified vanilla game works.
-2. With the `-noseekfreeloading` switch, which is designed for debugging purposes.
-
-Most of the information here about building the game comes from Abe Clancy's excellent post on the Nexus
-Forums:
-
-https://forums.nexusmods.com/index.php?/topic/3868395-highlander-mods-modding-native-classes-and-core-packages-xcomgameupk-etc/
-
-His post goes into far more detail than this guide, if you're interested.
+Once you have satisfied these requirements, you should be able to build the Highlander like any other mod.
 
 ### Cooking a Final Release (Automated method)
 
-1. Make sure you have the complete SDK installed (`full_content` branch in Properties->Betas->`full_content`). This requires about 90 GB of disk space.
-2. Build the mod using `Default`/`Final release` (ModBuddy) or `cooked`/`final release` (VSCode) profiles
+Build the mod using `Default`/`Final release` (ModBuddy) or `cooked`/`final release` (VSCode) profiles
 
 ### Cooking a Final Release (Manual method)
 
 #### One-time preparation
-
 
 The following instructions are functionally the same as those of a vanilla Highlander mod. All the below references to the root Steam directory are made as %STEAMLIBRARY%. You should replace them with your actual Steam directory folder, such as: "D:/SteamLibrary", or whatever. 
 
@@ -163,18 +214,15 @@ Once you've done all that, the mod should now run in vanilla XCOM. Note that all
 logging statements will be stripped from the Cooked version, so don't expect to
 see any of your script logs.
 
+### Using NoSeekFreeLoading
 
-### Using noseekfreeloading
+Using the -NoSeekFreeLoading launch argument is required if you intend to use [Unreal Debugger](https://www.reddit.com/r/xcom2mods/wiki/wotc_modding/guides/unreal_debugger) to interact with classes in the XComGame script package. 
 
-Before using noseekfreeloading, a few things need to be done to ensure the game
-actually runs without crashing.
+In order to be able to actually run the game with NoSeekFreeLoading without crashing, you must use it alongside an uncooked Highlander, and you must also provide the game with the uncooked Content files, which you can get from the full content SDK.
 
-You need to install the XCOM 2 War of the Chosen SDK obviously, and also opt-in to
-download the 'full content' for it (54 GB). You opt-in by using the 'Betas' menu
-in Steam. It doesn't require a code to download the content.
+1. Install full_content version of the SDK.
 
-After you've installed the XCOM 2 War of the Chosen SDK, it's important you ensure symlinks from
-the main WOTC folder point to the same folders within the SDK. Delete the following folders/links if they exist:
+2. Ensure symlinks from the main WOTC folder point to the same folders within the SDK. Delete the following folders/links if they exist:
 
 ```
 %STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\XComGame\Content
@@ -184,7 +232,7 @@ the main WOTC folder point to the same folders within the SDK. Delete the follow
 %STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\Engine\EditorResources
 ```
 
-...and then open a command line as an administrator and run the following
+...and then open a command prompt as an administrator and run the following
 commands:
 
 ```
@@ -195,32 +243,17 @@ mklink /J "%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\Engine\Co
 mklink /J "%STEAMLIBRARY%\steamapps\common\XCOM 2\XCom2-WarOfTheChosen\Engine\EditorResources" "%STEAMLIBRARY%\steamapps\common\XCOM 2 War of the Chosen SDK\Engine\EditorResources"
 ```
 
+3. Build the Highlander using the "Debug" profile. 
 
-Build the mod through ModBuddy, as usual. The Highlander mod can be loaded uncooked by running XCOM
-with the following command (in the command prompt):
+4. You can now use the -NoSeekFreeLoading launch argument to start the game with the uncooked Highlander. This can be done by running XCOM with the following command (in the command prompt):
 
 ```
-"%STEAMLIBRARY%\steamapps\common\XCOM 2\Binaries\Win64\Launcher\ModLauncherWPF.exe" -allowconsole -log -autodebug -noseekfreeloading
+"%STEAMLIBRARY%\steamapps\common\XCOM 2\Binaries\Win64\Launcher\ModLauncherWPF.exe" -allowconsole -log -autodebug -noseekfreeloading -noStartUpMovies
 ```
-
-You can also use Alternative Mod Launcher with the same launch arguments.
 
 If all goes well, the XCOM Launcher will run. Enable X2WOTCCommunityHighlander and start the game.
 
-
-## Building Against the Highlander
-
-Making new mods that use the Highlander requires one change, to
-ensure you can use any new classes or methods it implemented. The SDK uses the
-contents of `XCOM 2 War of the Chosen SDK\Development\SrcOrig` to compile against files not included in the
-mod.
-
-Backup that folder, as it contains the vanilla source files, and then copy the
-highlander's Src folder into it. Be aware that if you make a mod that uses any
-new functions or variables, it will crash Vanilla XCOM 2, guaranteed.
-
-If your mod uses the methods or functions provided by Long War 2's Highlander,
-things should still work fine.
+You can also use the same launch arguments in the Alternative Mod Launcher.
 
 ## Recruiting Maintainers
 
