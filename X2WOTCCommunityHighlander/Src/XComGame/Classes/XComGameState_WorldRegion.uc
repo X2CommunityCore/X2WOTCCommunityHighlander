@@ -180,6 +180,9 @@ function bool CanBeStartingRegion(XComGameState StartState)
 	local XComGameState_WorldRegion RegionState;
 	local int idx, Count;
 
+	// Variable for issue #1303
+	local bool bEligible;
+
 	Count = 0;
 
 	for(idx = 0; idx < LinkedRegions.Length; idx++)
@@ -197,7 +200,11 @@ function bool CanBeStartingRegion(XComGameState StartState)
 		}
 	}
 
-	return (Count > 1);
+	// Start issue #1303:
+	bEligible = (Count > 1);
+
+	return class'XComGameState_RegionLink'.static.TriggerOverrideEligibleStartingRegion(StartState, RegionState, bEligible);
+	// End issue #1303
 }
 
 //---------------------------------------------------------------------------------------

@@ -232,6 +232,9 @@ static function bool IsEligibleStartRegion(XComGameState StartState, XComGameSta
 {
 	local XComGameState_WorldRegion LinkedRegionState;
 	local int idx, Count;
+	
+	// Variable for issue #1303
+	local bool bEligible;
 
 	Count = 0;
 
@@ -245,7 +248,57 @@ static function bool IsEligibleStartRegion(XComGameState StartState, XComGameSta
 		}
 	}
 
-	return (Count > 1);
+	// Start issue #1303:
+	bEligible = (Count > 1);
+
+	return TriggerOverrideEligibleStartingRegion(StartState, RegionState, bEligible);
+	// End issue #1303
+}
+
+// Start Issue #1303
+/// HL-Docs: feature:OverrideEligibleStartingRegion; issue:1303; tags:strategy
+/// This Event allows mods to override the default behavior for whether a region
+/// is allowed to be the starting region. The default behavior is that a region
+/// is eligible to be the starting region if it has at least two links to regions
+/// on the same continent as itself.
+///
+/// To override that behavior, add a listener that has `RegisterInCampaignStart`
+/// set to `true` and within the listener function simply change the value of the
+/// `ValidStartRegion` field in the given tuple data. For example, you could always set
+/// it to `true` to remove the constraints completely, so that any region is a valid
+/// starting region.
+///
+/// This event is triggered during a start state, which you can access via
+/// `XComGameStateHistory:GetStartState()`.
+///
+/// ```event
+/// EventID: OverrideEligibleStartingRegion,
+/// EventData: [ inout bool ValidStartRegion ],
+/// EventSource: XComGameState_WorldRegion (PotentialStartRegion),
+/// NewGameState: none
+/// ```
+//
+// **NOTE** This function is public so that it can be called from `XComGameState_WorldRegion`.
+// It is not intended to be used by mods and hence it is **not** part of the highlander's
+// public API. Backwards compatibility is not guaranteed.
+
+static final function bool TriggerOverrideEligibleStartingRegion(
+	XComGameState StartState,
+	XComGameState_WorldRegion RegionState,
+	bool bEligible)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'OverrideEligibleStartingRegion';
+	OverrideTuple.Data.Add(1);
+
+	OverrideTuple.Data[0].kind = XComLWTVBool;
+	OverrideTuple.Data[0].b = bEligible; // Passed in from the default eligibility check.
+
+	`XEVENTMGR.TriggerEvent(OverrideTuple.Id, OverrideTuple, RegionState);
+
+	return OverrideTuple.Data[0].b;
 }
 
 // Start Issue #774
