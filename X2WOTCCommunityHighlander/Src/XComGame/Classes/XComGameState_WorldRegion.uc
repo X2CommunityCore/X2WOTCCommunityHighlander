@@ -203,7 +203,7 @@ function bool CanBeStartingRegion(XComGameState StartState)
 	// Start issue #1303:
 	bEligible = (Count > 1);
 
-	return class'XComGameState_RegionLink'.static.TriggerOverrideEligibleStartingRegion(StartState, RegionState, bEligible);
+	return class'XComGameState_RegionLink'.static.TriggerOverrideEligibleStartingRegion(RegionState, bEligible);
 	// End issue #1303
 }
 
