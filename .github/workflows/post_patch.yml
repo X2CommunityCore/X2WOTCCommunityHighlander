@@ -10,6 +10,11 @@ on:
     types: 
       - completed
 
+# Ensures that only one deploy task per branch/environment will run at a time.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   run:
     runs-on: ubuntu-latest
