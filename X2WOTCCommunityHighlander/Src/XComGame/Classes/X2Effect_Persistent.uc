@@ -658,6 +658,18 @@ function GetToHitAsTargetModifiers(XComGameState_Effect EffectState, XComGameSta
 // CHL issue #467: function added to allow mods to modify the outcome of X2AbilityToHitCalc_StatCheck
 function GetToHitAsTargetModifiersForStatCheck(XComGameState_Effect EffectState, XComGameState_Unit Attacker, XComGameState_Unit Target, XComGameState_Ability AbilityState, class<X2AbilityToHitCalc> ToHitType, out array<ShotModifierInfo> ShotModifiers);
 function bool UniqueToHitAsTargetModifiers() { return false; }
+
+// Start Issue #1305
+/// HL-Docs: feature:DamageEffectForDamageModifierHooks; issue:1305; tags:tactical
+/// Adds an improved version of GetAttackingDamageModifier() that always gets the Damage Effect.
+/// The regular version of the hook gets the Damage Effect only when the effect is getting applied, 
+/// which prevents the hook from being able to provide an accurate contextual damage preview.
+function int GetAttackingDamageModifier_CH(XComGameState_Effect EffectState, XComGameState_Unit Attacker, Damageable TargetDamageable, XComGameState_Ability AbilityState, const out EffectAppliedData AppliedData, const int CurrentDamage, X2Effect_ApplyWeaponDamage WeaponDamageEffect, optional XComGameState NewGameState) 
+{
+	return GetAttackingDamageModifier(EffectState, Attacker, TargetDamageable, AbilityState, AppliedData, CurrentDamage, NewGameState);
+}
+// End Issue #1305
+
 function int GetAttackingDamageModifier(XComGameState_Effect EffectState, XComGameState_Unit Attacker, Damageable TargetDamageable, XComGameState_Ability AbilityState, const out EffectAppliedData AppliedData, const int CurrentDamage, optional XComGameState NewGameState) { return 0; }
 function int GetDefendingDamageModifier(XComGameState_Effect EffectState, XComGameState_Unit Attacker, Damageable TargetDamageable, XComGameState_Ability AbilityState, const out EffectAppliedData AppliedData, const int CurrentDamage, X2Effect_ApplyWeaponDamage WeaponDamageEffect, optional XComGameState NewGameState) { return 0; }
 function int GetBaseDefendingDamageModifier(XComGameState_Effect EffectState, XComGameState_Unit Attacker, Damageable TargetDamageable, XComGameState_Ability AbilityState, const out EffectAppliedData AppliedData, const int BaseDamage, X2Effect_ApplyWeaponDamage WeaponDamageEffect, optional XComGameState NewGameState) { return 0; }

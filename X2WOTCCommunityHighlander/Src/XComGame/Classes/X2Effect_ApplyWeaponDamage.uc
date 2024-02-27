@@ -588,7 +588,8 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 		EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
 		EffectTemplate = EffectState.GetX2Effect();
 
-		EffectDmg = EffectTemplate.GetAttackingDamageModifier(EffectState, SourceUnit, Damageable(TargetUnit), AbilityState, TestEffectParams, MinDamagePreview.Damage);
+		// Single line for Issue #1305 - use the Highlander version of GetAttackingDamageModifier().
+		EffectDmg = EffectTemplate.GetAttackingDamageModifier_CH(EffectState, SourceUnit, Damageable(TargetUnit), AbilityState, TestEffectParams, MinDamagePreview.Damage, self);
 		MinDamagePreview.Damage += EffectDmg;
 		if( EffectDmg != 0 )
 		{
@@ -596,7 +597,8 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 			DamageModInfo.Value = EffectDmg;
 			MinDamagePreview.BonusDamageInfo.AddItem(DamageModInfo);
 		}
-		EffectDmg = EffectTemplate.GetAttackingDamageModifier(EffectState, SourceUnit, Damageable(TargetUnit), AbilityState, TestEffectParams, MaxDamagePreview.Damage);
+		// Single line for Issue #1305 - use the Highlander version of GetAttackingDamageModifier().
+		EffectDmg = EffectTemplate.GetAttackingDamageModifier_CH(EffectState, SourceUnit, Damageable(TargetUnit), AbilityState, TestEffectParams, MaxDamagePreview.Damage, self);
 		MaxDamagePreview.Damage += EffectDmg;
 		if( EffectDmg != 0 )
 		{
@@ -1001,7 +1003,9 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 
 			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
 			EffectTemplate = EffectState.GetX2Effect();
-			EffectDmg = EffectTemplate.GetAttackingDamageModifier(EffectState, kSourceUnit, kTarget, kAbility, ApplyEffectParameters, WeaponDamage, NewGameState);
+
+			// Single line for Issue #1305 - use the Highlander version of GetAttackingDamageModifier().
+			EffectDmg = EffectTemplate.GetAttackingDamageModifier_CH(EffectState, kSourceUnit, kTarget, kAbility, ApplyEffectParameters, WeaponDamage, self, NewGameState);
 			if (EffectDmg != 0)
 			{
 				WeaponDamage += EffectDmg;
