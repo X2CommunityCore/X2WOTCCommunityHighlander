@@ -10,19 +10,22 @@ function int GetStartingNumTurns(const out EffectAppliedData ApplyEffectParamete
 
 // Start Issue #1288
 /// HL-Docs: ref:Bugfixes; issue:1288
-/// Utilised updated OnEffectAdded and OnEffectRemoved functions to update unit data on all units in range of the spawend destructible
+/// Update tile data for all adjacent units when the Pillar is spawned or expires to make the cover change update immediately.
 simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffectParameters, XComGameState_BaseObject kNewTargetState, XComGameState NewGameState, XComGameState_Effect NewEffectState)
 {
-	local Vector	Position;
-	local TTile		TileLocation;	
+	local Vector Position;
+	local TTile  TileLocation;	
+
+	`LOG("Pillar effect applied to:" @ XComGameState_Unit(kNewTargetState).GetFullName() @ "num target locations:" @ ApplyEffectParameters.AbilityInputContext.TargetLocations.Length,, 'IRITEST');
 
 	super.OnEffectAdded(ApplyEffectParameters, kNewTargetState, NewGameState, NewEffectState);
 
-	Position = ApplyEffectParameters.AbilityInputContext.TargetLocations[0];
-	TileLocation = `XWORLD.GetTileCoordinatesFromPosition(Position);
-
-	// After the destructible is spawned, perform an update to all of the units within range of the destructible
-	UpdateWorldDataForTile(TileLocation, NewGameState);
+	if (ApplyEffectParameters.AbilityInputContext.TargetLocations.Length > 0)
+	{
+		Position = ApplyEffectParameters.AbilityInputContext.TargetLocations[0];
+		TileLocation = `XWORLD.GetTileCoordinatesFromPosition(Position);
+		UpdateWorldDataForTile(TileLocation, NewGameState);
+	}
 }
 
 simulated function OnEffectRemoved(const out EffectAppliedData ApplyEffectParameters, XComGameState NewGameState, bool bCleansed, XComGameState_Effect RemovedEffectState)
@@ -32,67 +35,84 @@ simulated function OnEffectRemoved(const out EffectAppliedData ApplyEffectParame
 
 	super.OnEffectRemoved(ApplyEffectParameters, NewGameState, bCleansed, RemovedEffectState);
 
-	Position = ApplyEffectParameters.AbilityInputContext.TargetLocations[0];
-	TileLocation = `XWORLD.GetTileCoordinatesFromPosition(Position);
-
-	// After the destructible is removed, perform an update to all of the units within range of the destructible
-	UpdateWorldDataForTile(TileLocation, NewGameState);
+	if (ApplyEffectParameters.AbilityInputContext.TargetLocations.Length > 0)
+	{
+		Position = ApplyEffectParameters.AbilityInputContext.TargetLocations[0];
+		TileLocation = `XWORLD.GetTileCoordinatesFromPosition(Position);
+		UpdateWorldDataForTile(TileLocation, NewGameState);
+	}
 }
 
-// helper to get the 3x3 cross of tiles around the specified tile
-protected static function GetUpdateTiles(TTile Tile, out array<TTile> Tiles)
+static private function GetTilesAdjacentToTile(TTile Tile, out array<TTile> Tiles)
 {
-	// center tile
 	Tiles.AddItem(Tile);
 
-	// adjacent x tiles
 	Tile.X -= 1;
 	Tiles.AddItem(Tile);
+
 	Tile.X += 2;
 	Tiles.AddItem(Tile);
-	Tile.X -= 1;
 
-	// adjacent y tiles
+	Tile.X -= 1;
 	Tile.Y -= 1;
 	Tiles.AddItem(Tile);
+
 	Tile.Y += 2;
 	Tiles.AddItem(Tile);
 }
 
-protected static function UpdateWorldDataForTile(const out TTile OriginalTile, XComGameState NewGameState)
+static private function UpdateWorldDataForTile(const out TTile PillarTile, XComGameState NewGameState)
 {
-	local XComGameStateHistory History;
-	local XComWorldData WorldData;
-	local TTile RebuildTile;
-	local array<TTile> ChangeTiles;
+	local XComGameStateHistory        History;
+	local XComWorldData               WorldData;
+	local TTile                       RebuildTile;
+	local array<TTile>                AdjacentTiles;
 	local array<StateObjectReference> UnitRefs;
-	local StateObjectReference UnitRef;
-	local XComGameState_BaseObject UnitOnTile;
+	local StateObjectReference        UnitRef;
+	local XComGameState_BaseObject    UnitOnTile;
 
 	History = `XCOMHISTORY;
 	WorldData = `XWORLD;
 
-	GetUpdateTiles(OriginalTile, ChangeTiles);
+	WorldData.UpdateTileDataCache(NewGameState,, true);
+	//WorldData.FlushCachedVisibility();
 
-	// update the world data for each tile touched
-	foreach ChangeTiles(RebuildTile)
-	{
-		WorldData.DebugRebuildTileData( RebuildTile );
-	}
+	`LOG("Updating data for target tile:" @ PillarTile.X @ PillarTile.Y @ PillarTile.Z,, 'IRITEST');
 
-	// add any units on the tiles to the new game state since they need to do a visibility update
-	foreach ChangeTiles(RebuildTile)
+	GetTilesAdjacentToTile(PillarTile, AdjacentTiles);
+
+	`LOG("Got adjacent tiles:" @ AdjacentTiles.Length,, 'IRITEST');
+
+	foreach AdjacentTiles(RebuildTile)
 	{
-		UnitRefs = WorldData.GetUnitsOnTile( RebuildTile );
-		foreach UnitRefs( UnitRef )
+		`LOG("Rebuilding tile:" @ RebuildTile.X @ RebuildTile.Y @ RebuildTile.Z,, 'IRITEST');
+
+		WorldData.DebugRebuildTileData(RebuildTile);
+		WorldData.ClearVisibilityDataAroundTile(RebuildTile);
+
+		UnitRefs = WorldData.GetUnitsOnTile(RebuildTile);
+
+		`LOG("Num units on tile:" @ UnitRefs.Length,, 'IRITEST');
+
+		foreach UnitRefs(UnitRef)
 		{
 			UnitOnTile = History.GetGameStateForObjectID(UnitRef.ObjectID);
+			`LOG("Unit on tile:" @ XComGameState_Unit(UnitOnTile).GetFullName(),, 'IRITEST');
+			if (UnitOnTile == none)
+				continue;
+
 			UnitOnTile = NewGameState.ModifyStateObject(UnitOnTile.Class, UnitOnTile.ObjectID);
 			UnitOnTile.bRequiresVisibilityUpdate = true;
+
+			`LOG("Unit requires visibility update",, 'IRITEST');
 		}
 	}
-}
 
+	WorldData.FlushCachedVisibility();
+	WorldData.ForceUpdateAllFOWViewers();
+	`TACTICALRULES.VisibilityMgr.ActorVisibilityMgr.OnVisualizationIdle(); //Force all visualizers to update their visualization state
+	`PRES.m_kTacticalHUD.ForceUpdate(-1);
+}
 // End Issue #1288
 
 DefaultProperties
