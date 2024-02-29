@@ -517,6 +517,11 @@ static function X2AbilityTemplate CombatProtocol()
 	RobotDamage.DamageTag = 'CombatProtocol_Robotic';
 	RobotProperty = new class'X2Condition_UnitProperty';
 	RobotProperty.ExcludeOrganic = true;
+
+	/// HL-Docs: ref:Bugfixes; issue:1311
+	/// Make Combat Protocol deal bonus damage to robots hacked by XCOM
+	RobotProperty.TreatMindControlledSquadmateAsHostile = true;
+
 	RobotDamage.TargetConditions.AddItem(RobotProperty);
 	Template.AddTargetEffect(RobotDamage);
 
