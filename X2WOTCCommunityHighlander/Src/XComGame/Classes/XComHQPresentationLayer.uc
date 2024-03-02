@@ -429,6 +429,8 @@ private function PostMissionBondNotifies()
 	`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
 }
 
+/// HL-Docs: feature:PositiveTraitUI; issue:1081; tags:
+/// Adjusted NotifyBanner function to depend on trait status (positive or negative) & adjusted icons
 private function PostMissionNegativeTraitNotifies()
 {
 	local XComGameStateHistory History;
@@ -457,29 +459,38 @@ private function PostMissionNegativeTraitNotifies()
 		foreach UnitState.WorldMessageTraits(TraitName)
 		{
 			TraitTemplate = X2TraitTemplate(EventTemplateManager.FindEventListenerTemplate(TraitName));
-
+			
 			if(TraitTemplate != none)
 			{
-				NotifyBanner(UnitState.GetName(eNameType_Full), "img:///UILibrary_StrategyImages.X2StrategyMap.MapPin_Poi", class'UIAlert'.default.m_strNegativeTraitAcquiredTitle, TraitTemplate.TraitFriendlyName, eUIState_Bad);
-
+				//Begin Issue# 1081
+				//Check trait status and assign icons
+				if(TraitTemplate.bPositiveTrait)
+					{
+						NotifyBanner(UnitState.GetName(eNameType_Full), "img:///UILibrary_StrategyImages.X2StrategyMap.MapPin_GoldenPath", class'UIAlert'.default.m_strPositiveTraitAcquiredTitle, TraitTemplate.TraitFriendlyName, eUIState_Good);
+					}
+				else
+					{
+						NotifyBanner(UnitState.GetName(eNameType_Full), "img:///UILibrary_StrategyImages.X2StrategyMap.MapPin_Landing", class'UIAlert'.default.m_strNegativeTraitAcquiredTitle, TraitTemplate.TraitFriendlyName, eUIState_Bad);
+					}
+				
 				if(PopupCount == 0)
-				{
-					PopupCount++;
-					PopupUnit = UnitState;
-					StoredTraitName = TraitName;
-				}
+					{
+						PopupCount++;
+						PopupUnit = UnitState;
+						StoredTraitName = TraitName;
+					}
 			}
+			// Bring popupcount inside the foreach (unitstate)
+			if(PopupCount > 0 && !XComHQ.bHasSeenNegativeTraitPopup)
+				{
+					XComHQ.bHasSeenNegativeTraitPopup = true;
+					UINegativeTraitAlert(NewGameState, PopupUnit, StoredTraitName);
+				}
 		}
-
+		// End issue# 1081
 		UnitState.WorldMessageTraits.Length = 0;
 	}
-
-	if(PopupCount > 0 && !XComHQ.bHasSeenNegativeTraitPopup)
-	{
-		XComHQ.bHasSeenNegativeTraitPopup = true;
-		UINegativeTraitAlert(NewGameState, PopupUnit, StoredTraitName);
-	}
-
+				
 	`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
 }
 
@@ -1717,14 +1728,30 @@ function UISoldierBondConfirm(XComGameState_Unit UnitRef1, XComGameState_Unit Un
 	}
 }
 
+/// HL-Docs: ref:PositiveTraitUI
+/// Adjusted the UINegativeTraitAlert function so it builds the correct UI panel depending on trait status
 function UINegativeTraitAlert(XComGameState NewGameState, XComGameState_Unit UnitState, Name TraitTemplateName)
 {
 	local DynamicPropertySet PropertySet;
+	local X2EventListenerTemplateManager EventTemplateManager;
+	local X2TraitTemplate TraitTemplate;
+
+	EventTemplateManager = class'X2EventListenerTemplateManager'.static.GetEventListenerTemplateManager();
+	TraitTemplate = X2TraitTemplate(EventTemplateManager.FindEventListenerTemplate(TraitTemplateName));
 
 	UnitState.AlertTraits.RemoveItem(TraitTemplateName);
 	UnitState.WorldMessageTraits.RemoveItem(TraitTemplateName);
 
-	BuildUIAlert(PropertySet, 'eAlert_NegativeTraitAcquired', None, 'OnNegativeTraitAcquired', "Geoscape_CrewMemberLevelledUp", false);
+	//Begin issue #1081
+	if (TraitTemplate.bPositiveTrait)
+		{
+		BuildUIAlert(PropertySet, 'eAlert_PositiveTraitAcquired', None, 'OnPositiveTraitAcquired', "Geoscape_CrewMemberLevelledUp", false);
+		}
+	else
+		{
+		BuildUIAlert(PropertySet, 'eAlert_NegativeTraitAcquired', None, 'OnNegativeTraitAcquired', "Geoscape_CrewMemberLevelledUp", false);
+		}
+	//End issue #1081
 	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicIntProperty(PropertySet, 'UnitRef', UnitState.ObjectID);
 	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicNameProperty(PropertySet, 'PrimaryTraitTemplate', TraitTemplateName);
 	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicNameProperty(PropertySet, 'SecondaryTraitTemplate', '');
