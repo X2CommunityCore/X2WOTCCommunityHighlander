@@ -51,6 +51,11 @@ static function X2AbilityTemplate CreateStunLanceAbility(optional Name AbilityNa
 	TargetPropertyCondition = new class'X2Condition_UnitProperty';	
 	TargetPropertyCondition.ExcludeDead = true;                     //Can't target dead
 	TargetPropertyCondition.ExcludeFriendlyToSource = true;         //Can't target friendlies
+
+	/// HL-Docs: ref:Bugfixes; issue:1312
+	/// Allow Stun Lance to target Mind Controlled units (currently on the same team as the Stun Lancer)
+	TargetPropertyCondition.TreatMindControlledSquadmateAsHostile = true;
+
 	Template.AbilityTargetConditions.AddItem(TargetPropertyCondition);
 	Template.AbilityTargetConditions.AddItem(default.MeleeVisibilityCondition);
 
