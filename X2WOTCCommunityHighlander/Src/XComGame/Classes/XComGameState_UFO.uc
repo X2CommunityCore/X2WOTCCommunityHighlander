@@ -86,6 +86,29 @@ function SetInterceptionChance(XComGameState NewGameState, bool bGoldenPathSpawn
 	}
 	
 	SetInterceptionTime();
+
+	// Start Issue #1316
+	/// HL-Docs: feature:PostUFOSetInterceptionTime; issue:1316; tags:strategy
+	/// This event allows mods to modify the state of a UFO 
+	/// after it has been created but before the gamestate is submitted.
+	/// To use this event, listen to it with the `ELD_Immediate` deferral,
+	/// and make sure to get the latest version of the UFO state object from the NewGameState, for example: 
+	///
+	/// ```unrealscript
+	/// local XComGameState_UFO            UFOState;
+	///
+	/// UFOState = XComGameState_UFO(EventSource);
+	/// UFOState = XComGameState_UFO(NewGameState.GetGameStateForObjectID(UFOState.ObjectID));
+	/// ```
+	///
+	/// ```event
+	/// EventID: PostUFOSetInterceptionTime,
+	/// EventData: XComGameState_UFO,
+	/// EventSource: XComGameState_UFO,
+	/// NewGameState: yes
+	/// ```
+	`XEVENTMGR.TriggerEvent('PostUFOSetInterceptionTime', self, self, NewGameState);
+	// End Issue #1316
 }
 
 //---------------------------------------------------------------------------------------
