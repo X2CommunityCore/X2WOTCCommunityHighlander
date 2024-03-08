@@ -832,6 +832,9 @@
     <Content Include="Src\XComGame\Classes\XComGameState_StaffSlot.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_UFO.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_WorldRegion.uc">
       <SubType>Content</SubType>
     </Content>
