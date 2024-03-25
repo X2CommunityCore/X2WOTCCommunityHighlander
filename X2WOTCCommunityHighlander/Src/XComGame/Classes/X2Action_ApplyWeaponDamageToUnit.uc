@@ -884,7 +884,9 @@ simulated state Executing
 				m_iShredded = 0;
 				for( i = 0; i < HitResults.Length && i < DamageResults.Length; i++ ) // some abilities damage the same target multiple times
 				{
-					if( HitResults[i] == eHit_Success )
+					/// HL-Docs: ref:Bugfixes; issue:1320
+					/// Allow hit results other than `eHit_Success` to display flyovers.
+					if( class'XComGameStateContext_Ability'.static.IsHitResultHit(HitResults[i]) )
 					{
 						m_iDamage += DamageResults[i].DamageAmount;
 						m_iMitigated += DamageResults[i].MitigationAmount;
