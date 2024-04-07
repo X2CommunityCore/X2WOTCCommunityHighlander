@@ -491,7 +491,10 @@ static function X2DataTemplate CreateTemplate_VektorRifle_Conventional()
 	Template.iSoundRange = default.VEKTORRIFLE_CONVENTIONAL_ISOUNDRANGE;
 	Template.iEnvironmentDamage = default.VEKTORRIFLE_CONVENTIONAL_IENVIRONMENTDAMAGE;
 	Template.NumUpgradeSlots = 1;
-	Template.iTypicalActionCost = 2;
+
+	/// HL-Docs: ref:Bugfixes; issue:1322
+	/// Comment out the line setting iTypicalActionCost for the conventional Vektor Rifle to match magnetic and beam variants.
+	//Template.iTypicalActionCost = 2;
 		
 	Template.InventorySlot = eInvSlot_PrimaryWeapon;
 	Template.Abilities.AddItem('StandardShot');
