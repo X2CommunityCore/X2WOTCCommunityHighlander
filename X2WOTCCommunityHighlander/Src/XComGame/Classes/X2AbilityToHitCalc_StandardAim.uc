@@ -186,8 +186,13 @@ function InternalRollForAbilityHit(XComGameState_Ability kAbility, AvailableTarg
 			break;
 		}
 	}	
-	if (HitsAreCrits && Result == eHit_Success)
-		Result = eHit_Crit;
+
+	// Start Issue #1300
+	/// HL-Docs: ref:Bugfixes; issue:1300
+	/// Code block moved to be right after aim assist logic, so that if a miss is converted to a hit by aim assist, the ability will still crit if it is set up to always crit on hit.
+	//if (HitsAreCrits && Result == eHit_Success)
+	//	Result = eHit_Crit;
+	// End Issue #1300
 
 	UnitState = XComGameState_Unit(History.GetGameStateForObjectID(kAbility.OwnerStateObject.ObjectID));
 	TargetState = XComGameState_Unit(History.GetGameStateForObjectID(kTarget.PrimaryTarget.ObjectID));
@@ -235,6 +240,12 @@ function InternalRollForAbilityHit(XComGameState_Ability kAbility, AvailableTarg
 			}
 		}
 	}
+
+	// Start Issue #1300
+	// Code block moved from earlier.
+	if (HitsAreCrits && Result == eHit_Success)
+		Result = eHit_Crit;
+	// End Issue #1300
 
 	`log("***HIT" @ Result, !bRolledResultIsAMiss, 'XCom_HitRolls');
 	`log("***MISS" @ Result, bRolledResultIsAMiss, 'XCom_HitRolls');
@@ -362,6 +373,16 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 		AddModifier(100, AbilityTemplate.LocFriendlyName, m_ShotBreakdown, eHit_Success, bDebugLog);
 	}
 
+	// Start Issue #1298
+	/// HL-Docs: ref:Bugfixes; issue:1298
+	/// Add 100 crit chance to guaranteed crit abilities for the purposes of UI.
+	if (bHitsAreCrits)
+	{
+		//  call the super version to bypass our check to ignore crit chance mods for guaranteed crits
+		super.AddModifier(100, AbilityTemplate.LocFriendlyName, m_ShotBreakdown, eHit_Crit, bDebugLog);
+	}
+	// End Issue #1298
+
 	// Issue #346: AddModifier(BuiltIn...Mod) block moved later in method.
 	/// HL-Docs: ref:Bugfixes; issue:346
 	/// Prevent `X2AbilityToHitCalc_StandardAim` from applying BuiltInHitMod and BuiltInCritMod against non-units.
@@ -434,8 +455,20 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 						}
 					}
 				}
+
 				//  Target defense
-				AddModifier(-TargetState.GetCurrentStat(eStat_Defense), class'XLocalizedData'.default.DefenseStat, m_ShotBreakdown, eHit_Success, bDebugLog);
+				// Start Issue #1295
+				// Add separate entries for different sources of Defense on the target unit rather than one entry with all sources of Defense rolled into it.
+				//AddModifier(-TargetState.GetCurrentStat(eStat_Defense), class'XLocalizedData'.default.DefenseStat, m_ShotBreakdown, eHit_Success, bDebugLog);
+				AddModifier(-TargetState.GetBaseStat(eStat_Defense), class'XLocalizedData'.default.DefenseStat, m_ShotBreakdown, eHit_Success, bDebugLog);            
+
+				/// HL-Docs: ref:GetStatModifiersFixed
+                TargetState.GetStatModifiersFixed(eStat_Defense, StatMods, StatModValues);
+                for (i = 0; i < StatMods.Length; ++i)
+                {
+                    AddModifier(-int(StatModValues[i]), StatMods[i].GetX2Effect().FriendlyName, m_ShotBreakdown, eHit_Success, bDebugLog);
+                }
+				// End Issue #1295
 				
 				//  Add weapon range
 				if (SourceWeapon != none)
@@ -898,6 +931,14 @@ protected function AddModifier(const int ModValue, const string ModReason, out S
 		if (ModType != eHit_Crit)             //  for a guaranteed hit, the only possible modifier is to allow for crit
 			return;
 	}
+
+	// Start Issue #1298
+	if (bHitsAreCrits)
+	{
+		if (ModType == eHit_Crit)             //  for a guaranteed crit, do not add modifiers for crit chance
+			return;
+	}
+	// End Issue #1298
 
 	super.AddModifier(ModValue, ModReason, m_ShotBreakdown, ModType, bDebugLog);
 }

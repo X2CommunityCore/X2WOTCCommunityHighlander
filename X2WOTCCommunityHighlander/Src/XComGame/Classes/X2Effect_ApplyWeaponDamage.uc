@@ -146,13 +146,17 @@ simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffe
 				}
 			}
 		}
-		
+
+		kNewTargetDamageableState.TakeEffectDamage(self, iDamage, iMitigated, NewShred, ApplyEffectParameters, NewGameState, false, true, bDoesDamageIgnoreShields, AppliedDamageTypes, SpecialDamageMessages);
+
+		//	Start Issue #1299 - block moved from earlier, just above the TakeEffectDamage() call.
+		/// HL-Docs: ref:Bugfixes; issue:1299
+		/// Apply rupture after dealing the damage from the attack.
 		if (NewRupture > 0)
 		{
 			kNewTargetDamageableState.AddRupturedValue(NewRupture);
 		}
-
-		kNewTargetDamageableState.TakeEffectDamage(self, iDamage, iMitigated, NewShred, ApplyEffectParameters, NewGameState, false, true, bDoesDamageIgnoreShields, AppliedDamageTypes, SpecialDamageMessages);
+		// End Issue #1299
 	}
 }
 
@@ -748,13 +752,16 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 	local X2Effect_Persistent EffectTemplate;
 	local WeaponDamageValue BaseDamageValue, ExtraDamageValue, BonusEffectDamageValue, AmmoDamageValue, UpgradeTemplateBonusDamage, UpgradeDamageValue;
 	local X2AmmoTemplate AmmoTemplate;
-	local int RuptureCap, RuptureAmount, OriginalMitigation, UnconditionalShred;
+	local int RuptureAmount, OriginalMitigation, UnconditionalShred;
 	local int EnvironmentDamage, TargetBaseDmgMod;
 	local XComDestructibleActor kDestructibleActorTarget;
 	local array<X2WeaponUpgradeTemplate> WeaponUpgradeTemplates;
 	local X2WeaponUpgradeTemplate WeaponUpgradeTemplate;
 	local DamageModifierInfo ModifierInfo;
 	local bool bWasImmune, bHadAnyDamage;
+
+	// Issue #1299 - comment out unused Rupture Cap.
+	//local int RuptureCap;
 
 	ArmorMitigation = 0;
 	NewRupture = 0;
@@ -910,7 +917,9 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 	ArmorPiercing = BaseDamageValue.Pierce + ExtraDamageValue.Pierce + BonusEffectDamageValue.Pierce + AmmoDamageValue.Pierce + UpgradeDamageValue.Pierce;
 	NewRupture = BaseDamageValue.Rupture + ExtraDamageValue.Rupture + BonusEffectDamageValue.Rupture + AmmoDamageValue.Rupture + UpgradeDamageValue.Rupture;
 	NewShred = BaseDamageValue.Shred + ExtraDamageValue.Shred + BonusEffectDamageValue.Shred + AmmoDamageValue.Shred + UpgradeDamageValue.Shred;
-	RuptureCap = WeaponDamage;
+
+	// Issue #1299 - comment out unused Rupture Cap.
+	//RuptureCap = WeaponDamage;
 
 	`log(`ShowVar(bIgnoreBaseDamage) @ `ShowVar(DamageTag), true, 'XCom_HitRolls');
 	`log("Weapon damage:" @ WeaponDamage @ "Potential spread:" @ DamageSpread, true, 'XCom_HitRolls');
@@ -953,12 +962,23 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 		`log("GRAZE! Adjusted damage:" @ WeaponDamage, true, 'XCom_HitRolls');
 	}
 
-	RuptureAmount = min(kTarget.GetRupturedValue() + NewRupture, RuptureCap);
-	if (RuptureAmount != 0)
+	//	Start Issue #1299
+	/// HL-Docs: ref:Bugfixes; issue:1299
+	/// Remove the cap from the amount of bonus damage that can be added to an attack by rupture, and do not add rupture added by this attack to the attack's damage.
+	//RuptureAmount = min(kTarget.GetRupturedValue() + NewRupture, RuptureCap);
+	RuptureAmount = kTarget.GetRupturedValue();
+
+	// While Rupture Cap is removed, we still want to add bonus damage from rupture only if the attack deals damage,
+	// as that was part of of the original functionality of the Rupture Cap.
+	if (WeaponDamage > 0)
 	{
-		WeaponDamage += RuptureAmount;
-		`log("Target is ruptured, increases damage by" @ RuptureAmount $", new damage:" @ WeaponDamage, true, 'XCom_HitRolls');
+		if (RuptureAmount != 0)
+		{
+			WeaponDamage += RuptureAmount;
+			`log("Target is ruptured, increases damage by" @ RuptureAmount $", new damage:" @ WeaponDamage, true, 'XCom_HitRolls');
+		}
 	}
+	// End Issue #1299
 
 	if( kSourceUnit != none)
 	{

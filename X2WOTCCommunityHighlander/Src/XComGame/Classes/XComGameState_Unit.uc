@@ -7455,6 +7455,7 @@ function SetupActionsForBeginTurn()
 	local XComGameState_Effect EffectState;
 	local X2Effect_Persistent EffectTemplate;
 	local UnitValue MovesThisTurn;
+	local UnitValue InterruptionValue; //Issue #1325 - Variable Declaration
 
 	GiveStandardActionPoints();
 
@@ -7468,6 +7469,11 @@ function SetupActionsForBeginTurn()
 			EffectTemplate.ModifyTurnStartActionPoints(self, ActionPoints, EffectState);
 		}
 	}
+
+	//Start issue #1325 - Check if the unit is currently interrupting a turn. Early return if so. Done after Action Point grants for compatibility.
+	if(GetUnitValue('CHL_InterruptingTurn', InterruptionValue))
+		return;
+	//End issue #1325 - Check if the unit is currently interrupting a turn. Early return if so. Done after Action Point grants for compatibility.
 
 	Untouchable = 0;                    //  untouchable only lasts until the start of your next turn, so always clear it out
 	bGotFreeFireAction = false;                                                      //Reset FreeFireAction flag

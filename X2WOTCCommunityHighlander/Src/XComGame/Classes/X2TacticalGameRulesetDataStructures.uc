@@ -116,6 +116,7 @@ enum EInventorySlot
 	eInvSlot_SparkActuator,
 	eInvSlot_SparkModule,
 	eInvSlot_ExtraGrenadePocket,
+	eInvSlot_ExtraLandMine,
 
 	// Marker slot, don't use
 	eInvSlot_END_TEMPLATED_SLOTS,
