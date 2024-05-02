@@ -373,6 +373,16 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 		AddModifier(100, AbilityTemplate.LocFriendlyName, m_ShotBreakdown, eHit_Success, bDebugLog);
 	}
 
+	// Start Issue #1298
+	/// HL-Docs: ref:Bugfixes; issue:1298
+	/// Add 100 crit chance to guaranteed crit abilities for the purposes of UI.
+	if (bHitsAreCrits)
+	{
+		//  call the super version to bypass our check to ignore crit chance mods for guaranteed crits
+		super.AddModifier(100, AbilityTemplate.LocFriendlyName, m_ShotBreakdown, eHit_Crit, bDebugLog);
+	}
+	// End Issue #1298
+
 	// Issue #346: AddModifier(BuiltIn...Mod) block moved later in method.
 	/// HL-Docs: ref:Bugfixes; issue:346
 	/// Prevent `X2AbilityToHitCalc_StandardAim` from applying BuiltInHitMod and BuiltInCritMod against non-units.
@@ -909,6 +919,14 @@ protected function AddModifier(const int ModValue, const string ModReason, out S
 		if (ModType != eHit_Crit)             //  for a guaranteed hit, the only possible modifier is to allow for crit
 			return;
 	}
+
+	// Start Issue #1298
+	if (bHitsAreCrits)
+	{
+		if (ModType == eHit_Crit)             //  for a guaranteed crit, do not add modifiers for crit chance
+			return;
+	}
+	// End Issue #1298
 
 	super.AddModifier(ModValue, ModReason, m_ShotBreakdown, ModType, bDebugLog);
 }
