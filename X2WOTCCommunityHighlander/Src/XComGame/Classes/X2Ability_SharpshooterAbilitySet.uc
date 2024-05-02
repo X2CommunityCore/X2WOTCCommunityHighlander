@@ -1082,6 +1082,15 @@ function Faceoff_BuildVisualization(XComGameState VisualizeGameState)
 	local XComGameStateVisualizationMgr		VisualizationMgr;
 	local X2Action_ApplyWeaponDamageToUnit	ApplyWeaponDamageAction;
 
+	// Start Issue #1329
+	local XComGameState_Ability AbilityState;
+	local XComGameState_Item SourceWeapon;
+	local X2AmmoTemplate AmmoTemplate;
+	local X2WeaponTemplate WeaponTemplate;
+	local X2Action ChildAction;
+	local array<X2Action> ExistingChildActions;
+	// End Issue #1329
+
 
 	History = `XCOMHISTORY;
 	VisualizationMgr = `XCOMVISUALIZATIONMGR;
@@ -1105,6 +1114,16 @@ function Faceoff_BuildVisualization(XComGameState VisualizeGameState)
 		SoundAndFlyOver = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyover'.static.AddToVisualizationTree(SourceTrack, Context));
 		SoundAndFlyOver.SetSoundAndFlyOverParameters(None, "", AbilityTemplate.ActivationSpeech, eColor_Good);
 	}
+
+	// Start Issue #1329
+	AbilityState = XComGameState_Ability(History.GetGameStateForObjectID(AbilityContext.AbilityRef.ObjectID,, VisualizeGameState.HistoryIndex));
+	SourceWeapon = XComGameState_Item(History.GetGameStateForObjectID(AbilityContext.ItemObject.ObjectID,, VisualizeGameState.HistoryIndex));
+	if (SourceWeapon != None)
+	{
+		WeaponTemplate = X2WeaponTemplate(SourceWeapon.GetMyTemplate());
+		AmmoTemplate = X2AmmoTemplate(SourceWeapon.GetLoadedAmmoTemplate(AbilityState));
+	}
+	// End Issue #1329
 
 
 	// Add a Camera Action to the Shooter's Metadata.  Minor hack: To create a CinescriptCamera the AbilityTemplate 
@@ -1154,6 +1173,30 @@ function Faceoff_BuildVisualization(XComGameState VisualizeGameState)
 		// Source effect visualization
 		AbilityTemplate.AbilityTargetEffects[EffectIndex].AddX2ActionsForVisualizationSource(VisualizeGameState, SourceTrack, ApplyResult);
 	}
+
+	// Start Issue #1329
+	/// HL-Docs: ref:Bugfixes; issue:1329
+	/// Visualize applying bonus weapon effects and ammo effects to the primary target.
+	if (AbilityTemplate.bAllowAmmoEffects && AmmoTemplate != None)
+	{
+		for (EffectIndex = 0; EffectIndex < AmmoTemplate.TargetEffects.Length; ++EffectIndex)
+		{
+			ApplyResult = Context.FindTargetEffectApplyResult(AmmoTemplate.TargetEffects[EffectIndex]);
+			AmmoTemplate.TargetEffects[EffectIndex].AddX2ActionsForVisualization(VisualizeGameState, ActionMetadata, ApplyResult);
+			AmmoTemplate.TargetEffects[EffectIndex].AddX2ActionsForVisualizationSource(VisualizeGameState, SourceTrack, ApplyResult);
+		}
+	}
+	if (AbilityTemplate.bAllowBonusWeaponEffects && WeaponTemplate != none)
+	{
+		for (EffectIndex = 0; EffectIndex < WeaponTemplate.BonusWeaponEffects.Length; ++EffectIndex)
+		{
+			ApplyResult = Context.FindTargetEffectApplyResult(WeaponTemplate.BonusWeaponEffects[EffectIndex]);
+			WeaponTemplate.BonusWeaponEffects[EffectIndex].AddX2ActionsForVisualization(VisualizeGameState, ActionMetadata, ApplyResult);
+			WeaponTemplate.BonusWeaponEffects[EffectIndex].AddX2ActionsForVisualizationSource(VisualizeGameState, SourceTrack, ApplyResult);
+		}
+	}
+	// End Issue #1329
+
 	if( TargetVisualizerInterface != none )
 	{
 		//Allow the visualizer to do any custom processing based on the new game state. For example, units will create a death action when they reach 0 HP.
@@ -1234,6 +1277,49 @@ function Faceoff_BuildVisualization(XComGameState VisualizeGameState)
 			VisualizationMgr.DisconnectAction(ApplyWeaponDamageAction);
 			VisualizationMgr.ConnectAction(ApplyWeaponDamageAction, VisualizationMgr.BuildVisTree, false, FireFaceoffAction);
 		}
+
+		// Start Issue #1329
+		/// HL-Docs: ref:Bugfixes; issue:1329
+		/// Make Faceoff visualize applying bonus weapon effects and ammo effects to multi targets.
+		// By default, newly added actions automatically use the main fire action for shooting the primary target as their parent,
+		// so some measures need to be taken to assign them to their correct fire-at-this-multi-target fire action.
+		// First, store existing child actions of the main fire action.
+		foreach FireAction.ChildActions(ChildAction)
+		{
+			ExistingChildActions.AddItem(ChildAction);
+		}
+
+		// Then add visualization actions for ammo effects and bonus weapon effects.
+		if (AbilityTemplate.bAllowAmmoEffects && AmmoTemplate != None)
+		{
+			for (EffectIndex = 0; EffectIndex < AmmoTemplate.TargetEffects.Length; ++EffectIndex)
+			{
+				ApplyResult = Context.FindMultiTargetEffectApplyResult(AmmoTemplate.TargetEffects[EffectIndex], TargetIndex);
+				AmmoTemplate.TargetEffects[EffectIndex].AddX2ActionsForVisualization(VisualizeGameState, ActionMetadata, ApplyResult);
+				AmmoTemplate.TargetEffects[EffectIndex].AddX2ActionsForVisualizationSource(VisualizeGameState, SourceTrack, ApplyResult);
+			}
+		}
+		if (AbilityTemplate.bAllowBonusWeaponEffects && WeaponTemplate != none)
+		{
+			for (EffectIndex = 0; EffectIndex < WeaponTemplate.BonusWeaponEffects.Length; ++EffectIndex)
+			{
+				ApplyResult = Context.FindMultiTargetEffectApplyResult(WeaponTemplate.BonusWeaponEffects[EffectIndex], TargetIndex);
+				WeaponTemplate.BonusWeaponEffects[EffectIndex].AddX2ActionsForVisualization(VisualizeGameState, ActionMetadata, ApplyResult);
+				WeaponTemplate.BonusWeaponEffects[EffectIndex].AddX2ActionsForVisualizationSource(VisualizeGameState, SourceTrack, ApplyResult);
+			}
+		}
+
+		// Then reparent them from the main fire action to the fire action responsible for shooting at this specific target.
+		// Check with the ExistingChildActions array to avoid affecting other actions that were already there.
+		foreach FireAction.ChildActions(ChildAction)
+		{
+			if (ChildAction.Metadata.VisualizeActor == TargetVisualizer && ExistingChildActions.Find(ChildAction) == INDEX_NONE)
+			{
+				VisualizationMgr.DisconnectAction(ChildAction);
+				VisualizationMgr.ConnectAction(ChildAction, VisualizationMgr.BuildVisTree, false, FireFaceoffAction);
+			}
+		}
+		// End Issue #1329
 	}
 	class'X2Action_EnterCover'.static.AddToVisualizationTree(SourceTrack, Context, false, SourceTrack.LastActionAdded);
 

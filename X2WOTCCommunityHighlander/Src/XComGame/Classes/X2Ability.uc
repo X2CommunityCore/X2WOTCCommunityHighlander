@@ -481,6 +481,53 @@ static function TypicalAbility_FillOutGameState(XComGameState NewGameState)
 				MultiTargetLookupType ,
 				OverrideEffects))
 			{
+				// Start Issue #1329
+				/// HL-Docs: ref:Bugfixes; issue:1329
+				/// Apply bonus weapon effects and ammo effects to multi targets.
+				if (AbilityTemplate.bAllowAmmoEffects && SourceWeapon_NewState != none && SourceWeapon_NewState.HasLoadedAmmo())
+				{
+					AmmoTemplate = X2AmmoTemplate(SourceWeapon_NewState.GetLoadedAmmoTemplate(ShootAbilityState));
+					if (AmmoTemplate != none && AmmoTemplate.TargetEffects.Length > 0)
+					{
+						ApplyEffectsToTarget(
+							AbilityContext, 
+							AffectedTargetObject_OriginalState, 
+							SourceObject_OriginalState, 
+							ShootAbilityState, 
+							AffectedTargetObject_NewState, 
+							NewGameState, 
+							AbilityContext.ResultContext.MultiTargetHitResults[TargetIndex],
+							AbilityContext.ResultContext.MultiTargetArmorMitigation[TargetIndex],
+							AbilityContext.ResultContext.MultiTargetStatContestResult[TargetIndex],
+							AmmoTemplate.TargetEffects, 
+							MultiTargetEffectResults, 
+							AmmoTemplate.DataName,  //Use the ammo template for TELT_AmmoTargetEffects
+							TELT_AmmoTargetEffects);
+					}
+				}
+				if (AbilityTemplate.bAllowBonusWeaponEffects && SourceWeapon_NewState != none)
+				{
+					WeaponTemplate = X2WeaponTemplate(SourceWeapon_NewState.GetMyTemplate());
+					if (WeaponTemplate != none && WeaponTemplate.BonusWeaponEffects.Length > 0)
+					{
+						ApplyEffectsToTarget(
+							AbilityContext, 
+							AffectedTargetObject_OriginalState, 
+							SourceObject_OriginalState, 
+							ShootAbilityState, 
+							AffectedTargetObject_NewState, 
+							NewGameState, 
+							AbilityContext.ResultContext.MultiTargetHitResults[TargetIndex],
+							AbilityContext.ResultContext.MultiTargetArmorMitigation[TargetIndex],
+							AbilityContext.ResultContext.MultiTargetStatContestResult[TargetIndex],
+							WeaponTemplate.BonusWeaponEffects, 
+							MultiTargetEffectResults, 
+							WeaponTemplate.DataName,
+							TELT_WeaponEffects);
+					}
+				}
+				// End Issue #1329
+
 				AbilityContext.ResultContext.MultiTargetEffectResults[TargetIndex] = MultiTargetEffectResults;  //  copy results into dynamic array
 			}
 		}
@@ -1114,6 +1161,29 @@ static function TypicalAbility_BuildVisualization(XComGameState VisualizeGameSta
 				//this is the frame that we realized we've been ruptured!
 				class 'X2StatusEffects'.static.RuptureVisualization(VisualizeGameState, BuildData);
 			}
+
+			// Start Issue #1329
+			/// HL-Docs: ref:Bugfixes; issue:1329
+			/// Visualize bonus weapon effects and ammo effects being applied to multi targets.
+			if (AbilityTemplate.bAllowAmmoEffects && AmmoTemplate != None)
+			{
+				for (EffectIndex = 0; EffectIndex < AmmoTemplate.TargetEffects.Length; ++EffectIndex)
+				{
+					ApplyResult = Context.FindMultiTargetEffectApplyResult(AmmoTemplate.TargetEffects[EffectIndex], TargetIndex);
+					AmmoTemplate.TargetEffects[EffectIndex].AddX2ActionsForVisualization(VisualizeGameState, BuildData, ApplyResult);
+					AmmoTemplate.TargetEffects[EffectIndex].AddX2ActionsForVisualizationSource(VisualizeGameState, SourceData, ApplyResult);
+				}
+			}
+			if (AbilityTemplate.bAllowBonusWeaponEffects && WeaponTemplate != none)
+			{
+				for (EffectIndex = 0; EffectIndex < WeaponTemplate.BonusWeaponEffects.Length; ++EffectIndex)
+				{
+					ApplyResult = Context.FindMultiTargetEffectApplyResult(WeaponTemplate.BonusWeaponEffects[EffectIndex], TargetIndex);
+					WeaponTemplate.BonusWeaponEffects[EffectIndex].AddX2ActionsForVisualization(VisualizeGameState, BuildData, ApplyResult);
+					WeaponTemplate.BonusWeaponEffects[EffectIndex].AddX2ActionsForVisualizationSource(VisualizeGameState, SourceData, ApplyResult);
+				}
+			}
+			// End Issue #1329
 			
 			if (!bPlayedAttackResultNarrative)
 			{
