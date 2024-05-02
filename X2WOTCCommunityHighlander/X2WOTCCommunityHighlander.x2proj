@@ -514,6 +514,9 @@
     <Content Include="Src\XComGame\Classes\X2Ability_ReaperAbilitySet.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Ability_SharpshooterAbilitySet.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Ability_SkirmisherAbilitySet.uc">
       <SubType>Content</SubType>
     </Content>
