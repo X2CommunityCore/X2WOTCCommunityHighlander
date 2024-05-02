@@ -511,6 +511,12 @@
     <Content Include="Src\XComGame\Classes\X2Ability_Chosen.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Ability_DefaultBondmateAbilities.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2Ability_RangerAbilitySet.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Ability_ReaperAbilitySet.uc">
       <SubType>Content</SubType>
     </Content>
