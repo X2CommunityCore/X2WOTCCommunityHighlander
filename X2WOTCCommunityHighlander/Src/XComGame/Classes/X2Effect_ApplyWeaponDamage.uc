@@ -146,13 +146,17 @@ simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffe
 				}
 			}
 		}
-		
+
+		kNewTargetDamageableState.TakeEffectDamage(self, iDamage, iMitigated, NewShred, ApplyEffectParameters, NewGameState, false, true, bDoesDamageIgnoreShields, AppliedDamageTypes, SpecialDamageMessages);
+
+		//	Start Issue #1299 - block moved from earlier, just above the TakeEffectDamage() call.
+		/// HL-Docs: ref:Bugfixes; issue:1299
+		/// Apply rupture after dealing the damage from the attack.
 		if (NewRupture > 0)
 		{
 			kNewTargetDamageableState.AddRupturedValue(NewRupture);
 		}
-
-		kNewTargetDamageableState.TakeEffectDamage(self, iDamage, iMitigated, NewShred, ApplyEffectParameters, NewGameState, false, true, bDoesDamageIgnoreShields, AppliedDamageTypes, SpecialDamageMessages);
+		// End Issue #1299
 	}
 }
 
@@ -953,7 +957,13 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 		`log("GRAZE! Adjusted damage:" @ WeaponDamage, true, 'XCom_HitRolls');
 	}
 
-	RuptureAmount = min(kTarget.GetRupturedValue() + NewRupture, RuptureCap);
+	//	Start Issue #1299
+	/// HL-Docs: ref:Bugfixes; issue:1299
+	/// Remove the cap from the amount of bonus damage that can be added to an attack by rupture, and do not add rupture added by this attack to the attack's damage.
+	//RuptureAmount = min(kTarget.GetRupturedValue() + NewRupture, RuptureCap);
+	RuptureAmount = kTarget.GetRupturedValue();
+	// End Issue #1299
+
 	if (RuptureAmount != 0)
 	{
 		WeaponDamage += RuptureAmount;
