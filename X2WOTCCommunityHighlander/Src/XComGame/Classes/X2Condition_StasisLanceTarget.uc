@@ -23,6 +23,15 @@ event name CallMeetsCondition(XComGameState_BaseObject kTarget)
 		return 'AA_UnitIsDead';
 	}
 
+	// Start Issue #1318
+	/// HL-Docs: ref:Bugfixes; issue:1318
+	/// Disallow using Skulljack and Skullmine on units in Stasis.
+	if (UnitTarget.IsInStasis())
+	{
+		return 'AA_UnitIsInStasis';
+	}
+	// End Issue #1318
+
 	if (UnitTarget.IsStasisLanced())
 	{
 		return 'AA_UnitIsImmune';
