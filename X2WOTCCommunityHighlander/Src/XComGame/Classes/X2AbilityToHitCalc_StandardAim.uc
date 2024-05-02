@@ -186,8 +186,13 @@ function InternalRollForAbilityHit(XComGameState_Ability kAbility, AvailableTarg
 			break;
 		}
 	}	
-	if (HitsAreCrits && Result == eHit_Success)
-		Result = eHit_Crit;
+
+	// Start Issue #1300
+	/// HL-Docs: ref:Bugfixes; issue:1300
+	/// Code block moved to be right after aim assist logic, so that if a miss is converted to a hit by aim assist, the ability will still crit if it is set up to always crit on hit.
+	//if (HitsAreCrits && Result == eHit_Success)
+	//	Result = eHit_Crit;
+	// End Issue #1300
 
 	UnitState = XComGameState_Unit(History.GetGameStateForObjectID(kAbility.OwnerStateObject.ObjectID));
 	TargetState = XComGameState_Unit(History.GetGameStateForObjectID(kTarget.PrimaryTarget.ObjectID));
@@ -235,6 +240,12 @@ function InternalRollForAbilityHit(XComGameState_Ability kAbility, AvailableTarg
 			}
 		}
 	}
+
+	// Start Issue #1300
+	// Code block moved from earlier.
+	if (HitsAreCrits && Result == eHit_Success)
+		Result = eHit_Crit;
+	// End Issue #1300
 
 	`log("***HIT" @ Result, !bRolledResultIsAMiss, 'XCom_HitRolls');
 	`log("***MISS" @ Result, bRolledResultIsAMiss, 'XCom_HitRolls');
