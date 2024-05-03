@@ -455,8 +455,20 @@ protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTar
 						}
 					}
 				}
+
 				//  Target defense
-				AddModifier(-TargetState.GetCurrentStat(eStat_Defense), class'XLocalizedData'.default.DefenseStat, m_ShotBreakdown, eHit_Success, bDebugLog);
+				// Start Issue #1295
+				// Add separate entries for different sources of Defense on the target unit rather than one entry with all sources of Defense rolled into it.
+				//AddModifier(-TargetState.GetCurrentStat(eStat_Defense), class'XLocalizedData'.default.DefenseStat, m_ShotBreakdown, eHit_Success, bDebugLog);
+				AddModifier(-TargetState.GetBaseStat(eStat_Defense), class'XLocalizedData'.default.DefenseStat, m_ShotBreakdown, eHit_Success, bDebugLog);            
+
+				/// HL-Docs: ref:GetStatModifiersFixed
+                TargetState.GetStatModifiersFixed(eStat_Defense, StatMods, StatModValues);
+                for (i = 0; i < StatMods.Length; ++i)
+                {
+                    AddModifier(-int(StatModValues[i]), StatMods[i].GetX2Effect().FriendlyName, m_ShotBreakdown, eHit_Success, bDebugLog);
+                }
+				// End Issue #1295
 				
 				//  Add weapon range
 				if (SourceWeapon != none)
