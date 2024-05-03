@@ -907,6 +907,9 @@
     <Content Include="Src\XComGame\Classes\XComUnitPawnNativeBase.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComWeapon.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XGAIBehavior_Civilian.uc">
       <SubType>Content</SubType>
     </Content>
