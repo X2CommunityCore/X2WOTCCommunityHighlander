@@ -3149,6 +3149,12 @@ simulated function DropWeapon()
 	local Rotator   rRot;
 	local XComWeapon kXComWeapon;
 
+	// Start Issue #1290
+	local SkeletalMeshComponent DroppedWeaponMesh;
+	local XComWeapon DroppedWeapon;
+	local XComUnitPawn UnitPawn;
+	// End Issue #1290
+
 	// Lose the weapon we're holding here.  Drop it or launch it.
 	kWeapon = GetInventory().GetActiveWeapon();
 
@@ -3156,28 +3162,40 @@ simulated function DropWeapon()
 	{   	
 		kXComWeapon = XComWeapon(kWeapon.m_kEntity);
 		m_kPawn.Mesh.GetSocketWorldLocationAndRotation(kXComWeapon.DefaultSocket, vLoc, rRot);
+
+		// Start Issue #1290
+		/// HL-Docs: ref:Bugfixes; issue:1290
+		/// Update XGUnit::DropWeapon() function with code from Chimera Sqaud to prevent unit weapons from glitching when dropped on death.
+
+		// First, detach and hide the original weapon.
 		m_kPawn.Mesh.DetachComponent(kXComWeapon.Mesh);
 		kXComWeapon.SetBase(None);
-		kWeapon.m_kEntity.AttachComponent(kXComWeapon.Mesh);
-		SkeletalMeshComponent(kXComWeapon.Mesh).SetPhysicsAsset(SkeletalMeshComponent(kXComWeapon.Mesh).PhysicsAsset, true);
-		//GetInventory().DropItem( kWeapon );
-		//GetInventory().UnequipItem();
-		kWeapon.m_kEntity.CollisionComponent = kXComWeapon.Mesh;
-		SkeletalMeshComponent(kXComWeapon.Mesh).PhysicsWeight=1.0f;
-		SkeletalMeshComponent(kXComWeapon.Mesh).ForceSkelUpdate();
-		SkeletalMeshComponent(kXComWeapon.Mesh).UpdateRBBonesFromSpaceBases(TRUE, TRUE);
-		SkeletalMeshComponent(kXComWeapon.Mesh).bSyncActorLocationToRootRigidBody=true;
+		UnitPawn = XComUnitPawn(m_kPawn);
+		if (UnitPawn != none)
+		{
+			XComUnitPawn(m_kPawn).DetachItem(kXComWeapon.Mesh);
+		}
+		kXComWeapon.DropWeapon();
 
-		kXComWeapon.Mesh.WakeRigidBody();
-		kWeapon.m_kEntity.SetPhysics(PHYS_RigidBody /*PHYS_None*/);
-		kWeapon.m_kEntity.SetHidden(false);
-		kWeapon.m_kEntity.SetLocation(vLoc);
-		kWeapon.m_kEntity.SetRotation(rRot);
-
-		SkeletalMeshComponent(kXComWeapon.Mesh).SetRBPosition(vLoc);
-		SkeletalMeshComponent(kXComWeapon.Mesh).SetRBRotation(rRot);
-		SkeletalMeshComponent(kXComWeapon.Mesh).SetRBLinearVelocity(vect(0,0,0), false);
-		SkeletalMeshComponent(kXComWeapon.Mesh).SetRBAngularVelocity(vect(0,0,0), false);
+		// Then spawn a separate actor that will be the dropped weapon.
+		DroppedWeapon = Spawn(class'XComWeapon', , 'DroppedWeapon', vLoc, rRot, Actor(kXComWeapon.ObjectArchetype));			
+		DroppedWeaponMesh = SkeletalMeshComponent(DroppedWeapon.Mesh);
+		DroppedWeapon.CollisionComponent = DroppedWeaponMesh;		
+		DroppedWeapon.SetPhysics(PHYS_RigidBody);		
+		DroppedWeapon.SetVisible(true);
+		
+		DroppedWeaponMesh.PhysicsWeight = 1.0f;
+		DroppedWeaponMesh.ForceSkelUpdate();
+		DroppedWeaponMesh.UpdateRBBonesFromSpaceBases(TRUE, TRUE);
+		DroppedWeaponMesh.bSyncActorLocationToRootRigidBody = true;
+		DroppedWeaponMesh.WakeRigidBody();		
+		DroppedWeapon.SetLocation(vLoc);
+		DroppedWeapon.SetRotation(rRot);
+		DroppedWeaponMesh.SetRBPosition(vLoc);
+		DroppedWeaponMesh.SetRBRotation(rRot);
+		DroppedWeaponMesh.SetRBLinearVelocity(vect(0, 0, 0), false);
+		DroppedWeaponMesh.SetRBAngularVelocity(vect(2, 0, 0), false);
+		// End Issue #1290
 	}
 }
 
