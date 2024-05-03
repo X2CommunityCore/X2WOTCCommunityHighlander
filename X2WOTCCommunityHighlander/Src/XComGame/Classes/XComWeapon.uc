@@ -471,6 +471,34 @@ function ShowWeapon()
 	}
 }
 
+// Start Issue #1290
+// Hides the dropped weapon.
+final function DropWeapon()
+{
+	local SkeletalMeshComponent SkelMeshComp;
+	local PrimitiveComponent PrimComp;
+	local int i;
+
+	if (Mesh != none)
+	{
+		SkelMeshComp = SkeletalMeshComponent(Mesh);
+		if (SkelMeshComp != none)
+		{
+			for (i = 0; i < SkelMeshComp.Attachments.Length; ++i)
+			{
+				PrimComp = PrimitiveComponent(SkelMeshComp.Attachments[i].Component);
+				if (PrimComp != none)
+				{
+					PrimComp.SetHidden(true);
+				}
+			}
+		}
+
+		Mesh.SetHidden(true);
+	}
+}
+// End Issue #1290
+
 replication
 {
 	if( Role == ROLE_Authority )
