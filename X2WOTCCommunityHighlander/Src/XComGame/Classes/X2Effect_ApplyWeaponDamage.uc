@@ -967,13 +967,18 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 	/// Remove the cap from the amount of bonus damage that can be added to an attack by rupture, and do not add rupture added by this attack to the attack's damage.
 	//RuptureAmount = min(kTarget.GetRupturedValue() + NewRupture, RuptureCap);
 	RuptureAmount = kTarget.GetRupturedValue();
-	// End Issue #1299
 
-	if (RuptureAmount != 0)
+	// While Rupture Cap is removed, we still want to add bonus damage from rupture only if the attack deals damage,
+	// as that was part of of the original functionality of the Rupture Cap.
+	if (WeaponDamage > 0)
 	{
-		WeaponDamage += RuptureAmount;
-		`log("Target is ruptured, increases damage by" @ RuptureAmount $", new damage:" @ WeaponDamage, true, 'XCom_HitRolls');
+		if (RuptureAmount != 0)
+		{
+			WeaponDamage += RuptureAmount;
+			`log("Target is ruptured, increases damage by" @ RuptureAmount $", new damage:" @ WeaponDamage, true, 'XCom_HitRolls');
+		}
 	}
+	// End Issue #1299
 
 	if( kSourceUnit != none)
 	{
