@@ -16,6 +16,7 @@ struct TWeaponUpgradeAvailabilityData
 	var bool bHasWeaponUpgrades;
 	var bool bHasWeaponUpgradeSlotsAvailable;
 	var bool bCanWeaponBeUpgraded;
+	var bool bNoCombatSimsEquipped;
 };
 
 struct TPCSAvailabilityData
@@ -1717,6 +1718,7 @@ simulated static function GetPCSAvailability(XComGameState_Unit Unit, out TPCSAv
 	PCSAvailabilityData.bHasAchievedCombatSimsRank = Unit.IsSufficientRankToEquipPCS();
 	PCSAvailabilityData.bHasGTS = XComHQ.HasFacilityByName('OfficerTrainingSchool');
 	PCSAvailabilityData.bCanEquipCombatSims = (AvailableSlots > 0);
+	PCSAvailabilityData.bNoCombatSimsEquipped = ( AvailableSlots > EquippedImplants.Length );
 }
 
 // Used in UIArmory_MainMenu and UIArmory_Promotion

@@ -177,7 +177,7 @@ simulated function UpdateData()
 
 	if( bEnableImplantsOption )
 	{
-		if( PCSAvailabilityData.bHasNeurochipImplantsInInventory && PCSAvailabilityData.bHasCombatSimsSlotsAvailable)
+		if( PCSAvailabilityData.bHasNeurochipImplantsInInventory && PCSAvailabilityData.bHasCombatSimsSlotsAvailable && PCSAvailabilityData.bNoCombatSimsEquipped)
 			PCSButton.NeedsAttention(true);
 		else
 			PCSButton.NeedsAttention(false);
