@@ -541,7 +541,10 @@ simulated function DisplayWarningPopups()
 
 	if (!XComHQ.bHasSeenLowIntelPopup && XComHQ.GetIntel() < class'UIUtilities_Strategy'.static.GetMinimumContactCost() && XComHQ.IsContactResearched())
 	{
-		UILowIntel();
+		if(XComHQ.GetCurrentResContacts() < XComHQ.GetPossibleResContacts())
+		{
+			UILowIntel();
+		}
 	}
 
 	// Calculate how many months have passed
