@@ -177,10 +177,14 @@ simulated function UpdateData()
 
 	if( bEnableImplantsOption )
 	{
-		if( PCSAvailabilityData.bHasNeurochipImplantsInInventory && PCSAvailabilityData.bHasCombatSimsSlotsAvailable && PCSAvailabilityData.bNoCombatSimsEquipped)
+		//Start issue #1348
+		/// HL-Docs: ref:Bugfixes; issue:1348
+		/// Add additional check so NeedsAttention doesn't trigger if a soldier's PCS slots are full with user equipped PCSs already.
+		if( PCSAvailabilityData.bHasNeurochipImplantsInInventory && PCSAvailabilityData.bHasCombatSimsSlotsAvailable && PCSAvailabilityData.bHasEmptyCombatSimSlot) 
 			PCSButton.NeedsAttention(true);
 		else
 			PCSButton.NeedsAttention(false);
+		// End Issue #1348
 	} 
 	else
 	{
