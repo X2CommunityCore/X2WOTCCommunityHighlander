@@ -541,7 +541,7 @@ simulated function DisplayWarningPopups()
 
 	if (!XComHQ.bHasSeenLowIntelPopup && XComHQ.GetIntel() < class'UIUtilities_Strategy'.static.GetMinimumContactCost() && XComHQ.IsContactResearched())
 	{
-		if(XComHQ.GetCurrentResContacts() < XComHQ.GetPossibleResContacts())
+		if(XComHQ.GetCurrentResContacts() < class'X2StrategyElement_DefaultMissionSources'.static.GetAllRegions().Length)
 		{
 			UILowIntel();
 		}
