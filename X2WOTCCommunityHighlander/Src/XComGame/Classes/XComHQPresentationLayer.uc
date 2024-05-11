@@ -541,10 +541,13 @@ simulated function DisplayWarningPopups()
 
 	if (!XComHQ.bHasSeenLowIntelPopup && XComHQ.GetIntel() < class'UIUtilities_Strategy'.static.GetMinimumContactCost() && XComHQ.IsContactResearched())
 	{
+		// Start Issue #1347
+		// Show warning only if there are still regions left to be contacted.
 		if(XComHQ.GetCurrentResContacts() < class'X2StrategyElement_DefaultMissionSources'.static.GetAllRegions().Length)
 		{
 			UILowIntel();
 		}
+		// End Issue #1347
 	}
 
 	// Calculate how many months have passed
