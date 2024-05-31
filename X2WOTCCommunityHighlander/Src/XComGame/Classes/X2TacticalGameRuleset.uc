@@ -1234,18 +1234,18 @@ simulated function RemoveGroupFromInitiativeOrder(XComGameState_AIGroup NewGroup
 
 function ApplyStartOfMatchConditions()
 {
-	local XComGameState_Player PlayerState;
-	local XComGameState_BattleData BattleDataState;
-	local XComGameState_Unit UnitState;
-	local XComGameStateHistory History;
-	local XComTacticalMissionManager MissionManager;
-	local MissionSchedule ActiveMissionSchedule;
-	local XComGameState_HeadquartersXCom XComHQ;
-	local X2TacticalGameRuleset TactialRuleset;
-	local X2HackRewardTemplateManager TemplateMan;
-	local X2HackRewardTemplate Template;
-	local XComGameState NewGameState;
-	local Name HackRewardName, ConcealmentName;
+	local XComGameState_Player				PlayerState;
+	local XComGameState_BattleData			BattleDataState;
+	local XComGameState_Unit				UnitState;
+	local XComGameStateHistory				History;
+	local XComTacticalMissionManager		MissionManager;
+	local MissionSchedule					ActiveMissionSchedule;
+	local XComGameState_HeadquartersXCom	XComHQ;
+	local X2TacticalGameRuleset				TactialRuleset;
+	local X2HackRewardTemplateManager		TemplateMan;
+	local X2HackRewardTemplate				Template;
+	local XComGameState						NewGameState;
+	local Name HackRewardName,				ConcealmentName;
 
 	History = `XCOMHISTORY;
 
@@ -1255,7 +1255,7 @@ function ApplyStartOfMatchConditions()
 	BattleDataState = XComGameState_BattleData(History.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
 
 	// set initial squad concealment
-	if( ActiveMissionSchedule.XComSquadStartsConcealed && !BattleDataState.bForceNoSquadConcealment )
+	if(ActiveMissionSchedule.XComSquadStartsConcealed)
 	{
 		foreach History.IterateByClassType(class'XComGameState_Player', PlayerState)
 		{
@@ -1264,25 +1264,51 @@ function ApplyStartOfMatchConditions()
 				PlayerState.SetSquadConcealment(true, 'StartOfMatchConcealment');
 			}
 		}
-	}
-	else
-	{
-		if(!BattleDataState.DirectTransferInfo.IsDirectMissionTransfer) // only apply phantom at the start of the first leg of a multi-part mission
+		// If high alert or something else forces concealment off with battledata, break it here but allow phantom
+		if (BattleDataState.bForceNoSquadConcealment)
 		{
-			foreach History.IterateByClassType(class'XComGameState_Unit', UnitState)
+		foreach History.IterateByClassType(class'XComGameState_Player', PlayerState)
+		{
+			if( PlayerState.GetTeam() == eTeam_XCom )
 			{
-				foreach class'X2AbilityTemplateManager'.default.AbilityProvidesStartOfMatchConcealment(ConcealmentName)
+				PlayerState.SetSquadConcealment(false, 'ConcealmentBrokenByBattleDataFlag');
+			}
+		}			
+			if(!BattleDataState.DirectTransferInfo.IsDirectMissionTransfer) // only apply phantom at the start of the first leg of a multi-part mission
+			{
+				foreach History.IterateByClassType(class'XComGameState_Unit', UnitState)
 				{
-					if( UnitState.FindAbility(ConcealmentName).ObjectID > 0 )
+					foreach class'X2AbilityTemplateManager'.default.AbilityProvidesStartOfMatchConcealment(ConcealmentName)
 					{
-						UnitState.EnterConcealment();
-						break;
+						if( UnitState.FindAbility(ConcealmentName).ObjectID > 0 )
+						{
+							UnitState.EnterConcealment();
+							break;
+						}
 					}
 				}
 			}
 		}
 	}
-
+	else
+	{
+		// Team is not concealed
+		if(!BattleDataState.DirectTransferInfo.IsDirectMissionTransfer) // only apply phantom at the start of the first leg of a multi-part mission
+			{
+				foreach History.IterateByClassType(class'XComGameState_Unit', UnitState)
+				{
+					foreach class'X2AbilityTemplateManager'.default.AbilityProvidesStartOfMatchConcealment(ConcealmentName)
+					{
+						if( UnitState.FindAbility(ConcealmentName).ObjectID > 0 )
+						{
+							UnitState.EnterConcealment();
+							break;
+						}
+					}
+				}
+			}
+		
+	}
 	XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom', true));
 	if( XComHQ != None )	//  TQL doesn't have an HQ object
 	{
@@ -1294,11 +1320,11 @@ function ApplyStartOfMatchConditions()
 				break;
 			}
 		}
-		`assert(UnitState != None); // there should always be at least one XCom member at the start of a match
-
+		`assert(UnitState != None); // there should always be at least one XCom member at the start of a match		
+		
 		TemplateMan = class'X2HackRewardTemplateManager'.static.GetHackRewardTemplateManager();
 		TactialRuleset = `TACTICALRULES;
-			
+				
 		// any Hack Rewards whose name matches a TacticalGameplayTag should be applied now, to the first available XCom unit
 		foreach XComHQ.TacticalGameplayTags(HackRewardName)
 		{
