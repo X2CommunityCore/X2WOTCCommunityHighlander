@@ -750,11 +750,42 @@ static function bool IsMindControlled(XComGameState_Unit UnitState)
 // Update - green alert units and units that have not yet revealed should do their patrol movement.
 function bool ShouldUnitPatrol( XComGameState_Unit UnitState )
 {
+	// Variables for Issue #1354
+	local XComLWTuple OverrideTuple;
+	local bool PassOrSkipUnRevealedAI;
+
 	if( IsMindControlled(UnitState) )
 	{
 		return false;
 	}
-	if( UnitState.IsUnrevealedAI() && !IsScampering(UnitState.ObjectID) )
+
+	/// HL-Docs: feature:ShouldUnitPatrolUnderway; issue:1354; tags:tactical
+	/// This event allows mods to override the base game behavior that causes enemy pods to stop
+	/// patrolling if they are spotted by a concealed XCOM unit. Originally implemented by LW2.
+	/// Default behavior is if a pod has been spotted by a concealed XCOM unit, they will stop patrolling.
+	/// 
+	/// ```event
+	/// EventID: ShouldUnitPatrolUnderway,
+	/// EventData: [inout bool ShouldOverrideUnrevealedAI, in class[class<XComGameState_Unit>] UnitState],
+	/// EventSource: XGAIPlayer (PlayerState),
+	/// NewGameState: none
+	/// ```
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'ShouldUnitPatrolUnderway';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].kind = XComLWTVBool;
+	OverrideTuple.Data[0].b = UnitState.IsUnrevealedAI();
+	OverrideTuple.Data[1].kind = XComLWTVObject;
+	OverrideTuple.Data[1].o = UnitState;
+
+	`XEVENTMGR.TriggerEvent('ShouldUnitPatrolUnderway', OverrideTuple, self);
+	// if b is set to true in a listener, then logic ignores the IsUnreevealedAIsetting
+
+	PassOrSkipUnRevealedAI = OverrideTuple.Data[0].b;
+
+	if((PassOrSkipUnRevealedAI && !IsScampering(UnitState.ObjectID)))
+	// End Issue #1354
 	{
 		// For now only allow group leaders to direct movement when unrevealed.
 		if( UnitState.GetGroupMembership().m_arrMembers[0].ObjectID == UnitState.ObjectID )
