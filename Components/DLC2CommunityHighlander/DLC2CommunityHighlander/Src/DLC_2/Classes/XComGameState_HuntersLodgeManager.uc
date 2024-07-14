@@ -156,10 +156,14 @@ function CalcKillCount(optional XComGameState StartState = none)
 				bShowPistolA = XComHQ.HasItemByName('HunterPistol_CV_Schematic');
 				bShowAxeA = XComHQ.HasItemByName('HunterAxe_CV_Schematic');
 			}
-
-			bShowBoltcasterB = XComHQ.HasItemByName('HunterRifle_MG_Schematic');
-			bShowPistolB = XComHQ.HasItemByName('HunterPistol_MG_Schematic');
-			bShowAxeB = XComHQ.HasItemByName('HunterAxe_MG_Schematic');
+			
+			// Start Issue #1358
+			/// HL-Docs: ref:Bugfixes; issue:1358
+			/// Display any 2nd tier weapons if the 3rd tier is unlocked even if the 2nd was skipped.
+			bShowBoltcasterB = (XComHQ.HasItemByName('HunterRifle_MG_Schematic') || XComHQ.HasItemByName('HunterRifle_BM_Schematic'));
+			bShowPistolB = (XComHQ.HasItemByName('HunterPistol_MG_Schematic') || XComHQ.HasItemByName('HunterPistol_BM_Schematic'));
+			bShowAxeB = (XComHQ.HasItemByName('HunterAxe_MG_Schematic') || XComHQ.HasItemByName('HunterAxe_BM_Schematic'));
+			// End Issue #1358
 
 			bShowBoltcasterC = XComHQ.HasItemByName('HunterRifle_BM_Schematic');
 			bShowPistolC = XComHQ.HasItemByName('HunterPistol_BM_Schematic');
