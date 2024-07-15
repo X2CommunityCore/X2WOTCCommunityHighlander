@@ -1497,16 +1497,27 @@ function ShowPromotionUI(StateObjectReference UnitRef, optional bool bInstantTra
 
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitRef.ObjectID));
 
+	/// HL-Docs: ref:Bugfixes; issue:1356
+	/// ShowPromotionUI now casts the spawned promotion screen to UIArmory_Promotion instead of its subclasses
+
 	// Start Issue #600: Replaced class literals with the local variables
 	if (UnitState.IsResistanceHero() || ScreenStack.IsInStack(class'UIFacility_TrainingCenter'))
-		PromotionUI = UIArmory_PromotionHero(ScreenStack.Push(
+	{
+		// Issue #1356 - Cast to UIArmory_Promotion instead of UIArmory_PromotionHero
+		PromotionUI = UIArmory_Promotion(ScreenStack.Push(
 			Spawn(TriggerOverridePromotionUIClass(eCHLPST_Hero), self), Get3DMovie()));
+	}
 	else if (UnitState.GetSoldierClassTemplateName() == 'PsiOperative')
-		PromotionUI = UIArmory_PromotionPsiOp(ScreenStack.Push(
+	{
+		// Issue #1356 - Cast to UIArmory_Promotion instead of UIArmory_PromotionPsiOp
+		PromotionUI = UIArmory_Promotion(ScreenStack.Push(
 			Spawn(TriggerOverridePromotionUIClass(eCHLPST_PsiOp), self), Get3DMovie()));
+	}
 	else
+	{
 		PromotionUI = UIArmory_Promotion(ScreenStack.Push(
 			Spawn(TriggerOverridePromotionUIClass(eCHLPST_Standard), self), Get3DMovie()));
+	}
 	// End Issue #600
 	
 	PromotionUI.InitPromotion(UnitRef, bInstantTransition);
