@@ -750,11 +750,19 @@ static function bool IsMindControlled(XComGameState_Unit UnitState)
 // Update - green alert units and units that have not yet revealed should do their patrol movement.
 function bool ShouldUnitPatrol( XComGameState_Unit UnitState )
 {
+	// Variable for Issue #1354
+	local bool PassOrSkipUnRevealedAI;
+
 	if( IsMindControlled(UnitState) )
 	{
 		return false;
 	}
-	if( UnitState.IsUnrevealedAI() && !IsScampering(UnitState.ObjectID) )
+	
+	//Start Issue #1354
+	PassOrSkipUnRevealedAI = TriggerOverrideShouldUnitPatrol(UnitState);
+
+	if((PassOrSkipUnRevealedAI && !IsScampering(UnitState.ObjectID)))
+	// End Issue #1354
 	{
 		// For now only allow group leaders to direct movement when unrevealed.
 		if( UnitState.GetGroupMembership().m_arrMembers[0].ObjectID == UnitState.ObjectID )
@@ -763,6 +771,36 @@ function bool ShouldUnitPatrol( XComGameState_Unit UnitState )
 		}
 	}
 	return false;
+}
+
+/// HL-Docs: feature:ShouldUnitPatrolUnderway; issue:1354; tags:tactical
+	/// This event allows mods to override the base game behavior that causes enemy pods to stop
+	/// patrolling if they are spotted by a concealed XCOM unit. Originally implemented by LW2.
+	/// Default behavior is if a pod has been spotted by a concealed XCOM unit, they will stop patrolling.
+	/// 
+	/// ```event
+	/// EventID: ShouldUnitPatrolUnderway,
+
+	/// EventData: [inout bool ShouldOverrideUnrevealedAI, in XComGameState_Unit UnitState],
+	/// EventSource: XGAIPlayer (PlayerState),
+	/// NewGameState: none
+	/// ```
+
+private final function bool TriggerOverrideShouldUnitPatrol(XComGameState_Unit UnitState)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'ShouldUnitPatrolUnderway';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].kind = XComLWTVBool;
+	OverrideTuple.Data[0].b = UnitState.IsUnrevealedAI();
+	OverrideTuple.Data[1].kind = XComLWTVObject;
+	OverrideTuple.Data[1].o = UnitState;
+
+	`XEVENTMGR.TriggerEvent('ShouldUnitPatrolUnderway', OverrideTuple, self);
+
+	return OverrideTuple.Data[0].b;
 }
 
 // Insert the other members of this unit's group to the list of units to move.  Used primarily to 
