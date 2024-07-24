@@ -1106,6 +1106,35 @@ exec function TestClosestPointToCursorOnAxis()
 }
 //------------------------------------------------------------------------------------------------
 
+exec function EndBattleForceWin()
+{
+	// Start Issue #386
+	/// HL-Docs: feature:ImprovedEndBattle; issue:386; tags:tactical
+	/// Adds a new console command, 'EndBattleForceWin' which ends the tactical engagement and forces all mission objectives to completed 
+	local X2TacticalGameRuleset		Ruleset;
+	local XGBattle_SP				Battle;
+	local int						ObjectiveIndex;
+	local XComGameState_BattleData	BattleData;
+	
+	BattleData = XComGameState_BattleData( `XCOMHISTORY.GetSingleGameStateObjectForClass( class'XComGameState_BattleData' ) );
+
+	for( ObjectiveIndex = 0; ObjectiveIndex < BattleData.MapData.ActiveMission.MissionObjectives.Length; ++ObjectiveIndex )
+	{
+	BattleData.MapData.ActiveMission.MissionObjectives[ObjectiveIndex].bCompleted = true;
+	}
+
+	`XEVENTMGR.TriggerEvent('OnMissionObjectiveComplete', BattleData, BattleData);	
+
+	Ruleset = `TACTICALRULES;
+	Battle = XGBattle_SP(`BATTLE);
+
+	if(Battle != none && Ruleset != none)
+	{
+		Ruleset.EndBattle(Battle.GetHumanPlayer());
+	}
+	// End Issue #386
+}
+
 exec function EndBattle(optional bool XComWins = true)
 {
 	local X2TacticalGameRuleset Ruleset;
@@ -1119,6 +1148,7 @@ exec function EndBattle(optional bool XComWins = true)
 		Ruleset.EndBattle(XComWins ? Battle.GetHumanPlayer() : Battle.GetAIPlayer());
 	}
 }
+
 
 exec function AIDebugFlight()
 {
