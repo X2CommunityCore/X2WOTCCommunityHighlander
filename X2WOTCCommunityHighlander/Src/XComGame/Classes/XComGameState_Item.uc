@@ -473,36 +473,41 @@ private function RecallItem(const XComGameState_Item RecalledItem, XComGameState
 function EventListenerReturn OnUnitDied(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
 {
 	local XComGameStateHistory History;
-	local XComGameState_Unit UnitState, CosmeticUnit;
+	// OwnerUnitState Variable added for Issue #367
+	local XComGameState_Unit UnitState, OwnerUnitState, CosmeticUnit;
 	local XComGameState NewGameState;
 	local XComGameState_Item ItemState;
 	local vector NewLocation;
 	local XComGameStateContext_ChangeContainer ChangeContext;
-
+	
+	// Start Issue #367
+	/// HL-Docs: ref:Bugfixes; issue:367
+	/// Gremlins now correctly die when the Gremlin's owner dies while the Gremlin is attached to another unit.
+	
 	UnitState = XComGameState_Unit(EventData);
-	//  was this the unit we are attached to or our owner?
+	// Check if the unit that died had the gremlin attached to it, or is the owner of the gremlin
 	if (UnitState.ObjectID == AttachedUnitRef.ObjectID || UnitState.ObjectID == OwnerStateObject.ObjectID)
 	{
 		History = `XCOMHISTORY;
-		UnitState = XComGameState_Unit(History.GetGameStateForObjectID(OwnerStateObject.ObjectID));
+		OwnerUnitState = XComGameState_Unit(History.GetGameStateForObjectID(OwnerStateObject.ObjectID));
 		CosmeticUnit = XComGameState_Unit(History.GetGameStateForObjectID(CosmeticUnitRef.ObjectID));
-		//  if it was not our owner, reattach to them
-		if ( ( UnitState.ObjectID != OwnerStateObject.ObjectID ) || (OwnerStateObject.ObjectID != AttachedUnitRef.ObjectID) )
+		
+		// If the unit that died was not the owner of the gremlin, recall it & re-attach it to its original owner
+		If(UnitState.ObjectID != OwnerUnitState.ObjectID)
 		{
 			NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Attached Unit Died");
 			ItemState = XComGameState_Item(NewGameState.ModifyStateObject(Class, ObjectID));
 			ItemState.AttachedUnitRef = OwnerStateObject;
 			`GAMERULES.SubmitGameState(NewGameState);
-						
-			if (UnitState != none && CosmeticUnit != none && CosmeticUnit.TileLocation != UnitState.TileLocation)
+			if (OwnerUnitState != none && CosmeticUnit != none && CosmeticUnit.TileLocation != OwnerUnitState.TileLocation)
 			{
-				NewLocation = `XWORLD.GetPositionFromTileCoordinates(UnitState.TileLocation);
+				NewLocation = `XWORLD.GetPositionFromTileCoordinates(OwnerUnitState.TileLocation);
 				XGUnit(CosmeticUnit.GetVisualizer()).MoveToLocation(NewLocation);
 			}
 		}
-		//  if it was our owner, we have to die too
+		// Otheriwse, the unit that died was the owner of the gremlin, so kill it too
 		else
-		{
+		{	
 			if (CosmeticUnit != none)
 			{
 				NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Owner Unit Died");
@@ -511,10 +516,10 @@ function EventListenerReturn OnUnitDied(Object EventData, Object EventSource, XC
 				CosmeticUnit = XComGameState_Unit(NewGameState.ModifyStateObject(CosmeticUnit.Class, CosmeticUnit.ObjectID));
 				CosmeticUnit.SetCurrentStat(eStat_HP, 0);
 				`GAMERULES.SubmitGameState(NewGameState);
-			}				
-		}
+			}
+		}			
 	}
-
+	// End Issue #367
 	return ELR_NoInterrupt;
 }
 
