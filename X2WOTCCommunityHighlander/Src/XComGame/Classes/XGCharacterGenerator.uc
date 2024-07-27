@@ -715,6 +715,8 @@ function SetArmsLegsAndDeco(X2SimpleBodyPartFilter BodyPartFilter)
 	// XPack Hero Deco
 	if (!m_CharTemplate.bForceAppearance)
 	{
+		/// HL-Docs: ref:Bugfixes; issue:359
+		/// Randomise split left & right arms
 		// Start Issue #359
 		RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmLeftForearm, "LeftForearm", BodyPartFilter.FilterByTorsoAndArmorMatch);
 		RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmRightForearm, "RightForearm", BodyPartFilter.FilterByTorsoAndArmorMatch);
