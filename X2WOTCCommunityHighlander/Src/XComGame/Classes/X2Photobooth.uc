@@ -64,6 +64,8 @@ enum Photobooth_ParticleEffectType
 	ePPET_TemplarBladeLeft,
 	ePPET_TemplarShield,
 	// Start Issue #359
+	/// HL-Docs: ref:Bugfixes; issue:359
+	/// Adds various additional photobooth particle system enums for mods to use
 	// Similar to above, but we don't need any sort of special marker
 	// enums here as these are never used in code (only config)
 	// Still going to use buffers though!
