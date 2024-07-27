@@ -822,6 +822,8 @@ simulated function OnCategoryValueChange(int categoryIndex, int direction, optio
 		UpdatedUnitState.kAppearance.iArmorTintSecondary = WrapIndex(specificIndex, 0, XComHumanPawn(ActorPawn).NumPossibleArmorTints);
 		XComHumanPawn(ActorPawn).SetAppearance(UpdatedUnitState.kAppearance);
 		// Start Issue #380
+		/// HL-Docs: ref:Bugfixes; issue:380
+		/// Update cosmetic pawns when secondary armor color is changed as well as primary
 		CosmeticUnitPawn = XComPresentationLayerBase(Outer).GetUIPawnMgr().GetCosmeticPawn(eInvSlot_SecondaryWeapon, UpdatedUnitState.ObjectID);
 		if (CosmeticUnitPawn != none)
 		{
