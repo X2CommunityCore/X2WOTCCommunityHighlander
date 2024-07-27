@@ -2309,15 +2309,16 @@ simulated function SpawnCosmeticUnitPawn(UIPawnMgr PawnMgr, EInventorySlot InvSl
 		return;
 	}
 
-	// Start Issue #380: Moved earlier because we want to SetAppearance() whether we create a new pawn or not
+	// Start Issue #380: 
+	/// HL-Docs: ref:Bugfixes; issue:380
+	/// Ensure that the appearence of cosmetic unit pawns is updated properly, even when a new pawn is not created
 	UseAppearance = OwningUnit.kAppearance;
 	UseAppearance.iArmorTint = UseAppearance.iWeaponTint;
 	UseAppearance.iArmorTintSecondary = UseAppearance.iArmorTintSecondary;
 	UseAppearance.nmPatterns = UseAppearance.nmWeaponPattern;
-	// End Issue #380
+
 	CosmeticPawn = PawnMgr.GetCosmeticArchetypePawn(InvSlot, OwningUnit.ObjectID, bUsePhotoboothPawns);
 	if (CosmeticPawn != none && CosmeticPawn == ArchetypePawn)
-	// Start Issue #380
 	{
 		CosmeticPawn.SetAppearance(UseAppearance, true);
 		return;
