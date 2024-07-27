@@ -1513,7 +1513,6 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 			}
 
 			UseMeshComponent = m_kArmsMC;
-
 			// Start Issue #350
 			if(m_kArmsMC != none && m_kArmsMC.SkeletalMesh == UseSkeletalMesh && ArmsContent != none &&
 			   (ArmsContent.OverrideMaterial == UseArmsContent.OverrideMaterial))
