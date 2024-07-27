@@ -1513,7 +1513,7 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 			}
 
 			UseMeshComponent = m_kArmsMC;
-
+			/// HL-Docs: ref:Bugfixes; issue:350
 			// Start Issue #350
 			if(m_kArmsMC != none && m_kArmsMC.SkeletalMesh == UseSkeletalMesh && ArmsContent != none &&
 			   (ArmsContent.OverrideMaterial == UseArmsContent.OverrideMaterial))
@@ -1581,6 +1581,7 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 
 		case 'LeftArmDeco':
 			UseMeshComponent = m_kLeftArmDeco;
+			/// HL-Docs: ref:Bugfixes; issue:350
 			// Start Issue #350
 			// Start Issue #369
 			//if (m_kArmsMC != none && m_kArmsMC.SkeletalMesh != none)
@@ -1608,6 +1609,7 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 
 		case 'RightArmDeco':		
 			UseMeshComponent = m_kRightArmDeco;
+			/// HL-Docs: ref:Bugfixes; issue:350
 			// Start Issue #350
 			// Start Issue #369
 			//if (m_kArmsMC != none && m_kArmsMC.SkeletalMesh != none)
@@ -1637,6 +1639,7 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 		case 'LeftForearm':
 			UseMeshComponent = m_kLeftForearmMC;
 			// Single line Change for Issue #350
+			/// HL-Docs: ref:Bugfixes; issue:350
 			if (m_kLeftArm != none && m_kLeftArm.SkeletalMesh != none && LeftArmContent != none && LeftArmContent.bHideForearms || m_kArmsMC != none && m_kArmsMC.SkeletalMesh != none && ArmsContent != none && ArmsContent.bHideForearms)
 			{
 				UseSkeletalMesh = none;
@@ -1689,6 +1692,7 @@ simulated function OnArmsLoaded(PawnContentRequest ContentRequest)
 	{
 		//Make a new one and set it up
 		// Start Issue #350
+		/// HL-Docs: ref:Bugfixes; issue:350
 		if (UseMeshComponent == none)
 		{
 			//DetachComponent(UseMeshComponent);
