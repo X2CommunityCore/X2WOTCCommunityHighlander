@@ -69,6 +69,9 @@ simulated function UpdateData()
 	ResetMechaListItems();
 
 	super.UpdateData();
+	
+	/// HL-Docs: ref:Bugfixes; issue:350
+	/// Allow separation of arm body part types
 
 	//Single Line for Issue #350
 	List.ClearItems();
