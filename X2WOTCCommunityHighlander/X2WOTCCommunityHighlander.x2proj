@@ -505,6 +505,9 @@
     <Content Include="Src\XComGame\Classes\X2Ability_CarryUnit.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Ability_ChosenSniper.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Ability_ChryssalidCocoon.uc">
       <SubType>Content</SubType>
     </Content>
@@ -536,6 +539,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2AbilityTrigger_EndOfMove.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2Ability_TheLost.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2AchievementTracker.uc">

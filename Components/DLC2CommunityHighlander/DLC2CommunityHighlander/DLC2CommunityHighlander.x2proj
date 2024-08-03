@@ -19,12 +19,24 @@
     <Content Include="Localization\DLC_2.int">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Localization\XComGame.int">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ReadMe.txt" />
     <Content Include="ModPreview.jpg" />
     <Content Include="Src\DLC_2\Classes\CHDLC2UIListener_Shell.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\DLC_2\Classes\CHDLC2Version.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\DLC_2\Classes\X2Ability_DLC_Day60AlienRulers.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\DLC_2\Classes\X2Ability_DLC_Day60BerserkerQueen.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\DLC_2\Classes\X2Ability_DLC_Day60ViperKing.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\DLC_2\Classes\X2Item_DLC_Day60Armors.uc">
