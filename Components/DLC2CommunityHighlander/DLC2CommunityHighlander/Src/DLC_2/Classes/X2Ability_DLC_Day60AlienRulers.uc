@@ -74,7 +74,8 @@ static function X2DataTemplate CreateAlienRulerCallForEscapeAbility()
 	local array<name> SkipExclusions;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'AlienRulerCallForEscape');
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_escape"; // TODO: Change this icon
+	// Issue 1255 - Adjust icon to one that actually exists
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_psychic";
 	Template.Hostility = eHostility_Neutral;
 	Template.AbilitySourceName = 'eAbilitySource_Standard';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
@@ -155,7 +156,7 @@ static function X2DataTemplate CreateAlienRulerEscapeAbility()
 	local X2Effect_RemoveEffects RemoveEffects;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'AlienRulerEscape');
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_escape";
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_psychic";
 	Template.Hostility = eHostility_Neutral;
 	Template.AbilitySourceName = 'eAbilitySource_Standard';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;

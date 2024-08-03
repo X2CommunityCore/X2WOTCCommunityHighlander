@@ -84,7 +84,6 @@ static function X2AbilityTemplate CreateFrostbiteAbility()
 	
 	Template.AbilitySourceName = 'eAbilitySource_Standard';
 	Template.eAbilityIconBehaviorHUD = EAbilityIconBehavior_AlwaysShow;
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_viper_frostbite";
 	Template.bUseAmmoAsChargesForHUD = true;
 
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
@@ -127,7 +126,7 @@ static function X2AbilityTemplate CreateBindAbility()
 	local array<name> SkipExclusions;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, default.KingBindAbilityName);
-	Template.IconImage = "img:///UILibrary_DLC2Images.PerkIcons.UIPerk_viper_choke";
+	Template.IconImage = "img:///UILibrary_DLC2Images.UIPerk_viper_choke";
 
 	Template.AbilitySourceName = 'eAbilitySource_Standard';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;

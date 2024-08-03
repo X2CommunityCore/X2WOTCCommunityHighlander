@@ -129,7 +129,6 @@ static function X2AbilityTemplate CreateQuakeAbility()
 	
 	Template.AbilitySourceName = 'eAbilitySource_Standard';
 	Template.eAbilityIconBehaviorHUD = EAbilityIconBehavior_AlwaysShow;
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_viper_frostbite";
 
 	// Cooldown on the ability
 	Cooldown = new class'X2AbilityCooldown';
