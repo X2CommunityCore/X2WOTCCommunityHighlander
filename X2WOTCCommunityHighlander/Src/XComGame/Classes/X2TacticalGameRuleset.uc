@@ -4461,6 +4461,11 @@ simulated function InterruptInitiativeTurn(XComGameState NewGameState, StateObje
 {
 	local XComGameState_BattleData NewBattleData;
 	local XComGameState_AIGroup InterruptedAIGroup, InterruptingAIGroup;
+	
+	//Start issue #1325 - Variable Declarations
+	local StateObjectReference MemberRef;
+	local XComGameState_Unit Member;
+	//End issue #1325 - Variable Declarations
 
 	NewBattleData = XComGameState_BattleData(NewGameState.ModifyStateObject(class'XComGameState_BattleData', CachedBattleDataRef.ObjectID));
 	NewBattleData.InterruptingGroupRef = InterruptingAIGroupRef;
@@ -4475,6 +4480,18 @@ simulated function InterruptInitiativeTurn(XComGameState NewGameState, StateObje
 
 	InterruptingAIGroup = XComGameState_AIGroup(NewGameState.ModifyStateObject(class'XComGameState_AIGroup', InterruptingAIGroupRef.ObjectID));
 	RemoveGroupFromInitiativeOrder(InterruptingAIGroup, NewGameState);
+
+	//Start issue #1325 - Marking members of interrupting group with a unit value
+	foreach InterruptingAIGroup.m_arrMembers(MemberRef)
+	{
+		Member = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(MemberRef.ObjectID));
+		if(Member == none)
+			continue;
+
+		Member = XComGameState_Unit(NewGameState.ModifyStateObject(Member.Class, Member.ObjectID));
+		Member.SetUnitFloatValue('CHL_InterruptingTurn', InterruptingAIGroup.ObjectID);
+	}
+	//End issue #1325 - Marking members of interrupting group with a unit value
 }
 
 simulated function bool UnitHasActionsAvailable(XComGameState_Unit UnitState)
@@ -4849,6 +4866,11 @@ simulated state TurnPhase_UnitActions
 		local XComGameState_TimerData TimerState;
 		local XComGameState_AIGroup GroupState;
 		local XComGameState NewGameState;
+		//Start issue #1325 - Variable Declaration
+		local StateObjectReference MemberRef;
+		local XComGameState_Unit Member;
+		local UnitValue InterruptionValue;
+		//End issue #1325 - Variable Declaration
 
 		EventManager = `XEVENTMGR;
 
@@ -4893,6 +4915,21 @@ simulated state TurnPhase_UnitActions
 				Context.PlayerRef = PreviousPlayerRef;
 				Context.UnitRef = PreviousUnitActionRef;
 				NewGameState = Context.ContextBuildGameState( );
+
+				//Start issue #1325 - Clearing interruption mark on anyone who has it
+				foreach GroupState.m_arrMembers(MemberRef)
+				{
+					Member = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(MemberRef.ObjectID));
+					if(Member == none)
+						continue;
+
+					if(Member.GetUnitValue('CHL_InterruptingTurn', InterruptionValue))
+					{
+						Member = XComGameState_Unit(NewGameState.ModifyStateObject(Member.Class, Member.ObjectID));
+						Member.ClearUnitValue('CHL_InterruptingTurn');
+					}
+				}
+				//End issue #1325 - Clearing interruption mark on anyone who has it
 
 				EventManager.TriggerEvent('UnitGroupTurnEnded', GroupState, GroupState, NewGameState);
 
