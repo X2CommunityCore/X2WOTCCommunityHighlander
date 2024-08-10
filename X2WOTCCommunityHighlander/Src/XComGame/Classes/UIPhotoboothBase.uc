@@ -692,7 +692,8 @@ function OnCancel()
 		currentState = eUIPropagandaType_Graphics;
 		break;
 	}
-	List.ItemContainer.RemoveChildren();
+	//Issue #1372 - Replace List.ItemContainer.RemoveChildren() with List.ClearItems() to prevent CTDs with large lists
+	List.ClearItems();
 	NeedsPopulateData();
 }
 
@@ -751,7 +752,8 @@ function OnConfirmFormation()
 {
 	List.OnSelectionChanged = none;
 	currentState = eUIPropagandaType_Base;
-	List.ItemContainer.RemoveChildren();
+	//Issue #1372 - Replace List.ItemContainer.RemoveChildren() with List.ClearItems() to prevent CTDs with large lists
+	List.ClearItems();
 	NeedsPopulateData();
 }
 
@@ -1132,7 +1134,8 @@ function OnConfirmPose()
 {
 	List.OnSelectionChanged = none;
 	currentState = eUIPropagandaType_SoldierData;
-	List.ItemContainer.RemoveChildren();
+	//Issue #1372 - Replace List.ItemContainer.RemoveChildren() with List.ClearItems() to prevent CTDs with large lists
+	List.ClearItems();
 	NeedsPopulateData();
 }
 
@@ -1369,7 +1372,10 @@ function OnConfirmBackground()
 {
 	List.OnSelectionChanged = none;
 	currentState = eUIPropagandaType_BackgroundOptions;
-	List.ItemContainer.RemoveChildren();
+	/// HL-Docs: ref:Bugfixes; issue:1372
+	/// Fixes a potential crash when the Photobooth shows many list items.
+	//Issue #1372 - Replace List.ItemContainer.RemoveChildren() with List.ClearItems() to prevent CTDs with large lists
+	List.ClearItems();
 	NeedsPopulateData();
 }
 
@@ -1389,7 +1395,8 @@ function OnConfirmFirstPassFilter()
 {
 	List.OnSelectionChanged = none;
 	currentState = eUIPropagandaType_Base;
-	List.ItemContainer.RemoveChildren();
+	//Issue #1372 - Replace List.ItemContainer.RemoveChildren() with List.ClearItems() to prevent CTDs with large lists
+	List.ClearItems();
 	NeedsPopulateData();
 }
 
@@ -1421,7 +1428,8 @@ function OnConfirmSecondPassFilter()
 {
 	List.OnSelectionChanged = none;
 	currentState = eUIPropagandaType_Base;
-	List.ItemContainer.RemoveChildren();
+	//Issue #1372 - Replace List.ItemContainer.RemoveChildren() with List.ClearItems() to prevent CTDs with large lists
+	List.ClearItems();
 	NeedsPopulateData();
 }
 
@@ -2114,7 +2122,8 @@ function OnConfirmLayout()
 {
 	List.OnSelectionChanged = none;
 	currentState = eUIPropagandaType_Base;
-	List.ItemContainer.RemoveChildren();
+	//Issue #1372 - Replace List.ItemContainer.RemoveChildren() with List.ClearItems() to prevent CTDs with large lists
+	List.ClearItems();
 	NeedsPopulateData();
 }
 
