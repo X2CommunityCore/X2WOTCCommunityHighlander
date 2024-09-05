@@ -127,7 +127,8 @@ function EventListenerReturn OnReinforcementSpawnerCreated(Object EventData, Obj
 
 	// Start Issue #278
 	//LWS: Added hook to allow post-creation adjustment of instantiated encounter info
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('PostReinforcementCreation');
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
 		DLCInfos[i].PostReinforcementCreation(NewSpawnerState.SpawnInfo.EncounterID, NewSpawnerState.SpawnInfo, ForceLevel, AlertLevel, BattleData, self);

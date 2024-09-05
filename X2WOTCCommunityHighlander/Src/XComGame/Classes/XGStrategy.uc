@@ -272,8 +272,7 @@ function LaunchTacticalBattle(optional int MissionID = -1)
 	local XComGameState_WorldNarrativeTracker NarrativeTracker;
 	local XComGameState_ScanningSite ScanningSiteState;
 	local XComGameState_Continent ContinentState;
-	local XComGameState_HeadquartersProjectResearch ResearchProjectState;
-	local XComOnlineEventMgr EventManager;
+	local XComGameState_HeadquartersProjectResearch ResearchProjectState;	
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local XComGameState_AdventChosen ChosenState;
 	local XComGameState_NarrativeManager NarrativeMgr;
@@ -536,8 +535,8 @@ function LaunchTacticalBattle(optional int MissionID = -1)
 	// allow sitreps to modify the battle data state before we transition to tactical
 	class'X2SitRepTemplate'.static.ModifyPreMissionBattleDataState(BattleData, MissionState.GeneratedMission.SitReps);
 
-	EventManager = `ONLINEEVENTMGR;
-	DLCInfos = EventManager.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('OnPreMission');
 	for (i = 0; i < DLCInfos.Length; ++i)
 	{
 		DLCInfos[i].OnPreMission(NewStartState, MissionState);
@@ -620,12 +619,11 @@ function TDateTime GetGameTime()
 
 function UpdateDLCLoadingStrategyGame()
 {
-	local XComOnlineEventMgr EventManager;
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local int i;
 
-	EventManager = `ONLINEEVENTMGR;
-	DLCInfos = EventManager.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('OnLoadedSavedGameToStrategy');
 	for (i = 0; i < DLCInfos.Length; ++i)
 	{
 		DLCInfos[i].OnLoadedSavedGameToStrategy();

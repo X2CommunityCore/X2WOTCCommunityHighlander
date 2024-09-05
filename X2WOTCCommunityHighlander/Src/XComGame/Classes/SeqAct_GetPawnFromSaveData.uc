@@ -194,7 +194,8 @@ private static function DLCInfoMatineeGetPawnFromSaveData(XComUnitPawn UnitPawn,
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local X2DownloadableContentInfo DLCInfo;
 
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('MatineeGetPawnFromSaveData');
 	foreach DLCInfos(DLCInfo)
 	{
 		DLCInfo.MatineeGetPawnFromSaveData(UnitPawn, UnitState, SearchState);

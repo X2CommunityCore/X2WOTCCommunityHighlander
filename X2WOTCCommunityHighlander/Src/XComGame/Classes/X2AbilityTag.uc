@@ -718,20 +718,29 @@ event ExpandHandler(string InString, out string OutString)
 		return;
 
 	//  allow DLC info to handle the tag
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('AbilityTagExpandHandler');
 	foreach DLCInfos(DLCInfo)
 	{
 		if (DLCInfo.AbilityTagExpandHandler(InString, OutString))
 		{
 			return;
 		}
-// Start Issue #419
+	}
+
+	// Start Issue #419
+	// Issue #212 use CHDLCHookManager
+	// note that 'AbilityTagExpandHandler_CH' does NOT forward to 'AbilityTagExpandHandler' by default
+	// so we need to call them both
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('AbilityTagExpandHandler_CH');
+	foreach DLCInfos(DLCInfo)
+	{
 		if (DLCInfo.AbilityTagExpandHandler_CH(InString, OutString, ParseObj, StrategyParseObj, GameState))
 		{
 			return;
 		}
-// End Issue #419
 	}
+	// End Issue #419
 
 	`RedScreenOnce("Unhandled localization tag: '"$Tag$":"$InString$"'");
 	OutString = "<Ability:"$InString$"/>";
