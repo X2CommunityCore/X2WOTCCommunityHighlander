@@ -463,8 +463,7 @@ function EndConstantProjectileEffects( )
 			// an access violation. It's unclear whether holes in the `ActiveComponents`
 			// can legitimately happen or indicate another bug, so the None check here
 			// is an additional defensive measure.
-
-			if(Projectiles[ Index ].ParticleEffectComponent != None)
+			if (Projectiles[ Index ].ParticleEffectComponent != None)
 			{
 				WorldInfo.MyEmitterPool.OnParticleSystemFinished(Projectiles[ Index ].ParticleEffectComponent);
 				CancelDelayedReturnToPoolPSC(Projectiles[ Index ].ParticleEffectComponent);
@@ -1170,7 +1169,7 @@ function OnParticleSystemFinished(ParticleSystemComponent PSystem)
 			// Allow the pool to reuse this Particle System's spot in the pool.
 			//WorldInfo.MyEmitterPool.OnParticleSystemFinished(Element.ParticleEffectComponent);
 			// Issue #1201 none check
-			if(Projectiles[i].ParticleEffectComponent != none)
+			if (Projectiles[i].ParticleEffectComponent != none)
 			{
 				WorldInfo.MyEmitterPool.OnParticleSystemFinished(Projectiles[i].ParticleEffectComponent);
 			}
