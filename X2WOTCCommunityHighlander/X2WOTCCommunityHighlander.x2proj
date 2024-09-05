@@ -114,6 +114,9 @@
     <Content Include="ReadMe.txt">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\extra_globals.uci">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\Core\Classes\CHCoreVersion.uc">
       <SubType>Content</SubType>
     </Content>
@@ -158,6 +161,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\CharacterPoolManager.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\CHDLCHookManager.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\CHDLCRunOrder.uc">
