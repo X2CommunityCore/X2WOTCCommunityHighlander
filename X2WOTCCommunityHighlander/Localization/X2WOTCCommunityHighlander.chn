@@ -1,6 +1,39 @@
+[X2WOTCCH_Components]
+VersionFormat="v%MAJOR.%MINOR.%PATCH"
+
+RequiredNotFound="未加载 - 必要的"
+
+VersionMismatches="- 版本不匹配"
+WarningsLabel="- 警告"
+ErrorsLabel="- 错误 - 请检查日志"
+
 [X2WOTCCH_ModDependencies]
 ModRequiredPopupTitle="检测不到必要的Mod"
 ModRequired="请启用以下的Mod并重启游戏以确保%s正常运作:"
-ModIncompatiblePopupTitle="检测到不相容的Mods"
+ModIncompatiblePopupTitle="检测到不兼容的Mods"
 ModIncompatible="请停用以下的Mod并重启游戏以确保%s正常运作:"
-DisablePopup="不要再显示此消息"
+DisablePopup="不再显示此消息"
+
+;    Issue #909
+ModRequiresNewerHighlanderVersionTitle = "该模组需要更高的HIGHLANDER版本"
+ModRequiresNewerHighlanderVersionText = "该模组需要更高的Highlander版本:"
+CurrentHighlanderVersionTitle = "已安装版本:"
+RequiredHighlanderVersionTitle = "所需版本: "
+ModRequiresNewerHighlanderVersionExtraText = "请将X2WOTCCommunityHighlander更新到所需版本。否则，您可能会遇到崩溃和其他故障。"
+
+[X2WOTCCH_UIScreenListener_ShellPopup]
+ErrorTitle="模组配置错误"
+
+AdviceText="以下模组配置错误: %BLAME。 请向各自的作者展示错误报告，帮助他们修复问题。"
+
+HardErrorText="您可以继续游戏，但模组的行为可能会不可预测。请自行决定是否继续。"
+PotentialErrorText="你可以继续游戏，模组将会表现得可预测，但可能不完全符合作者的意图。"
+
+CycleErrorText="模组指定了循环运行顺序:\n\n%FACTS\n...完成循环。 在此得到修正之前，运行顺序将是未定义的。"
+GroupErrorText="模组指定了冲突的运行顺序信息:\n\n%FACTS\n这种行为已被指定，但可能表明存在配置错误。"
+
+BlameText="以下的DLCIdentifiers在XComGame.ini中提供了配置，导致了这个问题: %BLAME."
+
+[X2WOTCCH_UIScreenListener_Shell_DLCIntro]
+strDLC2HLIntroduction_Title="Alien Hunters Community Highlander"
+strDLC2HLIntroduction_Body="从X2WOTCCommunityHighlander v1.22.0开始，我们引入了一个适用于Alien Hunters DLC的Highlander版本。<br><br>请安装它以：<br><Bullet/> 确保依赖于X2WOTCCommunityHighlander的模组行为正确<br><Bullet/> 受益于修复的错误<br><br>您可以在创意工坊中找到它，名称为\"Alien Hunters Community Highlander\"（或者只需在X2WOTCCommunityHighlander的描述中跟随链接）"

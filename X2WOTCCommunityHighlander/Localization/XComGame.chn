@@ -1,3 +1,28 @@
+[XComGame.UIArmory_PromotionHero]
+[UIArmory_PromotionHero]
+m_strMutuallyExclusiveAbility="互斥:"
+
+[XComGame.XLocalizedData]
+[XLocalizedData]
+RuptureLabel="撕裂"
+
+RunOrderDiffGroupsConflict="%FID在组%FGROUP中而%SID在组%SGROUP中，因此%FID不会在%SID之前运行"
+RunOrderDiffGroupsRedundant="%FID在组%FGROUP中而%SID在组%SGROUP中，因此%FID将始终在%SID之前运行"
+RunOrderBefore="%FID希望在%SID之前运行"
+RunOrderAfter="%SID希望在%FID之后运行"
+RunOrderBeforeAfter="%FID希望在%SID之前运行，而%SID希望在%FID之后运行"
+
+; Do not localize these below. They are used for debug log output.
+RunOrderDiffGroupsConflict_INT="%FID属于组%FGROUP，%SID属于组%SGROUP，因此%FID永远不会在%SID之前运行"
+RunOrderDiffGroupsRedundant_INT="%FID属于组%FGROUP，%SID属于组%SGROUP，因此%FID将始终在%SID之前运行"
+RunOrderBefore_INT="%FID希望在%SID之前运行"
+RunOrderAfter_INT="%SID希望在%FID之后运行"
+RunOrderBeforeAfter_INT="%FID希望在%SID之前运行，而%SID希望在%FID之后运行"
+
+[XComGame.UICustomize_Head]
+[UICustomize_Head]
+m_strChangeFace="请使用不同的方法编辑此选项"
+
 [CHHelpers]
 ; Issue #817
 m_strFramerateSmoothingDisabledReason = "帧率平滑功能已被 Highlander 禁用，以确保其他 Mod 的正常工作。如果您之前启用了它，请删除此文件：\"..\\Documents\\my games\\XCOM2 War of the Chosen\\XComGame\\Config\\XComEngine.ini\"，然后重新启动游戏。"
