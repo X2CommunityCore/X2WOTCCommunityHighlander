@@ -455,8 +455,24 @@ function EndConstantProjectileEffects( )
 			/// if the PSC's `OnSystemFinished` delegate is replaced, then `EmitterPool::OnParticleSystemFinished()` must
 			/// be called for this PSC manually when the PSC is no longer needed, otherwise the same "memory leak" 
 			/// will occur. This applies to all PSCs using the Emitter Pool, not just those in `X2UnifiedProjectile`.
-			WorldInfo.MyEmitterPool.OnParticleSystemFinished(Projectiles[ Index ].ParticleEffectComponent);
-			CancelDelayedReturnToPoolPSC(Projectiles[ Index ].ParticleEffectComponent);
+
+			// Start Issue #1201
+			// `EmitterPool.OnParticleSystemFinished` checks that the passed PSC is
+			// contained in the `ActiveComponents` array before doing anything with it,
+			// but not that the `PSC` is not None, in which case the function crashes with
+			// an access violation. It's unclear whether holes in the `ActiveComponents`
+			// can legitimately happen or indicate another bug, so the None check here
+			// is an additional defensive measure.
+			if (Projectiles[ Index ].ParticleEffectComponent != None)
+			{
+				WorldInfo.MyEmitterPool.OnParticleSystemFinished(Projectiles[ Index ].ParticleEffectComponent);
+				CancelDelayedReturnToPoolPSC(Projectiles[ Index ].ParticleEffectComponent);
+			}
+			else
+			{
+				`REDSCREEN("CHL: OnParticleSystemFinished called with a None ParticleEffectComponent - this should never happen!" @ `showvar(Projectiles[ Index ].ParticleEffectComponent) @ GetScriptTrace());
+			}
+			// End issue #1201
 			// End Issue #720
 			Projectiles[ Index ].ParticleEffectComponent = none;
 			Projectiles[ Index ].SourceAttachActor.SetPhysics( PHYS_None );
@@ -1140,11 +1156,23 @@ function OnParticleSystemFinished(ParticleSystemComponent PSystem)
 		//if (Element.ParticleEffectComponent == PSystem)
 		if (Projectiles[i].ParticleEffectComponent == PSystem)
 		{
+			// Start issue #1201
+			// Mark the projectile bConstantComplete as true so that it will not be called again by EndConstantProjectileEffects and cause a crash, and add a none check for extra safety.
+			if (Projectiles[i].ProjectileElement.UseProjectileType == eProjectileType_RangedConstant)
+			{
+				Projectiles[i].bConstantComplete = true;
+			}
+			// End issue #1201
+
 			// Start Issue #720
 			/// HL-Docs: ref:ProjectilePerformanceDrain
 			// Allow the pool to reuse this Particle System's spot in the pool.
 			//WorldInfo.MyEmitterPool.OnParticleSystemFinished(Element.ParticleEffectComponent);
-			WorldInfo.MyEmitterPool.OnParticleSystemFinished(Projectiles[i].ParticleEffectComponent);
+			// Issue #1201 none check
+			if (Projectiles[i].ParticleEffectComponent != none)
+			{
+				WorldInfo.MyEmitterPool.OnParticleSystemFinished(Projectiles[i].ParticleEffectComponent);
+			}
 			CancelDelayedReturnToPoolPSC(Projectiles[i].ParticleEffectComponent);
 			// End Issue #720
 
