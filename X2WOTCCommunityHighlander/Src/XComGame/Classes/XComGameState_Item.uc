@@ -895,7 +895,8 @@ simulated function array<WeaponAttachment> GetWeaponAttachments(optional bool bG
 	}
 
 	// Start Issue #240
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('UpdateWeaponAttachments');
 	foreach DLCInfos(DLCInfo)
 	{
 		DLCInfo.UpdateWeaponAttachments(Attachments, self);
@@ -1327,11 +1328,14 @@ simulated function array<string> GetWeaponPanelImages()
 	// Start Issue #962
 	/// HL-Docs: ref:OverrideItemImage_Improved
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(OwnerStateObject.ObjectID));
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('OverrideItemImage_Improved');
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
 		DLCInfos[i].OverrideItemImage_Improved(Images, InventorySlot, m_ItemTemplate, UnitState, self);
 	}
+
 	// End Issue #962
 
 	return Images; 
@@ -2472,7 +2476,8 @@ function bool CanWeaponApplyUpgrade(X2WeaponUpgradeTemplate UpgradeTemplate)
 	local int i;
 	local array<X2DownloadableContentInfo> DLCInfos;
 	
-	DLCInfos = `ONLINEEVENTMGR.GetDLCInfos(false);
+	// Issue #212 use CHDLCHookManager
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('CanWeaponApplyUpgrade');
 	for(i = 0; i < DLCInfos.Length; ++i)
 	{
 		if (!DLCInfos[i].CanWeaponApplyUpgrade(self, UpgradeTemplate))

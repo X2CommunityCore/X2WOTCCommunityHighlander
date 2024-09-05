@@ -261,13 +261,9 @@ static function QueueDynamicPopup(const out DynamicPropertySet PopupInfo, option
 
 simulated function bool DisplayDynamicPopupImmediate(const out DynamicPropertySet PropertySet)
 {
-	local XComOnlineEventMgr EventManager;
 	local array<X2DownloadableContentInfo> DLCInfos;
 	local bool bMessageHandled;
 	local int i;
-
-	EventManager = `ONLINEEVENTMGR;
-	DLCInfos = EventManager.GetDLCInfos(false);
 
 	if (IsPropertySetApplicableForDisplay(PropertySet))
 	{
@@ -298,6 +294,9 @@ simulated function bool DisplayDynamicPopupImmediate(const out DynamicPropertySe
 			CallUIScreen(PropertySet);
 			bMessageHandled = true;
 		}
+
+		// Issue #212 use CHDLCHookManager
+		DLCInfos = `DLCHOOKMGR.GetDLCInfos('DisplayQueuedDynamicPopup');
 
 		// For each DLC, check to see if it has any additional primary routing keys for messages
 		for (i = 0; i < DLCInfos.Length; ++i)

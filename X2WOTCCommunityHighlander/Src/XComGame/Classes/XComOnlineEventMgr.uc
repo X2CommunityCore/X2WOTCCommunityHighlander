@@ -2787,6 +2787,10 @@ private event PreloadSaveGameData(byte LocalUserNum, bool Success, int GameNum, 
 			EventManager = `ONLINEEVENTMGR;
 			
 			// Let the DLC / Mods hook the creation of a new campaign
+			// Issue #212 use CHDLCHookManager
+			// comment for clarity: although #212 is about replacing EventManager.GetDLCInfos with `DLCHOOKMGR.GetDLCInfos('HookName')
+			// in this case, we only want the new DLCs that are not in the current campaign (the true parameter of GetDLCInfos).
+			// DLCHOOKMGR does not support that (yet), so we use the regular EventManager.GetDLCInfos
 			DLCInfos = EventManager.GetDLCInfos(true);
 			for(i = 0; i < DLCInfos.Length; ++i)
 			{
@@ -2797,7 +2801,9 @@ private event PreloadSaveGameData(byte LocalUserNum, bool Success, int GameNum, 
 			/// HL-Docs: ref:OnLoadedSavedGameWithDLCExisting
 			
 			// Get all DLCInfos (there is no API to get only the existing ones)
-			ExistingDLCInfos = EventManager.GetDLCInfos(false);
+			// Issue #212 use CHDLCHookManager
+			// we can use `DLCHOOKMGR here to get only the DLCs with this method
+			ExistingDLCInfos = `DLCHOOKMGR.GetDLCInfos('OnLoadedSavedGameWithDLCExisting');
 			
 			// Clear the new ones (otherwise we will call both OnLoadedSavedGame hooks)
 			for (i = 0; i < DLCInfos.Length; ++i)
