@@ -25,7 +25,7 @@ struct TPCSAvailabilityData
 	var bool bHasNeurochipImplantsInInventory;
 	var bool bHasCombatSimsSlotsAvailable;
 	var bool bCanEquipCombatSims;
-	var bool bHasEmptyCombatSimSlot; // Variable declaration for Issue #1348
+	var bool bHasEmptyCombatSimSlot; // Variable for Issue #1348
 };
 
 var localized string m_strCreditsPrefix;
@@ -1718,7 +1718,7 @@ simulated static function GetPCSAvailability(XComGameState_Unit Unit, out TPCSAv
 	PCSAvailabilityData.bHasAchievedCombatSimsRank = Unit.IsSufficientRankToEquipPCS();
 	PCSAvailabilityData.bHasGTS = XComHQ.HasFacilityByName('OfficerTrainingSchool');
 	PCSAvailabilityData.bCanEquipCombatSims = (AvailableSlots > 0);
-	PCSAvailabilityData.bHasEmptyCombatSimSlot = ( AvailableSlots > EquippedImplants.Length ); // Same as bHasCombatSimsSlotsAvailable but ignoring Reuse PCS research for Issue #1348
+	PCSAvailabilityData.bHasEmptyCombatSimSlot = ( AvailableSlots > EquippedImplants.Length ); // Issue #1348 - same as bHasCombatSimsSlotsAvailable, but without Reuse PCS flag.
 }
 
 // Used in UIArmory_MainMenu and UIArmory_Promotion
