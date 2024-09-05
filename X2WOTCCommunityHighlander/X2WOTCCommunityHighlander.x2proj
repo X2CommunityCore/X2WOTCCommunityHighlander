@@ -877,6 +877,9 @@
     <Content Include="Src\XComGame\Classes\XComPathingPawn.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComPresentationLayerBase.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComSoundManager.uc">
       <SubType>Content</SubType>
     </Content>
