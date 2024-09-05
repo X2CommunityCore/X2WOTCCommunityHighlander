@@ -531,6 +531,7 @@ simulated function DisplayWarningPopups()
 	local XComGameState_HeadquartersXCom XComHQ;
 	local TDateTime StartDateTime, CurrentTime;
 	local int MinStaffRequired, NumStaff, MonthsDifference;
+	local array<XComGameState_WorldRegion> AllRegions; // For Issue #1347 
 
 	XComHQ = XComGameState_HeadquartersXCom(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
 
@@ -543,7 +544,9 @@ simulated function DisplayWarningPopups()
 	{
 		// Start Issue #1347
 		// Show warning only if there are still regions left to be contacted.
-		if(XComHQ.GetCurrentResContacts() < class'X2StrategyElement_DefaultMissionSources'.static.GetAllRegions().Length)
+		AllRegions = class'X2StrategyElement_DefaultMissionSources'.static.GetAllRegions();
+
+		if(XComHQ.GetCurrentResContacts() < AllRegions.Length)
 		{
 			UILowIntel();
 		}
