@@ -177,10 +177,16 @@ simulated function UpdateData()
 
 	if( bEnableImplantsOption )
 	{
-		if( PCSAvailabilityData.bHasNeurochipImplantsInInventory && PCSAvailabilityData.bHasCombatSimsSlotsAvailable)
+		/// HL-Docs: ref:Bugfixes; issue:1348
+		/// Display the "needs attention" icon on the PCS button only if the soldier has an empty PCS slot.
+		if (PCSAvailabilityData.bHasNeurochipImplantsInInventory && PCSAvailabilityData.bHasEmptyCombatSimSlot) 
+    {
 			PCSButton.NeedsAttention(true);
+    }
 		else
+    {
 			PCSButton.NeedsAttention(false);
+    }
 	} 
 	else
 	{
