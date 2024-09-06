@@ -78,13 +78,14 @@ static function X2AbilityTemplate CreateFrostbiteAbility()
 	SkipExclusions.AddItem(class'X2StatusEffects'.default.BurningName);
 	SkipExclusions.AddItem(class'X2AbilityTemplateManager'.default.ConfusedName);
 	Template.AddShooterEffectExclusions(SkipExclusions);
-
+	// Single line for Issue# 1255 - Remove duplicate (incorrect) icon image
+	// Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_viper_frostbite";
 	InputTrigger = new class'X2AbilityTrigger_PlayerInput';
 	Template.AbilityTriggers.AddItem(InputTrigger);
 	
 	Template.AbilitySourceName = 'eAbilitySource_Standard';
 	Template.eAbilityIconBehaviorHUD = EAbilityIconBehavior_AlwaysShow;
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_viper_frostbite";
+
 	Template.bUseAmmoAsChargesForHUD = true;
 
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
@@ -127,7 +128,8 @@ static function X2AbilityTemplate CreateBindAbility()
 	local array<name> SkipExclusions;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, default.KingBindAbilityName);
-	Template.IconImage = "img:///UILibrary_DLC2Images.PerkIcons.UIPerk_viper_choke";
+	// Issue #1255 - Adjust iconpath to use the correct icon in the UPK
+	Template.IconImage = "img:///UILibrary_DLC2Images.UIPerk_viper_choke";
 
 	Template.AbilitySourceName = 'eAbilitySource_Standard';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;

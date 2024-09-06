@@ -1,1 +1,6 @@
-ÿþ
+; Issue #1255 - Add missing localization for Viper King Choke
+[KingEndBind X2AbilityTemplate]
+LocFriendlyName="Release Choke"
+LocLongDescription="In the event the tactical situation changes, the Viper King can release the target before killing it."
+LocHelpText="Release the target from the Viper King's choke"
+LocFlyOverText="Release Choke"

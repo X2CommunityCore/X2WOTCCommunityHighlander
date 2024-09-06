@@ -28,7 +28,8 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(CreateHunterGrapple());
 	Templates.AddItem(CreateTrackingShotMark());
 	Templates.AddItem(CreateTrackingShot());
-	Templates.AddItem(PurePassive('Farsight', "img:///UILibrary_DLC3Images.UIPerk_Farsight", false, 'eAbilitySource_Perk', true));
+	//Single line for Issue #1355 - Change icon to use correct path
+	Templates.AddItem(PurePassive('Farsight', "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Farsight", false, 'eAbilitySource_Perk', true));
 	Templates.AddItem(CreateLethalDose());
 	
 	return Templates;
