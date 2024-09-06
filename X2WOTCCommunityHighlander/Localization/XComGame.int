@@ -26,3 +26,15 @@ m_strChangeFace="Use a different face to edit this option"
 [CHHelpers]
 ; Issue #817
 m_strFramerateSmoothingDisabledReason = "Framerate Smoothing is disabled by Highlander to allow other mods to work properly. If you previously enabled it, delete this file: \"..\\Documents\\my games\\XCOM2 War of the Chosen\\XComGame\\Config\\XComEngine.ini\" once and restart the game."
+
+[VanishingWind_Scamper X2AbilityTemplate]
+; Issue #1255 - Add missing localization for Assassin Revealed 
+LocFriendlyName="Revealed!"
+LocFlyOverText="Revealed!"
+
+[ChosenImmunities X2AbilityTemplate]
+; Issue #1255 - Add missing localization for Chosen Immunities
+LocFriendlyName="Chosen Immunities"
+LocLongDescription="The Chosen are immune to Panic, Stun, Disorientation and to being rendered Unconscious"
+LocHelpText="The Chosen are immune to Panic, Stun, Disorientation and being rendered Unconscious"
+LocFlyOverText="Chosen Immunities"

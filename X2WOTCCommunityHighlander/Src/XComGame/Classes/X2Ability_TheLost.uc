@@ -31,7 +31,8 @@ static function X2DataTemplate CreateLostAttack()
 	local X2Effect_ApplyWeaponDamage PhysicalDamageEffect;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'LostAttack');
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_escape";
+	// Single line for Issue #1355 - Adjust icon from UIPerk_escape to one that actually exists
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_muton_punch";
 	Template.Hostility = eHostility_Offensive;
 	Template.AbilitySourceName = 'eAbilitySource_Standard';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
