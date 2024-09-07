@@ -120,6 +120,9 @@
     <Content Include="Src\Core\Classes\Object.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\Core\Globals.uci">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\Engine\Classes\AudioComponent.uc">
       <SubType>Content</SubType>
     </Content>
