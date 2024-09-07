@@ -132,9 +132,6 @@
     <Content Include="Src\Engine\Classes\SkeletalMeshSocket.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\extra_globals.uci">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Src\X2WOTCCommunityHighlander\Classes\CHX2WOTCCHVersion.uc">
       <SubType>Content</SubType>
     </Content>

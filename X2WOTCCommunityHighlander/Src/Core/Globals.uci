@@ -452,3 +452,5 @@
 
 `define DEFAULTFLYOVERLOOKATTIME (1.0f)
 
+// Macro for Issue #212
+`define DLCHOOKMGR class'CHDLCHookManager'.static
