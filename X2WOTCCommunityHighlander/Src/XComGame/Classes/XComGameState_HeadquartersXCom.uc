@@ -162,6 +162,8 @@ var() bool							bHasSeenCovertActionRiskIntroPopup;
 var() bool							bHasReceivedResistanceOrderPopup;
 var() bool							bHasSeenCantChangeOrdersPopup;
 var() bool							bHasSeenSoldierBondPopup;
+/// HL-Docs: ref:PositiveTraitUI
+/// Note, this bool now also covers positive traits
 var() bool							bHasSeenNegativeTraitPopup;
 
 // Tactical Tutorial Flags
