@@ -9,6 +9,16 @@
 
 class UITacticalHUD_Enemies extends UIPanel implements(X2VisualizationMgrObserverInterface);
 
+// Start Issue #1233 
+// Struct for caching hit chances for visible targets.
+struct CH_CachedTargetHitChanceStruct
+{
+	var StateObjectReference TargetRef;
+	var bool bIsDestructibleObject;
+	var int HitChance;
+};
+// End Issue #1233
+
 var Actor m_kTargetActor;
 var array<StateObjectReference> m_arrTargets;
 var array<StateObjectReference> m_arrCurrentlyAffectable;
@@ -350,7 +360,13 @@ simulated function UpdateVisibleEnemies(int HistoryIndex)
 		
 		iNumVisibleEnemies = m_arrTargets.Length;
 
-		m_arrTargets.Sort(SortEnemies);
+		// Start Issue #1233
+		/// HL-Docs: ref:Bugfixes; issue:1233
+		/// Cache hit chances of visible targets to prevent multiple expensive `GetHitChance()` calls for each target.
+		//m_arrTargets.Sort(SortEnemies);
+		SortEnemies_CH();
+		// End Issue #1233
+
 		UpdateVisuals(HistoryIndex);
 	}
 }
@@ -900,6 +916,64 @@ simulated function ClearHighlightedEnemy()
 		m_highlightedEnemy = none;
 	}
 }
+
+// Start Issue #1233
+private function SortEnemies_CH()
+{
+	local array<CH_CachedTargetHitChanceStruct> arrCachedTargetHitChance;
+	local CH_CachedTargetHitChanceStruct        CachedTargetHitChance;
+	local XComGameState_BaseObject              TargetObject;
+	local XComGameStateHistory                  History;
+	local int iNumTargets;
+	local int i;
+
+	History = `XCOMHISTORY;
+
+	iNumTargets = m_arrTargets.Length;
+	arrCachedTargetHitChance.Length = iNumTargets;
+
+	for (i = 0; i < iNumTargets; i++)
+	{
+		CachedTargetHitChance.TargetRef = m_arrTargets[i];
+		CachedTargetHitChance.HitChance = GetHitChanceForObjectRef(CachedTargetHitChance.TargetRef);
+
+		TargetObject = History.GetGameStateForObjectID(CachedTargetHitChance.TargetRef.ObjectID);
+
+		CachedTargetHitChance.bIsDestructibleObject = TargetObject != none && XComGameState_Destructible(TargetObject) != none;
+
+		arrCachedTargetHitChance[i] = CachedTargetHitChance;
+	}
+
+	arrCachedTargetHitChance.Sort(SortTargetsByHitChance_CH);
+
+	for (i = 0; i < iNumTargets; i++)
+	{
+		m_arrTargets[i] = arrCachedTargetHitChance[i].TargetRef;
+	}
+}
+
+private function int SortTargetsByHitChance_CH(CH_CachedTargetHitChanceStruct ObjectA, CH_CachedTargetHitChanceStruct ObjectB)
+{
+	// Push the destructible objects to the back of the list.
+	if (ObjectA.bIsDestructibleObject && !ObjectB.bIsDestructibleObject) 
+	{
+		return -1;
+	}
+	if (ObjectB.bIsDestructibleObject && !ObjectA.bIsDestructibleObject) 
+	{
+		return 1;
+	}
+
+	// Push lower-hit chance targets to the end of the list.
+	if (ObjectA.HitChance < ObjectB.HitChance)
+	{
+		return -1;
+	}
+
+	return 1;
+}
+
+// End Issue #1233
 
 // ------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------
