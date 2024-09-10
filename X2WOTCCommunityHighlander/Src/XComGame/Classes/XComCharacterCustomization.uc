@@ -542,8 +542,9 @@ function bool ValidatePartSelection(string PartType, name PartSelection)
 	return false;
 }
 
-// Start Issue #350, Enhanced version of above which also makes valid if possible. Less CopyPasta code then!
-// Return indicates if it managed to make the part valid.
+	// Start Issue #350
+	/// HL-Docs: ref:Bugfixes; issue:350
+	/// Enhanced version of ValidatePartSelection above. Return indicates if it managed to make the part valid.
 function bool MakePartValid(string PartType, out name PartSelection, optional bool BlankValid=true)
 {
 	local X2BodyPartTemplate BodyPart;

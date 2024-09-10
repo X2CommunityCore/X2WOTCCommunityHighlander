@@ -68,7 +68,7 @@ simulated function UpdateData()
 	
 	ResetMechaListItems();
 
-	super.UpdateData();
+	super.UpdateData();	
 
 	//Single Line for Issue #350
 	List.ClearItems();
