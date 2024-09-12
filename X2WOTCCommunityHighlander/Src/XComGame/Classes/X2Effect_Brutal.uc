@@ -11,7 +11,10 @@ simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffe
 	TargetUnit = XComGameState_Unit(kNewTargetState);
 	if (TargetUnit != none)
 	{
-		CurrentWill = TargetUnit.GetBaseStat(eStat_Will);
+		/// HL-Docs: ref:Bugfixes; issue:1389
+		/// Make `X2Effect_Brutal` use unit's current Will instead of base Will so it can properly reduce and display it.
+		// Single line for Issue #1389 - use GetCurrentStat() instead of GetBaseStat() to reduce will.
+		CurrentWill = TargetUnit.GetCurrentStat(eStat_Will);
 		if (CurrentWill + WillMod <= 0)
 			TargetUnit.SetCurrentStat(eStat_Will, 1);
 		else
@@ -31,7 +34,8 @@ simulated function AddX2ActionsForVisualization(XComGameState VisualizeGameState
 
 	if (OldUnit != none && NewUnit != None)
 	{
-		WillChange = NewUnit.GetBaseStat(eStat_Will) - OldUnit.GetBaseStat(eStat_Will);
+		// Single line for Issue #1389 - use GetCurrentStat() instead of GetBaseStat() to display will loss.
+		WillChange = NewUnit.GetCurrentStat(eStat_Will) - OldUnit.GetCurrentStat(eStat_Will);
 		if (WillChange != 0)
 		{
 			SoundAndFlyOver = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
