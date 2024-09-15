@@ -1915,6 +1915,9 @@ simulated static function int GetMinimumContactCost()
 	local XComGameState_WorldRegion RegionState;
 	local int MinContactCost, RegionContactCost;
 
+	// Variable for Issue #1347
+	local bool bRegionContactCostFound;
+
 	History = `XCOMHISTORY;
 	MinContactCost = 9999;
 
@@ -1926,11 +1929,22 @@ simulated static function int GetMinimumContactCost()
 			if (RegionContactCost < MinContactCost)
 			{
 				MinContactCost = RegionContactCost;
+
+				// Single line for Issue #1347
+				bRegionContactCostFound = true;
 			}
 		}
 	}
 
-	return MinContactCost;
+	// Start Issue #1347
+	/// HL-Docs: ref:Bugfixes; issue:1347
+	/// Make `GetMinimumContactCost()` return zero when there are no more uncontacted regions to prevent Low Intel warnings.
+	if (bRegionContactCostFound)
+	{
+		return MinContactCost;
+	}
+	return 0;
+	// End Issue #1347
 }
 
 simulated static function int GetUnitCurrentHealth(XComGameState_Unit UnitState, optional bool bUseLowestHP)
