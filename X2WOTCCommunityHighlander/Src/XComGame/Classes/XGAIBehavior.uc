@@ -48,8 +48,10 @@ struct native AoETargetingInfo
 	var bool bAreaSearchSpace;			// if true, also target adjacent points around our test locations.
 	var bool bRequireLoS;				// Require Line of Sight between the shooter and the target
 	var bool bCountAdjacentAsHits;		// if true, hitting adjacent tiles to targets count as a valid hit.
-	var bool bTestTargetEffectsApply;	// Only consider units that are valid for the MultiTarget effects on the ability.
+	var bool bTestTargetEffectsApply;	// Only consider units that are valid for the MultiTarget effects on the ability.	
 	var bool bIgnoreRepeatAttackList;   // Ignore restrictions on tiles that have already been used for AoEs.
+	// Variable for Issue #1369
+	var bool bIgnoreTheLost;			// Ignore lost units from AoE Targetting calculations	 
 
 	structdefaultproperties
 	{
@@ -6704,7 +6706,27 @@ function bool GetUnfilteredAoETargetList(out array<XComGameState_Unit> UnitList,
 			UnitList.AddItem(UnitState);
 		}
 	}
-
+	// Start Issue #1369
+	/// HL-Docs: feature:ExcludeLostFromAoETargetsList; issue:1369; tags:tactical	
+	// Removes all lost units from the AoE targetting Unit List
+	if (Profile.bIgnoreTheLost)
+	{
+		foreach UnitList(TargetState)
+		{
+			if (TargetState.GetTeam() == eTeam_TheLost)
+			{
+				bSkip = true;
+				break;
+			}			
+			if (!bSkip)
+			{
+				PriorityList.AddItem(TargetState);
+			}
+		}		
+		UnitList = PriorityList;
+		PriorityList.Length = 0;		
+	}
+	// End Issue #1369
 	// Remove all units from list with specified effect(s).
 	if (DeprioritizedEffects.Length > 0)
 	{
