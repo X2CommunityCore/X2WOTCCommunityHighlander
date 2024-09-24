@@ -9,6 +9,17 @@
 
 class UITacticalHUD_Enemies extends UIPanel implements(X2VisualizationMgrObserverInterface);
 
+// Start Issue #1233 
+// Struct for caching hit chances for visible targets.
+struct CH_CachedTargetHitChanceStruct
+{
+	var StateObjectReference TargetRef;
+	var bool bIsDestructibleObject;
+	var int HitChance;
+	var int AvailableTargetIndex;
+};
+// End Issue #1233
+
 var Actor m_kTargetActor;
 var array<StateObjectReference> m_arrTargets;
 var array<StateObjectReference> m_arrCurrentlyAffectable;
@@ -350,7 +361,13 @@ simulated function UpdateVisibleEnemies(int HistoryIndex)
 		
 		iNumVisibleEnemies = m_arrTargets.Length;
 
-		m_arrTargets.Sort(SortEnemies);
+		// Start Issue #1233
+		/// HL-Docs: ref:Bugfixes; issue:1233
+		/// Cache hit chances of visible targets to prevent multiple expensive `GetHitChance()` calls for each target.
+		//m_arrTargets.Sort(SortEnemies);
+		SortEnemies_CH();
+		// End Issue #1233
+
 		UpdateVisuals(HistoryIndex);
 	}
 }
@@ -900,6 +917,117 @@ simulated function ClearHighlightedEnemy()
 		m_highlightedEnemy = none;
 	}
 }
+
+// Start Issue #1233
+private function SortEnemies_CH()
+{
+	local array<CH_CachedTargetHitChanceStruct> arrCachedTargetHitChance;
+	local CH_CachedTargetHitChanceStruct        CachedTargetHitChance;
+	local XComGameState_BaseObject              TargetObject;
+	local XComGameStateHistory                  History;
+	local X2TargetingMethod                     TargetingMethod;
+	local AvailableAction                       Action;
+	local array<AvailableTarget>                AvailableTargets;
+	local int AvailableTargetIndex;
+	local int iNumTargets;
+	local int i;
+
+	iNumTargets = m_arrTargets.Length;
+	if (iNumTargets == 0)
+		return;
+
+	arrCachedTargetHitChance.Length = iNumTargets;
+
+	// Pressing TAB while in tactical invokes UITacticalHUD::GetTargetingMethod().NextTarget(),
+	// which normally will make the targeting method select the next target 
+	// from the TargetingMethod.Action.AvailableTargets array.
+	// The array is normally filled by XCGS_Ability::GatherAbilityTargets(), 
+	// which also sorts targets by hit chance.
+	// This means that when TAB-cycling through multiple targets with the same hit chance,
+	// the order of selecting targets may not match the displayed order of target icons.
+	// To make sure these orders match, we additionally sort targets by their index
+	// in the TargetingMethod.Action.AvailableTargets array.
+
+	TargetingMethod = XComPresentationLayer(screen.Owner).GetTacticalHUD().GetTargetingMethod();
+	if (TargetingMethod != none)
+	{
+		AvailableTargets = TargetingMethod.Action.AvailableTargets;
+	}
+	else
+	{
+		if (XComPresentationLayer(Movie.Pres).GetTacticalHUD().m_kAbilityHUD.GetDefaultTargetingAbility(m_arrTargets[0].ObjectID, Action, true))
+		{
+			AvailableTargets = Action.AvailableTargets;
+		}
+	}
+
+	History = `XCOMHISTORY;
+	for (i = 0; i < iNumTargets; i++)
+	{
+		CachedTargetHitChance.TargetRef = m_arrTargets[i];
+		CachedTargetHitChance.HitChance = GetHitChanceForObjectRef(CachedTargetHitChance.TargetRef);
+
+		TargetObject = History.GetGameStateForObjectID(CachedTargetHitChance.TargetRef.ObjectID);
+
+		CachedTargetHitChance.bIsDestructibleObject = TargetObject != none && XComGameState_Destructible(TargetObject) != none;
+
+		for (AvailableTargetIndex = 0; AvailableTargetIndex < AvailableTargets.Length; AvailableTargetIndex++)
+		{
+			if (AvailableTargets[AvailableTargetIndex].PrimaryTarget.ObjectID == CachedTargetHitChance.TargetRef.ObjectID)
+			{
+				CachedTargetHitChance.AvailableTargetIndex = AvailableTargetIndex;
+				break;
+			}
+		}
+
+		arrCachedTargetHitChance[i] = CachedTargetHitChance;
+	}
+
+	arrCachedTargetHitChance.Sort(SortTargetsByHitChance_CH);
+	arrCachedTargetHitChance.Sort(SortTargetsByTargetIndex_CH);
+
+	for (i = 0; i < iNumTargets; i++)
+	{
+		m_arrTargets[i] = arrCachedTargetHitChance[i].TargetRef;
+	}
+}
+
+private function int SortTargetsByHitChance_CH(CH_CachedTargetHitChanceStruct ObjectA, CH_CachedTargetHitChanceStruct ObjectB)
+{
+	// Push the destructible objects to the back of the list.
+	if (ObjectA.bIsDestructibleObject && !ObjectB.bIsDestructibleObject) 
+	{
+		return -1;
+	}
+	if (ObjectB.bIsDestructibleObject && !ObjectA.bIsDestructibleObject) 
+	{
+		return 1;
+	}
+
+	// Push lower-hit chance targets to the end of the list.
+	if (ObjectA.HitChance < ObjectB.HitChance)
+	{
+		return -1;
+	}
+
+	return 1;
+}
+
+private function int SortTargetsByTargetIndex_CH(CH_CachedTargetHitChanceStruct ObjectA, CH_CachedTargetHitChanceStruct ObjectB)
+{
+	// Push targets with higher index in the Targeting Method's Available Targets array to the end of the list.
+	// This should ensure the order of TAB-cycling through targets matches the displayed order of target icons.
+	if (ObjectA.HitChance == ObjectB.HitChance)
+	{
+		if (ObjectA.AvailableTargetIndex > ObjectB.AvailableTargetIndex)
+		{
+			return -1;
+		}
+	}
+
+	return 1;
+}
+// End Issue #1233
 
 // ------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------
