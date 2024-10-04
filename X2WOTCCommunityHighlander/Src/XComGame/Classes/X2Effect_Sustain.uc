@@ -44,7 +44,7 @@ function bool PreDeathCheck(XComGameState NewGameState, XComGameState_Unit UnitS
 		}
 	}
 
-	UnitState.SetUnitFloatValue(default.SustainUsed, 1, eCleanup_BeginTactical);
+	UnitState.SetUnitFloatValue(default.SustainUsed, 1, eCleanup_BeginTacticalChain); // issue #559: changed cleanup (was BeginTactical)
 	UnitState.SetCurrentStat(eStat_HP, 1);
 
 	/// HL-Docs: ref:Bugfixes; issue:1404

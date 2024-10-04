@@ -1081,7 +1081,7 @@ static function bool FreeReloadCost(X2WeaponUpgradeTemplate UpgradeTemplate, XCo
 		{
 			return false;
 		}
-		UnitState.SetUnitFloatValue('FreeReload', FreeReloadValue.fValue + 1, eCleanup_BeginTactical);
+		UnitState.SetUnitFloatValue('FreeReload', FreeReloadValue.fValue + 1, eCleanup_BeginTacticalChain); // issue #559: changed cleanup (was BeginTactical)
 	}
 
 	return true;
