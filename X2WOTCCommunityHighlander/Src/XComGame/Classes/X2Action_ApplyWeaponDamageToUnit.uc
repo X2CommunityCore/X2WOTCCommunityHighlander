@@ -86,7 +86,8 @@ function Init()
 	local array<X2Action> RunningActions;
 	local array<X2Action> ApplyDamageToUnitActions;
 	local X2Action ParentFireAction;
-
+	local int EffectDamageTypeIndex;
+	local name EffectDamageTypeName;
 	super.Init();
 
 	History = `XCOMHISTORY;	
@@ -156,30 +157,48 @@ function Init()
 		if (SourceItemGameState != none)
 			WeaponTemplate = X2WeaponTemplate(SourceItemGameState.GetMyTemplate());
 	}
+	
+	/// HL-Docs: feature:OverRideWeaponBaseDamageForFlyover; issue:1274; tags:tactical	
+	// Begin by using the damage results from the unit state and finding the damage types applied:
 
-	//Set up a damage type
-	if (WeaponTemplate != none)
+	if (TickContext != none || WorldEffectsContext != none)
+	{
+		// Iterate through damage results on unit state
+		for (DmgIndex = 0; DmgIndex < UnitState.DamageResults.Length; ++DmgIndex)
+		{
+			if (UnitState.DamageResults[DmgIndex].Context == StateChangeContext)
+			{
+				LookupEffect = UnitState.DamageResults[DmgIndex].SourceEffect.EffectRef;				
+				SourceEffect = class'X2Effect'.static.GetX2Effect(LookupEffect);
+				`log("Effect which is applying damage:" @ LookupEffect.SourceTemplateName,,'BDLOG');
+				DamageEffect = SourceEffect;
+				// Use the damage result of the first element in the array by default
+				DamageTypeName = SourceEffect.DamageTypes[0];
+					// Iterate over the damage types applied by the effect
+					for (EffectDamageTypeIndex = 0; EffectDamageTypeIndex < SourceEffect.DamageTypes.Length; ++EffectDamageTypeIndex)
+						{
+						effectDamageTypeName = SourceEffect.DamageTypes[EffectDamageTypeIndex];
+						`log("Damage type at index:" @ EffectDamageTypeIndex @ "Is:" @ effectDamageTypeName,,'BDLOG');
+						// If the array contains psionic damage, set the damage type name to psionic for use in the flyover
+						If (effectDamageTypeName == 'Psi')
+							{							
+							DamageTypeName = SourceEffect.DamageTypes[EffectIndex];
+							`log("Setting damagetypename to psi:" @ DamageTypeName,,'BDLOG');
+							}
+						}					
+				m_iDamage = UnitState.DamageResults[DmgIndex].DamageAmount;
+				break;
+			}
+		}
+	}
+
+	// Fall back on the damage type on the weapon template
+	if (DamageTypeName == '' && WeaponTemplate != none)
 	{
 		DamageTypeName = WeaponTemplate.BaseDamage.DamageType;
 		if (DamageTypeName == '')
 		{
 			DamageTypeName = WeaponTemplate.DamageTypeTemplateName;
-		}
-	}
-	else if (TickContext != none || WorldEffectsContext != none)
-	{
-		for (DmgIndex = 0; DmgIndex < UnitState.DamageResults.Length; ++DmgIndex)
-		{
-			if (UnitState.DamageResults[DmgIndex].Context == StateChangeContext)
-			{
-				LookupEffect = UnitState.DamageResults[DmgIndex].SourceEffect.EffectRef;
-				SourceEffect = class'X2Effect'.static.GetX2Effect(LookupEffect);
-				DamageEffect = SourceEffect;
-				if (SourceEffect.DamageTypes.Length > 0)
-					DamageTypeName = SourceEffect.DamageTypes[0];
-				m_iDamage = UnitState.DamageResults[DmgIndex].DamageAmount;
-				break;
-			}
 		}
 	}
 
