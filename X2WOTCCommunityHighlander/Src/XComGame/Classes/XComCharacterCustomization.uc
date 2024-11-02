@@ -542,8 +542,10 @@ function bool ValidatePartSelection(string PartType, name PartSelection)
 	return false;
 }
 
-// Start Issue #350, Enhanced version of above which also makes valid if possible. Less CopyPasta code then!
-// Return indicates if it managed to make the part valid.
+	// Start Issue #350
+	/// HL-Docs: ref:Bugfixes; issue:350
+	/// Updates various classes (XComCharacterCustomization, XCGS_Unit, XComHumanPawn and XGCharacterGenerator)
+	/// to carry out proper validation and selection of valid body parts on soldiers when other parts are changed in the armory.
 function bool MakePartValid(string PartType, out name PartSelection, optional bool BlankValid=true)
 {
 	local X2BodyPartTemplate BodyPart;
