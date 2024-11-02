@@ -478,43 +478,59 @@ function EventListenerReturn OnUnitDied(Object EventData, Object EventSource, XC
 	local XComGameState_Item ItemState;
 	local vector NewLocation;
 	local XComGameStateContext_ChangeContainer ChangeContext;
-
+	
+	// Variable for Issue #367
+	local XComGameState_Unit OwnerUnitState;
+	
+	// Start Issue #367
+	/// HL-Docs: ref:Bugfixes; issue:367
+	/// Gremlins now correctly die when the Gremlin's owner dies while the Gremlin is attached to another unit.
+	
 	UnitState = XComGameState_Unit(EventData);
-	//  was this the unit we are attached to or our owner?
-	if (UnitState.ObjectID == AttachedUnitRef.ObjectID || UnitState.ObjectID == OwnerStateObject.ObjectID)
+	if (UnitState == none)
+		return ELR_NoInterrupt;
+	
+	if (UnitState.ObjectID == OwnerStateObject.ObjectID)
 	{
+		// Owner of the Gremlin died, kill the Gremlin.
+		
 		History = `XCOMHISTORY;
-		UnitState = XComGameState_Unit(History.GetGameStateForObjectID(OwnerStateObject.ObjectID));
 		CosmeticUnit = XComGameState_Unit(History.GetGameStateForObjectID(CosmeticUnitRef.ObjectID));
-		//  if it was not our owner, reattach to them
-		if ( ( UnitState.ObjectID != OwnerStateObject.ObjectID ) || (OwnerStateObject.ObjectID != AttachedUnitRef.ObjectID) )
+		
+		if (CosmeticUnit != none)
+		{
+			NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Owner Unit Died");
+			ChangeContext = XComGameStateContext_ChangeContainer(NewGameState.GetContext());
+			ChangeContext.BuildVisualizationFn = ItemOwnerDeathVisualization;
+			CosmeticUnit = XComGameState_Unit(NewGameState.ModifyStateObject(CosmeticUnit.Class, CosmeticUnit.ObjectID));
+			CosmeticUnit.SetCurrentStat(eStat_HP, 0);
+			`GAMERULES.SubmitGameState(NewGameState);
+		}
+	}
+	else if (UnitState.ObjectID == AttachedUnitRef.ObjectID)
+	{
+		// Unit to whom the Gremlin is attached to has died, recall the Gremlin and re-attach to its owner.
+		
+		History = `XCOMHISTORY;
+		CosmeticUnit = XComGameState_Unit(History.GetGameStateForObjectID(CosmeticUnitRef.ObjectID));
+		OwnerUnitState = XComGameState_Unit(History.GetGameStateForObjectID(OwnerStateObject.ObjectID));
+		
+		if (OwnerUnitState != none && CosmeticUnit != none)
 		{
 			NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Attached Unit Died");
 			ItemState = XComGameState_Item(NewGameState.ModifyStateObject(Class, ObjectID));
 			ItemState.AttachedUnitRef = OwnerStateObject;
 			`GAMERULES.SubmitGameState(NewGameState);
-						
-			if (UnitState != none && CosmeticUnit != none && CosmeticUnit.TileLocation != UnitState.TileLocation)
+
+			if (CosmeticUnit.TileLocation != OwnerUnitState.TileLocation)
 			{
-				NewLocation = `XWORLD.GetPositionFromTileCoordinates(UnitState.TileLocation);
+				NewLocation = `XWORLD.GetPositionFromTileCoordinates(OwnerUnitState.TileLocation);
 				XGUnit(CosmeticUnit.GetVisualizer()).MoveToLocation(NewLocation);
 			}
 		}
-		//  if it was our owner, we have to die too
-		else
-		{
-			if (CosmeticUnit != none)
-			{
-				NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Owner Unit Died");
-				ChangeContext = XComGameStateContext_ChangeContainer(NewGameState.GetContext());
-				ChangeContext.BuildVisualizationFn = ItemOwnerDeathVisualization;
-				CosmeticUnit = XComGameState_Unit(NewGameState.ModifyStateObject(CosmeticUnit.Class, CosmeticUnit.ObjectID));
-				CosmeticUnit.SetCurrentStat(eStat_HP, 0);
-				`GAMERULES.SubmitGameState(NewGameState);
-			}				
-		}
 	}
-
+	// End Issue #367
+	
 	return ELR_NoInterrupt;
 }
 
