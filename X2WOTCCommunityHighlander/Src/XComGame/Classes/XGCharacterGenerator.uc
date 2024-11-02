@@ -716,10 +716,10 @@ function SetArmsLegsAndDeco(X2SimpleBodyPartFilter BodyPartFilter)
 	// XPack Hero Deco
 	if (!m_CharTemplate.bForceAppearance)
 	{
-		// Start Issue #359
+		// Start Issue #350
 		RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmLeftForearm, "LeftForearm", BodyPartFilter.FilterByTorsoAndArmorMatch);
 		RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmRightForearm, "RightForearm", BodyPartFilter.FilterByTorsoAndArmorMatch);
-		// End Issue #359
+		// End Issue #350
 		RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmThighs, "Thighs", BodyPartFilter.FilterByTorsoAndArmorMatch);
 		RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmShins, "Shins", BodyPartFilter.FilterByTorsoAndArmorMatch);
 		RandomizeSetBodyPart(PartTemplateManager, kSoldier.kAppearance.nmTorsoDeco, "TorsoDeco", BodyPartFilter.FilterByTorsoAndArmorMatch);
