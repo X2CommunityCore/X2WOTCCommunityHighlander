@@ -46,6 +46,11 @@ function bool PreDeathCheck(XComGameState NewGameState, XComGameState_Unit UnitS
 
 	UnitState.SetUnitFloatValue(default.SustainUsed, 1, eCleanup_BeginTactical);
 	UnitState.SetCurrentStat(eStat_HP, 1);
+
+	/// HL-Docs: ref:Bugfixes; issue:1404
+	/// Update unit's lowest HP value when sustain activates since it wasn't being set properly before.
+	UnitState.LowestHP = 1;
+
 	EventMan = `XEVENTMGR;
 	EventMan.TriggerEvent(default.SustainEvent, UnitState, UnitState, NewGameState);
 	return true;
