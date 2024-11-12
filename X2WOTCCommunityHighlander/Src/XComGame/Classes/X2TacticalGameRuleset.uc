@@ -3893,6 +3893,24 @@ Begin:
 		sleep(0.0);
 	}
 
+	// Start Issue #1406
+	/// HL-Docs: feature:PostMissionIntroKismet; issue:1406; tags:tactical
+	/// This event triggers after mission intro kismet has been completed.
+	/// For example, a mission such as Supply Extraction spawns their objective crates
+	/// when `'SeqEvent_OnTacticalMissionStartBlocking'` has been triggered,
+	/// which happens after `'OnBeginTacticalPlay'` event has already been triggered.
+	/// As such, you don't have a handle for anything the mission kismet causes before your first XCOM turn.
+	/// This event can be considered a later alternative to `'OnBeginTacticalPlay'` event.
+	///
+	/// ```event
+	/// EventID: PostMissionIntroKismet,
+	/// EventData: none,
+	/// EventSource: none,
+	/// NewGameState: none
+	/// ```
+	`XEVENTMGR.TriggerEvent('PostMissionIntroKismet',,,);
+	// End Issue #1406
+
 	// set up start of match special conditions, including squad concealment
 	ApplyStartOfMatchConditions();
 
@@ -4244,6 +4262,11 @@ Begin:
 	{
 		sleep(0.0);
 	}
+
+	// Start Issue #1406
+	/// HL-Docs: ref:PostMissionIntroKismet
+	`XEVENTMGR.TriggerEvent('PostMissionIntroKismet',,,);
+	// End Issue #1406
 
 	// kick off the gameplay start kismet, do not wait for it to complete latent actions
 	WorldInfo.TriggerGlobalEventClass(class'SeqEvent_OnTacticalMissionStartNonBlocking', WorldInfo);
