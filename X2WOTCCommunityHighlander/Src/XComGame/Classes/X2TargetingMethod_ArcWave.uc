@@ -119,6 +119,13 @@ function bool GetAdditionalTargets(out AvailableTarget AdditionalTargets)
 
 	TargetedActor = GetTargetedActor();
 	TargetedPawn = XGUnit(TargetedActor);
+
+	// Start Issue #1408
+	/// HL-Docs: ref:Bugfixes; issue:1408
+	/// Fixes a bug with Arc Wave targeting where an ability could hit enemies not targeted by the player
+	AdditionalTargets.AdditionalTargets.Length = 0;
+	// End Issue #1408
+
 	if (TargetedPawn != none)
 	{
 		World = `XWORLD;
