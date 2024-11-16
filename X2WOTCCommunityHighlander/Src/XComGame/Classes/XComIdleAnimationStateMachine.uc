@@ -713,6 +713,9 @@ event bool SetTargetUnit()
 	local vector AimAtLocation;
 	local array<vector> TargetLocations;
 
+	// Variable for Issue #1301
+	local XComGameState_Unit FacingUnitState;
+
 	History = `XCOMHISTORY;
 	UnitState = UnitNative.GetVisualizedGameState(UseHistoryIndex);
 
@@ -927,8 +930,16 @@ event bool SetTargetUnit()
 		TempUnit = XGUnit(TargetActor);
 		if(TempUnit != none && bActorFromTargetingMethod && TempUnit.IdleStateMachine.LastAttacker != Unit)
 		{   
-			TempUnit.IdleStateMachine.LastAttacker = Unit;
-			TempUnit.IdleStateMachine.CheckForStanceUpdate(); //Tell the target that we are targeting them now
+			// Start Issue #1301
+			/// HL-Docs: ref:Bugfixes; issue:1301
+			/// Targeting enemies from concealment will no longer make them face the unit doing the targeting.
+			FacingUnitState = Unit.GetVisualizedGameState();
+			if (FacingUnitState == none || !FacingUnitState.IsConcealed())
+			{
+				TempUnit.IdleStateMachine.LastAttacker = Unit;
+				TempUnit.IdleStateMachine.CheckForStanceUpdate(); //Tell the target that we are targeting them now
+			}
+			// End Issue #1301
 		}
 	}
 //**********************************************************************************************
