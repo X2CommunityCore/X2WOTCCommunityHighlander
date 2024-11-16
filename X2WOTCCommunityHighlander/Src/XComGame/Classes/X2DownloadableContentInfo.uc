@@ -287,6 +287,74 @@ static function bool GetValidFloorSpawnLocations(out array<Vector> FloorPoints, 
 /// basically the inventory hook wtih an added paramter to pass through
 /// we leave the old one alone for compatibility reasons, as we call it through here for those mods.
 ///
+/// HL-Docs: feature:CanAddItemToInventory; issue:114; tags:loadoutslots
+///
+/// This DLC hook can be used to override the game's default behavior when it comes to 
+/// whether a particular unit should be able to equip a particular item into a particular inventory slot.
+///
+/// Using this hook can be complicated, and since it runs every time any unit attempts to equip any item,
+/// it must be handled with extreme care to avoid unintentional changes to inventory item restrictions,
+/// and to reduce the performance impact as much as possible.
+///
+/// (1) To disallow equipping an item that normally can be equipped, 
+/// set `bCanAddItem = 0;` provide a localized `DisabledReason` and `return CheckGameState != none;`
+///
+/// (2) To allow equipping an item that normally cannot be equipped, do the following:
+/// ```unrealscript
+/// DisabledReason = "";
+/// if (CheckGameState != none && UnitState.GetItemInSlot(Slot, CheckGameState) == none)
+/// {
+///     bCanAddItem = 1;
+/// }
+/// `return CheckGameState != none;
+/// ```
+/// The `GetItemInSlot() == none` check is critically important for non-multi-item slots, it is necessary
+/// to make sure the unit does not end up equipping an item into a slot that already has another item in it.
+/// 
+/// (3) If you do not wish to override game's default behavior in this instance, `return CheckGameState == none;`
+/// 
+/// Example use:
+/// ```unrealscript
+/// static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, optional XComGameState CheckGameState, optional out string DisabledReason, optional XComGameState_Item ItemState)
+/// {
+///     local X2ArmorTemplate  ArmorTemplate;
+/// 	local X2WeaponTemplate WeaponTemplate;
+///     local bool OverrideNormalBehavior;
+///     local bool DoNotOverrideNormalBehavior;
+/// 
+///     // Prepare return values to make it easier for us to read the code.
+///     OverrideNormalBehavior = CheckGameState != none;
+///     DoNotOverrideNormalBehavior = CheckGameState == none;   
+/// 
+/// 	if (Slot == eInvSlot_Armor)
+/// 	{
+/// 		ArmorTemplate = X2ArmorTemplate(ItemTemplate);
+/// 		if (ArmorTemplate != none && ArmorTemplate.ArmorCat == 'CyborgArmor' && !UnitState.HasSoldierAbility('CyborgUnlockAbility'))
+/// 		{
+/// 			// If the unit does not have the Cyborg Ability, disallow equipping Cyborg Armor.
+/// 			DisabledReason = mStr_CyborgOnly;
+/// 			bCanAddItem = 0;
+/// 			return OverrideNormalBehavior;
+/// 		}
+/// 	} 
+/// 	else if (Slot == eInvSlot_PrimaryWeapon)
+/// 	{
+/// 		WeaponTemplate = X2WeaponTemplate(ItemTemplate);
+/// 		if (WeaponTemplate != none && WeaponTemplate.WeaponCat == 'sparkrifle' && UnitState.HasSoldierAbility('CyborgUnlockAbility'))
+/// 		{
+/// 			// If the unit has Cyborg Ability, allow equipping SPARK Weapons.
+/// 			DisabledReason = "";
+/// 			if (CheckGameState != none && UnitState.GetItemInSlot(Slot, CheckGameState) == none)
+/// 			{
+/// 				bCanAddItem = 1;
+/// 			}
+/// 			return OverrideNormalBehavior;
+/// 		}
+/// 	}
+///     return DoNotOverrideNormalBehavior;
+/// }
+/// ```
+///
 static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, optional XComGameState CheckGameState, optional out string DisabledReason, optional XComGameState_Item ItemState)
 {
 
