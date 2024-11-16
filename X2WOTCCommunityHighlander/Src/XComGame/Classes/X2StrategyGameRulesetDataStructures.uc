@@ -1084,6 +1084,9 @@ var config int START_DAY;
 var config int START_MONTH;
 var config int START_YEAR;
 
+// Single Line for Issue #1400
+var config bool bForce24hClock;
+var config bool bForce24hclockLeadingZero;
 // Intro movie narrative moment
 var config string IntroMovie;
 
@@ -1567,9 +1570,12 @@ static function GetTimeStringSeparated(TDateTime kDateTime, out string Hours, ou
 	Lang = GetLanguage();
 	iHour = GetHour(kDateTime);
 
+	/// HL-Docs: feature:DateAndTimeFormattingChanges; issue:1400; tags:
+	/// Allow forcing the 24h clock independently of locale and add an option to display leading zeroes for military-style time - e.g. 03:41 instead of 3:41
+
 	// INT and ESN use the 12 hour clock for events, checked with Loc 12/15/2015. -bsteiner 
-	if( Lang == "INT" || Lang == "ESN" )
-	{
+	if( !default.bForce24hclock && (Lang == "INT" || Lang == "ESN"))
+	{		
 		// AM
 		if( iHour < 12 )
 		{
@@ -1602,7 +1608,15 @@ static function GetTimeStringSeparated(TDateTime kDateTime, out string Hours, ou
 		Minutes = string(GetMinute(kDateTime));
 	}
 
-	Hours = string(iHour);
+	if( default.bForce24hClockLeadingZero && GetHour(kDateTime) < 10 )
+	{
+		Hours = "0"$GetHour(kDateTime);
+	}
+	else
+	{
+		Hours = string(iHour);
+	}
+	// End Issue #1400
 }
 
 static function string GetDateString(TDateTime kDateTime, optional bool bShortFormat = false)
@@ -1620,6 +1634,26 @@ static function string GetDateString(TDateTime kDateTime, optional bool bShortFo
 		kTag.IntValue0 = kDateTime.m_iDay;
 		kTag.IntValue1 = kDateTime.m_iYear;
 		kTag.IntValue2 = kDateTime.m_iMonth;
+
+		// Issue #1400 - Add additional localization tags to allow mods to display days and months with leading zeroes
+		if(kDateTime.m_iDay < 10)
+		{
+			kTag.StrValue2 = 0 $ kDateTime.m_iDay;
+		}
+		else
+		{
+			kTag.StrValue2 = string(kDateTime.m_iDay);
+		}
+		
+		if(kDateTime.m_iMonth < 10)
+		{
+			kTag.StrValue3 = 0 $ kDateTime.m_iMonth;
+		}
+		else
+		{
+			kTag.StrValue3 = string(kDateTime.m_iMonth);
+		} 
+		// End issue #1400
 
 		Lang = GetLanguage();
 
