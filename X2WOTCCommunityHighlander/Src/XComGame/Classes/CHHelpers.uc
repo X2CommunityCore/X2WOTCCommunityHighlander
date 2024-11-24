@@ -257,6 +257,9 @@ var config bool bUseMinDamageForUnitFlagPreview;
 // Variable for Issue #1228 - disables Aim Assist.
 var config bool bDisableAimAssist;
 
+// Variables for Issue #1400 - forces 24h clock regardless of locale
+var config bool bForce24hClock;
+var config bool bForce24hclockLeadingZero;
 
 // Start Issue #885
 enum EHLDelegateReturn
