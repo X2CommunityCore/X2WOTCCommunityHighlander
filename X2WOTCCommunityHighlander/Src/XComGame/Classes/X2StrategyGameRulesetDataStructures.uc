@@ -1084,9 +1084,6 @@ var config int START_DAY;
 var config int START_MONTH;
 var config int START_YEAR;
 
-// Single Line for Issue #1400
-var config bool bForce24hClock;
-var config bool bForce24hclockLeadingZero;
 // Intro movie narrative moment
 var config string IntroMovie;
 
@@ -1574,7 +1571,7 @@ static function GetTimeStringSeparated(TDateTime kDateTime, out string Hours, ou
 	/// Allow forcing the 24h clock independently of locale and add an option to display leading zeroes for military-style time - e.g. 03:41 instead of 3:41
 
 	// INT and ESN use the 12 hour clock for events, checked with Loc 12/15/2015. -bsteiner 
-	if( !default.bForce24hclock && (Lang == "INT" || Lang == "ESN"))
+	if( !class'CHHelpers'.default.bForce24hclock && (Lang == "INT" || Lang == "ESN"))
 	{		
 		// AM
 		if( iHour < 12 )
@@ -1608,7 +1605,7 @@ static function GetTimeStringSeparated(TDateTime kDateTime, out string Hours, ou
 		Minutes = string(GetMinute(kDateTime));
 	}
 
-	if( default.bForce24hClockLeadingZero && GetHour(kDateTime) < 10 )
+	if( class'CHHelpers'.default.bForce24hClockLeadingZero && GetHour(kDateTime) < 10 )
 	{
 		Hours = "0"$GetHour(kDateTime);
 	}
