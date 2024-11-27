@@ -207,6 +207,9 @@ var config float CameraRotationAngle;
 // Variable for Issue #917
 var config bool bDisableBetaStrikePostMissionHealing;
 
+// Variable for Issue #1081
+var config bool bShowAllTraitAcquiredPopups;
+
 // Start Issue #669
 //
 /// HL-Docs: feature:GrenadesRequiringUnitsOnTargetedTiles; issue:669; tags:tactical

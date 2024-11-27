@@ -457,16 +457,29 @@ private function PostMissionNegativeTraitNotifies()
 		foreach UnitState.WorldMessageTraits(TraitName)
 		{
 			TraitTemplate = X2TraitTemplate(EventTemplateManager.FindEventListenerTemplate(TraitName));
-
+			
+			// Start Issue #1081
+			// Provide different arguments to NotifyBanner() depending on whether the trait is positive or negative.
 			if(TraitTemplate != none)
 			{
-				NotifyBanner(UnitState.GetName(eNameType_Full), "img:///UILibrary_StrategyImages.X2StrategyMap.MapPin_Poi", class'UIAlert'.default.m_strNegativeTraitAcquiredTitle, TraitTemplate.TraitFriendlyName, eUIState_Bad);
-
-				if(PopupCount == 0)
+				if(TraitTemplate.bPositiveTrait)
+					{
+						NotifyBanner(UnitState.GetName(eNameType_Full), "img:///UILibrary_StrategyImages.X2StrategyMap.MapPin_GoldenPath", class'UIAlert'.default.m_strPositiveTraitAcquiredTitle, TraitTemplate.TraitFriendlyName, eUIState_Good);
+					}
+				else
+					{
+						NotifyBanner(UnitState.GetName(eNameType_Full), "img:///UILibrary_StrategyImages.X2StrategyMap.MapPin_Landing", class'UIAlert'.default.m_strNegativeTraitAcquiredTitle, TraitTemplate.TraitFriendlyName, eUIState_Bad);
+					}
+			// Issue #1081 - Adjust checks for the number of UI alert "trait acquired" popups, allowing the UI to display a popup for each acquired trait, if the bShowAllTraitAcquiredPopups flag is set to "true".
+				if(PopupCount == 0 || class'CHHelpers'.default.bShowAllTraitAcquiredPopups)
 				{
 					PopupCount++;
 					PopupUnit = UnitState;
 					StoredTraitName = TraitName;
+						if(class'CHHelpers'.default.bShowAllTraitAcquiredPopups)
+						{
+							UINegativeTraitAlert(NewGameState, PopupUnit, StoredTraitName);
+						}				
 				}
 			}
 		}
@@ -474,13 +487,14 @@ private function PostMissionNegativeTraitNotifies()
 		UnitState.WorldMessageTraits.Length = 0;
 	}
 
-	if(PopupCount > 0 && !XComHQ.bHasSeenNegativeTraitPopup)
+	if(PopupCount > 0 && !XComHQ.bHasSeenNegativeTraitPopup && !class'CHHelpers'.default.bShowAllTraitAcquiredPopups)
 	{
 		XComHQ.bHasSeenNegativeTraitPopup = true;
 		UINegativeTraitAlert(NewGameState, PopupUnit, StoredTraitName);
 	}
 
 	`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
+	// End Issue #1081
 }
 
 private function ExitPostMission_ResetMap()
@@ -1730,11 +1744,28 @@ function UISoldierBondConfirm(XComGameState_Unit UnitRef1, XComGameState_Unit Un
 function UINegativeTraitAlert(XComGameState NewGameState, XComGameState_Unit UnitState, Name TraitTemplateName)
 {
 	local DynamicPropertySet PropertySet;
+	// Start Issue #1081
+	local X2EventListenerTemplateManager EventTemplateManager;
+	local X2TraitTemplate TraitTemplate;
 
+	// Issue #1081 - Fetch the trait template
+	EventTemplateManager = class'X2EventListenerTemplateManager'.static.GetEventListenerTemplateManager();
+	TraitTemplate = X2TraitTemplate(EventTemplateManager.FindEventListenerTemplate(TraitTemplateName));
+	
 	UnitState.AlertTraits.RemoveItem(TraitTemplateName);
 	UnitState.WorldMessageTraits.RemoveItem(TraitTemplateName);
 
-	BuildUIAlert(PropertySet, 'eAlert_NegativeTraitAcquired', None, 'OnNegativeTraitAcquired', "Geoscape_CrewMemberLevelledUp", false);
+	// Issue #1081 - Adjust the UINegativeTraitAlert function so it builds the correct UI panel depending on trait status
+	if (TraitTemplate != none && TraitTemplate.bPositiveTrait)
+		{
+		BuildUIAlert(PropertySet, 'eAlert_PositiveTraitAcquired', None, 'OnPositiveTraitAcquired', "Geoscape_CrewMemberLevelledUp", false);
+		}
+	else
+		{
+		BuildUIAlert(PropertySet, 'eAlert_NegativeTraitAcquired', None, 'OnNegativeTraitAcquired', "Geoscape_CrewMemberLevelledUp", false);
+		}
+	// End Issue #1081
+
 	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicIntProperty(PropertySet, 'UnitRef', UnitState.ObjectID);
 	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicNameProperty(PropertySet, 'PrimaryTraitTemplate', TraitTemplateName);
 	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicNameProperty(PropertySet, 'SecondaryTraitTemplate', '');
