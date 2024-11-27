@@ -717,6 +717,8 @@ static function X2AbilityTemplate RevivalProtocol()
 	local X2AbilityCost_ActionPoints        ActionPointCost;
 	local X2AbilityCost_Charges             ChargeCost;
 	local X2AbilityCharges                  Charges;
+	// Variable for Issue #1235
+	local X2Effect_RestoreActionPoints		RestoreAPEffect; 
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'RevivalProtocol');
 
@@ -737,12 +739,25 @@ static function X2AbilityTemplate RevivalProtocol()
 
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
 	Template.AddShooterEffectExclusions();
-
+	
+	// Start Issue #1235
+	/// HL-Docs: ref:Bugfixes; issue:1235
+	/// Fixes the specialist's Revival Protocol ability to match the intended base-game behaviour outlined in the localization - In summary:
+	/// 1. Adjusts the ability targetting conditions to allow it to target allied (e.g. Resistance) soldiers
+	/// 2. Adds a new condition to prevent the restoration of action points to disoriented units
+	/// 3. Ensures the ability causes the unit to recover from the 'stunned' status effect properly
+	 
 	Template.AbilityTargetConditions.AddItem(new class'X2Condition_RevivalProtocol');
 
-	Template.AddTargetEffect(RemoveAdditionalEffectsForRevivalProtocolAndRestorativeMist());
-	Template.AddTargetEffect(new class'X2Effect_RestoreActionPoints');      //  put the unit back to full actions
+	Template.AddTargetEffect(RemoveAdditionalEffectsForRevivalProtocolAndRestorativeMist());	
 
+	Template.AddTargetEffect(class'X2StatusEffects'.static.CreateStunRecoverEffect());
+	// Restore APs on the unit only if the new X2Condition is met
+	RestoreAPEffect = new class'X2Effect_RestoreActionPoints'; 
+	RestoreAPEffect.TargetConditions.AddItem(new class'X2Condition_RevivalProtocolAP');
+	Template.AddTargetEffect(RestoreAPEffect);
+	// End Issue #1235
+	
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
 
 	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_revivalprotocol";
