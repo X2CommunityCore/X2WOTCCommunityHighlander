@@ -162,7 +162,7 @@ var() bool							bHasSeenCovertActionRiskIntroPopup;
 var() bool							bHasReceivedResistanceOrderPopup;
 var() bool							bHasSeenCantChangeOrdersPopup;
 var() bool							bHasSeenSoldierBondPopup;
-var() bool							bHasSeenNegativeTraitPopup;
+var() bool							bHasSeenNegativeTraitPopup; // Issue #1081 - Note: this bool now also covers popups for positive traits.
 
 // Tactical Tutorial Flags
 var() bool							bHasSeenTacticalTutorialSoldierBonds;

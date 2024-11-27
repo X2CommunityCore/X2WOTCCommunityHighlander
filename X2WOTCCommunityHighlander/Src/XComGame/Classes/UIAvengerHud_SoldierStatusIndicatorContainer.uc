@@ -273,9 +273,11 @@ function OnClickTraitIcon(UITraitIcon Icon)
 	local int UntiID;
 	local XComGameState_Unit Unit;
 	local XComGameState NewGameState;
+	// Issue #1081 - Commented out now unnecessary code from Issue #85. 
+	// The check for the trait template introduced in Issue #85 is no longer needed, as we have now adjusted the UINegativeTraitAlert() function to cover positive traits as well.
 	//start issue #85: variables required to check the trait template of what we've been given
-	local X2EventListenerTemplateManager EventTemplateManager;
-	local X2TraitTemplate TraitTemplate;
+	//local X2EventListenerTemplateManager EventTemplateManager;
+	//local X2TraitTemplate TraitTemplate;
 	//end issue #85
 	
 	UntiID = int(GetRightMost(string(Icon.MCName)));
@@ -284,17 +286,19 @@ function OnClickTraitIcon(UITraitIcon Icon)
 	if(Unit == none) return;
 
 	//start issue #85: init variables here to check for trait template. If Positive, we cancel this callback.
-	EventTemplateManager = class'X2EventListenerTemplateManager'.static.GetEventListenerTemplateManager();
-	TraitTemplate = X2TraitTemplate(EventTemplateManager.FindEventListenerTemplate(Unit.AlertTraits[0]));
+	//EventTemplateManager = class'X2EventListenerTemplateManager'.static.GetEventListenerTemplateManager();
+	//TraitTemplate = X2TraitTemplate(EventTemplateManager.FindEventListenerTemplate(Unit.AlertTraits[0]));
 	//while it's an array, we go with the base game's assumption of having only one trait to worry about when it changes				
-			
-	if(TraitTemplate.bPositiveTrait)
-		return; 
-	//end issue #85
 	
+
+	//if(TraitTemplate.bPositiveTrait)
+	//return; 
+
+	//end issue #85
+		
 	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Unit Trait Display Cleanup");
 	Unit = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', Unit.ObjectID));
-	XComHQPresentationLayer(Movie.Pres).UINegativeTraitAlert(NewGameState, Unit, Unit.AlertTraits[0]);
+	XComHQPresentationLayer(Movie.Pres).UINegativeTraitAlert(NewGameState, Unit, Unit.AlertTraits[0]);	
 	`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
 }
 

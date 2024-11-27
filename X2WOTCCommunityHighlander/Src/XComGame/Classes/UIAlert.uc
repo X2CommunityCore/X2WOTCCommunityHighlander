@@ -1242,8 +1242,13 @@ simulated function Name GetLibraryID()
 	case 'eAlert_RescueSoldier':					return 'XPACK_Alert_MissionSplash';
 
 	case 'eAlert_NegativeTraitAcquired':			return 'Alert_NegativeSoldierEvent';
-	case 'eAlert_PositiveTraitAcquired':			return 'Alert_AssignStaff';
+	/// HL-Docs: feature:PositiveTraitUI; issue:1081; tags:strategy,ui
+	/// Positive traits are a scrapped WOTC feature. The game had only negative traits on release, 
+  /// and no UI was created for a "positive trait acquired" event, even though X2TraitTemplate has an unused `bPositiveTrait` flag. 
+  /// This feature copies and adjusts the "soldier promoted" UI to make it function as a makeshift "positive trait acquired" UI. 
+  /// This popup will be displayed whenever a soldier acquires a trait with the `bPositiveTrait` flag set to `true` on its X2TraitTemplate.
 
+	case 'eAlert_PositiveTraitAcquired':			return 'Alert_TrainingComplete';
 	case 'eAlert_InspiredResearchAvailable':		return 'Alert_ItemAvailable';
 	case 'eAlert_BreakthroughResearchAvailable':	return 'Alert_ItemAvailable';
 	case 'eAlert_BreakthroughResearchComplete':		return 'Alert_ItemAvailable';
@@ -4146,38 +4151,94 @@ simulated function BuildNegativeTraitAcquiredAlert()
 	Button1.DisableNavigation();
 }
 
+// Start Issue #1081
+// Adjusted copy of the BuildNegativeTraitAcquiredAlert() with different text.
 simulated function BuildPositiveTraitAcquiredAlert()
 {
 	local XComGameState_Unit UnitState;
-	local X2TraitTemplate PositiveTrait, NegativeTrait;
+	local X2TraitTemplate PositiveTrait;
+	local XGBaseCrewMgr CrewMgr;
+	local XComGameState_HeadquartersRoom RoomState;
+	local Vector ForceLocation;
+	local Rotator ForceRotation;
+	local XComUnitPawn UnitPawn;
 	local X2EventListenerTemplateManager EventTemplateManager;
+	local string TraitDesc, ClassIcon, ClassName, RankName;
+	
+	if (LibraryPanel == none)
+	{
+		`RedScreen("UI Problem with the alerts! Couldn't find LibraryPanel for current eAlertName: " $ eAlertName);
+		return;
+	}
 
 	EventTemplateManager = class'X2EventListenerTemplateManager'.static.GetEventListenerTemplateManager();
 
 	PositiveTrait = X2TraitTemplate(EventTemplateManager.FindEventListenerTemplate(
 		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicNameProperty(DisplayPropertySet, 'PrimaryTraitTemplate')));
-	NegativeTrait = X2TraitTemplate(EventTemplateManager.FindEventListenerTemplate(
-		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicNameProperty(DisplayPropertySet, 'SecondaryTraitTemplate')));
 
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(
 		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(DisplayPropertySet, 'UnitRef')));
+	
+	if (UnitState.GetRank() > 0)
+	{
+		// Start Issue #106
+		ClassName = Caps(UnitState.GetSoldierClassDisplayName());
+		// End Issue #106
+	}
+	else
+	{
+		ClassName = "";
+	}
+
+	// Start Issue #106
+	ClassIcon = UnitState.GetSoldierClassIcon();
+	// End Issue #106
+	RankName = Caps(UnitState.GetSoldierRankName()); // Issue #408
+
+	TraitDesc = PositiveTrait.TraitDescription;
+	if (PositiveTrait.TraitQuotes.Length > 0)
+	{
+		TraitDesc $= "\n\n" $ PositiveTrait.TraitQuotes[`SYNC_RAND(PositiveTrait.TraitQuotes.Length)];
+	}
+
+	// Move the camera
+	CrewMgr = `GAME.GetGeoscape().m_kBase.m_kCrewMgr;
+	RoomState = CrewMgr.GetRoomFromUnit(UnitState.GetReference());
+	UnitPawn = CrewMgr.GetPawnForUnit(UnitState.GetReference());
+
+	if(RoomState != none && UnitPawn != none)
+	{
+		ForceLocation = UnitPawn.GetHeadLocation();
+		ForceLocation.X += 50;
+		ForceLocation.Y -= 300;
+		ForceRotation.Yaw = 16384;
+		`HQPRES.CAMLookAtRoom(RoomState, `HQINTERPTIME, ForceLocation, ForceRotation);
+	}
 
 	// Send over to flash
 	LibraryPanel.MC.BeginFunctionOp("UpdateData");
-	LibraryPanel.MC.QueueString(m_strSoldierShakenHeader); //ATTENTION
+	// Issue #1081 - Pass localised positive trait string into the UI panel instead of negative
 	LibraryPanel.MC.QueueString(m_strPositiveTraitAcquiredTitle);
-	LibraryPanel.MC.QueueString(""); //ICON
-	LibraryPanel.MC.QueueString(Caps(UnitState.GetName(eNameType_FullNick))); //STAFF AVAILABLE STRING
-	LibraryPanel.MC.QueueString("Positive Trait '" $ PositiveTrait.TraitFriendlyName $ "' acquired, replacing '" $ NegativeTrait.TraitFriendlyName $ "'."); //TODO: localize me
-	LibraryPanel.MC.QueueString(PositiveTrait.TraitDescription); //TODO: localize me
 	LibraryPanel.MC.QueueString("");
-	LibraryPanel.MC.QueueString(m_strOK); //OK
+	LibraryPanel.MC.QueueString(ClassIcon);
+	LibraryPanel.MC.QueueString(RankName);
+	LibraryPanel.MC.QueueString(UnitState.GetName(eNameType_FullNick));
+	LibraryPanel.MC.QueueString(ClassName);
+	LibraryPanel.MC.QueueString(PositiveTrait.IconImage); // Ability Icon
+	LibraryPanel.MC.QueueString(PositiveTrait.TraitFriendlyName); // Ability Label
+	LibraryPanel.MC.QueueString(PositiveTrait.TraitScientificName); // Ability Name
+	LibraryPanel.MC.QueueString(TraitDesc); // Ability Description
+	LibraryPanel.MC.QueueString("");
+	LibraryPanel.MC.QueueString(m_strOk);
 	LibraryPanel.MC.EndOp();
 	GetOrStartWaitingForStaffImage();
-	//This panel has only one button, for confirm.
-	Button2.DisableNavigation(); 
-	Button2.Hide();
+	
+	// Always hide the "Continue" button, since this is just an informational popup
+	Button2.SetGamepadIcon(class'UIUtilities_Input'.static.GetAdvanceButtonIcon()); //bsg-hlee (05.09.17): Changing the icon to A.
+	Button1.Hide(); 
+	Button1.DisableNavigation();
 }
+// End Issue #1081
 
 simulated function BuildSoldierShakenAlert()
 {
