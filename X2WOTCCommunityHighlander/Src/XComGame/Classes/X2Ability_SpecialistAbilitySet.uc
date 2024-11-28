@@ -718,13 +718,21 @@ static function X2AbilityTemplate RevivalProtocol()
 	local X2AbilityCost_Charges             ChargeCost;
 	local X2AbilityCharges                  Charges;
 
+	// Variable for Issue #1414
+	local X2Effect_RestoreActionPoints      RestoreActionPoints;
+
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'RevivalProtocol');
 
 	ActionPointCost = new class'X2AbilityCost_ActionPoints';
 	ActionPointCost.iNumPoints = 1;
 	Template.AbilityCosts.AddItem(ActionPointCost);
 
-	Charges = new class'X2AbilityCharges';
+	// Start Issue #1414
+	// Use the correct class for Charges to make the number of charges scale with GREMLIN tier.
+	//Charges = new class'X2AbilityCharges';
+	Charges = new class'X2AbilityCharges_RevivalProtocol';
+	// End Issue #1414
+
 	Charges.InitialCharges = default.REVIVAL_PROTOCOL_CHARGES;
 	Template.AbilityCharges = Charges;
 
@@ -741,7 +749,22 @@ static function X2AbilityTemplate RevivalProtocol()
 	Template.AbilityTargetConditions.AddItem(new class'X2Condition_RevivalProtocol');
 
 	Template.AddTargetEffect(RemoveAdditionalEffectsForRevivalProtocolAndRestorativeMist());
-	Template.AddTargetEffect(new class'X2Effect_RestoreActionPoints');      //  put the unit back to full actions
+
+	// Start Issue #1414
+	/// HL-Docs: ref:Bugfixes; issue:1414
+	/// Fixes the specialist's Revival Protocol and Restoration abilities to make them function as intended.
+	/// 1. Revival Protocol now can target any allied unit, not just units under player's control.
+	/// 2. Revival Protocol and Restoration now properly remove Stun, and no longer recover action points for Disoriented units.
+	/// 3. Revival Protocol now properly gets more Charges with higher GREMLIN tiers.
+	
+	// Add a new condition to this effect, so it does not restore action points if the unit is only stunned or disoriented.
+	RestoreActionPoints = new class'X2Effect_RestoreActionPoints';
+	RestoreActionPoints.TargetConditions.AddItem(new class'X2Condition_RevivalProtocolRestoreAP');
+	Template.AddTargetEffect(RestoreActionPoints);      //  put the unit back to full actions
+
+	// Use a separate effect to restore action points for a stunned unit.
+	Template.AddTargetEffect(class'X2StatusEffects'.static.CreateStunRecoverEffect());
+	// End Issue #1414
 
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
 
@@ -1217,11 +1240,20 @@ static function X2AbilityTemplate RestorativeMist()
 	MedikitHeal.PerUseHP = class'X2Ability_DefaultAbilitySet'.default.MEDIKIT_PERUSEHP;
 	Template.AddMultiTargetEffect(MedikitHeal);	
 
+	// Start Issue #1414
+	// Move this effect to apply before the effects that restore action points 
+	// to ensure the ability's behavior is consistent with Revival Protocol.
+	Template.AddMultiTargetEffect(RemoveAdditionalEffectsForRevivalProtocolAndRestorativeMist());
+
+	// Use a different condition on this effect so it does not grant action points if the unit is only stunned or disoriented.
 	RestoreEffect = new class'X2Effect_RestoreActionPoints';
-	RestoreEffect.TargetConditions.AddItem(new class'X2Condition_RevivalProtocol');
+	//RestoreEffect.TargetConditions.AddItem(new class'X2Condition_RevivalProtocol');
+	RestoreEffect.TargetConditions.AddItem(new class'X2Condition_RevivalProtocolRestoreAP');
 	Template.AddMultiTargetEffect(RestoreEffect);
 
-	Template.AddMultiTargetEffect(RemoveAdditionalEffectsForRevivalProtocolAndRestorativeMist());
+	// Add stun recover effect to restore action points for stunned units.
+	Template.AddMultiTargetEffect(class'X2StatusEffects'.static.CreateStunRecoverEffect());
+	// End Issue #1414
 	
 	//Typical path to build gamestate, but a (very crazy) special-case visualization
 	Template.BuildNewGameStateFn = SendGremlinToOwnerLocation_BuildGameState;
@@ -2111,6 +2143,9 @@ static function X2Effect_RemoveEffects RemoveAdditionalEffectsForRevivalProtocol
 	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.ObsessedName);
 	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.BerserkName);
 	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.ShatteredName);
+
+	// Single Line for Issue #1414 - make Revival Protocol and Restoration remove Stun.
+	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.StunnedName);	
 
 	foreach class'X2Ability_DefaultAbilitySet'.default.MedikitHealEffectTypes(HealType)
 	{

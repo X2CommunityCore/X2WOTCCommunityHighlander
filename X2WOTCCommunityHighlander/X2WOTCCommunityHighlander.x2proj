@@ -589,6 +589,9 @@
     <Content Include="Src\XComGame\Classes\X2Condition_RevivalProtocol.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Condition_RevivalProtocolRestoreAP.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Condition_StasisLanceTarget.uc">
       <SubType>Content</SubType>
     </Content>
