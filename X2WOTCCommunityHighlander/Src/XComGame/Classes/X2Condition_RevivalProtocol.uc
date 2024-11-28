@@ -18,7 +18,8 @@ event name CallMeetsCondition(XComGameState_BaseObject kTarget)
 	if (!TargetUnit.GetMyTemplate().bCanBeRevived || TargetUnit.IsBeingCarried() )
 		return 'AA_UnitIsImmune';
 
-	if (TargetUnit.IsPanicked() || TargetUnit.IsUnconscious() || TargetUnit.IsDisoriented() || TargetUnit.IsDazed())
+	// Issue #1235 - add IsStunned() check to allow Revival Protocol to target stunned units.
+	if (TargetUnit.IsPanicked() || TargetUnit.IsUnconscious() || TargetUnit.IsDisoriented() || TargetUnit.IsDazed() || TargetUnit.IsStunned())
 		return 'AA_Success';
 
 	return 'AA_UnitIsNotImpaired';
@@ -34,8 +35,13 @@ event name CallMeetsConditionWithSource(XComGameState_BaseObject kTarget, XComGa
 	if (SourceUnit == none || TargetUnit == none)
 		return 'AA_NotAUnit';
 
-	if (SourceUnit.ControllingPlayer == TargetUnit.ControllingPlayer)
+	// Start Issue #1235
+	// Replace the controlling player check with a hostility check,
+	// allowing Revival Protocol to target all friendly units instead of just player-controlled units.
+	// if (SourceUnit.ControllingPlayer == TargetUnit.ControllingPlayer)
+	if (SourceUnit.IsFriendlyUnit(TargetUnit))
 		return 'AA_Success';
+	// End Issue #1235
 
 	return 'AA_UnitIsHostile';
 }
