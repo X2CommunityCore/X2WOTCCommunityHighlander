@@ -42,6 +42,9 @@
     <Content Include="Src\DLC_2\Classes\X2Ability_DLC_Day60ViperKing.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\DLC_2\Classes\X2DownloadableContentInfo_DLC_Day60.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\DLC_2\Classes\X2Item_DLC_Day60Armors.uc">
       <SubType>Content</SubType>
     </Content>

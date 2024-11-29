@@ -817,6 +817,9 @@
     <Content Include="Src\XComGame\Classes\XComGameState_AIUnitData.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_AlienNetworkComponent.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_BlackMarket.uc">
       <SubType>Content</SubType>
     </Content>
@@ -830,6 +833,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_EvacZone.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_Haven.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_HeadquartersAlien.uc">
@@ -863,6 +869,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_LadderProgress.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComGameState_MissionCalendar.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameState_MissionSite.uc">
