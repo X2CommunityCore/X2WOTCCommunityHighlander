@@ -345,20 +345,23 @@ static event UpdateDLC()
 	local XComGameStateHistory History;
 	local XComGameState NewGameState;
 	local XComGameState_AlienRulerManager RulerMgr;
-	local UIStrategyMap StrategyMap;
+	// Issue #1417: no longer used
+	//local UIStrategyMap StrategyMap;
 	local bool bUpdated;
 
 	if (class'X2Helpers_DLC_Day60'.static.IsXPackIntegrationEnabled())
 	{
 		History = `XCOMHISTORY;
-		StrategyMap = `HQPRES.StrategyMap2D;
+		// Issue #1417: no longer used
+		//StrategyMap = `HQPRES.StrategyMap2D;
 		RulerMgr = XComGameState_AlienRulerManager(History.GetSingleGameStateObjectForClass(class'XComGameState_AlienRulerManager'));
 		
 		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Update Alien Hunters DLC");
 		RulerMgr = XComGameState_AlienRulerManager(NewGameState.ModifyStateObject(class'XComGameState_AlienRulerManager', RulerMgr.ObjectID));
 		
 		// Don't trigger updates while the Avenger or Skyranger are flying, or if another popup is already being presented
-		if (StrategyMap != none && StrategyMap.m_eUIState != eSMS_Flight && !`HQPRES.ScreenStack.IsCurrentClass(class'UIAlert'))
+		// Issue #1417: Use a more robust check to determine if the game should trigger the update.
+		if (class'CHHelpers'.static.GeoscapeReadyForUpdate())
 		{
 			bUpdated = RulerMgr.ActivateRulerLocations(); // Check for any new rulers getting activated, and set their timers
 			bUpdated = bUpdated || RulerMgr.UpdateRulerLocations();

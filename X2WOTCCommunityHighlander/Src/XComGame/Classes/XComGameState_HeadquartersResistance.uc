@@ -279,14 +279,17 @@ function name SelectNextSoldierClass()
 // returns true if an internal value has changed (lots of time checks)
 function bool Update(XComGameState NewGameState)
 {
-	local UIStrategyMap StrategyMap;
+	// Issue #1417: no longer used
+	//local UIStrategyMap StrategyMap;
 	local bool bUpdated;
 
-	StrategyMap = `HQPRES.StrategyMap2D;
+	// Issue #1417: no longer used
+	//StrategyMap = `HQPRES.StrategyMap2D;
 	bUpdated = false;
 	
 	// Don't trigger end of month while the Avenger or Skyranger are flying, or if another popup is already being presented
-	if (StrategyMap != none && StrategyMap.m_eUIState != eSMS_Flight && !`HQPRES.ScreenStack.IsCurrentClass(class'UIAlert'))
+	// Issue #1417: Use a more robust check to determine if the game should trigger the update.
+	if (class'CHHelpers'.static.GeoscapeReadyForUpdate())
 	{
 		if (!bInactive)
 		{
