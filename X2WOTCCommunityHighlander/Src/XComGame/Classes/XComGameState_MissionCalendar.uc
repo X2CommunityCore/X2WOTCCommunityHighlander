@@ -52,13 +52,16 @@ static function SetupCalendar(XComGameState StartState)
 //---------------------------------------------------------------------------------------
 function bool Update(XComGameState NewGameState)
 {
-	local UIStrategyMap StrategyMap;
+	// Issue #1417: no longer used
+	//local UIStrategyMap StrategyMap;
 	local int idx;
 
-	StrategyMap = `HQPRES.StrategyMap2D;
+	// Issue #1417: no longer used
+	//StrategyMap = `HQPRES.StrategyMap2D;
 
 	// Do not spawn any new missions while the Avenger or Skyranger are flying, or if another popup is already being presented
-	if (StrategyMap != none && StrategyMap.m_eUIState != eSMS_Flight && !`HQPRES.ScreenStack.IsCurrentClass(class'UIAlert'))
+	// Issue #1417: Use a more robust check to determine if the game should trigger the update.
+	if (class'CHHelpers'.static.GeoscapeReadyForUpdate())
 	{
 		// Check for mission events
 		for (idx = 0; idx < CurrentMissionMonth.Length; idx++)

@@ -112,15 +112,18 @@ function bool CanAffordIntelCost()
 function bool Update(XComGameState NewGameState)
 {
 	local XComGameState_HeadquartersAlien AlienHQ;
-	local UIStrategyMap StrategyMap;
+	// Issue #1417: no longer used
+	//local UIStrategyMap StrategyMap;
 	local bool bUpdated;
 	local int HoursToAdd;
 
-	StrategyMap = `HQPRES.StrategyMap2D;
+	// Issue #1417: no longer used
+	//StrategyMap = `HQPRES.StrategyMap2D;
 	bUpdated = false;
 	
 	// Do not modify doom while the Avenger or Skyranger are flying, or if another popup is already being presented
-	if (StrategyMap != none && StrategyMap.m_eUIState != eSMS_Flight && !`HQPRES.ScreenStack.IsCurrentClass(class'UIAlert'))
+	// Issue #1417: Use a more robust check to determine if the game should trigger the update.
+	if (class'CHHelpers'.static.GeoscapeReadyForUpdate())
 	{
 		if (class'X2StrategyGameRulesetDataStructures'.static.LessThan(DoomProjectIntervalEndTime, `STRATEGYRULES.GameTime))
 		{

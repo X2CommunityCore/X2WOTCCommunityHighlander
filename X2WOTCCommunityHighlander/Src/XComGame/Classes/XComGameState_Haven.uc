@@ -58,12 +58,14 @@ static function SetUpHavens(XComGameState StartState)
 // THIS FUNCTION SHOULD RETURN TRUE IN ALL THE SAME CASES AS Update
 function bool ShouldUpdate( )
 {
-	local UIStrategyMap StrategyMap;
+	// Issue #1417: no longer used
+	//local UIStrategyMap StrategyMap;
 
-	StrategyMap = `HQPRES.StrategyMap2D;
+	//StrategyMap = `HQPRES.StrategyMap2D;
 
 	// Do not trigger anything while the Avenger or Skyranger are flying, or if another popup is already being presented
-	if (StrategyMap != none && StrategyMap.m_eUIState != eSMS_Flight && !`HQPRES.ScreenStack.IsCurrentClass( class'UIAlert' ))
+	// Issue #1417: Use a more robust check to determine if the game should trigger the update.
+	if (class'CHHelpers'.static.GeoscapeReadyForUpdate())
 	{
 		if (IsScanComplete( ))
 		{
@@ -80,17 +82,20 @@ function bool Update(XComGameState NewGameState)
 {
 	local XComGameState_HeadquartersXCom XComHQ;
 	local XComGameState_HeadquartersResistance ResHQ;
-	local UIStrategyMap StrategyMap;
+	// Issue #1417: no longer used
+	//local UIStrategyMap StrategyMap;
 	local bool bUpdated;
 	local int IntelRewardAmt;
 
 	XComHQ = class'UIUtilities_Strategy'.static.GetXComHQ();
 	ResHQ = class'UIUtilities_Strategy'.static.GetResistanceHQ();
-	StrategyMap = `HQPRES.StrategyMap2D;
+	// Issue #1417: no longer used
+	//StrategyMap = `HQPRES.StrategyMap2D;
 	bUpdated = false;
 
 	// Do not trigger anything while the Avenger or Skyranger are flying, or if another popup is already being presented
-	if (StrategyMap != none && StrategyMap.m_eUIState != eSMS_Flight && !`HQPRES.ScreenStack.IsCurrentClass(class'UIAlert'))
+	// Issue #1417: Use a more robust check to determine if the game should trigger the update.
+	if (class'CHHelpers'.static.GeoscapeReadyForUpdate())
 	{
 		if (IsScanComplete())
 		{

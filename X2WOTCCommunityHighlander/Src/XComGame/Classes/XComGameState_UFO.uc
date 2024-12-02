@@ -449,7 +449,8 @@ function XComGameState_MissionSiteAvengerDefense CreateAvengerDefenseMission(Sta
 //---------------------------------------------------------------------------------------
 function bool Update(XComGameState NewGameState)
 {
-	local UIStrategyMap StrategyMap;
+	// Issue #1417: no longer used
+	//local UIStrategyMap StrategyMap;
 	local bool bModified;
 
 	bModified = false;
@@ -473,8 +474,9 @@ function bool Update(XComGameState NewGameState)
 		}
 
 		// Do not trigger interception while the Avenger or Skyranger are flying, or if another popup is already being presented
-		StrategyMap = `HQPRES.StrategyMap2D;
-		if (StrategyMap != none && StrategyMap.m_eUIState != eSMS_Flight && !`HQPRES.ScreenStack.IsCurrentClass(class'UIAlert'))
+		// Issue #1417: Use a more robust check to determine if the game should trigger the update.
+		//StrategyMap = `HQPRES.StrategyMap2D;
+		if (class'CHHelpers'.static.GeoscapeReadyForUpdate())
 		{
 			// If we have hit our interception time, become visible, transport to be close to XComHQ, and start the attack
 			if (class'X2StrategyGameRulesetDataStructures'.static.LessThan(InterceptionTime, GetCurrentTime()))

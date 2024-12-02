@@ -466,11 +466,13 @@ function BuildHavenETA(out int MinDays, out int MaxDays)
 // THIS FUNCTION SHOULD RETURN TRUE IN ALL THE SAME CASES AS Update
 function bool ShouldUpdate( )
 {
-	local UIStrategyMap StrategyMap;
-	StrategyMap = `HQPRES.StrategyMap2D;
+	// Issue #1417: no longer used
+	// local UIStrategyMap StrategyMap;
+	// StrategyMap = `HQPRES.StrategyMap2D;
 
 	// Do not trigger anything while the Avenger or Skyranger are flying, or if another popup is already being presented
-	if (StrategyMap != none && StrategyMap.m_eUIState != eSMS_Flight && !`HQPRES.ScreenStack.IsCurrentClass( class'UIAlert' ))
+	// Issue #1417: Use a more robust check to determine if the game should trigger the update.
+	if (class'CHHelpers'.static.GeoscapeReadyForUpdate())
 	{
 		if (bUpdateShortestPathsToMissions)
 		{
@@ -503,14 +505,17 @@ function bool ShouldUpdate( )
 // IF ADDING NEW CASES WHERE bModified = true, UPDATE FUNCTION ShouldUpdate ABOVE
 function bool Update(XComGameState NewGameState)
 {
-	local UIStrategyMap StrategyMap;
+	// Issue #1417: no longer used
+	//local UIStrategyMap StrategyMap;
 	local bool bModified;
 
-	StrategyMap = `HQPRES.StrategyMap2D;
+	// Issue #1417: no longer used
+	//StrategyMap = `HQPRES.StrategyMap2D;
 	bModified = false;
 
 	// Do not trigger anything while the Avenger or Skyranger are flying, or if another popup is already being presented
-	if (StrategyMap != none && StrategyMap.m_eUIState != eSMS_Flight && !`HQPRES.ScreenStack.IsCurrentClass(class'UIAlert'))
+	// Issue #1417: Use a more robust check to determine if the game should trigger the update.
+	if (class'CHHelpers'.static.GeoscapeReadyForUpdate())
 	{
 		if (bUpdateShortestPathsToMissions)
 		{

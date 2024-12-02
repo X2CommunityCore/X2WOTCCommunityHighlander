@@ -1130,3 +1130,19 @@ static final function array<SoldierClassAbilityType> RebuildSoldierClassAbilityT
 	return AbilityTypes;
 }
 // End Issue #815
+
+/// HL-Docs: ref:Bugfixes; issue:1417
+/// This helper function uses a more robust check to ensure the geoscape is ready for alerts.
+/// This replaces functions that only check for the presence of a UIAlert screen, which can
+/// result in popups in places such as Squad Select or the Black Market screen if the campaign date lines up with flight time.
+static function bool GeoscapeReadyForUpdate()
+{
+	local UIStrategyMap StrategyMap;
+
+	StrategyMap = `HQPRES.StrategyMap2D;
+
+	return
+		StrategyMap != none &&
+		StrategyMap.m_eUIState != eSMS_Flight &&
+		StrategyMap.Movie.Pres.ScreenStack.GetCurrentScreen() == StrategyMap;
+}
