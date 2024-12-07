@@ -1380,7 +1380,6 @@ function UnitSpeak(Name nCharSpeech, bool bDeadUnitSound = false)
 	if ((!bDeadUnitSound && !IsAliveAndWell()) || m_kPawn == none)
 		return;
 
-
 	GameStateUnit = GetVisualizedGameState();
 	if (GameStateUnit.IsPanicked())
 	{
@@ -1441,7 +1440,6 @@ function UnitSpeak(Name nCharSpeech, bool bDeadUnitSound = false)
 		if ( !bCivilianSpeechAllowed )
 			return;
 	}
-
 
 	// mark that we played this voice
 	if (nCharSpeech != 'TakingDamage' && nCharSpeech != 'TargetKilled' && nCharSpeech != 'TakingFire' && nCharSpeech != 'HiddenMovement' && nCharSpeech != 'HiddenMovementVox')
@@ -1815,10 +1813,13 @@ simulated function XGInventory GetInventory()
 
 function OnDeath( class<DamageType> DamageType, XGUnit kDamageDealer )
 {
+	
 	local int i;
-	local XGUnit SurvivingUnit;
+//	Issue #1398 - Variable no longer required here - moved to DelaySpeechSquadMemberDead() function
+//	local XGUnit SurvivingUnit;
 	local XGPlayer PlayerToNotify;	
-	local bool kIsRobotic;
+//	Issue #1398 - Variable no longer required here - moved to DelaySpeechSquadMemberDead() function
+//	local bool kIsRobotic;
 
 	UnitSpeak('DeathScream', true);
 
@@ -1854,15 +1855,36 @@ function OnDeath( class<DamageType> DamageType, XGUnit kDamageDealer )
 		m_kConstantCombatUnitTargetingMe.ConstantCombatSuppress(false,none);
 		m_kConstantCombatUnitTargetingMe = none;
 	}
+	// Start Issue #1398 - Code block below no longer needed - moved to DelaySpeechSquadMemberDead() function
+	// RAM - Constant Combat
 
-	//RAM - Constant Combat
+	// SurvivingUnit = GetSquad().GetNextGoodMember();
+	// kIsRobotic = IsRobotic();
+
+	// if (SurvivingUnit != none && !kIsRobotic && !IsAlien_CheckByCharType())
+	//		SurvivingUnit.UnitSpeak( 'SquadMemberDead' );	
+
+	/// HL-Docs: ref:Bugfixes; issue:1398
+	/// This fix adds additional checks to X2Action_ApplyWeaponDamageToUnit, to prevent 'Taking Damage' or 
+	/// 'Critically Wounded' voicelines from playing alongside the 'Death Scream' voiceline if a unit is killed. 
+	/// Additionally, it adds a delay to the 'Squad Member Dead' voicelines to reduce overlapy with deathscream 
+	/// voicelines that may already be playing.
+	SetTimer(class'CHHelpers'.default.fSquadMemberDeadVoicelineDelay, false, 'DelaySpeechSquadMemberDead', self);
+	// End Issue #1398
+}
+// Start Issue #1398
+private function DelaySpeechSquadMemberDead()
+{
+	local XGUnit	SurvivingUnit;	
 
 	SurvivingUnit = GetSquad().GetNextGoodMember();
-	kIsRobotic = IsRobotic();
-
-	if (SurvivingUnit != none && !kIsRobotic && !IsAlien_CheckByCharType())
+	
+	if (SurvivingUnit != none && !IsRobotic() && !IsAlien_CheckByCharType())
+	{
 		SurvivingUnit.UnitSpeak( 'SquadMemberDead' );
+	}
 }
+// End Issue #1398
 
 //-------------------------------------------------------------------------------------
 //---------------------------------- DEBUGGING ----------------------------------------
