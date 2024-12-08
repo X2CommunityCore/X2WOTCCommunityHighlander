@@ -1380,7 +1380,6 @@ function UnitSpeak(Name nCharSpeech, bool bDeadUnitSound = false)
 	if ((!bDeadUnitSound && !IsAliveAndWell()) || m_kPawn == none)
 		return;
 
-
 	GameStateUnit = GetVisualizedGameState();
 	if (GameStateUnit.IsPanicked())
 	{
@@ -1441,7 +1440,6 @@ function UnitSpeak(Name nCharSpeech, bool bDeadUnitSound = false)
 		if ( !bCivilianSpeechAllowed )
 			return;
 	}
-
 
 	// mark that we played this voice
 	if (nCharSpeech != 'TakingDamage' && nCharSpeech != 'TargetKilled' && nCharSpeech != 'TakingFire' && nCharSpeech != 'HiddenMovement' && nCharSpeech != 'HiddenMovementVox')
@@ -1815,10 +1813,17 @@ simulated function XGInventory GetInventory()
 
 function OnDeath( class<DamageType> DamageType, XGUnit kDamageDealer )
 {
+	// Start Issue #1398
+	/// HL-Docs: ref:Bugfixes; issue:1398
+	/// This fix adds additional checks to X2Action_ApplyWeaponDamageToUnit, to prevent 'Taking Damage' or 
+	/// 'Critically Wounded' voicelines from playing alongside the 'Death scream' voiceline if a unit is killed. 
+	/// Additionally, it adds a delay to the 'Squad Member Dead' voicelines to reduce interference with deathscream 
+	/// voicelines that may already be playing.
+	
 	local int i;
-	local XGUnit SurvivingUnit;
+//	local XGUnit SurvivingUnit;
 	local XGPlayer PlayerToNotify;	
-	local bool kIsRobotic;
+//	local bool kIsRobotic;
 
 	UnitSpeak('DeathScream', true);
 
@@ -1857,12 +1862,30 @@ function OnDeath( class<DamageType> DamageType, XGUnit kDamageDealer )
 
 	//RAM - Constant Combat
 
-	SurvivingUnit = GetSquad().GetNextGoodMember();
-	kIsRobotic = IsRobotic();
+//	SurvivingUnit = GetSquad().GetNextGoodMember();
+//	kIsRobotic = IsRobotic();
 
-	if (SurvivingUnit != none && !kIsRobotic && !IsAlien_CheckByCharType())
-		SurvivingUnit.UnitSpeak( 'SquadMemberDead' );
+//	if (SurvivingUnit != none && !kIsRobotic && !IsAlien_CheckByCharType())
+//		SurvivingUnit.UnitSpeak( 'SquadMemberDead' );
+	
+	// Issue #1398 - Add a delay to the squad member death voiceline
+	SetTimer(class'CHHelpers'.default.iSquadMemberDeadVoicelineDelay, false, 'DelaySpeechSquadMemberDead', self);
 }
+
+function DelaySpeechSquadMemberDead()
+{
+	local XGUnit	SurvivingUnit;	
+	local bool		kIsRobotic;
+
+	kIsRobotic = IsRobotic();	
+	SurvivingUnit = GetSquad().GetNextGoodMember();
+	
+	if (SurvivingUnit != none && !kIsRobotic && !IsAlien_CheckByCharType())
+	{
+		SurvivingUnit.UnitSpeak( 'SquadMemberDead' );
+	}
+}
+// End Issue #1398
 
 //-------------------------------------------------------------------------------------
 //---------------------------------- DEBUGGING ----------------------------------------
