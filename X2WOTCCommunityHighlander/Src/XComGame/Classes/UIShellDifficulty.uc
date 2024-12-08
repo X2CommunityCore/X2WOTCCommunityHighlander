@@ -1073,6 +1073,17 @@ function StartIntroMovie()
 		Engine.PlaySpecificLoadingMovie("CIN_TP_Intro.bk2", "X2_001_Intro"); //Play the intro movie as a loading screen
 		Engine.PlayLoadMapMovie(-1);
 	}
+	// Start Issue #1393
+	/// HL-Docs: ref:Bugfixes; issue:1393
+	/// If skipping Intro movies, play the 'floating logo' movie instead of the standard intros. If nothing 
+	/// else plays here when starting a normal campaign, there is a high high chance of a hang on the loading screen. 
+	/// All of the downstream code is native so why this is required is not clear, but presumably some native code
+	/// is expecting to find the end of a movie before initializing the start of the campaign / skyranger.
+	else
+	{
+		Engine.PlaySpecificLoadingMovie("1080_X2_Logo.bk2", "X2_001_Intro");
+	}
+	// End Issue #1393
 	// End Issue #543
 }
 
