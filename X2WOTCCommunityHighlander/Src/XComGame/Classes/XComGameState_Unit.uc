@@ -2406,6 +2406,8 @@ function OnBeginTacticalPlay(XComGameState NewGameState)
 		// This is the value consistent with base-game behavior (before any stat bonuses from abilities, since this is set before any abilities are triggered)
 		// We can't ever let it be cleared, since a "BeginTactical" rule would clean it up when we want to explicitely keep it
 		SetUnitFloatValue('CH_StartMissionWill', GetCurrentStat(eStat_Will), eCleanup_Never);
+
+		CleanupUnitValues(eCleanup_BeginTacticalChain); // issue #559
 	}
 	// End Issue #44
 
@@ -6909,7 +6911,7 @@ protected function OnUnitDied(XComGameState NewGameState, Object CauseOfDeath, c
 					if (RankUpValue.fValue == 0)
 					{
 						EventManager.TriggerEvent('RankUpMessage', Killer, Killer, NewGameState);
-						Killer.SetUnitFloatValue('RankUpMessage', 1, eCleanup_BeginTactical);
+						Killer.SetUnitFloatValue('RankUpMessage', 1, eCleanup_BeginTacticalChain); // issue #559: changed cleanup (was BeginTactical)
 					}
 				}
 
