@@ -1452,7 +1452,7 @@ function UnitSpeak(Name nCharSpeech, bool bDeadUnitSound = false)
 	nHushedSpeech = MaybeUseHushedSpeechInstead(nCharSpeech);
 	nPersonalitySpeech = MaybeAddPersonalityToSpeech(nCharSpeech);
 
-	// Start Issue #1419 - Add an additional condition
+	// Start Issue #1419 - Perform an AkSpeechExists() check before calling m_kPawn.UnitSpeak()
 	if (nHushedSpeech != '' && AkSpeechExists(nHushedSpeech))
 	{
 		m_kPawn.UnitSpeak(nHushedSpeech);
