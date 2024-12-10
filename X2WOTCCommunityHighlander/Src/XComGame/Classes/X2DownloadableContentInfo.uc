@@ -251,6 +251,16 @@ static event OnLoadedSavedGameToTactical()
 }
 //#end issue #647
 
+// Start Issue #1425
+/// HL-Docs: feature:ModifyStrategyStartState; issue:1425; tags:strategy
+/// Called just before transferring from tactical to strategy.
+/// Allows mods to modify the strategy start state.
+static event ModifyStrategyStartState(XComGameState StartState)
+{
+
+}
+// End Issue #1425
+
 /// Start Issue #21
 /// <summary>
 /// Called from XComUnitPawn.DLCAppendSockets
