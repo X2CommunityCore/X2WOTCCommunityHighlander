@@ -1246,6 +1246,8 @@ function ApplyStartOfMatchConditions()
 	local X2HackRewardTemplate Template;
 	local XComGameState NewGameState;
 	local Name HackRewardName, ConcealmentName;
+	// Variable for Issue #1319
+	local XComGameState ConcealmentBrokenGameState;
 
 	History = `XCOMHISTORY;
 
@@ -1266,7 +1268,28 @@ function ApplyStartOfMatchConditions()
 		}
 	}
 	else
-	{
+	{		
+		// Start Issue #1319
+		/// HL-Docs: ref:Bugfixes; issue:1319
+		/// If mission start concealment is disabled by `bForceNoSquadConcealment` flag in BattleData, 
+		/// trigger the `SquadConcealmentBroken` event on mission start. 
+		/// In the base game, this flag is set only by the "High Alert" Dark Event.
+		/// Triggering the event fixes the bug on Supply Extraction missions,
+		/// where ADVENT never starts collecting supply crates if XCOM starts unconcealed,
+		/// because the mission kismet starts the crate collection when the `SquadConcealmentBroken` event is triggered.
+		if (BattleDataState.bForceNoSquadConcealment)
+		{
+			foreach History.IterateByClassType(class'XComGameState_Player', PlayerState)
+			{
+				if (PlayerState.GetTeam() == eTeam_XCom)
+				{
+					ConcealmentBrokenGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Break Mission Start Concealment");
+					`XEVENTMGR.TriggerEvent('SquadConcealmentBroken', PlayerState, PlayerState, ConcealmentBrokenGameState);
+					`TACTICALRULES.SubmitGameState(ConcealmentBrokenGameState);				
+				}
+			}
+		}
+		// End Issue #1319
 		if(!BattleDataState.DirectTransferInfo.IsDirectMissionTransfer) // only apply phantom at the start of the first leg of a multi-part mission
 		{
 			foreach History.IterateByClassType(class'XComGameState_Unit', UnitState)
