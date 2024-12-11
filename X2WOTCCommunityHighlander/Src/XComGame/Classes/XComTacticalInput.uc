@@ -3101,6 +3101,9 @@ function bool ClickToPath()
 	local int ActionIndex;
 	local int TargetIndex;
 	local string ConfirmSound;
+	// Variables for Issue #1420
+	local X2TargetingMethod_ArcWave ArcWaveTargetingMethod;
+	local AvailableTarget AdditionalTargets;
 
 	if(`XCOMVISUALIZATIONMGR.VisualizerBlockingAbilityActivation())
 	{
@@ -3125,6 +3128,34 @@ function bool ClickToPath()
 		// and the targeted unit's location
 		TargetIndex = UnitCache.AvailableActions[ActionIndex].AvailableTargets.Find('PrimaryTarget', PathingPawn.LastTargetObject.GetReference());
 		PathingPawn.GetWaypointTiles(WaypointTiles);
+
+		// Start Issue #1420
+		/// HL-Docs: ref:Bugfixes; issue:1420
+		/// Abilities using X2TargetingMethod_ArcWave will now validate its additional targets when making a right-click pathing attack
+		ArcWaveTargetingMethod = X2TargetingMethod_ArcWave(new AbilityState.GetMyTemplate().TargetingMethod);
+
+		if (ArcWaveTargetingMethod != None)
+		{
+			// Initialize the targetingmethod and set variables that were set incorrectly by parent class
+			ArcWaveTargetingMethod.Init(UnitCache.AvailableActions[ActionIndex], TargetIndex);
+			ArcWaveTargetingMethod.DirectSetTarget(TargetIndex);
+			ArcWaveTargetingMethod.LastDestination = PathingPawn.LastDestinationTile;
+
+			AdditionalTargets = UnitCache.AvailableActions[ActionIndex].AvailableTargets[TargetIndex];
+
+			// Set the amount of additional targets
+			if (ArcWaveTargetingMethod.GetAdditionalTargets(AdditionalTargets))
+			{
+				UnitCache.AvailableActions[ActionIndex].AvailableTargets[TargetIndex] = AdditionalTargets;
+			}
+
+			// Cancel the side-effects caused by initialization of targeting method
+			`CAMERASTACK.RemoveCamera(ArcWaveTargetingMethod.LookAtCamera);
+			`PRES.GetTacticalHUD().CancelTargetingAction();
+			ArcWaveTargetingMethod.Canceled();
+		}
+		// End Issue #1420
+
 		if(TargetIndex != INDEX_NONE && class'XComGameStateContext_Ability'.static.ActivateAbility(UnitCache.AvailableActions[ActionIndex], TargetIndex,,, PathingPawn.PathTiles, WaypointTiles))
 		{
 			//If there is a ConfirmSound for the melee ability, play it
