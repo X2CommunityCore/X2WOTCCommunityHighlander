@@ -264,6 +264,9 @@ var config bool bDisableAimAssist;
 var config bool bForce24hClock;
 var config bool bForce24hclockLeadingZero;
 
+// Variable for Issue #1398 - Number of seconds to wait after a unit is killed before playing the 'OnSquadMemberDead' voiceline
+var config float fSquadMemberDeadVoicelineDelay;
+
 // Start Issue #885
 enum EHLDelegateReturn
 {
