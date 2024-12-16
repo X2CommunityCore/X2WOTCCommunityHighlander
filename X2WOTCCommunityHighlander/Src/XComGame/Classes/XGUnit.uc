@@ -1452,15 +1452,53 @@ function UnitSpeak(Name nCharSpeech, bool bDeadUnitSound = false)
 	nHushedSpeech = MaybeUseHushedSpeechInstead(nCharSpeech);
 	nPersonalitySpeech = MaybeAddPersonalityToSpeech(nCharSpeech);
 
-	if (nHushedSpeech != '')
+	// Start Issue #1419 - Perform an AkSpeechExists() check before calling m_kPawn.UnitSpeak()
+	if (nHushedSpeech != '' && AkSpeechExists(nHushedSpeech))
+	{
 		m_kPawn.UnitSpeak(nHushedSpeech);
-	else if (nPersonalitySpeech != '')
+	}
+	else if (nPersonalitySpeech != '' && AkSpeechExists(nPersonalitySpeech))
+	{
 		m_kPawn.UnitSpeak(nPersonalitySpeech);
-	else
+	}
+	else if (AkSpeechExists(nCharSpeech))
+	{
 		m_kPawn.UnitSpeak(nCharSpeech);
+	}
+	// End Issue #1419
 
 	m_fTimeSinceLastUnitSpeak = 0.0f;
 }
+
+// Start Issue #1419
+/// HL-Docs: ref:Bugfixes; issue:1419
+/// Characters that use WWise to play voicelines no longer attempt to play missing voicelines
+private function bool AkSpeechExists(Name Speech)
+{
+	local string AkEvent;
+	local int SoundIndex;
+
+	// check if unit voice has a WWise SoundBank
+	if (XComHumanPawn(m_kPawn).Voice != None && XComHumanPawn(m_kPawn).Voice.AkBankName != "")
+	{
+		// construct an AkEvent name and attempt to play it
+		AkEvent = "Play_" $ XComHumanPawn(m_kPawn).Voice.AkBankName $ "_" $ string(Speech);
+		SoundIndex = m_kPawn.PlayAkSound(AkEvent);
+
+		// sound exists
+		if (SoundIndex != 0)
+		{
+			m_kPawn.StopAkSound(SoundIndex);
+			return true;
+		}
+
+		return false;
+	}
+
+	// it's a SoundCue-based speech
+	return true;
+}
+// End Issue #1419
 
 function name MaybeUseHushedSpeechInstead(Name nCharSpeech)
 {
