@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>LootTableAPI - X2WOTCCommunityHighlander</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "LootTableAPI";
+        var mkdocs_page_input_path = "tactical/LootTableAPI.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/ini.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/unrealscript.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> X2WOTCCommunityHighlander
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">X2WOTCCommunityHighlander Documentation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Bugfixes/">Bugfixes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../compatibility/">Compatibility</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../customization/">Customization</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../dlc2/">DLC2</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../events/">Events</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../loadoutslots/">Loadout Slots</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../pawns/">Pawns</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../ui/">User Interface</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Misc</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/AdjustPositionOfWeaponPawn/">AdjustPositionOfWeaponPawn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/ArmorEquipRollDLCPartChance/">ArmorEquipRollDLCPartChance</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/BetaStrikeEndTacticalHeal/">BetaStrikeEndTacticalHeal</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/BodyPartTemplateNames/">BodyPartTemplateNames</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/CHDLCHookManager/">CHDLCHookManager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/CHEventListenerTemplate/">CHEventListenerTemplate</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/CanAddItemToInventory/">CanAddItemToInventory</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/ChangeDefaultWeaponColor/">ChangeDefaultWeaponColor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/ClassIsNative/">ClassIsNative</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/ComponentVersions/">ComponentVersions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/CustomInventorySlots/">CustomInventorySlots</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/DLCAppendWeaponSockets/">DLCAppendWeaponSockets</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/DLCRunOrder/">DLCRunOrder</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/DateAndTimeFormattingChanges/">DateAndTimeFormattingChanges</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/DebugStartSecondWave/">DebugStartSecondWave</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/DisplayMultiSlotItems/">DisplayMultiSlotItems</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/EuroDateOverride/">EuroDateOverride</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/GetCrossClassAbilities_CH/">GetCrossClassAbilities_CH</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/GetLocalizedItemCategory/">GetLocalizedItemCategory</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/ItemAddedOrRemovedToSlot/">ItemAddedOrRemovedToSlot</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/MixedCharacterPoolChance/">MixedCharacterPoolChance</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/ModAddedHeads/">ModAddedHeads</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/ModDependencyCheck/">ModDependencyCheck</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/ModifyEarnedSoldierAbilities/">ModifyEarnedSoldierAbilities</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/ModifyGeneratedUnitAppearance/">ModifyGeneratedUnitAppearance</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/OnLoadedSavedGameWithDLCExisting/">OnLoadedSavedGameWithDLCExisting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/OverrideItemImage_Improved/">OverrideItemImage_Improved</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/OverrideStackedClassIcon/">OverrideStackedClassIcon</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/OverrideWeaponScale/">OverrideWeaponScale</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/RequiredHighlanderVersion/">RequiredHighlanderVersion</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/ScreenStackSubClasses/">ScreenStackSubClasses</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/SoundCueNarrativeMoments/">SoundCueNarrativeMoments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/SubscribeToOnInput/">SubscribeToOnInput</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/SubscribeToOnInputForScreen/">SubscribeToOnInputForScreen</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/TintMaterialConfigs/">TintMaterialConfigs</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/UpdateHumanPawnMeshComponent/">UpdateHumanPawnMeshComponent</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/UpdateHumanPawnMeshMaterial/">UpdateHumanPawnMeshMaterial</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../misc/XComLWTuple/">XComLWTuple</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Strategy</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/AfterActionModifyRecoveredLoot/">AfterActionModifyRecoveredLoot</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/AllowNoSquadSizeUpgradeAchievement/">AllowNoSquadSizeUpgradeAchievement</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/AllowOnCovertActionCompleteAnalytics/">AllowOnCovertActionCompleteAnalytics</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/AllowRulerOnMission/">AllowRulerOnMission</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/CanNeverBeRookieCovertAction/">CanNeverBeRookieCovertAction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/CanTechBeInspired/">CanTechBeInspired</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/CanWeaponApplyUpgrade/">CanWeaponApplyUpgrade</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/CovertAction_OverrideCostScalar/">CovertAction_OverrideCostScalar</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/CovertAction_OverrideRewardScalar/">CovertAction_OverrideRewardScalar</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/CovertAction_OverrideRiskStrings/">CovertAction_OverrideRiskStrings</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/CovertAction_PreventGiveRewards/">CovertAction_PreventGiveRewards</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/DynamicSoldierClassDisplay/">DynamicSoldierClassDisplay</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/DynamicSoldierRankDisplay/">DynamicSoldierRankDisplay</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/ExtendHasHeavyWeapon/">ExtendHasHeavyWeapon</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/FirstPromotionOverrideClass/">FirstPromotionOverrideClass</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/Geoscape_ResInfoButtonVisible/">Geoscape_ResInfoButtonVisible</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/GetCovertActionEvents_Settings/">GetCovertActionEvents_Settings</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/GetNumHeavyWeaponSlotsOverride/">GetNumHeavyWeaponSlotsOverride</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/HeadquartersUnitFired/">HeadquartersUnitFired</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/IsWeaponAllowedByClass/">IsWeaponAllowedByClass</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/ItemUpgraded/">ItemUpgraded</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/ModifyStrategyStartState/">ModifyStrategyStartState</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/NonIntegratedAlienRulerLocations/">NonIntegratedAlienRulerLocations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/NonWeaponUpgradeSlots/">NonWeaponUpgradeSlots</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OnBestGearLoadoutApplied/">OnBestGearLoadoutApplied</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OnGetPCSImage/">OnGetPCSImage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverrideAllowStartingRegionLink/">OverrideAllowStartingRegionLink</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverrideCanEquipImplant/">OverrideCanEquipImplant</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverrideCanTakeFacilityMission/">OverrideCanTakeFacilityMission</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverrideDarkEventCount/">OverrideDarkEventCount</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverrideEligibleStartingRegion/">OverrideEligibleStartingRegion</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverrideEligibleTrainingCenterAbilities/">OverrideEligibleTrainingCenterAbilities</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverrideHasAmmoPocket/">OverrideHasAmmoPocket</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverrideHasExtraUtilitySlot/">OverrideHasExtraUtilitySlot</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverrideHasGrenadePocket/">OverrideHasGrenadePocket</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverrideHasHeavyWeapon/">OverrideHasHeavyWeapon</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverrideImageForItemAvaliable/">OverrideImageForItemAvaliable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverrideInjuryClearingFatigueBehavior/">OverrideInjuryClearingFatigueBehavior</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverrideMissionImage/">OverrideMissionImage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverrideNegativeTraitRoll/">OverrideNegativeTraitRoll</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverrideNextRetaliationDisplay/">OverrideNextRetaliationDisplay</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverrideNumUpgradeSlots/">OverrideNumUpgradeSlots</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverridePromotionBlueprintTagPrefix/">OverridePromotionBlueprintTagPrefix</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverridePromotionUIClass/">OverridePromotionUIClass</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverrideRespecSoldierProjectPoints/">OverrideRespecSoldierProjectPoints</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverrideShowPromoteIcon/">OverrideShowPromoteIcon</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverrideStrategyCostString/">OverrideStrategyCostString</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/OverrideTotalNumKills/">OverrideTotalNumKills</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/PhotoboothParticleEffectEnums/">PhotoboothParticleEffectEnums</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/PositiveTraitUI/">PositiveTraitUI</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/PostInventoryLoadoutApplied/">PostInventoryLoadoutApplied</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/PostUFOSetInterceptionTime/">PostUFOSetInterceptionTime</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/PreCompleteStrategyFromTacticalTransfer/">PreCompleteStrategyFromTacticalTransfer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/PreDarkEventDeactivated/">PreDarkEventDeactivated</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/PsiProjectCompleted/">PsiProjectCompleted</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/RegisterInCampaignStart/">RegisterInCampaignStart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/ShowItemInLockerList/">ShowItemInLockerList</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/SitRepCheckAdditionalRequirements/">SitRepCheckAdditionalRequirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/StrategyMap_NavHelpUpdated/">StrategyMap_NavHelpUpdated</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/TemporarilyBlockDarkEventActivation/">TemporarilyBlockDarkEventActivation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/UIAvengerShortcuts_ShowCQResistanceOrders/">UIAvengerShortcuts_ShowCQResistanceOrders</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/UIResistanceReport_ShowCouncil/">UIResistanceReport_ShowCouncil</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/UIScanButtonOnMouseEvent/">UIScanButtonOnMouseEvent</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/UIStrategyPolicy_MiscEvents/">UIStrategyPolicy_MiscEvents</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/UIStrategyPolicy_ScreenInit/">UIStrategyPolicy_ScreenInit</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/UIStrategyPolicy_ShowCovertActionsOnClose/">UIStrategyPolicy_ShowCovertActionsOnClose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/UpdateNavHelp/">UpdateNavHelp</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/ValidateGTSClassTraining/">ValidateGTSClassTraining</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/WillRecoveryTimeModifier/">WillRecoveryTimeModifier</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/WorldRegionGetMeshScale/">WorldRegionGetMeshScale</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../strategy/WorldRegionGetStaticMesh/">WorldRegionGetStaticMesh</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tactical</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../AllowInteractHack/">AllowInteractHack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../BleedingDamageBypassesShields/">BleedingDamageBypassesShields</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../BurningAndPoisonedDamageBypassesShields/">BurningAndPoisonedDamageBypassesShields</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ConsiderAlliesforSoundAlerts/">ConsiderAlliesforSoundAlerts</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../CustomTargetStyles/">CustomTargetStyles</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DamageCalc_ArmorBeforeShield/">DamageCalc_ArmorBeforeShield</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DamageEffectForDamageModifierHooks/">DamageEffectForDamageModifierHooks</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DisableAimAssist/">DisableAimAssist</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DisableExtraLOSCheckForPoison/">DisableExtraLOSCheckForPoison</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DisableExtraLOSCheckForSmoke/">DisableExtraLOSCheckForSmoke</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DisplayCustomOverwatchActionPointOnUnitFlag/">DisplayCustomOverwatchActionPointOnUnitFlag</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DrawDebugLabels/">DrawDebugLabels</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ExtraDamageModifierHooks/">ExtraDamageModifierHooks</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FinalizePlayerStateForTacticalMusic/">FinalizePlayerStateForTacticalMusic</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ForceReapplyOnRefresh/">ForceReapplyOnRefresh</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../GetAdditionalHitModifiers/">GetAdditionalHitModifiers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../GetHitChanceEvents/">GetHitChanceEvents</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../GetStatModifiersFixed/">GetStatModifiersFixed</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../GrenadesRequiringUnitsOnTargetedTiles/">GrenadesRequiringUnitsOnTargetedTiles</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HasHeightAdvantageOverride/">HasHeightAdvantageOverride</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../KismetGameStateMatinee/">KismetGameStateMatinee</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">LootTableAPI</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#refresher-on-loot-tables">Refresher on loot tables</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#new-apis">New APIs</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#loottables">LootTables</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#recalculateloottablechancestatic">RecalculateLootTableChanceStatic</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#addentrystaticremoveentrystatic">AddEntryStatic/RemoveEntryStatic</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#addloottablestaticremoveloottablestatic">AddLootTableStatic/RemoveLootTableStatic</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#example">Example:</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#more-example">More example:</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#source-code-references">Source code references</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../MoreWillRollStats/">MoreWillRollStats</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OnDistributeTacticalGameEndXp/">OnDistributeTacticalGameEndXp</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OverKillDamage/">OverKillDamage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OverrideAbilityIconColor/">OverrideAbilityIconColor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OverrideAbilityIconColorImproved/">OverrideAbilityIconColorImproved</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OverrideCameraRotationAngle/">OverrideCameraRotationAngle</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OverrideClipSize/">OverrideClipSize</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OverrideDamageRemovesReserveActionPoints/">OverrideDamageRemovesReserveActionPoints</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OverrideDisableReinforcementsFlare/">OverrideDisableReinforcementsFlare</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OverrideEncounterZoneAnchorPoint/">OverrideEncounterZoneAnchorPoint</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OverrideEnemyFactionsAlertsOutsideVision/">OverrideEnemyFactionsAlertsOutsideVision</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OverrideHasInfiniteAmmo/">OverrideHasInfiniteAmmo</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OverrideHitEffects/">OverrideHitEffects</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OverrideKillXp/">OverrideKillXp</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OverrideLostSpawnIncreaseFromUse/">OverrideLostSpawnIncreaseFromUse</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OverrideMetaHitEffect/">OverrideMetaHitEffect</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OverridePatrolBehavior/">OverridePatrolBehavior</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OverridePatrolDestination/">OverridePatrolDestination</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OverrideProjectileInstance/">OverrideProjectileInstance</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OverrideReactionFireSlomo/">OverrideReactionFireSlomo</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OverrideUnitFocusUI/">OverrideUnitFocusUI</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PersonalitySpeech/">PersonalitySpeech</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PlaceEvacZoneAbilityName/">PlaceEvacZoneAbilityName</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PostAliensSpawned/">PostAliensSpawned</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PostMissionIntroKismet/">PostMissionIntroKismet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PostModifyNewAbilityContext/">PostModifyNewAbilityContext</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PrioritizeRightClickMelee/">PrioritizeRightClickMelee</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ProjectilePerformanceDrain/">ProjectilePerformanceDrain</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../RequiresTargetingActivation/">RequiresTargetingActivation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ShouldCivilianRun/">ShouldCivilianRun</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ShouldUnitPatrolUnderway/">ShouldUnitPatrolUnderway</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../UseMinDamageForUnitFlagPreview/">UseMinDamageForUnitFlagPreview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../eCleanup_BeginTacticalChain/">eCleanup_BeginTacticalChain</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">X2WOTCCommunityHighlander</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Tactical</li>
+      <li class="breadcrumb-item active">LootTableAPI</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="loottableapi">LootTableAPI</h1>
+<p>Tracking Issue: <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/8">#8</a></p>
+<p>Unprivates <code>LootTables</code> and adds convenience functions for common OPTC loot table operations.</p>
+<h2 id="refresher-on-loot-tables">Refresher on loot tables</h2>
+<p>Consider the simplified struct definitions taken from <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/3c6eba4a22980af2eada617d0c12cf67c45e1ac9/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2TacticalGameRulesetDataStructures.uc#L633-L658"><code>X2TacticalGameRulesetDataStructures</code></a>:</p>
+<pre><code class="language-unrealscript">struct native LootTableEntry
+{
+    var int     Chance;
+    var int     RollGroup;
+    var int     MinCount, MaxCount;
+
+    // Modifier on the chance, multiplicatively applied for each existing Item of type TemplateName acquired:
+    // TotalChance = Chance * ChanceModPerExistingItem ^ NumExistingItems
+    var float   ChanceModPerExistingItem;
+
+    //  NOTE: these two are mutually exclusive, so only one should ever be filled in for a given entry
+    var name    TemplateName;
+    var name    TableRef;
+};
+
+struct native LootTable
+{
+    var name    TableName;
+    var array&lt;LootTableEntry&gt; Loots;
+};
+</code></pre>
+<p>When a unit template says "hey, I drop this kind of loot", it references a given <code>LootTable</code> by name.
+For the common random loot, a random unit is designated as a loot carrier at the start of the mission and its loot is rolled.
+The game then looks at the <code>Loots</code> entries and for every distinct <code>RollGroup</code> the game rolls a number in
+the half-open interval <code>[0; 100[</code> (largest possible number is 99) to choose the item from that <code>RollGroup</code>.</p>
+<p>The game does this by iterating through the <code>LootTableEntry</code> entries with the current <code>RollGroup</code> and subtracting
+its <code>Chance</code> (after applying <code>ChanceModPerExistingItem</code>) from the current chance. If this causes the current chance
+to go below <code>0</code>, this entry has been chosen and the game moves on to the next <code>RollGroup</code>.</p>
+<p>This has a number of non-intuitive consequences:</p>
+<ol>
+<li>Within the same <code>RollGroup</code>s, the chances are not independent; the game may choose 0 or 1 entries from that group.</li>
+<li>If the sum of chances in a <code>RollGroup</code> is <code>x &lt; 100</code>, there is a <code>100 - x</code> percent chance that
+  no entry is chosen and this <code>RollGroup</code> doesn't roll anything.</li>
+<li>If the sum of chances is <code>x = 100</code>, then every entry will have a percent chance to be chosen identical to the
+  <code>Chance</code> of the entry.</li>
+<li>If the sum of chances is <code>x &gt; 100</code>, then the latter entries will actually have a lower chance. Consider entries
+  in the same roll group with chances <code>90</code>, <code>20</code>, <code>10</code>: The first entry will be chosen 9/10 times, the second 1/10 times,
+  and the third never!</li>
+</ol>
+<p>We will discuss later what this means for mods.</p>
+<p>When an entry has been chosen, the game generates between <code>MinCount</code> and <code>MaxCount</code> of the item listed in <code>TemplateName</code>,
+if it is non-empty -- otherwise, the game invokes the aforedescribed algorithm recursively with the table referenced by name in <code>TableRef</code>.</p>
+<h2 id="new-apis">New APIs</h2>
+<p>First and foremost, you need a loot table manager to work with. If you are in a place before templates are validated
+(template creation, <code>OnPostTemplatesCreated</code>), the loot table manager doesn't exist yet and you need to operate on the
+<code>ClassDefaultObject</code>; otherwise just request the loot table manager with the singleton accessor:</p>
+<pre><code class="language-unrealscript">// OPTC or template creation
+LootManager = X2LootTableManager(class'XComEngine'.static.FindClassDefaultObject(&quot;XComGame.X2LootTableManager&quot;));
+// Otherwise
+LootManager = class'X2LootTableManager'.static.GetLootTableManager();
+</code></pre>
+<p>The <code>OPTC</code> context is going to be the most common one, so the below documentation assumes that it's going to be used.</p>
+<h3 id="loottables">LootTables</h3>
+<p>This feature unprivates the otherwise <code>config</code>-only <code>LootTables</code> array. You can pretty much change anything there.
+If your code runs after <code>OnPostTemplatesCreated</code> returns, ensure to call <code>InitLootTables</code> if you add/remove/move
+around tables as a whole (the game maintains a name-&gt;index lookup for efficiency).</p>
+<h3 id="recalculateloottablechancestatic">RecalculateLootTableChanceStatic</h3>
+<ul>
+<li><code>public static function RecalculateLootTableChanceStatic(name TableName, bool bEquallyDistributed = false);</code></li>
+</ul>
+<p><em>A non-static variant for the runtime context also exists: <code>RecalculateLootTableChance</code></em></p>
+<p>Changes the chances for every entry in the table referred to by <code>TableName</code> so that the chances of every <code>RollGroup</code>
+add up to <code>100</code>. If <code>bEquallyDistributed</code> is <code>true</code>, all chances within a roll group will be equal, otherwise the
+proportions between the chances are maintained.</p>
+<p>This is a useful function for when you just want to add some items to existing roll groups of existing tables.
+Your items will naturally be placed at the end of the array, so according to consequence 4, your items might never
+be rolled. Calling this function makes sure your items will have a proportional chance to be rolled.</p>
+<p><strong>Warning:</strong> Some of the latter functions recalculate chances for a given roll group implicitly unless opted out of.</p>
+<p><strong>Warning:</strong> Some <code>RollGroups</code> have chance sums much lower than <code>100</code> so that only sometimes an item from that group
+drops. Carelessly calling <code>RecalculateLootTableChance</code> or forgetting to opt out of recalculating may cause showers of rare loot!</p>
+<h3 id="addentrystaticremoveentrystatic">AddEntryStatic/RemoveEntryStatic</h3>
+<ul>
+<li><code>public static function AddEntryStatic(name TableName, LootTableEntry TableEntry, optional bool bRecalculateChances = true);</code></li>
+<li><code>public static function RemoveEntryStatic(name TableName, LootTableEntry TableEntry, optional bool bRecalculateChances = true);</code></li>
+</ul>
+<p><em>Non-static variants for the runtime context also exist: <code>AddEntry</code>, <code>Remove</code></em></p>
+<p>Adds the entry to the given loot table, or removes it. Unless <code>bRecalculateChances</code> is set to <code>false</code>, also recalculates the
+chances for the entry's <code>RollGroup</code> so that they sum up to 100.</p>
+<h3 id="addloottablestaticremoveloottablestatic">AddLootTableStatic/RemoveLootTableStatic</h3>
+<p>Actually, I have no idea why they exist and they probably don't do what you want them to. Don't use them. If you do,
+also call <code>InitLootTables</code> on the <code>ClassDefaultObject</code>.</p>
+<h2 id="example">Example:</h2>
+<pre><code class="language-unrealscript">// Adds M2 and M3 to ADVENT mid- and end-game loot, respectively
+static event OnPostTemplatesCreated()
+{
+    local LootTableEntry M2Entry, M3Entry;
+
+    M2Entry.Chance = 20;
+    M2Entry.MinCount = 1;
+    M2Entry.MaxCount = 1;
+    M2Entry.TemplateName = 'AdventGremlinM2';
+    // RollGroup 1 is 100% a random Weapon Upgrade. This turns it into 20% Gremlin, 80% upgrade.
+    M2Entry.RollGroup = 1;
+
+    M3Entry = M2Entry;
+    M3Entry.TemplateName = 'AdventGremlinM3';
+
+    class'X2LootTableManager'.static.AddEntryStatic('ADVENTMidTimedLoot', M2Entry, true);
+    class'X2LootTableManager'.static.AddEntryStatic('ADVENTLateTimedLoot', M3Entry, true);
+}
+</code></pre>
+<h2 id="more-example">More example:</h2>
+<p><a href="https://steamcommunity.com/workshop/filedetails/?id=1280477867">Musashis RPG Overhaul</a> uses this feature. Feel free to peruse <a href="https://github.com/Musashi1584/RPGO/blob/6d75558880e3dfd60c8fab259bd5283ca9def307/XCOM2RPGOverhaul/Src/XCOM2RPGOverhaul/Classes/X2TemplateHelper_ExtendedUpgrades.uc#L418-L447">its source code!</a></p>
+<h2 id="source-code-references">Source code references</h2>
+<ul>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2LootTable.uc#L25-L161">X2LootTable.uc:25-161</a></li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../KismetGameStateMatinee/" class="btn btn-neutral float-left" title="KismetGameStateMatinee"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../MoreWillRollStats/" class="btn btn-neutral float-right" title="MoreWillRollStats">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../KismetGameStateMatinee/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../MoreWillRollStats/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../js/extra.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
