@@ -662,16 +662,21 @@ simulated state Executing
 		{
 			Unit.UnitSpeak('ArmorHit');
 		}
-		else if(m_iShielded > 0 || m_iDamage > 0)
-		{
+		// Issue #1398 - Don't play 'Taking Damage' voiceline if unit was killed or incapacitated
+		else if((m_iShielded > 0 || m_iDamage > 0) && !bGoingToDeathOrKnockback)
+		{	
 			Unit.UnitSpeak('TakingDamage');
 		}
 	}
 
 	simulated function ShowCritMessage(EWidgetColor SuccessfulAttackColor, EWidgetColor UnsuccessfulAttackColor)
 	{
-		Unit.UnitSpeak('CriticallyWounded');
-		
+		// Start Issue #1398 - Don't play 'Critically Wounded' voiceline if unit was killed or incapacitated
+		If(!bGoingToDeathOrKnockback)
+		{
+			Unit.UnitSpeak('CriticallyWounded');
+		}
+		// End Issue #1398
 		if( m_iShredded > 0 )
 		{
 			ShowShreddedMessage(SuccessfulAttackColor);
@@ -713,7 +718,8 @@ simulated state Executing
 		{
 			Unit.UnitSpeak('ArmorHit');
 		}
-		else if(m_iShielded > 0 || m_iDamage > 0)
+		// Issue #1398 - Don't play 'Taking Damage' voiceline if unit was killed or incapacitated
+		else if((m_iShielded > 0 || m_iDamage > 0) && !bGoingToDeathOrKnockback)
 		{
 			Unit.UnitSpeak('TakingDamage');
 		}
