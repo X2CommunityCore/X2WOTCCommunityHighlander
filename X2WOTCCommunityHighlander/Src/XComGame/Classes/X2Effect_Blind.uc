@@ -74,6 +74,7 @@ simulated function AddX2ActionsForVisualization_Removed(XComGameState VisualizeG
 
 DefaultProperties
 {
+	DamageTypes(0) = "Blind" // Single line for Issue #1428
 	bIsImpairing=true
 	DuplicateResponse=eDupe_Refresh
 }
