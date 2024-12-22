@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Bugfixes - X2WOTCCommunityHighlander</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Bugfixes";
+        var mkdocs_page_input_path = "Bugfixes.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/ini.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/unrealscript.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> X2WOTCCommunityHighlander
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">X2WOTCCommunityHighlander Documentation</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Bugfixes</a>
+    <ul class="current">
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../compatibility/">Compatibility</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../customization/">Customization</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../dlc2/">DLC2</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../events/">Events</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../loadoutslots/">Loadout Slots</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../pawns/">Pawns</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ui/">User Interface</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Misc</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/AdjustPositionOfWeaponPawn/">AdjustPositionOfWeaponPawn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/ArmorEquipRollDLCPartChance/">ArmorEquipRollDLCPartChance</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/BetaStrikeEndTacticalHeal/">BetaStrikeEndTacticalHeal</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/BodyPartTemplateNames/">BodyPartTemplateNames</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/CHDLCHookManager/">CHDLCHookManager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/CHEventListenerTemplate/">CHEventListenerTemplate</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/CanAddItemToInventory/">CanAddItemToInventory</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/ChangeDefaultWeaponColor/">ChangeDefaultWeaponColor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/ClassIsNative/">ClassIsNative</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/ComponentVersions/">ComponentVersions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/CustomInventorySlots/">CustomInventorySlots</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/DLCAppendWeaponSockets/">DLCAppendWeaponSockets</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/DLCRunOrder/">DLCRunOrder</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/DateAndTimeFormattingChanges/">DateAndTimeFormattingChanges</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/DebugStartSecondWave/">DebugStartSecondWave</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/DisplayMultiSlotItems/">DisplayMultiSlotItems</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/EuroDateOverride/">EuroDateOverride</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/GetCrossClassAbilities_CH/">GetCrossClassAbilities_CH</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/GetLocalizedItemCategory/">GetLocalizedItemCategory</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/ItemAddedOrRemovedToSlot/">ItemAddedOrRemovedToSlot</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/MixedCharacterPoolChance/">MixedCharacterPoolChance</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/ModAddedHeads/">ModAddedHeads</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/ModDependencyCheck/">ModDependencyCheck</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/ModifyEarnedSoldierAbilities/">ModifyEarnedSoldierAbilities</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/ModifyGeneratedUnitAppearance/">ModifyGeneratedUnitAppearance</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/OnLoadedSavedGameWithDLCExisting/">OnLoadedSavedGameWithDLCExisting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/OverrideItemImage_Improved/">OverrideItemImage_Improved</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/OverrideStackedClassIcon/">OverrideStackedClassIcon</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/OverrideWeaponScale/">OverrideWeaponScale</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/RequiredHighlanderVersion/">RequiredHighlanderVersion</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/ScreenStackSubClasses/">ScreenStackSubClasses</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/SoundCueNarrativeMoments/">SoundCueNarrativeMoments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/SubscribeToOnInput/">SubscribeToOnInput</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/SubscribeToOnInputForScreen/">SubscribeToOnInputForScreen</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/TintMaterialConfigs/">TintMaterialConfigs</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/UpdateHumanPawnMeshComponent/">UpdateHumanPawnMeshComponent</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/UpdateHumanPawnMeshMaterial/">UpdateHumanPawnMeshMaterial</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../misc/XComLWTuple/">XComLWTuple</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Strategy</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/AfterActionModifyRecoveredLoot/">AfterActionModifyRecoveredLoot</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/AllowNoSquadSizeUpgradeAchievement/">AllowNoSquadSizeUpgradeAchievement</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/AllowOnCovertActionCompleteAnalytics/">AllowOnCovertActionCompleteAnalytics</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/AllowRulerOnMission/">AllowRulerOnMission</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/CanNeverBeRookieCovertAction/">CanNeverBeRookieCovertAction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/CanTechBeInspired/">CanTechBeInspired</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/CanWeaponApplyUpgrade/">CanWeaponApplyUpgrade</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/CovertAction_OverrideCostScalar/">CovertAction_OverrideCostScalar</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/CovertAction_OverrideRewardScalar/">CovertAction_OverrideRewardScalar</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/CovertAction_OverrideRiskStrings/">CovertAction_OverrideRiskStrings</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/CovertAction_PreventGiveRewards/">CovertAction_PreventGiveRewards</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/DynamicSoldierClassDisplay/">DynamicSoldierClassDisplay</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/DynamicSoldierRankDisplay/">DynamicSoldierRankDisplay</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/ExtendHasHeavyWeapon/">ExtendHasHeavyWeapon</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/FirstPromotionOverrideClass/">FirstPromotionOverrideClass</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/Geoscape_ResInfoButtonVisible/">Geoscape_ResInfoButtonVisible</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/GetCovertActionEvents_Settings/">GetCovertActionEvents_Settings</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/GetNumHeavyWeaponSlotsOverride/">GetNumHeavyWeaponSlotsOverride</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/HeadquartersUnitFired/">HeadquartersUnitFired</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/IsWeaponAllowedByClass/">IsWeaponAllowedByClass</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/ItemUpgraded/">ItemUpgraded</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/ModifyStrategyStartState/">ModifyStrategyStartState</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/NonIntegratedAlienRulerLocations/">NonIntegratedAlienRulerLocations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/NonWeaponUpgradeSlots/">NonWeaponUpgradeSlots</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OnBestGearLoadoutApplied/">OnBestGearLoadoutApplied</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OnGetPCSImage/">OnGetPCSImage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverrideAllowStartingRegionLink/">OverrideAllowStartingRegionLink</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverrideCanEquipImplant/">OverrideCanEquipImplant</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverrideCanTakeFacilityMission/">OverrideCanTakeFacilityMission</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverrideDarkEventCount/">OverrideDarkEventCount</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverrideEligibleStartingRegion/">OverrideEligibleStartingRegion</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverrideEligibleTrainingCenterAbilities/">OverrideEligibleTrainingCenterAbilities</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverrideHasAmmoPocket/">OverrideHasAmmoPocket</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverrideHasExtraUtilitySlot/">OverrideHasExtraUtilitySlot</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverrideHasGrenadePocket/">OverrideHasGrenadePocket</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverrideHasHeavyWeapon/">OverrideHasHeavyWeapon</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverrideImageForItemAvaliable/">OverrideImageForItemAvaliable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverrideInjuryClearingFatigueBehavior/">OverrideInjuryClearingFatigueBehavior</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverrideMissionImage/">OverrideMissionImage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverrideNegativeTraitRoll/">OverrideNegativeTraitRoll</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverrideNextRetaliationDisplay/">OverrideNextRetaliationDisplay</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverrideNumUpgradeSlots/">OverrideNumUpgradeSlots</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverridePromotionBlueprintTagPrefix/">OverridePromotionBlueprintTagPrefix</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverridePromotionUIClass/">OverridePromotionUIClass</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverrideRespecSoldierProjectPoints/">OverrideRespecSoldierProjectPoints</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverrideShowPromoteIcon/">OverrideShowPromoteIcon</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverrideStrategyCostString/">OverrideStrategyCostString</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/OverrideTotalNumKills/">OverrideTotalNumKills</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/PhotoboothParticleEffectEnums/">PhotoboothParticleEffectEnums</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/PositiveTraitUI/">PositiveTraitUI</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/PostInventoryLoadoutApplied/">PostInventoryLoadoutApplied</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/PostUFOSetInterceptionTime/">PostUFOSetInterceptionTime</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/PreCompleteStrategyFromTacticalTransfer/">PreCompleteStrategyFromTacticalTransfer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/PreDarkEventDeactivated/">PreDarkEventDeactivated</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/PsiProjectCompleted/">PsiProjectCompleted</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/RegisterInCampaignStart/">RegisterInCampaignStart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/ShowItemInLockerList/">ShowItemInLockerList</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/SitRepCheckAdditionalRequirements/">SitRepCheckAdditionalRequirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/StrategyMap_NavHelpUpdated/">StrategyMap_NavHelpUpdated</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/TemporarilyBlockDarkEventActivation/">TemporarilyBlockDarkEventActivation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/UIAvengerShortcuts_ShowCQResistanceOrders/">UIAvengerShortcuts_ShowCQResistanceOrders</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/UIResistanceReport_ShowCouncil/">UIResistanceReport_ShowCouncil</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/UIScanButtonOnMouseEvent/">UIScanButtonOnMouseEvent</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/UIStrategyPolicy_MiscEvents/">UIStrategyPolicy_MiscEvents</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/UIStrategyPolicy_ScreenInit/">UIStrategyPolicy_ScreenInit</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/UIStrategyPolicy_ShowCovertActionsOnClose/">UIStrategyPolicy_ShowCovertActionsOnClose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/UpdateNavHelp/">UpdateNavHelp</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/ValidateGTSClassTraining/">ValidateGTSClassTraining</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/WillRecoveryTimeModifier/">WillRecoveryTimeModifier</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/WorldRegionGetMeshScale/">WorldRegionGetMeshScale</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../strategy/WorldRegionGetStaticMesh/">WorldRegionGetStaticMesh</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tactical</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/AllowInteractHack/">AllowInteractHack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/BleedingDamageBypassesShields/">BleedingDamageBypassesShields</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/BurningAndPoisonedDamageBypassesShields/">BurningAndPoisonedDamageBypassesShields</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/ConsiderAlliesforSoundAlerts/">ConsiderAlliesforSoundAlerts</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/CustomTargetStyles/">CustomTargetStyles</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/DamageCalc_ArmorBeforeShield/">DamageCalc_ArmorBeforeShield</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/DamageEffectForDamageModifierHooks/">DamageEffectForDamageModifierHooks</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/DisableAimAssist/">DisableAimAssist</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/DisableExtraLOSCheckForPoison/">DisableExtraLOSCheckForPoison</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/DisableExtraLOSCheckForSmoke/">DisableExtraLOSCheckForSmoke</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/DisplayCustomOverwatchActionPointOnUnitFlag/">DisplayCustomOverwatchActionPointOnUnitFlag</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/DrawDebugLabels/">DrawDebugLabels</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/ExtraDamageModifierHooks/">ExtraDamageModifierHooks</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/FinalizePlayerStateForTacticalMusic/">FinalizePlayerStateForTacticalMusic</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/ForceReapplyOnRefresh/">ForceReapplyOnRefresh</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/GetAdditionalHitModifiers/">GetAdditionalHitModifiers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/GetHitChanceEvents/">GetHitChanceEvents</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/GetStatModifiersFixed/">GetStatModifiersFixed</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/GrenadesRequiringUnitsOnTargetedTiles/">GrenadesRequiringUnitsOnTargetedTiles</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/HasHeightAdvantageOverride/">HasHeightAdvantageOverride</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/KismetGameStateMatinee/">KismetGameStateMatinee</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/LootTableAPI/">LootTableAPI</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/MoreWillRollStats/">MoreWillRollStats</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/OnDistributeTacticalGameEndXp/">OnDistributeTacticalGameEndXp</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/OverKillDamage/">OverKillDamage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/OverrideAbilityIconColor/">OverrideAbilityIconColor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/OverrideAbilityIconColorImproved/">OverrideAbilityIconColorImproved</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/OverrideCameraRotationAngle/">OverrideCameraRotationAngle</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/OverrideClipSize/">OverrideClipSize</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/OverrideDamageRemovesReserveActionPoints/">OverrideDamageRemovesReserveActionPoints</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/OverrideDisableReinforcementsFlare/">OverrideDisableReinforcementsFlare</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/OverrideEncounterZoneAnchorPoint/">OverrideEncounterZoneAnchorPoint</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/OverrideEnemyFactionsAlertsOutsideVision/">OverrideEnemyFactionsAlertsOutsideVision</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/OverrideHasInfiniteAmmo/">OverrideHasInfiniteAmmo</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/OverrideHitEffects/">OverrideHitEffects</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/OverrideKillXp/">OverrideKillXp</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/OverrideLostSpawnIncreaseFromUse/">OverrideLostSpawnIncreaseFromUse</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/OverrideMetaHitEffect/">OverrideMetaHitEffect</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/OverridePatrolBehavior/">OverridePatrolBehavior</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/OverridePatrolDestination/">OverridePatrolDestination</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/OverrideProjectileInstance/">OverrideProjectileInstance</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/OverrideReactionFireSlomo/">OverrideReactionFireSlomo</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/OverrideUnitFocusUI/">OverrideUnitFocusUI</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/PersonalitySpeech/">PersonalitySpeech</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/PlaceEvacZoneAbilityName/">PlaceEvacZoneAbilityName</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/PostAliensSpawned/">PostAliensSpawned</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/PostMissionIntroKismet/">PostMissionIntroKismet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/PostModifyNewAbilityContext/">PostModifyNewAbilityContext</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/PrioritizeRightClickMelee/">PrioritizeRightClickMelee</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/ProjectilePerformanceDrain/">ProjectilePerformanceDrain</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/RequiresTargetingActivation/">RequiresTargetingActivation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/ShouldCivilianRun/">ShouldCivilianRun</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/ShouldUnitPatrolUnderway/">ShouldUnitPatrolUnderway</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/UseMinDamageForUnitFlagPreview/">UseMinDamageForUnitFlagPreview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tactical/eCleanup_BeginTacticalChain/">eCleanup_BeginTacticalChain</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">X2WOTCCommunityHighlander</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Bugfixes</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="bugfixes">Bugfixes</h1>
+<p>This page accomodates all bug fixes that do not deserve their own documentation page, as they are simple enough to be entirely explained by a single line.</p>
+<ul>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/20">#20</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability.uc#L1517-L1518">X2Ability.uc:1517-1518</a>: Reaper's Banish now properly visualizes subsequent shots.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/33">#33</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XGUnitNativeBase.uc#L543-L544">XGUnitNativeBase.uc:543-544</a>: Gremlins owned by AI units now correctly use fast walk animations even if their owner is in Red Alert</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/36">#36</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2TacticalGameRuleset.uc#L4814-L4815">X2TacticalGameRuleset.uc:4814-4815</a>: Do not clear Reinforcements' "Summoning Sickness" when interrupted by Skirmisher, denying them an erronous bonus turn.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/39">#39</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIArmory_WeaponUpgrade.uc#L558-L559">UIArmory_WeaponUpgrade.uc:558-559</a>: Create weapon pawn before setting PawnLocationTag so that the weapon can rotate when previewing weapon upgrades.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/42">#42</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Action_ApplyWeaponDamageToUnit.uc#L1286-L1287">X2Action_ApplyWeaponDamageToUnit.uc:1286-1287</a>: Prevent X2Action_ApplyWeaponDamageToUnit from resetting unit's weapons to default sockets if the unit is interrupted.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/51">#51</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComGameState_AdventChosen.uc#L264-L265">XComGameState_AdventChosen.uc:264-265</a>: Prevent Assassin from gaining perks incompatible with forced "Shadowstep" in Lost and Abandoned</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/55">#55</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/CHItemSlot.uc#L349-L350">CHItemSlot.uc:349-350</a>: Check a soldier's <code>NeedsSecondaryWeapon</code> everywhere instead of hardcoding based on Rookie rank</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/70">#70</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/CharacterPoolManager.uc#L449-L450">CharacterPoolManager.uc:449-450</a>: <code>CharacterPoolManager:CreateCharacter</code> now honors ForceCountry</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/95">#95</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComGameState_Unit.uc#L13835-L13836">XComGameState_Unit.uc:13835-13836</a>: <code>ResetRankToRookie</code> now correctly applies Beta Strike HP bonuses</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/160">#160</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIOptionsPCScreen.uc#L3148-L3149">UIOptionsPCScreen.uc:3148-3149</a>: <code>UIOptionsPCScreen</code> now shows all part pack sliders, adding a scroll bar if needed</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/215">#215</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XGUnit.uc#L1532-L1533">XGUnit.uc:1532-1533</a>: Units are now allowed to have personality speech (affected by personality) even below "Veteran" rank</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/269">#269</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComIdleAnimationStateMachine.uc#L1101-L1102">XComIdleAnimationStateMachine.uc:1101-1102</a>: Fix some edge cases in <code>XComIdleAnimationStateMachine</code> regarding idle animations, targeting, and step-outs</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/273">#273</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability.uc#L1571-L1572">X2Ability.uc:1571-1572</a>: Fix an issue causing Rapid Fire/Chain Shot/Banish/... entering cover early</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/303">#303</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UITooltipInfoList.uc#L98-L99">UITooltipInfoList.uc:98-99</a>: <code>UITooltipInfoList</code> no longer displays stale data like weapon upgrades from other units</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/318">#318</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Camera_Cinescript.uc#L528-L529">X2Camera_Cinescript.uc:528-529</a>: Fix Cinescript <code>CutAfterPrevious</code> not working in combination with <code>MatineeReplacements</code>, breaking Spark BIT hack camera</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/326">#326</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Action_ApplyWeaponDamageToUnit.uc#L205-L207">X2Action_ApplyWeaponDamageToUnit.uc:205-207</a>: Allow damage flyovers from weapon-less Psi abilities to use the Psi damage popup
+(e.g. Effect Damage from X2Effect_ApplyWeaponDamage, PsiBombStage2 &amp; modded abilities)</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/346">#346</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2AbilityToHitCalc_StandardAim.uc#L387-L388">X2AbilityToHitCalc_StandardAim.uc:387-388</a>: Prevent <code>X2AbilityToHitCalc_StandardAim</code> from applying BuiltInHitMod and BuiltInCritMod against non-units.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/350">#350</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComCharacterCustomization.uc#L546-L548">XComCharacterCustomization.uc:546-548</a>: Updates various classes (XComCharacterCustomization, XCGS_Unit, XComHumanPawn and XGCharacterGenerator)
+to carry out proper validation and selection of valid body parts on soldiers when other parts are changed in the armory.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/367">#367</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComGameState_Item.uc#L486-L487">XComGameState_Item.uc:486-487</a>: Gremlins now correctly die when the Gremlin's owner dies while the Gremlin is attached to another unit.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/376">#376</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XGUnit.uc#L3748-L3749">XGUnit.uc:3748-3749</a>: Gremlins (and other Cosmetic Units) are now correctly tinted and patterned</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/379">#379</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/Components/DLC2CommunityHighlander/DLC2CommunityHighlander/Src/DLC_2/Classes/XComGameState_HuntersLodgeManager.uc#L181-L183">XComGameState_HuntersLodgeManager.uc:181-183</a>: Check if the Chosen is defeated to determine whether the Hunter's Lodge should display their trophy,
+rather than checking if XCOM has researched their weapons.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/380">#380</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComCharacterCustomization.uc#L825-L826">XComCharacterCustomization.uc:825-826</a>: Update cosmetic pawns when secondary armor color is changed as well as primary</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/380">#380</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComUnitPawn.uc#L2313-L2314">XComUnitPawn.uc:2313-2314</a>: Ensure that the appearence of cosmetic unit pawns is updated properly, even when a new pawn is not created</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/384">#384</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComHumanPawn.uc#L2370-L2371">XComHumanPawn.uc:2370-2371</a>: Remove cosmetics from separate Left and Right Arm slots when updating Appearance to one that includes a cosmetic body part for both Arms in one slot.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/384">#384</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComHumanPawn.uc#L2437-L2438">XComHumanPawn.uc:2437-2438</a>: Allow <code>bForcedAppearance</code> to work with new deco slots added with Anarchy Children and WOTC.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/384">#384</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XGCharacterGenerator.uc#L714-L715">XGCharacterGenerator.uc:714-715</a>: Randomize deco slots only if the character template is not using <code>bForceAppearance</code>.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/426">#426</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2AbilityToHitCalc_StandardAim.uc#L201-L202">X2AbilityToHitCalc_StandardAim.uc:201-202</a>: Fix <code>X2AbilityToHitCalc_StandardAim</code> discarding unfavorable (for XCOM) changes to hit results from effects</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/493">#493</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2AbilityToHitCalc_StandardAim.uc#L762-L763">X2AbilityToHitCalc_StandardAim.uc:762-763</a>: Allow <code>REACTION_DASHING_FINALMOD</code> to reduce reaction fire hit chance against dashing targets</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/496">#496</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_Chosen.uc#L1569-L1570">X2Ability_Chosen.uc:1569-1570</a>: Fix the timeout during Chosen death teleport visualization by refactoring ChosenDefeatedEscape_BuildVisualization.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/503">#503</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XGAIBehavior.uc#L9658-L9659">XGAIBehavior.uc:9658-9659</a>: "Flying" pod leaders now patrol despite non-flat tiles on their paths</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/508">#508</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComGameState_AIGroup.uc#L422-L423">XComGameState_AIGroup.uc:422-423</a>: Patrol logic now ensures units do not attempt to patrol outside of the map which would cause them to stop patrolling</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/520">#520</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2MeleePathingPawn.uc#L186-L187">X2MeleePathingPawn.uc:186-187</a>: Controller input now allows choosing melee attack destination tile despite floor differences</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/531">#531</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_ChosenAssassin.uc#L565-L566">X2Ability_ChosenAssassin.uc:565-566</a>: Assassin gains a temporary instead of permanently stacking mobility boost from performing a melee attack</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/551">#551</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Action_SwapTeams.uc#L48-L49">X2Action_SwapTeams.uc:48-49</a>: Rescue rings no longer disappear on other rescuable units after a neutral unit swaps to team XCom</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/557">#557</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComGameState_Unit.uc#L2434-L2435">XComGameState_Unit.uc:2434-2435</a>: Soldiers that have been carried out of a mission are no longer unable to be carried out of a later mission</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/608">#608</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComGameState_Unit.uc#L4463-L4464">XComGameState_Unit.uc:4463-4464</a>: <code>MergeAmmoAsNeeded</code> now also works for units spawned from the Avenger</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/609">#609</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComGameState_Unit.uc#L8172-L8173">XComGameState_Unit.uc:8172-8173</a>: Apply weapon customization from soldier appearance when equipping weapons.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/613">#613</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIX2PanelHeader.uc#L53-L54">UIX2PanelHeader.uc:53-54</a>: <code>SetText</code> now sends text to flash instead of requiring calling <code>SetHeaderWidth</code></li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/617">#617</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2TargetingMethod_RocketLauncher.uc#L44-L45">X2TargetingMethod_RocketLauncher.uc:44-45</a>: Ray trace from the peek tile to the target, not from the unit tile to the peek tile.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/637">#637</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComGameState_Unit.uc#L14734-L14735">XComGameState_Unit.uc:14734-14735</a>: Will recovery project and soldier mental state are now consistent with each other, fixing Shaken/Tired soldiers occasionally recovering instantly</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/638">#638</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIScanButton.uc#L278-L279">UIScanButton.uc:278-279</a>: UIScanButton can now work properly when it's a grandchild of UIStrategyMapItem, not only when direct child</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/644">#644</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_DefaultAbilitySet.uc#L426-L427">X2Ability_DefaultAbilitySet.uc:426-427</a>: Allow patrolling units to occupy the same tile instead of teleporting to <code>(0,0,0)</code> when out of space, potentially revealing XCOM</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/648">#648</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIHackingScreen.uc#L410-L411">UIHackingScreen.uc:410-411</a>: Cancelling a hack in progress using <code>Esc</code> no longer bypasses Haywire's cooldown</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/682">#682</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComGameState_Unit.uc#L6979-L6981">XComGameState_Unit.uc:6979-6981</a>: Zombies will no longer drop loot. Only affects mods that destroy
+loot when killing units with explosives.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/701">#701</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIArmory_LoadoutItem.uc#L78-L79">UIArmory_LoadoutItem.uc:78-79</a>: Allows armory UI to highlight the item the player needs to build during the tutorial even if it's not the item with the exact template name <code>'Medikit'</code></li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/775">#775</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XGBase.uc#L263-L264">XGBase.uc:263-264</a>: Applying facility upgrades before the facility map is loaded no longer crashes the game.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/817">#817</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIOptionsPCScreen.uc#L1544-L1545">UIOptionsPCScreen.uc:1544-1545</a>: Disable the Framerate Smoothing option, as it's known to break Mod Class Overrides.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/824">#824</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComGameState_Unit.uc#L2581-L2583">XComGameState_Unit.uc:2581-2583</a>: Units that are still stunned when a mission ends no longer lose action points
+at the start of their next mission.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/861">#861</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIStaffSlot.uc#L223-L227">UIStaffSlot.uc:223-227</a>: By default, UIStaffSlot removes highlighting when a personnel is selected.
+However, the slot still has navigator focus, and should remain highlighted.
+This only affects controllers since the mouse has moved off the button at
+this point. If a controller is active, don't let the game un-highlight it.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/862">#862</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIStaffSlot.uc#L405-L408">UIStaffSlot.uc:405-408</a>: By default, UIStaffSlot will blink on and off a staff slot that "loses"
+focus when focus doesn't belong to it in the first place. Make sure to
+only change focus if the element is not already in the destination focus state</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/866">#866</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIStaffContainer.uc#L58-L60">UIStaffContainer.uc:58-60</a>: By default, UIStaffContainer tries to shortcut which UIPanel should receive focus,
+but the shortcut is often wrong and the time it saves is negligible, so this bypasses it.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/879">#879</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability.uc#L815-L816">X2Ability.uc:815-816</a>: Use HistoryIndex to access the AbilityState as it was when the ability was activated rather than getting the most recent version.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/879">#879</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability.uc#L834-L835">X2Ability.uc:834-835</a>: Use HistoryIndex to access the WeaponState as it was when the ability was activated rather than getting the most recent version.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/880">#880</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIArmory_WeaponUpgrade.uc#L750-L751">UIArmory_WeaponUpgrade.uc:750-751</a>: Remove unnecessary text coloring from the weapon pattern value text.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/896">#896</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Effect_ApplyWeaponDamage.uc#L476-L478">X2Effect_ApplyWeaponDamage.uc:476-478</a>: Call the (hopefully) relevant delegate, if this weapon upgrade has it.
+This makes the guaranteed damage on missed shots added by Stocks properly benefit from Insider Knowledge</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/896">#896</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Effect_ApplyWeaponDamage.uc#L855-L857">X2Effect_ApplyWeaponDamage.uc:855-857</a>: Call the (hopefully) relevant delegate, if this weapon upgrade has it.
+This makes the guaranteed damage on missed shots added by Stocks properly benefit from Insider Knowledge</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/896">#896</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Effect_LaserSight.uc#L28-L29">X2Effect_LaserSight.uc:28-29</a>: Add bonus crit if Insider Knowledge is present.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/924">#924</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIChoosePsiAbility.uc#L211-L212">UIChoosePsiAbility.uc:211-212</a>: Prevent the psi ability training screen from showing duplicate abilities</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/927">#927</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComGameState_GeoscapeEntity.uc#L311-L314">XComGameState_GeoscapeEntity.uc:311-314</a>: When cancelling out of squad select or mission launch, the selected map
+item will now return back to the mission rather than the Avenger (affects
+controller users).</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/952">#952</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIChosenInfo.uc#L56-L57">UIChosenInfo.uc:56-57</a>: Focus the top Chosen button when the screen is opened.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/952">#952</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIChosenInfo.uc#L431-L432">UIChosenInfo.uc:431-432</a>: Fix typo in the MC function call.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/990">#990</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_HackRewards.uc#L736-L738">X2Ability_HackRewards.uc:736-738</a>: Trigger the hack reward ability only if it's present in the Game State.
+This prevents hack rewards from being granted multiple times.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1008">#1008</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XGAIBehavior.uc#L9991-L9993">XGAIBehavior.uc:9991-9993</a>: Entire pods no longer fail to scamper if the pod leader skips its turn,
+for example if it's immobilized.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1029">#1029</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/SeqAct_SpawnUnitFromAvenger.uc#L201-L203">SeqAct_SpawnUnitFromAvenger.uc:201-203</a>: Units spawned from the Avenger would sometimes not be able to take actions
+because their abilities weren't initialized properly. This is now fixed.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1035">#1035</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UICovertActions.uc#L466-L467">UICovertActions.uc:466-467</a>: Use <code>SlotContainer.Navigator.SelectedIndex</code> instead of <code>Navigator.SelectedIndex</code> to allow controller users editing all soldiers' loadouts.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1035">#1035</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UICovertActions.uc#L1027-L1028">UICovertActions.uc:1027-1028</a>: Use <code>SlotContainer.Navigator.SelectedIndex</code> instead of <code>Navigator.SelectedIndex</code> to allow controller users editing all soldiers' loadouts.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1035">#1035</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UICovertActions.uc#L1031-L1032">UICovertActions.uc:1031-1032</a>: Use <code>SlotContainer.Navigator.SelectedIndex</code> instead of <code>Navigator.SelectedIndex</code> to allow controller users editing all soldiers' loadouts.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1065">#1065</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIArmory_LoadoutItem.uc#L64-L65">UIArmory_LoadoutItem.uc:64-65</a>: <code>UIArmory_LoadoutItem</code> now shows the correct stack counts for modified finite items.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1073">#1073</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComGameState_Unit.uc#L13856-L13857">XComGameState_Unit.uc:13856-13857</a>: Get the unit's own Soldier Class Template rather than using Ranger's for all classes.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1082">#1082</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2TacticalGameRuleset.uc#L3012-L3013">X2TacticalGameRuleset.uc:3012-3013</a>: MarkPlotUsed() - commented out original call and moved it outside of the if() statement</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1090">#1090</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/Components/DLC2CommunityHighlander/DLC2CommunityHighlander/Src/DLC_2/Classes/X2Item_DLC_Day60Armors.uc#L64-L67">X2Item_DLC_Day60Armors.uc:64-67</a>: Prevent log warnings and redscreens when Alien Hunters armor is equipped in the Shell, e.g. Character Pool.
+Alien Hunters armor uses OnEquippedFn delegates to alter soldier appearance when the player equips them for the first time.
+The "is first time" check is done using XComHQ, which doesn't exist in the Shell.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1096">#1096</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIChosenInfo.uc#L155-L156">UIChosenInfo.uc:155-156</a>: Abilities related to Chosen strengths and weaknesses now have their description expanded.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1096">#1096</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIChosenInfo.uc#L175">UIChosenInfo.uc:175</a>: </li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1096">#1096</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIChosenLevelUp.uc#L59">UIChosenLevelUp.uc:59</a>: </li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1096">#1096</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIChosenReveal.uc#L55">UIChosenReveal.uc:55</a>: </li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1096">#1096</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIChosenReveal.uc#L69">UIChosenReveal.uc:69</a>: </li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1108">#1108</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComGameState_Unit.uc#L8554-L8555">XComGameState_Unit.uc:8554-8555</a>: If there is a cosmetic pawn associated with the unequipped item item, remove it.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1118">#1118</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UICharacterPool_ListPools.uc#L486-L487">UICharacterPool_ListPools.uc:486-487</a>: LoadCharacterPool() may alter PoolFileName in certain conditions.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1120">#1120</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComGameState_Unit.uc#L14356-L14357">XComGameState_Unit.uc:14356-14357</a>: Add the effect's status icon only if it's not empty.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1131">#1131</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_ReaperAbilitySet.uc#L834-L842">X2Ability_ReaperAbilitySet.uc:834-842</a>: A Target Condition on an X2Effect cannot be used to decide whether
+environmental damage should apply or not,
+because environmental damage is not triggered against any specific target,
+so there's nothing to check the condition against.
+The bugfix moves the condition logic into X2Effect_HomingMineDamage.
+This effect's condition is removed and the effect itself is neutered.
+The effect is left on the ability template to maintain the number of
+effects the same.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1171">#1171</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComGameState_HeadquartersProjectHealSoldier.uc#L81-L83">XComGameState_HeadquartersProjectHealSoldier.uc:81-83</a>: Round the <code>HealthPercent</code> value to prevent it landing above <code>MaxHealthPercent</code> of one Wound Severity,
+but below <code>MinHealthPercent</code> of the next one, making the code fail to select a Wound Severity at all.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1181">#1181</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIFacilityGrid_FacilityOverlay.uc#L1354-L1355">UIFacilityGrid_FacilityOverlay.uc:1354-1355</a>: Make facility staff icons correctly display which staff slots are filled.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1182">#1182</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2StrategyElement_XpackChosenActions.uc#L326-L327">X2StrategyElement_XpackChosenActions.uc:326-327</a>: Make Defense Matrix properly reduce the chance of Chosen sabotage.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1188">#1188</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComGameState_HeadquartersXCom.uc#L7503-L7505">XComGameState_HeadquartersXCom.uc:7503-7505</a>: Add a none-check for <code>MissionState</code> before adding the generated mission entry to the array
+to avoid bloating it with empty entries.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1192">#1192</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIPawnMgr.uc#L647-L648">UIPawnMgr.uc:647-648</a>: Add call to StopSounds to remove sound effects for destroyed pawns.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1193">#1193</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XGAIPlayer.uc#L939-L941">XGAIPlayer.uc:939-941</a>: Added <code>IsUnconcious</code> and <code>IsBleedingOut</code> check to skip AI units in group who are Unconcious or Bleeding out
+as the AI processing hangs here until it times out, which causes the rest of the group to be skipped.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1195">#1195</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_DefaultAbilitySet.uc#L775-L776">X2Ability_DefaultAbilitySet.uc:775-776</a>: Allow Return Fire shots to respond to enemy attacks if the enemy is in cover that requires a step out.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1196">#1196</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_DefaultAbilitySet.uc#L852-L853">X2Ability_DefaultAbilitySet.uc:852-853</a>: Make Return Fire visualize after Covering Fire Overwatch, so they no longer fight for visualization.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1200">#1200</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2AbilityToHitCalc.uc#L126-L127">X2AbilityToHitCalc.uc:126-127</a>: Make Dodge apply to Hit and Crit equally to fix Dodge increasing Miss chance.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1223">#1223</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_CarryUnit.uc#L304-L305">X2Ability_CarryUnit.uc:304-305</a>: Added a skip exclusion for burning status so units can set down other carried units when they are on fire</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1233">#1233</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UITacticalHUD_Enemies.uc#L365-L366">UITacticalHUD_Enemies.uc:365-366</a>: Cache hit chances of visible targets to prevent multiple expensive <code>GetHitChance()</code> calls for each target.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1262">#1262</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Item_HeavyWeapons.uc#L354-L355">X2Item_HeavyWeapons.uc:354-355</a>: Remove build time from the Shredstorm Cannon.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1274">#1274</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Action_ApplyWeaponDamageToUnit.uc#L161-L167">X2Action_ApplyWeaponDamageToUnit.uc:161-167</a>: Adjusted base-game logic for display of standard Red (Normal Damage), or Purple (Psionic) flyovers when
+damage is inflicted on a unit. Base game code first takes damage type from the weapon template, then if
+nothing is found, checks for DOTs / environmental damage. Issue #326 resolves flyovers for psionic effects
+not bound to weapons but modded abilities may wish to display the psionic flyover even when bound.
+The adjusted code changes the logic so the damagetype for flyovers is taken from the originating effect
+first, falls back to the weapon's base damage type and then uses default if nothing is found.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1276">#1276</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_Chosen.uc#L1770-L1771">X2Ability_Chosen.uc:1770-1771</a>: Limit Chosen Low Profile to one trigger per turn.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1276">#1276</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_Chosen.uc#L1811-L1813">X2Ability_Chosen.uc:1811-1813</a>: Comment out the effect that removes the Covering Fire effect responsible for triggering the Chosen Low Profile defense bonus ability,
+so it can trigger more than once per mission.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1281">#1281</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Effect_ApplyWeaponDamage.uc#L671-L672">X2Effect_ApplyWeaponDamage.uc:671-672</a>: If the effect ignores all armor, max out the Pierce value in the Damage Preview so it will show up on the unit flag damage preview.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1286">#1286</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2StatusEffects.uc#L2490-L2491">X2StatusEffects.uc:2490-2491</a>: Keep lure effect alive when source dies, tick on turn begin. Adjust icon and displayinfo to display as debuff rather than passive.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1293">#1293</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_SkirmisherAbilitySet.uc#L412-L413">X2Ability_SkirmisherAbilitySet.uc:412-413</a>: Allow Justice to target enemies Mind Controlled by XCOM</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1293">#1293</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_SkirmisherAbilitySet.uc#L687-L688">X2Ability_SkirmisherAbilitySet.uc:687-688</a>: Allow Wrath to target enemies Mind Controlled by XCOM</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1293">#1293</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_SkirmisherAbilitySet.uc#L815-L816">X2Ability_SkirmisherAbilitySet.uc:815-816</a>: Allow Whiplash to target enemies Mind Controlled by XCOM</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1293">#1293</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_SkirmisherAbilitySet.uc#L843-L844">X2Ability_SkirmisherAbilitySet.uc:843-844</a>: Make enemies Mind Controlled by XCOM eligible for Whiplash's bonus damage</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1298">#1298</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2AbilityToHitCalc_StandardAim.uc#L377-L378">X2AbilityToHitCalc_StandardAim.uc:377-378</a>: Add 100 crit chance to guaranteed crit abilities for the purposes of UI.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1299">#1299</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Effect_ApplyWeaponDamage.uc#L153-L154">X2Effect_ApplyWeaponDamage.uc:153-154</a>: Apply rupture after dealing the damage from the attack.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1299">#1299</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Effect_ApplyWeaponDamage.uc#L966-L967">X2Effect_ApplyWeaponDamage.uc:966-967</a>: Remove the cap from the amount of bonus damage that can be added to an attack by rupture, and do not add rupture added by this attack to the attack's damage.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1300">#1300</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2AbilityToHitCalc_StandardAim.uc#L191-L192">X2AbilityToHitCalc_StandardAim.uc:191-192</a>: Code block moved to be right after aim assist logic, so that if a miss is converted to a hit by aim assist, the ability will still crit if it is set up to always crit on hit.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1301">#1301</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComIdleAnimationStateMachine.uc#L934-L935">XComIdleAnimationStateMachine.uc:934-935</a>: Targeting enemies from concealment will no longer make them face the unit doing the targeting.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1311">#1311</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_SpecialistAbilitySet.uc#L521-L522">X2Ability_SpecialistAbilitySet.uc:521-522</a>: Make Combat Protocol deal bonus damage to robots hacked by XCOM</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1312">#1312</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_StunLancer.uc#L55-L56">X2Ability_StunLancer.uc:55-56</a>: Allow Stun Lance to target Mind Controlled units (currently on the same team as the Stun Lancer)</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1318">#1318</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Condition_StasisLanceTarget.uc#L27-L28">X2Condition_StasisLanceTarget.uc:27-28</a>: Disallow using Skulljack and Skullmine on units in Stasis.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1319">#1319</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2TacticalGameRuleset.uc#L1273-L1279">X2TacticalGameRuleset.uc:1273-1279</a>: If mission start concealment is disabled by <code>bForceNoSquadConcealment</code> flag in BattleData,
+trigger the <code>SquadConcealmentBroken</code> event on mission start.
+In the base game, this flag is set only by the "High Alert" Dark Event.
+Triggering the event fixes the bug on Supply Extraction missions,
+where ADVENT never starts collecting supply crates if XCOM starts unconcealed,
+because the mission kismet starts the crate collection when the <code>SquadConcealmentBroken</code> event is triggered.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1320">#1320</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Action_ApplyWeaponDamageToUnit.uc#L912-L913">X2Action_ApplyWeaponDamageToUnit.uc:912-913</a>: Allow hit results other than <code>eHit_Success</code> to display flyovers.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1322">#1322</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Item_XpackWeapons.uc#L495-L496">X2Item_XpackWeapons.uc:495-496</a>: Comment out the line setting iTypicalActionCost for the conventional Vektor Rifle to match magnetic and beam variants.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1329">#1329</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability.uc#L485-L486">X2Ability.uc:485-486</a>: Apply bonus weapon effects and ammo effects to multi targets.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1329">#1329</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability.uc#L1166-L1167">X2Ability.uc:1166-1167</a>: Visualize bonus weapon effects and ammo effects being applied to multi targets.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1329">#1329</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_GrenadierAbilitySet.uc#L782-L783">X2Ability_GrenadierAbilitySet.uc:782-783</a>: Make Saturation Fire apply ammo effects and bonus weapon effects.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1329">#1329</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_SharpshooterAbilitySet.uc#L1182-L1183">X2Ability_SharpshooterAbilitySet.uc:1182-1183</a>: Visualize applying bonus weapon effects and ammo effects to the primary target.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1329">#1329</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_SharpshooterAbilitySet.uc#L1286-L1287">X2Ability_SharpshooterAbilitySet.uc:1286-1287</a>: Make Faceoff visualize applying bonus weapon effects and ammo effects to multi targets.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1332">#1332</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_DefaultBondmateAbilities.uc#L590-L591">X2Ability_DefaultBondmateAbilities.uc:590-591</a>: Add the missing Stock damage effect.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1332">#1332</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_DefaultBondmateAbilities.uc#L666-L667">X2Ability_DefaultBondmateAbilities.uc:666-667</a>: Add the missing Stock damage effect.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1332">#1332</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_GrenadierAbilitySet.uc#L640-L641">X2Ability_GrenadierAbilitySet.uc:640-641</a>: Add the missing Stock damage effect.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1332">#1332</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_GrenadierAbilitySet.uc#L788-L789">X2Ability_GrenadierAbilitySet.uc:788-789</a>: Add the missing Stock damage effect.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1332">#1332</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_RangerAbilitySet.uc#L760-L761">X2Ability_RangerAbilitySet.uc:760-761</a>: Add the missing Stock damage effect.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1332">#1332</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_RangerAbilitySet.uc#L823-L824">X2Ability_RangerAbilitySet.uc:823-824</a>: Add the missing Stock damage effect.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1332">#1332</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_ReaperAbilitySet.uc#L1172-L1173">X2Ability_ReaperAbilitySet.uc:1172-1173</a>: Add the missing Stock damage effect.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1332">#1332</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_ReaperAbilitySet.uc#L1239-L1240">X2Ability_ReaperAbilitySet.uc:1239-1240</a>: Add the missing Stock damage effect.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1332">#1332</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_SharpshooterAbilitySet.uc#L986-L987">X2Ability_SharpshooterAbilitySet.uc:986-987</a>: Add the missing Stock damage effect.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1334">#1334</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_ReaperAbilitySet.uc#L1103-L1104">X2Ability_ReaperAbilitySet.uc:1103-1104</a>: Use Weapon Typical Action Cost for Banish.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1334">#1334</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_ReaperAbilitySet.uc#L1275-L1276">X2Ability_ReaperAbilitySet.uc:1275-1276</a>: Use Weapon Typical Action Cost for Sting.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1347">#1347</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIUtilities_Strategy.uc#L1940-L1941">UIUtilities_Strategy.uc:1940-1941</a>: Make <code>GetMinimumContactCost()</code> return zero when there are no more uncontacted regions to prevent Low Intel warnings.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1348">#1348</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIArmory_MainMenu.uc#L180-L181">UIArmory_MainMenu.uc:180-181</a>: Display the "needs attention" icon on the PCS button only if the soldier has an empty PCS slot.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1356">#1356</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XComHQPresentationLayer.uc#L1513-L1514">XComHQPresentationLayer.uc:1513-1514</a>: ShowPromotionUI now casts the spawned promotion screen to UIArmory_Promotion instead of its subclasses</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1372">#1372</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIPhotoboothBase.uc#L1375-L1376">UIPhotoboothBase.uc:1375-1376</a>: Fixes a potential crash when the Photobooth shows many list items.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1389">#1389</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Effect_Brutal.uc#L14-L15">X2Effect_Brutal.uc:14-15</a>: Make <code>X2Effect_Brutal</code> use unit's current Will instead of base Will so it can properly reduce and display it.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1391">#1391</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/Components/DLC2CommunityHighlander/DLC2CommunityHighlander/Src/DLC_2/Classes/X2Ability_DLC_Day60ItemGrantedAbilitySet.uc#L1121-L1122">X2Ability_DLC_Day60ItemGrantedAbilitySet.uc:1121-1122</a>: Make Icarus Jump ability not offensive.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1391">#1391</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_ChosenWarlock.uc#L755-L756">X2Ability_ChosenWarlock.uc:755-756</a>: Make Chosen Warlock's teleport ally ability not offensive.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1391">#1391</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_Cyberus.uc#L123-L124">X2Ability_Cyberus.uc:123-124</a>: Make Codex' teleport ability not offensive.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1391">#1391</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_Cyberus.uc#L381-L382">X2Ability_Cyberus.uc:381-382</a>: Make Codex' clone teleport ability not offensive.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1391">#1391</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_Cyberus.uc#L1257-L1258">X2Ability_Cyberus.uc:1257-1258</a>: Make MP Codex' teleport ability not offensive.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1391">#1391</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_PsiWitch.uc#L805-L806">X2Ability_PsiWitch.uc:805-806</a>: Make Avatar's teleport-on-damage ability not offensive.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1393">#1393</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/UIShellDifficulty.uc#L1079-L1083">UIShellDifficulty.uc:1079-1083</a>: If skipping Intro movies, play the 'floating logo' movie instead of the standard intros. If nothing
+else plays here when starting a normal campaign, there is a high high chance of a hang on the loading screen.
+All of the downstream code is native so why this is required is not clear, but presumably some native code
+is expecting to find the end of a movie before initializing the start of the campaign / skyranger.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1398">#1398</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XGUnit.uc#L1905-L1909">XGUnit.uc:1905-1909</a>: This fix adds additional checks to X2Action_ApplyWeaponDamageToUnit, to prevent 'Taking Damage' or
+'Critically Wounded' voicelines from playing alongside the 'Death Scream' voiceline if a unit is killed.
+Additionally, it adds a delay to the 'Squad Member Dead' voicelines to reduce overlapy with deathscream
+voicelines that may already be playing.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1404">#1404</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Effect_Sustain.uc#L50-L51">X2Effect_Sustain.uc:50-51</a>: Update unit's lowest HP value when sustain activates since it wasn't being set properly before.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1408">#1408</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2TargetingMethod_ArcWave.uc#L124-L125">X2TargetingMethod_ArcWave.uc:124-125</a>: Fixes a bug with Arc Wave targeting where an ability could hit enemies not targeted by the player</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1414">#1414</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/X2Ability_SpecialistAbilitySet.uc#L754-L758">X2Ability_SpecialistAbilitySet.uc:754-758</a>: Fixes the specialist's Revival Protocol and Restoration abilities to make them function as intended.</li>
+<li>Revival Protocol now can target any allied unit, not just units under player's control.</li>
+<li>Revival Protocol and Restoration now properly remove Stun, and no longer recover action points for Disoriented units.</li>
+<li>Revival Protocol now properly gets more Charges with higher GREMLIN tiers.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1417">#1417</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/CHHelpers.uc#L1137-L1140">CHHelpers.uc:1137-1140</a>: This helper function uses a more robust check to ensure the geoscape is ready for alerts.
+This replaces functions that only check for the presence of a UIAlert screen, which can
+result in popups in places such as Squad Select or the Black Market screen if the campaign date lines up with flight time.</li>
+<li><a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1419">#1419</a> - <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/blob/master/X2WOTCCommunityHighlander/Src/XComGame/Classes/XGUnit.uc#L1472-L1473">XGUnit.uc:1472-1473</a>: Characters that use WWise to play voicelines no longer attempt to play missing voicelines</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href=".." class="btn btn-neutral float-left" title="X2WOTCCommunityHighlander Documentation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../compatibility/" class="btn btn-neutral float-right" title="Compatibility">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/X2CommunityCore/X2WOTCCommunityHighlander" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../compatibility/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../js/extra.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
