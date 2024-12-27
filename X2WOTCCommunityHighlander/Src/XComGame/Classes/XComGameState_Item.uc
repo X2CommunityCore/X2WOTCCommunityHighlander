@@ -795,7 +795,9 @@ simulated function bool HasBeenModified()
 	WeaponTemplate = X2WeaponTemplate( m_ItemTemplate );
 
 	// Single line for Issues #93 and #306
-	if ((WeaponTemplate != none) && (GetNumUpgradeSlots() > 0) && (GetMyWeaponUpgradeCount() > 0))
+	// Issue #1429 - Remove the check for GetNumUpgradeSlots - this causes an incorrect response for weapons with 
+	// fixed attachments and no slots on the template (e.g. if the attachments are added by an onAcquired function)
+	if ((WeaponTemplate != none) /* && (GetNumUpgradeSlots() > 0)*/ && (GetMyWeaponUpgradeCount() > 0))
 		return true;
 
 	return false;
