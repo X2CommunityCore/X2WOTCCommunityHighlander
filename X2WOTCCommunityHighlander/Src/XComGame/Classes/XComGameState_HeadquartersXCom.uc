@@ -4101,6 +4101,10 @@ function bool HasItemInInventoryOrLoadout(X2ItemTemplate ItemTemplate, optional 
 function bool HasUnModifiedItem(XComGameState AddToGameState, X2ItemTemplate ItemTemplate, out XComGameState_Item ItemState, optional bool bLoot = false, optional XComGameState_Item CombatSimTest)
 {
 	local int idx;
+	// Start Issue #1352 - New variables for combat sim stacking behavior
+	local int StatBoostidx;
+	local bool bhasIdenticalStatBoosts;
+	// End Issue #1352
 
 	if(bLoot)
 	{
@@ -4149,10 +4153,27 @@ function bool HasUnModifiedItem(XComGameState AddToGameState, X2ItemTemplate Ite
 				{
 					if(ItemState.GetMyTemplate().ItemCat == 'combatsim')
 					{
-						if(ItemState.StatBoosts.Length > 0 && CombatSimTest.StatBoosts.Length > 0 && ItemState.StatBoosts[0].Boost == CombatSimTest.StatBoosts[0].Boost && ItemState.StatBoosts[0].StatType == CombatSimTest.StatBoosts[0].StatType)
+						// Begin Issue #1352
+						/// HL-Docs: ref:Bugfixes; issue:1352
+						/// Fixes a bug that caused PCS items which did not have exactly one stat boost, to not stack properly in the UI 
+						/// by making HasUnModifiedItem() properly compare items with multiple stat boosts or no stat boosts at all.							
+						bhasIdenticalStatBoosts = true;
+						if (CombatSimTest.StatBoosts.Length != 0)
+						{
+							for (StatBoostidx = 0; StatBoostidx < ItemState.StatBoosts.Length; StatBoostidx++)
+							{
+								if (ItemState.StatBoosts[StatBoostidx].Boost != CombatSimTest.StatBoosts[StatBoostidx].Boost || ItemState.StatBoosts[StatBoostidx].StatType != CombatSimTest.StatBoosts[StatBoostidx].StatType)
+								{
+									bhasIdenticalStatBoosts = false;
+									break;
+								}
+							}
+						}
+						if (bhasIdenticalStatBoosts)
 						{
 							return true;
 						}
+						// End Issue #1352
 					}
 					else
 					{
