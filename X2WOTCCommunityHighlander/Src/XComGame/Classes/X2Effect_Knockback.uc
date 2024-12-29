@@ -35,6 +35,12 @@ var config	float DefaultDamage;
 var config	float DefaultRadius;
 var config  array<KnockbackDistanceOverride> KnockbackDistanceOverrides;
 
+// Variables for Issue #1431
+var XComGameState_Unit FallingUnit;
+var TTile StartingTile;
+var TTile LandingTile;
+var TTile EndingTile;
+
 function name WasTargetPreviouslyDead(const out EffectAppliedData ApplyEffectParameters, XComGameState_BaseObject kNewTargetState, XComGameState NewGameState)
 {
 	// A unit that was dead before this game state should not get a knockback, they are already a corpse
@@ -187,8 +193,10 @@ private function GetTilesEnteredArray(XComGameStateContext_Ability AbilityContex
 					Extents.Z = TargetUnitPawn.CylinderComponent.CollisionHeight;
 				}
 			}
-
-			if( WorldData.GetAllActorsTrace(StartLocation, KnockbackToLocation, Hits, Extents) )
+			/// HL-Docs: ref:Bugfixes; issue:1431
+			/// Knockback actor trace no longer collides with ground, which often resulted in units not getting knocked back at all
+			// Single line for Issue #1431 - comment out Extents to make it a line trace
+			if( WorldData.GetAllActorsTrace(StartLocation, KnockbackToLocation, Hits /*, Extents */) )
 			{
 				foreach Hits(TraceHitInfo)
 				{
@@ -227,7 +235,16 @@ private function GetTilesEnteredArray(XComGameStateContext_Ability AbilityContex
 				{
 					TileUnits = WorldData.GetUnitsOnTile(TempTile);
 					if (TileUnits.Length > 0)
-						break;
+					{
+						/// HL-Docs: ref:Bugfixes; issue:1431
+						/// Units knocked back may fly over units and land on them if they are high enough to take fall damage
+						// Start Issue #1431
+						if ((StartTile.Z - TempTile.Z) < 4)
+						{
+							break;
+						}
+						// End Issue #1431
+					}
 				}
 
 				if (LastTempTile != TempTile)
@@ -242,9 +259,83 @@ private function GetTilesEnteredArray(XComGameStateContext_Ability AbilityContex
 			//Move the target unit to the knockback location			
 			if (OutTilesEntered.Length == 0 || OutTilesEntered[OutTilesEntered.Length - 1] != LastTempTile)
 				OutTilesEntered.AddItem(LastTempTile);
+
+			/// HL-Docs: ref:Bugfixes; issue:1431
+			/// Units knocked back can now take fall damage
+			// Start Issue #1431
+			if ((StartTile.Z - OutTilesEntered[OutTilesEntered.Length - 1].Z) >= 4)
+			{
+				FallingUnit = XComGameState_Unit(kNewTargetState);
+				StartingTile = StartTile;
+				LandingTile = OutTilesEntered[OutTilesEntered.Length - 1];
+
+				TileUnits = WorldData.GetUnitsOnTile(LandingTile);
+				// if the unit will fall on someone
+				if (TileUnits.Length > 0)
+				{
+					// find a different ending point from the tile we're landing on
+					TestLocation = WorldData.FindClosestValidLocation(WorldData.GetPositionFromTileCoordinates(LandingTile), false, false, false);
+					EndingTile = WorldData.GetTileCoordinatesFromPosition(TestLocation);
+
+					// replace the ending tile with an unblocked tile or unit will end up inside unit they're landing on
+					OutTilesEntered[OutTilesEntered.Length - 1] = EndingTile;
+				}
+
+				// register a delegate to submit a new falling gamestate after the current one
+				History.RegisterOnNewGameStateDelegate(DelayedFalling);
+			}
+			// End Issue #1431
 		}
 	}
 }
+
+// Start Issue #1431
+private function DelayedFalling(XComGameState PreviousGameState)
+{
+	local XComGameStateHistory History;
+	local XComGameState NewGameState;
+	local XComGameStateContext_Falling FallingContext;
+	local TTile AboveTile;
+	local array<StateObjectReference> TileUnits;
+
+	History = `XCOMHISTORY;
+
+	// unregister now or suffer infinite loop
+	History.UnRegisterOnNewGameStateDelegate(DelayedFalling);
+
+	FallingContext = XComGameStateContext_Falling(class'XComGameStateContext_Falling'.static.CreateXComGameStateContext());
+
+	// make the start location directly above the landing point
+	AboveTile.X = LandingTile.X;
+	AboveTile.Y = LandingTile.Y;
+	AboveTile.Z = StartingTile.Z;
+
+	FallingContext.FallingUnit = FallingUnit.GetReference();
+	FallingContext.StartLocation = AboveTile;
+	FallingContext.LandingLocations.AddItem(LandingTile);
+
+	// get all units on the tile unit is landing on
+	TileUnits = `XWORLD.GetUnitsOnTile(LandingTile);
+
+	// don't want unit to fall on itself
+	TileUnits.RemoveItem(FallingUnit.GetReference());
+
+	// will fall on someone else
+	if (TileUnits.Length > 0)
+	{
+		FallingContext.LandedUnits = TileUnits;
+		FallingContext.EndingLocations.AddItem(EndingTile);
+	}
+	else
+	{
+		FallingContext.EndingLocations.AddItem(LandingTile);
+	}
+
+	NewGameState = FallingContext.ContextBuildGameState();
+
+	`TACTICALRULES.SubmitGameState(NewGameState);
+}
+// End Issue #1431
 
 simulated function ApplyEffectToWorld(const out EffectAppliedData ApplyEffectParameters, XComGameState NewGameState)
 {

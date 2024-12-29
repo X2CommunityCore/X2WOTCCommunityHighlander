@@ -279,6 +279,10 @@ function MergeIntoVisualizationTree(X2Action BuildTree, out X2Action Visualizati
 	local bool bFirstFallInChain;	
 	local TTile BelowStartLocation;
 
+	// Variables for Issue #1431
+	local X2Action UnwantedAction;
+	local X2Action ChildAction;
+
 	History = `XCOMHISTORY;
 	VisualizationMgr = `XCOMVISUALIZATIONMGR;
 	VisualizationMgr.GetNodesOfType(VisualizationTree, class'X2Action_ApplyWeaponDamageToTerrain', EnvironmentalDestructionActions);	
@@ -378,6 +382,38 @@ function MergeIntoVisualizationTree(X2Action BuildTree, out X2Action Visualizati
 			}
 		}
 	}
+	/// HL-Docs: ref:Bugfixes; issue:1431
+	/// Visualization tree merging logic when a fall is triggered by knockback
+	// Start Issue #1431
+	else
+	{
+		// Ascertain we're coming from a knockback triggering a fall
+		VisualizationMgr.GetNodesOfType(VisualizationTree, class'X2Action_Knockback', Nodes);
+
+		if (Nodes.Length == 0)
+		{
+			return;
+		}
+
+		// remove the actions we don't want, reparent the children
+		UnwantedAction = VisualizationMgr.GetNodeOfType(BuildTree, class'X2Action_UnitFalling');
+
+		if (UnwantedAction != None)
+		{
+			for (Index = UnwantedAction.ChildActions.Length - 1; Index >= 0; Index--)
+			{
+				ChildAction = UnwantedAction.ChildActions[Index];
+				VisualizationMgr.DisconnectAction(ChildAction);
+				VisualizationMgr.ConnectAction(ChildAction, BuildTree, false, , UnwantedAction.ParentActions);
+			}
+
+			VisualizationMgr.DisconnectAction(UnwantedAction);
+		}
+
+		// use parent class to merge the visualization trees
+		super.MergeIntoVisualizationTree(BuildTree, VisualizationTree);
+	}
+	// End Issue #1431
 }
 
 function string SummaryString()
