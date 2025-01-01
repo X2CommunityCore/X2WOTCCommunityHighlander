@@ -4101,6 +4101,12 @@ function bool HasItemInInventoryOrLoadout(X2ItemTemplate ItemTemplate, optional 
 function bool HasUnModifiedItem(XComGameState AddToGameState, X2ItemTemplate ItemTemplate, out XComGameState_Item ItemState, optional bool bLoot = false, optional XComGameState_Item CombatSimTest)
 {
 	local int idx;
+	// Start Issue #1429 - New variables to improve stacking behaviour
+	local int idxAttach, idxStatBoost;
+	local bool isIdenticalToInventoryItem, hasIdenticalStatBoosts;
+	local array<name> inventoryWeaponUpgrades;
+	local array<name> selectedWeaponUpgrades;
+	// End Issue #1429
 
 	if(bLoot)
 	{
@@ -4134,25 +4140,80 @@ function bool HasUnModifiedItem(XComGameState AddToGameState, X2ItemTemplate Ite
 	}
 	else
 	{
+		// Start Issue #1429 - Get the list of weapon upgrades from the itemsstate which is passed in 
+		if(CombatSimTest != none)
+		{
+			selectedWeaponUpgrades = CombatSimTest.GetMyWeaponUpgradeTemplateNames();
+		}
 		for(idx = 0; idx < Inventory.Length; idx++)
 		{
 			ItemState = XComGameState_Item(`XCOMHISTORY.GetGameStateForObjectID(Inventory[idx].ObjectID));
 
+			inventoryWeaponUpgrades = ItemState.GetMyWeaponUpgradeTemplateNames();
+			isIdenticalToInventoryItem = false;
+			hasIdenticalStatBoosts = false;
 			if(ItemState == none)
 			{
 				ItemState = XComGameState_Item(AddToGameState.GetGameStateForObjectID(Inventory[idx].ObjectID));
 			}
 
+			// Issue #1429 - If the item we're putting back into the inventory matches something which is already there,
+			// has the same array of attachments and the same appearence, we can allow the items to stack (i.e. return true)
 			if(ItemState != none)
 			{
-				if (ItemState.GetMyTemplateName() == ItemTemplate.DataName && (ItemState.Quantity > 0 || ItemState.GetMyTemplate().ItemCat == 'resource') && !ItemState.HasBeenModified())
+				if (ItemState.GetMyTemplateName() == ItemTemplate.DataName)
 				{
-					if(ItemState.GetMyTemplate().ItemCat == 'combatsim')
+					If (selectedWeaponUpgrades.Length == 0)
 					{
-						if(ItemState.StatBoosts.Length > 0 && CombatSimTest.StatBoosts.Length > 0 && ItemState.StatBoosts[0].Boost == CombatSimTest.StatBoosts[0].Boost && ItemState.StatBoosts[0].StatType == CombatSimTest.StatBoosts[0].StatType)
+						isIdenticalToInventoryItem = true;
+					}
+					else if(inventoryWeaponUpgrades.Length != 0)			 
+					{
+						isIdenticalToInventoryItem = true;
+						for(idxAttach = 0; idxAttach < inventoryWeaponUpgrades.Length; idxAttach++)
+						{
+							If(inventoryWeaponUpgrades[idxAttach] != selectedWeaponUpgrades[idxAttach])
+							{
+								isIdenticalToInventoryItem = false;
+								break;
+							}
+						}
+						// Issue #1429 - Test to see if the item we're planning to put back in the inventory has the same apperance
+						// as an item which is already there 
+						if(CombatSimTest.WeaponAppearance != ItemState.WeaponAppearance)
+						{
+							isIdenticalToInventoryItem = false;
+						}
+					}
+				}						
+				// Issue #1429 - Removed check for !HasBeenModified as it's now handled by isIdenticalToInventoryItem
+				if (isIdenticalToInventoryItem && (ItemState.Quantity > 0 || ItemState.GetMyTemplate().ItemCat == 'resource'))
+				// End Issue #1429
+				{					
+					if(ItemState.GetMyTemplate().ItemCat == 'combatsim')
+					{						
+						/// HL-Docs: ref:Bugfixes; issue:1352
+						// Mod-added PCS items which did not provide exactly 1 stat boost were not being properly checked by HasUnModifiedItem
+						// New checks added here mean that PCS items with no stat boosts, or more than one stat boost, are properly checked
+						// for stacking behaviour
+						// Begin Issue #1352
+						hasIdenticalStatBoosts = true;
+						if(CombatSimTest.StatBoosts.Length != 0)
+						{							
+							for(idxStatBoost = 0; idxStatBoost < ItemState.StatBoosts.Length; idxStatBoost++)
+							{								
+								If(ItemState.StatBoosts[idxStatBoost].Boost != CombatSimTest.StatBoosts[idxStatBoost].Boost || ItemState.StatBoosts[idxStatBoost].StatType != CombatSimTest.StatBoosts[idxStatBoost].StatType)
+								{
+									hasIdenticalStatBoosts = false;
+									break;
+								}
+							}							
+						}
+						if(hasIdenticalStatBoosts)						
 						{
 							return true;
 						}
+						// End Issue #1352
 					}
 					else
 					{
@@ -4162,7 +4223,7 @@ function bool HasUnModifiedItem(XComGameState AddToGameState, X2ItemTemplate Ite
 			}
 		}
 	}
-	
+
 	return false;
 }
 
@@ -4176,7 +4237,9 @@ function bool PutItemInInventory(XComGameState AddToGameState, XComGameState_Ite
 
 	ItemTemplate = ItemState.GetMyTemplate();
 
-	if( ItemState.HasBeenModified() || ItemTemplate.bAlwaysUnique )
+	// Issue #1429 - HasBeenModifiedCheck moved later in the function to prevent short-circuiting new stacking logic
+	// for modified items which have the same attachments (this is handled by HasUnModifiedItem)
+	if( ItemTemplate.bAlwaysUnique )
 	{
 		HQModified = true;
 
@@ -4191,12 +4254,12 @@ function bool PutItemInInventory(XComGameState AddToGameState, XComGameState_Ite
 	}
 	else
 	{
-		if(!ItemState.GetMyTemplate().bInfiniteItem)
+		if(!ItemState.GetMyTemplate().bInfiniteItem || ItemState.HasBeenModified())
 		{
 			if( HasUnModifiedItem(AddToGameState, ItemTemplate, InventoryItemState, bLoot, ItemState) )
 			{
 				HQModified = false;
-				
+
 				if(InventoryItemState.ObjectID != ItemState.ObjectID)
 				{
 					NewInventoryItemState = XComGameState_Item(AddToGameState.ModifyStateObject(class'XComGameState_Item', InventoryItemState.ObjectID));
@@ -4363,9 +4426,18 @@ function bool GetItemFromInventory(XComGameState AddToGameState, StateObjectRefe
 			if(InventoryItemState.Quantity > 1)
 			{
 				HQModified = false;
-				InventoryItemState = XComGameState_Item(AddToGameState.ModifyStateObject(class'XComGameState_Item', InventoryItemState.ObjectID));
 				InventoryItemState.Quantity--;
-				ItemState = XComGameState_Item(AddToGameState.CreateNewStateObject(class'XComGameState_Item', InventoryItemState.GetMyTemplate()));
+				// Begin Issue #1429 - If the item being fetched from inventory is one with attachments added via onAcquiredFn
+				// Use CreateInstanceFromTemplate instead of CreateNewStateObject
+				If(class'CHHelpers'.default.OnEquipFix.Find(ItemState.GetMyTemplateName()) != INDEX_NONE)
+				{
+					ItemState = InventoryItemState.GetMyTemplate().CreateInstanceFromTemplate(AddToGameState);
+				}
+				Else
+				{
+					ItemState = XComGameState_Item(AddToGameState.CreateNewStateObject(class'XComGameState_Item', InventoryItemState.GetMyTemplate()));
+				}
+				// End Issue #1429
 				ItemState.StatBoosts = InventoryItemState.StatBoosts; // Make sure the stat boosts are the same. Used for PCS.
 			}
 			else

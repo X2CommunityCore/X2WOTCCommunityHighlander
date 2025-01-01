@@ -267,6 +267,12 @@ var config bool bForce24hclockLeadingZero;
 // Variable for Issue #1398 - Number of seconds to wait after a unit is killed before playing the 'OnSquadMemberDead' voiceline
 var config float fSquadMemberDeadVoicelineDelay;
 
+/// HL-Docs: ref:Bugfixes; issue:1429
+// When certain items with fixed attachments (e.g. TLE Weapons) are stacked in the inventory by mods, equipping such items 
+// on a soldier will strip the attachments. Adding items to the configurable array below will ensure the item's onAcquired 
+// function will be called when equipping the item on the soldier, ensuring the attachments are re-added.
+var config array<name> OnEquipFix;
+
 // Start Issue #885
 enum EHLDelegateReturn
 {
