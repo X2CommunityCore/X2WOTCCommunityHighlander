@@ -1188,8 +1188,10 @@ static function X2AbilityTemplate RestorativeMist()
 	local X2AbilityTemplate                 Template;
 	local X2AbilityCost_ActionPoints        ActionPointCost;
 	local X2Condition_UnitProperty          HealTargetCondition;
-	local X2Condition_UnitStatCheck         UnitStatCheckCondition;
-	local X2Condition_UnitEffects           UnitEffectsCondition;
+	// Start Issue #1436 - Variables no longer needed - now handled by X2Condition_Restoration
+	//local X2Condition_UnitStatCheck         UnitStatCheckCondition;
+	//local X2Condition_UnitEffects           UnitEffectsCondition;
+	// End Issue #1436
 	local X2Effect_ApplyMedikitHeal         MedikitHeal;
 	local X2AbilityCharges                  Charges;
 	local X2AbilityCost_Charges             ChargeCost;
@@ -1229,20 +1231,31 @@ static function X2AbilityTemplate RestorativeMist()
 	HealTargetCondition = new class'X2Condition_UnitProperty';
 	HealTargetCondition.ExcludeHostileToSource = true;
 	HealTargetCondition.ExcludeFriendlyToSource = false;
-	HealTargetCondition.ExcludeFullHealth = true;
+	// Single line for Issue #1436 - Remove ExcludeFullHealth from Targeting conditions - Now handled by X2Condition_Restoration
+	//HealTargetCondition.ExcludeFullHealth = true;
 	HealTargetCondition.RequireSquadmates = true;
 	HealTargetCondition.ExcludeDead = false; //See comment below...
 	HealTargetCondition.ExcludeRobotic = true;      //  restorative mist can't affect robots
 	Template.AbilityMultiTargetConditions.AddItem(HealTargetCondition);
-
+		
+	// Start Issue #1436
+	/// HL-Docs: ref:Bugfixes; issue:1436
+	/// Targeting conditions for the Restoration ability do not allow the ability to target units 
+	/// which have mental status effects but are not otherwise injured (or affected by an effect which can be
+	/// removed by a medikit). This fix re-works the targeting conditions so that such units can be properly 
+	/// targeted.	
+	
 	//Hack: Do this instead of ExcludeDead, to only exclude properly-dead or bleeding-out units.
-	UnitStatCheckCondition = new class'X2Condition_UnitStatCheck';
+	/*UnitStatCheckCondition = new class'X2Condition_UnitStatCheck';
 	UnitStatCheckCondition.AddCheckStat(eStat_HP, 0, eCheck_GreaterThan);
 	Template.AbilityMultiTargetConditions.AddItem(UnitStatCheckCondition);
 
 	UnitEffectsCondition = new class'X2Condition_UnitEffects';
 	UnitEffectsCondition.AddExcludeEffect(class'X2StatusEffects'.default.BleedingOutName, 'AA_UnitIsImpaired');
-	Template.AbilityMultiTargetConditions.AddItem(UnitEffectsCondition);
+	Template.AbilityMultiTargetConditions.AddItem(UnitEffectsCondition);*/
+
+	Template.AbilityMultiTargetConditions.AddItem(new class'X2Condition_Restoration');
+	// End Issue #1436
 
 	//Healing effects follow...
 	MedikitHeal = new class'X2Effect_ApplyMedikitHeal';
