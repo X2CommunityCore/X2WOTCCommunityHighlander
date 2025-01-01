@@ -595,6 +595,9 @@
     <Content Include="Src\XComGame\Classes\X2ChosenActionTemplate.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Condition_Restoration.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Condition_RevivalProtocol.uc">
       <SubType>Content</SubType>
     </Content>
