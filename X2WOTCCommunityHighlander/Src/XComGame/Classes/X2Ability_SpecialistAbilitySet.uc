@@ -747,8 +747,14 @@ static function X2AbilityTemplate RevivalProtocol()
 	Template.AddShooterEffectExclusions();
 
 	Template.AbilityTargetConditions.AddItem(new class'X2Condition_RevivalProtocol');
-
-	Template.AddTargetEffect(RemoveAdditionalEffectsForRevivalProtocolAndRestorativeMist());
+	
+	/// HL-Docs: ref:Bugfixes; issue:1435
+	/// Revival protocol states that it removes mental impairments from the target - however, it is coded to also remove DOT 
+	/// and other effects which can be normally healed by a medikit (despite units with these conditions not being valid targets).
+	/// Removing the additional healing effects makes the ability more consistent with the original localization and gives modded 
+	/// abilities a choice over the desired behaviour in terms of removing these effects.
+	// Single line for Issue #1435
+	Template.AddTargetEffect(RemoveAdditionalEffectsForRevivalProtocolAndRestorativeMist_CH());
 
 	// Start Issue #1414
 	/// HL-Docs: ref:Bugfixes; issue:1414
@@ -2154,7 +2160,24 @@ static function X2Effect_RemoveEffects RemoveAdditionalEffectsForRevivalProtocol
 
 	return RemoveEffects;
 }
+// Start Issue #1435 - New function for Revival Protocol which no longer removes DOT & medikit-healable status effects.
+static function X2Effect_RemoveEffects RemoveAdditionalEffectsForRevivalProtocolAndRestorativeMist_CH()
+{	
+	local X2Effect_RemoveEffectsByDamageType RemoveEffects;
 
+	RemoveEffects = new class'X2Effect_RemoveEffectsByDamageType';
+	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.DisorientedName);
+	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.PanickedName);
+	RemoveEffects.EffectNamesToRemove.AddItem(class'X2StatusEffects'.default.UnconsciousName);
+	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.DazedName);
+	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.ObsessedName);
+	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.BerserkName);
+	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.ShatteredName);
+	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.StunnedName);	
+
+	return RemoveEffects;
+}
+// End Issue #1435
 DefaultProperties
 {
 	EverVigilantEffectName = "EverVigilantTriggered";
