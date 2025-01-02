@@ -950,17 +950,21 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 		WeaponDamage++;
 		`log("Rolled for PlusOne off AmmoDamage, succeeded. Damage:" @ WeaponDamage, true, 'XCom_HitRolls');
 	}
-
-	if (ApplyEffectParameters.AbilityResultContext.HitResult == eHit_Crit)
+	// Start Issue #1396
+	/// HL-Docs: ref:Bugfixes; issue:1396
+	/// Ensure that Damage-over-time effects applied by abilities that grazed or critted the target do not get their damage adjusted
+	/// by checking for ApplyOnTick behavior
+	if (ApplyEffectParameters.AbilityResultContext.HitResult == eHit_Crit && ApplyEffectParameters.EffectRef.ApplyOnTickIndex == INDEX_NONE)
 	{
 		WeaponDamage += CritDamage;
 		`log("CRIT! Adjusted damage:" @ WeaponDamage, true, 'XCom_HitRolls');
 	}
-	else if (ApplyEffectParameters.AbilityResultContext.HitResult == eHit_Graze)
+	else if (ApplyEffectParameters.AbilityResultContext.HitResult == eHit_Graze && ApplyEffectParameters.EffectRef.ApplyOnTickIndex == INDEX_NONE)
 	{
 		WeaponDamage *= GRAZE_DMG_MULT;
 		`log("GRAZE! Adjusted damage:" @ WeaponDamage, true, 'XCom_HitRolls');
 	}
+	// End Issue #1396
 
 	//	Start Issue #1299
 	/// HL-Docs: ref:Bugfixes; issue:1299
