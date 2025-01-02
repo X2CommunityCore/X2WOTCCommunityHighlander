@@ -64,6 +64,9 @@ static function X2AbilityTemplate CreateAcidBlobAbility()
 	
 	Template.AbilityToHitCalc = default.DeadEye;
 	
+	// Single line for Issue #1669 - Disable acid blob when unit is affected by default exclusions (e.g. Disoriented)
+	Template.AddShooterEffectExclusions();
+
 	WeaponEffect = new class'X2Effect_ApplyWeaponDamage';
 	WeaponEffect.DamageTypes.AddItem('Acid');
 	Template.AddMultiTargetEffect(WeaponEffect);
