@@ -64,6 +64,14 @@ static function X2AbilityTemplate CreateAcidBlobAbility()
 	
 	Template.AbilityToHitCalc = default.DeadEye;
 	
+	/// HL-Docs: ref:Bugfixes; issue:1669
+	/// Acid Bomb is still usable when the Andromedon is affected by effects that the player could reasonably expect 
+	/// to disable it (e.g. Disoriented). In the base-game, most units are prevented from using their signature 
+	/// abilities when affected by these exclusions, which suggests that it being missing originally was more of an
+	/// oversight than intended gameplay behavior.
+	// Single line for Issue #1669
+	Template.AddShooterEffectExclusions();
+
 	WeaponEffect = new class'X2Effect_ApplyWeaponDamage';
 	WeaponEffect.DamageTypes.AddItem('Acid');
 	Template.AddMultiTargetEffect(WeaponEffect);
