@@ -1244,6 +1244,9 @@ static function X2AbilityTemplate RestorativeMist()
 	// Move this effect to apply before the effects that restore action points 
 	// to ensure the ability's behavior is consistent with Revival Protocol.
 	Template.AddMultiTargetEffect(RemoveAdditionalEffectsForRevivalProtocolAndRestorativeMist());
+	// Single line for Issue #1435 - RemoveAdditionalEffectsForRevivalProtocolAndRestorativeMist no longer removes
+	// the effects that a medikit would remove, so we call RemoveAllEffectsByDamageType to do this for restoration instead
+	Template.AddMultiTargetEffect(RemoveAllEffectsByDamageType());
 
 	// Use a different condition on this effect so it does not grant action points if the unit is only stunned or disoriented.
 	RestoreEffect = new class'X2Effect_RestoreActionPoints';
@@ -2133,7 +2136,7 @@ static function X2Effect_RemoveEffectsByDamageType RemoveAllEffectsByDamageType(
 static function X2Effect_RemoveEffects RemoveAdditionalEffectsForRevivalProtocolAndRestorativeMist()
 {
 	local X2Effect_RemoveEffectsByDamageType RemoveEffects;
-	local name HealType;
+	// local name HealType;
 
 	RemoveEffects = new class'X2Effect_RemoveEffectsByDamageType';
 	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.DisorientedName);
@@ -2147,11 +2150,18 @@ static function X2Effect_RemoveEffects RemoveAdditionalEffectsForRevivalProtocol
 	// Single Line for Issue #1414 - make Revival Protocol and Restoration remove Stun.
 	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.StunnedName);	
 
-	foreach class'X2Ability_DefaultAbilitySet'.default.MedikitHealEffectTypes(HealType)
+	// Start Issue #1435
+	/// HL-Docs: ref:Bugfixes; issue:1435
+	/// Revival protocol removes effects which can be healed by a medikit but does not allow such units to be
+	/// targetted by the ability. Removing these healing effects makes the ability more consistent with the 
+	/// original ability localization. Custom abilities should now use RemoveAllEffectsByDamageType seperately 
+	/// to remove status effects that can be healed by a medikit.
+
+	/* foreach class'X2Ability_DefaultAbilitySet'.default.MedikitHealEffectTypes(HealType)
 	{
 		RemoveEffects.DamageTypesToRemove.AddItem(HealType);
-	}
-
+	} */
+	// End Issue #1435
 	return RemoveEffects;
 }
 
