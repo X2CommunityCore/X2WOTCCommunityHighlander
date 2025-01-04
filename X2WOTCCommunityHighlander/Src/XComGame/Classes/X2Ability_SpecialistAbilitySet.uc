@@ -747,14 +747,17 @@ static function X2AbilityTemplate RevivalProtocol()
 	Template.AddShooterEffectExclusions();
 
 	Template.AbilityTargetConditions.AddItem(new class'X2Condition_RevivalProtocol');
-	
+
+	// Start Issue #1435
 	/// HL-Docs: ref:Bugfixes; issue:1435
-	/// Revival protocol states that it removes mental impairments from the target - however, it is coded to also remove DOT 
-	/// and other effects which can be normally healed by a medikit (despite units with these conditions not being valid targets).
-	/// Removing the additional healing effects makes the ability more consistent with the original localization and gives modded 
-	/// abilities a choice over the desired behaviour in terms of removing these effects.
-	// Single line for Issue #1435
-	Template.AddTargetEffect(RemoveAdditionalEffectsForRevivalProtocolAndRestorativeMist_CH());
+	/// Fix bug that allows Revival Protocol to remove effects that are normally removed by a Medikit heal,
+	/// despite this functionality not being mentioned in the in-game localization, 
+	/// and units with these effects not being valid targets for this ability, unless they are also mentally impaired.
+	/// The bug was caused by Firaxis reusing the `RemoveAdditionalEffectsForRevivalProtocolAndRestorativeMist()` function, 
+	/// which makes sense for Restoration, as that ability also applies Medikit heal, 
+	/// but not for Revival Protocol, which is only supposed to remove mental impairments.
+	Template.AddTargetEffect(RemoveImpairingEffectsByDamageTypeForRevivalProtocol_CH());
+	// End Issue #1435
 
 	// Start Issue #1414
 	/// HL-Docs: ref:Bugfixes; issue:1414
@@ -2160,8 +2163,8 @@ static function X2Effect_RemoveEffects RemoveAdditionalEffectsForRevivalProtocol
 
 	return RemoveEffects;
 }
-// Start Issue #1435 - New function for Revival Protocol which no longer removes DOT & medikit-healable status effects.
-static function X2Effect_RemoveEffects RemoveAdditionalEffectsForRevivalProtocolAndRestorativeMist_CH()
+// Start Issue #1435 - New function for Revival Protocol which no longer removes medikit-healable status effects.
+static function X2Effect_RemoveEffects RemoveImpairingEffectsByDamageTypeForRevivalProtocol_CH()
 {	
 	local X2Effect_RemoveEffectsByDamageType RemoveEffects;
 
