@@ -828,6 +828,13 @@ static function X2AbilityTemplate Whiplash()
 	Template.AbilityToHitCalc = StandardAim;
 
 	WeaponDamageEffect = new class'X2Effect_ApplyWeaponDamage';
+	/// HL-Docs: ref:Bugfixes; issue:1386
+	/// Whiplash is not, by default, attached to a weapon slot. However, many modded abilities assume that it is supposed
+	/// to be attached to the ripjack. When assigning it in this way, the ability does the weapon's base damage *plus* the 
+	/// damage on the ability template. Setting bIgnoreBaseDamage has no effect on unmodded gameplay, but adds a useful
+	/// guardrail for mods incorrectly assigning the ability to the ripjack weapon.
+	// Single Line for Issue #1386
+	WeaponDamageEffect.bIgnoreBaseDamage = true;
 	WeaponDamageEffect.EffectDamageValue = default.WHIPLASH_BASEDAMAGE;
 
 	Template.AddTargetEffect(WeaponDamageEffect);
@@ -835,6 +842,8 @@ static function X2AbilityTemplate Whiplash()
 	// Jwats: Double damage for robotic
 	WeaponDamageEffect = new class'X2Effect_ApplyWeaponDamage';
 	WeaponDamageEffect.bIgnoreArmor = true;		//	armor was applied the first time, don't let it be applied the second time as well -jbouscher
+	// Single Line for Issue #1386
+	WeaponDamageEffect.bIgnoreBaseDamage = true;
 	WeaponDamageEffect.EffectDamageValue = default.WHIPLASH_BASEDAMAGE;
 	UnitPropertyCondition = new class'X2Condition_UnitProperty';
 	UnitPropertyCondition.ExcludeRobotic = false;
