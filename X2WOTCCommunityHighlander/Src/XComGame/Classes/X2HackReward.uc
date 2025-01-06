@@ -297,8 +297,12 @@ function ApplyEnemyProtocol(XComGameState_Unit Hacker, XComGameState_BaseObject 
 	local XComGameState_Unit HackerState;
 
 	HackerState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', Hacker.ObjectID));
-
-	HackerState.SetBaseMaxStat(eStat_Hacking, HackerState.GetMaxStat(eStat_Hacking) + ENEMY_PROTOCOL_HACKING_BONUS);
+	// Start Issue #1443
+	/// HL-Docs: ref:Bugfixes; issue:1443
+	/// Fixes a bug where temporary hacking stat modifiers were being erroneously added to the Enemy Protocol hack 
+	/// reward bonus. Function adjusted to use GetBaseStat instead of GetMaxStat.
+	HackerState.SetBaseMaxStat(eStat_Hacking, HackerState.GetBaseStat(eStat_Hacking) + ENEMY_PROTOCOL_HACKING_BONUS);
+	// End Issue #1443
 }
 
 static function X2HackRewardTemplate MapAlert(Name TemplateName)
