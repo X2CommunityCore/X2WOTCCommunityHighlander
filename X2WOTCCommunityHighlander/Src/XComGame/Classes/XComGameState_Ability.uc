@@ -1230,13 +1230,14 @@ function NormalDamagePreview(StateObjectReference TargetRef, out WeaponDamageVal
 			MaxDamagePreview.Shred  += MaxDamagePreview.Shred * BurstFire.NumExtraShots;
 		}
 	}
+
+	// Begin Issue #1394
 	/// HL-Docs: ref:Bugfixes; issue:1394
 	/// Abilities which do not specify a custom damage preview function will show rupture damage on the damage
 	/// preview, even if the ability is not capable of doing any damage (e.g. self target abilities like reload). 
 	/// Checking that the previewed damage is non-zero before adding rupture damage to it mitigates this and improves
 	/// the display (mainly for modded gameplay, but it also occurs in niche base game circumstances e.g. if a ruptured 
 	/// unit becomes mind controlled).
-	// Begin Issue #1394
 	if (Rupture > 0)
 	{
 		DamageModInfo.bIsRupture = true;
@@ -1253,8 +1254,8 @@ function NormalDamagePreview(StateObjectReference TargetRef, out WeaponDamageVal
         MaxDamagePreview.Damage += Rupture;
         MaxDamagePreview.BonusDamageInfo.AddItem(DamageModInfo);
     }
+	}
 	// End Issue #1394
-}
 
 	if (DestructibleState != none)
 	{
