@@ -640,6 +640,9 @@
     <Content Include="Src\XComGame\Classes\X2Effect_HomingMineDamage.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Effect_Knockback.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Effect_LaserSight.uc">
       <SubType>Content</SubType>
     </Content>
@@ -794,6 +797,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameStateContext_Ability.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComGameStateContext_Falling.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComGameStateContext_HeadquartersOrder.uc">
