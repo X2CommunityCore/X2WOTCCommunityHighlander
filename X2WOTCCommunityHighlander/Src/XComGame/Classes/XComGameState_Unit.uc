@@ -9658,7 +9658,11 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 				//  handle changing the existing modifier if necessary
 				SourceUnitState = XComGameState_Unit(History.GetGameStateForObjectID(ActivatedAbilityStateContext.InputContext.SourceObject.ObjectID));
 				SuperConcealedModifier = SourceUnitState.GetSuperConcealedModifier( ActivatedAbilityState, GameState );
-
+				// Over-ride for never conceal abilities so they can still use the HUD
+				if (ActivatedAbilityState.GetMyTemplate().ConcealmentRule == eConceal_Never)
+				{
+					SuperConcealedModifier = 100;
+				}
 				if (SuperConcealedModifier > 0)
 				{				
 					SuperConcealedState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("SuperConcealmentLossChance Modified");
@@ -9671,7 +9675,8 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 					if (!class'Helpers'.static.IsObjectiveTarget(ActivatedAbilityStateContext.InputContext.PrimaryTarget.ObjectID, GameState))
 					{
 						WeaponState = ActivatedAbilityState.GetSourceWeapon();
-						if (WeaponState != none && WeaponState.InventorySlot == eInvSlot_PrimaryWeapon && ActivatedAbilityState.IsAbilityInputTriggered())
+						// Don't cap the HUD if the ability is explicity set to eConceal_Never
+						if (WeaponState != none && WeaponState.InventorySlot == eInvSlot_PrimaryWeapon && ActivatedAbilityState.IsAbilityInputTriggered() && ActivatedAbilityState.GetMyTemplate().ConcealmentRule != eConceal_Never)
 						{
 
 

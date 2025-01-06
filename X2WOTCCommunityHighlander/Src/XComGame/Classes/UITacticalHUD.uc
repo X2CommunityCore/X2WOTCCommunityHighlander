@@ -1490,6 +1490,11 @@ simulated function UpdateReaperHUD()
 
 			SuperConcealedModifier += UnitState.SuperConcealmentLoss;
 
+			if (SelectedAbilityState.GetMyTemplate().ConcealmentRule == eConceal_Never)
+			{
+				SuperConcealedModifier = 100;
+			}
+
 			if (SuperConcealedModifier > 100)
 				SuperConcealedModifier = 100;
 			if (SuperConcealedModifier < 0)
@@ -1499,7 +1504,7 @@ simulated function UpdateReaperHUD()
 			if (!class'Helpers'.static.IsObjectiveTarget(CurrentTargetID))
 			{
 				WeaponState = SelectedAbilityState.GetSourceWeapon();
-				if (WeaponState != none && WeaponState.InventorySlot == eInvSlot_PrimaryWeapon)
+				if (WeaponState != none && WeaponState.InventorySlot == eInvSlot_PrimaryWeapon && SelectedAbilityState.GetMyTemplate().ConcealmentRule != eConceal_Never)
 				{
 					if (SuperConcealedModifier > class'X2AbilityTemplateManager'.default.SuperConcealShotMax)
 						SuperConcealedModifier = class'X2AbilityTemplateManager'.default.SuperConcealShotMax;
