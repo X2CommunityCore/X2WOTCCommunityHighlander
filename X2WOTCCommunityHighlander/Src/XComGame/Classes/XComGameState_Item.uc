@@ -792,10 +792,14 @@ simulated function bool HasBeenModified()
 		return true;
 	//end issue #104
 		
-	WeaponTemplate = X2WeaponTemplate( m_ItemTemplate );
-
-	// Single line for Issues #93 and #306
-	if ((WeaponTemplate != none) && (GetNumUpgradeSlots() > 0) && (GetMyWeaponUpgradeCount() > 0))
+	WeaponTemplate = X2WeaponTemplate( m_ItemTemplate );	
+	/// HL-Docs: ref:Bugfixes; issue:1429
+	/// Fix bug that caused weapons that have weapon upgrades installed, despite not having any weapon upgrade slots, 
+	/// to stack in the HQ inventory, causing them to lose their installed upgrades when equipped. The fix removes the 
+	/// check for the number of weapon upgrade slots on the weapon from the logic that determines whether the item has 
+	/// been modified or not, and leaves just the check for number of installed weapon upgrades.
+	// Single line for Issues #93, #306 and #1429
+	if ((WeaponTemplate != none) /* && (GetNumUpgradeSlots() > 0)*/ && (GetMyWeaponUpgradeCount() > 0))
 		return true;
 
 	return false;

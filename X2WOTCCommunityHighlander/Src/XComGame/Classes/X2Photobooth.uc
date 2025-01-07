@@ -64,9 +64,15 @@ enum Photobooth_ParticleEffectType
 	ePPET_TemplarBladeLeft,
 	ePPET_TemplarShield,
 	// Start Issue #359
-	// Similar to above, but we don't need any sort of special marker
-	// enums here as these are never used in code (only config)
-	// Still going to use buffers though!
+	/// HL-Docs: feature:PhotoboothParticleEffectEnums; issue:359; tags:strategy
+	/// This feature provides additional enum values for Photobooth particle effects. To use it,
+	/// modmakers are required to submit a Pull Request where they will add new enum names, 
+	/// which can then be used when defining particle effects for the Photobooth in `XComContent.ini`
+	/// by specifying `ParticleEffectTypes = ePPET_NAME` within an `m_arrAnimationPoses` entry,
+	/// and `ParticleEffectType = ePPET_NAME` within a `ParticleEffects` entry.
+	/// The enum value will then be used by the game to connect the two entries.
+	/// Note that it's also possible to add particle effects to Photobooth poses by adding them
+	/// directly to AnimSequences via PlayParticleEffect AnimNotifies, like TLP poses do.
 	ePPET_Buffer04,
 	ePPET_Buffer05,
 	ePPET_Buffer06,

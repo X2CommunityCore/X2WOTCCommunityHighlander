@@ -1380,7 +1380,6 @@ function UnitSpeak(Name nCharSpeech, bool bDeadUnitSound = false)
 	if ((!bDeadUnitSound && !IsAliveAndWell()) || m_kPawn == none)
 		return;
 
-
 	GameStateUnit = GetVisualizedGameState();
 	if (GameStateUnit.IsPanicked())
 	{
@@ -1442,7 +1441,6 @@ function UnitSpeak(Name nCharSpeech, bool bDeadUnitSound = false)
 			return;
 	}
 
-
 	// mark that we played this voice
 	if (nCharSpeech != 'TakingDamage' && nCharSpeech != 'TargetKilled' && nCharSpeech != 'TakingFire' && nCharSpeech != 'HiddenMovement' && nCharSpeech != 'HiddenMovementVox')
 	{
@@ -1452,15 +1450,53 @@ function UnitSpeak(Name nCharSpeech, bool bDeadUnitSound = false)
 	nHushedSpeech = MaybeUseHushedSpeechInstead(nCharSpeech);
 	nPersonalitySpeech = MaybeAddPersonalityToSpeech(nCharSpeech);
 
-	if (nHushedSpeech != '')
+	// Start Issue #1419 - Perform an AkSpeechExists() check before calling m_kPawn.UnitSpeak()
+	if (nHushedSpeech != '' && AkSpeechExists(nHushedSpeech))
+	{
 		m_kPawn.UnitSpeak(nHushedSpeech);
-	else if (nPersonalitySpeech != '')
+	}
+	else if (nPersonalitySpeech != '' && AkSpeechExists(nPersonalitySpeech))
+	{
 		m_kPawn.UnitSpeak(nPersonalitySpeech);
-	else
+	}
+	else if (AkSpeechExists(nCharSpeech))
+	{
 		m_kPawn.UnitSpeak(nCharSpeech);
+	}
+	// End Issue #1419
 
 	m_fTimeSinceLastUnitSpeak = 0.0f;
 }
+
+// Start Issue #1419
+/// HL-Docs: ref:Bugfixes; issue:1419
+/// Characters that use WWise to play voicelines no longer attempt to play missing voicelines
+private function bool AkSpeechExists(Name Speech)
+{
+	local string AkEvent;
+	local int SoundIndex;
+
+	// check if unit voice has a WWise SoundBank
+	if (XComHumanPawn(m_kPawn).Voice != None && XComHumanPawn(m_kPawn).Voice.AkBankName != "")
+	{
+		// construct an AkEvent name and attempt to play it
+		AkEvent = "Play_" $ XComHumanPawn(m_kPawn).Voice.AkBankName $ "_" $ string(Speech);
+		SoundIndex = m_kPawn.PlayAkSound(AkEvent);
+
+		// sound exists
+		if (SoundIndex != 0)
+		{
+			m_kPawn.StopAkSound(SoundIndex);
+			return true;
+		}
+
+		return false;
+	}
+
+	// it's a SoundCue-based speech
+	return true;
+}
+// End Issue #1419
 
 function name MaybeUseHushedSpeechInstead(Name nCharSpeech)
 {
@@ -1815,10 +1851,13 @@ simulated function XGInventory GetInventory()
 
 function OnDeath( class<DamageType> DamageType, XGUnit kDamageDealer )
 {
+	
 	local int i;
-	local XGUnit SurvivingUnit;
+//	Issue #1398 - Variable no longer required here - moved to DelaySpeechSquadMemberDead() function
+//	local XGUnit SurvivingUnit;
 	local XGPlayer PlayerToNotify;	
-	local bool kIsRobotic;
+//	Issue #1398 - Variable no longer required here - moved to DelaySpeechSquadMemberDead() function
+//	local bool kIsRobotic;
 
 	UnitSpeak('DeathScream', true);
 
@@ -1854,15 +1893,36 @@ function OnDeath( class<DamageType> DamageType, XGUnit kDamageDealer )
 		m_kConstantCombatUnitTargetingMe.ConstantCombatSuppress(false,none);
 		m_kConstantCombatUnitTargetingMe = none;
 	}
+	// Start Issue #1398 - Code block below no longer needed - moved to DelaySpeechSquadMemberDead() function
+	// RAM - Constant Combat
 
-	//RAM - Constant Combat
+	// SurvivingUnit = GetSquad().GetNextGoodMember();
+	// kIsRobotic = IsRobotic();
+
+	// if (SurvivingUnit != none && !kIsRobotic && !IsAlien_CheckByCharType())
+	//		SurvivingUnit.UnitSpeak( 'SquadMemberDead' );	
+
+	/// HL-Docs: ref:Bugfixes; issue:1398
+	/// This fix adds additional checks to X2Action_ApplyWeaponDamageToUnit, to prevent 'Taking Damage' or 
+	/// 'Critically Wounded' voicelines from playing alongside the 'Death Scream' voiceline if a unit is killed. 
+	/// Additionally, it adds a delay to the 'Squad Member Dead' voicelines to reduce overlapy with deathscream 
+	/// voicelines that may already be playing.
+	SetTimer(class'CHHelpers'.default.fSquadMemberDeadVoicelineDelay, false, 'DelaySpeechSquadMemberDead', self);
+	// End Issue #1398
+}
+// Start Issue #1398
+private function DelaySpeechSquadMemberDead()
+{
+	local XGUnit	SurvivingUnit;	
 
 	SurvivingUnit = GetSquad().GetNextGoodMember();
-	kIsRobotic = IsRobotic();
-
-	if (SurvivingUnit != none && !kIsRobotic && !IsAlien_CheckByCharType())
+	
+	if (SurvivingUnit != none && !IsRobotic() && !IsAlien_CheckByCharType())
+	{
 		SurvivingUnit.UnitSpeak( 'SquadMemberDead' );
+	}
 }
+// End Issue #1398
 
 //-------------------------------------------------------------------------------------
 //---------------------------------- DEBUGGING ----------------------------------------

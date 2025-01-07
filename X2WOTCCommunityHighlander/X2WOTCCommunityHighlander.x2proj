@@ -631,6 +631,9 @@
     <Content Include="Src\XComGame\Classes\X2Effect_ApplyWeaponDamage.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Effect_Blind.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Effect_BonusWeaponDamage.uc">
       <SubType>Content</SubType>
     </Content>
@@ -749,6 +752,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2TacticalGameRulesetDataStructures.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2TargetingMethod_ArcWave.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2TargetingMethod_EvacZone.uc">
