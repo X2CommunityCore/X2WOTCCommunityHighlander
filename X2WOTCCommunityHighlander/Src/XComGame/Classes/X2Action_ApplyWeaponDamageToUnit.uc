@@ -86,7 +86,8 @@ function Init()
 	local array<X2Action> RunningActions;
 	local array<X2Action> ApplyDamageToUnitActions;
 	local X2Action ParentFireAction;
-
+	// Variable For Issue #1274
+	local X2Effect_ApplyWeaponDamage EffectDamageType;
 	super.Init();
 
 	History = `XCOMHISTORY;	
@@ -156,9 +157,25 @@ function Init()
 		if (SourceItemGameState != none)
 			WeaponTemplate = X2WeaponTemplate(SourceItemGameState.GetMyTemplate());
 	}
+	// Start Issue #1274
+	/// HL-Docs: ref:Bugfixes; issue:1274
+	/// Adjusted base-game logic for display of standard Red (Normal Damage), or Purple (Psionic) flyovers when 
+	/// damage is inflicted on a unit. Base game code first takes damage type from the weapon template, then if 
+	/// nothing is found, checks for DOTs / environmental damage. Issue #326 resolves flyovers for psionic effects 
+	/// not bound to weapons but modded abilities may wish to display the psionic flyover even when bound. 
+	/// The adjusted code changes the logic so the damagetype for flyovers is taken from the originating effect 
+	/// first, falls back to the weapon's base damage type and then uses default if nothing is found.	
+	EffectDamageType = X2Effect_ApplyWeaponDamage(OriginatingEffect);
+	if (EffectDamageType != none)
+	{
+		If (EffectDamageType.EffectDamageValue.DamageType == 'Psi')
+		{
+			DamageTypeName = EffectDamageType.EffectDamageValue.DamageType;
+		}
+	}
 
 	//Set up a damage type
-	if (WeaponTemplate != none)
+	if (DamageTypeName == '' && WeaponTemplate != none)
 	{
 		DamageTypeName = WeaponTemplate.BaseDamage.DamageType;
 		if (DamageTypeName == '')
@@ -166,6 +183,7 @@ function Init()
 			DamageTypeName = WeaponTemplate.DamageTypeTemplateName;
 		}
 	}
+	// End Issue #1274
 	else if (TickContext != none || WorldEffectsContext != none)
 	{
 		for (DmgIndex = 0; DmgIndex < UnitState.DamageResults.Length; ++DmgIndex)
@@ -186,21 +204,22 @@ function Init()
 	// Start Issue #326: If we still don't have a damage type, try to pull from the manually configured
 	/// HL-Docs: ref:Bugfixes; issue:326
 	/// Allow damage flyovers from weapon-less Psi abilities to use the Psi damage popup
-	// Effect Damage from X2Effect_ApplyWeaponDamage (PsiBombStage2, mod abilities)
-	if (DamageTypeName == '')
-	{
-		if (X2Effect_ApplyWeaponDamage(OriginatingEffect) != none)
-		{
-			DamageTypeName = X2Effect_ApplyWeaponDamage(OriginatingEffect).EffectDamageValue.DamageType;
-		}
-
+	/// (e.g. Effect Damage from X2Effect_ApplyWeaponDamage, PsiBombStage2 & modded abilities)
+	
+	// Start Issue #1274 - This code block is not needed as the behaviour is now checked earlier in the function
+	//if (DamageTypeName == '')
+	//{
+	//	if (X2Effect_ApplyWeaponDamage(OriginatingEffect) != none)
+	//	{
+	//		DamageTypeName = X2Effect_ApplyWeaponDamage(OriginatingEffect).EffectDamageValue.DamageType;
+	//	}
+	// End Issue #1274
 		if (DamageTypeName == '')
 		{
 			DamageTypeName = class'X2Item_DefaultDamageTypes'.default.DefaultDamageType;
 		}
-	}
-	// End Issue #326
-
+	//}
+	// End Issue #326	
 	bWasHit = false;
 	IsKnockback = false;
 	m_vHitLocation = UnitPawn.GetHeadshotLocation();
@@ -662,16 +681,21 @@ simulated state Executing
 		{
 			Unit.UnitSpeak('ArmorHit');
 		}
-		else if(m_iShielded > 0 || m_iDamage > 0)
-		{
+		// Issue #1398 - Don't play 'Taking Damage' voiceline if unit was killed or incapacitated
+		else if((m_iShielded > 0 || m_iDamage > 0) && !bGoingToDeathOrKnockback)
+		{	
 			Unit.UnitSpeak('TakingDamage');
 		}
 	}
 
 	simulated function ShowCritMessage(EWidgetColor SuccessfulAttackColor, EWidgetColor UnsuccessfulAttackColor)
 	{
-		Unit.UnitSpeak('CriticallyWounded');
-		
+		// Start Issue #1398 - Don't play 'Critically Wounded' voiceline if unit was killed or incapacitated
+		If(!bGoingToDeathOrKnockback)
+		{
+			Unit.UnitSpeak('CriticallyWounded');
+		}
+		// End Issue #1398
 		if( m_iShredded > 0 )
 		{
 			ShowShreddedMessage(SuccessfulAttackColor);
@@ -713,7 +737,8 @@ simulated state Executing
 		{
 			Unit.UnitSpeak('ArmorHit');
 		}
-		else if(m_iShielded > 0 || m_iDamage > 0)
+		// Issue #1398 - Don't play 'Taking Damage' voiceline if unit was killed or incapacitated
+		else if((m_iShielded > 0 || m_iDamage > 0) && !bGoingToDeathOrKnockback)
 		{
 			Unit.UnitSpeak('TakingDamage');
 		}

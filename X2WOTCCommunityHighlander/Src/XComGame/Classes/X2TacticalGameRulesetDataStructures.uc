@@ -579,6 +579,11 @@ enum EUnitValueCleanup
 	eCleanup_BeginTurn,
 	eCleanup_BeginTactical,
 	eCleanup_Never,
+	/// HL-Docs: feature:eCleanup_BeginTacticalChain; issue:559; tags:tactical
+	/// eCleanup_BeginTactical cleans up unit values after every transfer from strategy and every direct tactical transfer.
+	/// In some cases, the latter behavior is undesirable. For example, free reloads should not reset in each part of a multi-part mission.
+	/// eCleanup_BeginTacticalChain handles these cases. It only cleans up unit values after transferring from strategy.
+	eCleanup_BeginTacticalChain, // Issue #559
 };
 
 struct native UnitValue

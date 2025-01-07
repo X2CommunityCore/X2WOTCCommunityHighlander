@@ -1246,6 +1246,8 @@ function ApplyStartOfMatchConditions()
 	local X2HackRewardTemplate Template;
 	local XComGameState NewGameState;
 	local Name HackRewardName, ConcealmentName;
+	// Variable for Issue #1319
+	local XComGameState ConcealmentBrokenGameState;
 
 	History = `XCOMHISTORY;
 
@@ -1266,7 +1268,28 @@ function ApplyStartOfMatchConditions()
 		}
 	}
 	else
-	{
+	{		
+		// Start Issue #1319
+		/// HL-Docs: ref:Bugfixes; issue:1319
+		/// If mission start concealment is disabled by `bForceNoSquadConcealment` flag in BattleData, 
+		/// trigger the `SquadConcealmentBroken` event on mission start. 
+		/// In the base game, this flag is set only by the "High Alert" Dark Event.
+		/// Triggering the event fixes the bug on Supply Extraction missions,
+		/// where ADVENT never starts collecting supply crates if XCOM starts unconcealed,
+		/// because the mission kismet starts the crate collection when the `SquadConcealmentBroken` event is triggered.
+		if (BattleDataState.bForceNoSquadConcealment)
+		{
+			foreach History.IterateByClassType(class'XComGameState_Player', PlayerState)
+			{
+				if (PlayerState.GetTeam() == eTeam_XCom)
+				{
+					ConcealmentBrokenGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Break Mission Start Concealment");
+					`XEVENTMGR.TriggerEvent('SquadConcealmentBroken', PlayerState, PlayerState, ConcealmentBrokenGameState);
+					`TACTICALRULES.SubmitGameState(ConcealmentBrokenGameState);				
+				}
+			}
+		}
+		// End Issue #1319
 		if(!BattleDataState.DirectTransferInfo.IsDirectMissionTransfer) // only apply phantom at the start of the first leg of a multi-part mission
 		{
 			foreach History.IterateByClassType(class'XComGameState_Unit', UnitState)
@@ -3893,6 +3916,24 @@ Begin:
 		sleep(0.0);
 	}
 
+	// Start Issue #1406
+	/// HL-Docs: feature:PostMissionIntroKismet; issue:1406; tags:tactical
+	/// This event triggers after mission intro kismet has been completed.
+	/// For example, a mission such as Supply Extraction spawns their objective crates
+	/// when `'SeqEvent_OnTacticalMissionStartBlocking'` has been triggered,
+	/// which happens after `'OnBeginTacticalPlay'` event has already been triggered.
+	/// As such, you don't have a handle for anything the mission kismet causes before your first XCOM turn.
+	/// This event can be considered a later alternative to `'OnBeginTacticalPlay'` event.
+	///
+	/// ```event
+	/// EventID: PostMissionIntroKismet,
+	/// EventData: none,
+	/// EventSource: none,
+	/// NewGameState: none
+	/// ```
+	`XEVENTMGR.TriggerEvent('PostMissionIntroKismet',,,);
+	// End Issue #1406
+
 	// set up start of match special conditions, including squad concealment
 	ApplyStartOfMatchConditions();
 
@@ -4244,6 +4285,11 @@ Begin:
 	{
 		sleep(0.0);
 	}
+
+	// Start Issue #1406
+	/// HL-Docs: ref:PostMissionIntroKismet
+	`XEVENTMGR.TriggerEvent('PostMissionIntroKismet',,,);
+	// End Issue #1406
 
 	// kick off the gameplay start kismet, do not wait for it to complete latent actions
 	WorldInfo.TriggerGlobalEventClass(class'SeqEvent_OnTacticalMissionStartNonBlocking', WorldInfo);
