@@ -199,8 +199,12 @@ function ConfirmClicked(UIButton Button)
 	// Ask the player if they want to make a poster when forming the first bond
 	if (BondData.BondLevel == 0)
 	{
-		KickOffAutoGen();
-
+		// Start Issue #1453 - Config gate to disable auto-generation of soldier bond photo
+		if(!class'CHHelpers'.default.bDisableAutomaticBondPhoto)
+		{
+			KickOffAutoGen();
+		}
+		// End Issue #1453
 		DialogData.eType = eDialog_Normal;
 		DialogData.bMuteAcceptSound = true;
 		DialogData.strTitle = m_strMakePosterTitle;
