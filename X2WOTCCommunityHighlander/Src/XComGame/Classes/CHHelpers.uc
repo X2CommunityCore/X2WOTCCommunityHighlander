@@ -267,6 +267,13 @@ var config bool bForce24hclockLeadingZero;
 // Variable for Issue #1398 - Number of seconds to wait after a unit is killed before playing the 'OnSquadMemberDead' voiceline
 var config float fSquadMemberDeadVoicelineDelay;
 
+// Start Issue #1453 - Variables to disable automatic photobooth photos
+var config bool bDisableAutomaticMissionPhoto;
+var config bool bDisableAutomaticMemorialPhoto;
+var config bool bDisableAutomaticPromotionPhoto;
+var config bool bDisableAutomaticBondPhoto;
+// End Issue #1453
+
 // Start Issue #885
 enum EHLDelegateReturn
 {

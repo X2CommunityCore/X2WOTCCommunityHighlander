@@ -1450,7 +1450,8 @@ function UIArmory_Promotion(StateObjectReference UnitRef, optional bool bInstant
 
 		// Check for rank up to Sergeant or Major
 		bValidRankUp = (PreviousRank < 3 && Unit.GetSoldierRank() >= 3) || (PreviousRank < 6 && Unit.GetSoldierRank() >= 6);
-		if (!Unit.bCaptured && Unit.IsAlive() && bValidRankUp)
+		// Single Line for Issue #1453 - Additional config gate to disable auto-generation of promotion photo
+		if (!Unit.bCaptured && Unit.IsAlive() && bValidRankUp && !class'CHHelpers'.default.bDisableAutomaticPromotionPhoto)
 		{
 			`HQPRES.GetPhotoboothAutoGen().AddPromotedSoldier(Unit.GetReference());
 			`HQPRES.GetPhotoboothAutoGen().RequestPhotos();
