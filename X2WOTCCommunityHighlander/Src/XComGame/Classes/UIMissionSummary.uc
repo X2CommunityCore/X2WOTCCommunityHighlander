@@ -731,7 +731,8 @@ simulated function CloseScreenTakePhoto()
 {
 	bClosingScreen = true;
 
-	if (!BattleData.IsMultiplayer() && !bAllSoldiersDead && !bUserPhotoTaken)
+	// Single Line for Issue #1453 - Additional config gate to disable automatic mission-end photo
+	if (!BattleData.IsMultiplayer() && !bAllSoldiersDead && !bUserPhotoTaken && !class'CHHElpers'.default.bDisableAutomaticMissionPhoto)
 	{
 		NavHelp.ContinueButton.DisableButton();
 
