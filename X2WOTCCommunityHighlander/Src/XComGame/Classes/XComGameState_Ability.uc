@@ -1482,7 +1482,13 @@ function EventListenerReturn CarryUnitMoveFinished(Object EventData, Object Even
 	EffectState = UnitState.GetUnitAffectedByEffectState(class'X2Ability_CarryUnit'.default.CarryUnitEffectName);
 	if (EffectState != none)
 	{
-		TargetUnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(EffectState.ApplyEffectParameters.TargetStateObjectRef.ObjectID));
+		/// HL-Docs: ref:Bugfixes; issue:1459
+		/// Unit carrying another unit now properly updates the location of the carried unit instead of reduntantly updating its own location again
+		// Start Issue #1459
+		// Replace "EffectState.ApplyEffectParameters.TargetStateObjectRef.ObjectID" with "EffectState.ApplyEffectParameters.AbilityInputContext.PrimaryTarget.ObjectID"
+		TargetUnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(EffectState.ApplyEffectParameters.AbilityInputContext.PrimaryTarget.ObjectID));
+		// End Issue #1459
+
 		if (TargetUnitState != none)
 		{
 			NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState(string(GetFuncName()));
