@@ -1058,6 +1058,13 @@ simulated function EndRagDoll()
 	Mesh.bUpdateJointsFromAnimation = true;
 	Mesh.PhysicsWeight = 0.0f;
 
+	/// HL-Docs: ref:Bugfixes; issue:1461
+	/// Animations that use a powered ragdoll work again after unit had been previously ragdolled
+	// Start Issue #1461
+	// Set this variable to its default value when the unit ends their ragdoll and gets up again, since it's not set again anywhere else
+	fPhysicsMotorForce = default.fPhysicsMotorForce;
+	// End Issue #1461
+
 	TermRagdoll();
 	SetPhysics(PHYS_Walking);
 	Mesh.ForceSkelUpdate();
