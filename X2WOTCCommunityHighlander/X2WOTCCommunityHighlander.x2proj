@@ -565,6 +565,9 @@
     <Content Include="Src\XComGame\Classes\X2Action_Fire.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Action_Knockback.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Action_PlaySoundAndFlyOver.uc">
       <SubType>Content</SubType>
     </Content>
