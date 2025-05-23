@@ -864,6 +864,47 @@ simulated function PlayDying(class<DamageType> DamageTypeClass, vector HitLoc, o
 		m_kGameUnit.SetDeadInVisualizer();
 }
 
+/// HL-Docs: feature:PlayKnockback; issue:1463; tags:tactical
+/// This feature allows animations to be played for alive units being knocked down.
+/// Modders wanting to use this feature only need to create new animation sets and add them to pawns.
+///
+/// Animation selection is done in `X2Action_Knockback::ComputeAnimationToPlay`, which looks for the following animations:
+///
+/// 1. `HL_MeleeKnockback`: default animation used when an unit being knocked back doesn't move any tiles, or if the ability being used is a melee ability and `bOverrideMeleeDeath` is false, and the weapon being used has `bOverrideMeleeDeath` set as false
+/// 2. `HL_Knockback`, `HL_KnockbackRight`, `HL_KnockbackLeft`: animation used depending on how the victim is facing the source of the attack. In most cases, units are facing each other, so `HL_Knockback` will be used much frequently than these two others.
+/// 3. `HL_"$OverrideAnimEffectString$"Knockback`, `HL_"$OverrideAnimEffectString$"KnockbackRight`, `HL_"$OverrideAnimEffectString$"KnockbackLeft`: special animation determined by the highest ranking `X2Effect_Persistent` the victim unit is affected by. For example, if the victim is mind controlled, it would look for `HL_MindControlKnockback`. If the pawn doesn't have such special animation in their animsets, it will default to `HL_Knockback`.
+/// 4. `CustomKnockbackAnimationName`: override animation name: if this variable has been set in `X2Action_Knockback`, it will select this animation name over anything else. As for how to set this variable, see [this example](https://github.com/Musashi1584/TruePrimarySecondaries/blob/master/TruePrimarySecondaries/Src/PrimarySecondaries/Classes/AnimNotify_UnitHitCustomDeath.uc#L31-L36) on how it's done in `X2Action_Death`.
+///
+/// After animation is selected, it will ragdoll the pawn and play the corresponding animation on it. If selected animation doesn't exist in the pawns animsets, it will only ragdoll the unit.
+// Start Issue #1463
+function PlayKnockback(name AnimName, optional vector Destination)
+{
+	local CustomAnimParams AnimParams;
+	local AnimNodeSequence KnockBackAnim;
+
+	bWaitingForRagdollNotify = true;
+
+	AnimParams.AnimName = AnimName;
+	AnimParams.DesiredEndingAtoms.Add(1);
+	AnimParams.DesiredEndingAtoms[0].Translation = Destination;
+	AnimParams.DesiredEndingAtoms[0].Translation.Z = GetGameUnit().GetDesiredZForLocation(AnimParams.DesiredEndingAtoms[0].Translation);
+	AnimParams.DesiredEndingAtoms[0].Rotation = QuatFromRotator(Rotation);
+	AnimParams.DesiredEndingAtoms[0].Scale = 1.0f;
+
+	StartRagdoll(true,,,false);
+
+	EnableRMA(true, true);
+	EnableRMAInteractPhysics(true);
+	CollisionComponent.SetComponentRBFixed(FALSE);
+
+	KnockBackAnim = GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams);
+
+	GetAnimTreeController().SetAllowNewAnimations(false);
+	// if animation doesn't have a ragdoll notify, trigger it manually at the end of animation
+	SetTimer(KnockBackAnim.GetTimeLeft(), false, nameof(CheckRagdollStatus));
+}
+// End Issue #1463
+
 function CheckRagdollStatus()
 {
 	bWaitingForRagdollNotify = false;
