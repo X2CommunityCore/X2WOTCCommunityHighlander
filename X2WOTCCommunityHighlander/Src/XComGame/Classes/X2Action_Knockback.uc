@@ -25,6 +25,9 @@ var private Actor							DamageDealer;
 var			bool OnlyRecover;
 var private bool StayInPlace;
 
+// Variable for Issue #1463
+var name CustomKnockbackAnimationName;
+
 function Init()
 {
 	local XComGameStateHistory History;
@@ -92,6 +95,134 @@ function StartRagdoll()
 {
 	UnitPawn.StartRagDoll(false, , , false);
 }
+
+/// HL-Docs: ref:PlayKnockback
+// Start Issue #1463
+function Name ComputeAnimationToPlay()
+{
+	local float fDot;
+	local vector UnitRight;
+	local float fDotRight;
+	local vector WorldUp;
+	local Name AnimName;
+	local string AnimString;
+	local XComGameState_Ability AbilityState;
+	local bool ShouldUseMeleeKnockback;
+	local X2Effect_Persistent PersistentEffect; 
+	local Vector vHitDir;
+	local bool bDoOverrideAnim;
+	local XComGameState_Unit OverrideOldUnitState;
+	local string OverrideAnimEffectString;
+	local XComGameState_Item SourceItemGameState;
+	local XGWeapon WeaponVisualizer;
+	local XComWeapon WeaponData;
+
+	if (CustomKnockbackAnimationName != 'None' && UnitPawn.GetAnimTreeController().CanPlayAnimation(CustomKnockbackAnimationName))
+	{
+		return CustomKnockbackAnimationName;
+	}
+	
+	WorldUp.X = 0.0f;
+	WorldUp.Y = 0.0f;
+	WorldUp.Z = 1.0f;
+
+	OverrideOldUnitState = XComGameState_Unit(Metadata.StateObject_OldState);
+	bDoOverrideAnim = class'X2StatusEffects'.static.GetHighestEffectOnUnit(OverrideOldUnitState, PersistentEffect, true);
+
+	OverrideAnimEffectString = "";
+	if(bDoOverrideAnim)
+	{
+		// Allow new animations to play
+		UnitPawn.GetAnimTreeController().SetAllowNewAnimations(true);
+		OverrideAnimEffectString = string(PersistentEffect.EffectName);
+	}
+	
+	if (AbilityTemplate != none && AbilityTemplate.AbilityTargetStyle.IsA('X2AbilityTarget_Cursor'))
+	{
+		//Damage from position-based abilities should have their damage direction based on the target location
+		`assert( AbilityContext.InputContext.TargetLocations.Length > 0 );
+		vHitDir = Unit.GetPawn().Location - AbilityContext.InputContext.TargetLocations[0];
+	}
+	else if (DamageDealer != none)
+	{
+		vHitDir = Unit.GetPawn().Location - DamageDealer.Location;
+	}
+	else
+	{
+		vHitDir = -Vector(Unit.GetPawn().Rotation);
+	}
+
+	vHitDir = Normal(vHitDir);
+
+	fDot = vHitDir dot vector(Unit.GetPawn().Rotation);
+	UnitRight = Vector(Unit.GetPawn().Rotation) cross WorldUp;
+	fDotRight = vHitDir dot UnitRight;
+
+	// Default knockback
+	AnimName = 'HL_MeleeKnockback';
+
+	if(!StayInPlace)
+	{
+		if(fDot < 0.5f) //There are no "shot from the back" anims, so skip the anim selection process for those
+		{
+			if(abs(fDot) >= abs(fDotRight))
+			{
+				AnimString = "HL_"$OverrideAnimEffectString$"Knockback";
+			}
+			else
+			{
+				if(fDotRight > 0)
+				{
+					AnimString = "HL_"$OverrideAnimEffectString$"KnockbackRight";
+				}
+				else
+				{
+					AnimString = "HL_"$OverrideAnimEffectString$"KnockbackLeft";
+				}
+			}
+		}
+
+		// Fallback to typical situation, where the unit is facing us
+		if(!Unit.GetPawn().GetAnimTreeController().CanPlayAnimation(name(AnimString)))
+		{
+			AnimString = "HL_Knockback";
+		}
+	}
+
+	AbilityState = AbilityContext != none ? XComGameState_Ability(`XCOMHISTORY.GetGameStateForObjectID(AbilityContext.InputContext.AbilityRef.ObjectID)) : none;
+	ShouldUseMeleeKnockback = (AbilityState != none) && AbilityState.GetMyTemplate().ShouldPlayMeleeDeath();
+
+	if (AbilityContext != none)
+	{
+		SourceItemGameState = XComGameState_Item(`XCOMHISTORY.GetGameStateForObjectID(AbilityContext.InputContext.ItemObject.ObjectID));
+		if( SourceItemGameState != None )
+		{
+			WeaponVisualizer = XGWeapon(SourceItemGameState.GetVisualizer());
+			if( WeaponVisualizer != None )
+			{
+				WeaponData = WeaponVisualizer.GetEntity();
+			}
+		}
+	}
+	
+	if( (WeaponData != None && WeaponData.bOverrideMeleeDeath == true) || UnitPawn.GetAnimTreeController().CanPlayAnimation('HL_MeleeKnockback') == false )
+	{
+		ShouldUseMeleeKnockback = false;
+	}
+	
+	if( ShouldUseMeleeKnockback )
+	{
+		AnimString = "HL_MeleeKnockback";
+	}
+	
+	if(AnimString != "")
+	{
+		AnimName = name(AnimString);
+	}
+
+	return AnimName;
+}
+// End Issue #1463
 
 simulated state Executing
 {
@@ -189,21 +320,27 @@ Begin:
 				Sleep(3.0f);
 			}
 		}
+		/// HL-Docs: ref:PlayKnockback
+		// Start Issue #1463
 		else
 		{
-			if( StayInPlace )
+			AnimParams = default.AnimParams;
+			AnimParams.AnimName = ComputeAnimationToPlay();
+
+			UnitPawn.DeathRestingLocation = Destination;
+
+			if(UnitPawn.GetAnimTreeController().CanPlayAnimation(AnimParams.AnimName))
 			{
-				AnimParams = default.AnimParams;
-				AnimParams.AnimName = 'HL_MeleeDeath';
-				FinishAnim(UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams));
+				UnitPawn.PlayKnockback(AnimParams.AnimName, Destination);
 			}
 			else
 			{
-				UnitPawn.DeathRestingLocation = Destination;
 				StartRagdoll();
-				Sleep(3.0f);
 			}
+
+			Sleep(3.0f);
 		}
+		// End Issue #1463
 	}
 
 	//When units are getting up from a fall or recovering from incapacitation, they use an X2Action_Knockback.
