@@ -111,9 +111,19 @@ simulated function InitScreen(XComPlayerController InitController, UIMovie InitM
 	Navigator.SetSelected(m_kSlotList);
 
 	isBondIconFocused = UIAfterAction_ListItem(m_kSlotList.GetSelectedItem()).BondIcon.bIsFocused; // bsg-jrebar (05/19/17): Keep focus on bond or promote
-
-	LoadPhotoboothAutoGenDeadSoldiers();
-
+	
+	// Start Issue #1453 - Additional config gate to disable automatic memorial photo
+	/// HL-Docs: feature:DisableAutoPhotos; issue:1453; tags:strategy,tactical
+	/// Several places in the game (UIAfterAction, XComHQPresentationLayer, UISoldierBondConfirmScree and UIMissionSummary)
+	/// request the auto-generation of photos for the photobooth. Such photos are coded to be taken when the user doesn't take 
+	/// a photo manually at the end of a mission, when a soldier above Sergeant rank dies, when a soldier is promoted to Sergeant
+	/// or Major rank and when two soldiers are bonded. The auto-photos are usually of poor quality and the ability to disable 
+	/// them is a useful feature for modders.
+	if(!class'CHHelpers'.default.bDisableAutomaticMemorialPhoto)
+	{
+		LoadPhotoboothAutoGenDeadSoldiers();
+	}
+	// End Issue #1453
 	//In case of emergency, and we've missed the cinematic event etc., this will trigger the nave help UI to activate. 
 	SetTimer(10.0f, false, nameof(ForceNavHelpOn));
 }
