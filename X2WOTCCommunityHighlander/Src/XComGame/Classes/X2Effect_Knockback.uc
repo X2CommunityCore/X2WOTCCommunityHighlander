@@ -187,8 +187,10 @@ private function GetTilesEnteredArray(XComGameStateContext_Ability AbilityContex
 					Extents.Z = TargetUnitPawn.CylinderComponent.CollisionHeight;
 				}
 			}
-
-			if( WorldData.GetAllActorsTrace(StartLocation, KnockbackToLocation, Hits, Extents) )
+			/// HL-Docs: ref:Bugfixes; issue:1431
+			/// Knockback actor trace is now a line trace: tracing with extents often resulted to units getting stuck on map geometry, moving no tiles
+			// Single line for Issue #1431 - comment out Extents to make it a line trace
+			if( WorldData.GetAllActorsTrace(StartLocation, KnockbackToLocation, Hits /*, Extents */) )
 			{
 				foreach Hits(TraceHitInfo)
 				{
@@ -227,7 +229,16 @@ private function GetTilesEnteredArray(XComGameStateContext_Ability AbilityContex
 				{
 					TileUnits = WorldData.GetUnitsOnTile(TempTile);
 					if (TileUnits.Length > 0)
-						break;
+					{
+						/// HL-Docs: ref:Bugfixes; issue:1431
+						/// Units knocked back may fly over units and land on them if they are high enough to take fall damage
+						// Start Issue #1431
+						if ((StartTile.Z - TempTile.Z) < 4)
+						{
+							break;
+						}
+						// End Issue #1431
+					}
 				}
 
 				if (LastTempTile != TempTile)
@@ -267,6 +278,9 @@ simulated function ApplyEffectToWorld(const out EffectAppliedData ApplyEffectPar
 	local float KnockbackRadius;
 	local int EffectIndex, MultiTargetIndex;
 	local X2Effect_Knockback KnockbackEffect;
+
+	// Variable for Issue #1431
+	local TTile StartTile;
 
 	AbilityContext = XComGameStateContext_Ability(NewGameState.GetContext());
 	if(AbilityContext != none)
@@ -335,6 +349,17 @@ simulated function ApplyEffectToWorld(const out EffectAppliedData ApplyEffectPar
 				{
 					WorldData = `XWORLD;
 
+					/// HL-Docs: ref:Bugfixes; issue:1431
+					/// Units knocked back can now take fall damage falling from heights
+					// Start Issue #1431
+					TargetUnit.GetKeystoneVisibilityLocation(StartTile);
+
+					if ((StartTile.Z - TilesEntered[TilesEntered.Length - 1].Z) >= 4)
+					{
+						HandleFalling(NewGameState, TargetUnit, TilesEntered);
+					}
+					// End Issue #1431
+
 					if(bKnockbackDestroysNonFragile)
 					{
 						for(Index = 0; Index < TilesEntered.Length; ++Index)
@@ -365,6 +390,125 @@ simulated function ApplyEffectToWorld(const out EffectAppliedData ApplyEffectPar
 	}
 }
 
+// Start Issue #1431
+// This function is a modified version of XComGameStateContext_Falling::ContextBuildGameState
+private function HandleFalling(XComGameState NewGameState, out XComGameState_Unit FallingUnitState, out array<TTile> TilesEntered)
+{
+	local XComGameState_Unit LandedUnitState;
+	local X2CharacterTemplate CharacterTemplate;
+	local XComGameState_EnvironmentDamage WorldDamage;
+	local XGUnit Unit;
+	local float FallingDamage;
+	local TTile Tile, StartLocation, LastEndLocation, EndingTile;
+	local array<StateObjectReference> LandedUnits;
+	local StateObjectReference LandedUnit;
+	local int iStoryHeightInTiles;
+	local int iNumStoriesFallen;
+	local XComWorldData WorldData;
+	local Vector TestLocation;
+	local array<Name> FallingDamageType;
+
+	WorldData = `XWORLD;
+
+	FallingUnitState = XComGameState_Unit( NewGameState.ModifyStateObject( class'XComGameState_Unit', FallingUnitState.ObjectID ) );
+
+	CharacterTemplate = FallingUnitState.GetMyTemplate();
+
+	// Add a damage type to find the falling unit in AddX2ActionsForVisualization
+	FallingDamageType.AddItem('Falling');
+
+	if(CharacterTemplate.bIsTurret)
+	{
+		FallingDamage = FallingUnitState.GetCurrentStat( eStat_HP );
+		FallingUnitState.TakeDamage( NewGameState, FallingDamage, 0, 0, , , , , FallingDamageType, , , true );
+		FallingUnitState.bFallingApplied = true;
+		FallingUnitState.RemoveStateFromPlay( );
+	}
+	else
+	{
+		FallingUnitState.GetKeystoneVisibilityLocation(StartLocation);
+
+		LastEndLocation = TilesEntered[TilesEntered.Length - 1];
+
+		// Put the starting location of the fall directly above the landing tile
+		StartLocation.X = LastEndLocation.X;
+		StartLocation.Y = LastEndLocation.Y;
+
+		LandedUnits = WorldData.GetUnitsOnTile(LastEndLocation);
+
+		// if the unit will fall on someone
+		if (LandedUnits.Length > 0)
+		{
+			// find a different ending point from the tile we're landing on
+			TestLocation = WorldData.FindClosestValidLocation(WorldData.GetPositionFromTileCoordinates(LastEndLocation), false, false, false);
+			EndingTile = WorldData.GetTileCoordinatesFromPosition(TestLocation);
+
+			// replace the ending tile with an unblocked tile
+			TilesEntered.AddItem(EndingTile);
+		}
+
+		// Damage calculation for falling, per designer instructions via Hansoft,
+		//     "Falling DMG should be flat for XCOM: Should be 2 damage per floor."
+		// Note: Griffin says this rule should apply to all units, not just "for XCOM".
+		// mdomowicz 2015_08_06
+		iStoryHeightInTiles = 4;
+		iNumStoriesFallen = (StartLocation.Z - LastEndLocation.Z) / iStoryHeightInTiles;
+		FallingDamage = 2 * iNumStoriesFallen;
+
+		if(FallingDamage < class'XComGameStateContext_Falling'.default.MinimumFallingDamage)
+		{
+			FallingDamage = class'XComGameStateContext_Falling'.default.MinimumFallingDamage;
+		}
+
+		if(!FallingUnitState.IsImmuneToDamage('Falling') && ((StartLocation.Z - LastEndLocation.Z >= iStoryHeightInTiles) || (LandedUnits.Length > 0)))
+		{
+			FallingUnitState.TakeDamage(NewGameState, FallingDamage, 0, 0, , , , , FallingDamageType, , , true);
+		}
+
+		foreach LandedUnits(LandedUnit)
+		{
+			Unit = XGUnit(`XCOMHISTORY.GetVisualizer(LandedUnit.ObjectID));
+			if(Unit != none)
+			{
+				LandedUnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', LandedUnit.ObjectID));
+
+				if(LandedUnitState.IsImmuneToDamage('Falling'))
+				{
+					continue;
+				}
+
+				LandedUnitState.TakeDamage(NewGameState, FallingDamage, 0, 0, , , , , FallingDamageType, , , true);
+			}
+		}
+
+		Tile = StartLocation;
+		EndingTile = LastEndLocation;
+
+		while(Tile != EndingTile)
+		{
+			--Tile.Z;
+
+			WorldDamage = XComGameState_EnvironmentDamage(NewGameState.CreateNewStateObject(class'XComGameState_EnvironmentDamage'));
+
+			WorldDamage.DamageTypeTemplateName = 'Falling';
+			WorldDamage.DamageCause = FallingUnitState.GetReference();
+			WorldDamage.DamageSource = WorldDamage.DamageCause;
+			WorldDamage.bRadialDamage = false;
+			WorldDamage.HitLocationTile = Tile;
+			WorldDamage.DamageTiles.AddItem(WorldDamage.HitLocationTile);
+			WorldDamage.bAllowDestructionOfDamageCauseCover = true;
+
+			WorldDamage.DamageDirection.X = 0.0f;
+			WorldDamage.DamageDirection.Y = 0.0f;
+			WorldDamage.DamageDirection.Z = (Tile.Z == EndingTile.Z) ? 1.0f : -1.0f;
+
+			WorldDamage.DamageAmount = (FallingUnitState.UnitSize == 1) ? 10 : 100;
+			WorldDamage.bAffectFragileOnly = false;
+		}
+	}
+}
+// End Issue #1431
+
 simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEffectParameters, out int ArmorMitigation, out int NewShred)
 {
 	return 0;
@@ -384,6 +528,13 @@ simulated function AddX2ActionsForVisualization(XComGameState VisualizeGameState
 {
 	local X2Action_Knockback KnockbackAction;
 
+	// Variables for Issue #1431
+	local X2VisualizerInterface TargetVisualizerInterface;
+	local VisualizationActionMetadata ActionTrack, EmptyTrack;
+	local XComGameState_Unit UnitState;
+	local X2Action_ApplyWeaponDamageToUnit DamageAction;
+	local DamageResult DmgResult;
+
 	if (EffectApplyResult == 'AA_Success')
 	{
 		if( ActionMetadata.StateObject_NewState.IsA('XComGameState_Unit') )
@@ -393,6 +544,29 @@ simulated function AddX2ActionsForVisualization(XComGameState VisualizeGameState
 			{
 				KnockbackAction.OverrideRagdollFinishTimerSec = OverrideRagdollFinishTimerSec;
 			}
+
+			// Start Issue #1431
+			foreach VisualizeGameState.IterateByClassType(class'XComGameState_Unit', UnitState)
+			{
+				DmgResult = UnitState.DamageResults[UnitState.DamageResults.Length - 1];
+
+				if(DmgResult.Context == VisualizeGameState.GetContext() && DmgResult.DamageTypes.Find('Falling') != INDEX_NONE)
+				{
+					ActionTrack = EmptyTrack;
+
+					`XCOMHISTORY.GetCurrentAndPreviousGameStatesForObjectID(UnitState.ObjectID, ActionTrack.StateObject_OldState, ActionTrack.StateObject_NewState,, VisualizeGameState.HistoryIndex);
+
+					DamageAction = X2Action_ApplyWeaponDamageToUnit(class'X2Action_ApplyWeaponDamageToUnit'.static.AddToVisualizationTree(ActionTrack, VisualizeGameState.GetContext(), false, KnockbackAction));
+
+					// This handles applying X2Action_Death among other things
+					TargetVisualizerInterface = X2VisualizerInterface(ActionTrack.VisualizeActor);
+					if (TargetVisualizerInterface != none)
+					{
+						TargetVisualizerInterface.BuildAbilityEffectsVisualization(VisualizeGameState, ActionTrack);
+					}
+				}
+			}
+			// End Issue #1431
 		}
 		else if (ActionMetadata.StateObject_NewState.IsA('XComGameState_EnvironmentDamage') || ActionMetadata.StateObject_NewState.IsA('XComGameState_Destructible'))
 		{
