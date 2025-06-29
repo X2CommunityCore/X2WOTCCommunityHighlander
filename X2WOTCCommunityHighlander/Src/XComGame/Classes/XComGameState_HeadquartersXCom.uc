@@ -4222,6 +4222,7 @@ function bool PutItemInInventory(XComGameState AddToGameState, XComGameState_Ite
 				{
 					NewInventoryItemState = XComGameState_Item(AddToGameState.ModifyStateObject(class'XComGameState_Item', InventoryItemState.ObjectID));
 					NewInventoryItemState.Quantity += ItemState.Quantity;
+					AddToGameState.RemoveStateObject(ItemState.ObjectID); // Issue #1465 - delete item to prevent save bloat
 				}
 			}
 			else
