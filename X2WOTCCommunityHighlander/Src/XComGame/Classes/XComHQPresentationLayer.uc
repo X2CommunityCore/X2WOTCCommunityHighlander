@@ -287,6 +287,7 @@ simulated function ExitPostMissionSequence()
 	EventManager.TriggerEvent('PostMissionDone', XComHQ, XComHQ, NewGameState);
 	XComHQ.ResetToDoWidgetWarnings();
 	XComHQ.PlayedAmbientSpeakers.Length = 0; // Reset availability of ambient speaker lines
+	XComHQ.arrGeneratedMissionData.Length = 0; // Issue #1466 - clear the cached data that was added in XCGSC_StrategyGameRule.ProcessMissionResults()
 	
 	// Clear rewards recap data
 	ResistanceHQ = XComGameState_HeadquartersResistance(NewGameState.ModifyStateObject(class'XComGameState_HeadquartersResistance', ResistanceHQ.ObjectID));
