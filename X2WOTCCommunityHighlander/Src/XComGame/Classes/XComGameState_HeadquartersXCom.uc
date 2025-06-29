@@ -7522,13 +7522,13 @@ function GeneratedMissionData GetGeneratedMissionData(int MissionID)
 			GeneratedMission.BattleOpName = class'XGMission'.static.GenerateOpName(false);
 		}
 		
-		/// HL-Docs: ref:Bugfixes; issue:1188
-		/// Add a none-check for `MissionState` before adding the generated mission entry to the array
-		/// to avoid bloating it with empty entries.
-		if (MissionState != none)
-		{
-			arrGeneratedMissionData.AddItem(GeneratedMission);
-		}
+		/// HL-Docs: ref:Bugfixes; issue:1466
+		/// Do not cache mission data in GetGeneratedMissionData().
+		/// Doing so bloats the save file and causes problems for mods like LWOTC and CI,
+		/// which need hacks to clear stale data from the cache.
+		/// The cache is still used temporarily during the post-mission sequence,
+		/// because the XCGS_MissionSite is deleted too early.
+		//arrGeneratedMissionData.AddItem(GeneratedMission);
 	}
 	else
 	{

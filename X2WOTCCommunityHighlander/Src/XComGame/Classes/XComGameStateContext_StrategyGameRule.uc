@@ -484,6 +484,12 @@ static function ProcessMissionResults()
 
 	class'X2StrategyElement_DefaultMissionSources'.static.IncreaseForceLevel(NewGameState, MissionState);
 
+	// Start Issue #1466
+	// temporarily add the mission data into the cache
+	// the XCGS_MissionSite will be deleted right after this by the OnSuccessFn or OnFailureFn
+	XComHQ.arrGeneratedMissionData.AddItem(MissionState.GeneratedMission);
+	// End Issue #1466
+
 	if( bMissionSuccess )
 	{
 		if( MissionSource.OnSuccessFn != none )
