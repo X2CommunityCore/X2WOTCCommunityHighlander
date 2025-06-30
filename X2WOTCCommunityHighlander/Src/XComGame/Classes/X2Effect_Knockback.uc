@@ -112,10 +112,11 @@ private function GetTilesEnteredArray(XComGameStateContext_Ability AbilityContex
 	local Vector TestLocation;
 	local float  TestDistanceUnits;
 	local TTile  MoveToTile;
-	local XGUnit TargetVisualizer;
-	local XComUnitPawn TargetUnitPawn;
-	local Vector Extents;
-	local XComGameStateHistory History;
+	// Issue #1431: no longer used
+	// local XGUnit TargetVisualizer;
+	// local XComUnitPawn TargetUnitPawn;
+	// local Vector Extents;
+	//local XComGameStateHistory History;
 
 	local ActorTraceHitInfo TraceHitInfo;
 	local array<ActorTraceHitInfo> Hits;
@@ -129,7 +130,9 @@ private function GetTilesEnteredArray(XComGameStateContext_Ability AbilityContex
 	local array<StateObjectReference> TileUnits;
 
 	WorldData = `XWORLD;
-	History = `XCOMHISTORY;
+
+	// Issue #1431: no longer used
+	// History = `XCOMHISTORY;
 	if(AbilityContext != none)
 	{
 		AbilityTemplate = class'XComGameState_Ability'.static.GetMyTemplateManager().FindAbilityTemplate(AbilityContext.InputContext.AbilityTemplateName);
@@ -176,6 +179,8 @@ private function GetTilesEnteredArray(XComGameStateContext_Ability AbilityContex
 
 			KnockbackToLocation = StartLocation + (OutAttackDirection * float(UpdatedKnockbackDistance_Meters) * 64.0f); //Convert knockback distance to meters
 
+			// Issue: 1431 - Extents is no longer used, so does not need to be populated.
+			/*
 			TargetVisualizer = XGUnit(History.GetVisualizer(TargetUnit.ObjectID));
 			if( TargetVisualizer != None )
 			{
@@ -187,6 +192,7 @@ private function GetTilesEnteredArray(XComGameStateContext_Ability AbilityContex
 					Extents.Z = TargetUnitPawn.CylinderComponent.CollisionHeight;
 				}
 			}
+			*/
 			/// HL-Docs: ref:Bugfixes; issue:1431
 			/// Knockback actor trace is now a line trace: tracing with extents often resulted to units getting stuck on map geometry, moving no tiles
 			// Single line for Issue #1431 - comment out Extents to make it a line trace

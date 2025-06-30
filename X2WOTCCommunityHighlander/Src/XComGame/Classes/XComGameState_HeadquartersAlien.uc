@@ -395,7 +395,8 @@ function Update(optional bool bActionsOnly = false)
 	local X2StrategyElementTemplateManager StratMgr;
 	local array<X2StrategyElementTemplate> AllActions;
 	local X2StrategyElementTemplate ActionTemplate;
-	local UIStrategyMap StrategyMap;
+	// Issue #1417: no longer needed
+	// local UIStrategyMap StrategyMap;
 
 	StratMgr = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
 	AllActions = StratMgr.GetAllTemplatesOfClass(class'X2AlienStrategyActionTemplate');
@@ -417,8 +418,11 @@ function Update(optional bool bActionsOnly = false)
 	{
 		UpdateDarkEvents();
 
-		StrategyMap = `HQPRES.StrategyMap2D;
-		if(StrategyMap != none && StrategyMap.m_eUIState != eSMS_Flight)
+		// Issue #1417: no longer needed
+		// StrategyMap = `HQPRES.StrategyMap2D;
+
+	// Issue #1417: Use a more robust check to determine if the game should trigger the update.
+	if (class'CHHelpers'.static.GeoscapeReadyForUpdate())
 		{
 			HandlePendingDoom();
 		}
