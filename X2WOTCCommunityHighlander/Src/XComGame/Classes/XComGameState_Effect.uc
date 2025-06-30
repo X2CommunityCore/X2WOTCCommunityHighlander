@@ -245,9 +245,10 @@ function PostCreateInit(EffectAppliedData InApplyEffectParameters, GameRuleState
 	local X2Effect_Persistent EffectTemplate;
 	local XComGameStateHistory History;
 	local X2EventManager EventMgr;
-	local XComGameStateContext_Ability AbilityContext;
-	local X2AbilityTemplate AbilityTemplate;
-	local X2AbilityMultiTarget_BurstFire BurstFire;
+	// Issue #1380: no longer used
+	// local XComGameStateContext_Ability AbilityContext;
+	// local X2AbilityTemplate AbilityTemplate;
+	// local X2AbilityMultiTarget_BurstFire BurstFire;
 	local XComGameState_AIGroup GroupState;
 
 	History = `XCOMHISTORY;
@@ -389,9 +390,11 @@ function PostCreateInit(EffectAppliedData InApplyEffectParameters, GameRuleState
 function OnRefresh(EffectAppliedData NewApplyEffectParameters, XComGameState NewGameState)
 {
 	local X2Effect_Persistent EffectTemplate;
-	local XComGameStateContext_Ability AbilityContext;
-	local X2AbilityTemplate AbilityTemplate;
-	local X2AbilityMultiTarget_BurstFire BurstFire;
+
+	// Issue #1380: no longer used
+	// local XComGameStateContext_Ability AbilityContext;
+	// local X2AbilityTemplate AbilityTemplate;
+	// local X2AbilityMultiTarget_BurstFire BurstFire;
 	local XComGameState_BaseObject Target;  // Issue #475
 
 	EffectTemplate = GetX2Effect();

@@ -253,6 +253,8 @@ function SpawnReinforcements()
 	local XComAISpawnManager SpawnManager;
 	local XGAIGroup SpawnedGroup;
 	local X2GameRuleset Ruleset;
+	// Variable for Issue #1145
+	local XComGameState_Item ItemState;
 
 	EventManager = `XEVENTMGR;
 	SpawnManager = `SPAWNMGR;
@@ -276,6 +278,15 @@ function SpawnReinforcements()
 
 	// cache off the spawned unit IDs
 	NewSpawnerState.SpawnedUnitIDs = SpawnedGroup.m_arrUnitIDs;
+
+	// Start issue #1145
+	/// HL-Docs: ref:Bugfixes; issue:1145
+	/// Reinforcements will now spawn their cosmetic units properly. Units spawned without their cosmetic units will crash when trying to use abilities that use them.
+	foreach NewGameState.IterateByClassType(class'XComGameState_Item', ItemState)
+	{
+		ItemState.CreateCosmeticItemUnit(NewGameState);
+	}
+	// End Issue #1145
 
 	ThisObj = self;
 	EventManager.RegisterForEvent(ThisObj, 'SpawnReinforcementsComplete', OnSpawnReinforcementsComplete, ELD_OnStateSubmitted,, ThisObj);

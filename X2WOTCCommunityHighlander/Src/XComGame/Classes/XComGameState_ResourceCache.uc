@@ -136,15 +136,18 @@ function SetLocation(XComGameState_Continent ContinentState)
 function bool Update(XComGameState NewGameState)
 {
 	local XComGameState_HeadquartersXCom XComHQ;
-	local UIStrategyMap StrategyMap;
+	// Issue #1417: no longer used
+	//local UIStrategyMap StrategyMap;
 	local bool bModified;
 
 	XComHQ = class'UIUtilities_Strategy'.static.GetXComHQ();
-	StrategyMap = `HQPRES.StrategyMap2D;
+	// Issue #1417: no longer used
+	//StrategyMap = `HQPRES.StrategyMap2D;
 	bModified = false;
 
 	// Do not trigger anything while the Avenger or Skyranger are flying, or if another popup is already being presented
-	if (bNeedsScan && StrategyMap != none && StrategyMap.m_eUIState != eSMS_Flight && !`HQPRES.ScreenStack.IsCurrentClass(class'UIAlert'))
+	// Issue #1417: Use a more robust check to determine if the game should trigger the update.
+	if (bNeedsScan && /* StrategyMap != none && StrategyMap.m_eUIState != eSMS_Flight && !`HQPRES.ScreenStack.IsCurrentClass(class'UIAlert') */ class'CHHelpers'.static.GeoscapeReadyForUpdate())
 	{
 		// If the Avenger is not at the location and time runs out, remove the cache
 		/*if (XComHQ.GetCurrentScanningSite().GetReference().ObjectID != ObjectID && class'X2StrategyGameRulesetDataStructures'.static.LessThan(ExpirationTime, GetCurrentTime()))
