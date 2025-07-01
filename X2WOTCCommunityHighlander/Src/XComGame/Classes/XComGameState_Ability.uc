@@ -3390,10 +3390,10 @@ function EventListenerReturn SoulReaperListener(Object EventData, Object EventSo
 				bAbilityContinues = AbilityTriggerAgainstSingleTarget(BestTargetRef, false);
 			}
 		}
-		if (!bAbilityContinues)
-		{
-			SourceUnit.BreakConcealment();
-		}
+		//if (!bAbilityContinues)
+		//{
+		//	SourceUnit.BreakConcealment();
+		//}
 	}
 	return ELR_NoInterrupt;
 }
