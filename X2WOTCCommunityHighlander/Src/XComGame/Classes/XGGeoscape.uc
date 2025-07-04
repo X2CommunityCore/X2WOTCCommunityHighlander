@@ -318,7 +318,8 @@ function UpdateMissionCalendar()
 	local XComGameStateHistory History;
 	local X2StrategyElementTemplateManager StratMgr;
 	local X2MissionSourceTemplate MissionSource;
-	local UIStrategyMap StrategyMap;
+	// Issue #1417: no longer used
+	// local UIStrategyMap StrategyMap;
 
 	History = `XCOMHISTORY;
 	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Update Mission Calendar");
@@ -342,8 +343,11 @@ function UpdateMissionCalendar()
 	History = `XCOMHISTORY;
 	CalendarState = XComGameState_MissionCalendar(History.GetSingleGameStateObjectForClass(class'XComGameState_MissionCalendar'));
 
-	StrategyMap = `HQPRES.StrategyMap2D;
-	if (CalendarState.MissionPopupSources.Length > 0 && StrategyMap != none && StrategyMap.m_eUIState != eSMS_Flight && !`HQPRES.ScreenStack.IsCurrentClass(class'UIAlert'))
+	// Issue #1417: no longer used
+	// StrategyMap = `HQPRES.StrategyMap2D;
+	// Do not trigger anything while the Avenger or Skyranger are flying, or if another popup is already being presented
+	// Issue #1417: Use a more robust check to determine if the game should trigger the update.
+	if (CalendarState.MissionPopupSources.Length > 0 && /*StrategyMap != none && StrategyMap.m_eUIState != eSMS_Flight && !`HQPRES.ScreenStack.IsCurrentClass(class'UIAlert') */ class'CHHelpers'.static.GeoscapeReadyForUpdate())
 	{
 		StratMgr = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
 		MissionSource = X2MissionSourceTemplate(StratMgr.FindStrategyElementTemplate(CalendarState.MissionPopupSources[0]));
