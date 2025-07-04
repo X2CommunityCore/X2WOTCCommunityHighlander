@@ -2986,17 +2986,33 @@ static function ResetNotBondedSoldierCohesion(XComGameState NewGameState, XComGa
 		if (BondData.Bondmate.ObjectID != BondmateB.ObjectID)
 		{
 			// Grab the Unit whose bond data needs to be reset for the bonded pair
-			UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', BondData.Bondmate.ObjectID));
-			ResetAIndex = UnitState.AllSoldierBonds.Find('Bondmate', BondmateA.GetReference());
-			ResetBIndex = UnitState.AllSoldierBonds.Find('Bondmate', BondmateB.GetReference());
 
-			ResetBondCohesion(UnitState, ResetAIndex); // Save the new bond data for BondmateA
-			ResetBondCohesion(BondmateA, BondAIndex); // on both BondmateA and the Reset Unit
+			/// HL-Docs: ref:Bugfixes; issue:1457
+			/// None check Unit State before trying to modify it to fix redscreen.
+			// Start issue #1457
+			UnitState = XComGameState_Unit(NewGameState.GetGameStateForObjectID(BondData.Bondmate.ObjectID));
+
+			if(UnitState == None)
+			{
+				UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(BondData.Bondmate.ObjectID));
+			}
+
+			if (UnitState != None)
+			{
+				UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', BondData.Bondmate.ObjectID));
+				ResetAIndex = UnitState.AllSoldierBonds.Find('Bondmate', BondmateA.GetReference());
+				ResetBIndex = UnitState.AllSoldierBonds.Find('Bondmate', BondmateB.GetReference());
+
+				ResetBondCohesion(UnitState, ResetAIndex); // Save the new bond data for BondmateA
+				ResetBondCohesion(BondmateA, BondAIndex); // on both BondmateA and the Reset Unit
 
 			// Find Bondmate B's bond index for the Reset Unit
-			BondBIndex = BondmateB.AllSoldierBonds.Find('Bondmate', BondData.Bondmate);
-			ResetBondCohesion(UnitState, ResetBIndex); // Save the new bond data for BondmateB
-			ResetBondCohesion(BondmateB, BondBIndex); // on both BondmateB and the Reset Unit
+				BondBIndex = BondmateB.AllSoldierBonds.Find('Bondmate', BondData.Bondmate);
+				ResetBondCohesion(UnitState, ResetBIndex); // Save the new bond data for BondmateB
+				ResetBondCohesion(BondmateB, BondBIndex); // on both BondmateB and the Reset Unit
+
+			}
+			// End issue #1457
 		}
 	}
 }
