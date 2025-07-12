@@ -7452,6 +7452,65 @@ function GiveStandardActionPoints()
 	}
 }
 
+/*	
+	Issue #1325: 
+	Short Description: New function to provide more control than its vanilla counterpart (SetupActionsForBeginTurn()).
+
+	Long Description: 
+	In general, a parameterless SetupActionsForBeginTurn is very restrictive, and there are things in the function
+	that modders may want to control, which is why CHL_SetupActionsForBeginTurn is here. 
+	
+	In the case of this issue specifically, this function is the critical point to
+	better handle turn interruptions and to make them perform less like a typical turn, which was likely the design
+	expectation since things like fire/poison/acid don't tick in those situations.
+*/
+function CHL_SetupActionsForBeginTurn(	optional bool GiveActionPoints = true,
+										optional bool ResetUntouchable = true,
+										optional bool ResetGotFreeFireAction = true,
+										optional bool HandleMovesUnitValues = true,
+										optional bool CleanupBeginTurnUnitValues = true,
+										optional bool UpdateTurnStartLocation = true,
+										optional bool ResetPanicTestsPerformedThisTurn = true)
+{
+	local XComGameStateHistory History;
+	local StateObjectReference EffectRef;
+	local XComGameState_Effect EffectState;
+	local X2Effect_Persistent EffectTemplate;
+	local UnitValue MovesThisTurn;
+
+	if(GiveActionPoints)
+	{
+		GiveStandardActionPoints();
+
+		if( ActionPoints.Length > 0 )
+		{
+			History = `XCOMHISTORY;
+			foreach AffectedByEffects(EffectRef)
+			{
+				EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
+				EffectTemplate = EffectState.GetX2Effect();
+				EffectTemplate.ModifyTurnStartActionPoints(self, ActionPoints, EffectState);
+			}
+		}
+	}
+
+	if(ResetUntouchable)
+		Untouchable = 0;                    //  untouchable only lasts until the start of your next turn, so always clear it out
+	if(ResetGotFreeFireAction)
+		bGotFreeFireAction = false;                                                      //Reset FreeFireAction flag
+	if(HandleMovesUnitValues)
+	{
+		GetUnitValue('MovesThisTurn', MovesThisTurn);
+		SetUnitFloatValue('MovesLastTurn', MovesThisTurn.fValue, eCleanup_BeginTactical); 
+	}
+	if(CleanupBeginTurnUnitValues)
+		CleanupUnitValues(eCleanup_BeginTurn);
+	if(UpdateTurnStartLocation)
+		TurnStartLocation = TileLocation;
+	if(ResetPanicTestsPerformedThisTurn)
+		PanicTestsPerformedThisTurn = 0;
+}
+
 function SetupActionsForBeginTurn()
 {
 	local XComGameStateHistory History;
