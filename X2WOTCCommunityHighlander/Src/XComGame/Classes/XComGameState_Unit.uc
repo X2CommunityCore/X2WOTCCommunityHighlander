@@ -7467,46 +7467,37 @@ function CHL_SetupActionsForBeginTurn(	optional bool GiveActionPoints = true,
 	local X2Effect_Persistent EffectTemplate;
 	local UnitValue MovesThisTurn;
 
-	//Issue #1325 comment: in the event that callers don't consider this, it gets checked here.
-	if(class'X2TacticalGameRuleset'.default.EnableImprovedInterruptionLogic == false)
+	if(GiveActionPoints)
 	{
-		SetupActionsForBeginTurn();
-		return;
-	}
-	else
-	{
-		if(GiveActionPoints)
-		{
-			GiveStandardActionPoints();
+		GiveStandardActionPoints();
 
-			if( ActionPoints.Length > 0 )
+		if( ActionPoints.Length > 0 )
+		{
+			History = `XCOMHISTORY;
+			foreach AffectedByEffects(EffectRef)
 			{
-				History = `XCOMHISTORY;
-				foreach AffectedByEffects(EffectRef)
-				{
-					EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
-					EffectTemplate = EffectState.GetX2Effect();
-					EffectTemplate.ModifyTurnStartActionPoints(self, ActionPoints, EffectState);
-				}
+				EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
+				EffectTemplate = EffectState.GetX2Effect();
+				EffectTemplate.ModifyTurnStartActionPoints(self, ActionPoints, EffectState);
 			}
 		}
-
-		if(ResetUntouchable)
-			Untouchable = 0;                    //  untouchable only lasts until the start of your next turn, so always clear it out
-		if(ResetGotFreeFireAction)
-			bGotFreeFireAction = false;                                                      //Reset FreeFireAction flag
-		if(HandleMovesUnitValues)
-		{
-			GetUnitValue('MovesThisTurn', MovesThisTurn);
-			SetUnitFloatValue('MovesLastTurn', MovesThisTurn.fValue, eCleanup_BeginTactical); 
-		}
-		if(CleanupBeginTurnUnitValues)
-			CleanupUnitValues(eCleanup_BeginTurn);
-		if(UpdateTurnStartLocation)
-			TurnStartLocation = TileLocation;
-		if(ResetPanicTestsPerformedThisTurn)
-			PanicTestsPerformedThisTurn = 0;
 	}
+
+	if(ResetUntouchable)
+		Untouchable = 0;                    //  untouchable only lasts until the start of your next turn, so always clear it out
+	if(ResetGotFreeFireAction)
+		bGotFreeFireAction = false;                                                      //Reset FreeFireAction flag
+	if(HandleMovesUnitValues)
+	{
+		GetUnitValue('MovesThisTurn', MovesThisTurn);
+		SetUnitFloatValue('MovesLastTurn', MovesThisTurn.fValue, eCleanup_BeginTactical); 
+	}
+	if(CleanupBeginTurnUnitValues)
+		CleanupUnitValues(eCleanup_BeginTurn);
+	if(UpdateTurnStartLocation)
+		TurnStartLocation = TileLocation;
+	if(ResetPanicTestsPerformedThisTurn)
+		PanicTestsPerformedThisTurn = 0;
 }
 
 function SetupActionsForBeginTurn()
