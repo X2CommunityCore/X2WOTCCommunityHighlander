@@ -84,6 +84,15 @@ var config array<string> PlayerTurnOrder;						// defines the order in which pla
 var config array<float> MissionTimerDifficultyAdjustment;			// defines the number of additional turns players get per difficulty
 var config float SecondWaveExtendedTimerScalar;					// scales the number of turns on mission timers (for ExtendedMissionTimers)
 var config float SecondWaveBetaStrikeTimerScalar;				// scales the number of turns on mission timers (for BetaStrike)
+var config bool EnableImprovedInterruptionLogic;			//Issue #1325 variable
+var config bool InterruptionsGiveActionPoints;				//Issue #1325 variable
+var config bool InterruptionsResetUntouchable;				//Issue #1325 variable
+var config bool InterruptionsResetGotFreeFireAction;		//Issue #1325 variable
+var config bool InterruptionsHandleMovementUnitValues;		//Issue #1325 variable
+var config bool InterruptionsCleanupBeginTurnUnitValues;	//Issue #1325 variable
+var config bool InterruptionsUpdateTurnStartLocation;		//Issue #1325 variable
+var config bool InterruptionsResetPanicTestsPerformedThisTurn;	//Issue #1325 variable
+var config bool InterruptionsTriggerGroupTurnBegunEvent;	//Issue #1325 variable
 //****************************************
 
 var int LastNeutralReactionEventChainIndex; // Last event chain index to prevent multiple civilian reactions from same event. Also used for simultaneous civilian movement.
@@ -4682,16 +4691,43 @@ simulated state TurnPhase_UnitActions
 
 		if( !bReturningFromInterruptedTurn )
 		{
-			foreach GroupState.m_arrMembers(UnitRef)
+			//Start issue #1325: New condition. Else path is behavior with no highlander.
+			if(default.EnableImprovedInterruptionLogic && BattleData.InterruptingGroupRef.ObjectID == GroupState.ObjectID)
 			{
-				// Create a new state object on NewPhaseState for UnitState
-				NewUnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', UnitRef.ObjectID));
-				NewUnitState.SetupActionsForBeginTurn();
-			}
+				foreach GroupState.m_arrMembers(UnitRef)
+				{
+					// Create a new state object on NewPhaseState for UnitState
+					NewUnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', UnitRef.ObjectID));
+					NewUnitState.CHL_SetupActionsForBeginTurn(default.InterruptionsGiveActionPoints,
+															default.InterruptionsResetUntouchable,
+															default.InterruptionsResetGotFreeFireAction,
+															default.InterruptionsHandleMovementUnitValues,
+															default.InterruptionsCleanupBeginTurnUnitValues,
+															default.InterruptionsUpdateTurnStartLocation,
+															default.InterruptionsResetPanicTestsPerformedThisTurn);
+				}
 
-			// Trigger the UnitGroupTurnBegun event
-			EventManager = `XEVENTMGR;
-			EventManager.TriggerEvent('UnitGroupTurnBegun', GroupState, GroupState, NewGameState);
+				if(default.InterruptionsTriggerGroupTurnBegunEvent)
+				{
+					// Trigger the UnitGroupTurnBegun event
+					EventManager = `XEVENTMGR;
+					EventManager.TriggerEvent('UnitGroupTurnBegun', GroupState, GroupState, NewGameState);
+				}
+			}
+			else
+			{
+				foreach GroupState.m_arrMembers(UnitRef)
+				{
+					// Create a new state object on NewPhaseState for UnitState
+					NewUnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', UnitRef.ObjectID));
+					NewUnitState.SetupActionsForBeginTurn();
+				}
+
+				// Trigger the UnitGroupTurnBegun event
+				EventManager = `XEVENTMGR;
+				EventManager.TriggerEvent('UnitGroupTurnBegun', GroupState, GroupState, NewGameState);
+			}
+			//End issue #1325
 		}
 
 		SubmitGameState(NewGameState);
