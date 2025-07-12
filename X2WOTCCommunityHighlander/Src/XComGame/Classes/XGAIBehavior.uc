@@ -6751,6 +6751,10 @@ function bool GetAllAoETargets(out array<TTile> TargetList, AoETargetingInfo Pro
 	local bool bValid;
 	local X2Effect MultiTargetEffect;
 	local X2AbilityTemplate AbilityTemplate;
+	local array<X2Effect> TargetEffects;
+	local X2Effect TestEffect;
+	local X2GrenadeTemplate TestGrenadeTemplate;
+	local XComGameState_Item TestSourceWeapon;
 
 	if (!GetUnfilteredAoETargetList(UnitList, Profile, RequiredTarget, DeprioritizedEffects))
 	{
@@ -6774,13 +6778,75 @@ function bool GetAllAoETargets(out array<TTile> TargetList, AoETargetingInfo Pro
 		if ( Profile.bTestTargetEffectsApply )
 		{
 			AbilityTemplate = AbilityState.GetMyTemplate();
-			// Ignore units that are immune to this ability. (passes as long as any effect applies to this unit)
-			foreach AbilityTemplate.AbilityMultiTargetEffects(MultiTargetEffect)
+			// Start Issue #1369
+			/// HL-Docs: feature:ImproveAIAreaOfEffectProfiles; issue:1380; tags:tactical
+			/// Setting bTestTargetEffectsApply on AOE Profiles in XComAI is supposed to filter the list of acceptable targets 
+			/// for a given Area of Effect ability by looking through the targeting conditions on each effect and and whether 
+			/// the prospective targets are immune to the damage (this is done in X2Effect::TargetIsValidForAbility). However, 
+			/// the GetAllAOETargets was not sophisticated enough to handle grenade templates and was also being short-circuited
+			/// due to bValid not being reset between each unit (i.e. so if a single unit passed the check, all subsequent units
+			/// were added to the supposedly-filtered target list).
+			If (AbilityTemplate.bUseLaunchedGrenadeEffects)
 			{
-				if (MultiTargetEffect.TargetIsValidForAbility(TargetState, UnitState, AbilityState))
+				TestSourceWeapon = AbilityState.GetSourceWeapon();
+				bValid = false;
+				If (TestSourceWeapon != none)
 				{
-					bValid = true;
-					break;
+					TestGrenadeTemplate = X2GrenadeTemplate(TestSourceWeapon.GetLoadedAmmoTemplate(AbilityState));
+					If (TestGrenadeTemplate != none)
+					{
+						TargetEffects = TestGrenadeTemplate.LaunchedGrenadeEffects;
+						If (TargetEffects.Length > 0)
+						{					
+							foreach TargetEffects(TestEffect)
+							{
+								if(TestEffect.DamageTypes.Length > 0 && TestEffect.TargetIsValidForAbility(TargetState, UnitState, AbilityState))
+								{
+									bValid = true;
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+			else if (AbilityTemplate.bUseThrownGrenadeEffects)
+			{
+				TestSourceWeapon = AbilityState.GetSourceWeapon();
+				bValid = false;
+				If (TestSourceWeapon != none)
+				{
+					TestGrenadeTemplate = X2GrenadeTemplate(TestSourceWeapon.GetMyTemplate());
+					If (TestGrenadeTemplate != none)
+					{
+						TargetEffects = TestGrenadeTemplate.ThrownGrenadeEffects;
+						If (TargetEffects.Length > 0)
+						{
+							foreach TargetEffects(TestEffect)
+							{
+								if(TestEffect.DamageTypes.Length > 0 && TestEffect.TargetIsValidForAbility(TargetState, UnitState, AbilityState))
+								{
+									bValid = true;
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				// Ignore units that are immune to this ability. (passes as long as any effect applies to this unit)
+				foreach AbilityTemplate.AbilityMultiTargetEffects(MultiTargetEffect)
+				{
+					// Issue #1369 - Reset bValid for Each Unit and check the DamageTypes Array on the MultiTargetEffects to
+					// exclude dummy abilities with no damage type from passing the validity check 
+					bValid = false;	
+					if (MultiTargetEffect.DamageTypes.Length > 0 && MultiTargetEffect.TargetIsValidForAbility(TargetState, UnitState, AbilityState))
+					{
+						bValid = true;
+						break;
+					}
 				}
 			}
 			if (!bValid)
@@ -6789,6 +6855,7 @@ function bool GetAllAoETargets(out array<TTile> TargetList, AoETargetingInfo Pro
 			}
 		}
 
+		// End Issue #1369		
 		// Ignore inactive AI units that are not visible.
 		if (TargetState.ControllingPlayerIsAI() && TargetState.IsUnrevealedAI()
 			&& !class'X2TacticalVisibilityHelpers'.static.CanUnitSeeLocation(UnitState.ObjectID, TargetState.TileLocation))
