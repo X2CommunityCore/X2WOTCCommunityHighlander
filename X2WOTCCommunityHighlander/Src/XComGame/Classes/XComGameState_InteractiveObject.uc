@@ -543,6 +543,17 @@ function bool AllowInteractHack(XComGameState_Unit Unit)
 	Tuple.Data[1].kind = XComLWTVObject;
 	Tuple.Data[1].o = Unit;
 
+	// Start Issue #1477 - Short circuit if there is a latent gamestate in progress to prevent deadlock.
+	if (`TACTICALRULES.BuildingLatentGameState)
+	{
+		// If we are here, there is a gamestate being submitted and triggering this event will likely cause a deadlock.
+		// This will suppress any calls to this event that would be triggered by the gamestate thread itself, but 
+		// this should not be a problem because hacking events/checks are not likely to be triggered by the game state
+		// thread alone, so we'll return the default value of the tuple (True) so that this call doesn't disrupt already valid hacks.
+		return Tuple.Data[0].b;
+	}
+	// End issue #1477
+
 	`XEVENTMGR.TriggerEvent('AllowInteractHack', Tuple, self);
 
 	return Tuple.Data[0].b;
