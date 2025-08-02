@@ -907,6 +907,13 @@ static function OnPostAbilityTemplatesCreated()
 			case 'StunStrike':
 				AbilityTemplate.AbilityTargetConditions.AddItem(FreezeExcludeEffects);
 				break;
+			// Start Issue #1395
+			/// HL-Docs: ref:Bugfixes; issue:1395
+			/// Guard-rail to prevent vipers being able to target units grabbed by the archon king
+			case 'Bind':
+				AbilityTemplate.AbilityTargetConditions.AddItem(ArchonExcludeEffects);
+				break;
+			// End Issue #1395
 			}
 		}
 	}

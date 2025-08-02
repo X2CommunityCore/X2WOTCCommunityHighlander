@@ -762,6 +762,8 @@ static function X2AbilityTemplate CreateIcarusDropGrabAbility()
 	ExcludeEffects.AddExcludeEffect(class'X2Ability_ChryssalidCocoon'.default.GestationStage1EffectName, 'AA_UnitHasCocoonOnIt');
 	ExcludeEffects.AddExcludeEffect(class'X2Ability_ChryssalidCocoon'.default.GestationStage2EffectName, 'AA_UnitHasCocoonOnIt');
 	ExcludeEffects.AddExcludeEffect(default.IcarusDropGrabbeeEffect_SustainedName, 'AA_UnitIsBound');
+	// Single line for Issue# 1395 - Prevent Icarus drop from targetting units already bound in a viper
+	ExcludeEffects.AddExcludeEffect(class'X2AbilityTemplateManager'.default.BoundName, 'AA_UnitIsBound');
 	Template.AbilityTargetConditions.AddItem(ExcludeEffects);
 
 	MeleeTarget = new class'X2AbilityTarget_MovingMelee';
