@@ -46,6 +46,10 @@ function bool TickVoidConduit(X2Effect_Persistent PersistentEffect, const out Ef
 {
 	local XComGameState_Unit TargetUnit;
 	local UnitValue ConduitValue;
+	// Start Issue# 1349 - Add variables for actions to be removed this tick & maximum actions
+	local UnitValue StolenActionsValue;
+	local int Limit;
+	// End Issue# 1349
 
 	TargetUnit = XComGameState_Unit(NewGameState.GetGameStateForObjectID(ApplyEffectParameters.TargetStateObjectRef.ObjectID));
 	if (TargetUnit == none)
@@ -54,9 +58,29 @@ function bool TickVoidConduit(X2Effect_Persistent PersistentEffect, const out Ef
 	`assert(TargetUnit != none);
 
 	TargetUnit.GetUnitValue(VoidConduitActionsLeft, ConduitValue);
+	// Start Issue #1349
+	/// HL-Docs: ref:Bugfixes; issue:1349
+	/// Fixes a bug in which the incorrect number of action points are removed from units under the effect of Void Conduit.
+	/// This fix ensures that persistent effect remains on the unit during the tick instead of removing it. 
+	/// Furthermore, the on-tick visualization in X2Effect_VoidConduit was also found to be broken and hangs the visualiser so 
+	/// that is fixed as well.
+	TargetUnit.GetUnitValue(StolenActionsThisTick, StolenActionsValue);
+	Limit = StolenActionsValue.fValue;
+
+	if (Limit > TargetUnit.ActionPoints.Length)
+	{
+		`RedScreen("PersistentVoidConduit thought it restricted" @ Limit @ "actions, but the unit only has" @ TargetUnit.ActionPoints.Length @ "this turn -- oops. @gameplay @jbouscher");
+		TargetUnit.ActionPoints.Length = 0;
+	}
+	else
+	{
+		TargetUnit.ActionPoints.Remove(0, Limit);
+	}	
 	return ConduitValue.fValue <= 0;
 }
 
+// Issue #1349 - ModifyTurnStartActionPoints is no longer required due to implementation in the Tick function above
+/*
 function ModifyTurnStartActionPoints(XComGameState_Unit UnitState, out array<name> ActionPoints, XComGameState_Effect EffectState)
 {
 	local UnitValue ActionsValue;
@@ -76,6 +100,8 @@ function ModifyTurnStartActionPoints(XComGameState_Unit UnitState, out array<nam
 	}
 }
 
+*/
+// End Issue #1349
 simulated function AddX2ActionsForVisualization(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata, name EffectApplyResult)
 {
 	local X2Action_PlayAnimation PlayAnimation;

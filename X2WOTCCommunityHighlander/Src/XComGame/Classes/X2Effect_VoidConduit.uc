@@ -99,6 +99,10 @@ simulated function AddX2ActionsForVisualization_Tick(XComGameState VisualizeGame
 	local X2Action_PlaySoundAndFlyOver HealedFlyover;
 	local int HealedAmount;
 	local string HealedMsg;
+	// Start Issue #1349 - Variables to assist fixing ability visualization
+	local X2Action_CameraLookAt LookAtAction;
+	local X2Action_Delay DelayAction;
+	// End Issue #1349
 
 	VisMgr = `XCOMVISUALIZATIONMGR;
 	History = `XCOMHISTORY;
@@ -144,46 +148,69 @@ simulated function AddX2ActionsForVisualization_Tick(XComGameState VisualizeGame
 			X2Action_MarkerNamed(ParentAction).SetName("Join");
 			ParentActions.Length = 0;
 		}
-
-		EffectAction = X2Action_PlayEffect(class'X2Action_PlayEffect'.static.AddToVisualizationTree(ActionMetadata, Context, false, ParentAction));
+		
+		// Start Issue #1349 - Reorder and reparent the visualisation tree to improve ability visualisation
+		LookAtAction = X2Action_CameraLookAt(class'X2Action_CameraLookAt'.static.AddToVisualizationTree(ActionMetadata, Context, true, ParentAction));
+		LookAtAction.LookAtObject = XComGameState_Unit(ActionMetadata.StateObject_NewState);
+		LookAtAction.BlockUntilActorOnScreen = true;
+		LookAtAction.BlockUntilFinished = true;
+		LookAtAction.UseTether = false;
+		LookAtAction.LookAtDuration = 0.5f;
+		ParentActions.AddItem(LookAtAction);
+		
+		// Issue #1349 - Damage visualisation & damage PFX now parented to LookAtAction
+		UnitAction = X2Action_ApplyWeaponDamageToUnit(class'X2Action_ApplyWeaponDamageToUnit'.static.AddToVisualizationTree(ActionMetadata, Context, false, LookAtAction));
+		UnitAction.OriginatingEffect = self;		
+		
+		EffectAction = X2Action_PlayEffect(class'X2Action_PlayEffect'.static.AddToVisualizationTree(ActionMetadata, Context, false, LookAtAction));
 		EffectAction.EffectName = "FX_Templar_Void_Conduit.P_Void_Conduit_Drain_Tether";
 		EffectAction.AttachToSocketName = 'Root';
 		EffectAction.TetherToSocketName = 'Root';
 		EffectAction.TetherToUnit = SourceUnit;
-		EffectAction.bWaitForCompletion = true;
-		ParentActions.AddItem(EffectAction);
+		// Issue #1349 - No longer wait for PFX completion as can hang the visualizer
+		EffectAction.bWaitForCompletion = false;
 
-		EffectAction = X2Action_PlayEffect(class'X2Action_PlayEffect'.static.AddToVisualizationTree(ActionMetadata, Context, false, ParentAction));
+		EffectAction = X2Action_PlayEffect(class'X2Action_PlayEffect'.static.AddToVisualizationTree(ActionMetadata, Context, false, LookAtAction));
 		EffectAction.EffectName = "FX_Templar_Void_Conduit.P_Void_Conduit_Drain";
 		EffectAction.AttachToUnit = true;
 		EffectAction.AttachToSocketName = 'FX_Chest';
 		EffectAction.AttachToSocketsArrayName = 'BoneSocketActor';
-		EffectAction.bWaitForCompletion = true;
-		ParentActions.AddItem(EffectAction);
+		// Issue #1349 - No longer wait for PFX completion as can hang the visualizer
+		EffectAction.bWaitForCompletion = false;
 
-		UnitAction = X2Action_ApplyWeaponDamageToUnit(class'X2Action_ApplyWeaponDamageToUnit'.static.AddToVisualizationTree(ActionMetadata, Context, false, ParentAction));
-		UnitAction.OriginatingEffect = self;
-		ParentActions.AddItem(UnitAction);
-
-		// Jwats: Now Play an effect on the source
-		EffectAction = X2Action_PlayEffect(class'X2Action_PlayEffect'.static.AddToVisualizationTree(SourceMetadata, Context, false, ParentAction));
-		EffectAction.EffectName = "FX_Templar_Void_Conduit.P_Void_Conduit_Drain_Templar";
-		EffectAction.AttachToUnit = true;
-		EffectAction.AttachToSocketName = 'FX_Chest';
-		EffectAction.AttachToSocketsArrayName = 'BoneSocketActor';
-		EffectAction.bWaitForCompletion = true;
-		ParentActions.AddItem(EffectAction);
-
-		//	Show flyover for healed HP
+		// Issue #1349 - Keep the camera on the target while the flyover & PFX are playing
+		DelayAction = X2Action_Delay(class'X2Action_Delay'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), true, UnitAction));
+		DelayAction.Duration = 1.5f;
+		ParentActions.AddItem(DelayAction);
+		
+		// Issue #1349 - Only display the healing flyover & 'power-up' PFX if health is actually stolen
 		HealedAmount = XComGameState_Unit(SourceMetadata.StateObject_NewState).GetCurrentStat(eStat_HP) - XComGameState_Unit(SourceMetadata.StateObject_OldState).GetCurrentStat(eStat_HP);
 		if (HealedAmount > 0)
-		{
+		{						
+			// Issue #1349 - If we're healing the templar, pan the camera across to them to see the PFX & Flyovers
+			LookAtAction = X2Action_CameraLookAt(class'X2Action_CameraLookAt'.static.AddToVisualizationTree(ActionMetadata, Context, false, DelayAction));
+			LookAtAction.UseTether = false;
+			LookAtAction.LookAtDuration = 1.0f;
+			LookAtAction.LookAtObject = XComGameState_Unit(SourceMetadata.StateObject_NewState);
+			LookAtAction.BlockUntilFinished = true;
+			LookAtAction.BlockUntilActorOnScreen = true;
+			ParentActions.AddItem(LookAtAction);
+
+			EffectAction = X2Action_PlayEffect(class'X2Action_PlayEffect'.static.AddToVisualizationTree(SourceMetadata, Context, false, LookAtAction));
+			EffectAction.EffectName = "FX_Templar_Void_Conduit.P_Void_Conduit_Drain_Templar";
+			EffectAction.AttachToUnit = true;
+			EffectAction.AttachToSocketName = 'FX_Chest';
+			EffectAction.AttachToSocketsArrayName = 'BoneSocketActor';
+			// Issue #1349 - No longer wait for PFX completion as can hang the visualizer
+			EffectAction.bWaitForCompletion = false;
+			ParentActions.AddItem(EffectAction);
+
 			HealedMsg = Repl(class'X2Effect_SoulSteal'.default.HealedMessage, "<Heal/>", HealedAmount);
-			HealedFlyover = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(SourceMetadata, Context, false, ParentAction));
-			HealedFlyover.SetSoundAndFlyOverParameters(none, HealedMsg, '', eColor_Good, , , true);		
+			HealedFlyover = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(SourceMetadata, Context, false, LookAtAction));
+			HealedFlyover.SetSoundAndFlyOverParameters(none, HealedMsg, '', eColor_Good, , , true);
 			ParentActions.AddItem(HealedFlyover);
 		}
-
+		
 		if( PersistentAction != None )
 		{
 			// Jwats: Death is now moved and is a single action to end with
@@ -196,12 +223,14 @@ simulated function AddX2ActionsForVisualization_Tick(XComGameState VisualizeGame
 			VisMgr.DisconnectAction(DeathAction);
 			VisMgr.ConnectAction(DeathAction, VisMgr.BuildVisTree, false, None, ParentActions);
 		}
-		else
-		{
+		// Issue #1349 - Remove End Join
+		//else
+		//{
 			// Jwats: Make sure we end with a single action so nothing interupts
-			ParentAction = class'X2Action_MarkerNamed'.static.AddToVisualizationTree(ActionMetadata, Context, false, None, ParentActions);
-			X2Action_MarkerNamed(ParentAction).SetName("Join");
-		}
+		//	ParentAction = class'X2Action_MarkerNamed'.static.AddToVisualizationTree(ActionMetadata, Context, false, None, ParentActions);
+		//	X2Action_MarkerNamed(ParentAction).SetName("Join");
+		//}
+	// End Issue #1349
 	}
 }
 
