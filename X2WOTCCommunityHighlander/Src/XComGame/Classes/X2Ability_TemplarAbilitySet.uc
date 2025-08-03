@@ -2104,7 +2104,10 @@ static function X2AbilityTemplate VoidConduit()
 	//	build the persistent effect
 	PersistentEffect = new class'X2Effect_PersistentVoidConduit';
 	PersistentEffect.InitialDamage = default.VoidConduitInitialDamage;
-	PersistentEffect.BuildPersistentEffect(1, true, true, false, eGameRule_PlayerTurnBegin);
+	// Start Issue #1349 - Change Tick Logic from eGameRule_PlayerTurnBegin to eGameRule_UnitGroupTurnBegin
+	// PersistentEffect.BuildPersistentEffect(1, true, true, false, eGameRule_PlayerTurnBegin);
+	PersistentEffect.BuildPersistentEffect(1, true, true, false, eGameRule_UnitGroupTurnBegin);
+	// End Issue #1349
 	PersistentEffect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, false, , Template.AbilitySourceName);
 	PersistentEffect.bRemoveWhenTargetDies = true;
 	//	build the per tick damage effect
