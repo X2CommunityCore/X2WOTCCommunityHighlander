@@ -302,6 +302,10 @@ static function X2AbilityTemplate Solace()
 	Effect = new class'X2Effect_Solace';
 	Effect.BuildPersistentEffect(1, true, false);
 	Effect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage, true,, Template.AbilitySourceName);
+	// Single Line for Issue #1353 
+	/// HL-Docs: ref:Bugfixes; issue:1353
+	/// Fix issue with solace passive aura not applying to psi-operatives when more than one unit with the ability is present on the mission
+	Effect.bDupeForSameSourceOnly = true;
 	Template.AddMultiTargetEffect(Effect);
 
 	Template.AdditionalAbilities.AddItem('SolaceCleanse');
