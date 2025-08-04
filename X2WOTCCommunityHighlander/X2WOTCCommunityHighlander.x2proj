@@ -529,6 +529,9 @@
     <Content Include="Src\XComGame\Classes\X2Ability_DefaultBondmateAbilities.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Ability_PsiOperativeAbilitySet.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Ability_PsiWitch.uc">
       <SubType>Content</SubType>
     </Content>
