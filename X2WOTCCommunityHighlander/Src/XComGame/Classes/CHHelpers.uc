@@ -260,6 +260,18 @@ var config bool bUseMinDamageForUnitFlagPreview;
 // Variable for Issue #1228 - disables Aim Assist.
 var config bool bDisableAimAssist;
 
+// Start Issue #1325 - Grants control over what happens to a unit when they start an interruption.
+var config bool EnableImprovedInterruptionLogic;
+var config bool InterruptionsGiveActionPoints;
+var config bool InterruptionsResetUntouchable;
+var config bool InterruptionsResetGotFreeFireAction;
+var config bool InterruptionsHandleMovementUnitValues;
+var config bool InterruptionsCleanupBeginTurnUnitValues;
+var config bool InterruptionsUpdateTurnStartLocation;
+var config bool InterruptionsResetPanicTestsPerformedThisTurn;
+var config bool InterruptionsTriggerGroupTurnBegunEvent;
+// End Issue #1325
+
 // Variables for Issue #1400 - forces 24h clock regardless of locale
 var config bool bForce24hClock;
 var config bool bForce24hclockLeadingZero;

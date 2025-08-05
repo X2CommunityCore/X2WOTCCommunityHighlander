@@ -7452,18 +7452,25 @@ function GiveStandardActionPoints()
 	}
 }
 
-/*	
-	Issue #1325: 
-	Short Description: New function to provide more control than its vanilla counterpart (SetupActionsForBeginTurn()).
-
-	Long Description: 
-	In general, a parameterless SetupActionsForBeginTurn is very restrictive, and there are things in the function
-	that modders may want to control, which is why CHL_SetupActionsForBeginTurn is here. 
-	
-	In the case of this issue specifically, this function is the critical point to
-	better handle turn interruptions and to make them perform less like a typical turn, which was likely the design
-	expectation since things like fire/poison/acid don't tick in those situations.
-*/
+// Start Issue #1325
+/// HL-Docs: feature:CHL_SetupActionsForBeginTurn; issue:1325; tags:tactical;
+/// A function located in XComGameState_Unit. This variant of the vanilla SetupActionsForBeginTurn comes with a slew of optional parameters to allow
+/// for greater control. If none of the parameters are used, it'll default to behaving like the vanilla SetupActionsForBeginTurn function.
+/// Below is the definitions of these parameters and what they are for:
+///
+/// optional bool GiveActionPoints = true - Controls whether or not a unit will gain the default 2 standard action points.
+///
+///	optional bool ResetUntouchable = true - Controls whether or not the units with untouchable will be reset and able to be acquired again.
+///
+///	optional bool ResetGotFreeFireAction = true - Controls whether or not hair trigger procs reset.
+/// 
+///	optional bool HandleMovesUnitValues = true - Units have some movement related unit values get manipulated in the vanilla SetupActionsForBeginTurn function. This determines if that happens or not.
+/// 
+///	optional bool CleanupBeginTurnUnitValues = true - Controls whether or not unit values with eCleanup_BeginTurn get reset.
+/// 
+///	optional bool UpdateTurnStartLocation = true - Controls whether or not the unit's turn start location gets updated.
+/// 
+///	optional bool ResetPanicTestsPerformedThisTurn = true - Controls whether or not the tracker for the amount of panic tests performed gets reset.
 function CHL_SetupActionsForBeginTurn(	optional bool GiveActionPoints = true,
 										optional bool ResetUntouchable = true,
 										optional bool ResetGotFreeFireAction = true,
@@ -7510,6 +7517,7 @@ function CHL_SetupActionsForBeginTurn(	optional bool GiveActionPoints = true,
 	if(ResetPanicTestsPerformedThisTurn)
 		PanicTestsPerformedThisTurn = 0;
 }
+// End Issue #1325
 
 function SetupActionsForBeginTurn()
 {
