@@ -4682,16 +4682,53 @@ simulated state TurnPhase_UnitActions
 
 		if( !bReturningFromInterruptedTurn )
 		{
-			foreach GroupState.m_arrMembers(UnitRef)
-			{
-				// Create a new state object on NewPhaseState for UnitState
-				NewUnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', UnitRef.ObjectID));
-				NewUnitState.SetupActionsForBeginTurn();
-			}
+			/*	
+				Start issue #1325:
+			 
+				Basic Description: New condition added for the opt in interruption fix. 
 
-			// Trigger the UnitGroupTurnBegun event
-			EventManager = `XEVENTMGR;
-			EventManager.TriggerEvent('UnitGroupTurnBegun', GroupState, GroupState, NewGameState);
+				Long Description: If the unit's group is involved in an initiative interruption (most commonly happens via skirmisher interrupt),
+				then we use the new CHL_SetupActionsForBeginTurn function that was also provided for issue 1325. With the new function, we can customize what exactly happens to a unit
+				on a turn interruption. This does require the user (or a mod) opts into the fix though. If not opted into, or this logic is approached without a turn interruption occuring, then
+				the "else" path is fired, which is exactly what happens normally prior to this CHL change. For more details on the individual options involved with CHL_SetupActionsForBeginTurn 
+				and why their starting values are the way they are, review the associated config options found in XComGameCore.ini.
+			 */
+			if(class'CHHelpers'.default.EnableImprovedInterruptionLogic && BattleData.InterruptingGroupRef.ObjectID == GroupState.ObjectID)
+			{
+				foreach GroupState.m_arrMembers(UnitRef)
+				{
+					// Create a new state object on NewPhaseState for UnitState
+					NewUnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', UnitRef.ObjectID));
+					NewUnitState.CHL_SetupActionsForBeginTurn(class'CHHelpers'.default.InterruptionsGiveActionPoints,
+															class'CHHelpers'.default.InterruptionsResetUntouchable,
+															class'CHHelpers'.default.InterruptionsResetGotFreeFireAction,
+															class'CHHelpers'.default.InterruptionsHandleMovementUnitValues,
+															class'CHHelpers'.default.InterruptionsCleanupBeginTurnUnitValues,
+															class'CHHelpers'.default.InterruptionsUpdateTurnStartLocation,
+															class'CHHelpers'.default.InterruptionsResetPanicTestsPerformedThisTurn);
+				}
+
+				if(class'CHHelpers'.default.InterruptionsTriggerGroupTurnBegunEvent)
+				{
+					// Trigger the UnitGroupTurnBegun event
+					EventManager = `XEVENTMGR;
+					EventManager.TriggerEvent('UnitGroupTurnBegun', GroupState, GroupState, NewGameState);
+				}
+			}
+			else
+			{
+				foreach GroupState.m_arrMembers(UnitRef)
+				{
+					// Create a new state object on NewPhaseState for UnitState
+					NewUnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', UnitRef.ObjectID));
+					NewUnitState.SetupActionsForBeginTurn();
+				}
+
+				// Trigger the UnitGroupTurnBegun event
+				EventManager = `XEVENTMGR;
+				EventManager.TriggerEvent('UnitGroupTurnBegun', GroupState, GroupState, NewGameState);
+			}
+			//End issue #1325
 		}
 
 		SubmitGameState(NewGameState);
