@@ -907,14 +907,16 @@ static function X2AbilityTemplate Amplify()
 
 static function X2AbilityTemplate Pillar()
 {
-	local X2AbilityTemplate				Template;
-	local X2AbilityTarget_Cursor		Cursor;
-	local X2AbilityMultiTarget_Radius	RadiusMultiTarget;
-	local X2AbilityCost_ActionPoints	ActionPointCost;
-	local X2Effect_SpawnDestructible	PillarEffect;
-	local X2AbilityCooldown				Cooldown;
+	local X2AbilityTemplate					Template;
+	local X2AbilityTarget_Cursor			Cursor;
+	local X2AbilityMultiTarget_Radius		RadiusMultiTarget;
+	local X2AbilityCost_ActionPoints		ActionPointCost;
+	local X2Effect_SpawnDestructible		PillarEffect;
+	local X2AbilityCooldown					Cooldown;
+	// Variable for Issue #1288
+	local X2AbilityTrigger_EventListener	EventListener;
 
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'Pillar')
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'Pillar');
 
 	Template.AbilityToHitCalc = default.DeadEye;
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
@@ -947,6 +949,16 @@ static function X2AbilityTemplate Pillar()
 	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Pillar";
 	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
 	Template.ConcealmentRule = eConceal_Never;
+	// Start Issue #1288 - Skip Exit Cover and add EventListener
+	Template.bSkipExitCoverWhenFiring = true;
+	
+	EventListener = new class'X2AbilityTrigger_EventListener';
+	EventListener.ListenerData.EventID = 'AbilityActivated';
+	EventListener.ListenerData.Filter = eFilter_None;
+	EventListener.ListenerData.Deferral = ELD_OnVisualizationBlockCompleted;
+	EventListener.ListenerData.EventFn = class'XComGameState_Ability'.static.TemplarPillarListener;
+	Template.AbilityTriggers.AddItem(EventListener);
+	// End Issue #1288
 
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
 	Template.AddShooterEffectExclusions();
