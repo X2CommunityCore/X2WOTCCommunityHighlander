@@ -3887,6 +3887,98 @@ function EventListenerReturn ChannelMoveListener(Object EventData, Object EventS
 	return ELR_NoInterrupt;
 }
 
+// Start Issue #1288 - Add EventListener to update cover on Templar Pillar directly after spawning
+/// HL-Docs: ref:Bugfixes; issue:1288
+/// Fixes a bug in which a unit's cover is not properly updated when a pillar is spawned directly adjacent to them (i.e. they did not move into it)
+/// The fix uses an eventlistener deferred to the end of the visualization block to carry out additional processing & update the unit's visibility.
+function EventListenerReturn TemplarPillarListener(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
+{
+	local XComGameState					NewGameState;
+	local XComGameState_Ability			ActivatedAbilityState;
+	local XComGameStateContext_Ability  AbilityContext;
+	local XComGameState_Unit			SourceUnit; 
+	local XComGameState_Unit			AffectedUnit; 
+	local Vector						PillarPosition;
+	local TTile							PillarTargetTile;
+	local TTile							CoverTile;	
+	local array<TTile>					CoverTiles;
+	local array<StateObjectReference>	UnitsOnTile;
+	local StateObjectReference			UnitRef;
+	local XComWorldData					WorldData;
+
+	WorldData = `XWORLD;
+
+	AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
+    if(AbilityContext == none || AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt)
+        return ELR_NoInterrupt;
+
+	SourceUnit = XComGameState_Unit(EventSource);
+	if (SourceUnit == none)     
+        return ELR_NoInterrupt;
+
+	ActivatedAbilityState = XComGameState_Ability(EventData);
+	if (ActivatedAbilityState == none || ActivatedAbilityState.GetMyTemplateName() != 'Pillar')
+        return ELR_NoInterrupt;
+	
+	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Update Pillar Cover Situation");
+
+	PillarPosition = AbilityContext.InputContext.TargetLocations[0];
+	PillarTargetTile = `XWORLD.GetTileCoordinatesFromPosition(PillarPosition);	
+	GetUpdateTiles(PillarTargetTile, CoverTiles);
+	
+	foreach CoverTiles(CoverTile)
+	{
+		UnitsOnTile = WorldData.GetUnitsOnTile(CoverTile);
+		foreach UnitsOnTile(UnitRef)
+		{
+			AffectedUnit = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', UnitRef.ObjectID));
+			AffectedUnit.bRequiresVisibilityUpdate = true;
+		}
+	}
+		
+	XComGameStateContext_ChangeContainer(NewGameState.GetContext()).BuildVisualizationFn = PillarPostAbility_BuildVisualization;
+	`TACTICALRULES.SubmitGameState(NewGameState);	
+
+	return ELR_NoInterrupt;
+}
+// Issue #1288 - Helper to get the array of tiles which grant cover around the pillar
+protected static function GetUpdateTiles(TTile Tile, out array<TTile> Tiles)
+{
+	// center tile
+	Tiles.AddItem(Tile);
+
+	// adjacent x tiles
+	Tile.X -= 1;
+	Tiles.AddItem(Tile);
+	Tile.X += 2;
+	Tiles.AddItem(Tile);
+	Tile.X -= 1;
+
+	// adjacent y tiles
+	Tile.Y -= 1;
+	Tiles.AddItem(Tile);
+	Tile.Y += 2;
+	Tiles.AddItem(Tile);
+}
+// Issue #1288 - Syncs visualizers for affected units and forces a visibility update
+static function PillarPostAbility_BuildVisualization(XComGameState VisualizeGameState)
+{
+	local XComGameState_Unit UnitState;
+	local VisualizationActionMetadata BuildTrack;
+	local X2Action_UpdateFOW FOWAction;
+
+	foreach VisualizeGameState.IterateByClassType(class'XComGameState_Unit', UnitState)
+	{	
+		BuildTrack.StateObject_NewState = UnitState;
+		BuildTrack.StateObject_OldState = UnitState;
+		class'X2Action_SyncVisualizer'.static.AddToVisualizationTree(BuildTrack, VisualizeGameState.GetContext());
+	}
+
+	FOWAction = X2Action_UpdateFOW( class'X2Action_UpdateFOW'.static.AddToVisualizationTree( BuildTrack, VisualizeGameState.GetContext()) );
+	FOWAction.ForceUpdate = true;
+}
+// End Issue #1288
+
 function MaxFocusMessageVisualization(XComGameState VisualizeGameState)
 {
 	local XComGameState_Unit UnitState;
