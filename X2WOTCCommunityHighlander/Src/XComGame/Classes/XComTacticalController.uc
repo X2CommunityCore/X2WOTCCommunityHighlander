@@ -574,9 +574,15 @@ simulated function bool Visualizer_CycleToNextAvailableUnit(int Direction)
 		// Force all units to be selectable regardless of action points, if AllowSelectAll is on.
 		if ((`CHEATMGR != None && `CHEATMGR.bAllowSelectAll))
 		{
-			bActionsAvailable = true;
+			if(class'CHHelpers'.default.ExcludeCiviliansFromX2AllowSelectall && SelectNewUnit.GetTeam() == eTeam_Neutral)
+			{
+				bActionsAvailable = false;
+			}
+			else			
+			{
+				bActionsAvailable = true;
+			}
 		}
-
 		if( bActionsAvailable && Visualizer_SelectUnit(SelectNewUnit) )
 		{
 			return true;
@@ -1373,7 +1379,15 @@ function bool GameStateMoveUnit(XGUnit kUnit,
 // ---------------------------------------------------------------------
 simulated function bool PerformEndTurn(EPlayerEndTurnType eEndTurnType)
 {
-	// Aural feedback for player input
+	// Begin Issue #1486 - When ending the turn using 'improved' mechanics, switch off bAllowSelectAll to allow the AI to process 
+	// the alien turn normally. This maintains FOW and Unit Visibility selections applied previously.
+	if(class'CHHelpers'.default.UseImprovedX2AllowSelectAllBehavior)
+	{
+		`CHEATMGR.bAllowSelectAll = false;
+	}
+	// End Issue #1486
+
+	// Aural feedback for player input	
 	if(eEndTurnType == ePlayerEndTurnType_PlayerInput)
 	{
 		PlaySound(SoundCue'SoundUI.PositiveUISelctionCue', true, true);

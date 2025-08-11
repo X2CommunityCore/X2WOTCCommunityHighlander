@@ -65,9 +65,12 @@ function Activated(TPOV CurrentPOV, X2Camera PreviousActiveCamera, X2Camera_Look
 	{
 		History = `XCOMHISTORY;
 		ActiveUnit = XComGameState_Unit(History.GetGameStateForObjectID(LocalController.GetActiveUnitStateRef().ObjectID));
+		// Begin Issue #1486 - Allow the default camera to pan to units owned by the AI when the X2AllowSelectAll command is used
 		if(ActiveUnit != none 
-			&& !ActiveUnit.ControllingPlayerIsAI() 
-			&& ActiveUnit.ControllingPlayer == GetActivePlayer())
+			&& ((!ActiveUnit.ControllingPlayerIsAI() 
+			&& ActiveUnit.ControllingPlayer == GetActivePlayer()) 
+			|| (`CHEATMGR != None && `CHEATMGR.bAllowSelectAll)))
+		// End Issue #1486
 		{
 			CenterOnUnitIfOffscreen(ActiveUnit);
 		}
@@ -113,9 +116,12 @@ function EventListenerReturn OnCameraFocusUnit(Object EventData, Object EventSou
 	{
 		History = `XCOMHISTORY;
 		ActiveUnit = XComGameState_Unit(History.GetGameStateForObjectID(LocalController.GetActiveUnitStateRef().ObjectID));
+		// Begin Issue #1486 - Allow the default camera to pan to units owned by the AI when the X2AllowSelectAll command is used
 		if(ActiveUnit != none 
-			&& !ActiveUnit.ControllingPlayerIsAI() 
-			&& ActiveUnit.ControllingPlayer == GetActivePlayer())
+			&& ((!ActiveUnit.ControllingPlayerIsAI() 
+			&& ActiveUnit.ControllingPlayer == GetActivePlayer()) 
+			|| (`CHEATMGR != None && `CHEATMGR.bAllowSelectAll)))
+		// End Issue #1486
 		{
 			CenterOnUnitIfOffscreen(ActiveUnit);
 		}
@@ -310,8 +316,8 @@ event OnActiveUnitChanged(XComGameState_Unit NewActiveUnit)
 	super.OnActiveUnitChanged(NewActiveUnit);
 
 	MoveAbilitySubmitted = false;
-
-	if( NewActiveUnit.IsPlayerControlled() )
+	// Single Line for Issue #1486 - Allow the camera to focus on non-player controlled units when X2AllowSelectAll is used
+	if( NewActiveUnit.IsPlayerControlled() || (`CHEATMGR != None && `CHEATMGR.bAllowSelectAll))
 	{
 		CenterOnUnitIfOffscreen(NewActiveUnit);
 		LastPlayerControlledUnit = NewActiveUnit;
@@ -429,7 +435,12 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 		if (AbilityContext.InputContext.AbilityTemplateName == 'StandardMove')
 		{
 			UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(AbilityContext.InputContext.SourceObject.ObjectID));
-			if (UnitState != none && !UnitState.ControllingPlayerIsAI() && UnitState.ControllingPlayer == GetActivePlayer())
+			// Begin Issue #1486 - Allow the default camera to pan to units owned by the AI when the X2AllowSelectAll command is used
+			if (UnitState != none 
+			&& ((!UnitState.ControllingPlayerIsAI() 
+			&& UnitState.ControllingPlayer == GetActivePlayer())
+			|| (`CHEATMGR != None && `CHEATMGR.bAllowSelectAll)))				
+			// End Issue #1486
 			{
 				// A move action was just submitted, will cause disabling of focuspointexpiry so building vis doesnt fluctuate
 				//while we are waiting for the camera to switch to the follow moving unit camera
