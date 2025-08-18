@@ -6,10 +6,29 @@ var() bool bDestroyOnRemoval;	//	destroy the destructible actor when the effect 
 var Texture2D TargetingIcon;
 var bool bTargetableBySpawnedTeamOnly;
 
+// Begin Issue #1288 - Register X2Effect_SpawnDestructible for a post-visualization visibility update event
+// This allows the cover situation to be refreshed once the visualization of the ability is complete
+function RegisterForEvents(XComGameState_Effect EffectGameState)
+{
+	local X2EventManager EventMan;
+	local Object EffectObj;
+
+	EventMan = `XEVENTMGR;
+	EffectObj = EffectGameState;
+	EventMan.RegisterForEvent(EffectObj, 'RefreshVisibilityOnVisualizationComplete', EffectGameState.RequestVisibilityRefreshFn, ELD_OnVisualizationBlockCompleted);
+}
+// End Issue #1288
 simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffectParameters, XComGameState_BaseObject kNewTargetState, XComGameState NewGameState, XComGameState_Effect NewEffectState)
 {
 	local XComGameState_Unit SourceUnit;
 	local XComGameState_Destructible DestructibleState;
+	// Begin Issue #1288 - Add & define ability state and event manager
+	local X2EventManager EventMgr;
+	local XComGameState_Ability AbilityState;
+		
+	EventMgr = `XEVENTMGR;
+	AbilityState = XComGameState_Ability(`XCOMHISTORY.GetGameStateForObjectID(ApplyEffectParameters.AbilityStateObjectRef.ObjectID));
+	// End Issue #1288
 
 	SourceUnit = XComGameState_Unit(NewGameState.GetGameStateForObjectID(ApplyEffectParameters.SourceStateObjectRef.ObjectID));
 	`assert(SourceUnit != none);
@@ -22,6 +41,8 @@ simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffe
 
 	NewEffectState.CreatedObjectReference = DestructibleState.GetReference();
 	NewEffectState.ApplyEffectParameters.ItemStateObjectRef = DestructibleState.GetReference();
+	// Single line for Issue #1288 - Trigger the visibility refresh once the destructible is created 
+	EventMgr.TriggerEvent('RefreshVisibilityOnVisualizationComplete', AbilityState, SourceUnit, NewGameState);
 }
 
 simulated function AddX2ActionsForVisualization(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata, name EffectApplyResult)

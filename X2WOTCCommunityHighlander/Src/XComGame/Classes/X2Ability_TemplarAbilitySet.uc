@@ -950,7 +950,9 @@ static function X2AbilityTemplate Pillar()
 
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
 	Template.AddShooterEffectExclusions();
-
+	// Single line for Issue #1288 - Remove step out animation as it looks silly
+	Template.bSkipExitCoverWhenFiring = true;
+	
 	PillarEffect = new class'X2Effect_Pillar';
 	PillarEffect.BuildPersistentEffect(1, false, true, false, eGameRule_PlayerTurnBegin);	
 	PillarEffect.DestructibleArchetype = "FX_Templar_Pillar.Pillar_Destructible";
