@@ -1544,6 +1544,38 @@ function EventListenerReturn GenerateCover_AbilityActivated(Object EventData, Ob
 	return ELR_NoInterrupt;
 }
 
+// Start Issue #1288 - Create an eventlistener which allows refreshing of all tactical visibility via the visibility manager
+/// HL-Docs: ref:Bugfixes; issue:1288
+/// Fixes a bug in which a unit's cover may not be not correctly updated by the visibility manager when destructible actors are created directly adjacent 
+/// to them (e.g. Pillar). The fix uses an eventlistener deferred to the end of the visualization block to clear and refresh the visibility manager. 
+/// Resetting it in this way is a bit of a sledgehammer but since much of the cover/visibility system is native, limited viable alternatives exist.
+function EventListenerReturn RequestVisibilityRefreshFn(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
+{
+	local XComGameState_Ability				ActivatedAbilityState;
+	local XComGameStateContext_Ability		AbilityContext;
+	local XComGameState_Unit				SourceUnit;
+	local X2GameRulesetVisibilityManager	VisibilityMgr;
+
+	AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
+    if(AbilityContext == none || AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt)
+	    return ELR_NoInterrupt;
+
+	SourceUnit = XComGameState_Unit(EventSource);
+	if (SourceUnit == none)
+	    return ELR_NoInterrupt;
+	
+	ActivatedAbilityState = XComGameState_Ability(EventData);
+	if (ActivatedAbilityState == none)
+		return ELR_NoInterrupt;	
+
+	VisibilityMgr = `TACTICALRULES.VisibilityMgr;
+	VisibilityMgr.Clear();
+    VisibilityMgr.InitialUpdate();
+
+	return ELR_NoInterrupt;
+}
+// End Issue #1288
+
 function EventListenerReturn SustainActivated(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
 {
 	local XComGameState_Unit UnitState;
