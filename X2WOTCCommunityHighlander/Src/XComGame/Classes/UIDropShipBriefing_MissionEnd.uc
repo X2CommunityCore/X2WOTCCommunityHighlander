@@ -79,7 +79,14 @@ simulated function InitScreen(XComPlayerController InitController, UIMovie InitM
 		MissionResult = class'UIUtilities_Text'.static.GetColoredText(class'UIMissionSummary'.default.m_strMissionFailed, eUIState_Bad);
 	}
 
-	PosterTexture = `XENGINE.m_kPhotoManager.GetLatestPoster(SettingsState.GameIndex);
+	// Start Issue #1453 - Prevent unrelated posters from appearing on the dropship when 
+	// automatic photos are disabled an no manual one was taken on the last mission
+	if(!class'CHHelpers'.default.bDisableAutomaticMissionPhoto || class'CHHelpers'.default.bManualPhotoTakenOnLastMission)
+	{
+		PosterTexture = `XENGINE.m_kPhotoManager.GetLatestPoster(SettingsState.GameIndex);
+		class'CHHelpers'.default.bManualPhotoTakenOnLastMission = false;
+	}
+	// End Issue #1453
 
 	MC.BeginFunctionOp("updatePostBriefing");
 	MC.QueueString(BattleData.m_strOpName);
