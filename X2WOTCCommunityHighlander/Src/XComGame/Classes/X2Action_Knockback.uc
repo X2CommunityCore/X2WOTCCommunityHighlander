@@ -347,6 +347,14 @@ Begin:
 	if(!NewUnitState.IsDead() && !NewUnitState.IsIncapacitated())
 	{		
 		//Reset visualizers for primary weapon, in case it was dropped
+		// Start Issue #1290
+		// Delete the dummy weapon that was created when unit dies and drops their weapon
+		if(Unit.DummyWeapon != None)
+		{
+			Unit.DummyWeapon.Destroy();
+		}
+		// End Issue #1290
+
 		Unit.GetInventory().GetPrimaryWeapon().Destroy(); //Aggressively get rid of the primary weapon, because dropping it can really screw things up
 		Unit.ApplyLoadoutFromGameState(NewUnitState, None);
 

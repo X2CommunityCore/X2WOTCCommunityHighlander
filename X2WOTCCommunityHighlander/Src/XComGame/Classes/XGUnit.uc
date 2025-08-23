@@ -119,6 +119,9 @@ var EIdleTurretState IdleTurretState;
 
 var transient Actor TempFOWViewer;
 
+// Issue #1290 - A variable for a dropped weapon when unit dies
+var transient XComWeapon DummyWeapon;
+
 
 replication
 {
@@ -3209,6 +3212,11 @@ simulated function DropWeapon()
 	local Rotator   rRot;
 	local XComWeapon kXComWeapon;
 
+	// Start Issue #1290
+	local SkeletalMeshComponent DroppedWeaponMesh;
+	local XComWeapon DroppedWeapon;
+	// End Issue #1290
+
 	// Lose the weapon we're holding here.  Drop it or launch it.
 	kWeapon = GetInventory().GetActiveWeapon();
 
@@ -3216,28 +3224,41 @@ simulated function DropWeapon()
 	{   	
 		kXComWeapon = XComWeapon(kWeapon.m_kEntity);
 		m_kPawn.Mesh.GetSocketWorldLocationAndRotation(kXComWeapon.DefaultSocket, vLoc, rRot);
+
+		// Start Issue #1290
+		/// HL-Docs: ref:Bugfixes; issue:1290
+		/// Update XGUnit::DropWeapon() function with code from Chimera Squad to prevent unit weapons from glitching when dropped on death.
+		// Detach the original weapon
 		m_kPawn.Mesh.DetachComponent(kXComWeapon.Mesh);
 		kXComWeapon.SetBase(None);
-		kWeapon.m_kEntity.AttachComponent(kXComWeapon.Mesh);
-		SkeletalMeshComponent(kXComWeapon.Mesh).SetPhysicsAsset(SkeletalMeshComponent(kXComWeapon.Mesh).PhysicsAsset, true);
-		//GetInventory().DropItem( kWeapon );
-		//GetInventory().UnequipItem();
-		kWeapon.m_kEntity.CollisionComponent = kXComWeapon.Mesh;
-		SkeletalMeshComponent(kXComWeapon.Mesh).PhysicsWeight=1.0f;
-		SkeletalMeshComponent(kXComWeapon.Mesh).ForceSkelUpdate();
-		SkeletalMeshComponent(kXComWeapon.Mesh).UpdateRBBonesFromSpaceBases(TRUE, TRUE);
-		SkeletalMeshComponent(kXComWeapon.Mesh).bSyncActorLocationToRootRigidBody=true;
 
-		kXComWeapon.Mesh.WakeRigidBody();
-		kWeapon.m_kEntity.SetPhysics(PHYS_RigidBody /*PHYS_None*/);
-		kWeapon.m_kEntity.SetHidden(false);
-		kWeapon.m_kEntity.SetLocation(vLoc);
-		kWeapon.m_kEntity.SetRotation(rRot);
+		// Then spawn a separate actor that will be the dropped weapon.
+		DroppedWeapon = Spawn(class'XComWeapon', , 'DroppedWeapon', vLoc, rRot, Actor(kXComWeapon.ObjectArchetype));
+		DroppedWeaponMesh = SkeletalMeshComponent(DroppedWeapon.Mesh);
 
-		SkeletalMeshComponent(kXComWeapon.Mesh).SetRBPosition(vLoc);
-		SkeletalMeshComponent(kXComWeapon.Mesh).SetRBRotation(rRot);
-		SkeletalMeshComponent(kXComWeapon.Mesh).SetRBLinearVelocity(vect(0,0,0), false);
-		SkeletalMeshComponent(kXComWeapon.Mesh).SetRBAngularVelocity(vect(0,0,0), false);
+		kWeapon.DecorateWeaponMesh(DroppedWeaponMesh);
+
+		DroppedWeapon.CollisionComponent = DroppedWeaponMesh;
+		DroppedWeapon.SetPhysics(PHYS_RigidBody);
+		DroppedWeapon.SetVisible(true);
+		DroppedWeaponMesh.PhysicsWeight = 1.0f;
+		DroppedWeaponMesh.ForceSkelUpdate();
+		DroppedWeaponMesh.UpdateRBBonesFromSpaceBases(TRUE, TRUE);
+		DroppedWeaponMesh.bSyncActorLocationToRootRigidBody = true;
+		DroppedWeaponMesh.WakeRigidBody();
+		DroppedWeapon.SetLocation(vLoc);
+		DroppedWeapon.SetRotation(rRot);
+		DroppedWeaponMesh.SetRBPosition(vLoc);
+		DroppedWeaponMesh.SetRBRotation(rRot);
+		DroppedWeaponMesh.SetRBLinearVelocity(vect(0, 0, 0), false);
+		DroppedWeaponMesh.SetRBAngularVelocity(vect(2, 0, 0), false);
+
+		// Assign the new weapon as a dummy which will be deleted if unit is revived
+		DummyWeapon = DroppedWeapon;
+		// Set mesh of weapon to none since it kept showing up despite hiding meshes
+		kXComWeapon.Mesh = None;
+
+		// End Issue #1290
 	}
 }
 
