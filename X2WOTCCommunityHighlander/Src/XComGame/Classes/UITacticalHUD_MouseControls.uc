@@ -123,6 +123,17 @@ simulated function UpdateControls()
 		for(i = 0; i < CommandAbilities.Length; i++)
 		{
 			command = TacticalBindableCommands(eTBC_CommandAbility1 + i);
+
+			/// HL-Docs: ref:Bugfixes; issue:1498
+			/// Fix a crash when assigning commander abilities to invalid hotkeys
+			// Start Issue #1498
+			// All suitable binds have been assigned, so exit the loop
+			if(command > TacticalBindableCommands(eTBC_CommandAbility5))
+			{
+				break;
+			}
+			// End Issue #1498
+
 			AbilityState = XComGameState_Ability(`XCOMHISTORY.GetGameStateForObjectID(CommandAbilities[i].AbilityObjectRef.ObjectID));
 			key = kKeyData.GetPrimaryOrSecondaryKeyStringForAction(kInput, command);
 			label = Caps(AbilityState.GetMyFriendlyName());
