@@ -1335,7 +1335,12 @@ function CheckFirstSightingOfSpecificEnemyFromViewer( XComGameState_Unit Sighted
 	local X2CharacterTemplate CharacterTemplate;
 	local XComGameState_HeadquartersXCom XComHQ;
 	local int i;
-	local bool bPlayFirstSighting;
+	local bool bPlayFirstSighting, bNarrativeAlreadyPlayed;
+	// Variables for Issue #1492
+	local XComNarrativeMoment SightedNarrative;
+	local XComGameState_LadderProgress LadderData;
+
+	LadderData = XComGameState_LadderProgress(`XCOMHISTORY.GetSingleGameStateObjectForClass( class'XComGameState_LadderProgress', true ) );
 
 	if( ViewingUnitState != none )
 	{
@@ -1353,11 +1358,43 @@ function CheckFirstSightingOfSpecificEnemyFromViewer( XComGameState_Unit Sighted
 				if( `CHEATMGR == none || !`CHEATMGR.DisableFirstEncounterVO )
 				{
 					bPlayFirstSighting = false;
+					bNarrativeAlreadyPlayed = false;
 
 					if( GroupLeaderUnitState.IsAlive() )
 					{
 						XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom', true));
-						bPlayFirstSighting = (XComHQ != None) && !XComHQ.HasSeenCharacterTemplate(CharacterTemplate) && !CharacterTemplate.bNeverShowFirstSighted;
+						// Begin Issue #1492
+						/// HL-Docs: ref:Bugfixes; issue:1492
+						/// First, we get the 'first-sighted' narrative moment from the group leader character template. Then, we adjust bPlayFirstSighting 
+						/// to only return true when a narrative moment exists and has not been played already. This reduces the downstream visualizer delay
+						/// to 1 second when XCom discovers a new type of unit while scouting but there is no narrative moment to play. This allows the 
+						/// playing of previously disabled narrative moments, whilst preserving the overall visualization outcome.
+						if (LadderData != none)
+						{
+							if (CharacterTemplate.SightedNarrativeMoments.Length > 1)
+							{
+								SightedNarrative = CharacterTemplate.SightedNarrativeMoments[1];
+								if(SightedNarrative.AmbientMaxPlayCount != 0 && `PRESBASE.GetTimesPlayed(SightedNarrative) >= SightedNarrative.AmbientMaxPlayCount)
+								{
+									bNarrativeAlreadyPlayed = true;
+								}
+							}
+						}
+						else if (CharacterTemplate.SightedNarrativeMoments.Length > 0)
+						{
+							SightedNarrative = CharacterTemplate.SightedNarrativeMoments[0];
+							if(SightedNarrative.AmbientMaxPlayCount != 0 && `PRESBASE.GetTimesPlayed(SightedNarrative) >= SightedNarrative.AmbientMaxPlayCount)
+							{
+								bNarrativeAlreadyPlayed = true;
+							}
+						}
+						else
+						{
+							// There are no sighted narrative moments listed on the character template
+							bNarrativeAlreadyPlayed = true;
+						}
+						bPlayFirstSighting = (XComHQ != None) && !XComHQ.HasSeenCharacterTemplate(CharacterTemplate) && !CharacterTemplate.bNeverShowFirstSighted && !bNarrativeAlreadyPlayed;						
+						// End Issue #1492
 					}
 
 					// If this group has not scampered OR the character template hasn't been seen before, 

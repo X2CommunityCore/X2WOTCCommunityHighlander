@@ -715,8 +715,13 @@ Begin:
 
 			if( RevealContext.FirstSightingMoment != none )
 			{
-				`PRESBASE.UINarrative(RevealContext.FirstSightingMoment);
-				Sleep(FirstSightedDelay * GetDelayModifier());
+				// Start Issue #1492 - Only play the narrative moment on reveal / scamper if it has not been played before
+				if(RevealContext.FirstSightingMoment.AmbientMaxPlayCount == 0 || `PRESBASE.GetTimesPlayed(RevealContext.FirstSightingMoment) < RevealContext.FirstSightingMoment.AmbientMaxPlayCount)
+				{
+					`PRESBASE.UINarrative(RevealContext.FirstSightingMoment);
+					Sleep(FirstSightedDelay * GetDelayModifier());
+				}
+				// End Issue #1492
 			}
 
 			//Play a narrative moment for sighting this type of enemy

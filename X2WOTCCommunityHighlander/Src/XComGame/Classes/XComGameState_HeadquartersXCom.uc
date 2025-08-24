@@ -9096,16 +9096,18 @@ function UpdateGameBoard()
 	super.UpdateGameBoard();
 }
 
+// Begin Issue #1492 - Adjust AddSeenCharacterTemplate & HasSeenCharacterTemplate to use individual template names
+// instead of character group names - changed to allow different narrative moments to be played on units in the same group
 function AddSeenCharacterTemplate(X2CharacterTemplate CharacterTemplate)
 {
-	SeenCharacterTemplates.AddItem(CharacterTemplate.CharacterGroupName);
+	SeenCharacterTemplates.AddItem(CharacterTemplate.DataName);
 }
 
 function bool HasSeenCharacterTemplate(X2CharacterTemplate CharacterTemplate)
 {
-	return (SeenCharacterTemplates.Find(CharacterTemplate.CharacterGroupName) != INDEX_NONE);
+	return (SeenCharacterTemplates.Find(CharacterTemplate.DataName) != INDEX_NONE);
 }
-
+// End Issue #1492
 function XComGameState_WorldRegion GetRegionByName(Name RegionTemplateName)
 {
 	local XComGameStateHistory History;
