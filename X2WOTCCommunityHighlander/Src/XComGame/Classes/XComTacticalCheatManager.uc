@@ -3949,10 +3949,22 @@ exec function X2AllowSelectAll(bool bSetting)
 	if( bSetting && `XWORLD.bDebugEnableFOW )
 	{
 		ToggleFOW();
+		// Begin Issue #1486 - Force visibility to allow proper pathing of alien units
+		// (They will still walk if not activated / alerted)
+		ForceAllUnitsVisible = true;		
+		// Improved functionality alerts and scampers, breaking the default patrol mechanics and allowing the units to move normally
+		if(class'CHHelpers'.default.UseImprovedX2AllowSelectAllBehavior == true)
+		{
+			ToggleIndividualConcealment();
+			X2DebugPodReveals();
+		}
+		// End Issue #1486
 	}
 	else if ( bSetting && !`XWORLD.bDebugEnableFOW )
 	{
 		ToggleFOW();
+		// Single Line for Isuee #1486 - Turn off forced visibility if we're also turning the FOW back on
+		ForceAllUnitsVisible  = false;
 	}
 	
 	//Force all units to be visible
