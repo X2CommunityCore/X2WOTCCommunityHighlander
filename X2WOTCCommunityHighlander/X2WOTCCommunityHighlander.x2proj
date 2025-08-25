@@ -463,6 +463,9 @@
     <Content Include="Src\XComGame\Classes\UITacticalHUD_Enemies.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UITacticalHUD_MouseControls.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UITacticalHUD_SoldierInfo.uc">
       <SubType>Content</SubType>
     </Content>
