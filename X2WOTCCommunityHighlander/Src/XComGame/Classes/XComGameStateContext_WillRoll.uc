@@ -633,7 +633,8 @@ protected function ContextBuildVisualization()
 			LookAtAction.LookAtLocation = WorldLocation;
 			LookAtAction.BlockUntilActorOnScreen = true;
 			LookAtAction.LookAtDuration = 10.0f;		// longer than we need - camera will be removed by tag below
-			LookAtAction.TargetZoomAfterArrival = -0.7f;
+			// Single Line for Issue #919 - Correct the camera zoom level by the maximum zoomed out distance (default can be over-ridden by mods)
+			LookAtAction.TargetZoomAfterArrival = -0.7f * 2600.0f / class'X2Camera_LookAt'.default.ZoomedDistanceFromCursor; 
 			LookAtAction.CameraTag = 'WillTestCamera';
 			LookAtAction.bRemoveTaggedCamera = false;
 
