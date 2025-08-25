@@ -284,6 +284,7 @@ var config bool bDisableAutomaticMissionPhoto;
 var config bool bDisableAutomaticMemorialPhoto;
 var config bool bDisableAutomaticPromotionPhoto;
 var config bool bDisableAutomaticBondPhoto;
+var config bool bManualPhotoTakenOnLastMission;
 // End Issue #1453
 
 // Start Issue #885
