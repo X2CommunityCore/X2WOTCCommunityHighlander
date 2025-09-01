@@ -4199,8 +4199,24 @@ function bool PutItemInInventory(XComGameState AddToGameState, XComGameState_Ite
 	local X2ItemTemplate ItemTemplate;
 
 	ItemTemplate = ItemState.GetMyTemplate();
-
-	if( ItemState.HasBeenModified() || ItemTemplate.bAlwaysUnique )
+	// Begin Issue #1190 - Regorganise to use similar behaviour to unpackcacheitems - guards against
+	// the function potentially placing cache items (instead of their resources) in the inventory
+	if( !bLoot && ItemTemplate.ResourceTemplateName != '' && ItemTemplate.ResourceQuantity > 0 )
+	{
+		ItemTemplate = class'X2ItemTemplateManager'.static.GetItemTemplateManager().FindItemTemplate(ItemTemplate.ResourceTemplateName);
+		if(ItemTemplate != none)
+		{
+			NewInventoryItemState = ItemTemplate.CreateInstanceFromTemplate(AddToGameState);
+			NewInventoryItemState.Quantity = (ItemTemplate.ResourceQuantity * ItemState.Quantity);
+		}
+		if( NewInventoryItemState != none )
+		{
+			HQModified = PutItemInInventory(AddToGameState, NewInventoryItemState) || HQModified;
+			AddToGameState.RemoveStateObject(ItemState.ObjectID);
+		}
+	}
+	// End Issue #1190
+	else if( ItemState.HasBeenModified() || ItemTemplate.bAlwaysUnique )
 	{
 		HQModified = true;
 
@@ -4252,20 +4268,7 @@ function bool PutItemInInventory(XComGameState AddToGameState, XComGameState_Ite
 	if( !bLoot && (ItemTemplate.OnAcquiredFn != None) && ItemTemplate.HideInInventory )
 	{
 		HQModified = ItemTemplate.OnAcquiredFn(AddToGameState, ItemState) || HQModified;
-	}
-
-	// this item awards other items when acquired
-	if( !bLoot && ItemTemplate.ResourceTemplateName != '' && ItemTemplate.ResourceQuantity > 0 )
-	{
-		ItemTemplate = class'X2ItemTemplateManager'.static.GetItemTemplateManager().FindItemTemplate(ItemTemplate.ResourceTemplateName);
-		ItemState = ItemTemplate.CreateInstanceFromTemplate(AddToGameState);
-		ItemState.Quantity = ItemTemplate.ResourceQuantity;
-
-		if( ItemState != none )
-		{
-			HQModified = PutItemInInventory(AddToGameState, ItemState) || HQModified;
-		}
-	}
+	}	
 
 	return HQModified;
 }
@@ -4331,11 +4334,12 @@ function bool UnpackCacheItems(XComGameState NewGameState)
 					NewItemState = UnpackedItemTemplate.CreateInstanceFromTemplate(NewGameState);
 					NewItemState.Quantity = (ItemTemplate.ResourceQuantity * ItemState.Quantity);
 					// Then add whatever it gave us
-					LootRecovered.AddItem(NewItemState.GetReference());
-					bXComHQModified = true;
-				}
-            // Remove the cache item which was opened
-            LootRecovered.Remove(i, 1);
+					LootRecovered.AddItem(NewItemState.GetReference());					
+				} 
+			NewGameState.RemoveStateObject(ItemState.ObjectID);
+            bXComHQModified = true;
+			// Remove the cache item which was opened
+		    LootRecovered.Remove(i, 1);
             i--;
             // End Issue #1190
 			}
