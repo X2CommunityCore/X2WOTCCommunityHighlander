@@ -49,10 +49,75 @@ simulated function UpdateData(const out UISummary_UnitEffect Summary)
 
 	case 'eAbilitySource_Item':
 	case 'eAbilitySource_Standard':
-	default:
+	// Start Issue #1509
+	// 
+	// Adds an event that allows listeners to override the icon color
+	// To achieve this, the default case has been decoupled from the 'eAbilitySource_Item' and 'eAbilitySource_Standard' cases.
 		Icon.SetBGColorState(eUIState_Normal);
+	
+	default:
+		TriggerOverrideEffectIconColor(Summary);
+	// End Issue #1509
 	}
 }
+
+// Start Issue #1509
+/// HL-Docs: feature:OverrideEffectIconColor; issue:1509; tags:tactical
+/// The `OverrideEffectIconColor` event allows mods to override the background and foreground
+/// colors of icons from `X2Effect_Persistent` set as `ePerkBuff_Passive`.
+/// The "background" color is the color of the icon itself, and normally varies depending on
+/// the `AbilitySourceName` property set on the `X2Effect_Persistent`
+/// The "foreground" color is normally always black.
+/// Default colors used by the game can be found in the `UIUtilities_Colors` class.
+///
+/// Listeners should use the Effect's `AbilitySourceName` provided in the `EventData` as a filter
+/// to ensure maximum compatibility.
+///
+/// Performance note: this event gets triggered *a lot*, 
+/// so try to avoid complex computations in listeners to reduce the performance hit. 
+///
+/// ```event
+/// EventID: OverrideEffectIconColor,
+/// EventData: [in name AbilitySourceName, out string BackgroundColor, out string ForegroundColor],
+/// EventSource: none,
+/// NewGameState: none
+/// ```
+simulated function TriggerOverrideEffectIconColor(UISummary_UnitEffect Summary)
+{
+	local XComLWTuple Tuple;
+	local X2EventManager EventMGR;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Data.Add(3);
+	
+	Tuple.Id = 'OverrideEffectIconColorTest';
+	Tuple.Data[0].kind = XComLWTVName;
+	Tuple.Data[0].n = Summary.AbilitySourceName;
+	Tuple.Data[1].kind = XComLWTVString;
+	Tuple.Data[1].s = "";
+	Tuple.Data[2].kind = XComLWTVString;
+	Tuple.Data[2].s = "";
+
+	EventMGR = `XEVENTMGR;
+	EventMGR.TriggerEvent('OverrideEffectIconColor', Tuple);
+	
+	if (Tuple.Data[1].s != "")
+	{
+		Icon.SetBGColor(Tuple.Data[1].s);
+	}
+	else
+	{
+		// no color code was provided, set the original "default" eUIState
+		Icon.SetBGColorState(eUIState_Normal);
+	}
+	
+	// only set the ForegroundColor if a custom one was provided by the event
+	if (Tuple.Data[2].s != "")
+	{
+		Icon.SetForegroundColor(Tuple.Data[2].s);
+	}
+}
+// End Issue #1509
 
 simulated function OnMouseEvent(int cmd, array<string> args)
 {
