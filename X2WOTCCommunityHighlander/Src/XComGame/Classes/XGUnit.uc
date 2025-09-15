@@ -1056,7 +1056,9 @@ simulated function bool IsAlien_CheckByCharType()
 	UnitState = XComGameState_Unit(History.GetGameStateForObjectID(ObjectID));
 	if (UnitState != none)
 	{
-		return UnitState.IsAlien();
+	/// HL-Docs: ref:Bugfixes; issue:1508
+	/// XGUnit.UnitSpeak can now allow alien pawns that are used for XCOM soldiers to use voicepacks and speak.
+		return UnitState.IsAlien() && !UnitState.IsSoldier();
 	}
 	
 	return false;
