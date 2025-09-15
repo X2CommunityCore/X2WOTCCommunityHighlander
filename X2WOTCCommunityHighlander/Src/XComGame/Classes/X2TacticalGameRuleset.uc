@@ -5059,8 +5059,11 @@ simulated state TurnPhase_UnitActions
 		if( bActionsAvailable )
 		{
 			bWaitingForNewStates = true;	//If there are actions available, indicate that we are waiting for a decision on which one to take
-
-			if( !UnitActionPlayerIsRemote() )
+			// Single Line for Issue #1486 - When using X2AllowSelectAll, we need to bypass the reselection of the player visualizer when
+			// a new gamestate is submitted but the unit we're controlling (which may not belong to us) still has actions left -
+			// this prevents the game from 'tabbing away' from units which are not on our team but which we may still may be controlling.
+			// This is most obvious when issuing debug commands such as ttc / giveactionpoints
+			if( !UnitActionPlayerIsRemote() && (`CHEATMGR == none || !`CHEATMGR.bAllowSelectAll))
 			{				
 				PlayerState = XComGameState_Player(CachedHistory.GetGameStateForObjectID(UnitState.ControllingPlayer.ObjectID));
 				`assert(PlayerState != none);
