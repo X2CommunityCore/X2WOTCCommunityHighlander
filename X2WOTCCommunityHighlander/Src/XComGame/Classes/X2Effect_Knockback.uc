@@ -538,7 +538,6 @@ simulated function AddX2ActionsForVisualization(XComGameState VisualizeGameState
 	local X2VisualizerInterface TargetVisualizerInterface;
 	local VisualizationActionMetadata ActionTrack, EmptyTrack;
 	local XComGameState_Unit UnitState;
-	local X2Action_ApplyWeaponDamageToUnit DamageAction;
 	local DamageResult DmgResult;
 
 	if (EffectApplyResult == 'AA_Success')
@@ -562,7 +561,7 @@ simulated function AddX2ActionsForVisualization(XComGameState VisualizeGameState
 
 					`XCOMHISTORY.GetCurrentAndPreviousGameStatesForObjectID(UnitState.ObjectID, ActionTrack.StateObject_OldState, ActionTrack.StateObject_NewState,, VisualizeGameState.HistoryIndex);
 
-					DamageAction = X2Action_ApplyWeaponDamageToUnit(class'X2Action_ApplyWeaponDamageToUnit'.static.AddToVisualizationTree(ActionTrack, VisualizeGameState.GetContext(), false, KnockbackAction));
+					class'X2Action_ApplyWeaponDamageToUnit'.static.AddToVisualizationTree(ActionTrack, VisualizeGameState.GetContext(), false, KnockbackAction);
 
 					// This handles applying X2Action_Death among other things
 					TargetVisualizerInterface = X2VisualizerInterface(ActionTrack.VisualizeActor);
