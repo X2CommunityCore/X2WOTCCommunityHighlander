@@ -11,6 +11,6 @@ defaultproperties
 {
 	MajorVersion = 1;
 	MinorVersion = 30;
-	PatchVersion = 2;
+	PatchVersion = 4;
 	Commit = "";
 }
