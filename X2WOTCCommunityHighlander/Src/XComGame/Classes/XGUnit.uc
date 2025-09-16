@@ -1863,7 +1863,10 @@ function OnDeath( class<DamageType> DamageType, XGUnit kDamageDealer )
 	local XGPlayer PlayerToNotify;	
 //	Issue #1398 - Variable no longer required here - moved to DelaySpeechSquadMemberDead() function
 //	local bool kIsRobotic;
+//	Issue #1501 - Variable to check dead unit state for voiceline processing
+	local XComGameState_Unit	DeadUnit;
 
+	DeadUnit = GetVisualizedGameState();
 	UnitSpeak('DeathScream', true);
 
 	// Notify all players of the death
@@ -1912,7 +1915,18 @@ function OnDeath( class<DamageType> DamageType, XGUnit kDamageDealer )
 	/// 'Critically Wounded' voicelines from playing alongside the 'Death Scream' voiceline if a unit is killed. 
 	/// Additionally, it adds a delay to the 'Squad Member Dead' voicelines to reduce overlapy with deathscream 
 	/// voicelines that may already be playing.
-	SetTimer(class'CHHelpers'.default.fSquadMemberDeadVoicelineDelay, false, 'DelaySpeechSquadMemberDead', self);
+	// Start Issue #1501
+	/// HL-Docs: ref:Bugfixes; issue:1501
+	/// Check that the unit that died is a soldier and that if it is mind controlled, that it is not on our team
+	/// (i.e. we want to play squadmate dead lines for mind controlled XCom units that die while on the other team's side)
+	if(DeadUnit.IsSoldier())
+	{
+		if(!DeadUnit.IsMindControlled() || DeadUnit.IsMindControlled() && DeadUnit.GetTeam() != eTeam_XCom)
+		{
+			SetTimer(class'CHHelpers'.default.fSquadMemberDeadVoicelineDelay, false, 'DelaySpeechSquadMemberDead', self);
+		}
+	// End Issue #1501
+	}
 	// End Issue #1398
 }
 // Start Issue #1398
