@@ -715,8 +715,15 @@ Begin:
 
 			if( RevealContext.FirstSightingMoment != none )
 			{
-				`PRESBASE.UINarrative(RevealContext.FirstSightingMoment);
-				Sleep(FirstSightedDelay * GetDelayModifier());
+				// Start Issue #1492 - Check whether the narrative moment has already been played
+				if( XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom')).CanPlayAmbientNarrativeMoment(RevealContext.FirstSightingMoment))
+				{					
+					`PRESBASE.UINarrative(RevealContext.FirstSightingMoment);				
+					// Issue #1492 - Update the Ambient Narrative Moments Array with the narrative we just played
+					 XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom')).UpdateAmbientNarrativeMoments(RevealContext.FirstSightingMoment);
+					Sleep(FirstSightedDelay * GetDelayModifier());
+				}
+				// End Issue #1492
 			}
 
 			//Play a narrative moment for sighting this type of enemy

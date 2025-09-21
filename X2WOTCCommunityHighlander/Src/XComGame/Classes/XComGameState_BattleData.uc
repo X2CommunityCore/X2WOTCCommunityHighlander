@@ -1335,7 +1335,12 @@ function CheckFirstSightingOfSpecificEnemyFromViewer( XComGameState_Unit Sighted
 	local X2CharacterTemplate CharacterTemplate;
 	local XComGameState_HeadquartersXCom XComHQ;
 	local int i;
-	local bool bPlayFirstSighting;
+	// Variables for Issue #1492
+	local bool bPlayFirstSighting, bNarrativeAlreadyPlayed;
+	local XComNarrativeMoment SightedNarrative;
+	local XComGameState_LadderProgress LadderData;
+
+	LadderData = XComGameState_LadderProgress(`XCOMHISTORY.GetSingleGameStateObjectForClass( class'XComGameState_LadderProgress', true ) );
 
 	if( ViewingUnitState != none )
 	{
@@ -1353,13 +1358,41 @@ function CheckFirstSightingOfSpecificEnemyFromViewer( XComGameState_Unit Sighted
 				if( `CHEATMGR == none || !`CHEATMGR.DisableFirstEncounterVO )
 				{
 					bPlayFirstSighting = false;
+					bNarrativeAlreadyPlayed = false;
 
 					if( GroupLeaderUnitState.IsAlive() )
 					{
 						XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom', true));
-						bPlayFirstSighting = (XComHQ != None) && !XComHQ.HasSeenCharacterTemplate(CharacterTemplate) && !CharacterTemplate.bNeverShowFirstSighted;
-					}
-
+						// Begin Issue #1492 - Checks for narrative moments that have been played already
+						if (LadderData != none)
+						{							
+							if (CharacterTemplate.SightedNarrativeMoments.Length > 1)
+							{
+								SightedNarrative = CharacterTemplate.SightedNarrativeMoments[1];
+								if(!XComHQ.CanPlayAmbientNarrativeMoment(SightedNarrative))
+								{									
+									bNarrativeAlreadyPlayed = true;
+								}
+							}
+						}
+						else if (CharacterTemplate.SightedNarrativeMoments.Length > 0)
+						{
+							SightedNarrative = CharacterTemplate.SightedNarrativeMoments[0];						
+							if(!XComHQ.CanPlayAmbientNarrativeMoment(SightedNarrative))
+							{						
+								bNarrativeAlreadyPlayed = true;
+							}
+						}
+						else
+						{
+							// Issue #1492 - There are no sighted narrative moments listed on the character template							
+							bNarrativeAlreadyPlayed = true;
+						}
+						// Issue #1492 - Decision on whether to play the first sighted narrative now depends on the individual character template
+						// *and* whether or not the narrative has already been played
+						bPlayFirstSighting = (XComHQ != None) && !XComHQ.HasSeenIndividualCharacterTemplate(CharacterTemplate) && !CharacterTemplate.bNeverShowFirstSighted && !bNarrativeAlreadyPlayed;						
+						// End Issue #1492
+					}					
 					// If this group has not scampered OR the character template hasn't been seen before, 
 					if( !AIGroupState.bProcessedScamper || bPlayFirstSighting )
 					{
@@ -1377,7 +1410,9 @@ function CheckFirstSightingOfSpecificEnemyFromViewer( XComGameState_Unit Sighted
 						{
 							// Update the HQ state to record that we saw this enemy type
 							XComHQ = XComGameState_HeadquartersXCom(NewGameState.ModifyStateObject(XComHQ.Class, XComHQ.ObjectID));
-							XComHQ.AddSeenCharacterTemplate(CharacterTemplate);
+							XComHQ.AddSeenIndividualCharacterTemplate(CharacterTemplate);
+							// Single Line for Issue #1492 - Update the narrative moments array with the narrative we just played
+							XComHQ.UpdateAmbientNarrativeMoments(SightedNarrative);
 						}
 
 						NewGameState.GetContext().SetAssociatedPlayTiming(SPT_AfterSequential);
