@@ -348,7 +348,9 @@ static function X2AbilityTemplate DarkEventAbility_Counterattack()
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	Template.eAbilityIconBehaviorHUD = EAbilityIconBehavior_NeverShow;
 	Template.Hostility = eHostility_Neutral;
-
+	// Single line for Issue #1515 - Assign the counter-attack ability to the primary weapon
+	Template.DefaultSourceItemSlot = eInvSlot_PrimaryWeapon;
+	
 	TargetStyle = new class'X2AbilityTarget_Self';
 	Template.AbilityTargetStyle = TargetStyle;
 
@@ -384,7 +386,8 @@ static function X2AbilityTemplate DarkEventAbility_Counterattack()
 	// The shooter gets a free point that can be used to overwatch
 	ActionPointsEffect = new class'X2Effect_GrantActionPoints';
 	ActionPointsEffect.NumActionPoints = 1;
-	ActionPointsEffect.PointType = class'X2CharacterTemplateManager'.default.StandardActionPoint;
+	// Single line for Issue #1515 - Change the action point type from a standard AP to a custom AP specifically for this Dark Event
+	ActionPointsEffect.PointType = 'DE_Overwatch';
 	Template.AddShooterEffect(ActionPointsEffect);
 
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
@@ -397,9 +400,28 @@ static function X2AbilityTemplate DarkEventAbility_Counterattack()
 
 static function X2AbilityTemplate DarkEventAbility_Overwatch()
 {
-	local X2AbilityTemplate Template;
+	local X2AbilityTemplate				Template;
+	
+	// Start Issue #1515
+	/// HL-Docs: ref:Bugfixes; issue:1515
+	/// Adjust the 'counter-attack' dark event ability so that it is correctly applied to the primary weapon of the 
+	/// firing unit, and instead of granting a standard action point, it now grants a custom action point that can 
+	/// only be used for the dark event ability.	
+	local X2AbilityCost_ActionPoints	ActionPointsCost;
+	local int							i;
 
 	Template = class'X2Ability_DefaultAbilitySet'.static.AddOverwatchAbility('DarkEventAbility_Overwatch');
+	Template.DefaultSourceItemSlot = eInvSlot_PrimaryWeapon;
 
+	for (i = 0; i < Template.AbilityCosts.Length; i++) 
+		{
+			ActionPointsCost = X2AbilityCost_ActionPoints(Template.AbilityCosts[i]);
+			if (ActionPointsCost != None)
+			{
+				ActionPointsCost.AllowedTypes.AddItem('DE_Overwatch');
+				break;
+			}
+		}
+	// End Issue # 1515
 	return Template;
 }
