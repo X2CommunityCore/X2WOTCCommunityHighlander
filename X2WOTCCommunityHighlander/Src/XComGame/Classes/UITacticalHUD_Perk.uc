@@ -65,8 +65,8 @@ simulated function UpdateData(const out UISummary_UnitEffect Summary)
 /// HL-Docs: feature:OverrideEffectIconColor; issue:1509; tags:tactical
 /// The `OverrideEffectIconColor` event allows mods to override the background and foreground
 /// colors of icons from `X2Effect_Persistent` set as `ePerkBuff_Passive`.
-/// The "background" color is the color of the icon itself, and normally varies depending on
-/// the `AbilitySourceName` property set on the `X2Effect_Persistent`
+/// The "background" color is hexadecimal string for the color of the icon itself, and normally varies 
+/// depending on the `AbilitySourceName` property set on the `X2Effect_Persistent`
 /// The "foreground" color is normally always black.
 /// Default colors used by the game can be found in the `UIUtilities_Colors` class.
 ///
@@ -90,7 +90,7 @@ simulated function TriggerOverrideEffectIconColor(UISummary_UnitEffect Summary)
 	Tuple = new class'XComLWTuple';
 	Tuple.Data.Add(3);
 	
-	Tuple.Id = 'OverrideEffectIconColorTest';
+	Tuple.Id = 'OverrideEffectIconColor';
 	Tuple.Data[0].kind = XComLWTVName;
 	Tuple.Data[0].n = Summary.AbilitySourceName;
 	Tuple.Data[1].kind = XComLWTVString;
