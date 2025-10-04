@@ -532,6 +532,9 @@
     <Content Include="Src\XComGame\Classes\X2Ability_Cyberus.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Ability_DarkEvents.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Ability_DefaultBondmateAbilities.uc">
       <SubType>Content</SubType>
     </Content>
@@ -1132,7 +1135,7 @@
     <Content Include="Src\XComGame\Classes\X2Effect_Brutal.uc">
       <SubType>Content</SubType>
     </Content>
-	<Content Include="Src\XComGame\Classes\UITacticalHUD_Perk.uc">
+    <Content Include="Src\XComGame\Classes\UITacticalHUD_Perk.uc">
       <SubType>Content</SubType>
     </Content>
   </ItemGroup>
