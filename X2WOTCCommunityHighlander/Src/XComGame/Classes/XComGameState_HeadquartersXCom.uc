@@ -9117,11 +9117,35 @@ function UpdateGameBoard()
 	super.UpdateGameBoard();
 }
 
-function AddSeenCharacterTemplate(X2CharacterTemplate CharacterTemplate)
+// Begin Issue #1492 
+/// HL-Docs: ref:Bugfixes; issue:1492
+/// This fix makes two key changes - 1. Adds new functions to XComGameStateHeadquarters_XCom which add individual template names to
+/// the 'first sighted aliens' array instead of their character groups. This is done to allow different narrative moments to play on 
+/// units within the same character group. 2. New functions CanPlayAmbientNarrativeMoment and UpdateAmbientNarrativeMoment 
+/// store each of the 'first sighted' narrative moments in the existing AmbientNarrativeMoments array, allowing us to check whether 
+/// or not these VOs have been played already. This is used to prevent units with different template names replaying narrative VO 
+/// each time a unit with a new template is spotted.
+function AddSeenIndividualCharacterTemplate(X2CharacterTemplate CharacterTemplate)
 {
-	SeenCharacterTemplates.AddItem(CharacterTemplate.CharacterGroupName);
+	SeenCharacterTemplates.AddItem(CharacterTemplate.DataName);
+	AddSeenCharacterTemplate(CharacterTemplate);
 }
 
+function bool HasSeenIndividualCharacterTemplate(X2CharacterTemplate CharacterTemplate)
+{
+	return (SeenCharacterTemplates.Find(CharacterTemplate.DataName) != INDEX_NONE);
+}
+
+
+function AddSeenCharacterTemplate(X2CharacterTemplate CharacterTemplate)
+{
+	// Issue #1492 - Only add the group if it doesn't exist already, since it could be added many times by AddSeenIndividualCharacterTemplate
+	If(SeenCharacterTemplates.Find(CharacterTemplate.CharacterGroupName) == INDEX_NONE)
+	{
+		SeenCharacterTemplates.AddItem(CharacterTemplate.CharacterGroupName);
+	}
+}
+// End Issue #1492
 function bool HasSeenCharacterTemplate(X2CharacterTemplate CharacterTemplate)
 {
 	return (SeenCharacterTemplates.Find(CharacterTemplate.CharacterGroupName) != INDEX_NONE);
@@ -9149,6 +9173,52 @@ function XComGameState_WorldRegion GetRegionByName(Name RegionTemplateName)
 //----------------   NARRATIVE   --------------------------------------------------------------
 //#############################################################################################
 
+// Begin Issue #1492
+//---------------------------------------------------------------------------------------
+function bool CanPlayAmbientNarrativeMoment(XComNarrativeMoment Moment)
+{
+	local int NarrativeInfoIdx;
+	local string NarrativeName;
+	local int i;
+
+	NarrativeName = PathName(Moment);
+
+	NarrativeInfoIdx = PlayedAmbientNarrativeMoments.Find('QualifiedName', NarrativeName);
+
+	if(NarrativeInfoIdx == INDEX_NONE || PlayedAmbientNarrativeMoments[NarrativeInfoIdx].PlayCount < 1)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+//---------------------------------------------------------------------------------------
+function UpdateAmbientNarrativeMoments(XComNarrativeMoment Moment)
+{
+	local int NarrativeInfoIdx;
+	local string QualifiedName;
+	local AmbientNarrativeInfo NarrativeInfo;
+
+	QualifiedName = PathName(Moment);
+
+	NarrativeInfoIdx = PlayedAmbientNarrativeMoments.Find('QualifiedName', QualifiedName);
+
+	if(NarrativeInfoIdx != INDEX_NONE)
+	{
+		NarrativeInfo = PlayedAmbientNarrativeMoments[NarrativeInfoIdx];
+		`assert(NarrativeInfo.QualifiedName == QualifiedName);
+		NarrativeInfo.PlayCount++;
+		PlayedAmbientNarrativeMoments[NarrativeInfoIdx] = NarrativeInfo;
+	}
+	else
+	{
+		NarrativeInfo.QualifiedName = QualifiedName;
+		NarrativeInfo.PlayCount = 1;
+		PlayedAmbientNarrativeMoments.AddItem(NarrativeInfo);
+	}
+}
+// End Issue 1492
 //---------------------------------------------------------------------------------------
 function bool CanPlayLootNarrativeMoment(XComNarrativeMoment Moment)
 {
