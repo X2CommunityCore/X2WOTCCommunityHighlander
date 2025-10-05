@@ -2884,7 +2884,8 @@ state ActiveUnit_Moving
 
 		bChangeUnitSuccess = false;
 		bHandled = false;
-		if( XComTacticalController(Outer).m_XGPlayer.m_eTeam == kTargetedUnit.m_eTeam ) 
+		// Single Line for Issue #1486 - Left click now allows selection of units that don't belong to the player when X2AllowSelectAll is used
+		if( XComTacticalController(Outer).m_XGPlayer.m_eTeam == kTargetedUnit.m_eTeam || (`CHEATMGR != none && `CHEATMGR.bAllowSelectAll))
 		{
 			//`log("Want to target: " $ kTargetedUnit.GetHumanReadableName(),,'uixcom');
 			
