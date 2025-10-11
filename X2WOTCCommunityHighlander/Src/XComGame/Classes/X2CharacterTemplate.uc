@@ -5,6 +5,10 @@
 //---------------------------------------------------------------------------------------
 //  Copyright (c) 2016 Firaxis Games, Inc. All rights reserved.
 //---------------------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------------------
+// TEMPORARY RRA OVERRIDE UNTIL POTENTIAL CHL RELEASE OF OnGetPawnArchetypeString
+//---------------------------------------------------------------------------------------
 class X2CharacterTemplate extends X2DataTemplate config(GameData_CharacterStats)
 	native(core)
 	dependson(X2TacticalGameRulesetDataStructures, X2StrategyGameRulesetDataStructures, XGNarrative);
@@ -276,7 +280,11 @@ private function bool FilterPawnWithGenderAndGhost(X2BodyPartTemplate Template)
 simulated function string GetPawnArchetypeString(XComGameState_Unit kUnit, optional const XComGameState_Unit ReanimatedFromUnit = None)
 {
 	local string SelectedArchetype;
-	local X2BodyPartTemplate ArmorPartTemplate;	
+	local X2BodyPartTemplate ArmorPartTemplate;
+	
+	// Start Issue #1521, Allow runtime override of SelectedArchetype.
+    local XComLWTuple Tuple;
+	// End Issue #1521
 
 	//If bAppearanceDefinesPawn is set to TRUE, then the pawn's base mesh is the head, and the rest of the parts of the body are customizable
 	if (bAppearanceDefinesPawn)
@@ -315,6 +323,26 @@ simulated function string GetPawnArchetypeString(XComGameState_Unit kUnit, optio
 	{
 		SelectedArchetype = strPawnArchetypes[`SYNC_RAND(strPawnArchetypes.Length)];
 	}
+	
+	// Start Issue #1521, Allow runtime override of SelectedArchetype (kUnit is NOT none for ELD_Immediate)
+		Tuple = new class'XComLWTuple';
+    Tuple.Id = 'OnGetPawnArchetypeString';
+    Tuple.Data.Add(3);
+    Tuple.Data[0].kind = XComLWTVString;
+    Tuple.Data[0].s    = "";                 // [0] the override: listeners may supply a custom archetype string (leave empty to abstain).
+		Tuple.Data[1].kind = XComLWTVString;
+		Tuple.Data[1].s    = SelectedArchetype;  // [1] read-only reference: the pre-hook SelectedArchetype (reference only; do not modify).
+		Tuple.Data[2].kind = XComLWTVInt;
+		Tuple.Data[2].i    = 0;                  // [2] arbitration hint: integer priority for listeners to set/read (higher wins by convention).
+
+    `XEVENTMGR.TriggerEvent(Tuple.Id, Tuple, kUnit, none); // Listeners may set [0].s (and optionally [2].i).
+
+	// Adopt listener-supplied result only if provided (non-empty); otherwise, keep the original.
+	if (Tuple.Data[0].s != "")
+	{
+		SelectedArchetype = Tuple.Data[0].s;
+	}
+	// End Issue #1521
 
 	return SelectedArchetype;
 }
