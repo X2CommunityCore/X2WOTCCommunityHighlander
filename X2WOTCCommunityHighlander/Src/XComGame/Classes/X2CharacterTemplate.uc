@@ -277,7 +277,7 @@ simulated function string GetPawnArchetypeString(XComGameState_Unit kUnit, optio
 {
 	local string SelectedArchetype;
 	local X2BodyPartTemplate ArmorPartTemplate;	
-
+	
 	//If bAppearanceDefinesPawn is set to TRUE, then the pawn's base mesh is the head, and the rest of the parts of the body are customizable
 	if (bAppearanceDefinesPawn)
 	{
@@ -315,9 +315,67 @@ simulated function string GetPawnArchetypeString(XComGameState_Unit kUnit, optio
 	{
 		SelectedArchetype = strPawnArchetypes[`SYNC_RAND(strPawnArchetypes.Length)];
 	}
+	// Single line for Issue #1521
+    TriggerOverrideSelectedArchetype(SelectedArchetype, kUnit, ReanimatedFromUnit);
 
 	return SelectedArchetype;
 }
+
+/// Start Issue #1521
+/// HL-Docs: feature:OnGetPawnArchetypeString; issue:1521; tags:strategy,tactical
+/// Allow runtime override of SelectedArchetype (kUnit is NOT none for ELD_Immediate)
+/// Triggers a 'OnGetPawnArchetypeString' event to override archetype path used in
+/// visualizations. Listeners should determine their reskin outcome at runtime using
+/// the kUnit and then check the tuple's priority to decide to override or not. If
+/// their priority exceeds it, they should set BOTH the tuple's OverrideString AND
+/// its OverridePriority to their corresponding values to inform everone else.
+///
+/// The primary use-case difference between a listener's priority and the tuple's
+/// priority is that the latter can be randomized at runtime, allowing diverse and
+/// unique per-spawn outcomes, rather than rigidity created at launch-time. For
+/// instance, you can now implement ultra-rare skins or random skins (think Lost).
+///
+/// ex:
+/// CurrentPriority = tuple[1].i;
+/// GetMyReskinData(kUnit, outArchetypePath, outPriority);
+/// if (outPriority > CurrentPriority)
+/// {
+///    tuple[0].s = outArchetypePath;
+///    tuple[1].i = outPriority;
+/// }
+///
+/// ```event
+/// EventID: OnGetPawnArchetypeString,
+/// EventData: [inout String OverrideString, inout int OverridePriority, out String OriginalString, out int ReanimatedUnitID],
+/// EventSource: XComGameState_Unit,
+/// NewGameState: none
+/// ```
+
+static private function TriggerOverrideSelectedArchetype(out string SelectedArchetype, XComGameState_Unit kUnit, XComGameState_Unit ReanimatedFromUnit)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+    Tuple.Id = 'OnGetPawnArchetypeString';
+    Tuple.Data.Add(4);
+    Tuple.Data[0].kind = XComLWTVString;
+    Tuple.Data[0].s    = "";                          // [0] OverrideString: listeners may supply a custom archetype string (leave empty to abstain).
+    Tuple.Data[1].kind = XComLWTVInt;
+    Tuple.Data[1].i    = -1;                          // [1] OverridePriority: integer priority for listeners to read/set (higher wins by convention).
+    Tuple.Data[2].kind = XComLWTVString;
+    Tuple.Data[2].s    = SelectedArchetype;           // [2] OriginalString: the pre-hook SelectedArchetype (reference only; do not modify).
+    Tuple.Data[3].kind = XComLWTVInt;
+    Tuple.Data[3].b    = ReanimatedFromUnit.ObjectID; // [3] ReanimatedUnitID: the ObjectID of the ReanimatedFromUnit argument.
+    
+    `XEVENTMGR.TriggerEvent(Tuple.Id, Tuple, kUnit, none); // Listeners may set [0].s (and optionally [1].i).
+    
+	// Adopt listener-supplied result only if provided (non-empty); otherwise, keep the original.
+	if (Tuple.Data[0].s != "")
+	{
+		SelectedArchetype = Tuple.Data[0].s;
+	}
+}
+	
 
 // Scaling accessors
 native function float GetCharacterBaseStat(ECharStatType StatType) const;
