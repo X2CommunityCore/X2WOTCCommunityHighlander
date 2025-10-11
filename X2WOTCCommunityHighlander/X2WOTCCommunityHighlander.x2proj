@@ -607,6 +607,9 @@
     <Content Include="Src\XComGame\Classes\X2Camera_LookAt.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2CharacterTemplate.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2ChosenActionTemplate.uc">
       <SubType>Content</SubType>
     </Content>
