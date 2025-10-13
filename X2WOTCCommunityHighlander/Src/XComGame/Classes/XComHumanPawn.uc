@@ -113,6 +113,9 @@ var transient bool CustomizationRotationSet;
 // Issue #219: This class isn't native, but cooked. Adding a transient member is totally OK though.
 var private transient bool InitedHeadState;
 
+var private transient SkeletalMesh DefaultSkeleton;
+var private transient PhysicsAsset DefaultPhysics;
+
 Delegate OnBodyPartLoadedDelegate(PawnContentRequest ContentRequest);
 
 simulated event PostBeginPlay ()
@@ -137,6 +140,9 @@ simulated event PostBeginPlay ()
 		}
 	}
 	// End Issue #219
+
+	DefaultSkeleton = Mesh.SkeletalMesh;
+	DefaultPhysics = Mesh.PhysicsAsset;
 
 	super.PostBeginPlay();
 
@@ -1360,50 +1366,11 @@ simulated function OnHeadLoaded(PawnContentRequest ContentRequest)
 	 * already assigns something to m_kHeadMeshComponent. Thus we need InitedHeadState to properly
 	 * initialize our state. Ideally we somehow stored that info in the m_kHeadMeshComponent, but I didn't find a way
 	 */
-	if (m_kHeadMeshComponent == none || !InitedHeadState)
-	{
-		// We initialize with the same head as our pawn mesh
-		m_kHeadMeshComponent = Mesh;
-		InitedHeadState = true;
-	}
 
-	// We have a valid head component (that *may* point to the pawn mesh component, or not) and need a different mesh
-	if (m_kHeadMeshComponent.SkeletalMesh != HeadContent.SkeletalMesh)
-	{
-		if (m_kHeadMeshComponent == Mesh)
-		{
-			// We have the pawn head, but need a custom head -- create it and hide the base
-			CreateCustomHead(HeadContent.SkeletalMesh);
-			HideBaseHead();
-		}
-		else
-		{
-			// We already have a dedicated head component, but we want a different mesh. Check if we need to
-			// switch back to the pawn or change the head mesh
-			if (Mesh.SkeletalMesh != HeadContent.SkeletalMesh)
-			{
-				// Update mesh
-				m_kHeadMeshComponent.SetSkeletalMesh(HeadContent.SkeletalMesh);
-				Mesh.AppendSockets(m_kHeadMeshComponent.Sockets, true);
-				// Start Issue #21
-				// Call function allowing DLC/Mods to append sockets to units
-				DLCAppendSockets();
-				// End Issue #21
-				m_kHeadMeshComponent.SetHidden(false);
-			}
-			else
-			{
-				// Switch back to the base pawn
-				m_kHeadMeshComponent.SetHidden(true);
-				DetachComponent(m_kHeadMeshComponent);
-				m_kHeadMeshComponent = Mesh;
-				// Start Issue #21
-				// Call function allowing DLC/Mods to append sockets to units
-				DLCAppendSockets();
-				// End Issue #21
-			}
-		}
-	}
+	// always create a new head
+	CreateCustomHead(HeadContent.SkeletalMesh);
+	HideBaseHead();
+
 	// End Issue #219
 
 	ResetMaterials(m_kHeadMeshComponent);
@@ -1444,6 +1411,11 @@ simulated function OnHeadLoaded(PawnContentRequest ContentRequest)
 // Start Issue #219
 simulated function CreateCustomHead(SkeletalMesh HeadMesh)
 {
+	if(m_kHeadMeshComponent != None && m_kHeadMeshComponent != Mesh)
+	{
+		DetachComponent(m_kHeadMeshComponent);
+	}
+
 	m_kHeadMeshComponent = new (self) class'SkeletalMeshComponent';
 	m_kHeadMeshComponent.SetHasPhysicsAssetInstance(false, true);
 	m_kHeadMeshComponent.SetOwnerNoSee(false);
@@ -1453,6 +1425,15 @@ simulated function CreateCustomHead(SkeletalMesh HeadMesh)
 
 	m_kHeadMeshComponent.SetSkeletalMesh(HeadMesh);
 	m_kHeadMeshComponent.SetParentAnimComponent(Mesh);
+
+	// add face morphs from pawn mesh to the head
+	if(Mesh.MorphSets.Length > 0)
+	{
+		m_kHeadMeshComponent.MorphSets = Mesh.MorphSets;
+		m_kHeadMeshComponent.bUpdateMorphWhenParentAnimComponentExists = true;
+		m_kHeadMeshComponent.InitMorphTargets();
+	}
+
 	AttachComponent(m_kHeadMeshComponent);
 	Mesh.AppendSockets(m_kHeadMeshComponent.Sockets, true);
 	// Start Issue #21
@@ -2261,6 +2242,14 @@ function UpdateMorphs(SkeletalMeshComponent CheckMeshComponent, MorphTargetSet U
 simulated function OnTorsoLoaded(PawnContentRequest ContentRequest)
 {
 	local int AttachmentIndex;
+	local XComTorsoContentAdvanced AdvancedContent;
+	local SkeletalMeshComponent MeshComp;
+	local bool bSkeletonChanged;
+
+	if(TorsoContent == XComTorsoContent(ContentRequest.kContent))
+	{
+		return;
+	}
 
 	if( TorsoContent != None )
 	{
@@ -2271,14 +2260,90 @@ simulated function OnTorsoLoaded(PawnContentRequest ContentRequest)
 	}
 
 	TorsoContent = XComTorsoContent(ContentRequest.kContent);
+	AdvancedContent = XComTorsoContentAdvanced(ContentRequest.kContent);
+
+	if(AdvancedContent != None)
+	{
+		if(AdvancedContent.SkeletonOverride != None && AdvancedContent.SkeletonPhysicsAsset != None)
+		{
+			Mesh.SetSkeletalMesh(AdvancedContent.SkeletonOverride, false);
+			Mesh.SetPhysicsAsset(AdvancedContent.SkeletonPhysicsAsset, true);
+			Mesh.SetHasPhysicsAssetInstance(true, false);
+
+			Mesh.bEnableFullAnimWeightBodies = true;
+			Mesh.bUpdateKinematicBonesFromAnimation = true;
+			Mesh.PhysicsWeight = 1.0f;
+
+			Mesh.UpdateAnimations();
+			Mesh.ForceSkelUpdate();
+
+			Mesh.PhysicsAssetInstance.SetFullAnimWeightBonesFixed(false, Mesh);
+
+			m_bHasFullAnimWeightBones = true;
+			bSkeletonChanged = true;
+		}
+	}
+	else
+	{
+		if(Mesh.SkeletalMesh != DefaultSkeleton)
+		{
+			Mesh.SetSkeletalMesh(DefaultSkeleton, false);
+			Mesh.SetPhysicsAsset(DefaultPhysics, true);
+			Mesh.SetHasPhysicsAssetInstance(true, false);
+
+			Mesh.UpdateAnimations();
+			Mesh.ForceSkelUpdate();
+
+			Mesh.PhysicsAssetInstance.SetAllBodiesFixed(true);
+
+			m_bHasFullAnimWeightBones = false;
+			bSkeletonChanged = true;
+		}
+	}
+
+	DetachComponent(m_kTorsoComponent);
+
+	m_kTorsoComponent = new(self) class'SkeletalMeshComponent';
+	m_kTorsoComponent.SetActorCollision(true, false, false);
+	m_kTorsoComponent.SetTraceBlocking(true, false);
+	m_kTorsoComponent.SetAcceptsDynamicDecals(true);
+
+	AttachComponent(m_kTorsoComponent);
+	
 	m_kTorsoComponent.SetSkeletalMesh(TorsoContent.SkeletalMesh);
+
+	if(AdvancedContent != None)
+	{
+		m_kTorsoComponent.bEnableFullAnimWeightBodies = true;
+		m_kTorsoComponent.bUpdateKinematicBonesFromAnimation = true;
+		m_kTorsoComponent.PhysicsWeight = 1.0f;
+	}
+	else
+	{
+		m_kTorsoComponent.bEnableFullAnimWeightBodies = false;
+		m_kTorsoComponent.bUpdateKinematicBonesFromAnimation = false;
+		m_kTorsoComponent.PhysicsWeight = 0.0f;
+	}
+	
+	// update all components of the skeleton change to ensure proper bone mapping for animations
+	if(bSkeletonChanged)
+	{
+		foreach AllOwnedComponents(class'SkeletalMeshComponent', MeshComp)
+		{
+			MeshComp.UpdateParentBoneMap();
+			MeshComp.UpdateAnimations();
+			MeshComp.ForceSkelUpdate();
+		}
+	}
+
 	ResetMaterials(m_kTorsoComponent);	
 	if(TorsoContent.OverrideMaterial != none)
 	{
 		m_kTorsoComponent.SetMaterial(0, TorsoContent.OverrideMaterial);
 	}
+
 	m_kTorsoComponent.SetParentAnimComponent(Mesh);
-	
+
 	Mesh.AppendSockets(m_kTorsoComponent.Sockets, true);
 	// Start Issue #21
 	// Call function allowing DLC/Mods to append sockets to units
