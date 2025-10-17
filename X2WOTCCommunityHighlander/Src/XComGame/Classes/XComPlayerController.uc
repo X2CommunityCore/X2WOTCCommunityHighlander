@@ -1568,10 +1568,29 @@ simulated function InitDropshipUI()
 //This is called from the parcel mgr once it knows what our objective map is going to be
 function UpdateUIBriefingScreen(string ObjectiveMapName)
 {
+	// Variables for Issue #1524
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local X2DownloadableContentInfo DLCInfo;
+	local string OverrideMapImagePath;
+	// End issue #1524
+
 	if (class'X2TacticalGameRulesetDataStructures'.static.TacticalOnlyGameMode())
 		return; // no briefing audio in tactical game modes
 
 	MapImagePath = `MAPS.SelectMapImage(ObjectiveMapName);
+
+	// Start Issue #1524
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('OverrideDropshipMapImage');
+	foreach DLCInfos(DLCInfo)
+	{
+		DLCInfo.OverrideDropshipMapImage(OverrideMapImagePath, ObjectiveMapName, MapImagePath);
+		if(OverrideMapImagePath != "")
+		{
+			MapImagePath = OverrideMapImagePath;
+			break;
+		}
+	}
+	// End Issue #1524
 
 	StartDropshipNarrative();
 
