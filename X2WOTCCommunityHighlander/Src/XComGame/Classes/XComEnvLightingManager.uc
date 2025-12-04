@@ -64,6 +64,12 @@ function Init(XComGameState_BattleData BattleData)
 	local UITacticalQuickLaunch UITQL;
 	local bool bIsTQL;
 
+	// Variables for Issue #1535
+	local array<X2DownloadableContentInfo> DLCInfos;
+	local X2DownloadableContentInfo DLCInfo;
+	local array<EnvironmentLightingDefinition> arrOverrideEnvLightingDefs;
+	// End issue #1535
+
 	if( ForceNoLoad )
 		return;
 
@@ -90,7 +96,20 @@ function Init(XComGameState_BattleData BattleData)
 		}
 
 		arrMatchingEnvLightingDefs = GetMatchingEnvLightingDefs(strPlotType, strPlotMap, strBiomeType, strMissionType, MatchTimeOfDay, BattleData.bRainIfPossible);
-	
+
+		// Start Issue #1535
+		DLCInfos = `DLCHOOKMGR.GetDLCInfos('OverrideLightingMap');
+		foreach DLCInfos(DLCInfo)
+		{
+			DLCInfo.OverrideLightingMap(arrOverrideEnvLightingDefs, BattleData, arrMatchingEnvLightingDefs);
+			if(arrOverrideEnvLightingDefs.Length > 0)
+			{
+				arrMatchingEnvLightingDefs = arrOverrideEnvLightingDefs;
+				break;
+			}
+		}
+		// End Issue #1535
+
 		if (arrMatchingEnvLightingDefs.Length > 0)
 		{
 			randVal = `SYNC_RAND_TYPED(arrMatchingEnvLightingDefs.Length);
