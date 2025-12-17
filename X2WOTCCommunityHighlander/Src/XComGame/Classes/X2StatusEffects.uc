@@ -99,6 +99,7 @@ var config int POISONED_DAMAGE;
 var config int POISONED_INFECT_DISTANCE;
 var config int POISONED_INFECT_PERCENTAGE;
 var config bool POISONED_IGNORES_SHIELDS; // Issue #89
+var config bool POISONED_TICKS_AFTER_TURN; // Issue #1539
 var localized string PoisonedFriendlyName;
 var localized string PoisonedFriendlyDesc;
 var localized string PoisonedEffectAcquiredString;
@@ -217,6 +218,7 @@ var localized string BleedingEffectAcquiredString;
 var localized string BleedingEffectTickedString;
 var localized string BleedingEffectLostString;
 var config bool BLEEDING_IGNORES_SHIELDS; // Single variable for Issue #629
+var config bool BLEEDING_TICKS_AFTER_TURN; // Issue #1539
 
 var config int ULTRASONICLURE_TURNS;
 var name UltrasonicLureName;
@@ -1102,10 +1104,52 @@ static function X2Effect_PersistentStatChange CreatePoisonedStatusEffect()
 	local X2Effect_ApplyWeaponDamage              DamageEffect;
 	local X2Condition_UnitProperty UnitPropCondition;
 
+	//Begin Issue #1539
+	/// HL-Docs: feature:DOTsTickAfterTurn; issue:1539; tags:tactical
+	/// In the base game, DoTs such as bleeding, burning, or poison typically tick at the
+	/// start of the unit owner's turn. Mods can override this behavior by setting the following
+	/// flags in `XComGameCore.ini`:
+	///
+	///```ini
+	///[XComGame.X2Effect_Burning]
+	///+BURN_TYPES_TICKING_AFTER_TURN=Fire ; Make fire burn DOT tick on turn end!
+	///
+	///[XComGame.X2StatusEffects]
+	///POISONED_TICKS_AFTER_TURN=true ; Make poison DOT tick on turn end
+	///BLEEDING_TICKS_AFTER_TURN=true ; Make bleeding DOT tick on turn end
+	///```
+	/// Note that `BURN_TYPES_TICKING_AFTER_TURN` will apply to all instances of `X2Effect_Burning` that
+	/// use its `SetBurnDamage()` helper method to set up the burn damage effect, *and* use a damage type
+	/// specified in the `BURN_TYPES_TICKING_AFTER_TURN` array. In the example above, only Fire damage
+	/// will tick on turn end, while other burning effects such as Acid Burn will continue to tick on
+	/// turn start.
+	///
+	/// `POISONED_TICKS_AFTER_TURN` will apply to all instances of the poisoned effect created using 
+	/// the `X2StatusEffect::CreatePoisonedStatusEffect()` helper method.
+	///
+	/// Similarly, `BLEEDING_TICKS_AFTER_TURN` will apply to all instances of the bleeding effect
+	/// created using the `X2StatusEffect::CreateBleedingStatusEffect()` helper method.
+	///
+	/// This should cover all instances of these effects in the base game, but mods can potentially
+	/// disregard these helper methods, or explicitly override the effect's `WatchRule` property
+	/// after calling the helper.
+	local GameRuleStateChange WatchRule;
+
+	if (default.POISONED_TICKS_AFTER_TURN)
+	{
+		WatchRule = eGameRule_PlayerTurnEnd;
+	}
+	else
+	{
+		WatchRule = eGameRule_PlayerTurnBegin;
+	}
+	/// End Issue #1539
+
+
 	PersistentStatChangeEffect = new class'X2Effect_PersistentStatChange';
 	PersistentStatChangeEffect.EffectName = default.PoisonedName;
 	PersistentStatChangeEffect.DuplicateResponse = eDupe_Refresh;
-	PersistentStatChangeEffect.BuildPersistentEffect(default.POISONED_TURNS,, false,,eGameRule_PlayerTurnBegin);
+	PersistentStatChangeEffect.BuildPersistentEffect(default.POISONED_TURNS,, false,,WatchRule); //Issue #1539
 	PersistentStatChangeEffect.SetDisplayInfo(ePerkBuff_Penalty, default.PoisonedFriendlyName, default.PoisonedFriendlyDesc, "img:///UILibrary_PerkIcons.UIPerk_poisoned");
 	PersistentStatChangeEffect.AddPersistentStatChange(eStat_Mobility, default.POISONED_MOBILITY_ADJUST);
 	PersistentStatChangeEffect.AddPersistentStatChange(eStat_Offense, default.POISONED_AIM_ADJUST);
@@ -2285,10 +2329,23 @@ static function X2Effect_Persistent CreateBleedingStatusEffect(int NumTurns, int
 	local X2Effect_ApplyWeaponDamage DamageEffect;
 	local X2Condition_UnitProperty UnitPropCondition;
 
+	//Begin Issue #1539
+	local GameRuleStateChange WatchRule;
+
+	if (default.BLEEDING_TICKS_AFTER_TURN)
+	{
+		WatchRule = eGameRule_PlayerTurnEnd;
+	}
+	else
+	{
+		WatchRule = eGameRule_PlayerTurnBegin;
+	}
+	/// End Issue #1539
+
 	PersistentEffect = new class'X2Effect_Persistent';
 	PersistentEffect.EffectName = default.BleedingName;
 	PersistentEffect.DuplicateResponse = eDupe_Refresh;
-	PersistentEffect.BuildPersistentEffect(NumTurns, , false, , eGameRule_PlayerTurnBegin);
+	PersistentEffect.BuildPersistentEffect(NumTurns, , false, , WatchRule); //Issue #1539
 	PersistentEffect.SetDisplayInfo(ePerkBuff_Penalty, default.BleedingFriendlyName, default.BleedingFriendlyDesc, "img:///UILibrary_XPACK_Common.UIPerk_bleeding");
 	PersistentEffect.VisualizationFn = BleedingVisualization;
 	PersistentEffect.EffectSyncVisualizationFn = BleedingSyncVisualization;
