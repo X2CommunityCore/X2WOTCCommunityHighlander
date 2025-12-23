@@ -211,11 +211,16 @@ simulated function ResetUnitFlag(StateObjectReference kUnitRef)
 		kFlag = m_kUnitFlagManager.GetFlagForObjectID(kUnitRef.ObjectID);
 		if( kFlag != none )
 		{
-			VisualizedHistoryIndex = `XCOMVISUALIZATIONMGR.LastStateHistoryVisualized;
-			StartingState = `XCOMHISTORY.GetGameStateForObjectID(kUnitRef.ObjectID, , VisualizedHistoryIndex);
-			kFlag.UpdateFromState(StartingState, true);
-			//kFlag.Hide();
-			//m_kUnitFlagManager.RemoveFlag(kFlag);
+			// Start Issue #1543
+			/// HL-Docs: ref:Bugfixes; issue:1543
+			/// Enemies mind-controlled by XCOM show their action points on their unit flag now
+			kFlag.Remove();
+			m_kUnitFlagManager.AddFlag(kUnitRef);
+			// End Issue #1543 - original impl. below
+
+			//VisualizedHistoryIndex = `XCOMVISUALIZATIONMGR.LastStateHistoryVisualized;
+			//StartingState = `XCOMHISTORY.GetGameStateForObjectID(kUnitRef.ObjectID, , VisualizedHistoryIndex);
+			//kFlag.UpdateFromState(StartingState, true);
 		}
 		else
 		{
