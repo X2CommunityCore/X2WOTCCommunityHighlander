@@ -898,6 +898,22 @@ static function OnLoadedSavedGameWithDLCExisting ()
 }
 // End issue #808
 
+// Start Issue #1524
+/// HL-Docs: feature:OverrideDropshipMapImage; issue:1524; tags:tactical
+/// An image of the objective parcel is fetched for the dropship briefing screen, while players are waiting for the mission to load.
+/// This hook runs in `XComPlayerController::UpdateUIBriefingScreen`, which uses `SelectMapImage` in `XComMapManager` to fetch a map image path for the briefing screen.
+/// This hook runs after the image is picked, and if `OverrideMapImagePath` was modified to not be an empty string, it will be used as the map imagepath instead.
+/// ###Parameters
+/// * `OverrideMapImagePath`: An empty string used to override the map image
+/// * `ObjectiveMapName`: String which was used as a parameter for `SelectMapImage`
+/// * `ChosenMapImagePath`: String which was the result of the function call to `SelectMapImage`
+///
+/// You can use `'MAPS.SelectMapImage("MyMapName", "OptionalBiome")` to find an existing image definition or arbitrarily assign any string to `OverrideMapImagePath`
+static function OverrideDropshipMapImage(out string OverrideMapImagePath, const string ObjectiveMapName, const string ChosenMapImagePath)
+{
+}
+// End Issue #1524
+
 // Start Issue #1535
 /// HL-Docs: feature:OverrideLightingMap; issue:1535; tags:tactical
 /// Called from XComEnvLightingManager:Init
