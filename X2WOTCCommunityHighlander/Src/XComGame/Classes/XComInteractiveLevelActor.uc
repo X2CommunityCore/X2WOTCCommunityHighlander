@@ -726,6 +726,18 @@ simulated function BreakInteractActor(name SocketName)
 		DisableCollision();
 	}
 
+	/// HL-Docs: ref:Bugfixes; issue:1545
+	/// Closing a door that was opened by non-interact action like walking blocks visibility properly now
+	// Start Issue #1545 - same update block from XComInteractiveLevelActor::PlayAnimations()
+	if( bBlockInteriorLighting == true )
+	{
+		m_bUpdateVisibilityAfterAnimPlays = true;
+		m_kBoundsAtStartOfAnim.Min = SkeletalMeshComponent.Bounds.Origin - SkeletalMeshComponent.Bounds.BoxExtent;
+		m_kBoundsAtStartOfAnim.Max = SkeletalMeshComponent.Bounds.Origin + SkeletalMeshComponent.Bounds.BoxExtent;
+		m_kBoundsAtStartOfAnim.IsValid = 1;
+	}
+	// End Issue #1545
+
 	ActiveSocketName = SocketName;
 }
 
