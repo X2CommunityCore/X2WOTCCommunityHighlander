@@ -782,16 +782,22 @@ static function bool UseAlternateMissionIntroDefinition(MissionDefinition Active
 }
 // End Issue #395
 
-/// Start Issue #455
-/// <summary>
+// Start Issue #455
+/// HL-Docs: feature:UnitPawnPostInitAnimTree; issue:455; tags:pawns
 /// Called from XComUnitPawnNativeBase.PostInitAnimTree
 /// Allows patching the animtree template before its initialized.
-/// </summary>
+/// #Issue #1514 Addendum
+/// `UnitState` will always be `None`
+///
+/// This hook is called in `PostInitAnimTree` event function in `XComUnitPawnNativeBase`, which is called as part of the `Spawn` function
+/// when a pawn is spawned. Because of this, `UnitState` will be `None`, `Pawn` has no owner or `ObjectID` or a `XGUnit` assigned to it
+/// and you can't retrieve the state the pawn was created from.
+/// You can fetch the archetype the pawn was created with `Pawn.ObjectArchetype` for some idea of pawn origins.
 static function UnitPawnPostInitAnimTree(XComGameState_Unit UnitState, XComUnitPawnNativeBase Pawn, SkeletalMeshComponent SkelComp)
 {
 	return;
 }
-/// End Issue #455
+// End Issue #455
 
 // Start Issue #783
 // <summary>
