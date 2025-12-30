@@ -147,7 +147,11 @@ static function GenerateDamageEvents(XComGameState NewGameState, XComGameStateCo
 	local int PhysicalImpulseAmount;
 	local name DamageTypeTemplateName;
 	local PrimitiveComponent HitComponent;
-	
+
+	// Variables for Issue #1547
+	local XComGameState_Item SourceAmmoStateObject, LoadedAmmoStateObject;
+	local int DamageAmount;
+
 	//If this damage effect has an associated position, it does world damage
 	if(AbilityContext.ResultContext.ProjectileHitLocations.Length > 0)
 	{
@@ -176,6 +180,32 @@ static function GenerateDamageEvents(XComGameState NewGameState, XComGameStateCo
 				DamageTypeTemplateName = 'Explosion';
 			}
 
+			/// HL-Docs: ref:Bugfixes; issue:1547
+			/// Use the environment damage value of the weapon with projectile events instead of a flat value, that resulted in low damage weapons destroying walls
+			// Start Issue #1547
+			if (SourceItemStateObject != none)
+			{
+				SourceAmmoStateObject = AbilityStateObject.GetSourceAmmo();
+
+				if (SourceAmmoStateObject != none)
+				{
+					DamageAmount += SourceAmmoStateObject.GetItemEnvironmentDamage();
+				}
+				else if (SourceItemStateObject.HasLoadedAmmo())
+				{
+					LoadedAmmoStateObject = XComGameState_Item(History.GetGameStateForObjectID(SourceItemStateObject.LoadedAmmo.ObjectID));
+					if (LoadedAmmoStateObject != None)
+					{
+						DamageAmount += LoadedAmmoStateObject.GetItemEnvironmentDamage();
+					}
+				}
+
+				DamageAmount += SourceItemStateObject.GetItemEnvironmentDamage();
+			}
+
+			TriggerModifyProjectileEnvironmentDamageEvent(DamageAmount, NewGameState, AbilityStateObject);
+			// End Issue #1547
+
 			//The touch list includes a start and end point. Do not apply travelling damage to these points
 			for(Index = 1; Index < AbilityContext.InputContext.ProjectileEvents.Length; ++Index)
 			{
@@ -193,10 +223,9 @@ static function GenerateDamageEvents(XComGameState NewGameState, XComGameStateCo
 					DamageEvent.bRadialDamage = AbilityRadius > 0;
 
 					HitComponent = AbilityContext.InputContext.ProjectileEvents[Index].TraceInfo.HitComponent;
-
 					if (HitComponent != none && XComTileFracLevelActor(HitComponent.Owner) != none )
 					{
-						DamageEvent.DamageAmount = 20;
+						DamageEvent.DamageAmount = DamageAmount;	// Issue #1547 - originally 20
 						DamageEvent.bAffectFragileOnly = false;
 						DamageEvent.DamageDirection = AbilityContext.InputContext.ProjectileTouchEnd - AbilityContext.InputContext.ProjectileTouchStart;
 					}
@@ -222,6 +251,45 @@ static function GenerateDamageEvents(XComGameState NewGameState, XComGameStateCo
 		}
 	}
 }
+
+// Start Issue #1547
+/// HL-Docs: feature:ModifyProjectileEnvironmentDamage; issue:1547; tags:tactical
+/// This event allows to modify the environmental damage a projectile event will deal to `XComTileFracLevelActor` actors, which are walls/floors that will fracture in chunks
+///
+/// If `OverrideDamage` is true, damage will be overridden by `DamageAmount`, if `OverrideDamage` is false, then `DamageAmount` will be added to the damage
+///
+///```event
+///EventID: ModifyProjectileEnvironmentDamage,
+///EventData: [inout bool OverrideDamage, inout int DamageAmount, in XComGameState_Ability AbilityStateObject],
+///EventSource: none,
+///NewGameState: yes
+///```
+static private function TriggerModifyProjectileEnvironmentDamageEvent(out int DamageAmount, XComGameState NewGameState, XComGameState_Ability AbilityStateObject)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'ModifyProjectileEnvironmentDamage';
+	Tuple.Data.Add(3);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = false;  // override? (true) or add? (false)
+	Tuple.Data[1].kind = XComLWTVInt;
+	Tuple.Data[1].i = 0;  // override/bonus environment damage
+	Tuple.Data[2].kind = XComLWTVObject;
+	Tuple.Data[2].o = AbilityStateObject;  // ability being used
+
+	`XEVENTMGR.TriggerEvent('ModifyProjectileEnvironmentDamage', Tuple, none, NewGameState);
+
+	if(Tuple.Data[0].b)
+	{
+		DamageAmount = Tuple.Data[1].i;
+	}
+	else
+	{
+		DamageAmount += Tuple.Data[1].i;
+	}
+}
+// End Issue #1547
 
 //Used by charging melee attacks to perform a move and an attack.
 static function XComGameState TypicalMoveEndAbility_BuildGameState(XComGameStateContext Context)
