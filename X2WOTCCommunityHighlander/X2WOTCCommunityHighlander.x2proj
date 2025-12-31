@@ -958,6 +958,9 @@
     <Content Include="Src\XComGame\Classes\XComGroupSpawn.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComInteractiveLevelActor.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComOnlineEventMgr.uc">
       <SubType>Content</SubType>
     </Content>
