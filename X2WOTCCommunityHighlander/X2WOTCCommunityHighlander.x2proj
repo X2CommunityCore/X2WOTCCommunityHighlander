@@ -958,6 +958,9 @@
     <Content Include="Src\XComGame\Classes\XComGroupSpawn.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\XComLegsContentAdvanced.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\XComOnlineEventMgr.uc">
       <SubType>Content</SubType>
     </Content>
@@ -992,6 +995,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComTacticalSoundManager.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\XComTorsoContentAdvanced.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\XComUnitPawn.uc">
