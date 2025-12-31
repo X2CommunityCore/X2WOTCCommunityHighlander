@@ -616,6 +616,11 @@ static function SquadTacticalToStrategyTransfer()
 				XComHQ.DeadCrew.AddItem(DeadUnitRef);
 				// Removed from squad in UIAfterAction
 
+				/// HL-Docs: ref:Bugfixes; issue:1457
+				/// Clear all bonds for the dead soldier to clean up future bond-related redscreens.
+				class'X2StrategyGameRulesetDataStructures'.static.ResetAllBonds(NewGameState, UnitState);
+				// End issue #1457
+
 				if (UnitState.GetRank() >= 5)
 				{
 					MissionData.bLostVeteran = true; // Flag for ambient VO triggers in strategy

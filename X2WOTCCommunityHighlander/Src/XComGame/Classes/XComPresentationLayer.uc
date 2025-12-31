@@ -203,8 +203,9 @@ simulated function UIFlagMgr()
 simulated function ResetUnitFlag(StateObjectReference kUnitRef)
 {
 	local UIUnitFlag kFlag;
-	local XComGameState_BaseObject StartingState;
-	local int VisualizedHistoryIndex;
+	// Issue #1543 - no longer needed.
+	//local XComGameState_BaseObject StartingState;
+	//local int VisualizedHistoryIndex;
 
 	if(m_kUnitFlagManager != None)
 	{
