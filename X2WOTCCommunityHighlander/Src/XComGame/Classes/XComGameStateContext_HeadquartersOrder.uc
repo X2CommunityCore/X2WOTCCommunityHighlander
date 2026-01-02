@@ -317,6 +317,8 @@ private function FireUnit(XComGameState AddToGameState, StateObjectReference Uni
 	History = `XCOMHISTORY;
 	XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
 	XComHQ = XComGameState_HeadquartersXCom(AddToGameState.ModifyStateObject(class'XComGameState_HeadquartersXCom', XComHQ.ObjectID));
+	// Single line for Issue #1457 - Remove the dismissed soldier from the AllSoldierBonds array of every other soldier.
+	RemoveDisposedSoldierFromBondData(UnitReference);
 	XComHQ.RemoveFromCrew(UnitReference);
 		
 	for(idx = 0; idx < XComHQ.Squad.Length; idx++)
@@ -329,7 +331,8 @@ private function FireUnit(XComGameState AddToGameState, StateObjectReference Uni
 	}
 
 	UnitState = XComGameState_Unit(AddToGameState.ModifyStateObject(class'XComGameState_Unit', UnitReference.ObjectID));
-	class'X2StrategyGameRulesetDataStructures'.static.ResetAllBonds(AddToGameState, UnitState);
+	// Single line for Issue# 1457 - ResetAllBonds is redunant on dismissal as this data is now removed from each soldier above.
+	// class'X2StrategyGameRulesetDataStructures'.static.ResetAllBonds(AddToGameState, UnitState);
 	// REMOVE FIRED UNIT?
 	AddToGameState.RemoveStateObject(UnitReference.ObjectID);
 
@@ -348,6 +351,40 @@ private function FireUnit(XComGameState AddToGameState, StateObjectReference Uni
 	/// NewGameState: yes
 	/// ```
 	`XEVENTMGR.TriggerEvent('HeadquartersUnitFired',, UnitState, AddToGameState);
+}
+
+// Issue #1457
+/// HL-Docs: ref:Bugfixes; issue:1457
+/// This helper function forcibly removes disposed (dismissed / captured & ignored) soldiers from 
+/// the AllSoldierBonds arrays of the remaining soldiers. This prevents redscreens from occurring 
+/// when creating bonds after units have been dismissed or otherwise removed from the game.
+static function RemoveDisposedSoldierFromBondData(StateObjectReference UnitReference)
+{
+	local XComGameStateHistory History;
+	local XComGameState_Unit BondUnitState, CrewUnitState, DismissedUnitState;
+	local SoldierBond BondData;
+
+	local int i;
+
+	History = `XCOMHISTORY;
+	DismissedUnitState = XComGameState_Unit(History.GetGameStateForObjectID(UnitReference.ObjectID));
+
+	foreach History.IterateByClassType(class'XComGameState_Unit', CrewUnitState)
+	{
+		if(CrewUnitState != none && CrewUnitState.IsSoldier())
+		{
+			for(i = CrewUnitState.AllSoldierBonds.Length - i; i >= 0; i--)
+			{
+				BondData = CrewUnitState.AllSoldierBonds[i];
+				BondUnitState = XComGameState_Unit(History.GetGameStateForObjectID(BondData.Bondmate.ObjectID));
+
+				if(BondUnitState == DismissedUnitState)
+				{
+					CrewUnitState.AllSoldierBonds.Remove(i, 1);
+				}
+			}
+		}
+	}
 }
 
 private function CompleteResearch(XComGameState AddToGameState, StateObjectReference TechReference)
