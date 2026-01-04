@@ -287,6 +287,12 @@ var config bool bDisableAutomaticBondPhoto;
 var config bool bManualPhotoTakenOnLastMission;
 // End Issue #1453
 
+// Start Issue #1526 - localized text for mission validation dialog box
+var localized string m_strValidateMissionDialogTitle;
+var localized string m_strValidateMissionDialogTextSuccess;
+var localized string m_strValidateMissionDialogTextFail;
+// End Issue #1526
+
 // Start Issue #885
 enum EHLDelegateReturn
 {

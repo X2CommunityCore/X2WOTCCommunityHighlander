@@ -26,6 +26,10 @@ m_strChangeFace="Use a different face to edit this option"
 [CHHelpers]
 ; Issue #817
 m_strFramerateSmoothingDisabledReason = "Framerate Smoothing is disabled by Highlander to allow other mods to work properly. If you previously enabled it, delete this file: \"..\\Documents\\my games\\XCOM2 War of the Chosen\\XComGame\\Config\\XComEngine.ini\" once and restart the game."
+; Issue #1526
+m_strValidateMissionDialogTitle = "Warning"
+m_strValidateMissionDialogTextSuccess = "Mission was invalidated due to errors that can lead to unplayable bugs, and was rebuilt by Highlander to a playable state. Please see the log file for details."
+m_strValidateMissionDialogTextFail = "Mission was invalidated due to errors that can lead to unplayable bugs, but failed to be rebuilt by Highlander. This mission is likely to be in an unplayable state. Please see the log file for details."
 
 [VanishingWind_Scamper X2AbilityTemplate]
 ; Issue #1255 - Add missing localization for Assassin Revealed 
