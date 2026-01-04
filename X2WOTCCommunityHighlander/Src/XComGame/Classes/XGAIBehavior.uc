@@ -4729,6 +4729,9 @@ function BT_DisableGroupMove()
 function bt_status BT_FindDestination(int MoveTypeIndex, bool bRestricted=false)
 {
 	local TTile Tile;
+
+	MaybeUnblockPatrolMemberTiles(); // Issue #1550
+
 	// Check if we need to reset our 
 	if (bRestricted != m_bUseMoveRestriction)
 	{
@@ -9558,6 +9561,8 @@ state RedAlertMovement extends MoveState
 		local int nEnemiesVisible;
 		local XComGameState_Unit NearestEnemy;
 
+		MaybeUnblockPatrolMemberTiles(); // Issue #1550
+
 		CheckForCheatManagerMoveDestination();
 
 		if (m_bBTDestinationSet)
@@ -9668,6 +9673,24 @@ state XComMovement extends MoveState // Only accessed via specialized behavior t
 		return m_vBTDestination;
 	}
 }
+
+/// HL-Docs: ref:Bugfixes; issue:1550
+/// Patrolling or scampering units should be able to path through other members of their group now
+// Start Issue #1550
+simulated function MaybeUnblockPatrolMemberTiles()
+{
+	if(	m_kPlayer != None &&
+		m_kPlayer.m_kNav.IsPatrol(m_kUnit.ObjectID, m_kPatrolGroup) &&
+		!m_kPatrolGroup.bDisableGroupMove &&
+		(m_kPlayer.m_ePhase == eAAP_GreenPatrolMovement || m_kPlayer.IsScampering(UnitState.ObjectID)) &&
+		class'X2PathSolver'.static.IsUnitTrapped(UnitState))
+	{
+		m_kPatrolGroup.UnblockMemberTiles();
+	}
+
+}
+// End Issue #1550
+
 //------------------------------------------------------------------------------------------------
 simulated function bool IsValidPathDestination( vector vLoc, optional out string strFail )
 {
@@ -9741,6 +9764,8 @@ function bool GetTileWithinOneActionPointMove( TTile kTileIn, out TTile kTileOut
 simulated function bool HasValidDestinationToward( vector vTarget, out vector vDestination, bool bAllowDash=false )
 {
 	local TTile kTile, kClosestTile;
+
+	MaybeUnblockPatrolMemberTiles(); // Issue #1550
 
 	// First.  Get nearest valid dest.  Test for valid path.
 	vDestination = XComTacticalGRI(WorldInfo.GRI).GetClosestValidLocation(vTarget, m_kUnit,,false);
