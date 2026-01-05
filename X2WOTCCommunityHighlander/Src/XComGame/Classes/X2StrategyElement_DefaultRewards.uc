@@ -2106,6 +2106,9 @@ static function CleanUpUnitReward(XComGameState NewGameState, XComGameState_Rewa
 		// First remove the units items
 		UnitState.BlastLoadout(NewGameState);
 		
+		// Single line for Issue #1457 - Remove the reward unit from the bond data arrays of all remaining XCom units
+		class'XComGameStateContext_HeadquartersOrder'.static.RemoveDisposedSoldierFromBondData(UnitState.GetReference());
+
 		// Then remove the actual unit
 		NewGameState.RemoveStateObject(UnitState.ObjectID);
 	}
