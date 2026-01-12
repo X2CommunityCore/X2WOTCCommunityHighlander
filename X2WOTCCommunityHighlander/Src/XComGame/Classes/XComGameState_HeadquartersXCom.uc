@@ -9179,7 +9179,6 @@ function bool CanPlayAmbientNarrativeMoment(XComNarrativeMoment Moment)
 {
 	local int NarrativeInfoIdx;
 	local string NarrativeName;
-	local int i;
 
 	NarrativeName = PathName(Moment);
 
