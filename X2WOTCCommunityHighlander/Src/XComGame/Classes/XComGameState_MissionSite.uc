@@ -1450,37 +1450,40 @@ function DestinationReached()
 
 // Start Issue #1526
 // Checks if the definitions are stale and if plot exists and is valid for mission
-private function bool IsMissionValid(GeneratedMissionData MissionData)
+function bool IsMissionValid()
 {
 	local MissionDefinition MissionDef;
 	local PlotDefinition PlotDef;
 	local bool bMissionStale, bPlotStale, bPlotInvalid, bPlotMissing;
 
-	`TACTICALMISSIONMGR.GetMissionDefinitionForType(MissionData.Mission.sType, MissionDef);
+	`TACTICALMISSIONMGR.GetMissionDefinitionForType(GeneratedMission.Mission.sType, MissionDef);
 
-	if(MissionData.Mission != MissionDef)
+	if(GeneratedMission.Mission != MissionDef)
 	{
 		bMissionStale = true;
 	}
 
-	if(!`MAPS.DoesMapPackageExist(MissionData.Plot.MapName))
+	if(!`MAPS.DoesMapPackageExist(GeneratedMission.Plot.MapName))
 	{
 		bPlotMissing = true;
 	}
 
-	PlotDef = `PARCELMGR.GetPlotDefinition(MissionData.Plot.MapName, MissionData.Biome.strType);
-	if(MissionData.Plot != PlotDef)
+	PlotDef = `PARCELMGR.GetPlotDefinition(GeneratedMission.Plot.MapName, GeneratedMission.Biome.strType);
+	if(GeneratedMission.Plot != PlotDef)
 	{
 		bPlotStale = true;
 	}
 
 	if(!bMissionStale && !bPlotStale && !bPlotMissing)
 	{
-		bPlotInvalid = !`PARCELMGR.IsPlotValidForMission(MissionData.Plot, MissionData.Mission);
+		bPlotInvalid = `PARCELMGR.IsPlotValidForMission(GeneratedMission.Plot, GeneratedMission.Mission);
 	}
 
 	if(bMissionStale || bPlotMissing || bPlotStale || bPlotInvalid)
 	{
+		CHReleaseLog("ERROR: Mission determined to not be valid, this can happen due to adding/removing mods or mod updates", 'X2WOTCCommunityHighlander');
+		PrintMissionInvalidationText(self);
+		PrintMissionInformation(self);
 		return false;
 	}
 	else
@@ -1498,23 +1501,35 @@ private function bool RebuildMission()
 	local XComGameState_Reward MissionReward;
 	local XComGameState_MissionSite MissionState;
 	local XComGameState_HeadquartersXCom XComHQ;
-	local int MissionIndex;
+	local string BattleOpName;
+	local int HQMissionDataIndex;
 
 	History = `XCOMHISTORY;
+
 	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("CHL: Rebuilding Mission");
 	MissionState = XComGameState_MissionSite(NewGameState.ModifyStateObject(class'XComGameState_MissionSite', ObjectID));
 
 	MissionReward = XComGameState_Reward(History.GetGameStateForObjectID(Rewards[0].ObjectID));
+	BattleOpName = GeneratedMission.BattleOpName;
 
 	// Rebuilds mission here
 	MissionState.SetMissionData(MissionReward.GetMyTemplate(), true, GeneratedMission.LevelSeed);
+	MissionState.GeneratedMission.BattleOpName = BattleOpName;
 
 	// Reset schedules
 	MissionState.SelectedMissionData.SelectedMissionScheduleName = '';
 	MissionState.CacheSelectedMissionData(MissionState.SelectedMissionData.ForceLevel, MissionState.SelectedMissionData.AlertLevel);
 
-	if(!IsMissionValid(MissionState.GeneratedMission))
+	CHReleaseLog("WARNING: Rebuilt mission, printing new mission data", 'X2WOTCCommunityHighlander');
+	PrintMissionInformation(MissionState);
+
+	if( MissionState.GetMissionSource() == None || MissionState.GeneratedMission.Mission.sType == "" ||
+		!`MAPS.DoesMapPackageExist(MissionState.GeneratedMission.Plot.MapName) ||
+		!`PARCELMGR.IsPlotValidForMission(MissionState.GeneratedMission.Plot, MissionState.GeneratedMission.Mission) )
 	{
+		CHReleaseLog("ERROR: Rebuilt mission still determined to be invalid, tactical mission will launch with original mission data", 'X2WOTCCommunityHighlander');
+		PrintMissionInvalidationText(MissionState);
+
 		History.CleanupPendingGameState(NewGameState);
 		return false;
 	}
@@ -1526,58 +1541,60 @@ private function bool RebuildMission()
 	XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
 	XComHQ = XComGameState_HeadquartersXCom(NewGameState.ModifyStateObject(class'XComGameState_HeadquartersXCom', XComHQ.ObjectID));
 
-	MissionIndex = XComHQ.arrGeneratedMissionData.Find('MissionID', ObjectID);
-	if(MissionIndex != INDEX_NONE)
+	HQMissionDataIndex = XComHQ.arrGeneratedMissionData.Find('MissionID', ObjectID);
+	if(HQMissionDataIndex != INDEX_NONE)
 	{
-		XComHQ.arrGeneratedMissionData[MissionIndex] = MissionState.GeneratedMission;
+		XComHQ.arrGeneratedMissionData[HQMissionDataIndex] = GeneratedMission;
 	}
 
+	CHReleaseLog("WARNING: Rebuilt mission determined valid, tactical mission will launch with rebuilt mission data", 'X2WOTCCommunityHighlander');
 	`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
 	return true;
 }
+// End Issue #1526
 
 // Start Issue #1526
-private function PrintMissionInformation()
+private function PrintMissionInformation(XComGameState_MissionSite MissionSite)
 {
 	local int i;
 	CHReleaseLog("", 'X2WOTCCommunityHighlander');
 	CHReleaseLog("-- MISSION DATA --", 'X2WOTCCommunityHighlander');
-	CHReleaseLog("Mission ObjectID:" @ ObjectID, 'X2WOTCCommunityHighlander');
-	CHReleaseLog("Mission Region ObjectID:" @ Region.ObjectID, 'X2WOTCCommunityHighlander');
-	CHReleaseLog("Mission Source:" @ Source, 'X2WOTCCommunityHighlander');
-	CHReleaseLog("Mission Name:" @ GeneratedMission.Mission.MissionName, 'X2WOTCCommunityHighlander');
-	CHReleaseLog("Mission Type:" @ GeneratedMission.Mission.sType, 'X2WOTCCommunityHighlander');
-	CHReleaseLog("Mission Family:" @ GeneratedMission.Mission.MissionFamily, 'X2WOTCCommunityHighlander');
-	CHReleaseLog("Mission Biome:" @ GeneratedMission.Biome.strType, 'X2WOTCCommunityHighlander');
+	CHReleaseLog("Mission ObjectID:" @ MissionSite.ObjectID, 'X2WOTCCommunityHighlander');
+	CHReleaseLog("Mission Region ObjectID:" @ MissionSite.Region.ObjectID, 'X2WOTCCommunityHighlander');
+	CHReleaseLog("Mission Source:" @ MissionSite.Source, 'X2WOTCCommunityHighlander');
+	CHReleaseLog("Mission Name:" @ MissionSite.GeneratedMission.Mission.MissionName, 'X2WOTCCommunityHighlander');
+	CHReleaseLog("Mission Type:" @ MissionSite.GeneratedMission.Mission.sType, 'X2WOTCCommunityHighlander');
+	CHReleaseLog("Mission Family:" @ MissionSite.GeneratedMission.Mission.MissionFamily, 'X2WOTCCommunityHighlander');
+	CHReleaseLog("Mission Biome:" @ MissionSite.GeneratedMission.Biome.strType, 'X2WOTCCommunityHighlander');
 
-	for(i = 0; i < GeneratedMission.Mission.RequiredPlotObjectiveTags.Length; i++)
+	for(i = 0; i < MissionSite.GeneratedMission.Mission.RequiredPlotObjectiveTags.Length; i++)
 	{
-		CHReleaseLog("Mission Required Plot Objective Tags:" @ GeneratedMission.Mission.RequiredPlotObjectiveTags[i], 'X2WOTCCommunityHighlander');
+		CHReleaseLog("Mission Required Plot Objective Tags:" @ MissionSite.GeneratedMission.Mission.RequiredPlotObjectiveTags[i], 'X2WOTCCommunityHighlander');
 	}
-	for(i = 0; i < GeneratedMission.Mission.ExcludedPlotObjectiveTags.Length; i++)
+	for(i = 0; i < MissionSite.GeneratedMission.Mission.ExcludedPlotObjectiveTags.Length; i++)
 	{
-		CHReleaseLog("Mission Excluded Plot Objective Tags:" @ GeneratedMission.Mission.ExcludedPlotObjectiveTags[i], 'X2WOTCCommunityHighlander');
+		CHReleaseLog("Mission Excluded Plot Objective Tags:" @ MissionSite.GeneratedMission.Mission.ExcludedPlotObjectiveTags[i], 'X2WOTCCommunityHighlander');
 	}
-	for(i = 0; i < GeneratedMission.SitReps.Length; i++)
+	for(i = 0; i < MissionSite.GeneratedMission.SitReps.Length; i++)
 	{
-		CHReleaseLog("Mission SitReps:" @ GeneratedMission.SitReps[i], 'X2WOTCCommunityHighlander');
+		CHReleaseLog("Mission SitReps:" @ MissionSite.GeneratedMission.SitReps[i], 'X2WOTCCommunityHighlander');
 	}
-	CHReleaseLog("Plot Mapname:" @ GeneratedMission.Plot.MapName, 'X2WOTCCommunityHighlander');
-	CHReleaseLog("Plot Type:" @ GeneratedMission.Plot.strType, 'X2WOTCCommunityHighlander');
-	for(i = 0; i < GeneratedMission.Plot.ValidBiomes.Length; i++)
+	CHReleaseLog("Plot Mapname:" @ MissionSite.GeneratedMission.Plot.MapName, 'X2WOTCCommunityHighlander');
+	CHReleaseLog("Plot Type:" @ MissionSite.GeneratedMission.Plot.strType, 'X2WOTCCommunityHighlander');
+	for(i = 0; i < MissionSite.GeneratedMission.Plot.ValidBiomes.Length; i++)
 	{
-		CHReleaseLog("Plot Biomes:" @ GeneratedMission.Plot.ValidBiomes[i], 'X2WOTCCommunityHighlander');
+		CHReleaseLog("Plot Biomes:" @ MissionSite.GeneratedMission.Plot.ValidBiomes[i], 'X2WOTCCommunityHighlander');
 	}
-	for(i = 0; i < GeneratedMission.Plot.ObjectiveTags.Length; i++)
+	for(i = 0; i < MissionSite.GeneratedMission.Plot.ObjectiveTags.Length; i++)
 	{
-		CHReleaseLog("Plot Objective Tags:" @ GeneratedMission.Plot.ObjectiveTags[i], 'X2WOTCCommunityHighlander');
+		CHReleaseLog("Plot Objective Tags:" @ MissionSite.GeneratedMission.Plot.ObjectiveTags[i], 'X2WOTCCommunityHighlander');
 	}
-	CHReleaseLog("Mission Forcelevel:" @ SelectedMissionData.ForceLevel, 'X2WOTCCommunityHighlander');
-	CHReleaseLog("Mission Alertlevel:" @ SelectedMissionData.AlertLevel, 'X2WOTCCommunityHighlander');
-	CHReleaseLog("Mission Schedule:" @ SelectedMissionData.SelectedMissionScheduleName, 'X2WOTCCommunityHighlander');
-	for(i = 0; i < SelectedMissionData.SelectedEncounters.Length; i++)
+	CHReleaseLog("Mission Forcelevel:" @ MissionSite.SelectedMissionData.ForceLevel, 'X2WOTCCommunityHighlander');
+	CHReleaseLog("Mission Alertlevel:" @ MissionSite.SelectedMissionData.AlertLevel, 'X2WOTCCommunityHighlander');
+	CHReleaseLog("Mission Schedule:" @ MissionSite.SelectedMissionData.SelectedMissionScheduleName, 'X2WOTCCommunityHighlander');
+	for(i = 0; i < MissionSite.SelectedMissionData.SelectedEncounters.Length; i++)
 	{
-		CHReleaseLog("Mission EncounterIDs:" @ SelectedMissionData.SelectedEncounters[i].SelectedEncounterName, 'X2WOTCCommunityHighlander');
+		CHReleaseLog("Mission EncounterIDs:" @ MissionSite.SelectedMissionData.SelectedEncounters[i].SelectedEncounterName, 'X2WOTCCommunityHighlander');
 	}
 
 	CHReleaseLog("-- END MISSION DATA --", 'X2WOTCCommunityHighlander');
@@ -1586,118 +1603,42 @@ private function PrintMissionInformation()
 // End Issue #1526
 
 // Start Issue #1526
-private function PrintMissionInvalidationText()
+private function PrintMissionInvalidationText(XComGameState_MissionSite MissionSite)
 {
 	local MissionDefinition MissionDef;
 	local PlotDefinition PlotDef;
 
-	`TACTICALMISSIONMGR.GetMissionDefinitionForType(GeneratedMission.Mission.sType, MissionDef);
-	PlotDef = `PARCELMGR.GetPlotDefinition(GeneratedMission.Plot.MapName, GeneratedMission.Biome.strType);
+	`TACTICALMISSIONMGR.GetMissionDefinitionForType(MissionSite.GeneratedMission.Mission.sType, MissionDef);
+	PlotDef = `PARCELMGR.GetPlotDefinition(MissionSite.GeneratedMission.Plot.MapName, MissionSite.GeneratedMission.Biome.strType);
 
 	CHReleaseLog("", 'X2WOTCCommunityHighlander');
 	CHReleaseLog("-- REASON FOR MISSION INVALIDATION --", 'X2WOTCCommunityHighlander');
-	if(GetMissionSource() == None)
+	if(MissionSite.GetMissionSource() == None)
 	{
 		CHReleaseLog("Mission source doesn't exist", 'X2WOTCCommunityHighlander');
 	}
-	if(GeneratedMission.Mission.sType == "")
+	if(MissionSite.GeneratedMission.Mission.sType == "")
 	{
 		CHReleaseLog("Mission definition doesn't exist", 'X2WOTCCommunityHighlander');
 	}
-	if(GeneratedMission.Mission != MissionDef)
+	if(MissionSite.GeneratedMission.Mission != MissionDef)
 	{
 		CHReleaseLog("Mission definition is outdated", 'X2WOTCCommunityHighlander');
 	}
-	if(!`MAPS.DoesMapPackageExist(GeneratedMission.Plot.MapName))
+	if(!`MAPS.DoesMapPackageExist(MissionSite.GeneratedMission.Plot.MapName))
 	{
 		CHReleaseLog("Plot map doesn't exist", 'X2WOTCCommunityHighlander');
 	}
-	if(!`PARCELMGR.IsPlotValidForMission(GeneratedMission.Plot, GeneratedMission.Mission))
+	if(!`PARCELMGR.IsPlotValidForMission(MissionSite.GeneratedMission.Plot, MissionSite.GeneratedMission.Mission))
 	{
 		CHReleaseLog("Plot is not valid for mission", 'X2WOTCCommunityHighlander');
 	}
-	if(GeneratedMission.Plot != PlotDef)
+	if(MissionSite.GeneratedMission.Plot != PlotDef)
 	{
 		CHReleaseLog("Plot definition is outdated", 'X2WOTCCommunityHighlander');
 	}
 	CHReleaseLog("-- END MISSION INVALIDATION --", 'X2WOTCCommunityHighlander');
 	CHReleaseLog("", 'X2WOTCCommunityHighlander');
-}
-// End Issue #1526
-
-// Start Issue #1526
-private function bool ValidateMission()
-{
-	local TDialogueBoxData kDialogData;
-	local bool bRebuildSuccess;
-
-	if(!IsMissionValid(GeneratedMission))
-	{
-		CHReleaseLog("ERROR: Mission determined to not be valid, this can happen due to adding/removing mods or mod updates", 'X2WOTCCommunityHighlander');
-		PrintMissionInvalidationText();
-		PrintMissionInformation();
-
-		bRebuildSuccess = RebuildMission();
-		if(bRebuildSuccess)
-		{
-			CHReleaseLog("WARNING: Successfully rebuilt mission, tactical mission will launch with rebuilt mission data", 'X2WOTCCommunityHighlander');
-			PrintMissionInformation();
-		}
-		else
-		{
-			CHReleaseLog("ERROR: Failed to rebuild mission, tactical mission will launch with original mission data", 'X2WOTCCommunityHighlander');
-		}
-
-		kDialogData.eType = eDialog_Warning;
-		kDialogData.strTitle = class'CHHelpers'.default.m_strValidateMissionDialogTitle;
-		kDialogData.strText = bRebuildSuccess ? class'CHHelpers'.default.m_strValidateMissionDialogTextSuccess : class'CHHelpers'.default.m_strValidateMissionDialogTextFail;
-		kDialogData.strAccept = class'UIDialogueBox'.default.m_strDefaultAcceptLabel;
-		kDialogData.fnCallback = ValidateMissionDialogCallback;
-
-		`HQPRES.UIRaiseDialog(kDialogData);
-
-		return false;
-	}
-
-	return true;
-}
-// End Issue #1526
-
-// Start Issue #1526
-simulated function ValidateMissionDialogCallback(Name eAction)
-{
-	local XComGameStateHistory History;
-	local XComGameState_HeadquartersXCom XComHQ;
-	local XGStrategy StrategyGame;
-	local XComGameState NewGameState;
-
-	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Launch Mission Selected");
-	`XEVENTMGR.TriggerEvent('LaunchMissionSelected', , , NewGameState);
-	if (GetMissionSource().DataName == 'MissionSource_Final')
-	{
-		`XEVENTMGR.TriggerEvent('FinalMissionSquadSelected', , , NewGameState);
-	}
-	`XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
-	
-	// return the Skyranger to the Avenger upon returning from the mission
-	History = `XCOMHISTORY;
-	XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
-	XComHQ.SetPendingPointOfTravel(XComHQ);
-
-	StrategyGame = `GAME;
-
-	if(StrategyGame.SimCombatNextMission)
-	{
-		StrategyGame.SimCombatNextMission = false;
-		`HQPRES.m_bExitFromSimCombat = true;
-		`HQPRES.ExitStrategyMap();
-		class'X2StrategyGame_SimCombat'.static.SimCombat();
-	}
-	else
-	{
-		// Launch this Mission!
-		StrategyGame.LaunchTacticalBattle(ObjectID);
-	}
 }
 // End Issue #1526
 
@@ -1711,9 +1652,9 @@ function ConfirmMission()
 	/// HL-Docs: ref:Bugfixes; issue:1526
 	/// Validates the mission before launching a tactical battle, and attempts rebuilding of mission if determined invalid
 	// Start Issue #1526
-	if(!ValidateMission())
+	if(!IsMissionValid())
 	{
-		return;
+		RebuildMission();
 	}
 	// End Issue #1526
 
