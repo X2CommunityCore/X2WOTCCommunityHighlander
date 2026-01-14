@@ -14,6 +14,7 @@ class X2Effect_Burning extends X2Effect_Persistent
 
 var privatewrite name BurningEffectAddedEventName;
 var config bool BURNED_IGNORES_SHIELDS; //Issue #89
+var config array<name> BURN_TYPES_TICKING_AFTER_TURN; //Issue #1539
 
 function bool IsThisEffectBetterThanExistingEffect(const out XComGameState_Effect ExistingEffect)
 {
@@ -52,7 +53,17 @@ simulated function SetBurnDamage(int Damage, int Spread, name DamageType)
 
 	ApplyOnTick.AddItem(BurnDamage);
 	`assert( ApplyOnTick.Length == 1 );
+
+	//Begin Issue #1539
+	// This isn't how I expected to do this, but I made one critical oversight
+	// in my initial research: SetBurnDamage isn't what calls BuildPersistentEffect. :o
+	if (BURN_TYPES_TICKING_AFTER_TURN.Find(DamageType) != INDEX_NONE)
+	{
+		self.WatchRule = eGameRule_PlayerTurnEnd;
+	}
+	//End Issue #1539
 }
+
 
 simulated function X2Effect_ApplyWeaponDamage GetBurnDamage()
 {
