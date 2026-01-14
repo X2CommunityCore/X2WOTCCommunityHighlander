@@ -287,6 +287,19 @@ var config bool bDisableAutomaticBondPhoto;
 var config bool bManualPhotoTakenOnLastMission;
 // End Issue #1453
 
+// Start Issue #1486
+/// HL-Docs: ref:Bugfixes; issue:1486
+/// This set of changes fixes seveal issues with the behavior of the debugging console command X2AllowSelectAll - in particular:
+/// 1. With the command active, when selecting units non on the XCom team, the camera would not pan to those units
+/// 2. When carrying out other debug commands on non-XCom units (e.g. grantactionpoints), the camera would pan back to the first active unit on the player team
+/// 3. Turns which were ended while the command was active would not be processed properly
+/// 4. Non-XCom units would not move correctly when the command was issued due to XCom not being considered visible (game resorts to AI-like patrol behavior)
+/// All of these are now fixed in a minimally invasive way by gating small setions of basegame code when the command is active and will have no effect otherwise
+/// Disabling selection of civilians & 'Improved Behavior' (scamper & alert all aliens) are also provided as optional flags to improve the overall experience. 
+var config bool ExcludeCiviliansFromX2AllowSelectAll;
+var config bool UseImprovedX2AllowSelectAllBehavior;
+// End Issue #1486
+
 // Start Issue #885
 enum EHLDelegateReturn
 {

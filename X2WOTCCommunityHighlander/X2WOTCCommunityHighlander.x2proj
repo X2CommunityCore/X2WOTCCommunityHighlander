@@ -607,6 +607,9 @@
     <Content Include="Src\XComGame\Classes\X2Ability_GrenadierAbilitySet.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Camera_FollowMouseCursor.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Camera_FrameAbility.uc">
       <SubType>Content</SubType>
     </Content>
