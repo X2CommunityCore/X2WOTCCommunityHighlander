@@ -341,6 +341,20 @@ struct OverrideHasHeightAdvantageStruct
 var protectedwrite array<OverrideHasHeightAdvantageStruct> OverrideHasHeightAdvantageCallbacks;
 // End Issue #851
 
+// Start Issue #1565
+struct OverrideCoverLevelStruct
+{
+	var delegate<OverrideCoverLevelDelegate> OverrideCoverLevelFn;
+	var int Priority;
+
+	structdefaultproperties
+	{
+		Priority = 50
+	}
+};
+var protectedwrite array<OverrideCoverLevelStruct> OverrideCoverLevelCallbacks;
+// End Issue #1565
+
 // Start Issue #1138
 struct PrioritizeRightClickMeleeStruct
 {
@@ -359,6 +373,8 @@ delegate EHLDelegateReturn ShouldDisplayMultiSlotItemInStrategyDelegate(XComGame
 delegate EHLDelegateReturn ShouldDisplayMultiSlotItemInTacticalDelegate(XComGameState_Unit UnitState, XComGameState_Item ItemState, out int bDisplayItem, XGUnit UnitVisualizer, optional XComGameState CheckGameState); // Issue #885
 delegate EHLDelegateReturn OverrideHasHeightAdvantageDelegate(XComGameState_Unit Attacker, XComGameState_Unit TargetUnit, out int bHasHeightAdvantage); // Issue #851
 delegate EHLDelegateReturn PrioritizeRightClickMeleeDelegate(XComGameState_Unit UnitState, out XComGameState_Ability PrioritizedMeleeAbility, optional XComGameState_BaseObject TargetObject); // Issue #1138
+
+delegate EHLDelegateReturn OverrideCoverLevelDelegate(XComGameState_Unit Attacker, XComGameState_Unit Target, out GameRulesCache_VisibilityInfo VisInfo, Object EventSource); // Issue #1565
 
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
@@ -1018,6 +1034,143 @@ simulated function TriggerOverrideHasHeightAdvantage(XComGameState_Unit Attacker
 	}
 }
 // End Issue #851
+
+// Start Issue #1565
+/// HL-Docs: feature:CoverLevelOverride; issue:1565; tags:tactical
+/// This feature allows mods to override which cover level a unit has against an attack by 
+/// another unit on a case-by-case basis, gaining various tactical benefits.
+///
+/// Normally this override would have been implemented as an event, but events in To Hit Chance Calculation logic can cause issues, 
+/// see [GetHitChanceEvents](../tactical/GetHitChanceEvents.md), so the delegates system is used instead.
+///
+/// This feature applies to X2Effect_HuntersInstinctDamage, X2AbilityToHitCalc_StandardAim, and all descendants thereof.
+/// It does not apply to hit calcs if:
+/// - It is a descendant class which overrides GetHitChance without supporting this feature
+/// - The attack is not subject to cover (bIndirectFire, bMeleeAttack)
+/// - It *does* apply if bIgnoreCoverBonus is true, *but* does not override its behavior
+///
+/// It does not apply to Hunter's Instinct if:
+/// - It is a descendant class which overrides GetAttackingDamageModifier without supporting this feature
+/// - The effect would not be affected by cover level (e.g. it's a melee attack and thus ineligible for Hunter's Instinct)
+///
+/// **NOTE:** While this feature allows the delegate to affect other visibility data, the 
+/// results of changing it are not fully understood by the developer. Use with caution!
+///
+/// ## How to use
+///
+/// Implement the following code in your mod's `X2DownloadableContentInfo` class:
+/// ```unrealscript
+/// static event OnPostTemplatesCreated()
+/// {
+/// 	local CHHelpers CHHelpersObj;
+/// 
+/// 	CHHelpersObj = class'CHHelpers'.static.GetCDO();
+/// 	if (CHHelpersObj != none)
+/// 	{
+/// 		CHHelpersObj.AddOverrideHasHeightAdvantageCallback(OverrideHasHeightAdvantage);
+/// 	}
+/// }
+///
+/// // To avoid crashes associated with garbage collection failure when transitioning between Tactical and Strategy,
+/// // this function must be bound to the ClassDefaultObject of your class. Having this function in a class that 
+/// // `extends X2DownloadableContentInfo` is the easiest way to ensure that.
+/// static private function EHLDelegateReturn OverrideHasHeightAdvantage(XComGameState_Unit Attacker, XComGameState_Unit TargetUnit, out GamesRuleCache_VisibilityInfo VisInfo, Object EventSource)
+/// {
+/// 	// Optionally modify `VisInfo.TargetCover` here. 
+/// 	// This is an enum containing the target's cover level against the attacker.
+///		
+/// 	// Return EHLDR_NoInterrupt or EHLDR_InterruptDelegates depending on 
+/// 	// if you want to allow other delegates to run after yours
+/// 	// and potentially modify VisInfo further.
+/// 	return EHLDR_NoInterrupt;
+///}
+/// ```
+///
+/// # Delegate Priority
+/// You can optionally specify callback Priority. 
+///```unrealscript
+///CHHelpersObj.AddOverrideCoverLevelCallback(OverrideCoverLevel, 45);
+///```
+/// Delegates with higher Priority value are executed first. 
+/// Delegates with the same Priority are executed in the order they were added to CHHelpers,
+/// which would normally be the same as [DLCRunOrder](../misc/DLCRunOrder.md).
+/// This function will return `true` if the delegate was successfully registered.
+simulated function bool AddOverrideCoverLevelCallback(delegate<OverrideCoverLevelDelegate> OverrideCoverLevelFn, optional int Priority = 50)
+{
+	local OverrideCoverLevelStruct NewOverrideCoverLevelCallback;
+	local int i, PriorityIndex;
+	local bool bPriorityIndexFound;
+
+	if (OverrideCoverLevelFn == none)
+	{
+		return false;
+	}
+	// Cycle through the array of callbacks backwards
+	for (i = OverrideCoverLevelCallbacks.Length - 1; i >= 0; i--)
+	{
+		// Do not allow registering the same delegate more than once.
+		if (OverrideCoverLevelCallbacks[i].OverrideCoverLevelFn == OverrideCoverLevelFn)
+		{
+			return false;
+		}
+
+		// Record the array index of the callback whose priority is higher or equal to the priority of the new callback,
+		// so that the new callback can be inserted right after it.
+		if (OverrideCoverLevelCallbacks[i].Priority >= Priority && !bPriorityIndexFound)
+		{
+			PriorityIndex = i + 1; // +1 so that InsertItem puts the new callback *after* this one. 
+
+			//	Keep cycling through the array so that the previous check for duplicate delegates can run for every currently registered delegate.
+			bPriorityIndexFound = true;
+		}
+	}
+
+	NewOverrideCoverLevelCallback.Priority = Priority;
+	NewOverrideCoverLevelCallback.OverrideCoverLevelFn = OverrideCoverLevelFn;
+	OverrideCoverLevelCallbacks.InsertItem(PriorityIndex, NewOverrideCoverLevelCallback);
+
+	return true;
+}
+
+/// HL-Docs: ref:CoverLevelOverride
+/// # Removing Delegates
+/// If necessary, it's possible to remove a delegate.
+///```unrealscript
+///CHHelpersObj.RemoveOverrideCoverLevelCallback(OverrideCoverLevel);
+///```
+/// The function will return `true` if the Callback was successfully deleted, return false otherwise.
+simulated function bool RemoveOverrideCoverLevelCallback(delegate<OverrideCoverLevelDelegate> OverrideCoverLevelFn)
+{
+	local int i;
+
+	for (i = OverrideCoverLevelCallbacks.Length - 1; i >= 0; i--)
+	{
+		if (OverrideCoverLevelCallbacks[i].OverrideCoverLevelFn == OverrideCoverLevelFn)
+		{
+			OverrideCoverLevelCallbacks.Remove(i, 1);
+			return true;
+		}
+	}
+	return false;
+}
+
+// Should be called by anything that wants to know a unit's cover level.
+simulated function TriggerOverrideCoverLevel(XComGameState_Unit Attacker, XComGameState_Unit TargetUnit, out GameRulesCache_VisibilityInfo VisInfo, Object EventSource)
+{
+	local delegate<OverrideCoverLevelDelegate> OverrideCoverLevelFn;
+	local int i;
+
+	for (i = 0; i < OverrideCoverLevelCallbacks.Length; i++)
+	{	
+		OverrideCoverLevelFn = OverrideCoverLevelCallbacks[i].OverrideCoverLevelFn;
+
+		if (OverrideCoverLevelFn(Attacker, TargetUnit, VisInfo, EventSource) == EHLDR_InterruptDelegates)
+		{
+			break;
+		}
+	}
+}
+// End Issue #1565
 
 // Start Issue #1138
 /// HL-Docs: ref:PrioritizeRightClickMelee

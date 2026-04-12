@@ -15,6 +15,9 @@ function int GetAttackingDamageModifier(XComGameState_Effect EffectState, XComGa
 		{
 			if (`TACTICALRULES.VisibilityMgr.GetVisibilityInfo(Attacker.ObjectID, TargetUnit.ObjectID, VisInfo))
 			{
+				// Issue #1565 - check if we're really considered "in cover"
+				class'CHHelpers'.static.GetCDO().TriggerOverrideCoverLevel(Attacker, TargetUnit, VisInfo, self); 
+
 				if (Attacker.CanFlank() && TargetUnit.CanTakeCover() && VisInfo.TargetCover == CT_None)
 				{
 					return BonusDamage;
