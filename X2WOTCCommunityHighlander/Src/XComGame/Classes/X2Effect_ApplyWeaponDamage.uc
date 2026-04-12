@@ -390,6 +390,12 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 	local DamageModifierInfo DamageModInfo;
 	local array<DamageModifierInfo> DamageMods; // Issue #923
 
+	// Begin Issue #1540 - variables for cover DR	
+	local int OriginalMitigation, MinMandatoryMitigation, MaxMandatoryMitigation;
+	local int MinPierce, MaxPierce;
+	local int MinMitigation, MaxMitigation;
+	// End Issue #1540
+
 	MinDamagePreview = UpgradeTemplateBonusDamage;
 	MaxDamagePreview = UpgradeTemplateBonusDamage;
 	bDoesDamageIgnoreShields = bBypassShields;
@@ -665,7 +671,62 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 	// End Issue #923
 
 	if (!bDoesDamageIgnoreShields)
+	{
 		AllowsShield += MaxDamagePreview.Damage;
+	}
+
+	// Begin Issue #1540 - preview armor DR
+	// Unlike the UI, this doesn't require extra configs, because the original values of
+	// Spread and PlusOne were always defaulted to 0 so there's no way
+	// anyone was getting useful info from them.
+	//
+	// However, UI mods overriding ShotWings, ShotHUD, or UnitFlagManager
+	// will not use this information - with or without configs - until they are updated.
+	if (TargetUnit != none && bIgnoreArmor && MinDamagePreview.Damage > 0)
+	{
+		// The original mitigation (and original minimum mitigation, i.e. 0)
+		// are shared across both damage values, so can be initialized here.
+		OriginalMitigation = TargetUnit.GetArmorMitigationForUnitFlag();
+
+		// Get adjusted mitigation, piercing, and minimum mitigation
+		// for the attack.
+		// It seems that passing struct values as out parameters
+		// prevents them from being edited by the function,
+		// so we need a few extra variables to store the data...
+		MinMitigation = OriginalMitigation;
+		MinPierce = MinDamagePreview.Pierce;
+		MinMandatoryMitigation = 0;
+		class'CHHelpers'.static.GetCDO().TriggerAdjustArmorMitigation(
+			MinDamagePreview.Damage,
+			MinMitigation,
+			MinPierce,
+			MinMandatoryMitigation, // Starts at 0
+			TestEffectParams,
+			self,
+			// Tells the event handlers that this is a minimum damage preview.
+			// (The absence of a game state tells them it's *a* damage preview.)
+			true
+		);
+		MinDamagePreview.Spread = MinMitigation;
+		MinDamagePreview.Pierce = MinPierce;
+		MinDamagePreview.PlusOne = MinMandatoryMitigation;
+		
+		MaxMitigation = OriginalMitigation;
+		MaxPierce = MaxDamagePreview.Pierce;
+		MaxMandatoryMitigation = 0;
+		class'CHHelpers'.static.GetCDO().TriggerAdjustArmorMitigation(
+			MaxDamagePreview.Damage,
+			MaxMitigation,
+			MaxPierce,
+			MaxMandatoryMitigation, // Starts at 0
+			TestEffectParams,
+			self
+		);
+		MaxDamagePreview.Spread = MaxMitigation;
+		MaxDamagePreview.Pierce = MaxPierce;
+		MaxDamagePreview.PlusOne = MaxMandatoryMitigation;		
+	}
+	// End Issue #1540
 
 	// Start Issue #1281
 	/// HL-Docs: ref:Bugfixes; issue:1281
@@ -759,6 +820,10 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 	local X2WeaponUpgradeTemplate WeaponUpgradeTemplate;
 	local DamageModifierInfo ModifierInfo;
 	local bool bWasImmune, bHadAnyDamage;
+
+	// Begin Issue #1540
+	local int MinMitigation;
+	// End Issue #1540
 
 	// Issue #1299 - comment out unused Rupture Cap.
 	//local int RuptureCap;
@@ -1119,14 +1184,38 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 		if (kTarget != none && !bIgnoreArmor)
 		{
 			ArmorMitigation = kTarget.GetArmorMitigation(ApplyEffectParameters.AbilityResultContext.ArmorMitigation);
-			if (ArmorMitigation != 0)
-			{				
+
+			// Begin Issue #1540
+			// Moved these two lines out of the if block for eventing
 				OriginalMitigation = ArmorMitigation;
 				ArmorPiercing += kSourceUnit.GetCurrentStat(eStat_ArmorPiercing);				
+
+			// This is a huge event (as implied by this equally huge param list),
+			// and we're reusing it for damage previews, so it gets a helper.
+			// For easier reference: Only ArmorMitigation, ArmorPiercing, and MinMitigation
+			// are affected by this event here.
+			class'CHHelpers'.static.GetCDO().TriggerAdjustArmorMitigation(
+				WeaponDamage,
+				ArmorMitigation, // We read this one.
+				ArmorPiercing,
+				MinMitigation, // This starts at 0.
+				ApplyEffectParameters,
+				self,
+				false, // Not a minimum damage preview!
+				NewGameState
+			);
+			// End Issue #1540
+
+			if (ArmorMitigation != 0)
+			{				
 				`log("Armor mitigation! Target armor mitigation value:" @ ArmorMitigation @ "Attacker armor piercing value:" @ ArmorPiercing, true, 'XCom_HitRolls');
 				ArmorMitigation -= ArmorPiercing;				
-				if (ArmorMitigation < 0)
-					ArmorMitigation = 0;
+
+				// Issue #1540 - minimum mitigation might not be 0 like in vanilla
+				// (i.e. impenetrable armor), so check against MinMitigation instead.
+				if (ArmorMitigation < MinMitigation) 
+					ArmorMitigation = MinMitigation;
+
 				// Issue #321
 				if (ArmorMitigation >= WeaponDamage)
 				{ 

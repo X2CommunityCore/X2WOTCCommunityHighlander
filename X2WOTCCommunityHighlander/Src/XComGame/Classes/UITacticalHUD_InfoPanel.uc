@@ -151,6 +151,18 @@ simulated function Update()
 
 	if (MinDamage > 0 && MaxDamage > 0)
 	{
+		// Begin Issue #1540
+		// Adjust damage preview for net armor mitigation 
+		// The order of operations here does mean the UI might preview 0 damage if NO_MINIMUM_DAMAGE
+		// is enabled, but I actually feel that's a good thing here, to call out
+		// that the attack's original damage has been completely nullified by armor.
+		if (class'CHHelpers'.default.PREVIEW_ARMOR_MITIGATION)
+		{	
+			// We don't show net mitigation anywhere, so might as well pass nothing.
+			class'CHHelpers'.static.CalculateMitigatedDamagePreviewHUD(kTarget.PrimaryTarget, MinDamageValue, MaxDamageValue, AllowsShield, MinDamage, MaxDamage);
+		}
+		// End Issue #1540
+
 		if(MinDamage == MaxDamage)
 			ShotDamage = String(MinDamage);
 		else

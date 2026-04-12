@@ -254,6 +254,12 @@ simulated function RefreshData()
 	local WeaponDamageValue		MinDamageValue, MaxDamageValue;
 	local int					AllowsShield;
 
+	// Begin Issue #1540
+	local Array<UISummary_ItemStat> DamageBreakdown;
+	local int MinDamage, MaxDamage, NetMitigationMin, NetMitigationMax;
+	// End Issue #1540
+
+
 	kAction = UITacticalHUD(Screen).m_kAbilityHUD.GetSelectedAction();
 	kEnemyRef = XComPresentationLayer(Movie.Pres).GetTacticalHUD().m_kEnemyTargets.GetSelectedEnemyStateObjectRef();
 	AbilityState = XComGameState_Ability(`XCOMHISTORY.GetGameStateForObjectID(kAction.AbilityObjectRef.ObjectID));
@@ -364,11 +370,28 @@ simulated function RefreshData()
 	if(Breakdown.ResultTable[eHit_Crit] >= 0)
 	{
 		AbilityState.GetDamagePreview(Target, MinDamageValue, MaxDamageValue, AllowsShield);
+		DamageBreakdown = ProcessDamageBreakdown(MinDamageValue); // Issue #1540 - extract into a variable and populate it early
+		MinDamage = MinDamageValue.Damage;
+		MaxDamage = MaxDamageValue.Damage;
+
+		// Begin Issue #1540
+		if (class'CHHelpers'.default.PREVIEW_ARMOR_MITIGATION)
+		{
+			// Calculate mitigated damage
+			class'CHHelpers'.static.CalculateMitigatedDamagePreview(Target, MinDamageValue, MaxDamageValue, AllowsShield, MinDamage, MaxDamage, NetMitigationMin, NetMitigationMax);
+
+			// Add net mitigation to damage breakdown
+			if (NetMitigationMin != 0 || NetMitigationMax != 0)
+			{
+				DamageBreakdown.InsertItem(0, BuildDamageBreakdownItem(NetMitigationMin, class'XGLocalizedData'.default.ArmorMitigation, true, NetMitigationMax));
+			}
+		}
+		// End Issue #1540
 
 		DamageLabel.SetHtmlText(class'UIUtilities_Text'.static.StyleText(class'XLocalizedData'.default.DamageLabel, eUITextStyle_Tooltip_StatLabel));
-		TmpStr = string(MinDamageValue.Damage) $ "-" $ string(MaxDamageValue.Damage);
+		TmpStr = string(MinDamage) $ "-" $ string(MaxDamage); // Issue #1540 - Use Min/MaxDamage instead of Min/MaxDamageValue.Damage
 		DamagePercent.SetHtmlText(class'UIUtilities_Text'.static.StyleText(TmpStr, eUITextStyle_Tooltip_StatValue));
-		DamageStatList.RefreshData(ProcessDamageBreakdown(MinDamageValue));
+		DamageStatList.RefreshData(DamageBreakdown); // Issue #1540 - use the previously extracted variable
 
 		CritLabel.SetHtmlText(class'UIUtilities_Text'.static.StyleText(Breakdown.SpecialCritLabel == "" ? class'XLocalizedData'.default.CritLabel : Breakdown.SpecialCritLabel, eUITextStyle_Tooltip_StatLabel));
 		TmpStr = string(Breakdown.ResultTable[eHit_Crit]) $ "%";
@@ -423,33 +446,60 @@ simulated function int SortModifiers( ShotModifierInfo a, ShotModifierInfo b)
 		return 0; 
 }
 
+// Begin Issue #1540 
+// Extracted code from ProcessDamageBreakdown, with added support for custom messages
+// and a damage range.
+// Does not currently support a negative minimum with positive maximum, 
+// but I can't think of a reason that would be necessary right now.
+simulated function UISummary_ItemStat BuildDamageBreakdownItem(int MinDamage, string Message, optional bool ShowDamageRange = false, optional int MaxDamage)
+{
+	local UISummary_ItemStat Item;
+	local string strLabel, strValue, strColoredValue, strPrefix;
+	local EUIState eState;
+
+	if (ShowDamageRange && MaxDamage != MinDamage)
+	{
+		if (abs(MaxDamage) < abs(MinDamage)) // Someone got the damage numbers backwards!
+		{
+			return BuildDamageBreakdownItem(MaxDamage, Message, ShowDamageRange, MinDamage);
+		}
+
+		strValue = string(MinDamage) $ "-" $ string(int(abs(MaxDamage)));
+	}
+	else
+	{
+		strValue = string(MinDamage);
+	}
+
+	if( MinDamage < 0 )
+	{
+		eState = eUIState_Bad;
+		strPrefix = "";
+	}
+	else
+	{
+		eState = eUIState_Normal;
+		strPrefix = "+";
+	}
+
+	strLabel = class'UIUtilities_Text'.static.GetColoredText(Message, eState);
+	strColoredValue = class'UIUtilities_Text'.static.GetColoredText(strPrefix $ strValue, eState);
+
+	Item.Label = strLabel;
+	Item.Value = strColoredValue;
+	return Item;
+}
+// End Issue #1540
+
 simulated function array<UISummary_ItemStat> ProcessDamageBreakdown(const out WeaponDamageValue DamageValue)
 {
 	local array<UISummary_ItemStat> Stats;
-	local UISummary_ItemStat Item;
 	local int i;
-	local string strLabel, strValue, strPrefix;
-	local EUIState eState;
 
 	for( i = 0; i < DamageValue.BonusDamageInfo.Length; i++ )
 	{
-		if( DamageValue.BonusDamageInfo[i].Value < 0 )
-		{
-			eState = eUIState_Bad;
-			strPrefix = "";
-		}
-		else
-		{
-			eState = eUIState_Normal;
-			strPrefix = "+";
-		}
-
-		strLabel = class'UIUtilities_Text'.static.GetColoredText(class'Helpers'.static.GetMessageFromDamageModifierInfo(DamageValue.BonusDamageInfo[i]), eState);
-		strValue = class'UIUtilities_Text'.static.GetColoredText(strPrefix $ string(DamageValue.BonusDamageInfo[i].Value), eState);
-
-		Item.Label = strLabel;
-		Item.Value = strValue;
-		Stats.AddItem(Item);
+		// Issue #1540 - extracted into expanded helper function, see above
+		Stats.AddItem(BuildDamageBreakdownItem(DamageValue.BonusDamageInfo[i].Value, class'Helpers'.static.GetMessageFromDamageModifierInfo(DamageValue.BonusDamageInfo[i])));
 	}
 
 	return Stats;
