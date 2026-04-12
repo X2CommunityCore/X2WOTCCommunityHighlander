@@ -396,6 +396,7 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 	local int MinMitigation, MaxMitigation;
 	local int MinShred, MaxShred;
 	// End Issue #1540
+	local int IgnoreArmor, IgnoreShields; // Issue #1542
 
 	MinDamagePreview = UpgradeTemplateBonusDamage;
 	MaxDamagePreview = UpgradeTemplateBonusDamage;
@@ -671,7 +672,14 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 	MoveDamageModItems(MaxDamagePreview.BonusDamageInfo, DamageMods);
 	// End Issue #923
 
-	if (!bDoesDamageIgnoreShields)
+	// Start Issue #1542
+	IgnoreArmor = bIgnoreArmor ? 1 : 0;
+	IgnoreShields = bDoesDamageIgnoreShields ? 1 : 0;
+	class'CHHelpers'.static.GetCDO().TriggerOverrideDefenseBypass(AppliedDamageTypes, IgnoreArmor, IgnoreShields, TestEffectParams, self);
+	bDoesDamageIgnoreShields = IgnoreShields > 0;
+	// End Issue #1542
+
+	if (!bDoesDamageIgnoreShields) 
 	{
 		AllowsShield += MaxDamagePreview.Damage;
 	}
@@ -683,7 +691,7 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 	//
 	// However, UI mods overriding ShotWings, ShotHUD, or UnitFlagManager
 	// will not use this information - with or without configs - until they are updated.
-	if (TargetUnit != none && bIgnoreArmor && MinDamagePreview.Damage > 0)
+	if (TargetUnit != none && IgnoreArmor < 1 && MinDamagePreview.Damage > 0)
 	{
 		// The original mitigation (and original minimum mitigation, i.e. 0)
 		// are shared across both damage values, so can be initialized here.
@@ -738,7 +746,7 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 	// Start Issue #1281
 	/// HL-Docs: ref:Bugfixes; issue:1281
 	/// If the effect ignores all armor, max out the Pierce value in the Damage Preview so it will show up on the unit flag damage preview.
-	if (bIgnoreArmor)
+	if (IgnoreArmor > 0)
 	{
 		MinDamagePreview.Pierce = MaxInt;
 		MaxDamagePreview.Pierce = MaxInt;
@@ -831,6 +839,7 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 	// Begin Issue #1540
 	local int MinMitigation;
 	// End Issue #1540
+	local int IgnoreArmor; // Issue #1542
 
 	// Issue #1299 - comment out unused Rupture Cap.
 	//local int RuptureCap;
@@ -1184,11 +1193,16 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 			}
 		}
 
+		// Start Issue #1542
+		IgnoreArmor = bIgnoreArmor ? 1 : 0;
+	class'CHHelpers'.static.GetCDO().TriggerOverrideDefenseBypass(AppliedDamageTypes, IgnoreArmor, bAmmoIgnoresShields, ApplyEffectParameters, self);
+		// End Issue #1542
+
 		// Start Issue #923
 		WeaponDamage = ApplyPostDefaultDamageModifierEffects(History, kSourceUnit, kTarget, kAbility, ApplyEffectParameters, WeaponDamage, SpecialDamageMessages,, NewGameState);
 		// End Issue #923
 
-		if (kTarget != none && !bIgnoreArmor)
+		if (kTarget != none && IgnoreArmor == 0)
 		{
 			ArmorMitigation = kTarget.GetArmorMitigation(ApplyEffectParameters.AbilityResultContext.ArmorMitigation);
 

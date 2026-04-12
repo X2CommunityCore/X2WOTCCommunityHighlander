@@ -358,6 +358,7 @@ struct OverrideCoverLevelStruct
 };
 var protectedwrite array<OverrideCoverLevelStruct> OverrideCoverLevelCallbacks;
 // End Issue #1565
+
 // Start Issue #1540
 struct AdjustArmorMitigationStruct
 {
@@ -371,6 +372,20 @@ struct AdjustArmorMitigationStruct
 };
 var protectedwrite array<AdjustArmorMitigationStruct> AdjustArmorMitigationCallbacks;
 // End Issue #1540
+
+// Start Issue #1542
+struct OverrideDefenseBypassStruct
+{
+    var delegate<OverrideDefenseBypassDelegate> OverrideDefenseBypassFn;
+    var int Priority;
+    
+    structdefaultproperties
+    {
+        Priority = 50
+    }
+};
+var protectedwrite array<OverrideDefenseBypassStruct> OverrideDefenseBypassCallbacks;
+// End Issue #1542
 
 // Start Issue #1138
 struct PrioritizeRightClickMeleeStruct
@@ -392,7 +407,10 @@ delegate EHLDelegateReturn OverrideHasHeightAdvantageDelegate(XComGameState_Unit
 delegate EHLDelegateReturn PrioritizeRightClickMeleeDelegate(XComGameState_Unit UnitState, out XComGameState_Ability PrioritizedMeleeAbility, optional XComGameState_BaseObject TargetObject); // Issue #1138
 
 delegate EHLDelegateReturn OverrideCoverLevelDelegate(XComGameState_Unit Attacker, XComGameState_Unit Target, out GameRulesCache_VisibilityInfo VisInfo, Object EventSource); // Issue #1565
+
 delegate EHLDelegateReturn AdjustArmorMitigationDelegate(int WeaponDamage, out int ArmorMitigation, out int ArmorPiercing, out int MinMitigation, out int ArmorShred, EffectAppliedData ApplyEffectParams, X2Effect_ApplyWeaponDamage Source, optional bool ForMinDamagePreview, optional XComGameState NewGameState); // Issue #1540
+
+delegate EHLDelegateReturn OverrideDefenseBypassDelegate(array<name> AppliedDamageTypes, out int bIgnoreArmor, out int bIgnoreShields, EffectAppliedData ApplyEffectParams, X2Effect_ApplyWeaponDamage Source, optional XComGameState NewGameState); // Issue #1542
 
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
@@ -1589,3 +1607,141 @@ static simulated function CalculateMitigatedDamagePreview(StateObjectReference T
 	NetMitigationMax = MaxDamage - MaxDamageValue.Damage;
 }
 // End Issue #1540
+
+// Begin Issue #1542
+/// HL-Docs: feature:OverrideDefenseBypass; issue:1542; tags:tactical
+/// This feature allows mods to override the amount of armor mitigation,
+/// armor piercing, or minimum/mandatory armor mitigation for an attack
+/// on a case-by-case basis.
+///
+/// Normally this override would have been implemented as an event, but the implementing dev heard that events in To Hit Chance Calculation logic can cause issues, 
+/// (see [GetHitChanceEvents](../tactical/GetHitChanceEvents.md)), and resorted to delegates in an attempt to resolve a crash he was unable to explain at the time.
+///
+/// This feature only applies to attacks using `X2Effect_ApplyWeaponDamage`,
+/// or a subclass which has not overridden its `GetDamagePreview()` and `CalculateDamageAmount`
+/// functions (except if they have included support for this feature).
+///
+/// ## Delegate structure
+///
+/// - array<name> AppliedDamageTypes: All damage types applied to the attack, to help determine the results.
+/// - out int bIgnoreArmor: Boolean value specifying whether the attack should ignore armor. Defaults to the corresponding value on the damage effect.
+/// - out int bIgnoreShields: Boolean value specifying whether the attack should ignore ablative HP. Defaults to the corresponding value calculated by the damage effect.
+/// - EffectAppliedData ApplyEffectParams: Effect context containing information such as the parent ability, source and target units, etc., to help determine the results.
+/// - X2Effect_ApplyWeaponDamage Source: The effect itself, to help determine the results. *Do not* attempt to modify it or invoke functions which would have side effects.
+/// - optional XComGameState NewGameState: The new game state after the attack resolves. If no game state was provided, then the delegate has been invoked by a damage preview.
+///
+/// ## How to use
+///
+/// Implement the following code in your mod's `X2DownloadableContentInfo` class:
+/// ```unrealscript
+/// static event OnPostTemplatesCreated()
+/// {
+/// 	local CHHelpers CHHelpersObj;
+/// 
+/// 	CHHelpersObj = class'CHHelpers'.static.GetCDO();
+/// 	if (CHHelpersObj != none)
+/// 	{
+/// 		CHHelpersObj.AddOverrideDefenseBypassCallback(OverrideDefenseBypass);
+/// 	}
+/// }
+///
+/// // To avoid crashes associated with garbage collection failure when transitioning between Tactical and Strategy,
+/// // this function must be bound to the ClassDefaultObject of your class. Having this function in a class that 
+/// // `extends X2DownloadableContentInfo` is the easiest way to ensure that.
+/// static private function EHLDelegateReturn OverrideDefenseBypass(array<name> AppliedDamageTypes, out int bIgnoreArmor, out int bIgnoreShields, EffectAppliedData ApplyEffectParams, X2Effect_ApplyWeaponDamage Source, optional XComGameState NewGameState)
+/// {
+/// 	// Detect whether it's a damage preview. (... If you even care.)
+///     // Then optionally modify either or both of bIgnoreArmor and bIgnoreShields.
+///		
+/// 	// Return EHLDR_NoInterrupt or EHLDR_InterruptDelegates depending on 
+/// 	// if you want to allow other delegates to run after yours
+/// 	// and potentially modify defense bypass further.
+/// 	return EHLDR_NoInterrupt;
+///}
+/// # Delegate Priority
+/// You can optionally specify callback Priority. 
+///```unrealscript
+///CHHelpersObj.AddOverrideDefenseBypassCallback(OverrideDefenseBypass, 45);
+///```
+/// Delegates with higher Priority value are executed first. 
+/// Delegates with the same Priority are executed in the order they were added to CHHelpers,
+/// which would normally be the same as [DLCRunOrder](../misc/DLCRunOrder.md).
+/// This function will return `true` if the delegate was successfully registered.
+simulated function bool AddOverrideDefenseBypassCallback(delegate<OverrideDefenseBypassDelegate> OverrideDefenseBypassFn, optional int Priority = 50)
+{
+    local OverrideDefenseBypassStruct NewOverrideDefenseBypassCallback;
+    local int i, PriorityIndex;
+    local bool bPriorityIndexFound;
+
+    if (OverrideDefenseBypassFn == none)
+    {
+        return false;
+    }
+
+    //Cycle through the array of callbacks backwards
+    for (i = OverrideDefenseBypassCallbacks.Length - 1; i >= 0; i--)
+    {
+        // Do not allow registering the same delegate more than once.
+        if (OverrideDefenseBypassCallbacks[i].OverrideDefenseBypassFn == OverrideDefenseBypassFn)
+        {
+            return false;
+        }
+
+        // Record the array index of the callback whose priority is higher or equal to the priority of the new callback,
+        // so that the new callback can be inserted right after it.
+        if (OverrideDefenseBypassCallbacks[i].Priority >= Priority && !bPriorityIndexFound)
+        {
+            PriorityIndex = i + 1; // +1 so that InsertItem puts the new callback *after* this one.
+
+            // Keep cycling through the array so that the previous check for duplicate delegates can run for every currently registered delegate.
+            bPriorityIndexFound = true;
+        }
+    }
+
+    NewOverrideDefenseBypassCallback.Priority = Priority;
+    NewOverrideDefenseBypassCallback.OverrideDefenseBypassFn = OverrideDefenseBypassFn;
+    OverrideDefenseBypassCallbacks.InsertItem(PriorityIndex, NewOverrideDefenseBypassCallback);
+
+    return true;
+}
+
+/// HL-Docs: ref:OverrideDefenseBypass
+/// # Removing Delegates
+/// If necessary, it's possible to remove a delegate.
+///```unrealscript
+///CHHelpersObj.RemoveOverrideDefenseBypassCallback(OverrideDefenseBypass);
+///```
+/// The function will return `true` if the Callback was successfully deleted, return false otherwise.
+simulated function bool RemoveOverrideDefenseBypassCallback(delegate<OverrideDefenseBypassDelegate> OverrideDefenseBypassFn)
+{
+    local int i;
+
+    for (i = OverrideDefenseBypassCallbacks.Length - 1; i >= 0; i--)
+    {
+        if (OverrideDefenseBypassCallbacks[i].OverrideDefenseBypassFn == OverrideDefenseBypassFn)
+        {
+            OverrideDefenseBypassCallbacks.Remove(i, 1);
+            return true;
+        }
+    }
+    return false;
+}
+
+// Internal helper function to trigger an OverrideDefenseBypass event.
+simulated function TriggerOverrideDefenseBypass(array<name> AppliedDamageTypes, out int bIgnoreArmor, out int bIgnoreShields, EffectAppliedData ApplyEffectParams, X2Effect_ApplyWeaponDamage Source, optional XComGameState NewGameState)
+{
+	local delegate<OverrideDefenseBypassDelegate> OverrideDefenseBypassFn;
+	local int i;
+
+	for (i = 0; i < OverrideDefenseBypassCallbacks.Length; i++)
+	{
+		OverrideDefenseBypassFn = OverrideDefenseBypassCallbacks[i].OverrideDefenseBypassFn;
+
+		if (OverrideDefenseBypassFn(AppliedDamageTypes, bIgnoreArmor, bIgnoreShields, ApplyEffectParams, Source, NewGameState) == EHLDR_InterruptDelegates)
+		{
+			break;
+		}
+	}
+}
+// End Issue #1542
+
