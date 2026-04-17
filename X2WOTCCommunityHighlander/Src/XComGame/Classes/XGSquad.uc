@@ -447,6 +447,74 @@ function VisitUnit(delegate<VisitUnitDelegate> fnVisitUnit, bool bIgnoreTime=tru
 	}
 }
 
+// Start Issue #1572
+simulated function XGUnit GetNextGoodMember_CH(XGUnit kUnit = None, bool bWraparound = true)
+{
+	local int iIndex;
+	local int i;
+	local XGUnit kLoopUnit;
+	local XComGameState_Unit UnitState;
+
+	iIndex = GetIndex(kUnit);
+
+	for( i = iIndex + 1; i < m_iNumUnits * 2; i++ )
+	{
+		if (!bWraparound && i >= m_iNumUnits)
+		{
+			return none;
+		}
+
+		kLoopUnit = m_arrUnits[ i % m_iNumUnits ];
+		if(kLoopUnit != None)
+		{
+			UnitState = kLoopUnit.GetVisualizedGameState();
+
+			// Is unit still in battle, alive, not mind controlled, and able to act (not stunned, panicking, bleeding out, dazed, frozen ect.)
+			if(UnitState != None && !UnitState.bRemovedFromPlay && UnitState.IsAlive() && !UnitState.IsMindControlled() && UnitState.IsAbleToAct())
+			{
+				return kLoopUnit;
+			}
+		}
+	}
+
+	return kUnit;
+}
+// End Issue #1572
+
+// Start Issue #1572
+simulated function XGUnit GetPrevGoodMember_CH(XGUnit kUnit = NONE)
+{
+	local int iIndex;
+	local int i;
+	local XGUnit kLoopUnit;
+	local XComGameState_Unit UnitState;
+
+	iIndex  = GetIndex(kUnit);
+
+	if( iIndex == -1 )
+	{
+		iIndex = 0;
+	}
+
+	for( i = m_iNumUnits + iIndex-1; i >= 0; i-- )
+	{
+		kLoopUnit = m_arrUnits[ i % m_iNumUnits ];
+		if(kLoopUnit != None)
+		{
+			UnitState = kLoopUnit.GetVisualizedGameState();
+
+			// Is unit still in battle, alive, not mind controlled, and able to act (not stunned, panicking, bleeding out, dazed, frozen ect.)
+			if(UnitState != None && !UnitState.bRemovedFromPlay && UnitState.IsAlive() && !UnitState.IsMindControlled() && UnitState.IsAbleToAct())
+			{
+				return kLoopUnit;
+			}
+		}
+	}
+
+	return kUnit;
+}
+// End Issue #1572
+
 // MHU - TODO: Unify GetNext/GetPrevGoodMember.
 simulated function XGUnit GetNextGoodMember( XGUnit kUnit = NONE, bool IgnoreTime=true, bool bWraparound=true, bool bSkipPanicked=true, bool bSortedList=false, bool bSkipStrangling=true )
 {
