@@ -1571,7 +1571,7 @@ static function GetTimeStringSeparated(TDateTime kDateTime, out string Hours, ou
 	/// Allow forcing the 24h clock independently of locale and add an option to display leading zeroes for military-style time - e.g. 03:41 instead of 3:41
 
 	// INT and ESN use the 12 hour clock for events, checked with Loc 12/15/2015. -bsteiner 
-	if( !class'CHHelpers'.default.bForce24hclock && (Lang == "INT" || Lang == "ESN"))
+	if( !class'CHHelpers'.default.bForce24hclock && !class'CHHelpers'.default.bForceUTCAtAllTimes && (Lang == "INT" || Lang == "ESN"))
 	{		
 		// AM
 		if( iHour < 12 )

@@ -88,8 +88,8 @@ simulated function UpdateEventQueue(array<HQEvent> Events, bool bExpand, bool En
 	}
 
 	bIsInStrategyMap = `ScreenStack.IsInStack(class'UIStrategyMap');
-
-	if (Events.Length > 0 && !bIsInStrategyMap || (`HQPRES.StrategyMap2D != none && `HQPRES.StrategyMap2D.m_eUIState != eSMS_Flight))
+	// Single Line for Issue #1578 - Allow mods to display the event queue while flying
+	if (Events.Length > 0 && !bIsInStrategyMap || (`HQPRES.StrategyMap2D != none && (class'CHHelpers'.default.bShowEventQueueWhileFlying || `HQPRES.StrategyMap2D.m_eUIState != eSMS_Flight)))
 	{
 		if( bIsExpanded )
 		{
@@ -158,8 +158,14 @@ simulated function UpdateEventQueue(array<HQEvent> Events, bool bExpand, bool En
 function RefreshDateTime()
 {
 	local TDateTime dateTimeData;
-	local string Hours, Minutes, Suffix;	
+	local string Hours, Minutes, Suffix;
 	local XComGameState_HeadquartersXCom XComHQ;
+	// Variables for Issue #1578 
+	local TDateTime UTCTimeData;
+	local string UTCHours, UTCMinutes, UTCSuffix;
+	local int timeZoneDifference;
+	local XComGameState_GeoscapeEntity DestinationEntity;
+	local XComGameState_Skyranger Skyranger;
 
 	if( `GAME.GetGeoscape() == none ) return; // stop log spam when in the shell testing. 
 
@@ -169,24 +175,81 @@ function RefreshDateTime()
 	//eUIState_IsGeoscapePaused = isGeoscapePaused ? eUIState_Bad : eUIState_Normal;
 
 	//When showing time, either through time of day or the clock - always show local time
-	dateTimeData = `GAME.GetGeoscape().m_kDateTime;	
-	
-	//Don't adjust to local time while the base is in flight as it looks nicer for the clock to update smoothly
+	dateTimeData = `GAME.GetGeoscape().m_kDateTime; 
 	XComHQ = XComGameState_HeadquartersXCom(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
-	if(!XComHQ.Flying)
-	{
-		class'X2StrategyGameRulesetDataStructures'.static.GetLocalizedTime(XComHQ.Get2DLocation(), dateTimeData);
-	}
 	
-	class'X2StrategyGameRulesetDataStructures'.static.GetTimeStringSeparated(dateTimeData, Hours, Minutes, Suffix);
+	// Start Issue #1578
+	/// HL-Docs: feature:GeoscapeClockOptions; issue:1578; tags:strategy
+	/// Provide easily adjustable options for display of the Geoscape time by modders, to make the time display more intuitive 
+	/// when the skyranger is flying (in this case, options are: 1. The timezone is only updated when the avenger lands, 
+	/// 2. The timezone is updated only when the skyranger takes off, 3. Display UTC at all times and display the timezone 
+	/// difference on the clock UI.
+	UTCTimeData = dateTimeData;
+	
+	if(!class'CHHelpers'.default.bForceUTCAtAllTimes)
+	{
+		// Base Game
+		if(!XComHQ.Flying)
+		{
+			class'X2StrategyGameRulesetDataStructures'.static.GetLocalizedTime(XComHQ.Get2DLocation(), dateTimeData);
+		}
+		// Option 1 - Display the source timezone when flying & update when the Avenger lands
+		else if(class'CHHelpers'.default.bUseSourceTimeZoneWhenFlying)
+		{
+			class'X2StrategyGameRulesetDataStructures'.static.GetLocalizedTime(XComHQ.SourceLocation, dateTimeData);
+		}
+		// Option 2 - Display the destination timezone on takeoff
+		else if(class'CHHelpers'.default.bUseDestinationTimeZoneWhenFlying)
+		{
+			DestinationEntity = XComGameState_GeoscapeEntity(`XCOMHISTORY.GetGameStateForObjectID(XComHQ.SelectedDestination.ObjectID));
+			class'X2StrategyGameRulesetDataStructures'.static.GetLocalizedTime(DestinationEntity.Get2DLocation(), dateTimeData);
+		}
+		class'X2StrategyGameRulesetDataStructures'.static.GetTimeStringSeparated(dateTimeData, Hours, Minutes, Suffix);
 
-	MC.BeginFunctionOp("RefreshDateTime");
-	MC.QueueString(class'X2StrategyGameRulesetDataStructures'.static.GetDateString(dateTimeData));
-	//RED: //MC.QueueString(class'UIUtilities_Text'.static.GetColoredText(class'X2StrategyGameRulesetDataStructures'.static.GetTimeString(dateTimeData), eUIState_IsGeoscapePaused));
-	MC.QueueString(Hours);
-	MC.QueueString(Minutes);
-	MC.QueueString(Suffix);
-	MC.EndOp();
+		MC.BeginFunctionOp("RefreshDateTime");
+		MC.QueueString(class'X2StrategyGameRulesetDataStructures'.static.GetDateString(dateTimeData));
+		//RED: //MC.QueueString(class'UIUtilities_Text'.static.GetColoredText(class'X2StrategyGameRulesetDataStructures'.static.GetTimeString(dateTimeData), eUIState_IsGeoscapePaused));
+		MC.QueueString(Hours);
+		MC.QueueString(Minutes);
+		MC.QueueString(Suffix);
+		MC.EndOp();
+	}
+	else
+	{
+		// Option 3 - If bForceUTCAtAllTimes, the clock stays on UTC & displays the timezone as +/- instead of the AM/PM suffix
+		If(XComHQ.IsSkyrangerDocked())
+		{
+			class'X2StrategyGameRulesetDataStructures'.static.GetLocalizedTime(XComHQ.Get2DLocation(), dateTimeData);
+		}
+		else
+		{
+			Skyranger = XComGameState_Skyranger(`XCOMHISTORY.GetGameStateForObjectID(XComHQ.SkyrangerRef.ObjectID));
+			class'X2StrategyGameRulesetDataStructures'.static.GetLocalizedTime(Skyranger.Get2DLocation(), dateTimeData);
+		}
+		class'X2StrategyGameRulesetDataStructures'.static.GetTimeStringSeparated(UTCTimeData, UTCHours, UTCMinutes, UTCSuffix);		
+		timeZoneDifference = class'X2StrategyGameRulesetDataStructures'.static.GetHour(dateTimeData) - class'X2StrategyGameRulesetDataStructures'.static.GetHour(UTCTimeData);
+
+		if (timeZoneDifference < -12)
+		{
+			timeZoneDifference += 24;
+		}
+		else if (timeZoneDifference > 12)
+		{
+			timeZoneDifference -= 24;
+		}
+		// If we're on the international date line, display +12 instead of +12 or -12 depending which side we came from
+		if (timeZoneDifference == -12)
+		{		
+			timeZoneDifference = 12;
+		}
+		MC.BeginFunctionOp("RefreshDateTime");
+		MC.QueueString(class'X2StrategyGameRulesetDataStructures'.static.GetDateString(UTCTimeData));
+		MC.QueueString(UTCHours);
+		MC.QueueString(UTCMinutes);
+		MC.QueueString(timeZoneDifference >=0 ? "+" $ string(timeZoneDifference) : string(timeZoneDifference));
+		MC.EndOp();
+	}
+	// End Issue #1578	
 }
 
 simulated function HideDateTime()
