@@ -313,6 +313,9 @@
     <Content Include="Src\XComGame\Classes\UIDropShipBriefing_MissionEnd.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\UIEventQueue.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\UIFacilityGrid_FacilityOverlay.uc">
       <SubType>Content</SubType>
     </Content>
