@@ -9,28 +9,28 @@
 
 class X2Camera_Photobooth extends X2Camera;
 
-var private vector		m_vRotationPoint;
-var private vector		m_vTargetRotationPoint;
+var vector		m_vRotationPoint;
+var vector		m_vTargetRotationPoint;
 
-var private Rotator		m_rRotationAroundPoint;
-var private Rotator		m_rTargetRotationAroundPoint;
+var Rotator		m_rRotationAroundPoint;
+var Rotator		m_rTargetRotationAroundPoint;
 
-var private float		m_fDistanceFromPoint;
-var private float		m_fTargetDistanceFromPoint;
+var float		m_fDistanceFromPoint;
+var float		m_fTargetDistanceFromPoint;
 
-var private float		m_fFOV;
-var private float		m_fRotationSpeed;
-var private float		m_fZoomSpeed;
-var private float		m_fPanSpeed;
+var float		m_fFOV;
+var float		m_fRotationSpeed;
+var float		m_fZoomSpeed;
+var float		m_fPanSpeed;
 
-var private float m_fMinCameraDistance;
-var private float m_fMaxCameraDistance;
-var private float m_fSpringArmDistance;
+var float		m_fMinCameraDistance;
+var float		m_fMaxCameraDistance;
+var float		m_fSpringArmDistance;
 
-var private bool		m_bUsePresetCamera;
+var bool		m_bUsePresetCamera;
 
-var private Box		CameraBounds;
-var private float	MinZ;
+var Box			CameraBounds;
+var float		MinZ;
 
 function InitCamera(CameraActor inCamActor, vector inRotationPoint)
 {

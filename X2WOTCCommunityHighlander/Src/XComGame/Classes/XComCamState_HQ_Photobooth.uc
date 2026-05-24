@@ -3,33 +3,33 @@
 //-----------------------------------------------------------
 class XComCamState_HQ_Photobooth extends XComCamState_HQ;
 
-var private vector m_vRotationPoint;
-var private vector m_vTargetRotationPoint;
+var vector m_vRotationPoint;
+var vector m_vTargetRotationPoint;
 
 /************ Camera Distance Variables **************/
 
-var private float m_fInitialCameraDistance;
-var private float m_fTargetCameraDistance;
+var float m_fInitialCameraDistance;
+var float m_fTargetCameraDistance;
 
-var private float m_fMinCameraDistance;
-var private float m_fMaxCameraDistance;
+var float m_fMinCameraDistance;
+var float m_fMaxCameraDistance;
 
 /************ Camera Rotation Variables **************/
 
-var private Rotator m_rInitialCameraRotation;
-var private Rotator m_rTargetCameraRotation;
+var Rotator m_rInitialCameraRotation;
+var Rotator m_rTargetCameraRotation;
 
-var private float m_fRotationSpeed;
-var private float m_fZoomSpeed;
-var private float m_fPanSpeed;
+var float m_fRotationSpeed;
+var float m_fZoomSpeed;
+var float m_fPanSpeed;
 
-var private CameraActor CamActor;
+var CameraActor CamActor;
 
 
-var private bool		m_bUsePresetCamera;
+var bool		m_bUsePresetCamera;
 
-var private Box		CameraBounds;
-var private bool	bBoundsInitialized;
+var Box		CameraBounds;
+var bool	bBoundsInitialized;
 
 function Init( PlayerController ForPlayer, CameraActor inCameraActor, PointInSpace inFocusPoint )
 {
