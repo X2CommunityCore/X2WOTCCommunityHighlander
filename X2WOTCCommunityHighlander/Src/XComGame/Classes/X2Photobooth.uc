@@ -304,8 +304,9 @@ var int m_iOnScreenY;
 var int m_iOnScreenSizeX;
 var int m_iOnScreenSizeY;
 
-var int m_iPosterSizeX;
-var int m_iPosterSizeY;
+// Issue #1584 - Expose poster size variables to config
+var config int m_iPosterSizeX;
+var config int m_iPosterSizeY;
 
 var float m_fMaxXPercentage;
 var float m_fMaxYPercentage;
@@ -3503,9 +3504,10 @@ defaultproperties
 	m_kFinalPosterComponent=SceneCapture2DComponent1
 	Components.Add(SceneCapture2DComponent1)
 
-	//If you change these numbers mirror the change in XComPresentationLayerBase
-	m_iPosterSizeX = 800;
-	m_iPosterSizeY = 1200;
+	// Start Issue #1584 - Variables set by config, no need for them here
+	//m_iPosterSizeX = 800;
+	//m_iPosterSizeY = 1200;
+	// End Issue #1584
 
 	m_bFormationNeedsUpdate=false
 	m_bFormationLoading=false
