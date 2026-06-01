@@ -2,6 +2,7 @@ class X2AIBTBehaviorTree extends Object
 	native(AI)
 	config(AI);
 
+// Single line for Issue #410 - Deprivatize Behaviors array to allow mods to add own behavior trees
 var config array<BehaviorTreeNode> Behaviors;
 var private native Map_Mirror BehaviorsMap{TMap<FName, INT>};  //  maps table name to index into Behaviors array
 
