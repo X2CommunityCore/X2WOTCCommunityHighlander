@@ -774,7 +774,8 @@ simulated function bool OnUnrealCommand(int cmd, int arg)
 	{
 		// DEBUG: Press Tab to rank up the soldier
 		`if (`notdefined(FINAL_RELEASE))
-		case class'UIUtilities_Input'.const.FXS_KEY_TAB:
+		// Single line for Issue #578 - Change key from TAB to F11. Prevents custom CHL builds from promoting soldiers on TAB Keypress
+		case class'UIUtilities_Input'.const.FXS_KEY_F11:
 			History = `XCOMHISTORY;
 			ChangeContainer = class'XComGameStateContext_ChangeContainer'.static.CreateEmptyChangeContainer("DEBUG Unit Rank Up");
 			UpdateState = History.CreateNewGameState(true, ChangeContainer);
