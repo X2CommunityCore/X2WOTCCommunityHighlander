@@ -705,15 +705,15 @@ static function OnPreCreateTemplates()
 }
 /// End issue #412
 
-/// Start Issue #419
-/// <summary>
-/// Called from X2AbilityTag.ExpandHandler
-/// Expands vanilla AbilityTagExpandHandler to allow reflection
-/// </summary>
+// Start issue #419
+/// HL-Docs: feature:AbilityTagExpandHandler_CH; issue:419; tags:
+/// Called from X2AbilityTag::ExpandHandler() - Expands functionality of vanilla AbilityTagExpandHandler. 
+/// Allows mods to use gamestate objects to fill in tagged variables. Useful if there are values that are altered during runtime or dynamic custom text.
 static function bool AbilityTagExpandHandler_CH(string InString, out string OutString, Object ParseObj, Object StrategyParseOb, XComGameState GameState)
 {
 	return false;
 }
+//End Issue #419
 
 /// Start Issue #409
 /// <summary>
