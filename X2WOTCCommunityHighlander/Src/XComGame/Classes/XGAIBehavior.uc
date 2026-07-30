@@ -1557,6 +1557,21 @@ simulated function BT_StartGetDestinations(bool bFiltered=false, bool bSkipBuild
 			AddTileToProcess(kTileScore);
 		}
 	}
+	/// HL-Docs: ref:AIHazardEscape
+	/// placed before CoverDestinations check because m_kReachableTilesCache will be empty
+	else if (NeedsHazardEscape())
+	{
+		AllTiles = GatherHazardEscapeTiles();
+		foreach AllTiles(kTile)
+		{
+			Position = WorldData.GetPositionFromTileCoordinates(kTile);
+			CoverPoint = EmptyCover;
+			WorldData.GetCoverPointAtFloor(Position, CoverPoint);
+			kTileScore = InitMoveTileData(kTile, CoverPoint);
+			AddTileToProcess(kTileScore);
+		}
+		`Log("Unit at ("$UnitState.TileLocation.X@UnitState.TileLocation.Y@UnitState.TileLocation.Z$") - found "$m_arrTilesToProcess.Length$" tiles",,'BT_StartGetDestinations');
+	}
 	else if( !ShouldAvoidTilesWithCover() && !UnitState.IsCivilian() && !IsMeleeMove() && m_arrMoveWeightProfile[CurrMoveType].fCoverWeight > 0.0f)
 	{
 		foreach m_kUnit.m_kReachableTilesCache.CoverDestinations(Position)
@@ -1792,6 +1807,50 @@ function BT_IgnoreHazards( bool bIgnore=true )
 	bIgnoreHazards = bIgnore;
 }
 
+/// HL-Docs: feature:AIHazardEscape; issue:1559; tags:tactical
+/// Lets AI units path out of hazards (poison, fire, acid) that leave them with no reachable tiles.
+/// Gathers non-hazardous tiles 3-5 away, scores them normally, then paths through the hazard via BuildNonUnitPath.
+/// Off by default, enabled with `CHHelpers.bEnableAIHazardEscape`.
+function bool NeedsHazardEscape()
+{
+	return (class'CHHelpers'.default.bEnableAIHazardEscape && m_kUnit.m_kReachableTilesCache.CoverDestinations.Length == 0 && class'XComPath'.static.TileContainsHazard(UnitState, UnitState.TileLocation));
+}
+
+/// HL-Docs: ref:AIHazardEscape
+/// Escape tiles are scored by BT_StepProcessDestinations like any other destination
+function array<TTile> GatherHazardEscapeTiles()
+{
+	local TTile TestTile;
+	local array<TTile> EscapeTiles;
+	local int dx, dy;
+	local int MinRadius, MaxRadius;
+
+	MinRadius = 3;
+	MaxRadius = 5;
+
+	// Check all tiles within radius range and return non-hazardous ones
+	for (dx = -MaxRadius; dx <= MaxRadius; ++dx)
+	{
+		for (dy = -MaxRadius; dy <= MaxRadius; ++dy)
+		{
+			TestTile = UnitState.TileLocation;
+			TestTile.X += dx;
+			TestTile.Y += dy;
+
+			// Skip tiles too close (within MinRadius)
+			if (abs(dx) < MinRadius && abs(dy) < MinRadius)
+				continue;
+
+			if (!class'XComPath'.static.TileContainsHazard(UnitState, TestTile))
+			{
+				EscapeTiles.AddItem(TestTile);
+			}
+		}
+	}
+
+	return EscapeTiles;
+}
+
 function BT_IncludeAlliesAsMeleeTargets()
 {
 	bIncludeAlliesAsMeleeTargets = true;
@@ -1928,8 +1987,10 @@ simulated function BT_StepProcessDestinations()
 				DebugTileScores[DebugIndex].Location = vLoc;
 			}
 
+			/// HL-Docs: ref:AIHazardEscape
+			// m_kReachableTilesCache will be empty if we are surrounded by a hazard
 			//See if this tile is reachable
-			if ( bValid && !m_kCurrMoveRestriction.bIsGrappleMove && !m_kUnit.m_kReachableTilesCache.IsTileReachable(kTileData.kTile) )
+			if ( bValid && !NeedsHazardEscape() && !m_kCurrMoveRestriction.bIsGrappleMove && !m_kUnit.m_kReachableTilesCache.IsTileReachable(kTileData.kTile) )
 			{
 				if (bLogTacticalDestinationIteration)
 				{
@@ -8566,6 +8627,8 @@ simulated function bool MoveToPoint(vector vDestination, optional out string Fai
 	local bool bPathFailed;
 	local TTile kTileDest;
 	local array<PathPoint> PathPoints;
+	local array<ETraversalType> AllowedTraversals;
+	local bool bNeedsHazardEscape;
 
 	bPathFailed=false;
 
@@ -8585,7 +8648,10 @@ simulated function bool MoveToPoint(vector vDestination, optional out string Fai
 		bPathFailed = true;
 	}
 
-	if (!bPathFailed)
+	/// HL-Docs: ref:AIHazardEscape
+	/// IsTileReachable will always return false if surrounded by hazards, so skip this check
+	bNeedsHazardEscape = NeedsHazardEscape();
+	if (!bPathFailed && !bNeedsHazardEscape)
 	{
 		bPathFailed = !m_kUnit.m_kReachableTilesCache.IsTileReachable(kTileDest);
 		if (bPathFailed)
@@ -8594,24 +8660,50 @@ simulated function bool MoveToPoint(vector vDestination, optional out string Fai
 		}
 	}
 
-	if( !bPathFailed || bForcePathIfUnreachable )
-	{	
+	if( !bPathFailed || bForcePathIfUnreachable || bNeedsHazardEscape )
+	{
 		if (XGAIBehavior_Civilian(self) != none)
 		{
 			XGAIBehavior_Civilian(self).m_iMoveTimeStart = WorldInfo.TimeSeconds;
 		}
 
-		m_kUnit.m_kReachableTilesCache.BuildPathToTile(kTileDest, Path);
-		if( bForcePathIfUnreachable && Path.Length < 2 )
+		/// HL-Docs: ref:AIHazardEscape
+		/// Use BuildNonUnitPath to path through hazards with runtime traversal capabilities
+		if (bNeedsHazardEscape)
 		{
-			bPathFailed = false;
-			class'X2PathSolver'.static.BuildPath(UnitState, UnitState.TileLocation, kTileDest, Path);
-			// get the path points
-			class'X2PathSolver'.static.GetPathPointsFromPath(UnitState, Path, PathPoints);
-			// make the flight path nice and smooth
-			class'XComPath'.static.PerformStringPulling(m_kUnit, PathPoints);
-			// Reinsert into our array.
-			class'XComPath'.static.GetPathTileArray(PathPoints, Path);
+			// Build allowed traversals from unit's runtime traversal capabilities
+			if (UnitState.aTraversals[eTraversal_Normal] > 0) AllowedTraversals.AddItem(eTraversal_Normal);
+			if (UnitState.aTraversals[eTraversal_ClimbOver] > 0) AllowedTraversals.AddItem(eTraversal_ClimbOver);
+			if (UnitState.aTraversals[eTraversal_ClimbOnto] > 0) AllowedTraversals.AddItem(eTraversal_ClimbOnto);
+			if (UnitState.aTraversals[eTraversal_ClimbLadder] > 0) AllowedTraversals.AddItem(eTraversal_ClimbLadder);
+			if (UnitState.aTraversals[eTraversal_DropDown] > 0) AllowedTraversals.AddItem(eTraversal_DropDown);
+			if (UnitState.aTraversals[eTraversal_Grapple] > 0) AllowedTraversals.AddItem(eTraversal_Grapple);
+			if (UnitState.aTraversals[eTraversal_Landing] > 0) AllowedTraversals.AddItem(eTraversal_Landing);
+			if (UnitState.aTraversals[eTraversal_BreakWindow] > 0) AllowedTraversals.AddItem(eTraversal_BreakWindow);
+			if (UnitState.aTraversals[eTraversal_KickDoor] > 0) AllowedTraversals.AddItem(eTraversal_KickDoor);
+			if (UnitState.aTraversals[eTraversal_JumpUp] > 0) AllowedTraversals.AddItem(eTraversal_JumpUp);
+			if (UnitState.aTraversals[eTraversal_WallClimb] > 0) AllowedTraversals.AddItem(eTraversal_WallClimb);
+			if (UnitState.aTraversals[eTraversal_Phasing] > 0) AllowedTraversals.AddItem(eTraversal_Phasing);
+			if (UnitState.aTraversals[eTraversal_BreakWall] > 0) AllowedTraversals.AddItem(eTraversal_BreakWall);
+			if (UnitState.aTraversals[eTraversal_Launch] > 0) AllowedTraversals.AddItem(eTraversal_Launch);
+			if (UnitState.aTraversals[eTraversal_Flying] > 0) AllowedTraversals.AddItem(eTraversal_Flying);
+			if (UnitState.aTraversals[eTraversal_Land] > 0) AllowedTraversals.AddItem(eTraversal_Land);
+			class'X2PathSolver'.static.BuildNonUnitPath(UnitState.TileLocation, kTileDest, AllowedTraversals, Path);
+		}
+		else
+		{
+			m_kUnit.m_kReachableTilesCache.BuildPathToTile(kTileDest, Path);
+			if( bForcePathIfUnreachable && Path.Length < 2 )
+			{
+				bPathFailed = false;
+				class'X2PathSolver'.static.BuildPath(UnitState, UnitState.TileLocation, kTileDest, Path);
+				// get the path points
+				class'X2PathSolver'.static.GetPathPointsFromPath(UnitState, Path, PathPoints);
+				// make the flight path nice and smooth
+				class'XComPath'.static.PerformStringPulling(m_kUnit, PathPoints);
+				// Reinsert into our array.
+				class'XComPath'.static.GetPathTileArray(PathPoints, Path);
+			}
 		}
 
 		if (Path.Length < 2)

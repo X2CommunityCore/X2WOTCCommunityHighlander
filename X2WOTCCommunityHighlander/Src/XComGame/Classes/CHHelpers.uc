@@ -287,6 +287,9 @@ var config bool bDisableAutomaticBondPhoto;
 var config bool bManualPhotoTakenOnLastMission;
 // End Issue #1453
 
+// Variable for Issue #1559 - enables AI units to path out of hazards that block their normal movement cache.
+var config bool bEnableAIHazardEscape;
+
 // Start Issue #885
 enum EHLDelegateReturn
 {
