@@ -4,6 +4,7 @@
 
 # Project specific user settings
 .vscode/settings.json
+*.code-workspace
 
 # Python
 *.pyc
