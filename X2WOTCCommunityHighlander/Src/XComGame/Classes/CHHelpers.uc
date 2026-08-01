@@ -276,6 +276,12 @@ var config bool InterruptionsTriggerGroupTurnBegunEvent;
 var config bool bForce24hClock;
 var config bool bForce24hclockLeadingZero;
 
+// Start Issue #1578 - Variables to adjust Geoscape behaviour when flying
+var config bool bUseSourceTimeZoneWhenFlying;
+var config bool bUseDestinationTimeZoneWhenFlying;
+var config bool bForceUTCAtAllTimes;
+var config bool bShowEventQueueWhileFlying;
+
 // Variable for Issue #1398 - Number of seconds to wait after a unit is killed before playing the 'OnSquadMemberDead' voiceline
 var config float fSquadMemberDeadVoicelineDelay;
 
@@ -1169,3 +1175,4 @@ static function bool GeoscapeReadyForUpdate()
 		StrategyMap.m_eUIState != eSMS_Flight &&
 		StrategyMap.Movie.Pres.ScreenStack.GetCurrentScreen() == StrategyMap;
 }
+
