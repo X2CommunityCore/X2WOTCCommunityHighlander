@@ -850,6 +850,10 @@ function EGameplayBlocking ModifyGameplayDestinationBlockingForTarget(const XCom
 //  Register an effect in the config array EffectUpdatesOnMove on AbilityTemplateManager in order to receive these callbacks
 function OnUnitChangedTile(const out TTile NewTileLocation, XComGameState_Effect EffectState, XComGameState_Unit TargetUnit);
 
+//Begin Issue #1575
+function bool ProvidesImmunityToEffect(X2Effect Effect, XComGameState_Effect EffectState, XComGameState_Unit SourceUnit, XComGameState_Unit TargetUnit, XComGameState_Ability AbilityState) { return false; }
+//End Issue #1575
+
 //  Add the name of the effect to X2AbilityTemplateManager AffectingEffectRedirectors and implement this function to handle potential redirects
 function bool EffectShouldRedirect(XComGameStateContext_Ability AbilityContext, XComGameState_Ability SourceAbility, XComGameState_Effect EffectState, const X2Effect PotentialRedirect, XComGameState_Unit SourceUnit, XComGameState_Unit TargetUnit, out StateObjectReference RedirectTarget, out name Reason, out name OverrideEffectResult) { return false; }
 

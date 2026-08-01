@@ -15906,6 +15906,35 @@ private function SetOverKillUnitValue(int OverKillDamage)
 }
 //	End issue #805
 
+//Begin Issue #1575
+/// HL-Docs: feature:EffectImmunity; issue:1575; tags:tactical
+/// This is one of the three functions required to enable boolean management for whether or not X2Effects will be allowed to be applied to a unit.
+/// This enables various functionality that was previously heavily limited by damage typing.
+/// An example use case: We do not want to X2Effect_MindControl to be allowed to be applied to a unit, but we want to allow other Mental-typed effects to effect this unit.
+/// This would enable that. Alternative use case example: We want to block a Chosen from being able to be Frozen, but do not want to block damage from a weapon that is damage typed as Frost
+/// This also provides a solution should we want to block an effect that has no damage typing.
+/// And many more.
+
+function bool IsImmuneToEffect(X2Effect Effect, XComGameState_Unit SourceUnit, XComGameState_Ability AbilityState)
+{
+    local XComGameStateHistory History;
+    local XComGameState_Effect EffectState;
+
+    History = `XCOMHISTORY;
+
+    foreach AffectedByEffects(EffectRef)
+    {
+        EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
+        if (EffectState.GetX2Effect().ProvidesImmunityToEffect(Effect, EffectState, SourceUnit, self, AbilityState))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+//	End issue #1575
+
 ////////////////////////////////////////////////////////////////////////////////////////
 // cpptext
 
