@@ -1934,7 +1934,10 @@ private function DelaySpeechSquadMemberDead()
 {
 	local XGUnit	SurvivingUnit;	
 
-	SurvivingUnit = GetSquad().GetNextGoodMember();
+	/// HL-Docs: ref:Bugfixes; issue:1572
+	/// Incapacitated squadmembers no longer react to their own deaths or deaths of other squadmembers
+	// Issue #1572 - use GetNextGoodMember_CH()
+	SurvivingUnit = GetSquad().GetNextGoodMember_CH();
 	
 	if (SurvivingUnit != none && !IsRobotic() && !IsAlien_CheckByCharType())
 	{
