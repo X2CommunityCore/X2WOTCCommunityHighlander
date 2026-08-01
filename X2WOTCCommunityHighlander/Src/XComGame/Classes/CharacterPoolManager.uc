@@ -332,6 +332,10 @@ function XComGameState_Unit CreateCharacter(XComGameState StartState, optional E
 
 	local ECharacterPoolSelectionMode Mode;
 
+	// Variables for Issue #1562
+	local XComGameState ArchiveState;
+	local int ArchiveIndex;
+
 	Mode = GetSelectionMode(SelectionModeOverride);
 
 	if( CharacterPool.Length == 0 )
@@ -400,6 +404,40 @@ function XComGameState_Unit CreateCharacter(XComGameState StartState, optional E
 					}
 				}
 			}
+
+			// Start Issue #1562
+			// Support for creating a character in tactical; the archive state needs to be searched for an existing unit
+			if(`TACTICAL != None)
+			{
+				ArchiveIndex = `XCOMHISTORY.FindStartStateIndex() - 1;
+				ArchiveState = `XCOMHISTORY.GetGameStateFromHistory(ArchiveIndex, eReturnType_Copy, false);
+
+				if(ArchiveState != None)
+				{
+					foreach ArchiveState.IterateByClassType(class'XComGameState_Unit', Unit)
+					{
+						RemoveValue = -1;
+
+						for (i = 0; i < Indices.Length; i++)
+						{
+							if (CharacterPool[Indices[i]].GetFirstName() == Unit.GetFirstName() &&
+								CharacterPool[Indices[i]].GetLastName() == Unit.GetLastName() &&
+								UnitName == "")
+							{
+								RemoveValue = Indices[i];
+							}
+
+							if (RemoveValue != -1)
+							{
+								Indices.RemoveItem(RemoveValue);
+								RemoveValue = -1; //Reset the search.
+								i--;
+							}
+						}
+					}
+				}
+			}
+			// End Issue #1562
 		}
 	}
 

@@ -999,6 +999,91 @@ function bool GetVIPCharacterTemplate(out X2CharacterTemplate VIPTemplate)
 	return VIPTemplate != None;
 }
 
+// Start Issue #1562
+private function StateObjectReference CreateHostileVIP(XComGameState NewGameState, X2CharacterTemplate CharacterTemplate, TTile SpawnTile)
+{
+	local XComGameStateHistory History;
+	local XComGameState_Unit UnitState;
+	local XComGameState_Player PlayerState;
+	local bool bUsingStartState, bFoundExistingPlayerState;
+	local StateObjectReference ItemRef;
+	local XComGameState_Item ItemState;
+	local XComGameState_AIGroup NewGroupState;
+	local XComGameState_BattleData BattleData;
+	local XGCharacterGenerator CharGen;
+	local TSoldier GeneratedUnit;
+
+	History = `XCOMHISTORY;
+
+	bUsingStartState = (NewGameState == History.GetStartState());
+
+	// Get the Neutral player
+	foreach History.IterateByClassType(class'XComGameState_Player', PlayerState)
+	{
+		if( PlayerState.GetTeam() == eTeam_Neutral )
+		{
+			bFoundExistingPlayerState = true;
+			break;
+		}
+	}
+	if( !bFoundExistingPlayerState )
+	{
+		PlayerState = class'XComGameState_Player'.static.CreatePlayer(NewGameState, eTeam_Neutral);
+	}
+
+	// Create the unit using the character pool manager, which will either get a character from the pool or generate a random character
+	UnitState = `CHARACTERPOOLMGR.CreateCharacter(NewGameState, `XPROFILESETTINGS.Data.m_eCharPoolUsage, CharacterTemplate.DataName);
+
+	// Borrow appropriate arms/legs/torso from the VIP template
+	CharGen = `XCOMGRI.Spawn(CharacterTemplate.CharacterGeneratorClass);
+	if(CharGen != None)
+	{
+		GeneratedUnit = CharGen.CreateTSoldier(CharacterTemplate.DataName, EGender(UnitState.kAppearance.iGender));
+		UnitState.kAppearance.nmArms = GeneratedUnit.kAppearance.nmArms;
+		UnitState.kAppearance.nmArms_Underlay = GeneratedUnit.kAppearance.nmArms_Underlay;
+		UnitState.kAppearance.nmLegs = GeneratedUnit.kAppearance.nmLegs;
+		UnitState.kAppearance.nmLegs_Underlay = GeneratedUnit.kAppearance.nmLegs_Underlay;
+		UnitState.kAppearance.nmTorso = GeneratedUnit.kAppearance.nmTorso;
+		UnitState.kAppearance.nmTorso_Underlay = GeneratedUnit.kAppearance.nmTorso_Underlay;
+
+		CharGen.Destroy();
+	}
+
+	// Init the unit for neutral team
+	UnitState.PostCreateInit(NewGameState, CharacterTemplate, PlayerState.ObjectID, SpawnTile, true, bUsingStartState, true);
+
+	if (!CharacterTemplate.bIsCosmetic)
+	{
+		NewGroupState = XComGameState_AIGroup(NewGameState.CreateNewStateObject(class'XComGameState_AIGroup'));
+
+		NewGroupState.AddUnitToGroup(UnitState.ObjectID, NewGameState);
+
+		BattleData = XComGameState_BattleData(History.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
+		if( BattleData.UnitActionInitiativeRef.ObjectID == NewGroupState.ObjectID )
+		{
+			UnitState.SetupActionsForBeginTurn();
+		}
+		else
+		{
+			if( BattleData.PlayerTurnOrder.Find('ObjectID', NewGroupState.ObjectID) == INDEX_NONE )
+			{
+				`TACTICALRULES.AddGroupToInitiativeOrder(NewGroupState, NewGameState);
+			}
+		}
+	}
+
+	`XEVENTMGR.TriggerEvent('UnitSpawned', UnitState, UnitState);
+
+	foreach UnitState.InventoryItems(ItemRef)
+	{
+		ItemState = XComGameState_Item(NewGameState.GetGameStateForObjectID(ItemRef.ObjectID));
+		ItemState.CreateCosmeticItemUnit(NewGameState);
+	}
+
+	return UnitState.GetReference();
+}
+// End Issue #1562
+
 private function XComGameState_Unit CreatePawnCommon(XComGameState NewGameState, TTile SpawnTile, int RewardUnitIndex)
 {
 	local XGBattle_SP Battle;
@@ -1025,10 +1110,21 @@ private function XComGameState_Unit CreatePawnCommon(XComGameState NewGameState,
 
 		GetVIPCharacterTemplate(CharacterTemplate);
 
-		NewUnitRef = SpawnManager.CreateUnit(SpawnLocation, 
-											 CharacterTemplate != none ? CharacterTemplate.DataName : 'Civilian', 
-											 eTeam_Neutral, 
-											 History.GetStartState() != none);
+		/// HL-Docs: ref:Bugfixes; issue:1562
+		/// Fixed dark VIPs never being generated from character pool
+		// Start Issue #1562
+		if(CharacterTemplate != None && CharacterTemplate.DataName == 'HostileVIPCivilian')
+		{
+			NewUnitRef = CreateHostileVIP(NewGameState, CharacterTemplate, SpawnTile);
+		}
+		// End Issue #1562
+		else
+		{
+			NewUnitRef = SpawnManager.CreateUnit(SpawnLocation, 
+											CharacterTemplate != none ? CharacterTemplate.DataName : 'Civilian', 
+											eTeam_Neutral, 
+											History.GetStartState() != none);
+		}
 
 		// add the unit to the reward units array. This is the normal path in TQL missions, so
 		// it needs to be supported and forwarded to other game systems correctly.
