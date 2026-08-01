@@ -2798,9 +2798,10 @@ defaultproperties
 	m_iGameIndex = -1;
 
 	//If you change these numbers mirror the change in XComPresentationLayerBase
-	m_iPosterSizeX = 800;
-	m_iPosterSizeY = 1200;
-
+	// Start Issue #1584 - Inherit from X2Photobooth instead, commented out seperate definition
+	//m_iPosterSizeX = 800;
+	//m_iPosterSizeY = 1200;
+	// End Issue #1584
 	m_fCameraFOV = 90
 
 	bUpdateCameraWithFormation = true;
