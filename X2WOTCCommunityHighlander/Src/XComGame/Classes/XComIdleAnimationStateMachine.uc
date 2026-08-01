@@ -1997,11 +1997,15 @@ state EvaluateStance
 			// There may actually be no peekaround in the requested cover direction/peekside combination
 			if( DesiredPeekSide == ePeekLeft && Unit.GetCoverType(DesiredCoverIndex)!=CT_None)
 			{
-				DesiredFaceLocation = Unit.Location + `XWORLD.GetPeekLeftDirection(`IDX_TO_DIR(DesiredCoverIndex) , false) * 1000.0f;
+				/// HL-Docs: ref:Bugfixes; issue:1579
+				/// Units orient themselves on diagonal cover properly
+				// Issue #1579 - replace second parameter with `IS_DIAGONAL_COVER(Unit.GetCoverPoint())
+				DesiredFaceLocation = Unit.Location + `XWORLD.GetPeekLeftDirection(`IDX_TO_DIR(DesiredCoverIndex) , `IS_DIAGONAL_COVER(Unit.GetCoverPoint())) * 1000.0f;
 			}
 			else if( DesiredPeekSide == ePeekRight && Unit.GetCoverType(DesiredCoverIndex)!=CT_None)
 			{
-				DesiredFaceLocation = Unit.Location + `XWORLD.GetPeekRightDirection(`IDX_TO_DIR(DesiredCoverIndex) , false) * 1000.0f;
+				// Issue #1579 - replace second parameter with `IS_DIAGONAL_COVER(Unit.GetCoverPoint())
+				DesiredFaceLocation = Unit.Location + `XWORLD.GetPeekRightDirection(`IDX_TO_DIR(DesiredCoverIndex) , `IS_DIAGONAL_COVER(Unit.GetCoverPoint())) * 1000.0f;
 			}
 			// End Issue #269
 			else
