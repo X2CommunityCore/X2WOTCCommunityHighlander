@@ -15919,6 +15919,7 @@ function bool IsImmuneToEffect(X2Effect Effect, XComGameState_Unit SourceUnit, X
 {
     local XComGameStateHistory History;
     local XComGameState_Effect EffectState;
+	local StateObjectReference EffectRef;
 
     History = `XCOMHISTORY;
 
