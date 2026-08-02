@@ -291,7 +291,9 @@ var() TAppearance           kAppearance;
 /**
  *  THESE VARS HAVE BEEN COPIED FROM TCharacter AND ARE NOT REFACTORED YET
  */
-var() protected int         aTraversals[ETraversalType.EnumCount]<FGDEIgnore=true>;
+/// HL-Docs: ref:AIHazardEscape
+/// Read by hazard escape to build the unit's allowed traversals
+var() /* protected */ int         aTraversals[ETraversalType.EnumCount]<FGDEIgnore=true>;
 
 /**
  *  END TCharacter VARS
