@@ -394,6 +394,7 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 	local int OriginalMitigation, MinMandatoryMitigation, MaxMandatoryMitigation;
 	local int MinPierce, MaxPierce;
 	local int MinMitigation, MaxMitigation;
+	local int MinShred, MaxShred;
 	// End Issue #1540
 
 	MinDamagePreview = UpgradeTemplateBonusDamage;
@@ -696,11 +697,13 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 		MinMitigation = OriginalMitigation;
 		MinPierce = MinDamagePreview.Pierce;
 		MinMandatoryMitigation = 0;
+		MinShred = MinDamagePreview.Shred;
 		class'CHHelpers'.static.GetCDO().TriggerAdjustArmorMitigation(
 			MinDamagePreview.Damage,
 			MinMitigation,
 			MinPierce,
 			MinMandatoryMitigation, // Starts at 0
+			MinShred,
 			TestEffectParams,
 			self,
 			// Tells the event handlers that this is a minimum damage preview.
@@ -710,21 +713,25 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 		MinDamagePreview.Spread = MinMitigation;
 		MinDamagePreview.Pierce = MinPierce;
 		MinDamagePreview.PlusOne = MinMandatoryMitigation;
+		MinDamagePreview.Shred = MinShred;
 		
 		MaxMitigation = OriginalMitigation;
 		MaxPierce = MaxDamagePreview.Pierce;
 		MaxMandatoryMitigation = 0;
+		MaxShred = MaxDamagePreview.Shred;
 		class'CHHelpers'.static.GetCDO().TriggerAdjustArmorMitigation(
 			MaxDamagePreview.Damage,
 			MaxMitigation,
 			MaxPierce,
 			MaxMandatoryMitigation, // Starts at 0
+			MaxShred,
 			TestEffectParams,
 			self
 		);
 		MaxDamagePreview.Spread = MaxMitigation;
 		MaxDamagePreview.Pierce = MaxPierce;
-		MaxDamagePreview.PlusOne = MaxMandatoryMitigation;		
+		MaxDamagePreview.PlusOne = MaxMandatoryMitigation;	
+		MaxDamagePreview.Shred = MaxShred;	
 	}
 	// End Issue #1540
 
@@ -1199,6 +1206,7 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 				ArmorMitigation, // We read this one.
 				ArmorPiercing,
 				MinMitigation, // This starts at 0.
+				NewShred,
 				ApplyEffectParameters,
 				self,
 				false, // Not a minimum damage preview!

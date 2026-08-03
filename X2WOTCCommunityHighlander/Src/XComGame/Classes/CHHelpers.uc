@@ -378,7 +378,7 @@ delegate EHLDelegateReturn ShouldDisplayMultiSlotItemInTacticalDelegate(XComGame
 delegate EHLDelegateReturn OverrideHasHeightAdvantageDelegate(XComGameState_Unit Attacker, XComGameState_Unit TargetUnit, out int bHasHeightAdvantage); // Issue #851
 delegate EHLDelegateReturn PrioritizeRightClickMeleeDelegate(XComGameState_Unit UnitState, out XComGameState_Ability PrioritizedMeleeAbility, optional XComGameState_BaseObject TargetObject); // Issue #1138
 
-delegate EHLDelegateReturn AdjustArmorMitigationDelegate(int WeaponDamage, out int ArmorMitigation, out int ArmorPiercing, out int MinMitigation, EffectAppliedData ApplyEffectParams, X2Effect_ApplyWeaponDamage Source, optional bool ForMinDamagePreview, optional XComGameState NewGameState); // Issue #1540
+delegate EHLDelegateReturn AdjustArmorMitigationDelegate(int WeaponDamage, out int ArmorMitigation, out int ArmorPiercing, out int MinMitigation, out int ArmorShred, EffectAppliedData ApplyEffectParams, X2Effect_ApplyWeaponDamage Source, optional bool ForMinDamagePreview, optional XComGameState NewGameState); // Issue #1540
 
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
@@ -1202,8 +1202,8 @@ static function bool GeoscapeReadyForUpdate()
 // Begin Issue #1540
 /// HL-Docs: feature:AdjustArmorMitigation; issue:1540; tags:tactical
 /// This feature allows mods to override the amount of armor mitigation,
-/// armor piercing, or minimum/mandatory armor mitigation for an attack
-/// on a case-by-case basis.
+/// armor piercing, minimum/mandatory armor mitigation, and/or armor shredding
+/// for an attack on a case-by-case basis.
 ///
 /// Normally this override would have been implemented as an event, but the implementing dev heard that events in To Hit Chance Calculation logic can cause issues, 
 /// (see [GetHitChanceEvents](../tactical/GetHitChanceEvents.md)), and resorted to delegates in an attempt to resolve a crash he was unable to explain at the time.
@@ -1219,6 +1219,7 @@ static function bool GeoscapeReadyForUpdate()
 /// - out int ArmorMitigation: Amount of armor mitigation available to reduce the attack. When first invoked, this is equal to the target's armor, but may be modified by other delegates running before yours.
 /// - out int ArmorPiercing: Amount of armor piercing available to reduce mitigation. When first invoked, this is equal to the attack's armor piercing, but may be modified by other delegates running before yours.
 /// - out int MinMitigation: Minimum threshold below which mitigation cannot be reduced. When first invoked, this is 0 (per vanilla behavior), but may be modified by other delegates running before yours. Negative values are currently permitted, but will result in undefined behavior.
+/// - out int ArmorShred: Amount of armor shredding inflicted by the attack. After all delegates have run, this value is capped to never exceed the target's remaining armor. Negative values are permitted, but will result in undefined behavior.
 /// - EffectAppliedData ApplyEffectParams: Effect context containing information such as the parent ability, source and target units, etc., to help determine the results.
 /// - X2Effect_ApplyWeaponDamage Source: The effect itself, to help determine the results. *Do not* attempt to modify it or invoke functions which would have side effects.
 /// - optional bool ForMinDamagePreview: If invoked by a damage preview, specifies whether `WeaponDamage` contains the minimum or maximum damage for the attack in the previewed hit context.
@@ -1242,10 +1243,11 @@ static function bool GeoscapeReadyForUpdate()
 /// // To avoid crashes associated with garbage collection failure when transitioning between Tactical and Strategy,
 /// // this function must be bound to the ClassDefaultObject of your class. Having this function in a class that 
 /// // `extends X2DownloadableContentInfo` is the easiest way to ensure that.
-/// static private function EHLDelegateReturn AdjustArmorMitigation(int WeaponDamage, out int ArmorMitigation, out int ArmorPiercing, out int MinMitigation, EffectAppliedData ApplyEffectParams, X2Effect_ApplyWeaponDamage Source, optional bool ForMinDamagePreview, optional XComGameState NewGameState)
+/// static private function EHLDelegateReturn AdjustArmorMitigation(int WeaponDamage, out int ArmorMitigation, out int ArmorPiercing, out int MinMitigation, out int ArmorShred, EffectAppliedData ApplyEffectParams, X2Effect_ApplyWeaponDamage Source, optional bool ForMinDamagePreview, optional XComGameState NewGameState)
 /// {
 /// 	// Detect whether it's a damage preview (and if so, which kind). 
-///     // Then optionally modify any of ArmorMitigation, ArmorPiercing, and MinMitigation.
+///     // Then optionally modify any of ArmorMitigation, ArmorPiercing,
+///		// MinMitigation, and ArmorShred.
 ///		
 /// 	// Return EHLDR_NoInterrupt or EHLDR_InterruptDelegates depending on 
 /// 	// if you want to allow other delegates to run after yours
@@ -1258,10 +1260,10 @@ static function bool GeoscapeReadyForUpdate()
 /// ### Damage Previews
 ///
 /// After all damage has been calculated for the hit context being previewed,
-/// invoke `class'CHHelpers'.static.GetCDO().TriggerAdjustArmorMitigation(WeaponDamage, ArmorMitigation, ArmorPiercing, MinMitigation, ApplyEffectParams, Source, ForMinDamagePreview)`.
+/// invoke `class'CHHelpers'.static.GetCDO().TriggerAdjustArmorMitigation(WeaponDamage, ArmorMitigation, ArmorPiercing, MinMitigation, ArmorShred, ApplyEffectParams, Source, ForMinDamagePreview)`.
 ///
 /// You will need to make separate calls for minimum and maximum damage, using 
-/// **separate** variables for `ArmorMitigation`, `ArmorPiercing`, and `MinMitigation`.
+/// **separate** variables for `ArmorMitigation`, `ArmorPiercing`, `MinMitigation`, and `ArmorShred`.
 /// Set `ForMinDamagePreview` according to whether it is the minimum or maximum damage.
 ///
 /// If previewing multiple hit contexts (e.g. normal and critical hits),
@@ -1277,9 +1279,11 @@ static function bool GeoscapeReadyForUpdate()
 /// - ArmorPiercing --> WeaponDamageValue.Pierce
 /// - MinMitigation --> WeaponDamageValue.PlusOne
 ///
+/// (ArmorShred is not covered in the above list, because you should already have been storing shredding since before this feature was created.)
+///
 /// ### Damage Calculations
 ///
-/// After all damage has been calculated for the attack, invoke `class'CHHelpers'.static.GetCDO().TriggerAdjustArmorMitigation(WeaponDamage, ArmorMitigation, ArmorPiercing, MinMitigation, ApplyEffectParams, Source, ForMinDamagePreview, NewGameState)`.
+/// After all damage has been calculated for the attack, invoke `class'CHHelpers'.static.GetCDO().TriggerAdjustArmorMitigation(WeaponDamage, ArmorMitigation, ArmorPiercing, MinMitigation, ArmorShred, ApplyEffectParams, Source, ForMinDamagePreview, NewGameState)`.
 ///
 /// The value of `ForMinDamagePreview` does not matter, as the delegates should ignore it
 /// whenever a `NewGameState` is provided. However, the Highlander implementation passes 
@@ -1348,7 +1352,7 @@ simulated function bool RemoveAdjustArmorMitigationCallback(delegate<AdjustArmor
 }
 
 // Internal helper function to trigger an AdjustArmorMitigation event.
-simulated function TriggerAdjustArmorMitigation(int WeaponDamage, out int ArmorMitigation, out int ArmorPiercing, out int MinMitigation, EffectAppliedData ApplyEffectParams, X2Effect_ApplyWeaponDamage Source, optional bool ForMinDamagePreview, optional XComGameState NewGameState)
+simulated function TriggerAdjustArmorMitigation(int WeaponDamage, out int ArmorMitigation, out int ArmorPiercing, out int MinMitigation, out int ArmorShred, EffectAppliedData ApplyEffectParams, X2Effect_ApplyWeaponDamage Source, optional bool ForMinDamagePreview, optional XComGameState NewGameState)
 {
 	local delegate<AdjustArmorMitigationDelegate> AdjustArmorMitigationFn;
 	local int i;
@@ -1357,7 +1361,7 @@ simulated function TriggerAdjustArmorMitigation(int WeaponDamage, out int ArmorM
 	{
 		AdjustArmorMitigationFn = AdjustArmorMitigationCallbacks[i].AdjustArmorMitigationFn;
 
-		if (AdjustArmorMitigationFn(WeaponDamage, ArmorMitigation, ArmorPiercing, MinMitigation, ApplyEffectParams, Source, ForMinDamagePreview, NewGameState) == EHLDR_InterruptDelegates)
+		if (AdjustArmorMitigationFn(WeaponDamage, ArmorMitigation, ArmorPiercing, MinMitigation, ArmorShred, ApplyEffectParams, Source, ForMinDamagePreview, NewGameState) == EHLDR_InterruptDelegates)
 		{
 			break;
 		}
