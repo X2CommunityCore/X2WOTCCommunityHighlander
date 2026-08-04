@@ -296,6 +296,10 @@ var config bool bManualPhotoTakenOnLastMission;
 // Variable for Issue #1559 - enables AI units to path out of hazards that block their normal movement cache.
 var config bool bEnableAIHazardEscape;
 
+// Begin Issue #1540
+var config bool PREVIEW_ARMOR_MITIGATION;
+// End Issue #1540
+
 // Start Issue #885
 enum EHLDelegateReturn
 {
@@ -354,6 +358,19 @@ struct OverrideCoverLevelStruct
 };
 var protectedwrite array<OverrideCoverLevelStruct> OverrideCoverLevelCallbacks;
 // End Issue #1565
+// Start Issue #1540
+struct AdjustArmorMitigationStruct
+{
+    var delegate<AdjustArmorMitigationDelegate> AdjustArmorMitigationFn;
+    var int Priority;
+    
+    structdefaultproperties
+    {
+        Priority = 50
+    }
+};
+var protectedwrite array<AdjustArmorMitigationStruct> AdjustArmorMitigationCallbacks;
+// End Issue #1540
 
 // Start Issue #1138
 struct PrioritizeRightClickMeleeStruct
@@ -375,6 +392,7 @@ delegate EHLDelegateReturn OverrideHasHeightAdvantageDelegate(XComGameState_Unit
 delegate EHLDelegateReturn PrioritizeRightClickMeleeDelegate(XComGameState_Unit UnitState, out XComGameState_Ability PrioritizedMeleeAbility, optional XComGameState_BaseObject TargetObject); // Issue #1138
 
 delegate EHLDelegateReturn OverrideCoverLevelDelegate(XComGameState_Unit Attacker, XComGameState_Unit Target, out GameRulesCache_VisibilityInfo VisInfo, Object EventSource); // Issue #1565
+delegate EHLDelegateReturn AdjustArmorMitigationDelegate(int WeaponDamage, out int ArmorMitigation, out int ArmorPiercing, out int MinMitigation, out int ArmorShred, EffectAppliedData ApplyEffectParams, X2Effect_ApplyWeaponDamage Source, optional bool ForMinDamagePreview, optional XComGameState NewGameState); // Issue #1540
 
 // Start Issue #123
 simulated static function RebuildPerkContentCache() {
@@ -1332,3 +1350,242 @@ static function bool GeoscapeReadyForUpdate()
 		StrategyMap.Movie.Pres.ScreenStack.GetCurrentScreen() == StrategyMap;
 }
 
+// Begin Issue #1540
+/// HL-Docs: feature:AdjustArmorMitigation; issue:1540; tags:tactical
+/// This feature allows mods to override the amount of armor mitigation,
+/// armor piercing, minimum/mandatory armor mitigation, and/or armor shredding
+/// for an attack on a case-by-case basis.
+///
+/// Normally this override would have been implemented as an event, but the implementing dev heard that events in To Hit Chance Calculation logic can cause issues, 
+/// (see [GetHitChanceEvents](../tactical/GetHitChanceEvents.md)), and resorted to delegates in an attempt to resolve a crash he was unable to explain at the time.
+///
+/// This feature does not apply if the attack ignores armor (e.g. bIgnoreArmor is set to
+/// true). Additionally, it only applies to attacks using `X2Effect_ApplyWeaponDamage`,
+/// or a subclass which has not overridden its `GetDamagePreview()` and `CalculateDamageAmount`
+/// functions (except if they have included support for this feature).
+///
+/// ## Delegate structure
+///
+/// - int WeaponDamage: Full damage dealt by the attack before mitigation, to help determine the results.
+/// - out int ArmorMitigation: Amount of armor mitigation available to reduce the attack. When first invoked, this is equal to the target's armor, but may be modified by other delegates running before yours.
+/// - out int ArmorPiercing: Amount of armor piercing available to reduce mitigation. When first invoked, this is equal to the attack's armor piercing, but may be modified by other delegates running before yours.
+/// - out int MinMitigation: Minimum threshold below which mitigation cannot be reduced. When first invoked, this is 0 (per vanilla behavior), but may be modified by other delegates running before yours. Negative values are currently permitted, but will result in undefined behavior.
+/// - out int ArmorShred: Amount of armor shredding inflicted by the attack. After all delegates have run, this value is capped to never exceed the target's remaining armor. Negative values are permitted, but will result in undefined behavior.
+/// - EffectAppliedData ApplyEffectParams: Effect context containing information such as the parent ability, source and target units, etc., to help determine the results.
+/// - X2Effect_ApplyWeaponDamage Source: The effect itself, to help determine the results. *Do not* attempt to modify it or invoke functions which would have side effects.
+/// - optional bool ForMinDamagePreview: If invoked by a damage preview, specifies whether `WeaponDamage` contains the minimum or maximum damage for the attack in the previewed hit context.
+/// - optional XComGameState NewGameState: The new game state after the attack resolves. If no game state was provided, then the delegate has been invoked by a damage preview (check ForMinDamagePreview to determine which one).
+///
+/// ## How to use (for end users)
+///
+/// Implement the following code in your mod's `X2DownloadableContentInfo` class:
+/// ```unrealscript
+/// static event OnPostTemplatesCreated()
+/// {
+/// 	local CHHelpers CHHelpersObj;
+/// 
+/// 	CHHelpersObj = class'CHHelpers'.static.GetCDO();
+/// 	if (CHHelpersObj != none)
+/// 	{
+/// 		CHHelpersObj.AddAdjustArmorMitigationCallback(AdjustArmorMitigation);
+/// 	}
+/// }
+///
+/// // To avoid crashes associated with garbage collection failure when transitioning between Tactical and Strategy,
+/// // this function must be bound to the ClassDefaultObject of your class. Having this function in a class that 
+/// // `extends X2DownloadableContentInfo` is the easiest way to ensure that.
+/// static private function EHLDelegateReturn AdjustArmorMitigation(int WeaponDamage, out int ArmorMitigation, out int ArmorPiercing, out int MinMitigation, out int ArmorShred, EffectAppliedData ApplyEffectParams, X2Effect_ApplyWeaponDamage Source, optional bool ForMinDamagePreview, optional XComGameState NewGameState)
+/// {
+/// 	// Detect whether it's a damage preview (and if so, which kind). 
+///     // Then optionally modify any of ArmorMitigation, ArmorPiercing,
+///		// MinMitigation, and ArmorShred.
+///		
+/// 	// Return EHLDR_NoInterrupt or EHLDR_InterruptDelegates depending on 
+/// 	// if you want to allow other delegates to run after yours
+/// 	// and potentially modify mitigation values further.
+/// 	return EHLDR_NoInterrupt;
+///}
+///
+/// ## How to use (for effect/UI devs)
+/// 
+/// ### Damage Previews
+///
+/// After all damage has been calculated for the hit context being previewed,
+/// invoke `class'CHHelpers'.static.GetCDO().TriggerAdjustArmorMitigation(WeaponDamage, ArmorMitigation, ArmorPiercing, MinMitigation, ArmorShred, ApplyEffectParams, Source, ForMinDamagePreview)`.
+///
+/// You will need to make separate calls for minimum and maximum damage, using 
+/// **separate** variables for `ArmorMitigation`, `ArmorPiercing`, `MinMitigation`, and `ArmorShred`.
+/// Set `ForMinDamagePreview` according to whether it is the minimum or maximum damage.
+///
+/// If previewing multiple hit contexts (e.g. normal and critical hits),
+/// make sure to pass *total* damage for that hit context into `WeaponDamage` for correct results.
+/// For instance, previewing minimum damage for a 3-5 (+2) weapon should be done with
+/// a `WeaponDamage` of 5 (i.e. 3+2), **not** 2.
+///
+/// If you are not also providing overrides for all UIs that might use your damage preview,
+/// then please store the delegate results in your WeaponDamageValue structs,
+/// so that downstream UIs will be aware of them and be able to correctly preview them:
+///
+/// - ArmorMitigation --> WeaponDamageValue.Spread
+/// - ArmorPiercing --> WeaponDamageValue.Pierce
+/// - MinMitigation --> WeaponDamageValue.PlusOne
+///
+/// (ArmorShred is not covered in the above list, because you should already have been storing shredding since before this feature was created.)
+///
+/// ### Damage Calculations
+///
+/// After all damage has been calculated for the attack, invoke `class'CHHelpers'.static.GetCDO().TriggerAdjustArmorMitigation(WeaponDamage, ArmorMitigation, ArmorPiercing, MinMitigation, ArmorShred, ApplyEffectParams, Source, ForMinDamagePreview, NewGameState)`.
+///
+/// The value of `ForMinDamagePreview` does not matter, as the delegates should ignore it
+/// whenever a `NewGameState` is provided. However, the Highlander implementation passes 
+/// `false`, so it is recommended that you do the same for consistency.
+///
+/// # Delegate Priority
+/// You can optionally specify callback Priority. 
+///```unrealscript
+///CHHelpersObj.AddAdjustArmorMitigationCallback(AdjustArmorMitigation, 45);
+///```
+/// Delegates with higher Priority value are executed first. 
+/// Delegates with the same Priority are executed in the order they were added to CHHelpers,
+/// which would normally be the same as [DLCRunOrder](../misc/DLCRunOrder.md).
+/// This function will return `true` if the delegate was successfully registered.
+simulated function bool AddAdjustArmorMitigationCallback(delegate<AdjustArmorMitigationDelegate> AdjustArmorMitigationFn, optional int Priority = 50)
+{
+    local AdjustArmorMitigationStruct NewAdjustArmorMitigationCallback;
+    local int i, PriorityIndex;
+    local bool bPriorityIndexFound;
+
+    if (AdjustArmorMitigationFn == none)
+    {
+        return false;
+    }
+
+    //Cycle through the array of callbacks backwards
+    for (i = AdjustArmorMitigationCallbacks.Length - 1; i >= 0; i--)
+    {
+        // Do not allow registering the same delegate more than once.
+        if (AdjustArmorMitigationCallbacks[i].AdjustArmorMitigationFn == AdjustArmorMitigationFn)
+        {
+            return false;
+        }
+
+        // Record the array index of the callback whose priority is higher or equal to the priority of the new callback,
+        // so that the new callback can be inserted right after it.
+        if (AdjustArmorMitigationCallbacks[i].Priority >= Priority && !bPriorityIndexFound)
+        {
+            PriorityIndex = i + 1; // +1 so that InsertItem puts the new callback *after* this one.
+
+            // Keep cycling through the array so that the previous check for duplicate delegates can run for every currently registered delegate.
+            bPriorityIndexFound = true;
+        }
+    }
+
+    NewAdjustArmorMitigationCallback.Priority = Priority;
+    NewAdjustArmorMitigationCallback.AdjustArmorMitigationFn = AdjustArmorMitigationFn;
+    AdjustArmorMitigationCallbacks.InsertItem(PriorityIndex, NewAdjustArmorMitigationCallback);
+
+    return true;
+}
+
+simulated function bool RemoveAdjustArmorMitigationCallback(delegate<AdjustArmorMitigationDelegate> AdjustArmorMitigationFn)
+{
+    local int i;
+
+    for (i = AdjustArmorMitigationCallbacks.Length - 1; i >= 0; i--)
+    {
+        if (AdjustArmorMitigationCallbacks[i].AdjustArmorMitigationFn == AdjustArmorMitigationFn)
+        {
+            AdjustArmorMitigationCallbacks.Remove(i, 1);
+            return true;
+        }
+    }
+    return false;
+}
+
+// Internal helper function to trigger an AdjustArmorMitigation event.
+simulated function TriggerAdjustArmorMitigation(int WeaponDamage, out int ArmorMitigation, out int ArmorPiercing, out int MinMitigation, out int ArmorShred, EffectAppliedData ApplyEffectParams, X2Effect_ApplyWeaponDamage Source, optional bool ForMinDamagePreview, optional XComGameState NewGameState)
+{
+	local delegate<AdjustArmorMitigationDelegate> AdjustArmorMitigationFn;
+	local int i;
+
+	for (i = 0; i < AdjustArmorMitigationCallbacks.Length; i++)
+	{
+		AdjustArmorMitigationFn = AdjustArmorMitigationCallbacks[i].AdjustArmorMitigationFn;
+
+		if (AdjustArmorMitigationFn(WeaponDamage, ArmorMitigation, ArmorPiercing, MinMitigation, ArmorShred, ApplyEffectParams, Source, ForMinDamagePreview, NewGameState) == EHLDR_InterruptDelegates)
+		{
+			break;
+		}
+	}	
+}
+
+// Helper function to calculate mitigated damage for ShotHUD.
+// Only exists because I'm not sure what happens if I pass a literal to an out parameter.
+static simulated function CalculateMitigatedDamagePreviewHUD(StateObjectReference Target, WeaponDamageValue MinDamageValue, WeaponDamageValue MaxDamageValue, int AllowsShield, out int MinDamage, out int MaxDamage)
+{
+	local int Dummy1, Dummy2;
+	Dummy1 = 0;
+	Dummy2 = 0;
+	CalculateMitigatedDamagePreview(Target, MinDamageValue, MaxDamageValue, AllowsShield, MinDamage, MaxDamage, Dummy1, Dummy2);
+}
+
+// Helper function to calculate mitigated damage for ShotWings/ShotHUD.
+// Quick reminder: Spread holds mitigation, PlusOne holds minimum mitigation. 
+static simulated function CalculateMitigatedDamagePreview(StateObjectReference Target, WeaponDamageValue MinDamageValue, WeaponDamageValue MaxDamageValue, int AllowsShield, out int MinDamage, out int MaxDamage, out int NetMitigationMin, out int NetMitigationMax)
+{
+	local XComGameStateHistory History;
+	local XComGameState_Unit TargetUnit;
+	local int TargetShields;
+	local int MandatoryDamage;
+	local int GuaranteedDamageMin, GuaranteedDamageMax;
+	
+	History = `XCOMHISTORY;
+
+	if (MinDamageValue.Spread == 0 && MaxDamageValue.Spread == 0 || Target.ObjectId == 0)
+	{
+		return;
+	}
+
+	TargetUnit = XComGameState_Unit(History.GetGameStateForObjectId(Target.ObjectID));
+	if (TargetUnit == none)
+	{
+		return;
+	}
+
+	if (!class'X2Effect_ApplyWeaponDamage'.default.NO_MINIMUM_DAMAGE) // Account for issue #321
+	{
+		MandatoryDamage = 1;
+	}
+	else
+	{
+		MandatoryDamage = 0;
+	}
+	GuaranteedDamageMin = MandatoryDamage;
+	GuaranteedDamageMax = MandatoryDamage;
+
+	// If shields are applicable and not subject to mitigation,
+	// then we are never guaranteed HP damage, but always
+	// guaranteed shield damage so let's preview that.
+	if (AllowsShield > 0 && !class'X2Effect_ApplyWeaponDamage'.default.ARMOR_BEFORE_SHIELD) // From issue #743
+	{
+		TargetShields = TargetUnit.GetCurrentStat(eStat_ShieldHP);
+	}
+	if (TargetShields > MandatoryDamage)
+	{
+		GuaranteedDamageMin = min(MinDamage, TargetShields);
+		GuaranteedDamageMax = min(MaxDamage, TargetShields);
+	}
+	
+	// This is a bit condensed from the real damage calculator, so to summarize:
+	// 1. Subtract piercing from mitigation.
+	// 2. Don't let mitigation drop below the minimum mitigation.
+	// 3. Now subtract mitigation from damage.
+	// 4. Make sure damage is *at least* the guaranteed damage for this attack.
+	MinDamage = max(MinDamage - max(MinDamageValue.Spread - MinDamageValue.Pierce, MinDamageValue.PlusOne), min(GuaranteedDamageMin, MinDamage));
+	MaxDamage = max(MaxDamage - max(MaxDamageValue.Spread - MaxDamageValue.Pierce, MaxDamageValue.PlusOne), min(GuaranteedDamageMax, MaxDamage));
+
+	// Net mitigation for ShotWings: How much damage did the armor actually prevent?
+	NetMitigationMin = MinDamage - MinDamageValue.Damage;
+	NetMitigationMax = MaxDamage - MaxDamageValue.Damage;
+}
+// End Issue #1540
