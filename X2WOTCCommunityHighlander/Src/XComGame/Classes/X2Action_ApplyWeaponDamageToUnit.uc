@@ -2,7 +2,7 @@
 // Used by the visualizer system to control a Visualization Actor
 //-----------------------------------------------------------
 class X2Action_ApplyWeaponDamageToUnit extends X2Action 
-	dependson(XComAnimNodeBlendDynamic)
+	dependson(XComAnimNodeBlendDynamic, XComLWTuple)
 	config(Animation);
 
 var X2AbilityTemplate                                                       AbilityTemplate; //The template for the ability that is affecting us
@@ -752,12 +752,73 @@ simulated state Executing
 	simulated function ShowMitigationMessage(EWidgetColor DisplayColor)
 	{
 		local int CurrentArmor;
+		// Begin Issue #1566
+		/// HL-Docs: feature:EditMitigationMessages; issue:1566; tags:tactical
+		/// This feature allows mods to add or replace flyovers related to armor mitigation,
+		/// e.g. to display extra mitigation from an AdjustArmorMitigation
+		/// callback.
+		///
+		/// Note that mods overriding X2Action_ApplyWeaponDamageToUnit::ShowMitigationMessage
+		/// might not emit or respect the associated event.
+		///
+		/// ```event
+		/// EventID: EditMitigationMessages
+		/// EventData: [inout int CurrentArmor, out array<XComLWTuple> ExtraMessages]
+		/// EventSource: X2Action_ApplyWeaponDamageToUnit
+		/// NewGameState: AssociatedState
+		/// ```
+		///
+		/// Listeners should format their response tuples as:
+		///
+		/// - ResponseID: ExtraMitigationMessage
+		/// - ResponseData: [string MessageText, int MessageAmount]
+		///
+		/// You can also modify CurrentArmor (e.g. setting it to 0 to suppress the vanilla flyover),
+		/// but this might result in unexpected behavior if other listeners depend on it.
+		local XComLWTuple EditMitigationMessagesTuple;
+		local Object Message;
+		local XComLWTuple MessageTuple;
+		local XComLWTValue Text, Amount;
+		// End Issue #1566
+
 		CurrentArmor = UnitState.GetArmorMitigationForUnitFlag();
+		// Begin Issue #1566
+		EditMitigationMessagesTuple = new class'XComLWTuple';
+		EditMitigationMessagesTuple.Id = 'EditMitigationMessages';
+		EditMitigationMessagesTuple.Data.Add(2);
+		EditMitigationMessagesTuple.Data[0].kind = XComLWTVInt;
+		EditMitigationMessagesTuple.Data[0].i = CurrentArmor;
+		EditMitigationMessagesTuple.Data[1].kind = XComLWTVArrayObjects;
+		`XEVENTMGR.TriggerEvent('EditMitigationMessages', EditMitigationMessagesTuple, self, StateChangeContext.AssociatedState);
+		CurrentArmor = EditMitigationMessagesTuple.Data[0].i;
+		// End Issue #1566
+
 		//The flyover shows the armor amount that exists after shred has been applied.
 		if (CurrentArmor > 0)
 		{
 			class'UIWorldMessageMgr'.static.DamageDisplay(m_vHitLocation, Unit.GetVisualizedStateReference(), class'XGLocalizedData'.default.ArmorMitigation, UnitPawn.m_eTeamVisibilityFlags, , CurrentArmor, /*modifier*/, /*crit*/, eWDT_Armor, DisplayColor);
 		}
+
+		// Begin Issue #1566
+		foreach EditMitigationMessagesTuple.Data[1].ao(Message)
+		{
+			MessageTuple = XComLWTuple(Message);
+			if (MessageTuple == none || MessageTuple.Id != 'ExtraMitigationMessage' || MessageTuple.Data.Length != 2)
+			{
+				continue;
+			}
+
+			Text = MessageTuple.Data[0];
+			Amount = MessageTuple.Data[1];
+			if (Text.kind != XComLWTVString || Amount.kind != XComLWTVInt)
+			{
+				continue;
+			}
+
+			// No content validation here, assume the message only got sent if it wanted to be.
+			class'UIWorldMessageMgr'.static.DamageDisplay(m_vHitLocation, Unit.GetVisualizedStateReference(), Text.s, UnitPawn.m_eTeamVisibilityFlags, , Amount.i, /*modifier*/, /*crit*/, eWDT_Armor, DisplayColor);
+		}
+		// End Issue #1566
 	}
 
 	simulated function ShowShieldedMessage(EWidgetColor DisplayColor)
