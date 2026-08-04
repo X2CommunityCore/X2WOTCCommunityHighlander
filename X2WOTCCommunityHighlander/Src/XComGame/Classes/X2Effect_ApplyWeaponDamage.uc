@@ -1202,7 +1202,7 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 		WeaponDamage = ApplyPostDefaultDamageModifierEffects(History, kSourceUnit, kTarget, kAbility, ApplyEffectParameters, WeaponDamage, SpecialDamageMessages,, NewGameState);
 		// End Issue #923
 
-		if (kTarget != none && IgnoreArmor == 0)
+		if (kTarget != none && IgnoreArmor < 1)
 		{
 			ArmorMitigation = kTarget.GetArmorMitigation(ApplyEffectParameters.AbilityResultContext.ArmorMitigation);
 
