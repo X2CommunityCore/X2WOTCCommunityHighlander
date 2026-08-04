@@ -762,9 +762,9 @@ simulated state Executing
 		/// might not emit or respect the associated event.
 		///
 		/// ```event
-		/// EventID: EditMitigationMessages
-		/// EventData: [inout int CurrentArmor, out array<XComLWTuple> ExtraMessages]
-		/// EventSource: X2Action_ApplyWeaponDamageToUnit
+		/// EventID: EditMitigationMessages,
+		/// EventData: [inout int CurrentArmor, out array<XComLWTuple> ExtraMessages],
+		/// EventSource: X2Action_ApplyWeaponDamageToUnit,
 		/// NewGameState: AssociatedState
 		/// ```
 		///
