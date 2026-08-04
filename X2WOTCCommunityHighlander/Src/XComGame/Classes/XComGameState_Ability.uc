@@ -1202,6 +1202,10 @@ function NormalDamagePreview(StateObjectReference TargetRef, out WeaponDamageVal
 			MaxDamagePreview.Damage += TempMaxDamage.Damage;
 			MaxDamagePreview.Pierce += TempMaxDamage.Pierce;
 			MaxDamagePreview.Shred  += TempMaxDamage.Shred;
+			// Begin Issue #1540 - serialize extra preview data!
+			MaxDamagePreview.Spread += TempMaxDamage.Spread;
+			MaxDamagePreview.PlusOne += TempMaxDamage.PlusOne;
+			// End Issue #1540
 			for( DamageModIndex = 0; DamageModIndex < TempMaxDamage.BonusDamageInfo.Length; ++DamageModIndex )
 			{
 				MaxDamagePreview.BonusDamageInfo.AddItem(TempMaxDamage.BonusDamageInfo[DamageModIndex]);
@@ -1210,6 +1214,10 @@ function NormalDamagePreview(StateObjectReference TargetRef, out WeaponDamageVal
 			MinDamagePreview.Damage += TempMinDamage.Damage;
 			MinDamagePreview.Pierce += TempMinDamage.Pierce;
 			MinDamagePreview.Shred  += TempMinDamage.Shred;
+			// Begin Issue #1540 - serialize extra preview data!
+			MinDamagePreview.Spread += TempMinDamage.Spread;
+			MinDamagePreview.PlusOne += TempMinDamage.PlusOne;
+			// End Issue #1540
 			for( DamageModIndex = 0; DamageModIndex < TempMinDamage.BonusDamageInfo.Length; ++DamageModIndex )
 			{
 				MinDamagePreview.BonusDamageInfo.AddItem(TempMinDamage.BonusDamageInfo[DamageModIndex]);
@@ -1224,10 +1232,18 @@ function NormalDamagePreview(StateObjectReference TargetRef, out WeaponDamageVal
 			MinDamagePreview.Damage += MinDamagePreview.Damage * BurstFire.NumExtraShots;
 			MinDamagePreview.Pierce += MinDamagePreview.Pierce * BurstFire.NumExtraShots;
 			MinDamagePreview.Shred  += MinDamagePreview.Shred * BurstFire.NumExtraShots;
+			// Begin Issue #1540 - serialize extra preview data!
+			MinDamagePreview.Spread *= BurstFire.NumExtraShots;
+			MinDamagePreview.PlusOne *= BurstFire.NumExtraShots;
+			// End Issue #1540
 
 			MaxDamagePreview.Damage += MaxDamagePreview.Damage * BurstFire.NumExtraShots;
 			MaxDamagePreview.Pierce += MaxDamagePreview.Pierce * BurstFire.NumExtraShots;
 			MaxDamagePreview.Shred  += MaxDamagePreview.Shred * BurstFire.NumExtraShots;
+			// Begin Issue #1540 - serialize extra preview data!
+			MaxDamagePreview.Spread *= BurstFire.NumExtraShots;
+			MaxDamagePreview.PlusOne *= BurstFire.NumExtraShots;
+			// End Issue #1540
 		}
 	}
 

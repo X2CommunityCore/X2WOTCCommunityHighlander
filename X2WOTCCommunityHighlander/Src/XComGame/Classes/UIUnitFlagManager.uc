@@ -638,6 +638,17 @@ simulated function SetAbilityDamagePreview(UIUnitFlag kFlag, XComGameState_Abili
 	local WeaponDamageValue MinDamageValue;
 	local WeaponDamageValue MaxDamageValue;
 
+	// Start Issue #1540
+	// Streamline #579 to simply choose a WDV to preview,
+	// instead of duplicating the whole preview implementation. Grrr. >:(
+	local WeaponDamageValue PreviewDamageValue; 
+
+	local int NetMitigation;
+	local bool AppliedMitigation; // Used for #743
+	local int MinimumDamage; // Used for #321
+	// End Issue #1540
+
+
 	if( kFlag == none || AbilityState == none )
 	{
 		return;
@@ -651,46 +662,66 @@ simulated function SetAbilityDamagePreview(UIUnitFlag kFlag, XComGameState_Abili
 	// Start Issue #579
 	/// HL-Docs: feature:UseMinDamageForUnitFlagPreview; issue:579; tags:tactical,ui
 	/// Allows using ability's minimum damage rather than max damage for the unit flag damage preview.
-	if (class'CHHelpers'.default.bUseMinDamageForUnitFlagPreview)
+	if( class'CHHelpers'.default.bUseMinDamageForUnitFlagPreview )
 	{
-		possibleHPDamage = MinDamageValue.Damage;
-		possibleShieldDamage = 0;
-
-		// MaxHP contains extra HP points given by shield
-		if( shieldPoints > 0 && AllowedShield > 0 )
-		{
-			possibleShieldDamage = min(shieldPoints, MinDamageValue.Damage);
-			possibleShieldDamage = min(possibleShieldDamage, AllowedShield);
-			possibleHPDamage = MinDamageValue.Damage - possibleShieldDamage;
-		}
-
-		if( possibleHPDamage > 0 && !AbilityState.DamageIgnoresArmor() && FlagUnit != none )
-			possibleHPDamage -= max(0, FlagUnit.GetArmorMitigationForUnitFlag() - MinDamageValue.Pierce);
-
-		kFlag.SetShieldPointsPreview(possibleShieldDamage);
-		kFlag.SetHitPointsPreview(possibleHPDamage);
-		kFlag.SetArmorPointsPreview(MinDamageValue.Shred, MinDamageValue.Pierce);
+		PreviewDamageValue = MinDamageValue;
 	}
-	else // End Issue #579
+	else 
 	{
-		possibleHPDamage = MaxDamageValue.Damage;
-		possibleShieldDamage = 0;
-
-		// MaxHP contains extra HP points given by shield
-		if( shieldPoints > 0 && AllowedShield > 0 )
-		{
-			possibleShieldDamage = min(shieldPoints, MaxDamageValue.Damage);
-			possibleShieldDamage = min(possibleShieldDamage, AllowedShield);
-			possibleHPDamage = MaxDamageValue.Damage - possibleShieldDamage;
-		}
-
-		if( possibleHPDamage > 0 && !AbilityState.DamageIgnoresArmor() && FlagUnit != none )
-			possibleHPDamage -= max(0, FlagUnit.GetArmorMitigationForUnitFlag() - MaxDamageValue.Pierce);
-
-		kFlag.SetShieldPointsPreview(possibleShieldDamage);
-		kFlag.SetHitPointsPreview(possibleHPDamage);
-		kFlag.SetArmorPointsPreview(MaxDamageValue.Shred, MaxDamageValue.Pierce);
+		PreviewDamageValue = MaxDamageValue;
 	}
+	// End Issue #579
+
+	// Start Issue #321
+	if( class'X2Effect_ApplyWeaponDamage'.default.NO_MINIMUM_DAMAGE )
+	{
+		MinimumDamage = 0;
+	}
+	else
+	{
+		MinimumDamage = 1;
+	}
+	// End Issue #321
+
+
+	possibleHPDamage = PreviewDamageValue.Damage;
+	possibleShieldDamage = 0;
+	// Begin Issue #743 and Issue #1540
+	if( FlagUnit != none && PreviewDamageValue.Spread != 0 )
+	{
+		NetMitigation = max(PreviewDamageValue.Spread - PreviewDamageValue.Pierce, PreviewDamageValue.PlusOne);
+	}
+	// End Issue #743 and Issue #1540
+
+	// MaxHP contains extra HP points given by shield
+	if( shieldPoints > 0 && AllowedShield > 0 )
+	{
+		possibleShieldDamage = min(shieldPoints, PreviewDamageValue.Damage);
+		possibleShieldDamage = min(possibleShieldDamage, AllowedShield);
+		possibleHPDamage = PreviewDamageValue.Damage - possibleShieldDamage;
+
+		// Begin Issue #743 and Issue #1540 - apply net mitigation to shields if appropriate
+		if( class'X2Effect_ApplyWeaponDamage'.default.ARMOR_BEFORE_SHIELD )
+		{
+			possibleShieldDamage = max(possibleShieldDamage - NetMitigation, MinimumDamage);
+			AppliedMitigation = true;
+		}
+		// End Issue #743 and Issue #1540
+
+		MinimumDamage = 0; // Issue #321, sort of?
+	}
+
+	// Issue #743 and Issue #1540 - replace the condition!
+	//if( possibleHPDamage > 0 && !AbilityState.DamageIgnoresArmor() && FlagUnit != none ) 
+	if( possibleHPDamage > 0 && !AppliedMitigation )
+	{
+		// Begin Issue #1540 - account for extra armor, and fix #321 to apply to previews
+		possibleHPDamage = max(possibleHPDamage - NetMitigation, MinimumDamage);
+	}
+
+	kFlag.SetShieldPointsPreview(possibleShieldDamage);
+	kFlag.SetHitPointsPreview(possibleHPDamage);
+	kFlag.SetArmorPointsPreview(PreviewDamageValue.Shred, PreviewDamageValue.Pierce);
 }
 
 simulated function LockFlagToReticle(bool bShouldLock, UITargetingReticle kReticle, StateObjectReference ObjectRef)
