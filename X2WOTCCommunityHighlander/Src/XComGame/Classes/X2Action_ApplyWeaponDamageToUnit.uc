@@ -765,7 +765,7 @@ simulated state Executing
 		/// EventID: EditMitigationMessages,
 		/// EventData: [inout int CurrentArmor, out array<XComLWTuple> ExtraMessages],
 		/// EventSource: X2Action_ApplyWeaponDamageToUnit,
-		/// NewGameState: AssociatedState
+		/// NewGameState: yes
 		/// ```
 		///
 		/// Listeners should format their response tuples as:
