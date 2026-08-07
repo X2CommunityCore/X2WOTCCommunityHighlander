@@ -109,11 +109,54 @@ function int CalculateWorkPerHour(optional XComGameState StartState = none, opti
 {
 	local XComGameStateHistory History;
 	local XComGameState_HeadquartersXCom XComHQ;
+	local int UnModifiedHealRate;
 
 	History = `XCOMHISTORY;
 	XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
-	return max(XComHQ.HealingRate, `ScaleGameLengthArrayInt(XComHQ.XComHeadquarters_BaseHealRates));
+	// Issue #1582 - add call to TriggerWoundRecoveryTimeModifier
+	UnModifiedHealRate = max(XComHQ.HealingRate, `ScaleGameLengthArrayInt(XComHQ.XComHeadquarters_BaseHealRates));
+	return Round(float(UnModifiedHealRate) * TriggerWoundRecoveryTimeModifier(StartState, bAssumeActive));
+	
 }
+
+// Issue #1582 Start
+/// HL-Docs: feature:WoundRecoveryTimeModifier; issue:1582; tags:strategy
+/// Allows mods to apply a multiplier to the Wound recovery project time, where a
+/// value of 1.0 makes no change, 2.0 doubles the duration, etc. Listeners can
+/// get the recovering unit from the Healing project's `ProjectFocus` property.
+///
+/// ```event
+/// EventID: WoundRecoveryTimeModifier,
+/// EventData: [
+///   inout float TimeMultiplier,
+///   in bool bAssumeActive
+/// ],
+/// EventSource: XComGameState_HeadquartersProjectHealSoldier (ProjectState),
+/// NewGameState: maybe
+/// ```
+///
+/// The `NewGameState` and `bAssumeActive` will be whatever caller to CalculateWorkPerHour() passes. Note that
+/// both arguments are optional.
+///
+/// If you want to modify the `TimeMultiplier`, you **must** subscribe with `ELD_Immediate` deferral
+private function float TriggerWoundRecoveryTimeModifier(optional XComGameState StartState = none, optional bool bAssumeActive = false)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'WoundRecoveryTimeModifier';
+	Tuple.Data.Add(2);
+
+	Tuple.Data[0].kind = XComLWTVFloat;
+	Tuple.Data[0].f = 1.0; // Default no modifier
+	Tuple.Data[1].kind = XComLWTVBool;
+	Tuple.Data[1].b = bAssumeActive;
+
+	`XEVENTMGR.TriggerEvent('WoundRecoveryTimeModifier', Tuple, self, StartState);
+
+	return Tuple.Data[0].f;
+}
+// Issue #650 End
 
 //---------------------------------------------------------------------------------------
 // Heal the unit by one block, and check if the healing is complete
