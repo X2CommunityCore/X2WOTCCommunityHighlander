@@ -365,7 +365,7 @@ static private function TriggerOverrideSelectedArchetype(out string SelectedArch
     Tuple.Data[2].kind = XComLWTVString;
     Tuple.Data[2].s    = SelectedArchetype;           // [2] OriginalString: the pre-hook SelectedArchetype (reference only; do not modify).
     Tuple.Data[3].kind = XComLWTVInt;
-    Tuple.Data[3].b    = ReanimatedFromUnit.ObjectID; // [3] ReanimatedUnitID: the ObjectID of the ReanimatedFromUnit argument.
+    Tuple.Data[3].i    = ReanimatedFromUnit.ObjectID; // [3] ReanimatedUnitID: the ObjectID of the ReanimatedFromUnit argument.
     
     `XEVENTMGR.TriggerEvent(Tuple.Id, Tuple, kUnit, none); // Listeners may set [0].s (and optionally [1].i).
     
