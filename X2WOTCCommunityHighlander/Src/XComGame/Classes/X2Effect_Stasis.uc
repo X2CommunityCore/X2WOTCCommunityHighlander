@@ -50,6 +50,42 @@ function ModifyTurnStartActionPoints(XComGameState_Unit UnitState, out array<nam
 	ActionPoints.Length = 0;
 }
 
+// Start Issue #1591 
+// Helper function and alternative implementations of CanAbilityHitUnit_CH and ProvidesDamageImmunity_CH to 
+// determine whether units in Stasis can be hit and/or damaged. Relies on bEnableImprovedCanHitAndImmunityLogic being enabled in CHHelpers
+function bool ShouldBypassStasisImmunity(name AbilityName, optional XComGameState_Effect EffectState)
+{
+	local name StasisSourceAbility;
+
+	// Abilities that can bypass Stasis, regardless of what applied it
+	if (class'CHHelpers'.default.AbilitiesToBypassStasis.Find(AbilityName) != INDEX_NONE)
+		return true;
+
+	// Abilities that can bypass Stasis only when it was applied as a consequence of Sustain
+	if (EffectState != none)
+	{
+		StasisSourceAbility = EffectState.ApplyEffectParameters.AbilityInputContext.AbilityTemplateName;
+		if (class'CHHelpers'.default.AbilitiesConsideredAsSustain.Find(StasisSourceAbility) != INDEX_NONE
+			&& class'CHHelpers'.default.AbilitiesToBypassSustain.Find(AbilityName) != INDEX_NONE)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function bool ProvidesDamageImmunity_CH(XComGameState_Effect EffectState, name DamageType, optional name AbilityName)
+{
+	return !ShouldBypassStasisImmunity(AbilityName, EffectState);
+}
+
+function bool CanAbilityHitUnit_CH(name AbilityName, optional XComGameStateContext_Ability AbilityContext, optional XComGameState_Effect EffectState)
+{
+	return ShouldBypassStasisImmunity(AbilityName, EffectState);
+}
+// End Issue #1591
+
 function bool ProvidesDamageImmunity(XComGameState_Effect EffectState, name DamageType)
 {
 	return true;

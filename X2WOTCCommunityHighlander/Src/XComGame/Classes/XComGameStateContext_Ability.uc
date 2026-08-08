@@ -1198,11 +1198,27 @@ static function CheckTargetForHitModification(out AvailableTarget kTarget, XComG
 	{
 		bIsResultHit = ModifyContext.IsResultContextHit();
 
-		if( bIsResultHit && !TargetUnitState.CanAbilityHitUnit(AbilityTemplate.DataName) )
+		// Start Issue #1591
+		if (bIsResultHit)
 		{
-			ModifyContext.ResultContext.HitResult = eHit_Miss;
-			`COMBATLOG("Effect on Target is forcing a miss against" @ TargetUnitState.GetName(eNameType_RankFull));
+			if (class'CHHelpers'.default.bEnableImprovedCanHitAndImmunityLogic)
+			{
+				if (!TargetUnitState.CanAbilityHitUnit_CH(AbilityTemplate.DataName, ModifyContext))
+				{
+					ModifyContext.ResultContext.HitResult = eHit_Miss;
+					`COMBATLOG("Effect on Target is forcing a miss against" @ TargetUnitState.GetName(eNameType_RankFull));
+				}
+			}
+			else
+			{
+				if (!TargetUnitState.CanAbilityHitUnit(AbilityTemplate.DataName))
+				{
+					ModifyContext.ResultContext.HitResult = eHit_Miss;
+					`COMBATLOG("Effect on Target is forcing a miss against" @ TargetUnitState.GetName(eNameType_RankFull));
+				}
+			}
 		}
+		// End Issue #1591
 
 		if (AbilityTemplate.AbilityToHitOwnerOnMissCalc != None 
 			&& ModifyContext.ResultContext.HitResult == eHit_Miss
@@ -1268,11 +1284,27 @@ static function CheckTargetForHitModification(out AvailableTarget kTarget, XComG
 		{
 			bIsResultHit = ModifyContext.IsResultContextMultiHit(MultiIndex);
 
-			if( bIsResultHit && !TargetUnitState.CanAbilityHitUnit(AbilityTemplate.DataName) )
+			// Start Issue #1591
+			if (bIsResultHit)
 			{
-				ModifyContext.ResultContext.MultiTargetHitResults[MultiIndex] = eHit_Miss;
-				`COMBATLOG("Effect on MultiTarget is forcing a miss against" @ TargetUnitState.GetName(eNameType_RankFull));
+				if (class'CHHelpers'.default.bEnableImprovedCanHitAndImmunityLogic)
+				{
+					if (!TargetUnitState.CanAbilityHitUnit_CH(AbilityTemplate.DataName, ModifyContext))
+					{
+						ModifyContext.ResultContext.MultiTargetHitResults[MultiIndex] = eHit_Miss;
+						`COMBATLOG("Effect on MultiTarget is forcing a miss against" @ TargetUnitState.GetName(eNameType_RankFull));
+					}
+				}
+				else
+				{
+					if (!TargetUnitState.CanAbilityHitUnit(AbilityTemplate.DataName))
+					{
+						ModifyContext.ResultContext.MultiTargetHitResults[MultiIndex] = eHit_Miss;
+						`COMBATLOG("Effect on MultiTarget is forcing a miss against" @ TargetUnitState.GetName(eNameType_RankFull));
+					}
+				}
 			}
+			// End Issue #1591
 
 			if ( AbilityTemplate.Hostility == eHostility_Offensive )
 			{

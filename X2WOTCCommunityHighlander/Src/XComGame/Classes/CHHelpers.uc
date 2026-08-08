@@ -300,6 +300,21 @@ var config bool bEnableAIHazardEscape;
 var config bool PREVIEW_ARMOR_MITIGATION;
 // End Issue #1540
 
+// Start Issue #1591 
+/// HL-Docs: feature:ImprovedHitImmunityLogic-BypassStasisSustain; issue:1591; tags:tactical
+/// This feature provides improved CanAbilityHit, IsImmuneToDamage and ProvidesDamageImmunity
+/// functions which pass in optional ability names and contexts, in order to allow mods to have 
+/// more granular control over when certain abilities are able to hit and damage.
+/// Three arrays are also provided for direct configuration of abilities which can bypass stasis and/or sustain. To use:
+/// 1. Add attacking abilities which can bypass Stasis, applied by any ability, to AbilitiesToBypassStasis
+/// 2. Add attacking abilities which can bypass Sustain, but not stasis from any source to AbilitiesToBypassSustain
+/// 3. Add defensive 'sustain-like' abilities to AbilitiesConsideredAsSustain
+var config bool bEnableImprovedCanHitAndImmunityLogic;
+var config array<name> AbilitiesToBypassStasis;        
+var config array<name> AbilitiesToBypassSustain;      
+var config array<name> AbilitiesConsideredAsSustain; 
+// End Issue #1591
+
 // Start Issue #885
 enum EHLDelegateReturn
 {
