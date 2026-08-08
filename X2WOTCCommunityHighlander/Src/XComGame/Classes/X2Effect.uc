@@ -162,8 +162,18 @@ simulated final function name ApplyEffect(const out EffectAppliedData ApplyEffec
 	{
 		foreach DamageTypes(DamageType)
 		{
-			if (DamageInterface.IsImmuneToDamage(DamageType))
-				return 'AA_UnitIsImmune';
+			// Begin Issue #1591
+			if (class'CHHelpers'.default.bEnableImprovedCanHitAndImmunityLogic && TargetStateObject != none)
+			{
+				if (TargetStateObject.IsImmuneToDamage_CH(DamageType, ApplyEffectParameters.AbilityInputContext.AbilityTemplateName))
+					return 'AA_UnitIsImmune';
+			}
+			else
+			{
+				if (DamageInterface.IsImmuneToDamage(DamageType))
+					return 'AA_UnitIsImmune';
+			}
+			// End Issue #1591
 		}
 	}
 

@@ -9062,7 +9062,27 @@ event bool IsImmuneToDamage(name DamageType)
 	}
 	return false;
 }
+// Issue #1591 - Allow threading of the AbilityName from IsImmuneToDamage to ProvidesDamageImmunity
+function bool IsImmuneToDamage_CH(name DamageType, optional name AbilityName)
+{
+	local StateObjectReference EffectRef;
+	local XComGameState_Effect EffectState;
+	local XComGameStateHistory History;
 
+	History = `XCOMHISTORY;
+
+	if( IsImmuneToDamageCharacterTemplate(DamageType) )
+		return true;
+
+	foreach AffectedByEffects(EffectRef)
+	{
+		EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
+		if (EffectState.GetX2Effect().ProvidesDamageImmunity_CH(EffectState, DamageType, AbilityName))
+			return true;
+	}
+	return false;
+}
+// End Issue #1591
 event bool IsAlreadyTakingEffectDamage(name DamageType)
 {
 	local StateObjectReference EffectRef;
@@ -15267,6 +15287,40 @@ function bool CanAbilityHitUnit(name AbilityName)
 
 	return bCanHit;
 }
+
+// Start Issue #1591 - mirrors CanAbilityHitUnit but calls the ability-aware _CH hook on each effect
+function bool CanAbilityHitUnit_CH(name AbilityName, optional XComGameStateContext_Ability AbilityContext)
+{
+	local StateObjectReference EffectRef;
+	local XComGameState_Effect EffectState;
+	local XComGameStateHistory History;
+	local X2Effect_Persistent Effect;
+	local bool bCanHit;
+
+	History = `XCOMHISTORY;
+	bCanHit = true;
+
+	foreach AffectedByEffects(EffectRef)
+	{
+		EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
+		if( EffectState != None )
+		{
+			Effect = EffectState.GetX2Effect();
+			if(Effect != none)
+			{
+				bCanHit = bCanHit && Effect.CanAbilityHitUnit_CH(AbilityName, AbilityContext, EffectState);
+
+				if(!bCanHit)
+				{
+					break;
+				}
+			}
+		}
+	}
+
+	return bCanHit;
+}
+// End Issue #1591
 
 // Checks to see if all Codex that originated from an original Codex are dead
 event bool AreAllCodexInLineageDead(XComGameState NewGameState/*, XComGameState_Unit UnitState*/)
