@@ -97,8 +97,14 @@ simulated final function name ApplyEffect(const out EffectAppliedData ApplyEffec
 		return 'AA_NotAUnit';
 	}
 
+	AbilityStateObject = XComGameState_Ability(NewGameState.GetGameStateForObjectID(ApplyEffectParameters.AbilityStateObjectRef.ObjectID));
+	if( AbilityStateObject == none )
+	{
+		AbilityStateObject = XComGameState_Ability(History.GetGameStateForObjectID(ApplyEffectParameters.AbilityStateObjectRef.ObjectID));
+	}
+
 	//Begin Issue #1575
-	if (TargetStateObject != none)
+	if (TargetStateObject != none && AbilityStateObject != none)
 	{
 		if (TargetStateObject.IsImmuneToEffect(self, SourceStateObject, AbilityStateObject))
 		{
@@ -106,12 +112,6 @@ simulated final function name ApplyEffect(const out EffectAppliedData ApplyEffec
 		}
 	}
 	//End Issue #1575
-
-	AbilityStateObject = XComGameState_Ability(NewGameState.GetGameStateForObjectID(ApplyEffectParameters.AbilityStateObjectRef.ObjectID));
-	if( AbilityStateObject == none )
-	{
-		AbilityStateObject = XComGameState_Ability(History.GetGameStateForObjectID(ApplyEffectParameters.AbilityStateObjectRef.ObjectID));
-	}
 
 	// Check to see if this Effect should be treated as normal or is involved with a StatContestResult Override
 	bDoStatContestResultCheck = true;
