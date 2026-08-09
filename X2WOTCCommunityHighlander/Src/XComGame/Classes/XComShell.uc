@@ -13,6 +13,8 @@ var bool			bFlaggedReview;
 var string			MainMenuMusicAkEventPath;
 var AkEvent			PlayMainMenuMusic;
 var int				SoundID;
+// Variable for Issue #1598
+var bool			bIsMusicPlaying;
 
 event InitGame( string Options, out string ErrorMessage )
 {
@@ -55,6 +57,8 @@ function OnPlayMainMenuAkEventLoaded(object LoadedObject)
 function StopMenuMusic()
 {
 	StopAkSound(SoundID);
+	// Single Line for Issue #1598
+	bIsMusicPlaying = false;	
 }
 
 function StartMenuMusic()
@@ -135,4 +139,6 @@ defaultproperties
 	bDelayedStart = false;
 	HUDType=class'XComGame.XComShellHUD';
 	MainMenuMusicAkEventPath="SoundMenuMusic.Play_Main_Menu_Music"
+	// Single Line for Issue #1598
+	bIsMusicPlaying = true;
 }
