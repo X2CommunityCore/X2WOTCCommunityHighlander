@@ -1081,11 +1081,13 @@ simulated function TriggerOverrideHasHeightAdvantage(XComGameState_Unit Attacker
 ///
 /// This feature applies to X2Effect_HuntersInstinctDamage, X2AbilityToHitCalc_StandardAim, and all descendants thereof.
 /// It does not apply to hit calcs if:
+///
 /// - It is a descendant class which overrides GetHitChance without supporting this feature
 /// - The attack is not subject to cover (bIndirectFire, bMeleeAttack)
 /// - It *does* apply if bIgnoreCoverBonus is true, *but* does not override its behavior
 ///
 /// It does not apply to Hunter's Instinct if:
+///
 /// - It is a descendant class which overrides GetAttackingDamageModifier without supporting this feature
 /// - The effect would not be affected by cover level (e.g. it's a melee attack and thus ineligible for Hunter's Instinct)
 ///
@@ -1422,7 +1424,8 @@ static function bool GeoscapeReadyForUpdate()
 /// 	// if you want to allow other delegates to run after yours
 /// 	// and potentially modify mitigation values further.
 /// 	return EHLDR_NoInterrupt;
-///}
+/// }
+/// ```
 ///
 /// ## How to use (for effect/UI devs)
 /// 
@@ -1657,7 +1660,9 @@ static simulated function CalculateMitigatedDamagePreview(StateObjectReference T
 /// 	// if you want to allow other delegates to run after yours
 /// 	// and potentially modify defense bypass further.
 /// 	return EHLDR_NoInterrupt;
-///}
+/// }
+/// ```
+///
 /// # Delegate Priority
 /// You can optionally specify callback Priority. 
 ///```unrealscript
