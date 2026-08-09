@@ -646,6 +646,9 @@
     <Content Include="Src\XComGame\Classes\X2Action_Death.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Effect.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Effect_ApplyPoisonToWorld.uc">
       <SubType>Content</SubType>
     </Content>
