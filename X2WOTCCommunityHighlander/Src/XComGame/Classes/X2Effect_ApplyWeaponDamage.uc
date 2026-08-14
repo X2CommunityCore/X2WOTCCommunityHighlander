@@ -447,12 +447,14 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 		if (!bIgnoreBaseDamage)
 		{
 			SourceWeapon.GetBaseWeaponDamageValue(TargetUnit, BaseDamageValue);
-			ModifyDamageValue(BaseDamageValue, TargetUnit, AppliedDamageTypes);
+			// Single line for Issue #1603 - Use the Highlander version of ModifyDamageValue().
+			ModifyDamageValue_CH(BaseDamageValue, TargetUnit, AppliedDamageTypes, SourceWeapon, SourceUnit, AbilityState);
 		}
 		if (DamageTag != '')
 		{
 			SourceWeapon.GetWeaponDamageValue(TargetUnit, DamageTag, ExtraDamageValue);
-			ModifyDamageValue(ExtraDamageValue, TargetUnit, AppliedDamageTypes);
+			// Single line for Issue #1603 - Use the Highlander version of ModifyDamageValue().
+			ModifyDamageValue_CH(ExtraDamageValue, TargetUnit, AppliedDamageTypes, SourceWeapon, SourceUnit, AbilityState);
 		}
 		if (SourceWeapon.HasLoadedAmmo() && !bIgnoreBaseDamage)
 		{
@@ -467,7 +469,8 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 			{
 				LoadedAmmo.GetBaseWeaponDamageValue(TargetUnit, AmmoDamageValue);
 			}
-			ModifyDamageValue(AmmoDamageValue, TargetUnit, AppliedDamageTypes);
+			// Single line for Issue #1603 - Use the Highlander version of ModifyDamageValue().
+			ModifyDamageValue_CH(AmmoDamageValue, TargetUnit, AppliedDamageTypes, SourceWeapon, SourceUnit, AbilityState);
 		}
 		if (bAllowWeaponUpgrade)
 		{
@@ -478,7 +481,8 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 				{
 					UpgradeTemplateBonusDamage = WeaponUpgradeTemplate.BonusDamage;
 
-					ModifyDamageValue(UpgradeTemplateBonusDamage, TargetUnit, AppliedDamageTypes);
+					// Single line for Issue #1603 - Use the Highlander version of ModifyDamageValue().
+					ModifyDamageValue_CH(UpgradeTemplateBonusDamage, TargetUnit, AppliedDamageTypes, SourceWeapon, SourceUnit, AbilityState);
 
 					//	Start Issue #896
 					/// HL-Docs: ref:Bugfixes; issue:896
@@ -511,7 +515,8 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 			{
 				UpgradeTemplateBonusDamage = WeaponUpgradeTemplate.CHBonusDamage;
 
-				ModifyDamageValue(UpgradeTemplateBonusDamage, TargetUnit, AppliedDamageTypes);
+				// Single line for Issue #1603 - Use the Highlander version of ModifyDamageValue().
+				ModifyDamageValue_CH(UpgradeTemplateBonusDamage, TargetUnit, AppliedDamageTypes, SourceWeapon, SourceUnit, AbilityState);
 
 				UpgradeDamageValue.Damage += UpgradeTemplateBonusDamage.Damage;
 				UpgradeDamageValue.Spread += UpgradeTemplateBonusDamage.Spread;
@@ -525,7 +530,8 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 		// Issue #237 end
 	}
 	BonusEffectDamageValue = GetBonusEffectDamageValue(AbilityState, SourceUnit, SourceWeapon, TargetRef);
-	ModifyDamageValue(BonusEffectDamageValue, TargetUnit, AppliedDamageTypes);
+	// Single line for Issue #1603 - Use the Highlander version of ModifyDamageValue().
+	ModifyDamageValue_CH(BonusEffectDamageValue, TargetUnit, AppliedDamageTypes, SourceWeapon, SourceUnit, AbilityState);
 
 	MinDamagePreview.Damage = BaseDamageValue.Damage + ExtraDamageValue.Damage + AmmoDamageValue.Damage + BonusEffectDamageValue.Damage + UpgradeDamageValue.Damage -
 							  BaseDamageValue.Spread - ExtraDamageValue.Spread - AmmoDamageValue.Spread - BonusEffectDamageValue.Spread - UpgradeDamageValue.Spread;
@@ -891,14 +897,16 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 			EnvironmentDamage += kSourceItem.GetItemEnvironmentDamage();
 			if (BaseDamageValue.Damage > 0) bHadAnyDamage = true;
 
-			bWasImmune = bWasImmune && ModifyDamageValue(BaseDamageValue, kTarget, AppliedDamageTypes);
+			// Single line for Issue #1603 - Use the Highlander version of ModifyDamageValue().
+			bWasImmune = bWasImmune && ModifyDamageValue_CH(BaseDamageValue, kTarget, AppliedDamageTypes, kSourceItem, kSourceUnit, kAbility);
 		}
 		if (DamageTag != '')
 		{
 			kSourceItem.GetWeaponDamageValue(XComGameState_BaseObject(kTarget), DamageTag, ExtraDamageValue);
 			if (ExtraDamageValue.Damage > 0) bHadAnyDamage = true;
 
-			bWasImmune = bWasImmune && ModifyDamageValue(ExtraDamageValue, kTarget, AppliedDamageTypes);
+			// Single line for Issue #1603 - Use the Highlander version of ModifyDamageValue().
+			bWasImmune = bWasImmune && ModifyDamageValue_CH(ExtraDamageValue, kTarget, AppliedDamageTypes, kSourceItem, kSourceUnit, kAbility);
 		}
 		if (kSourceItem.HasLoadedAmmo() && !bIgnoreBaseDamage)
 		{
@@ -918,7 +926,8 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 				EnvironmentDamage += LoadedAmmo.GetItemEnvironmentDamage();
 			}
 			if (AmmoDamageValue.Damage > 0) bHadAnyDamage = true;
-			bWasImmune = bWasImmune && ModifyDamageValue(AmmoDamageValue, kTarget, AppliedDamageTypes);
+			// Single line for Issue #1603 - Use the Highlander version of ModifyDamageValue().
+			bWasImmune = bWasImmune && ModifyDamageValue_CH(AmmoDamageValue, kTarget, AppliedDamageTypes, kSourceItem, kSourceUnit, kAbility);
 		}
 		if (bAllowWeaponUpgrade)
 		{
@@ -930,7 +939,8 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 					UpgradeTemplateBonusDamage = WeaponUpgradeTemplate.BonusDamage;
 
 					if (UpgradeTemplateBonusDamage.Damage > 0) bHadAnyDamage = true;
-					bWasImmune = bWasImmune && ModifyDamageValue(UpgradeTemplateBonusDamage, kTarget, AppliedDamageTypes);
+					// Single line for Issue #1603 - Use the Highlander version of ModifyDamageValue().
+					bWasImmune = bWasImmune && ModifyDamageValue_CH(UpgradeTemplateBonusDamage, kTarget, AppliedDamageTypes, kSourceItem, kSourceUnit, kAbility);
 
 					//	Start Issue #896
 					/// HL-Docs: ref:Bugfixes; issue:896
@@ -964,7 +974,8 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 				UpgradeTemplateBonusDamage = WeaponUpgradeTemplate.CHBonusDamage;
 
 				if (UpgradeTemplateBonusDamage.Damage > 0) bHadAnyDamage = true;
-				bWasImmune = bWasImmune && ModifyDamageValue(UpgradeTemplateBonusDamage, kTarget, AppliedDamageTypes);
+				// Single line for Issue #1603 - Use the Highlander version of ModifyDamageValue().
+				bWasImmune = bWasImmune && ModifyDamageValue_CH(UpgradeTemplateBonusDamage, kTarget, AppliedDamageTypes, kSourceItem, kSourceUnit, kAbility);
 
 				UpgradeDamageValue.Damage += UpgradeTemplateBonusDamage.Damage;
 				UpgradeDamageValue.Spread += UpgradeTemplateBonusDamage.Spread;
@@ -988,7 +999,8 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 	if (BonusEffectDamageValue.Damage > 0 || BonusEffectDamageValue.Crit > 0 || BonusEffectDamageValue.Pierce > 0 || BonusEffectDamageValue.PlusOne > 0 ||
 		BonusEffectDamageValue.Rupture > 0 || BonusEffectDamageValue.Shred > 0 || BonusEffectDamageValue.Spread > 0)
 	{
-		bWasImmune = bWasImmune && ModifyDamageValue(BonusEffectDamageValue, kTarget, AppliedDamageTypes);
+		// Single line for Issue #1603 - Use the Highlander version of ModifyDamageValue().
+		bWasImmune = bWasImmune && ModifyDamageValue_CH(BonusEffectDamageValue, kTarget, AppliedDamageTypes, kSourceItem, kSourceUnit, kAbility);
 		bHadAnyDamage = true;
 	}
 
@@ -1281,6 +1293,55 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 
 	return TotalDamage;
 }
+
+// Start Issue #1603
+/// HL-Docs: feature:DamageEffectModifyDamageValueHooks; issue:1603; tags:tactical
+/// Adds an improved version of ModifyDamageValue() that provides the states
+/// of the source weapon, source weapon, and ability state that can be used
+/// for more complex logic.
+///
+/// Additionally, the following hook in X2Effect_Persistent can be used to
+/// change the default behavior of the function for the attacker.
+/// ```unrealscript
+/// bool ChangeModifyDamageValueForAttacker(
+///         XComGameState_Effect EffectState,
+///         out int bIsImmuneToDamage,
+///         X2Effect_ApplyWeaponDamage DamageEffect,
+///         out WeaponDamageValue DamageValue,
+///         Damageable Target,
+///         out array<name> AppliedDamageTypes,
+///         XComGameState_Item SourceWeapon,
+///         XComGameState_Unit SourceUnit,
+///         XComGameState_Ability AbilityState)
+/// ```
+/// If any of the effects return `true`, base game implementation
+/// is skipped completely and the boolean value of bIsImmuneToDamage
+/// is returned instead.
+simulated function bool ModifyDamageValue_CH(out WeaponDamageValue DamageValue, Damageable Target, out array<name> AppliedDamageTypes, XComGameState_Item SourceWeapon, XComGameState_Unit SourceUnit, XComGameState_Ability AbilityState)
+{
+	local XComGameStateHistory History;
+	local StateObjectReference EffectRef;
+	local XComGameState_Effect EffectState;
+	local X2Effect_Persistent EffectTemplate;
+	local int bIsImmuneToDamage;
+
+	History = `XCOMHISTORY;
+
+	bIsImmuneToDamage = 0;
+	foreach SourceUnit.AffectedByEffects(EffectRef)
+	{
+		EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
+		EffectTemplate = EffectState.GetX2Effect();
+
+		if (EffectTemplate.ChangeModifyDamageValueForAttacker(EffectState, bIsImmuneToDamage, self, DamageValue, Target, AppliedDamageTypes, SourceWeapon, SourceUnit, AbilityState))
+		{
+			return bool(bIsImmuneToDamage);
+		}
+	}
+
+	return ModifyDamageValue(DamageValue, Target, AppliedDamageTypes);
+}
+// End Issue #1603
 
 //	returns true if the unit is completely immune to the damage
 simulated function bool ModifyDamageValue(out WeaponDamageValue DamageValue, Damageable Target, out array<Name> AppliedDamageTypes)
@@ -1736,13 +1797,15 @@ function CalculateDamageValues(XComGameState_Item SourceWeapon, XComGameState_Un
 		if (!bIgnoreBaseDamage)
 		{
 			SourceWeapon.GetBaseWeaponDamageValue(TargetUnit, DamageInfo.BaseDamageValue);
-			ModifyDamageValue(DamageInfo.BaseDamageValue, TargetUnit, AppliedDamageTypes);
+			// Single line for Issue #1603 - Use the Highlander version of ModifyDamageValue().
+			ModifyDamageValue_CH(DamageInfo.BaseDamageValue, TargetUnit, AppliedDamageTypes, SourceWeapon, SourceUnit, AbilityState);
 		}
 
 		if (DamageTag != '')
 		{
 			SourceWeapon.GetWeaponDamageValue(TargetUnit, DamageTag, DamageInfo.ExtraDamageValue);
-			ModifyDamageValue(DamageInfo.ExtraDamageValue, TargetUnit, AppliedDamageTypes);
+			// Single line for Issue #1603 - Use the Highlander version of ModifyDamageValue().
+			ModifyDamageValue_CH(DamageInfo.ExtraDamageValue, TargetUnit, AppliedDamageTypes, SourceWeapon, SourceUnit, AbilityState);
 		}
 
 		if (SourceWeapon.HasLoadedAmmo() && !bIgnoreBaseDamage)
@@ -1761,7 +1824,8 @@ function CalculateDamageValues(XComGameState_Item SourceWeapon, XComGameState_Un
 				LoadedAmmo.GetBaseWeaponDamageValue(TargetUnit, DamageInfo.AmmoDamageValue);
 			}
 
-			ModifyDamageValue(DamageInfo.AmmoDamageValue, TargetUnit, AppliedDamageTypes);
+			// Single line for Issue #1603 - Use the Highlander version of ModifyDamageValue().
+			ModifyDamageValue_CH(DamageInfo.AmmoDamageValue, TargetUnit, AppliedDamageTypes, SourceWeapon, SourceUnit, AbilityState);
 		}
 
 		if (bAllowWeaponUpgrade)
@@ -1773,7 +1837,8 @@ function CalculateDamageValues(XComGameState_Item SourceWeapon, XComGameState_Un
 				{
 					UpgradeTemplateBonusDamage = WeaponUpgradeTemplate.BonusDamage;
 
-					ModifyDamageValue(UpgradeTemplateBonusDamage, TargetUnit, AppliedDamageTypes);
+					// Single line for Issue #1603 - Use the Highlander version of ModifyDamageValue().
+					ModifyDamageValue_CH(UpgradeTemplateBonusDamage, TargetUnit, AppliedDamageTypes, SourceWeapon, SourceUnit, AbilityState);
 
 					DamageInfo.UpgradeDamageValue.Spread += UpgradeTemplateBonusDamage.Spread;
 					DamageInfo.UpgradeDamageValue.Damage += UpgradeTemplateBonusDamage.Damage;
@@ -1794,7 +1859,8 @@ function CalculateDamageValues(XComGameState_Item SourceWeapon, XComGameState_Un
 			{
 				UpgradeTemplateBonusDamage = WeaponUpgradeTemplate.CHBonusDamage;
 				
-				ModifyDamageValue(UpgradeTemplateBonusDamage, TargetUnit, AppliedDamageTypes);
+				// Single line for Issue #1603 - Use the Highlander version of ModifyDamageValue().
+				ModifyDamageValue_CH(UpgradeTemplateBonusDamage, TargetUnit, AppliedDamageTypes, SourceWeapon, SourceUnit, AbilityState);
 
 				DamageInfo.UpgradeDamageValue.Damage += UpgradeTemplateBonusDamage.Damage;
 				DamageInfo.UpgradeDamageValue.Spread += UpgradeTemplateBonusDamage.Spread;
@@ -1809,7 +1875,8 @@ function CalculateDamageValues(XComGameState_Item SourceWeapon, XComGameState_Un
 	}
 
 	DamageInfo.BonusEffectDamageValue = GetBonusEffectDamageValue(AbilityState, SourceUnit, SourceWeapon, TargetUnit.GetReference());
-	ModifyDamageValue(DamageInfo.BonusEffectDamageValue, TargetUnit, AppliedDamageTypes);
+	// Single line for Issue #1603 - Use the Highlander version of ModifyDamageValue().
+	ModifyDamageValue_CH(DamageInfo.BonusEffectDamageValue, TargetUnit, AppliedDamageTypes, SourceWeapon, SourceUnit, AbilityState);
 }
 
 defaultproperties
