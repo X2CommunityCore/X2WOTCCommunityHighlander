@@ -80,44 +80,66 @@ enum EInventorySlot
 	eInvSlot_Buffer030,
 	eInvSlot_Buffer031,
 	// again, don't use in mod code
-	eInvSlot_BEGIN_TEMPLATED_SLOTS,
-	
+	eInvSlot_BEGIN_TEMPLATED_SLOTS,	
 	// Custom slots begin here. We have space for ~220 slots, should be enough!
-	// These slots can be used in Mod code and config values
+	// These slots can be used in Mod code and config values.
+	// 2026-08-10 : BD - Added comments to indicate which modders requested the slots and 
+	// the mods mainly refer to - Users adding new custom enums should record who & why here.
+	// @Robojumper / @Musashi1584 - WotC Vest Slot - https://steamcommunity.com/sharedfiles/filedetails/?id=1293714688
 	eInvSlot_Vest,
+	// @Musashi1584 - Augmentations - https://steamcommunity.com/sharedfiles/filedetails/?id=1293725945
 	eInvSlot_AugmentationHead,
 	eInvSlot_AugmentationTorso,
 	eInvSlot_AugmentationArms,
 	eInvSlot_AugmentationLegs,
+	// @robojumper - No specific linked mod
 	eInvSlot_CombatDrugs,
+	// @Hotl3looded - No specific linked mod
 	eInvSlot_Decorations,
+	// @rcd47 - No specific linked mod
 	eInvSlot_PsiAmp,
+	// @kyuubicle - No specific linked mod
 	eInvSlot_Plating,
 	eInvSlot_SparkLauncher,
 	eInvSlot_ExtraSecondary,
+	// @NotSoLoneWolf - No specific linked mod
 	eInvSlot_PrimaryPayload,
 	eInvSlot_SecondaryPayload,
+	// @Iridar - [WOTC] Rocket Launchers 2.0 - https://steamcommunity.com/sharedfiles/filedetails/?id=1775963384
 	eInvSlot_ExtraRocket1,
 	eInvSlot_ExtraRocket2,
 	eInvSlot_ExtraRocket3,
 	eInvSlot_ExtraRocket4,
+	// @Iridar - [WOTC] Dedicated Pistol Slot 2.0 - https://steamcommunity.com/sharedfiles/filedetails/?id=1705464884
 	eInvSlot_Pistol,
+	// @Iridar - [WOTC] The Hive - https://steamcommunity.com/sharedfiles/filedetails/?id=1918499687
 	eInvSlot_Wings,
 	eInvSlot_ExtraBackpack,
+	// @Iridar - [WOTC] Iridar's SPARK Arsenal 3.2 - https://steamcommunity.com/sharedfiles/filedetails/?id=2127166233
 	eInvSlot_SparkGrenadePocket,
 	eInvSlot_AuxiliaryWeapon,
+	// @HudsonSavage - No specific linked mod
 	eInvSlot_AModMedical,
 	eInvSlot_ArmorMod,
+	// @thenitrex - Tactical Gadget Slot - https://steamcommunity.com/sharedfiles/filedetails/?id=2567009399
 	eInvSlot_TacticalGadget,
+	// @Mitzruti - Mitzruti's Perk Pack - https://steamcommunity.com/sharedfiles/filedetails/?id=1561030099
 	eInvSlot_MZAux,
+	// @Iridar - [WOTC] Iridar's Template Master - Core - https://steamcommunity.com/sharedfiles/filedetails/?id=2363075446
 	eInvSlot_TemplateMaster,
+	// @MrDangerDude - Allies Unknown Redux Species: Vipers - https://steamcommunity.com/sharedfiles/filedetails/?id=2560189445
 	eInvSlot_ViperMAW,
+	// @h4ilst0rm - Modular SPARKs WOTC - https://steamcommunity.com/sharedfiles/filedetails/?id=2784248734
 	eInvSlot_SparkComputer,
 	eInvSlot_SparkActuator,
 	eInvSlot_SparkModule,
+	// @lshtech - Extra Grenade Pockets - https://steamcommunity.com/sharedfiles/filedetails/?id=2976268190
 	eInvSlot_ExtraGrenadePocket,
+	// @ReshiMael - No specific linked mod
 	eInvSlot_ExtraLandMine,
-
+	// @JokerNewbee - Jokers Perk Pack - https://steamcommunity.com/sharedfiles/filedetails/?id=3682970768
+	eInvSlot_JokStrangeWeapon,
+	eInvSlot_JokStrangeGrenade,	
 	// Marker slot, don't use
 	eInvSlot_END_TEMPLATED_SLOTS,
 };
