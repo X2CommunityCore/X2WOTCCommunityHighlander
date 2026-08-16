@@ -14615,7 +14615,7 @@ simulated function int GetUIStatFromInventory(ECharStatType Stat, optional XComG
 
 simulated function int GetUIStatFromAbilities(ECharStatType Stat)
 {
-	local int Result, i;
+	local int Result, i, Bonus;
 	local X2AbilityTemplateManager AbilityTemplateManager;
 	local array<SoldierClassAbilityType> SoldierAbilities;
 	local X2AbilityTemplate AbilityTemplate;
@@ -14623,6 +14623,7 @@ simulated function int GetUIStatFromAbilities(ECharStatType Stat)
 	local array<X2SoldierUnlockTemplate> UnlockTemplates;
 	local X2SoldierAbilityUnlockTemplate AbilityUnlockTemplate;
 	local XComGameState_HeadquartersXCom HQ;
+	local array<X2DownloadableContentInfo> DLCInfos; // var for Issue #1605
 	
 	AbilityTemplateManager = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
 	SoldierAbilities = GetEarnedSoldierAbilities();
@@ -14654,6 +14655,16 @@ simulated function int GetUIStatFromAbilities(ECharStatType Stat)
 		}
 	}
 
+	// Start Issue #1605
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('AddArmoryUIStatMarkups');
+	for(i = 0; i < DLCInfos.Length; ++i)
+	{
+		if (DLCInfos[i].AddArmoryUIStatMarkups(Stat, Bonus, SoldierAbilities, self))
+		{
+			Result += Bonus;
+		}
+	}
+	// End Issue #1605
 	return Result;
 }
 
