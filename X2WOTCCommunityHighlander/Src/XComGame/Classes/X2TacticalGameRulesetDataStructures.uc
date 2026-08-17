@@ -140,6 +140,8 @@ enum EInventorySlot
 	// @JokerNewbee - Jokers Perk Pack - https://steamcommunity.com/sharedfiles/filedetails/?id=3682970768
 	eInvSlot_JokStrangeWeapon,
 	eInvSlot_JokStrangeGrenade,	
+	// @M3r1st - Merist's Perk Pack - https://steamcommunity.com/sharedfiles/filedetails/?id=3255703451
+	eInvSlot_OrdnancePocket,
 	// Marker slot, don't use
 	eInvSlot_END_TEMPLATED_SLOTS,
 };
