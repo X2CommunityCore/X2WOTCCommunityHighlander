@@ -680,6 +680,12 @@ function ModifyTurnStartActionPoints(XComGameState_Unit UnitState, out array<nam
 function bool AllowReactionFireCrit(XComGameState_Unit UnitState, XComGameState_Unit TargetState) { return false; }
 function ModifyReactionFireSuccess(XComGameState_Unit UnitState, XComGameState_Unit TargetState, out int Modifier);
 function bool ProvidesDamageImmunity(XComGameState_Effect EffectState, name DamageType) { return false; }
+// Start Issue #1591 - New implementation allowing the Ability name to be passed in, to give greater control of immunities
+function bool ProvidesDamageImmunity_CH(XComGameState_Effect EffectState, name DamageType, optional name AbilityName)
+{
+	return ProvidesDamageImmunity(EffectState, DamageType);
+}
+// End Issue #1591
 function ModifyGameplayVisibilityForTarget(out GameRulesCache_VisibilityInfo InOutVisibilityInfo, XComGameState_Unit SourceUnit, XComGameState_Unit TargetUnit);
 function bool PostAbilityCostPaid(XComGameState_Effect EffectState, XComGameStateContext_Ability AbilityContext, XComGameState_Ability kAbility, XComGameState_Unit SourceUnit, XComGameState_Item AffectWeapon, XComGameState NewGameState, const array<name> PreCostActionPoints, const array<name> PreCostReservePoints) { return false; }
 function GetStatCheckModToSuccessCheck(XComGameState_Effect EffectState, XComGameState_Unit UnitState, XComGameState_Ability AbilityState, out int Successes);
@@ -687,6 +693,12 @@ function bool RetainIndividualConcealment(XComGameState_Effect EffectState, XCom
 function bool DoesEffectAllowUnitToBleedOut(XComGameState_Unit UnitState) { return true; }
 function bool DoesEffectAllowUnitToBeLooted(XComGameState NewGameState, XComGameState_Unit UnitState) { return true; }
 function bool CanAbilityHitUnit(name AbilityName) { return true; }
+// Start Issue #1591 - New implementation allowing the Ability Context & Effect state to be passed in, allowing mods greater control of hit logic
+function bool CanAbilityHitUnit_CH(name AbilityName, optional XComGameStateContext_Ability AbilityContext, optional XComGameState_Effect EffectState)
+{
+	return CanAbilityHitUnit(AbilityName);
+}
+// End Issue #1591
 function bool PreDeathCheck(XComGameState NewGameState, XComGameState_Unit UnitState, XComGameState_Effect EffectState) { return false; }
 function bool PreBleedoutCheck(XComGameState NewGameState, XComGameState_Unit UnitState, XComGameState_Effect EffectState) { return false; }
 function bool ForcesBleedout(XComGameState NewGameState, XComGameState_Unit UnitState, XComGameState_Effect EffectState) { return bEffectForcesBleedout; }

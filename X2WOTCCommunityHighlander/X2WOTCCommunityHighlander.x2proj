@@ -685,6 +685,9 @@
     <Content Include="Src\XComGame\Classes\X2Effect_SpawnDestructible.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Effect_Stasis.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Effect_Sustain.uc">
       <SubType>Content</SubType>
     </Content>

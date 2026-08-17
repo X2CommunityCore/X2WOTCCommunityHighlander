@@ -10,6 +10,9 @@ class X2Effect_ApplyWeaponDamage extends X2Effect config(GameCore);
 var bool    bExplosiveDamage;
 var bool    bIgnoreBaseDamage;
 var name    DamageTag;
+// Start Issue #1591
+var protected name CurrentAbilityNameForImmunityCheck;
+// End Issue #1591
 var bool    bAlwaysKillsCivilians;
 var bool    bApplyWorldEffectsForEachTargetLocation;
 var bool	bAllowFreeKill;
@@ -412,6 +415,10 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 	else
 		SourceWeapon = AbilityState.GetSourceWeapon();
 
+	// Start Issue #1591
+	CurrentAbilityNameForImmunityCheck = AbilityState.GetMyTemplateName();
+	// End Issue #1591
+
 	TargetUnit = XComGameState_Unit(History.GetGameStateForObjectID(TargetRef.ObjectID));
 	SourceUnit = XComGameState_Unit(History.GetGameStateForObjectID(AbilityState.OwnerStateObject.ObjectID));
 
@@ -431,8 +438,18 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 		}
 		foreach DamageTypes(DamageType)
 		{
-			if (TargetUnit.IsImmuneToDamage(DamageType))
-				return;
+			// Start Issue #1591
+			if (class'CHHelpers'.default.bEnableImprovedCanHitAndImmunityLogic)
+			{
+				if (TargetUnit.IsImmuneToDamage_CH(DamageType, CurrentAbilityNameForImmunityCheck))
+					return;
+			}
+			else
+			{
+				if (TargetUnit.IsImmuneToDamage(DamageType))
+					return;
+			}
+			// End Issue #1591
 		}
 	}
 	
@@ -864,6 +881,9 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 	kTarget = Damageable(History.GetGameStateForObjectID(ApplyEffectParameters.TargetStateObjectRef.ObjectID));
 	kDestructibleActorTarget = XComDestructibleActor(History.GetVisualizer(ApplyEffectParameters.TargetStateObjectRef.ObjectID));
 	kAbility = XComGameState_Ability(History.GetGameStateForObjectID(ApplyEffectParameters.AbilityStateObjectRef.ObjectID));
+	// Start Issue #1591
+	CurrentAbilityNameForImmunityCheck = (kAbility != none) ? kAbility.GetMyTemplateName() : '';
+	// End Issue #1591
 	if (kAbility != none && kAbility.SourceAmmo.ObjectID > 0)
 		kSourceItem = XComGameState_Item(History.GetGameStateForObjectID(kAbility.SourceAmmo.ObjectID));		
 	else
@@ -1286,10 +1306,25 @@ simulated function int CalculateDamageAmount(const out EffectAppliedData ApplyEf
 simulated function bool ModifyDamageValue(out WeaponDamageValue DamageValue, Damageable Target, out array<Name> AppliedDamageTypes)
 {
 	local WeaponDamageValue EmptyDamageValue;
+	// Start Issue #1591
+	local XComGameState_Unit TargetUnit;
+	local bool bImmune;
+	// End Issue #1591
 
 	if( Target != None )
 	{
-		if( Target.IsImmuneToDamage(DamageValue.DamageType) )
+		// Start Issue #1591
+		TargetUnit = XComGameState_Unit(Target);
+		if (TargetUnit != none && class'CHHelpers'.default.bEnableImprovedCanHitAndImmunityLogic)
+		{
+			bImmune = TargetUnit.IsImmuneToDamage_CH(DamageValue.DamageType, CurrentAbilityNameForImmunityCheck);
+		}
+		else
+		{
+			bImmune = Target.IsImmuneToDamage(DamageValue.DamageType);
+		}
+		if(bImmune)
+		// End Issue #1591
 		{
 			`log("Target is immune to damage type" @ DamageValue.DamageType $ "!", true, 'XCom_HitRolls');
 			DamageValue = EmptyDamageValue;
@@ -1731,6 +1766,10 @@ function CalculateDamageValues(XComGameState_Item SourceWeapon, XComGameState_Un
 	local X2WeaponUpgradeTemplate WeaponUpgradeTemplate;
 	local X2AmmoTemplate AmmoTemplate;
 	
+	// Start Issue #1591
+	CurrentAbilityNameForImmunityCheck = (AbilityState != none) ? AbilityState.GetMyTemplateName() : '';
+	// End Issue #1591
+
 	if (SourceWeapon != None)
 	{
 		if (!bIgnoreBaseDamage)
