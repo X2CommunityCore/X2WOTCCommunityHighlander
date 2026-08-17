@@ -670,6 +670,10 @@ function int GetAttackingDamageModifier_CH(XComGameState_Effect EffectState, XCo
 }
 // End Issue #1305
 
+// Start Issue #1603
+function bool ChangeModifyDamageValueForAttacker(XComGameState_Effect EffectState, out int bIsImmuneToDamage, X2Effect_ApplyWeaponDamage WeaponDamageEffect, out WeaponDamageValue DamageValue, Damageable Target, out array<name> AppliedDamageTypes, XComGameState_Item SourceWeapon, XComGameState_Unit SourceUnit, XComGameState_Ability AbilityState) { return false; }
+// End Issue #1603
+
 function int GetAttackingDamageModifier(XComGameState_Effect EffectState, XComGameState_Unit Attacker, Damageable TargetDamageable, XComGameState_Ability AbilityState, const out EffectAppliedData AppliedData, const int CurrentDamage, optional XComGameState NewGameState) { return 0; }
 function int GetDefendingDamageModifier(XComGameState_Effect EffectState, XComGameState_Unit Attacker, Damageable TargetDamageable, XComGameState_Ability AbilityState, const out EffectAppliedData AppliedData, const int CurrentDamage, X2Effect_ApplyWeaponDamage WeaponDamageEffect, optional XComGameState NewGameState) { return 0; }
 function int GetBaseDefendingDamageModifier(XComGameState_Effect EffectState, XComGameState_Unit Attacker, Damageable TargetDamageable, XComGameState_Ability AbilityState, const out EffectAppliedData AppliedData, const int BaseDamage, X2Effect_ApplyWeaponDamage WeaponDamageEffect, optional XComGameState NewGameState) { return 0; }
