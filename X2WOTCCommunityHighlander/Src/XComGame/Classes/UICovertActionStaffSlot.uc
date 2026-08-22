@@ -75,7 +75,7 @@ function UpdateData()
 
 	if( RewardState != None && !ActionState.bCompleted)
 	{
-		Value = RewardState.GetRewardPreviewString();
+		Value = TriggerOverrideCovertActionRewardString(RewardState, StaffSlotState, true); // Issue #1379
 		if( Value != "" && RewardState.GetMyTemplateName() != 'Reward_DecreaseRisk')
 		{
 			Value = class'UIUtilities_Text'.static.GetColoredText(m_strSoldierReward @ Value, eUIState_Good);
@@ -184,12 +184,12 @@ function UpdateData()
 						ParamTag = XGParamTag(`XEXPANDCONTEXT.FindTag("XGParam"));
 						ParamTag.StrValue0 = CohesionUnitNames;
 						Value2 = `XEXPAND.ExpandString(m_strGainedCohesion); // Cohesion increased
-						Value3 = (RewardState != none) ? RewardState.GetRewardString() : "";
+						Value3 = (RewardState != none) ? TriggerOverrideCovertActionRewardString(RewardState, StaffSlotState, false) : ""; // Issue #1379
 					}
 					else
 					{
 						// If there are no other soldiers on the CA for cohesion, bump the reward info to the second line
-						Value2 = (RewardState != none) ? RewardState.GetRewardString() : "";
+						Value2 = (RewardState != none) ? TriggerOverrideCovertActionRewardString(RewardState, StaffSlotState, false) : ""; // Issue #1379
 					}
 				}
 			}
@@ -345,5 +345,51 @@ function ReassignStaff(StaffUnitInfo UnitInfo)
 
 	UpdateDisplay();
 }
+
+// Start Issue #1379
+/// HL-Docs: feature:OverrideCovertActionRewardString; issue:1379; tags:strategy,ui
+/// Fires an event that allows mods to override the reward string shown on an
+/// individual Covert Action staff slot, covering both the preview shown while the
+/// action can still be staffed and the string shown once the action has completed.
+///
+/// `bPreview` is `true` for the preview string (`GetRewardPreviewString`) and
+/// `false` for the completion string (`GetRewardString`). Setting `RewardString`
+/// to the empty string suppresses the slot's reward line entirely, including the
+/// `m_strSoldierReward` label and its coloring.
+///
+/// `StaffSlotState` is the slot the reward belongs to
+///
+/// ```event
+/// EventID: OverrideCovertActionRewardString,
+/// EventData: [
+///     in XComGameState_Reward RewardState,
+///     in XComGameState_StaffSlot StaffSlotState,
+///     in bool bPreview,
+///     inout string RewardString
+/// ],
+/// EventSource: UICovertActionStaffSlot (SlotUI),
+/// NewGameState: none
+/// ```
+simulated private function string TriggerOverrideCovertActionRewardString(XComGameState_Reward RewardState, XComGameState_StaffSlot StaffSlotState, bool bPreview)
+{
+	local XComLWTuple Tuple;
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverrideCovertActionRewardString';
+	Tuple.Data.Add(4);
+	Tuple.Data[0].kind = XComLWTVObject;
+	Tuple.Data[0].o = RewardState;
+	Tuple.Data[1].kind = XComLWTVObject;
+	Tuple.Data[1].o = StaffSlotState;
+	Tuple.Data[2].kind = XComLWTVBool;
+	Tuple.Data[2].b = bPreview;
+	Tuple.Data[3].kind = XComLWTVString;
+	Tuple.Data[3].s = bPreview ? RewardState.GetRewardPreviewString() : RewardState.GetRewardString();
+
+	`XEVENTMGR.TriggerEvent('OverrideCovertActionRewardString', Tuple, self);
+
+	return Tuple.Data[3].s;
+}
+// End Issue #1379
 
 //==============================================================================
