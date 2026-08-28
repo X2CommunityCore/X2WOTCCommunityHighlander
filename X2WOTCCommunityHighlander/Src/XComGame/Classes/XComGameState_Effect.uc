@@ -493,7 +493,28 @@ function RemoveEffect(XComGameState NewGameState, XComGameState VisualizeWithGam
 		NewGameState.GetContext().SetDesiredVisualizationBlockIndex(VisualizeWithGameState.HistoryIndex);
 	}
 
+	// Start Issue #1576
+	/// HL-Docs: feature:PersistentEffectRemovedEvents; issue:1576; tags:tactical
+	/// Adds two events to `XComGameState_Effect::RemoveEffect()`.
+	/// Event `PrePersistentEffectRemoved` is triggered right before OnEffectRemoved() is called.
+	/// ```unrealscript
+	/// EventID: PrePersistentEffectRemoved
+	/// EventData: XComGameState_Effect NewEffectState
+	///	EventSource: XComGameState_Unit NewTargetState
+	/// NewGameState: yes
+	/// ```
+	/// Event `PostPersistentEffectRemoved` is triggered right after OnEffectRemoved() is called.
+	/// ```unrealscript
+	/// EventID: PostPersistentEffectRemoved
+	/// EventData: XComGameState_Effect NewEffectState
+	///	EventSource: XComGameState_Unit NewTargetState
+	/// NewGameState: yes
+	/// ```
+	/// Listeners for these events should use ELD_Immediate deferral.
+	EventManager.TriggerEvent('PrePersistentEffectRemoved', self, NewTargetState, NewGameState);
 	EffectTemplate.OnEffectRemoved( ApplyEffectParameters, NewGameState, bCleansed, self );
+	EventManager.TriggerEvent('PostPersistentEffectRemoved', self, NewTargetState, NewGameState);
+	// End Issue #1576
 
 	if (NewTargetState != none)
 	{
