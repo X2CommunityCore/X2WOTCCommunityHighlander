@@ -130,7 +130,8 @@ simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffe
 						EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
 						if (EffectState != none)
 						{
-							if (EffectState.GetX2Effect().FreeKillOnDamage(SourceUnit, TargetUnit, NewGameState, TotalToKill, ApplyEffectParameters))
+							// Single line for Issue #1615 
+							if (EffectState.GetX2Effect().FreeKillOnDamage_CH(SourceUnit, TargetUnit, NewGameState, TotalToKill, ApplyEffectParameters, AppliedDamageTypes, iDamage, iMitigated, NewShred, NewRupture, bDoesDamageIgnoreShields))
 							{
 								TargetUnit.TakeEffectDamage(self, TotalToKill, 0, NewShred, ApplyEffectParameters, NewGameState, false, false, true, AppliedDamageTypes, SpecialDamageMessages);
 								if (TargetUnit.IsAlive())
