@@ -2009,14 +2009,23 @@ simulated function array<UISummary_ItemStat> GetUISummary_WeaponStats(optional X
 	if (PopulateWeaponStat(GetItemCritChance(), UpgradeStats.bIsCritModified, UpgradeStats.Crit, Item, true))
 		Stats.AddItem(Item);
 
+	// Start Issue #1557
+	/// HL-Docs: ref:Bugfixes; issue:1557
+	/// Don't hide aim for weapon UI even if excluded from stat boosts
 	// Ensure that any items which are excluded from stat boosts show values that show up in the Soldier Header
-	if (class'UISoldierHeader'.default.EquipmentExcludedFromStatBoosts.Find(m_ItemTemplate.DataName) == INDEX_NONE)
-	{
-		// Aim -------------------------------------------------------------------------
-		Item.Label = class'XLocalizedData'.default.AimLabel;
-		if (PopulateWeaponStat(GetItemAimModifier(), UpgradeStats.bIsAimModified, UpgradeStats.Aim, Item, true))
-			Stats.AddItem(Item);
-	}
+	// if (class'UISoldierHeader'.default.EquipmentExcludedFromStatBoosts.Find(m_ItemTemplate.DataName) == INDEX_NONE)
+	// {
+	// 	// Aim -------------------------------------------------------------------------
+	// 	Item.Label = class'XLocalizedData'.default.AimLabel;
+	// 	if (PopulateWeaponStat(GetItemAimModifier(), UpgradeStats.bIsAimModified, UpgradeStats.Aim, Item, true))
+	// 		Stats.AddItem(Item);
+	// }
+
+	// Aim -------------------------------------------------------------------------
+	Item.Label = class'XLocalizedData'.default.AimLabel;
+	if (PopulateWeaponStat(GetItemAimModifier(), UpgradeStats.bIsAimModified, UpgradeStats.Aim, Item, true))
+		Stats.AddItem(Item);
+	// End Issue #1557
 
 	// Issue #237 start
 	// Pierce -------------------------------------------------------------------------
