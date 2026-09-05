@@ -711,6 +711,15 @@ function      AdjustEffectDuration(const out EffectAppliedData ApplyEffectParame
 function Actor GetProjectileVolleyTemplate(XComGameState_Unit UnitState, XComGameState_Effect EffectState, XComGameStateContext_Ability AbilityContext) { return none; }
 function bool AdjustSuperConcealModifier(XComGameState_Unit UnitState, XComGameState_Effect EffectState, XComGameState_Ability AbilityState, XComGameState RespondToGameState, const int BaseModifier, out int CurrentModifier) { return false; }
 function bool FreeKillOnDamage(XComGameState_Unit Shooter, XComGameState_Unit Target, XComGameState GameState, const int ToKillTarget, const out EffectAppliedData ApplyEffectParameters) { return false; }
+// Start Issue #1615
+/// HL-Docs: feature:ImprovedFreeKillOnDamageHook; issue:1615; tags:tactical
+/// Adds an improved version of FreeKillOnDamage() that provides
+/// additional arguments related to the calculated damage value.
+function bool FreeKillOnDamage_CH(XComGameState_Unit Shooter, XComGameState_Unit Target, XComGameState NewGameState, const int ToKillTarget, const out EffectAppliedData ApplyEffectParameters, const out array<name> AppliedDamageTypes, const int iDamage, const int iMitigated, const int NewShred, const int NewRupture, bool bDoesDamageIgnoreShields)
+{
+	return FreeKillOnDamage(Shooter, Target, NewGameState, ToKillTarget, ApplyEffectParameters);
+}
+// End Issue #1615
 function bool GrantsFreeActionPointForApplyCost(XComGameStateContext_Ability AbilityContext, XComGameState_Unit Shooter, XComGameState_Unit Target, XComGameState GameState) { return false; }
 function bool GrantsFreeActionPoint_Target(XComGameStateContext_Ability AbilityContext, XComGameState_Unit Shooter, XComGameState_Unit Target, XComGameState GameState) { return false; }
 function bool ImmediateSelectNextTarget(XComGameStateContext_Ability AbilityContext, XComGameState_Unit Target) { return false; }
