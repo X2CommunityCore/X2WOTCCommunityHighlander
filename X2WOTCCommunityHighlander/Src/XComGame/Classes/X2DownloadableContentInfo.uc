@@ -970,3 +970,34 @@ static function OverrideLightingMap(out array<EnvironmentLightingDefinition> Ove
 {
 }
 // End Issue #1535
+
+// Start Issue #1605
+/// HL Docs: feature:AddArmoryUIStatMarkups; issue:1605; tags:strategy,ui
+/// Called from `XComGameState_Unit::GetUIStatFromAbilities`
+/// Allows for mods to add conditional UIStatMarkups to be displayed in the Armory screen. 
+/// It should return `true` when a UIStatMarkup should be displayed; where the displayed value will be modified by the amount passed along in the `Result` parameter
+/// Usage example:
+/// ```unrealscript
+/// static function bool AddArmoryUIStatMarkups(const ECharStatType Stat, out int Result, const array<SoldierClassAbilityType> SoldierAbilities, const XComGameState_Unit UnitState)
+/// {
+///		local XComGameState_Item ArmorItem;
+///		
+///		if (Stat == eStat_Mobility
+///			&& SoldierAbilities.Find('AbilityName', 'AbilityWithMobBoostWhenUsingLightArmor') != INDEX_NONE)
+///		{
+///			ArmorItem = GetItemInSlot(eInvSlot_Armor, CheckGameState);
+///			if (ArmorItem != none
+///				&& X2ArmorTemplate(ArmorItem.GetMyTemplate()) != none
+///				&& X2ArmorTemplate(ArmorItem.GetMyTemplate()).ArmorClass == 'light')
+///			{
+///				Result = 2;
+///				return true;
+///			}
+///		}
+///		
+///		return false;
+/// }
+static function bool AddArmoryUIStatMarkups(const ECharStatType Stat, out int Result, const array<SoldierClassAbilityType> SoldierAbilities, const XComGameState_Unit UnitState)
+{
+}
+// End Issue #1605
