@@ -231,6 +231,7 @@ function OnEndTacticalPlay(XComGameState NewGameState)
 	local XComGameStateHistory History;
 	local XComGameState_HeadquartersXCom XComHQ;
 	local XComGameState_Unit RulerState, UnitState;
+	local XComGameState_Unit RulerTacticalUnit; // Variable for Issue #1609
 	local StateObjectReference EmptyRef;
 	local XComGameState_AIPlayerData AIPlayerData;
 	local XComGameState_AIGroup AIGroup;
@@ -274,6 +275,8 @@ function OnEndTacticalPlay(XComGameState NewGameState)
 
 					if (UnitState != none && UnitState.GetMyTemplateName() == RulerState.GetMyTemplateName())
 					{
+						RulerTacticalUnit = UnitState; // Single line for Issue #1609
+
 						RulerState.SetCurrentStat(eStat_HP, UnitState.GetCurrentStat(eStat_HP));
 						RulerState.SetCurrentStat(eStat_ArmorMitigation, max(UnitState.GetCurrentStat(eStat_ArmorMitigation) - UnitState.Shredded, 0));
 
@@ -316,6 +319,8 @@ function OnEndTacticalPlay(XComGameState NewGameState)
 			bRulerEscaped = true;
 		}
 
+		TriggerPostRulerTacticalTransfer(NewGameState, RulerTacticalUnit, RulerState); // Single line for Issue #1609
+
 		// Reset current mission ruler and mission counter
 		ClearActiveRulerTags(XComHQ);
 		RulerOnCurrentMission = EmptyRef;
@@ -327,6 +332,45 @@ function OnEndTacticalPlay(XComGameState NewGameState)
 	MissionsSinceLastRuler++;
 	RulerAppearRoll = `SYNC_RAND_STATIC(100);
 }
+
+// Start issue #1609
+/// HL-Docs: feature:PostRulerTacticalTransfer; issue:1609; tags:strategy,dlc2
+/// Fires at the end of tactical play once the vanilla code has finished updating the persistent
+/// ruler state: current HP and armor are copied over from the tactical unit and, if the ruler
+/// was not killed, the `NumEscapes` and `EscapeHealth` unit values are updated. Listeners get
+/// the final say on the persisted stats and unit values.
+///
+/// The event fires both when the ruler was killed and when it escaped - use `UnitState.IsDead()`
+/// or the `bRulerDefeated`/`bRulerEscaped` flags on the event source to tell the outcomes apart.
+///
+/// `RulerState` is the persistent ruler unit and belongs to the pending `NewGameState`, so
+/// `ELD_Immediate` listeners may modify it directly.
+///
+/// `UnitState` is the unit that took part in the tactical mission, read from the history.
+/// It may be `none` if the ruler was not found among the tactical units (vanilla treats
+/// that case as an escape).
+///
+/// ```event
+/// EventID: PostRulerTacticalTransfer,
+/// EventData: [in XComGameState_Unit UnitState, in XComGameState_Unit RulerState],
+/// EventSource: XComGameState_AlienRulerManager (AlienRulerManager),
+/// NewGameState: yes
+/// ```
+private function TriggerPostRulerTacticalTransfer(XComGameState NewGameState, XComGameState_Unit UnitState, XComGameState_Unit RulerState)
+{
+	local XComLWTuple OverrideTuple;
+
+	OverrideTuple = new class'XComLWTuple';
+	OverrideTuple.Id = 'PostRulerTacticalTransfer';
+	OverrideTuple.Data.Add(2);
+	OverrideTuple.Data[0].Kind = XComLWTVObject;
+	OverrideTuple.Data[0].o = UnitState;
+	OverrideTuple.Data[1].Kind = XComLWTVObject;
+	OverrideTuple.Data[1].o = RulerState;
+
+	`XEVENTMGR.TriggerEvent('PostRulerTacticalTransfer', OverrideTuple, self, NewGameState);
+}
+// End issue #1609
 
 //---------------------------------------------------------------------------------------
 static function PostMissionUpdate(XComGameState NewGameState)
