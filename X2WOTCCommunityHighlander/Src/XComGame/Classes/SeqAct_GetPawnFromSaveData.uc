@@ -66,7 +66,8 @@ event Activated()
 
 		foreach SearchState.IterateByClassType(class'XComGameState_Unit', UnitState)
 		{
-			if (UnitState.IsSoldier() && UnitState.GetMyTemplateName() != 'SparkSoldier' && UnitState.IsAlive()) //Only soldiers... that are alive
+			// Single line for Issue #1613 - Also exclude LostTowersSpark
+			if (UnitState.IsSoldier() && UnitState.IsAlive() && UnitState.GetMyTemplateName() != 'SparkSoldier' && UnitState.GetMyTemplateName() != 'LostTowersSpark') //Only soldiers... that are alive
 			{
 				//Skip over this soldier if we are looking for a specific one
 				if (ChosenSoldierName != "")
