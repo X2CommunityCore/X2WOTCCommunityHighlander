@@ -55,7 +55,7 @@ simulated function ChooseAnims()
 {
 	if (m_bAscending)
 	{
-		if (m_kLadder.nLadderType == 'Ladder' || m_kLadder.nLadderType == 'Vine')
+		if (m_kLadder.nLadderType == 'Ladder' || m_kLadder.nLadderType == 'Vine' || m_kLadder.nLadderType == 'AlienLift') // Issue #1618 - add AlienLift
 		{
 			m_StartAnim = 'MV_ClimbLadderUp_StartA';
 			m_LoopAnim = 'MV_ClimbLadderUp_LoopA';
@@ -70,7 +70,7 @@ simulated function ChooseAnims()
 	}
 	else
 	{		
-		if (m_kLadder.nLadderType == 'Ladder' || m_kLadder.nLadderType == 'Vine')
+		if (m_kLadder.nLadderType == 'Ladder' || m_kLadder.nLadderType == 'Vine' || m_kLadder.nLadderType == 'AlienLift') // Issue #1618 - add AlienLift
 		{
 			m_StartAnim = 'MV_ClimbLadderDwn_StartA';
 			m_LoopAnim = 'MV_ClimbLadderDwn_LoopA';
@@ -99,6 +99,11 @@ simulated function ChooseSoundEffects()
 			// Yes, the Pipes use the Ladder Audio switch.  mdomowicz 2015_08_05
 			UnitPawn.SetSwitch('Climb_Grabs', 'Ladder');
 			break;
+		// Start Issue #1618
+		case 'AlienLift':
+			UnitPawn.SetSwitch('Climb_Grabs', 'Ladder');
+			break;
+		// End Issue #1618
 	}
 }
 
@@ -115,6 +120,31 @@ Begin:
 	UnitPawn.bSkipIK = true;
 	UnitPawn.EnableRMA(true, true);
 	UnitPawn.EnableRMAInteractPhysics(true);
+
+	// Start Issue #1618
+	if(m_kLadder.nLadderType == 'AlienLift')
+	{
+		if(m_kLadder.AlienAirLiftPSC != None)
+		{
+			m_kLadder.AlienAirLiftPSC.SetActive(false);
+		}
+
+		if(m_kLadder.AlienAirLiftUpFX != None && m_kLadder.AlienAirLiftDownFX != None)
+		{
+			if(m_bAscending)
+			{
+				m_kLadder.AlienAirLiftPSC = WorldInfo.MyEmitterPool.SpawnEmitter(m_kLadder.AlienAirLiftUpFX, m_kLadder.Location, m_kLadder.Rotation);
+			}
+			else
+			{
+				m_kLadder.AlienAirLiftPSC = WorldInfo.MyEmitterPool.SpawnEmitter(m_kLadder.AlienAirLiftDownFX, m_kLadder.Location, m_kLadder.Rotation);
+			}
+
+			m_kLadder.AlienAirLiftPSC.SetFloatParameter('Height', fLadderHeight);
+			m_kLadder.AlienAirLiftPSC.SetActive(true);
+		}
+	}
+	// End Issue #1618
 
 	// Start
 	AnimParams.AnimName = m_StartAnim;
@@ -155,6 +185,16 @@ Begin:
 	AnimParams.DesiredEndingAtoms[0].Rotation = QuatFromRotator(rotator(NewDirection));
 	AnimParams.DesiredEndingAtoms[0].Scale = 1.0f;
 	FinishAnim(UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams));
+
+	// Start Issue #1618
+	if(m_kLadder.nLadderType == 'AlienLift')
+	{
+		if(m_kLadder.AlienAirLiftPSC != None)
+		{
+			m_kLadder.AlienAirLiftPSC.SetActive(false);
+		}
+	}
+	// End Issue #1618
 
 	UnitPawn.Acceleration = Vect(0, 0, 0);
 	UnitPawn.vMoveDirection = Vect(0, 0, 0);
