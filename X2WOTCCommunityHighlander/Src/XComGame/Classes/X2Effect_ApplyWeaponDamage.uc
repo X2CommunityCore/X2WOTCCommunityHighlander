@@ -22,6 +22,9 @@ var bool    bIgnoreArmor;
 var bool	bBypassSustainEffects;
 var array<name> HideVisualizationOfResultsAdditional;
 
+// Issue #1620
+var transient protectedwrite bool bDamageIsFreeKill;
+
 // Issue #321
 var config bool NO_MINIMUM_DAMAGE;
 // Issue #743
@@ -95,7 +98,11 @@ simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffe
 			if (TargetUnit != none)
 			{
 				TotalToKill = TargetUnit.GetCurrentStat(eStat_HP) + TargetUnit.GetCurrentStat(eStat_ShieldHP);
-				if (TotalToKill > iDamage)
+				// Issue #1620
+				/// HL-Docs: ref:Bugfixes; issue:1620
+				/// Make FreeKill functions apply regardless of the current damage, and bypass sustaining effects.
+				// if (TotalToKill > iDamage)
+				if (TotalToKill > 0)
 				{
 					History = `XCOMHISTORY;
 					//  check weapon upgrades for a free kill
@@ -107,7 +114,11 @@ simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffe
 						{
 							if (WeaponUpgradeTemplate.FreeKillFn != none && WeaponUpgradeTemplate.FreeKillFn(WeaponUpgradeTemplate, TargetUnit))
 							{
+								// Start Issue #1620
+								bDamageIsFreeKill = true;
 								TargetUnit.TakeEffectDamage(self, TotalToKill, 0, NewShred, ApplyEffectParameters, NewGameState, false, false, true, AppliedDamageTypes, SpecialDamageMessages);
+								bDamageIsFreeKill = false;
+								// End Issue #1620
 								if (TargetUnit.IsAlive())
 								{
 									`RedScreen("Somehow free kill upgrade failed to kill the target! -jbouscher @gameplay");
@@ -133,7 +144,11 @@ simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffe
 							// Single line for Issue #1615 
 							if (EffectState.GetX2Effect().FreeKillOnDamage_CH(SourceUnit, TargetUnit, NewGameState, TotalToKill, ApplyEffectParameters, AppliedDamageTypes, iDamage, iMitigated, NewShred, NewRupture, bDoesDamageIgnoreShields))
 							{
+								// Start Issue #1620
+								bDamageIsFreeKill = true;
 								TargetUnit.TakeEffectDamage(self, TotalToKill, 0, NewShred, ApplyEffectParameters, NewGameState, false, false, true, AppliedDamageTypes, SpecialDamageMessages);
+								bDamageIsFreeKill = false;
+								// End Issue #1620
 								if (TargetUnit.IsAlive())
 								{
 									`RedScreen("Somehow free kill effect failed to kill the target! -jbouscher @gameplay");
