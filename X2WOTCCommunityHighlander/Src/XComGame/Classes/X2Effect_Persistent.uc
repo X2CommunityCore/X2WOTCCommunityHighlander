@@ -683,6 +683,15 @@ function int GetConditionalExtraShredValue(int UnconditionalShred, XComGameState
 function ModifyTurnStartActionPoints(XComGameState_Unit UnitState, out array<name> ActionPoints, XComGameState_Effect EffectState);
 function bool AllowReactionFireCrit(XComGameState_Unit UnitState, XComGameState_Unit TargetState) { return false; }
 function ModifyReactionFireSuccess(XComGameState_Unit UnitState, XComGameState_Unit TargetState, out int Modifier);
+// Start Issue #1622
+/// HL-Docs: feature:ImprovedModifyReactionFireSuccessHook; issue:1622; tags:tactical
+/// Adds `AddReactionFlatModifier_CH()` that passes the ability state from the hitcalc and
+/// `ModifyReactionFireSuccess_CH()` that provides the effect state and the passed ability state.
+function ModifyReactionFireSuccess_CH(XComGameState_Effect EffectState, XComGameState_Ability AbilityState, XComGameState_Unit UnitState, XComGameState_Unit TargetState, out int Modifier)
+{
+	ModifyReactionFireSuccess(UnitState, TargetState, Modifier);
+}
+// End Issue #1622
 function bool ProvidesDamageImmunity(XComGameState_Effect EffectState, name DamageType) { return false; }
 // Start Issue #1591 - New implementation allowing the Ability name to be passed in, to give greater control of immunities
 function bool ProvidesDamageImmunity_CH(XComGameState_Effect EffectState, name DamageType, optional name AbilityName)
