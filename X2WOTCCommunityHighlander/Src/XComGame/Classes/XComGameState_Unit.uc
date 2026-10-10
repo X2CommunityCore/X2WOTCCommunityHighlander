@@ -6638,7 +6638,8 @@ event TakeDamage( XComGameState NewGameState, const int DamageAmount, const int 
 
 		if (bForceBleedOut || (bAllowBleedout && ShouldBleedOut( -OverkillDamage )))
 		{
-			if( DamageEffect == None || !DamageEffect.bBypassSustainEffects )
+			// Single line for Issue #1620
+			if( DamageEffect == None || (!DamageEffect.bBypassSustainEffects && !DamageEffect.bDamageIsFreeKill) )
 			{
 				if( `CHEATMGR == none || !`CHEATMGR.bSkipPreDeathCheckEffects )
 				{
@@ -6671,7 +6672,8 @@ event TakeDamage( XComGameState NewGameState, const int DamageAmount, const int 
 			}
 		}
 
-		if( DamageEffect == None || !DamageEffect.bBypassSustainEffects )
+		// Single line for Issue #1620
+		if( DamageEffect == None || (!DamageEffect.bBypassSustainEffects && !DamageEffect.bDamageIsFreeKill) )
 		{
 			if( `CHEATMGR == none || !`CHEATMGR.bSkipPreDeathCheckEffects )
 			{
