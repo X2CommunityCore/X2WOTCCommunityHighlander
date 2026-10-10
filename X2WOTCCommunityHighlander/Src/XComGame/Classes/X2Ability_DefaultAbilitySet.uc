@@ -3203,10 +3203,11 @@ simulated function XComGameState HotLoadAmmo_BuildGameState(XComGameStateContext
 	NewWeaponState = XComGameState_Item(NewGameState.ModifyStateObject(class'XComGameState_Item', WeaponState.ObjectID));
 	WeaponTemplate = X2WeaponTemplate(WeaponState.GetMyTemplate());
 
-	// Start Issue #393
-	// Reset weapon's ammo before further modificiations
-	NewWeaponState.Ammo = NewWeaponState.GetClipSize();
-	// End Issue #393
+	// Issue #1624: no longer needed
+	//	// Start Issue #393
+	//	// Reset weapon's ammo before further modificiations
+	//	NewWeaponState.Ammo = NewWeaponState.GetClipSize();
+	//	// End Issue #393
 
 	// Start Issue #171
 	UtilityItems = UnitState.GetAllInventoryItems(, true);
@@ -3224,8 +3225,16 @@ simulated function XComGameState HotLoadAmmo_BuildGameState(XComGameStateContext
 	if (FoundAmmo)
 	{
 		NewWeaponState.LoadedAmmo = AmmoState.GetReference();
-		NewWeaponState.Ammo += AmmoState.GetClipSize();
+		// Issue #1624: no longer needed
+		//	NewWeaponState.Ammo += AmmoState.GetClipSize();
 	}
+	
+	// Start Issue #1624
+	/// HL-Docs: ref:Bugfixes; issue:1624
+	/// Only call NewWeaponState.GetClipSize() once, after setting NewWeaponState.LoadedAmmo with the appropriate
+	/// ammo. GetClipSize() has handling for adding the ammo modification built-in, once it's been loaded.
+	NewWeaponState.Ammo = NewWeaponState.GetClipSize();
+	// End Issue #1624
 
 	return NewGameState;
 }
