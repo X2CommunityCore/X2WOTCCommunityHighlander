@@ -202,11 +202,14 @@ function OnBeginTacticalPlay(XComGameState NewGameState)
 {
 	// Variable for Issue #1624
 	local XComGameState_BattleData	BattleData;
+	local X2WeaponTemplate			WeaponTemplate;
 	
 	// Start Issue #1624
-	// Add in extra call of GetClipSize(), but only if it isn't a tactical<>tactical transfer
+	// Add in extra call of GetClipSize(), but only if it isn't a tactical<>tactical transfer 
+	// and if the Weapon's ammo wasn't already merged
 	BattleData = XComGameState_BattleData(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
-	if (
+	WeaponTemplate = X2WeaponTemplate(GetMyTemplate());
+	if (!(WeaponTemplate != none && WeaponTemplate.bMergeAmmo) &&
 		!(BattleData.DirectTransferInfo.IsDirectMissionTransfer 
 		&& BattleData.DirectTransferInfo.TransferredUnitStats.Find('UnitStateRef', OwnerStateObject) != INDEX_NONE))
 	{
