@@ -129,7 +129,7 @@ simulated function DrawDebugLabel(Canvas kCanvas)
 {
 }
 
-function InvalidateUnitToMove(int iID)
+function InvalidateUnitToMove(int iID, optional bool bSkipEndTurnCheck = false) // Issue #1628 - matches the parent's new optional parameter
 {
 }
 

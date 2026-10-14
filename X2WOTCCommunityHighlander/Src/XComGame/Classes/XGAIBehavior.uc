@@ -10166,7 +10166,8 @@ function SkipGroupTurn()
 			`CHEATMGR.AIStringsUpdateString(UnitID, "SkippedTurn.");
 			if( m_kPlayer != None )
 			{
-				m_kPlayer.InvalidateUnitToMove(UnitID);
+				// Issue #1628 - skip the end turn check; each check could EndTurn and copy the whole side
+				m_kPlayer.InvalidateUnitToMove(UnitID, true);
 			}
 		}
 	}
