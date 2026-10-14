@@ -92,3 +92,34 @@ exec function CHLDumpRunOrderInternals()
 {
 	CHOnlineEventMgr(`ONLINEEVENTMGR).DumpInternals();
 }
+
+exec function CHLBeginAbilityProfiling()
+{
+	if (class'CHProfiler' != none)
+	{
+		class'CHProfiler'.static.ClearAbilityProfile();
+		class'CHProfiler'.static.SetAbilityProfiling(true);
+	}
+	else
+	{
+		`warn("XComGame replacement with CHProfiler missing");
+	}
+}
+
+exec function CHLEndAbilityProfiling()
+{
+	if (class'CHProfiler' != none)
+	{
+		class'CHProfiler'.static.DumpAbilityProfile();
+		class'CHProfiler'.static.SetAbilityProfiling(false);
+	}
+	else
+	{
+		`warn("XComGame replacement with CHProfiler missing");
+	}
+}
+
+exec function CHLEcho(string Msg)
+{
+	`log(Msg, , 'X2WOTCCommunityHighlander');
+}
