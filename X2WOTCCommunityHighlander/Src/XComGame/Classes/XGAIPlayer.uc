@@ -513,7 +513,12 @@ function ValidateUnitsToMoveList()
 	}
 }
 
-function InvalidateUnitToMove( int iID )
+/// HL-Docs: ref:Bugfixes; issue:1628
+/// SkipGroupTurn no longer ends the AI turn once per pod member. Each EndTurn
+/// submitted a SkipTurn that copied every unit on the side into the history,
+/// which filled long tactical missions until the save stopped loading.
+// Issue #1628 - bSkipEndTurnCheck lets SkipGroupTurn remove pod members without the end turn check
+function InvalidateUnitToMove( int iID, optional bool bSkipEndTurnCheck = false )
 {
 	local GameRulesCache_Unit UnitOption;
 	local array<GameRulesCache_Unit> DeleteList;
@@ -538,7 +543,7 @@ function InvalidateUnitToMove( int iID )
 	}
 
 	// End turn if the AI is done.
-	if( UnitsToMove.Length == 0  && `TACTICALRULES.UnitActionPlayerIsAI() ) 
+	if( /* Issue #1628 */ !bSkipEndTurnCheck && UnitsToMove.Length == 0  && `TACTICALRULES.UnitActionPlayerIsAI() )
 	{
 		GatherUnitsToMove();
 		if( UnitsToMove.Length == 0 && !IsScampering() )
