@@ -634,6 +634,9 @@
     <Content Include="Src\XComGame\Classes\X2Condition_RevivalProtocolRestoreAP.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\XComGame\Classes\X2Condition_SolaceCleanseNeeded.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\XComGame\Classes\X2Condition_StasisLanceTarget.uc">
       <SubType>Content</SubType>
     </Content>
@@ -683,6 +686,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2Effect_PersistentVoidConduit.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\XComGame\Classes\X2Effect_Solace.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\XComGame\Classes\X2Effect_SpawnDestructible.uc">
