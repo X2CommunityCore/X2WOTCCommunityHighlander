@@ -51,6 +51,10 @@ function OnUnitChangedTile(const out TTile NewTileLocation, XComGameState_Effect
 			EffectState.UpdatePerkTarget(bAddTarget);
 		}
 	}
+	// Begin Issue #1631
+	// Remove redundant checks from OnUnitChangedTile - This is handled already as part of X2Action_Move
+
+	/*
 	else
 	{
 		//  When the source moves, check all other targets and update them
@@ -69,6 +73,8 @@ function OnUnitChangedTile(const out TTile NewTileLocation, XComGameState_Effect
 			}
 		}
 	}
+	*/
+	// End Issue #1631
 }
 
 DefaultProperties
