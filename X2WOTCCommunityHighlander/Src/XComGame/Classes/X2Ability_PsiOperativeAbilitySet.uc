@@ -284,8 +284,11 @@ static function X2AbilityTemplate StasisShield()
 
 static function X2AbilityTemplate Solace()
 {
-	local X2AbilityTemplate             Template;
-	local X2Effect_Solace               Effect;
+	local X2AbilityTemplate								Template;
+	local X2Effect_Solace								Effect;
+	local X2AbilityTrigger_EventListener                NewUnitTrigger;
+	local X2AbilityTrigger_EventListener                TeamChangeTrigger;
+	local X2Condition_UnitEffectsWithAbilitySource      DupeCondition;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'Solace');
 
@@ -308,15 +311,65 @@ static function X2AbilityTemplate Solace()
 	Effect.bDupeForSameSourceOnly = true;
 	Template.AddMultiTargetEffect(Effect);
 
+	// Begin Issue #1631
+	// Add event triggers to place the Solace effect on new units and units which have joined the XCOM team
+	// Ensure that it can't be added to units that already have it through X2Condition_UnitEffectsWithAbilitySource
+	DupeCondition = new class'X2Condition_UnitEffectsWithAbilitySource';
+	DupeCondition.AddExcludeEffect(class'X2Effect_Solace'.default.EffectName, 'AA_DuplicateEffectIgnored');
+	Template.AbilityMultiTargetConditions.AddItem(DupeCondition);
+
+	NewUnitTrigger = new class'X2AbilityTrigger_EventListener';
+	NewUnitTrigger.ListenerData.Deferral = ELD_OnStateSubmitted;
+	NewUnitTrigger.ListenerData.EventID = 'OnUnitBeginPlay';
+	NewUnitTrigger.ListenerData.Filter = eFilter_None;
+	NewUnitTrigger.ListenerData.EventFn = class'XComGameState_Ability'.static.AbilityTriggerEventListener_SelfWithAdditionalTargets;
+	Template.AbilityTriggers.AddItem(NewUnitTrigger);
+
+	TeamChangeTrigger = new class'X2AbilityTrigger_EventListener';
+	TeamChangeTrigger.ListenerData.Deferral = ELD_OnStateSubmitted;
+	TeamChangeTrigger.ListenerData.EventID = 'UnitChangedTeam';
+	TeamChangeTrigger.ListenerData.Filter = eFilter_None;
+	TeamChangeTrigger.ListenerData.EventFn = class'XComGameState_Ability'.static.AbilityTriggerEventListener_SelfWithAdditionalTargets;
+	Template.AbilityTriggers.AddItem(TeamChangeTrigger);
+
+	// Prevents duplicate target perk content PFX from playing with the adjusted BuildVis Function
+	Template.bSkipPerkActivationActions = true;
+	// End Issue #1631
 	Template.AdditionalAbilities.AddItem('SolaceCleanse');
 	Template.AdditionalAbilities.AddItem('SolacePassive');
 
 	Template.bSkipFireAction = true;
-	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
-	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;	
+	// Single Line for Issue #1631 - Change from TypicalAbility_BuildVis to new visualization function 
+	Template.BuildVisualizationFn = Solace_BuildVisualization;
 
 	return Template;
 }
+
+// Begin Issue #1631
+/// HL-Docs: ref:Bugfixes; issue:1631
+/// Updated solace buildvisualization function which manually adds X2Action_AbilityPerkStart & PerkEnd to the vis tree
+/// This prevents ContextBuildVisualization from skipping the addition of the target PFX to the relevant arrays on mission start
+static function Solace_BuildVisualization(XComGameState VisualizeGameState)
+{
+	local XComGameStateHistory History;
+	local XComGameStateContext_Ability Context;
+	local VisualizationActionMetadata ActionMetadata;
+	local StateObjectReference SourceRef;
+
+	History = `XCOMHISTORY;
+	Context = XComGameStateContext_Ability(VisualizeGameState.GetContext());
+	SourceRef = Context.InputContext.SourceObject;
+
+	ActionMetadata.StateObject_OldState = History.GetGameStateForObjectID(SourceRef.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1);
+	ActionMetadata.StateObject_NewState = VisualizeGameState.GetGameStateForObjectID(SourceRef.ObjectID);
+	ActionMetadata.StateObjectRef = SourceRef;
+	ActionMetadata.VisualizeActor = History.GetVisualizer(SourceRef.ObjectID);
+
+	class'X2Action_AbilityPerkStart'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded);
+	class'X2Action_AbilityPerkEnd'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded);	
+}
+// End Issue #1631
 
 static function X2AbilityTemplate SolacePassive()
 {
@@ -334,7 +387,7 @@ static function X2AbilityTemplate SolaceCleanse(name TemplateName,
 	local X2Effect_RemoveEffects                MindControlRemovalEffect;
 	local X2Condition_UnitProperty              EnemyCondition;
 	local X2Condition_UnitProperty              FriendCondition;
-
+	local X2Condition_SolaceCleanseNeeded		NeedsToBeCleansedCondition;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, TemplateName);
 
@@ -373,13 +426,18 @@ static function X2AbilityTemplate SolaceCleanse(name TemplateName,
 	MindControlRemovalEffect.TargetConditions.AddItem(EnemyCondition);
 	Template.AddTargetEffect(MindControlRemovalEffect);
 
-
 	DistanceCondition = new class'X2Condition_UnitProperty';
 	DistanceCondition.RequireWithinRange = true;
 	DistanceCondition.WithinRange = TileRange * class'XComWorldData'.const.WORLD_StepSize;
 	DistanceCondition.ExcludeFriendlyToSource = false;
 	DistanceCondition.ExcludeHostileToSource = false;
 	Template.AbilityTargetConditions.AddItem(DistanceCondition);
+
+	// Begin Issue #1631 - Add new condition to restrict cleanse to units that actually require it
+	// This prevents creation of un-necessary game-states for units which are not modified in any way and helps with save bloat
+	NeedsToBeCleansedCondition = new class'X2Condition_SolaceCleanseNeeded';
+	Template.AbilityTargetConditions.AddItem(NeedsToBeCleansedCondition);
+	// End Issue #1631
 
 	Template.bSkipFireAction = true;
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;

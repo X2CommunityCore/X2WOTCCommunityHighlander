@@ -13,6 +13,10 @@ function bool IsEffectCurrentlyRelevant(XComGameState_Effect EffectGameState, XC
 
 	if (SourceUnit.ObjectID != TargetUnit.ObjectID)
 	{
+		// Begin Issue #1631 - Exclude units which are not friendly to the source
+		if (!SourceUnit.IsFriendlyUnit(TargetUnit))
+			return false;
+		// End Issue #1631
 		//  jbouscher: uses tile range rather than unit range so the visual check can match this logic
 		if (!class'Helpers'.static.IsTileInRange(SourceUnit.TileLocation, TargetUnit.TileLocation, class'X2Ability_PsiOperativeAbilitySet'.default.SOLACE_DISTANCE_SQ))
 			return false;
@@ -47,7 +51,9 @@ function OnUnitChangedTile(const out TTile NewTileLocation, XComGameState_Effect
 		SourceUnit = XComGameState_Unit(History.GetGameStateForObjectID(EffectState.ApplyEffectParameters.SourceStateObjectRef.ObjectID));
 		if (SourceUnit != none && SourceUnit.IsAlive() && TargetUnit.IsAlive())
 		{
-			bAddTarget = class'Helpers'.static.IsTileInRange(SourceUnit.TileLocation, NewTileLocation, class'X2Ability_PsiOperativeAbilitySet'.default.SOLACE_DISTANCE_SQ);
+			// Single Line for Issue #1631 - Only play the PFX on friendly units entering the aura
+			bAddTarget = SourceUnit.IsFriendlyUnit(TargetUnit)
+			&& class'Helpers'.static.IsTileInRange(SourceUnit.TileLocation, NewTileLocation, class'X2Ability_PsiOperativeAbilitySet'.default.SOLACE_DISTANCE_SQ);
 			EffectState.UpdatePerkTarget(bAddTarget);
 		}
 	}
