@@ -513,6 +513,14 @@ function ValidateUnitsToMoveList()
 	}
 }
 
+/// HL-Docs: ref:Bugfixes; issue:1628
+/// Removing a unit from the AI's move list no longer ends the AI turn. When an unrevealed pod
+/// skipped its turn (for example, when the pod leader's behavior tree selects `SkipMove`,
+/// `SkipTurn` calls `SkipGroupTurn`, which submits a `SkipUnit` for and removes every member of
+/// the pod), each member's removal could end the turn, and each end of turn submitted a
+/// SkipTurn that copied every unit on the AI side into the history, which filled long tactical
+/// missions until the save stopped loading. Skipped units still lose their action points, and the
+/// turn still ends once no AI unit can act.
 function InvalidateUnitToMove( int iID )
 {
 	local GameRulesCache_Unit UnitOption;
@@ -537,17 +545,7 @@ function InvalidateUnitToMove( int iID )
 		UnitsToMove.RemoveItem(UnitOption);
 	}
 
-	// End turn if the AI is done.
-	if( UnitsToMove.Length == 0  && `TACTICALRULES.UnitActionPlayerIsAI() ) 
-	{
-		GatherUnitsToMove();
-		if( UnitsToMove.Length == 0 && !IsScampering() )
-		{
-			`LogAI("Found no more units to move.  Skipping AI turn"@self);
-			EndTurn(ePlayerEndTurnType_AI);
-			return;
-		}
-	}
+	// Issue #1628 - the end turn check that followed here is removed; see HL-Docs above
 }
 
 function TryBeginNextUnitTurn()
