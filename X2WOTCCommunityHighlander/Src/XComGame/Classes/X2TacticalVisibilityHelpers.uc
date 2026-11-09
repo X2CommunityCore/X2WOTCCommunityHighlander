@@ -760,6 +760,59 @@ simulated static function GetFlankersOfTarget(int TargetStateObjectID,
 	}	
 }
 
+// Start Issue #1199
+/// HL-Docs: ref:Bugfixes; issue:1199
+/// The native visibility solver misreports certain cover tiles as CT_None (No cover) for target tiles that do provide 
+/// real cover. This occurs primarily when targets are standing in high-cover which can be seen through and does not 
+/// block visibility. Here, we carry out an independent check using the vector dot products of the cover and shooter 
+/// directions to check whether the cover situation in the native solver is valid and correct the unit's cover in the 
+/// visibility system if the information is incorrect.
+static function CorrectFlankedTargetCover_CH(out GameRulesCache_VisibilityInfo VisInfo, const out TTile TargetTile)
+{
+	local XComWorldData WorldData;
+	local Vector ToShooter;
+	local CachedCoverAndPeekData TargetTileData;
+	local XComCoverPoint CoverPoint;
+	local bool bHasCoverPoint;
+	local int Index;
+	local float Dot, BestDot;
+
+	if( VisInfo.TargetCover == CT_Standing )
+		return;
+
+	WorldData = `XWORLD;
+	ToShooter = Normal(WorldData.GetPositionFromTileCoordinates(VisInfo.SourceTile) - WorldData.GetPositionFromTileCoordinates(TargetTile));
+	ToShooter.Z = 0;
+	TargetTileData = WorldData.GetCachedCoverAndPeekData(TargetTile);
+
+	if( VisInfo.TargetCover == CT_MidLevel )
+	{
+		bHasCoverPoint = WorldData.GetCoverPoint(WorldData.GetPositionFromTileCoordinates(TargetTile), CoverPoint);
+	}
+
+	for( Index = 0; Index < 4; ++Index )
+	{
+		if( TargetTileData.CoverDirectionInfo[Index].bHasCover == 0 )
+			continue;
+
+		Dot = NoZDot(TargetTileData.CoverDirectionInfo[Index].CoverDirection, ToShooter);
+		if( Dot <= 0.0f )
+			continue;
+
+		if( VisInfo.TargetCover == CT_MidLevel && (!bHasCoverPoint || !`HAS_COVER_IN_DIR(CoverPoint, `IDX_TO_DIR(Index)) || `IS_LOW_COVER(CoverPoint, `IDX_TO_DIR(Index))) )
+			continue;
+
+		BestDot = FMax(BestDot, Dot);
+	}
+
+	if( BestDot <= 0.0f )
+		return;
+
+	VisInfo.TargetCover = CT_Standing;
+	VisInfo.TargetCoverAngle = 90.0f - (Acos(FMin(BestDot, 1.0f)) * RadToDeg);
+	VisInfo.GameplayVisibleTags.AddItem('CH_1199_TargetCoverCorrected');
+}
+
 /// <summary>
 /// Returns results similar to GetFlankingEnemiesOfTarget, except that target must be able to see the flanking enemies
 /// </summary>
@@ -851,15 +904,33 @@ simulated static event GetVisibleFlankingEnemiesOfLocation(vector TestLocation,
 	local XComGameStateHistory History;	
 	local XComGameState_Unit UnitState;
 	local array<GameRulesCache_VisibilityInfo> OutVisibilityInfos;
+	// Variables for Issue #1199
+	local GameRulesCache_VisibilityInfo VisInfo;
+	local TTile TestTile;
 		
 	History = `XCOMHISTORY;
+
+	// Start Issue #1199
+	// Resolve the tile being evaluated, so CorrectFlankedTargetCover_CH can read its cover data. 
+	// Uses the same tile lookup as GetAllVisibleEnemiesForLocation
+	if( !`XWORLD.GetFloorTileForPosition(TestLocation, TestTile) )
+	{
+		TestTile = `XWORLD.GetTileCoordinatesFromPosition(TestLocation);
+	}
+	// End Issue #1199
 
 	GetAllVisibleEnemiesForLocation(TestLocation, PlayerStateObjectID, OutVisibilityInfos,,StartAtHistoryIndex);
 
 	for( Index = 0; Index < OutVisibilityInfos.Length; ++Index )
 	{		
+		// Start Issue #1199 - Check if the cover situation is bugged (target is in high cover, with adjacent high cover, but can be seen) 
+		// & ensure that the OutFlankingEnemies array is filled correctly (which ensures the cover shields are displayed correctly on the map)
+		VisInfo = OutVisibilityInfos[Index];
+		CorrectFlankedTargetCover_CH(VisInfo, TestTile);
+
 		//If the target location has no cover from this enemy, the enemy is flanking
-		if( OutVisibilityInfos[Index].TargetCover == CT_None )
+		if( VisInfo.TargetCover == CT_None )
+		// End Issue #1199
 		{
 			UnitState = XComGameState_Unit(History.GetGameStateForObjectID(OutVisibilityInfos[Index].SourceID,, StartAtHistoryIndex));
 			//Make sure the unit has the ability to flank.
