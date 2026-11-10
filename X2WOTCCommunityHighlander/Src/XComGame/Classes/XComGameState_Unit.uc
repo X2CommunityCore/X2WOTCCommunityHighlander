@@ -625,6 +625,16 @@ event UpdateGameplayVisibility(out GameRulesCache_VisibilityInfo InOutVisibility
 	local bool bUnitCanUseCover;
 	local X2Effect_Persistent EffectTemplate;
 	local XComGameState_Destructible DestructibleTarget;
+	// Variable for Issue #1199
+	local TTile TargetTile;
+
+	// Start Issue #1199 - Fix bugged high-cover interaction
+	if( InOutVisibilityInfo.bClearLOS && XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(InOutVisibilityInfo.TargetID)) != none )
+	{
+		TargetTile = InOutVisibilityInfo.DestTile;
+		class'X2TacticalVisibilityHelpers'.static.CorrectFlankedTargetCover_CH(InOutVisibilityInfo, TargetTile);
+	}
+	// End Issue #1199
 
 	if( InOutVisibilityInfo.bVisibleBasic )
 	{
