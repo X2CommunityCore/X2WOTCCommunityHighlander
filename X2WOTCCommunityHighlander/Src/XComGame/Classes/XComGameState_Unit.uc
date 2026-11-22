@@ -14618,6 +14618,10 @@ simulated function int GetUIStatFromInventory(ECharStatType Stat, optional XComG
 	local XComGameState_Item InventoryItem;
 	local X2EquipmentTemplate EquipmentTemplate;
 	local array<XComGameState_Item> CurrentInventory;
+	// Issue #1637 vars
+	local int i, Bonus;
+	local array<SoldierCLassAbilityType> SoldierAbilities;
+	local array<X2DownloadableContentInfo> DLCInfos;
 
 	//  Gather abilities from the unit's inventory
 	CurrentInventory = GetAllInventoryItems(CheckGameState);
@@ -14632,12 +14636,24 @@ simulated function int GetUIStatFromInventory(ECharStatType Stat, optional XComG
 		}
 	}
 
+	// Start Issue #1637
+	SoldierAbilities = GetEarnedSoldierAbilities();
+	DLCInfos = `DLCHOOKMGR.GetDLCInfos('AddArmoryUIStatMarkups');
+	for(i = 0; i < DLCInfos.Length; ++i)
+	{
+		if (DLCInfos[i].AddArmoryUIStatMarkups(Stat, Bonus, SoldierAbilities, self))
+		{
+			Result += Bonus;
+		}
+	}
+	// End Issue #1637
+	
 	return Result;
 }
 
 simulated function int GetUIStatFromAbilities(ECharStatType Stat)
 {
-	local int Result, i, Bonus;
+	local int Result, i/*, Bonus*/;
 	local X2AbilityTemplateManager AbilityTemplateManager;
 	local array<SoldierClassAbilityType> SoldierAbilities;
 	local X2AbilityTemplate AbilityTemplate;
@@ -14645,7 +14661,7 @@ simulated function int GetUIStatFromAbilities(ECharStatType Stat)
 	local array<X2SoldierUnlockTemplate> UnlockTemplates;
 	local X2SoldierAbilityUnlockTemplate AbilityUnlockTemplate;
 	local XComGameState_HeadquartersXCom HQ;
-	local array<X2DownloadableContentInfo> DLCInfos; // var for Issue #1605
+	//local array<X2DownloadableContentInfo> DLCInfos; // var for Issue #1605
 	
 	AbilityTemplateManager = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
 	SoldierAbilities = GetEarnedSoldierAbilities();
@@ -14677,16 +14693,19 @@ simulated function int GetUIStatFromAbilities(ECharStatType Stat)
 		}
 	}
 
-	// Start Issue #1605
-	DLCInfos = `DLCHOOKMGR.GetDLCInfos('AddArmoryUIStatMarkups');
-	for(i = 0; i < DLCInfos.Length; ++i)
-	{
-		if (DLCInfos[i].AddArmoryUIStatMarkups(Stat, Bonus, SoldierAbilities, self))
-		{
-			Result += Bonus;
-		}
-	}
-	// End Issue #1605
+	// Start Issue #1637
+	// Moved to GetUIStatFromInventory
+		// Start Issue #1605
+	//DLCInfos = `DLCHOOKMGR.GetDLCInfos('AddArmoryUIStatMarkups');
+	//for(i = 0; i < DLCInfos.Length; ++i)
+	//{
+	//	if (DLCInfos[i].AddArmoryUIStatMarkups(Stat, Bonus, SoldierAbilities, self))
+	//	{
+	//		Result += Bonus;
+	//	}
+	//}
+		// End Issue #1605
+	// End Issue #1637
 	return Result;
 }
 
