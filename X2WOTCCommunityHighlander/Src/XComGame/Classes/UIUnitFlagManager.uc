@@ -580,6 +580,12 @@ function RealizePreviewEndOfMoveLOS(GameplayTileData MoveToTileData)
 	local int Index;
 	local UIUnitFlag kFlag;
 	local UISimpleFlag kSimpleFlag;
+	// Variables for Issue #1199
+	local GameRulesCache_VisibilityInfo RemoteInfo; 
+	local TTile MoveToTile; 
+
+	// Single line for Issue #1199
+	MoveToTile = MoveToTileData.EventTile; 
 
 	foreach m_arrFlags(kFlag)
 	{
@@ -587,6 +593,19 @@ function RealizePreviewEndOfMoveLOS(GameplayTileData MoveToTileData)
 		Index = MoveToTileData.VisibleEnemies.Find('SourceID', kFlag.StoredObjectID);
 		if( Index == INDEX_NONE )
 		{
+			// Start Issue #1199
+			// When previewing whether a target can be seen on tile-hover (i.e. small target icon on unit flag),
+			// the original tile-based check can misreport cases where a unit is actually able to see a target through 
+			// transparent cover features. To cover such cases, fall back to a unit-based visibility check for visible enemy units.
+			if( !kFlag.m_bIsFriendly.GetValue() && kFlag.bIsVisible
+				&& XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(kFlag.StoredObjectID)) != none
+				&& `TACTICALRULES.VisibilityMgr.GetVisibilityInfoFromRemoteLocation(MoveToTileData.SourceObjectID, MoveToTile, kFlag.StoredObjectID, RemoteInfo)
+				&& RemoteInfo.bVisibleBasic )
+			{
+				kFlag.RealizeLOSPreview(true);
+				continue;
+			}
+			// End Issue #1199
 			kFlag.RealizeLOSPreview(false);
 		}
 		else
