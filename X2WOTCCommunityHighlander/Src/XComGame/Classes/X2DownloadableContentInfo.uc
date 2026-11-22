@@ -973,7 +973,7 @@ static function OverrideLightingMap(out array<EnvironmentLightingDefinition> Ove
 
 // Start Issue #1605
 /// HL Docs: feature:AddArmoryUIStatMarkups; issue:1605; tags:strategy,ui
-/// Called from `XComGameState_Unit::GetUIStatFromAbilities`
+/// Called from `XComGameState_Unit::GetUIStatFromInventory`
 /// Allows for mods to add conditional UIStatMarkups to be displayed in the Armory screen. 
 /// It should return `true` when a UIStatMarkup should be displayed; where the displayed value will be modified by the amount passed along in the `Result` parameter
 /// Usage example:
